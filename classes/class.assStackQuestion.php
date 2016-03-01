@@ -1374,17 +1374,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			&& $this->question
 		) {
 			//Check if all feedback placeholders have been included
-
 			$no_placeholder_prts = " ";
 			foreach ($this->getPotentialResponsesTrees() as $prt_name => $prt) {
 				if (strpos($this->getQuestion(), '[[feedback:' . $prt_name . ']]') == false AND strpos($this->getOptions()->getSpecificFeedback(), '[[feedback:' . $prt_name . ']]') == false) {
 					$no_placeholder_prts .= $prt_name . ", ";
 				}
-			}
-
-			if ($no_placeholder_prts != " ") {
-				ilUtil::sendInfo($this->getPlugin()->txt("error_lack_of_following_feedback_placeholders") . substr($no_placeholder_prts, 0, -2), TRUE);
-				return true;
 			}
 
 			return true;
