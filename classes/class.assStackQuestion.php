@@ -1,0 +1,1569 @@
+<?php
+
+/**
+ * Copyright (c) 2016 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
+ * GPLv2, see LICENSE
+ */
+
+require_once './Modules/TestQuestionPool/classes/class.assQuestion.php';
+require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/exceptions/class.assStackQuestionException.php';
+
+// Interface for FormATest
+include_once './Modules/TestQuestionPool/interfaces/interface.iQuestionCondition.php';
+
+/**
+ * STACK Question OBJECT
+ *
+ * @author Fred Neumann <fred.neumann@ili.fau.de>
+ * @author Jesus Copado <jesus.copado@ili.fau.de>
+ * @version $Id: 2.3$
+ * @ingroup    ModulesTestQuestionPool
+ *
+ */
+class assStackQuestion extends assQuestion implements iQuestionCondition
+{
+
+	/**
+	 * Plugin instance for templates and language management
+	 * @var ilassStackQuestionPlugin
+	 */
+	private $plugin;
+
+	//STACK Question structure variables
+
+	/**
+	 * Options for this question
+	 * @var assStackQuestionOptions
+	 */
+	private $options;
+
+	/**
+	 * Inputs for this question
+	 * @var array of assStackQuestionInput
+	 */
+	private $inputs = array();
+
+	/**
+	 * Potential Response Trees for this question
+	 * @var array of assStackQuestionPRT
+	 */
+	private $potential_responses_trees = array();
+
+	/**
+	 * Unit tests created for this question
+	 * @var array of assStackQuestionTest
+	 */
+	private $tests = array();
+
+	/**
+	 * Deployed variants that have been deployed
+	 * @var array of assStackQuestionDeployedSeed
+	 */
+	private $deployed_seeds = array();
+
+	/**
+	 * Maxima's random number generator
+	 * @var integer
+	 */
+	private $seed;
+
+	/**
+	 * Extra info taken from XML that can be used
+	 * @var assStackQuestionExtraInfo
+	 */
+	private $extra_info;
+
+
+	/**
+	 * This object contains variables needed by stack classes
+	 * @var assStackQuestionStackQuestion
+	 */
+	private $stack_question;
+
+
+	/**
+	 * @var bool
+	 */
+	private $instant_validation;
+
+
+	/**
+	 * CONSTRUCTOR.
+	 * @param string $title
+	 * @param string $comment
+	 * @param string $author
+	 * @param int $owner
+	 * @param string $question
+	 */
+	function __construct($title = "", $comment = "", $author = "", $owner = -1, $question = "")
+	{
+		parent::__construct($title, $comment, $author, $owner, $question);
+		// init the plugin object
+		$this->getPlugin();
+	}
+
+	/*
+	 * QUESTION EVALUATION AND RUNNING PARAMETERS
+	 */
+
+	/**
+	 * Returns the points, a learner has reached answering the question
+	 * The points are calculated from the given answers including checks
+	 * for all special scoring options in the test container.
+	 *
+	 * @param integer $active The Id of the active learner
+	 * @param integer $pass The Id of the test pass
+	 * @param boolean $returndetails (deprecated !!)
+	 * @return integer/array $points/$details (array $details is deprecated !!)
+	 * @access public
+	 */
+	public function calculateReachedPoints($active_id, $pass = NULL, $authorizedSolution = true, $returndetails = FALSE)
+	{
+		/*As long as $returndetails is deprecated the exception it throws will not be thrown anymore
+		if ($returndetails) {
+			throw new ilTestException('return details not implemented for ' . __METHOD__);
+		}*/
+
+		global $ilDB;
+
+		if (is_null($pass)) {
+			$pass = $this->getSolutionMaxPass($active_id);
+		}
+
+		// get all saved part solutions with points assigned
+		$result = $this->getCurrentSolutionResultSet($active_id, $pass, $authorizedSolution);
+
+		// in some cases points may have been saved twice (see saveWorkingDataValue())
+		// so collect them by the part result (value1)
+		// and summarize them afterwards
+		$points = array();
+		while ($row = $ilDB->fetchAssoc($result)) {
+			$points[$row['value1']] = (float)$row['points'];
+		}
+
+		return array_sum($points);
+	}
+
+	/**
+	 * Saves the learners input of the question to the database
+	 * WHEN IN TEST MODE
+	 *
+	 * @param    integer $test_id The database id of the test containing this question
+	 * @return    boolean Indicates the save status (true if saved successful, false otherwise)
+	 * @access    public
+	 * @see    $answers
+	 */
+	function saveWorkingData($active_id, $pass = NULL, $authorized = TRUE)
+	{
+		/** @var $ilDB ilDB */
+		global $ilDB;
+
+		if (is_null($pass)) {
+			include_once "./Modules/Test/classes/class.ilObjTest.php";
+			$pass = ilObjTest::_getPass($active_id);
+		}
+
+		$prts = assStackQuestionPRT::_read($this->getId());
+
+		if ($authorized) {
+			$entered_values = $this->saveWorkingDataFull($active_id, $pass, $authorized);
+		} else {
+			$this->getProcessLocker()->requestUserSolutionUpdateLock();
+
+			$solutionSubmit = $this->getSolutionSubmit();
+
+
+			foreach ($solutionSubmit as $input_name => $value) {
+				if (strlen($value)) {
+					foreach ($prts as $prt_name => $prt) {
+						if (assStackQuestionUtils::_isInputEvaluated($prt, $input_name)) {
+							$this->removeCurrentSolutionCarefully($active_id, $pass, 'xqcas_prt_' . $prt_name . '_value_' . $input_name);
+							$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_value_' . $input_name, $solutionSubmit[$input_name]);
+						}
+					}
+					$entered_values = TRUE;
+				}
+			}
+
+			$this->getProcessLocker()->releaseUserSolutionUpdateLock();
+		}
+
+		if ($entered_values) {
+			include_once("./Modules/Test/classes/class.ilObjAssessmentFolder.php");
+			if (ilObjAssessmentFolder::_enabledAssessmentLogging()) {
+				$this->logAction($this->lng->txtlng("assessment", "log_user_entered_values", ilObjAssessmentFolder::_getLogLanguage()), $active_id, $this->getId());
+			}
+		} else {
+			include_once("./Modules/Test/classes/class.ilObjAssessmentFolder.php");
+			if (ilObjAssessmentFolder::_enabledAssessmentLogging()) {
+				$this->logAction($this->lng->txtlng("assessment", "log_user_not_entered_values", ilObjAssessmentFolder::_getLogLanguage()), $active_id, $this->getId());
+			}
+		}
+
+		return true;
+	}
+
+	public function removeCurrentSolutionCarefully($active_id, $pass, $value_placeholder)
+	{
+		global $ilDB;
+
+		$ilDB->manipulateF("DELETE FROM tst_solutions WHERE active_fi = %s AND question_fi = %s AND pass = %s AND value1 = %s",
+			array('integer', 'integer', 'integer', 'text'),
+			array($active_id, $this->getId(), $pass, $value_placeholder)
+		);
+	}
+
+	public function saveWorkingDataFull($active_id, $pass = NULL, $authorized = TRUE)
+	{
+		$time = time();
+
+		$entered_values = FALSE;
+		/*
+		 * Step 2: Get user response in reduced format.
+		 */
+		$filled_responses = assStackQuestionUtils::_getUserResponse($this->getId(), $this->getInputs(), 'reduced');
+		/*
+		 * Step 3: Convert to stack in order to evaluate the question
+		 * when the user has entered something.
+		 */
+		//THERE WAS USER RESPONSE, EVALUATION REQUIRED
+		//Create STACK Question object if doesn't exists
+		$user_responses = array();
+		foreach ($this->getInputs() as $input_name => $input) {
+			if ($input->getInputType() != "matrix") {
+				if (array_key_exists($input_name, $filled_responses)) {
+					$user_responses[$input_name] = $filled_responses[$input_name];
+				} else {
+					$user_responses[$input_name] = "";
+				}
+			} else {
+				foreach ($filled_responses as $key => $value) {
+					if (strpos($key, $input_name) >= 0) {
+						$user_responses[$key] = $value;
+					}
+				}
+			}
+		}
+		if (!is_a($this->getStackQuestion(), 'assStackQuestionStackQuestion')) {
+			$this->getPlugin()->includeClass("model/class.assStackQuestionStackQuestion.php");
+			$this->setStackQuestion(new assStackQuestionStackQuestion($active_id, $pass));
+			$this->getStackQuestion()->init($this);
+		}
+
+
+		/*
+		 * Step 4: Evaluate question for current user_response
+		 */
+
+		//Create evaluation object
+		$this->plugin->includeClass("model/question_evaluation/class.assStackQuestionEvaluation.php");
+		$evaluation_object = new assStackQuestionEvaluation($this->getPlugin(), $this->getStackQuestion(), $user_responses);
+
+
+		//Evaluate question
+		$question_evaluation = $evaluation_object->evaluateQuestion();
+
+		//Step #3: Calculate points
+		$question_evaluation->calculatePoints();
+
+
+		//Step #5: Create feedback object
+		$this->getPlugin()->includeClass('model/question_evaluation/class.assStackQuestionFeedback.php');
+		$feedback_object = new assStackQuestionFeedback($this->getPlugin(), $question_evaluation);
+		$feedback_data = $feedback_object->getFeedback();
+//Save question text instantiated
+		$this->saveWorkingDataValue($active_id, $pass, 'xqcas_text_' . $this->getStackQuestion()->getQuestionId(), $feedback_data['question_text'], NULL, $time);
+		//Save question note
+		$this->saveWorkingDataValue($active_id, $pass, 'xqcas_solution_' . $this->getStackQuestion()->getQuestionId(), $feedback_data['question_note'], NULL, $time);
+		//Save general feedback
+		$this->saveWorkingDataValue($active_id, $pass, 'xqcas_general_feedback_' . $this->getStackQuestion()->getQuestionId(), $feedback_data['general_feedback'], NULL, $time); //Save working data value to DB with values from $evaluation
+
+		//Save info per input
+		foreach ($feedback_data['prt'] as $prt_name => $prt) {
+			//value1 = xqcas_input_name, $value2 = input_name
+			$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name, $prt['points'], $time);
+			foreach ($prt['response'] as $input_name => $response) {
+				//value1 = xqcas_input_*_value, value2 = student answer for this question input
+				$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_value_' . $input_name, $response['value'], NULL, $time);
+				//value1 = xqcas_input_*_display, value2 = student answer for this question input in LaTeX
+				$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_display_' . $input_name, $response['display'], NULL, $time);
+				//value1 = xqcas_input_*_model_answer, value2 = student answer for this question input in LaTeX
+				$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_' . $input_name, $response['model_answer'], NULL, $time);
+			}
+			//value1 = xqcas_input_*_errors, $value2 = feedback given by CAS
+			$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_errors', $prt['errors'], NULL, $time);
+			//value1 = xqcas_input_*_feedback, $value2 = feedback given by CAS
+			$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_feedback', $prt['feedback'], NULL, $time);
+			//value1 = xqcas_input_*_status, $value2 = status
+			$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status', $prt['status']['value'], NULL, $time);
+			//value1 = xqcas_input_*_status_message, $value2 = status message
+			$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status_message', $prt['status']['message'], NULL, $time);
+			//value1 = xqcas_input_*_status_message, $value2 = status message
+			$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_answernote', $prt['answernote'], NULL, $time);
+			//SEED value1 = xqcas_input_*_status_message, $value2 = status message
+			$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_seed', $this->getStackQuestion()->getSeed(), NULL, $time);
+			//Set entered values as TRUE
+			$entered_values = TRUE;
+		}
+
+		return $entered_values;
+	}
+
+	/**
+	 * Save a working data value
+	 *
+	 * @param integer $active_id
+	 * @param integer $pass
+	 * @param string $key
+	 * @param string $value
+	 * @param float $points
+	 * @param integer $time
+	 */
+	public function saveWorkingDataValue($active_id, $pass, $key, $value, $points, $time)
+	{
+		global $ilDB;
+
+		// TODO: transaction needed
+		// Hanging multiple request for a question from the same user may result in
+		// unpredictable order of DELETE and INSERT and thus points written twice.
+		// Using replace ethod instead of insert is not possible because value1 is clob.
+		// Current workaround: allow values to be stored twice and detect them
+		// in calculateReachedPoints.
+
+		$query = "DELETE FROM tst_solutions"
+			. " WHERE active_fi = " . $ilDB->quote($active_id, "integer")
+			. " AND pass = " . $ilDB->quote($pass, "integer")
+			. " AND question_fi = " . $ilDB->quote($this->getId(), "integer")
+			. " AND value1 = " . $ilDB->quote($key, "text");
+
+		$ilDB->manipulate($query);
+
+		$next_id = $ilDB->nextId('tst_solutions');
+		$ilDB->insert("tst_solutions", array(
+			"solution_id" => array("integer", $next_id),
+			"active_fi" => array("integer", $active_id),
+			"pass" => array("integer", $pass),
+			"question_fi" => array("integer", $this->getId()),
+			"points" => array("float", $points),
+			"value1" => array("clob", $key),
+			"value2" => array("clob", $value),
+			"tstamp" => array("integer", $time)
+		));
+	}
+
+	/**
+	 * Loads solutions of a given user from the database an returns it
+	 * in a readable format.
+	 *
+	 * @param integer $test_id The database id of the test containing this question
+	 * @access public
+	 * @see $answers
+	 */
+	function &getSolutionValues($active_id, $pass = NULL)
+	{
+		global $ilDB;
+
+		$values = array();
+
+		if (is_null($pass)) {
+			$pass = $this->getSolutionMaxPass($active_id);
+		}
+
+		$result = $ilDB->queryF("SELECT * FROM tst_solutions WHERE active_fi = %s AND question_fi = %s AND pass = %s ORDER BY solution_id",
+			array('integer', 'integer', 'integer'),
+			array($active_id, $this->getId(), $pass)
+		);
+		while ($row = $ilDB->fetchAssoc($result)) {
+			array_push($values, $row);
+		}
+
+		//Formating the solutions
+		return $this->fromDBToReadableFormat($values);
+	}
+
+	/**
+	 * Get raw data from DB and transforms it into a readable by
+	 * STACK Question plugin format.
+	 * @param array $db_values
+	 * @return array
+	 */
+	private function fromDBToReadableFormat($db_values)
+	{
+		//Prepare array;
+		$results = array();
+		foreach ($db_values as $index => $value) {
+			if ($value['value1'] == 'xqcas_text_' . $value['question_fi']) {
+				$results['question_text'] = $value['value2'];
+				$results['id'] = $value['question_fi'];
+				$results['points'] = (float)$value['points'];
+				unset($db_values[$index]);
+			} elseif ($value['value1'] == 'xqcas_solution_' . $value['question_fi']) {
+				$results['question_note'] = $value['value2'];
+				unset($db_values[$index]);
+			} elseif ($value['value1'] == 'xqcas_general_feedback_' . $value['question_fi']) {
+				$results['general_feedback'] = $value['value2'];
+				unset($db_values[$index]);
+			} else {
+				foreach ($this->getPotentialResponsesTrees() as $prt_name => $prt) {
+					if ($value['value1'] == 'xqcas_prt_' . $prt_name . '_name') {
+						$results['prt'][$prt_name]['points'] = $value['points'];
+						unset($db_values[$index]);
+					} elseif ($value['value1'] == 'xqcas_prt_' . $prt_name . '_errors') {
+						$results['prt'][$prt_name]['errors'] = $value['value2'];
+						unset($db_values[$index]);
+					} elseif ($value['value1'] == 'xqcas_prt_' . $prt_name . '_feedback') {
+						$results['prt'][$prt_name]['feedback'] = $value['value2'];
+						unset($db_values[$index]);
+					} elseif ($value['value1'] == 'xqcas_prt_' . $prt_name . '_status') {
+						$results['prt'][$prt_name]['status']['value'] = $value['value2'];
+						unset($db_values[$index]);
+					} elseif ($value['value1'] == 'xqcas_prt_' . $prt_name . '_status_message') {
+						$results['prt'][$prt_name]['status']['message'] = $value['value2'];
+						unset($db_values[$index]);
+					} elseif ($value['value1'] == 'xqcas_prt_' . $prt_name . '_answernote') {
+						$results['prt'][$prt_name]['answernote'] = $value['value2'];
+						unset($db_values[$index]);
+					} else {
+						foreach ($this->getInputs() as $input_name => $input) {
+							if ($value['value1'] == 'xqcas_prt_' . $prt_name . '_value_' . $input_name) {
+								$results['prt'][$prt_name]['response'][$input_name]['value'] = $value['value2'];
+								unset($db_values[$index]);
+							} elseif ($value['value1'] == 'xqcas_prt_' . $prt_name . '_display_' . $input_name) {
+								$results['prt'][$prt_name]['response'][$input_name]['display'] = $value['value2'];
+								unset($db_values[$index]);
+							} elseif ($value['value1'] == 'xqcas_prt_' . $prt_name . '_model_answer_' . $input_name) {
+								$results['prt'][$prt_name]['response'][$input_name]['model_answer'] = $value['value2'];
+								unset($db_values[$index]);
+							}
+						}
+					}
+				}
+			}
+		}
+		return $results;
+	}
+
+
+	/**
+	 * Creates a question from a QTI file
+	 *
+	 * Receives parameters from a QTI parser and creates a valid ILIAS question object
+	 *
+	 * @param object $item The QTI item object
+	 * @param integer $questionpool_id The id of the parent questionpool
+	 * @param integer $tst_id The id of the parent test if the question is part of a test
+	 * @param object $tst_object A reference to the parent test object
+	 * @param integer $question_counter A reference to a question counter to count the questions of an imported question pool
+	 * @param array $import_mapping An array containing references to included ILIAS objects
+	 */
+	public function fromXML(&$item, &$questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping)
+	{
+		$this->getPlugin()->includeClass('import/qti12/class.assStackQuestionImport.php');
+		$import = new assStackQuestionImport($this);
+		$import->fromXML($item, $questionpool_id, $tst_id, $tst_object, $question_counter, $import_mapping);
+	}
+
+	/**
+	 * Returns a QTI xml representation of the question and sets the internal
+	 * domxml variable with the DOM XML representation of the QTI xml representation
+	 *
+	 * @return string The QTI xml representation of the question
+	 */
+	public function toXML($a_include_header = true, $a_include_binary = true, $a_shuffle = false, $test_output = false, $force_image_references = false)
+	{
+		$this->getPlugin()->includeClass('model/export/qti12/class.assStackQuestionExport.php');
+		$export = new assStackQuestionExport($this);
+		return $export->toXML($a_include_header, $a_include_binary, $a_shuffle, $test_output, $force_image_references);
+	}
+
+	/**
+	 * Creates an Excel worksheet for the detailed cumulated results of this question
+	 *
+	 * @param object $worksheet Reference to the parent excel worksheet
+	 * @param object $startrow Startrow of the output in the excel worksheet
+	 * @param object $active_id Active id of the participant
+	 * @param object $pass Test pass
+	 * @param object $format_title Excel title format
+	 * @param object $format_bold Excel bold format
+	 * @param array $eval_data Cumulated evaluation data
+	 * @access public
+	 */
+	public function setExportDetailsXLS(&$worksheet, $startrow, $active_id, $pass, &$format_title, &$format_bold)
+	{
+		global $lng;
+		require_once 'Services/Excel/classes/class.ilExcelUtils.php';
+		$answered_inputs = array();
+		$solution = $this->getSolutionValues($active_id, $pass);
+		$worksheet->writeString($startrow, 0, $this->lng->txt($this->plugin->txt('assStackQuestion')), $format_title);
+		$worksheet->writeString($startrow, 1, $this->getTitle(), $format_title);
+		$i = 1;
+		foreach ($solution as $solution_id => $solutionvalue) {
+			if ($solution_id != 'prt') {
+				if ($solution_id == 'question_text') {
+					$worksheet->writeString($startrow + $i, 0, $this->plugin->txt('message_question_text'), $format_title);
+					$worksheet->write($startrow + $i, 1, $solutionvalue);
+					$i++;
+				}
+				if ($solution_id == 'question_note') {
+					$worksheet->writeString($startrow + $i, 0, $this->plugin->txt('exp_question_note'), $format_title);
+					$worksheet->write($startrow + $i, 1, $solutionvalue);
+					$i++;
+				}
+				if ($solution_id == 'general_feedback') {
+					$worksheet->writeString($startrow + $i, 0, $this->plugin->txt('exp_general_feedback'), $format_title);
+					$worksheet->write($startrow + $i, 1, $solutionvalue);
+					$i++;
+				}
+				if ($solution_id == 'points') {
+					$worksheet->writeString($startrow + $i, 0, $lng->txt('points'), $format_title);
+					$worksheet->write($startrow + $i, 1, $solutionvalue);
+					$i++;
+				}
+			} else {
+				foreach ($solutionvalue as $prt_name => $prt_value) {
+					if (isset($prt_value['points'])) {
+						$worksheet->writeString($startrow + $i, 0, $prt_name . ' ' . $lng->txt('points'), $format_bold);
+						$worksheet->write($startrow + $i, 1, $prt_value['points']);
+						$i++;
+					}
+					if ($prt_value['answernote']) {
+						$worksheet->writeString($startrow + $i, 0, $prt_name . ' ' . $this->plugin->txt('message_answernote_part'), $format_bold);
+						$worksheet->write($startrow + $i, 1, $prt_value['answernote']);
+						$i++;
+					}
+					if ($prt_value['response']) {
+						foreach ($prt_value['response'] as $input_name => $input) {
+							$worksheet->writeString($startrow + $i, 0, $input_name . ' ' . $this->plugin->txt('exp_student_answer'), $format_bold);
+							$worksheet->write($startrow + $i, 1, $input['value']);
+							$answered_inputs[$input_name] = $input['value'];
+							$i++;
+						}
+					}
+				}
+			}
+		}
+		return $startrow + $i + 1;
+	}
+
+	/*
+	 * COPYING AND MOVING
+	 */
+
+	/**
+	 * Duplicates an assStackQuestion
+	 *
+	 * @param bool $for_test
+	 * @param string $title
+	 * @param string $author
+	 * @param string $owner
+	 * @param integer|null $testObjId
+	 *
+	 * @return void|integer Id of the clone or nothing.
+	 */
+	function duplicate($for_test = true, $title = "", $author = "", $owner = "", $testObjId = null)
+	{
+		if ($this->id <= 0) {
+			// The question has not been saved. It cannot be duplicated
+			return;
+		}
+		// duplicate the question in database
+		$this_id = $this->getId();
+
+		if ((int)$testObjId > 0) {
+			$thisObjId = $this->getObjId();
+		}
+
+		$clone = $this;
+		include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
+		$original_id = assQuestion::_getOriginalId($this->id);
+		$clone->id = -1;
+
+		if ((int)$testObjId > 0) {
+			$clone->setObjId($testObjId);
+		}
+
+		if ($title) {
+			$clone->setTitle($title);
+		}
+
+		if ($author) {
+			$clone->setAuthor($author);
+		}
+		if ($owner) {
+			$clone->setOwner($owner);
+		}
+
+		if ($for_test) {
+			$clone->saveToDb($original_id, TRUE);
+		} else {
+			$clone->saveToDb("", TRUE);
+		}
+
+		// copy question page content
+		$clone->copyPageOfQuestion($this_id);
+
+		// copy XHTML media objects
+		$clone->copyXHTMLMediaObjectsOfQuestion($this_id);
+
+		$clone->onDuplicate($thisObjId, $this_id, $clone->getObjId(), $clone->getId());
+
+		return $clone->id;
+	}
+
+	/**
+	 * Copies an assStackQuestion object
+	 *
+	 * @param integer $target_questionpool_id
+	 * @param string $title
+	 *
+	 * @return void|integer Id of the clone or nothing.
+	 */
+	function copyObject($target_questionpool_id, $title = "")
+	{
+		if ($this->id <= 0) {
+			// The question has not been saved. It cannot be duplicated
+			return;
+		}
+		// duplicate the question in database
+		$clone = $this;
+		include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
+
+		$original_id = assQuestion::_getOriginalId($this->id);
+		$clone->id = -1;
+		$source_questionpool_id = $this->getObjId();
+		$clone->setObjId($target_questionpool_id);
+		if ($title) {
+			$clone->setTitle($title);
+		}
+		$clone->saveToDb("", TRUE);
+		// copy question page content
+		$clone->copyPageOfQuestion($original_id);
+		// copy XHTML media objects
+		$clone->copyXHTMLMediaObjectsOfQuestion($original_id);
+
+		$clone->onCopy($source_questionpool_id, $original_id, $clone->getObjId(), $clone->getId());
+
+		return $clone->id;
+	}
+
+	/**
+	 * @param $targetParentId
+	 * @param string $targetQuestionTitle
+	 * @return int
+	 */
+	public function createNewOriginalFromThisDuplicate($targetParentId, $targetQuestionTitle = "")
+	{
+		if ($this->id <= 0) {
+			// The question has not been saved. It cannot be duplicated
+			return;
+		}
+
+		include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
+
+		$sourceQuestionId = $this->id;
+		$sourceParentId = $this->getObjId();
+
+		// duplicate the question in database
+		$clone = $this;
+		$clone->id = -1;
+
+		$clone->setObjId($targetParentId);
+
+		if ($targetQuestionTitle) {
+			$clone->setTitle($targetQuestionTitle);
+		}
+
+		$clone->simpleSaveToDb();
+
+		$clone->beforeCopy($clone->getId());
+		$clone->saveToDb();
+
+		// copy question page content
+		$clone->copyPageOfQuestion($sourceQuestionId);
+		// copy XHTML media objects
+		$clone->copyXHTMLMediaObjectsOfQuestion($sourceQuestionId);
+
+		$clone->onCopy($sourceParentId, $sourceQuestionId, $clone->getObjId(), $clone->getId());
+
+		return $clone->id;
+	}
+
+	/*
+	 * DELETE
+	 */
+
+	/**
+	 * @param int $question_id
+	 */
+	public function deleteAdditionalTableData($question_id)
+	{
+		global $ilDB;
+		$additional_table_name = $this->getAdditionalTableName();
+		foreach ($additional_table_name as $table) {
+			if (strlen($table)) {
+				$affectedRows = $ilDB->manipulateF("DELETE FROM $table WHERE question_id = %s",
+					array('integer'),
+					array($question_id)
+				);
+			}
+		}
+	}
+
+	/*
+	 * SAVE TO DB
+	 */
+
+	/**
+	 * Saves an assStackQuestion object to a database.
+	 * @param string $original_id
+	 */
+	public function saveToDb($original_id = "", $importing_questions = "", $edit_question = "")
+	{
+		if ($this->getTitle() != "" AND $this->getAuthor() != "" AND $this->getQuestion() != "") {
+			//Check before save for errors
+			if (!is_a($this->getStackQuestion(), 'assStackQuestionStackQuestion')) {
+				$this->getPlugin()->includeClass("model/class.assStackQuestionStackQuestion.php");
+				$this->setStackQuestion(new assStackQuestionStackQuestion());
+				$this->getStackQuestion()->init($this);
+				$edit_question = TRUE;
+			}
+
+			//Question variables are OK
+			if (is_string($this->getStackQuestion()->getQuestionVariables()->get_errors())) {
+				include_once "./Services/Utilities/classes/class.ilUtil.php";
+				ilUtil::sendFailure($this->getStackQuestion()->getQuestionVariables()->get_errors(), TRUE);
+			}
+
+			$this->saveQuestionDataToDb($original_id);
+
+			if (isset($_REQUEST["cmd"]["insertQuestions"])) {
+				$adding_to_test = TRUE;
+			} else {
+				$adding_to_test = FALSE;
+			}
+
+			if (isset($_GET['new_type']) AND $_GET['new_type'] == 'qpl') {
+				$importing_questions = TRUE;
+			} else {
+				if ($importing_questions) {
+					$importing_questions = TRUE;
+				} else {
+					$importing_questions = FALSE;
+				}
+			}
+
+			$this->saveAdditionalQuestionDataToDb($edit_question, $adding_to_test, $importing_questions);
+			parent::saveToDb($original_id);
+		} else {
+			ilUtil::sendFailure($this->getPlugin()->txt('error_fields_missing'), TRUE);
+
+			return FALSE;
+		}
+
+	}
+
+	public function simpleSaveToDb($original_id = "")
+	{
+		$this->saveQuestionDataToDb($original_id);
+		parent::saveToDb($original_id);
+	}
+
+	/**
+	 * Save to DB all the specific data from a STACK Question.
+	 * Is called from saveToDb().
+	 */
+	public function saveAdditionalQuestionDataToDb($edit_question = "", $adding_to_test = FALSE, $importing_questions = FALSE)
+	{
+		//OPTIONS
+		if (is_a($this->options, 'assStackQuestionOptions')) {
+			if (!$this->options->getOptionsId() OR $adding_to_test OR $importing_questions) {
+				$this->options->setOptionsId(-1);
+				$this->options->setQuestionId($this->getId());
+			}
+			$this->options->checkOptions(TRUE);
+
+			//Check if it has random variable, in this case this is mandatory. Solve bug 0016426
+			if (assStackQuestionUtils::_questionHasRandomVariables($this->options->getQuestionVariables())) {
+				global $lng;
+				if ($this->options->getQuestionNote() == "" OR $this->options->getQuestionNote() == " ") {
+					ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_error_no_question_note"), TRUE);
+				}
+			}
+			$this->options->save();
+		} else {
+			$options_obj = new assStackQuestionOptions(-1, $this->getId());
+			$this->setOptions($options_obj);
+			$this->getOptions()->save();
+		}
+
+		//INPUTS
+		if (sizeof($this->inputs)) {
+			foreach ($this->inputs as $input) {
+				if (is_a($input, 'assStackQuestionInput')) {
+					if (!$input->getInputId() OR $adding_to_test OR $importing_questions) {
+						$input->setInputId(-1);
+						$input->setQuestionId($this->getId());
+					}
+					$input->checkInput(TRUE);
+					$input->save();
+				}
+			}
+		}
+
+		//POTENTIAL RESPONSE TREES
+		if (sizeof($this->potential_responses_trees)) {
+			foreach ($this->potential_responses_trees as $prt) {
+				if (!$prt->getPRTId() OR $adding_to_test OR $importing_questions) {
+					$prt->setPRTId(-1);
+					$prt->setQuestionId($this->getId());
+				}
+				$prt->save();
+				//POTENTIAL RESPONSE TREES NODES
+				foreach ($prt->getPRTNodes() as $node) {
+					if (!$node->getNodeId() OR $adding_to_test OR $importing_questions) {
+						$node->setNodeId(-1);
+						$node->setQuestionId($this->getId());
+					}
+
+					if (is_string($this->getStackQuestion()->getQuestionVariables()->get_errors())) {
+						include_once "./Services/Utilities/classes/class.ilUtil.php";
+						ilUtil::sendFailure($this->getStackQuestion()->getQuestionVariables()->get_errors(), TRUE);
+					}
+					$node->save();
+				}
+			}
+		} else {
+			$prt_object = new assStackQuestionPRT(-1, $this->getId());
+			$prt_object->setPRTName('prt1');
+			$prt_node_object = new assStackQuestionPRTNode(-1, $this->getId(), 'prt1', 0, -1, -1);
+			$prt_object->setPRTNodes(array(0 => $prt_node_object));
+			$this->potential_responses_trees['prt1'] = $prt_object;
+			foreach ($this->potential_responses_trees as $prt) {
+				$prt->save();
+			}
+		}
+
+		//EXTRA info
+		if (is_a($this->extra_info, 'assStackQuestionExtraInfo')) {
+			if (!$this->extra_info->getSpecificId() OR $adding_to_test OR $importing_questions) {
+				$this->extra_info->setSpecificId(-1);
+				$this->extra_info->setQuestionId($this->getId());
+
+			}
+			$this->extra_info->save();
+		} else {
+			$this->extra_info = new assStackQuestionExtraInfo(-1, $this->getId());
+			$this->extra_info->save();
+		}
+		if ($edit_question AND $adding_to_test == FALSE AND $importing_questions == FALSE) {
+			return;
+		}
+
+		//TESTS
+		foreach ($this->tests as $test) {
+			$test->setTestId(-1);
+			$test->setQuestionId($this->getId());
+			$test->save();
+			//INPUTS FOR TESTS
+			foreach ($test->getTestInputs() as $input) {
+				$input->setTestInputId(-1);
+				$input->setQuestionId($this->getId());
+				$input->save();
+			}
+			//EXPECTED FOR TESTS
+			foreach ($test->getTestExpected() as $expected) {
+				$expected->setTestExpectedId(-1);
+				$expected->setQuestionId($this->getId());
+				$expected->save();
+			}
+		}
+
+		//DEPLOYED SEEDS
+		if (is_array($this->deployed_seeds)) {
+			foreach ($this->deployed_seeds as $seed) {
+				$seed->setSeedId(-1);
+				$seed->setQuestionId($this->getId());
+				$seed->save();
+			}
+		}
+
+	}
+
+	function beforeSyncWithOriginal($origQuestionId, $dupQuestionId, $origParentObjId, $dupParentObjId)
+	{
+		//Options
+		if (is_a($this->options, 'assStackQuestionOptions')) {
+			$this->options->setQuestionId($origQuestionId);
+			$options = assStackQuestionOptions::_read($origQuestionId);
+			$this->options->setOptionsId($options->getOptionsId());
+		}
+
+		//Inputs
+		if (sizeof($this->inputs)) {
+			$inputs = assStackQuestionInput::_read($origQuestionId);
+
+			foreach ($this->inputs as $key => $input) {
+				if (is_a($input, 'assStackQuestionInput')) {
+					$input->setQuestionId($origQuestionId);
+					if (isset($inputs[$key])) {
+						$orig_input = $inputs[$key];
+						$input->setInputId($orig_input->getInputId());
+					} else {
+						$input->setInputId(-1);
+					}
+				}
+			}
+		}
+
+		//PRT
+		if (sizeof($this->potential_responses_trees)) {
+			$prts = assStackQuestionPRT::_read($origQuestionId);
+
+			foreach ($this->potential_responses_trees as $prt_key => $prt) {
+				if (is_a($prt, 'assStackQuestionPRT')) {
+					$prt->setQuestionId($origQuestionId);
+					if (isset($prts[$prt_key])) {
+						$orig_prt = $prts[$prt_key];
+						$prt->setPRTId($orig_prt->getPRTId());
+					} else {
+						$prt->setPRTId(-1);
+					}
+
+					$nodes = $orig_prt->getPRTNodes();
+
+					//POTENTIAL RESPONSE TREES NODES
+
+					$new_prt_nodes = array();
+					foreach ($prt->getPRTNodes() as $node_key => $node) {
+						if (is_a($node, 'assStackQuestionPRTNode')) {
+							$node->setQuestionId($origQuestionId);
+
+							if (isset($nodes[$node_key])) {
+								$orig_node = $nodes[$node_key];
+								$node->setNodeId($orig_node->getNodeId());
+							} else {
+								$node->setNodeId(-1);
+							}
+							$new_prt_nodes[$node_key] = $node;
+						}
+					}
+
+					$prt->setPRTNodes($new_prt_nodes);
+				}
+			}
+		}
+
+		//EXTRA info
+		if (is_a($this->extra_info, 'assStackQuestionExtraInfo')) {
+			$this->extra_info->setQuestionId($origQuestionId);
+			$extra_info = assStackQuestionExtraInfo::_read($origQuestionId);
+			$this->extra_info->setSpecificId($extra_info->getSpecificId());
+		}
+
+		//DEPLOYED SEEDS
+		$seeds = assStackQuestionDeployedSeed::_read($origQuestionId);
+
+		if (is_array($this->deployed_seeds)) {
+			foreach ($this->deployed_seeds as $seed_key => $seed) {
+				if (isset($seeds[$seed_key])) {
+					$orig_seed = $seeds[$seed_key];
+					$seed->setSeedId($orig_seed->getSeedId());
+				} else {
+					$seed->setSeedId(-1);
+				}
+				$seed->setQuestionId($origQuestionId);
+			}
+		}
+	}
+
+	function beforeCopy($origQuestionId)
+	{
+		//Options
+		if (is_a($this->options, 'assStackQuestionOptions')) {
+			$this->options->setQuestionId($origQuestionId);
+			$this->options->setOptionsId(-1);
+		}
+
+		//Inputs
+		if (sizeof($this->inputs)) {
+			foreach ($this->inputs as $key => $input) {
+				if (is_a($input, 'assStackQuestionInput')) {
+					$input->setQuestionId($origQuestionId);
+					$input->setInputId(-1);
+				}
+			}
+		}
+
+		//PRT
+		if (sizeof($this->potential_responses_trees)) {
+
+			foreach ($this->potential_responses_trees as $prt_key => $prt) {
+				if (is_a($prt, 'assStackQuestionPRT')) {
+					$prt->setQuestionId($origQuestionId);
+					$prt->setPRTId(-1);
+
+					$nodes = $prt->getPRTNodes();
+
+					//POTENTIAL RESPONSE TREES NODES
+
+					$new_prt_nodes = array();
+					foreach ($prt->getPRTNodes() as $node_key => $node) {
+						if (is_a($node, 'assStackQuestionPRTNode')) {
+							$node->setQuestionId($origQuestionId);
+							$node->setNodeId(-1);
+							$new_prt_nodes[$node_key] = $node;
+						}
+					}
+
+					$prt->setPRTNodes($new_prt_nodes);
+				}
+			}
+		}
+
+		//EXTRA info
+		if (is_a($this->extra_info, 'assStackQuestionExtraInfo')) {
+			$this->extra_info->setQuestionId($origQuestionId);
+			$this->extra_info->setSpecificId(-1);
+		}
+
+		//DEPLOYED SEEDS
+
+		if (is_array($this->deployed_seeds)) {
+			foreach ($this->deployed_seeds as $seed_key => $seed) {
+				$seed->setSeedId(-1);
+				$seed->setQuestionId($origQuestionId);
+			}
+		}
+	}
+
+	/*
+	 * LOAD FROM DB
+	 */
+
+	/**
+	 * Gets all the data of an assStackQuestion from the DB
+	 *
+	 * @param integer $question_id A unique key which defines the question in the database
+	 */
+	public function loadFromDb($question_id)
+	{
+		if ($this->getId() != $question_id) {
+			global $ilDB;
+			//load the basic question data
+			$result = $ilDB->query("SELECT qpl_questions.* FROM qpl_questions WHERE question_id = "
+				. $ilDB->quote($question_id, 'integer'));
+
+			$data = $ilDB->fetchAssoc($result);
+			$this->setId($question_id);
+			$this->setTitle($data["title"]);
+			$this->setComment($data["description"]);
+			$this->setSuggestedSolution($data["solution_hint"]);
+			$this->setOriginalId($data["original_id"]);
+			$this->setObjId($data["obj_fi"]);
+			$this->setAuthor($data["author"]);
+			$this->setOwner($data["owner"]);
+			$this->setPoints($data["points"]);
+
+			require_once("./Services/RTE/classes/class.ilRTE.php");
+			$this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data["question_text"], 1));
+			$this->setEstimatedWorkingTime(substr($data["working_time"], 0, 2), substr($data["working_time"], 3, 2), substr($data["working_time"], 6, 2));
+
+			//Load the specific assStackQuestion data from DB
+			if ($question_id) {
+
+				//load options
+				$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionOptions.php');
+				$this->setOptions(assStackQuestionOptions::_read($question_id));
+				if (!is_a($this->getOptions(), 'assStackQuestionOptions')) {
+					//Create options
+					$options = new assStackQuestionOptions(-1, $question_id);
+					$options->getDefaultOptions();
+					$options->checkOptions(TRUE);
+					$options->save();
+					$this->setOptions($options);
+				}
+
+				//load inputs
+				$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionInput.php');
+				$this->setInputs(assStackQuestionInput::_read($question_id));
+
+				//load PRTs and PRT nodes
+				$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionPRT.php');
+				$this->setPotentialResponsesTrees(assStackQuestionPRT::_read($question_id));
+
+				//load tests
+				$this->getPlugin()->includeClass('model/ilias_object/test/class.assStackQuestionTest.php');
+				$this->setTests(assStackQuestionTest::_read($question_id));
+
+				//load seeds
+				$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionDeployedSeed.php');
+				$this->setDeployedSeeds(assStackQuestionDeployedSeed::_read($question_id));
+
+				//load extra info
+				$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionExtraInfo.php');
+				$extra_info = assStackQuestionExtraInfo::_read($question_id);
+				$this->setInstantValidation(assStackQuestionUtils::_useInstantValidation());
+
+				// ERROR MESSAGE FOR QUESTION CREATED IN AN OLD VERSION.
+				if (is_array($extra_info)) {
+					$extra_info_obj = new assStackQuestionExtraInfo(-1, $this->getId());
+					$extra_info_obj->setHowToSolve(' ');
+					$extra_info_obj->save();
+				} else {
+					$this->setExtraInfo($extra_info);
+				}
+			}
+
+			// loads additional stuff like suggested solutions
+			parent::loadFromDb($question_id);
+		}
+	}
+
+
+	/*
+     * GETTERS AND SETTERS
+     */
+
+	/**
+	 * @return ilAssStackCasQuestionPlugin The plugin object
+	 */
+	public function getPlugin()
+	{
+		if ($this->plugin == null) {
+			require_once "./Services/Component/classes/class.ilPlugin.php";
+			$this->plugin = ilPlugin::getPluginObject(IL_COMP_MODULE, "TestQuestionPool", "qst", "assStackQuestion");
+		}
+		return $this->plugin;
+	}
+
+	/**
+	 * @return assStackQuestionOptions
+	 */
+	public function getOptions()
+	{
+		return $this->options;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getInputs($selector = '')
+	{
+		if ($selector) {
+			return $this->inputs[$selector];
+		} else {
+			return $this->inputs;
+		}
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getPotentialResponsesTrees()
+	{
+		return $this->potential_responses_trees;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getTests($selector = '')
+	{
+		if ($selector) {
+			return $this->tests[$selector];
+		} else {
+			return $this->tests;
+		}
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getDeployedSeeds()
+	{
+		return $this->deployed_seeds;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getSeed()
+	{
+		return $this->seed;
+	}
+
+	/**
+	 * @return assStackQuestionStackQuestion
+	 */
+	public function getStackQuestion()
+	{
+		return $this->stack_question;
+	}
+
+	/**
+	 * @return assStackQuestionExtraInfo
+	 */
+	public function getExtraInfo()
+	{
+		return $this->extra_info;
+	}
+
+	/**
+	 * @param $options
+	 */
+	public function setOptions($options)
+	{
+		$this->options = $options;
+	}
+
+	/**
+	 * @param $inputs
+	 */
+	public function setInputs($inputs, $input_name = "")
+	{
+		if ($input_name) {
+			$this->inputs[$input_name] = $inputs;
+		} else {
+			$this->inputs = $inputs;
+		}
+	}
+
+	/**
+	 * @param $prts
+	 */
+	public function setPotentialResponsesTrees($prts, $prt_name = "")
+	{
+		if ($prt_name) {
+			$this->potential_responses_trees[$prt_name] = $prts;
+		} else {
+			$this->potential_responses_trees = $prts;
+		}
+	}
+
+	/**
+	 * @param $tests
+	 */
+	public function setTests($tests)
+	{
+		$this->tests = $tests;
+	}
+
+	/**
+	 * @param $deployed_seeds
+	 */
+	public function setDeployedSeeds($deployed_seeds)
+	{
+		$this->deployed_seeds = $deployed_seeds;
+	}
+
+	/**
+	 * @param $seed
+	 */
+	public function setSeed($seed)
+	{
+		$this->seed = $seed;
+	}
+
+	/**
+	 * @param $stack_question
+	 */
+	public function setStackQuestion($stack_question)
+	{
+		$this->stack_question = $stack_question;
+	}
+
+	/**
+	 * @param $extra_info
+	 */
+	public function setExtraInfo($extra_info)
+	{
+		$this->extra_info = $extra_info;
+	}
+
+
+	/**
+	 * @param boolean $instant_validation
+	 */
+	public function setInstantValidation($instant_validation)
+	{
+		$this->instant_validation = $instant_validation;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function getInstantValidation()
+	{
+		return $this->instant_validation;
+	}
+
+
+	/**
+	 * Returns all the database tables related to this question type.
+	 * @return array
+	 */
+	public function getAdditionalTableName()
+	{
+		$CAS_tables = array();
+		$CAS_tables[] = 'xqcas_options';
+		$CAS_tables[] = 'xqcas_inputs';
+		$CAS_tables[] = 'xqcas_prts';
+		$CAS_tables[] = 'xqcas_prt_nodes';
+		$CAS_tables[] = 'xqcas_qtests';
+		$CAS_tables[] = 'xqcas_qtest_inputs';
+		$CAS_tables[] = 'xqcas_qtest_expected';
+		$CAS_tables[] = 'xqcas_deployed_seeds';
+		$CAS_tables[] = 'xqcas_extra_info';
+
+		return $CAS_tables;
+	}
+
+	/**
+	 * Returns the question type name.
+	 * @return string
+	 */
+	public function getQuestionType()
+	{
+		return "assStackQuestion";
+	}
+
+
+	/**
+	 * Collects all text in the question which could contain media objects
+	 * These were created with the Rich Text Editor
+	 * The collection is needed to delete unused media objects
+	 */
+	protected function getRTETextWithMediaObjects()
+	{
+		// question text, suggested solutions etc
+		$collected = parent::getRTETextWithMediaObjects();
+
+		if (isset($this->options)) {
+			$collected .= $this->options->getSpecificFeedback();
+			$collected .= $this->options->getPRTCorrect();
+			$collected .= $this->options->getPRTIncorrect();
+			$collected .= $this->options->getPRTPartiallyCorrect();
+		}
+
+		if (isset($this->extra_info)) {
+			$collected .= $this->extra_info->getHowToSolve();
+		}
+
+		foreach ($this->potential_responses_trees as $prt) {
+			foreach ($prt->getPRTNodes() as $node) {
+				$collected .= $node->getTrueFeedback();
+				$collected .= $node->getFalseFeedback();
+			}
+		}
+
+		return $collected;
+	}
+
+	/*
+	 * REQUIRED QUESTION METHODS
+	 */
+
+	/**
+	 * @return bool
+	 */
+	function isComplete()
+	{
+		if (strlen($this->title)
+			&& $this->author
+			&& $this->question
+		) {
+			//Check if all feedback placeholders have been included
+
+			$no_placeholder_prts = " ";
+			foreach ($this->getPotentialResponsesTrees() as $prt_name => $prt) {
+				if (strpos($this->getQuestion(), '[[feedback:' . $prt_name . ']]') == false AND strpos($this->getOptions()->getSpecificFeedback(), '[[feedback:' . $prt_name . ']]') == false) {
+					$no_placeholder_prts .= $prt_name . ", ";
+				}
+			}
+
+			if ($no_placeholder_prts != " ") {
+				ilUtil::sendInfo($this->getPlugin()->txt("error_lack_of_following_feedback_placeholders") . substr($no_placeholder_prts, 0, -2), TRUE);
+				return true;
+			}
+
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @param int $active_id
+	 * @param int $pass
+	 * @param bool $obligationsAnswered
+	 */
+	protected function reworkWorkingData($active_id, $pass, $obligationsAnswered)
+	{
+	}
+
+	public function getAllQuestionsFromPool()
+	{
+		global $ilDB;
+
+		$q_type_id = $this->getQuestionTypeID();
+		$question_id = $this->getId();
+
+		$questions_array = array();
+
+		if ($question_id > 0 AND $q_type_id) {
+			$result = $ilDB->queryF("SELECT question_id FROM qpl_questions AS qpl
+									WHERE qpl.obj_fi = (SELECT obj_fi FROM qpl_questions WHERE question_id = %s)
+									AND qpl.question_type_fi = %s", array('integer', 'integer'), array($question_id, $q_type_id));
+
+			while ($row = $ilDB->fetchAssoc($result)) {
+				$new_question_id = $row['question_id'];
+
+				$ilias_question = new assStackQuestion();
+				$ilias_question->loadFromDb($new_question_id);
+
+				$questions_array[$new_question_id] = $ilias_question;
+			}
+		}
+
+		return $questions_array;
+	}
+
+	public function getAllQuestionsFromTest()
+	{
+		global $ilDB;
+
+		$q_type_id = $this->getQuestionTypeID();
+		$question_id = $this->getId();
+
+		$questions_array = array();
+
+		if ($question_id > 0 AND $q_type_id) {
+			$result = $ilDB->queryF("SELECT question_fi FROM tst_test_question AS tst INNER JOIN qpl_questions AS qpl
+								WHERE tst.question_fi = qpl.question_id
+								AND tst.test_fi = (SELECT test_fi FROM tst_test_question WHERE question_fi = %s)
+								AND qpl.question_type_fi = %s", array('integer', 'integer'), array($question_id, $q_type_id));
+
+			while ($row = $ilDB->fetchAssoc($result)) {
+				$new_question_id = $row['question_fi'];
+
+				$ilias_question = new assStackQuestion();
+				$ilias_question->loadFromDb($new_question_id);
+
+				$questions_array[$new_question_id] = $ilias_question;
+			}
+		}
+
+		return $questions_array;
+	}
+
+	public function getSolutionSubmit()
+	{
+		return assStackQuestionUtils::_getUserResponse($this->getId(), $this->getInputs(), "reduced");
+	}
+
+	public function calculateReachedPointsForSolution($found_values)
+	{
+		$points = 0.0;
+		foreach ($this->getStackQuestion()->getPRTResults() as $prt_name => $results) {
+			$points = $points + $results['points'];
+		}
+		return $points;
+	}
+
+
+	/******************************************************************
+	 *  Interface methods of iQuestionCondition (for use in FormATest)
+	 *****************************************************************/
+
+	/**
+	 * Get all available operations for a specific question
+	 *
+	 * @param $expression
+	 *
+	 * @internal param string $expression_type
+	 * @return array
+	 */
+	public function getOperators($expression)
+	{
+		require_once "./Modules/TestQuestionPool/classes/class.ilOperatorsExpressionMapping.php";
+		return ilOperatorsExpressionMapping::getOperatorsByExpression($expression);
+	}
+
+	/**
+	 * Get all available expression types for a specific question
+	 *
+	 * @return array
+	 */
+	public function getExpressionTypes()
+	{
+		return array(
+			iQuestionCondition::PercentageResultExpression
+		);
+	}
+
+	/**
+	 * Get the user solution for a question by active_id and the test pass
+	 *
+	 * @param int $active_id
+	 * @param int $pass
+	 *
+	 * @return ilUserQuestionResult
+	 */
+	public function getUserQuestionResult($active_id, $pass)
+	{
+		require_once './Modules/TestQuestionPool/classes/class.ilUserQuestionResult.php';
+
+		/** @var ilDB $ilDB */
+		global $ilDB;
+		$result = new ilUserQuestionResult($this, $active_id, $pass);
+
+		/*
+		$data = $ilDB->queryF(
+			"SELECT value1, value2 FROM tst_solutions WHERE active_fi = %s AND pass = %s AND question_fi = %s AND step = (
+				SELECT MAX(step) FROM tst_solutions WHERE active_fi = %s AND pass = %s AND question_fi = %s
+			)",
+			array("integer", "integer", "integer","integer", "integer", "integer"),
+			array($active_id, $pass, $this->getId(), $active_id, $pass, $this->getId())
+		);
+
+		while($row = $ilDB->fetchAssoc($data))
+		{
+			$result->addKeyValue($row["value1"], $row["value2"]);
+		}
+		*/
+
+		$points = (float)$this->calculateReachedPoints($active_id, $pass);
+		$max_points = (float)$this->getMaximumPoints();
+		$result->setReachedPercentage(($points / $max_points) * 100);
+
+		return $result;
+	}
+
+	/**
+	 * If index is null, the function returns an array with all anwser options
+	 * Else it returns the specific answer option
+	 *
+	 * @param null|int $index
+	 *
+	 * @return array|ASS_AnswerSimple
+	 */
+	public function getAvailableAnswerOptions($index = null)
+	{
+		return array();
+	}
+
+	public function getAnswers()
+	{
+		return array();
+	}
+
+
+	protected function savePreviewData(ilAssQuestionPreviewSession $previewSession)
+	{
+		$submittedAnswer = assStackQuestionUtils::_getUserResponse($this->getId(), $this->getInputs(), "reduced");
+		if (!empty($submittedAnswer)) {
+			$previewSession->setParticipantsSolution($submittedAnswer);
+		}
+	}
+
+}

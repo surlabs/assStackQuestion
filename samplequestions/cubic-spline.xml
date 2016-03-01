@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+    <!-- question: 0  -->
+    <question type="category">
+        <category>
+            <text>$course$/export folder</text>
+
+        </category>
+    </question>
+
+    <!-- question: 2955  -->
+    <question type="stack">
+        <name>
+            <text>Donnerstag 1c</text>
+        </name>
+        <questiontext format="html">
+            <text><![CDATA[<p><strong>Berechnen Sie die Ableitung folgender Funktion.<br /></strong></p>
+<p><strong>Geben Sie das Ergebnis faktorisiert an.</strong></p>
+<p> </p>
+<p> \[f(x)={@f1@}\]</p>
+<p>\(f'(x)=\)[[input:ans1]]</p>
+<div> [[validation:ans1]]</div>
+<p> </p>
+<p> </p>]]></text>
+        </questiontext>
+        <generalfeedback format="html">
+            <text></text>
+        </generalfeedback>
+        <defaultgrade>2.0000000</defaultgrade>
+        <penalty>0.1000000</penalty>
+        <hidden>0</hidden>
+        <questionvariables>
+            <text>a: rand_with_prohib(-7,7,[0]);
+                b: rand_with_prohib(-9,9,[0]);
+                c: rand_with_prohib(-7,7,[0]);
+                k: rand_with_prohib(2,7,[0]);
+                l: rand_with_prohib(2,7,[]);
+                f1:c*sqrt(a*x^k+b);
+                term: factor(diff(f1,x));</text>
+        </questionvariables>
+        <specificfeedback format="html">
+            <text><![CDATA[<p>[[feedback:prt1]]</p>
+<p> </p>]]></text>
+        </specificfeedback>
+        <questionnote>
+            <text>[x,y,k,l,m,n]</text>
+        </questionnote>
+        <questionsimplify>1</questionsimplify>
+        <assumepositive>0</assumepositive>
+        <prtcorrect format="html">
+            <text><![CDATA[<p>Das ist korrekt.</p>]]></text>
+        </prtcorrect>
+        <prtpartiallycorrect format="html">
+            <text><![CDATA[<p>Ihre Antwort ist teilweise korrekt.</p>]]></text>
+        </prtpartiallycorrect>
+        <prtincorrect format="html">
+            <text><![CDATA[<p>Das ist nicht korrekt.</p>]]></text>
+        </prtincorrect>
+        <multiplicationsign>dot</multiplicationsign>
+        <sqrtsign>1</sqrtsign>
+        <complexno>i</complexno>
+        <inversetrig>cos-1</inversetrig>
+        <matrixparens>[</matrixparens>
+        <variantsselectionseed></variantsselectionseed>
+        <input>
+            <name>ans1</name>
+            <type>algebraic</type>
+            <tans>term</tans>
+            <boxsize>40</boxsize>
+            <strictsyntax>0</strictsyntax>
+            <insertstars>1</insertstars>
+            <syntaxhint></syntaxhint>
+            <forbidwords>simp, ratsimp,diff</forbidwords>
+            <allowwords></allowwords>
+            <forbidfloat>1</forbidfloat>
+            <requirelowestterms>1</requirelowestterms>
+            <checkanswertype>0</checkanswertype>
+            <mustverify>1</mustverify>
+            <showvalidation>1</showvalidation>
+            <options></options>
+        </input>
+        <prt>
+            <name>prt1</name>
+            <value>2.0000000</value>
+            <autosimplify>0</autosimplify>
+            <feedbackvariables>
+                <text></text>
+            </feedbackvariables>
+            <node>
+                <name>0</name>
+                <answertest>AlgEquiv</answertest>
+                <sans>ans1</sans>
+                <tans>term</tans>
+                <testoptions></testoptions>
+                <quiet>0</quiet>
+                <truescoremode>+</truescoremode>
+                <truescore>0.5000000</truescore>
+                <truepenalty></truepenalty>
+                <truenextnode>1</truenextnode>
+                <trueanswernote>prt1-1-T</trueanswernote>
+                <truefeedback format="html">
+                    <text></text>
+                </truefeedback>
+                <falsescoremode>+</falsescoremode>
+                <falsescore>0.0000000</falsescore>
+                <falsepenalty></falsepenalty>
+                <falsenextnode>-1</falsenextnode>
+                <falseanswernote>prt1-1-F</falseanswernote>
+                <falsefeedback format="html">
+                    <text><![CDATA[<p>Sie haben Sich verrechnet!</p>]]></text>
+                </falsefeedback>
+            </node>
+            <node>
+                <name>1</name>
+                <answertest>SingleFrac</answertest>
+                <sans>ans1</sans>
+                <tans>term</tans>
+                <testoptions>[x]</testoptions>
+                <quiet>0</quiet>
+                <truescoremode>+</truescoremode>
+                <truescore>0.5000000</truescore>
+                <truepenalty></truepenalty>
+                <truenextnode>-1</truenextnode>
+                <trueanswernote>prt1-2-T</trueanswernote>
+                <truefeedback format="html">
+                    <text><![CDATA[<p>Gut gemacht!</p>]]></text>
+                </truefeedback>
+                <falsescoremode>-</falsescoremode>
+                <falsescore>0.0000000</falsescore>
+                <falsepenalty></falsepenalty>
+                <falsenextnode>-1</falsenextnode>
+                <falseanswernote>prt1-2-F</falseanswernote>
+                <falsefeedback format="html">
+                    <text><![CDATA[<p>Der Term liegt nicht in der geforderten Form vor.</p>]]></text>
+                </falsefeedback>
+            </node>
+        </prt>
+    </question>
+
+    <!-- question: 2953  -->
+    <question type="stack">
+        <name>
+            <text>Donnerstag 1d</text>
+        </name>
+        <questiontext format="html">
+            <text><![CDATA[<p><strong>Berechnen Sie die Ableitung folgender Funktion.<br /></strong></p>
+<p><strong>Geben Sie das Ergebnis faktorisiert an.</strong></p>
+<p> </p>
+<p> \[f(x)={@f1@}\]</p>
+<p>\(f'(x)=\)[[input:ans1]]</p>
+<div> [[validation:ans1]]</div>
+<p> </p>
+<p> </p>]]></text>
+        </questiontext>
+        <generalfeedback format="html">
+            <text></text>
+        </generalfeedback>
+        <defaultgrade>2.0000000</defaultgrade>
+        <penalty>0.1000000</penalty>
+        <hidden>0</hidden>
+        <questionvariables>
+            <text>a: rand_with_prohib(-7,7,[0]);
+                b: rand_with_prohib(-9,9,[0]);
+                c: rand_with_prohib(-7,7,[0]);
+                k: rand_with_prohib(2,7,[0]);
+                l: rand_with_prohib(2,7,[k]);
+                m: rand_with_prohib(2,7,[k,l]);
+                f1:ln(a*x^2+b*x^l+c*x^m);
+                term: factor(diff(f1,x));</text>
+        </questionvariables>
+        <specificfeedback format="html">
+            <text><![CDATA[<p>[[feedback:prt1]]</p>
+<p> </p>]]></text>
+        </specificfeedback>
+        <questionnote>
+            <text>[x,y,k,l,m,n]</text>
+        </questionnote>
+        <questionsimplify>1</questionsimplify>
+        <assumepositive>0</assumepositive>
+        <prtcorrect format="html">
+            <text><![CDATA[<p>Das ist korrekt.</p>]]></text>
+        </prtcorrect>
+        <prtpartiallycorrect format="html">
+            <text><![CDATA[<p>Ihre Antwort ist teilweise korrekt.</p>]]></text>
+        </prtpartiallycorrect>
+        <prtincorrect format="html">
+            <text><![CDATA[<p>Das ist nicht korrekt.</p>]]></text>
+        </prtincorrect>
+        <multiplicationsign>dot</multiplicationsign>
+        <sqrtsign>1</sqrtsign>
+        <complexno>i</complexno>
+        <inversetrig>cos-1</inversetrig>
+        <matrixparens>[</matrixparens>
+        <variantsselectionseed></variantsselectionseed>
+        <input>
+            <name>ans1</name>
+            <type>algebraic</type>
+            <tans>term</tans>
+            <boxsize>40</boxsize>
+            <strictsyntax>0</strictsyntax>
+            <insertstars>1</insertstars>
+            <syntaxhint></syntaxhint>
+            <forbidwords>simp, ratsimp,diff</forbidwords>
+            <allowwords></allowwords>
+            <forbidfloat>1</forbidfloat>
+            <requirelowestterms>1</requirelowestterms>
+            <checkanswertype>0</checkanswertype>
+            <mustverify>1</mustverify>
+            <showvalidation>1</showvalidation>
+            <options></options>
+        </input>
+        <prt>
+            <name>prt1</name>
+            <value>2.0000000</value>
+            <autosimplify>0</autosimplify>
+            <feedbackvariables>
+                <text></text>
+            </feedbackvariables>
+            <node>
+                <name>0</name>
+                <answertest>AlgEquiv</answertest>
+                <sans>ans1</sans>
+                <tans>term</tans>
+                <testoptions></testoptions>
+                <quiet>0</quiet>
+                <truescoremode>+</truescoremode>
+                <truescore>0.5000000</truescore>
+                <truepenalty></truepenalty>
+                <truenextnode>1</truenextnode>
+                <trueanswernote>prt1-1-T</trueanswernote>
+                <truefeedback format="html">
+                    <text></text>
+                </truefeedback>
+                <falsescoremode>+</falsescoremode>
+                <falsescore>0.0000000</falsescore>
+                <falsepenalty></falsepenalty>
+                <falsenextnode>-1</falsenextnode>
+                <falseanswernote>prt1-1-F</falseanswernote>
+                <falsefeedback format="html">
+                    <text><![CDATA[<p>Sie haben Sich verrechnet!</p>]]></text>
+                </falsefeedback>
+            </node>
+            <node>
+                <name>1</name>
+                <answertest>FacForm</answertest>
+                <sans>ans1</sans>
+                <tans>term</tans>
+                <testoptions>[x]</testoptions>
+                <quiet>0</quiet>
+                <truescoremode>+</truescoremode>
+                <truescore>0.5000000</truescore>
+                <truepenalty></truepenalty>
+                <truenextnode>-1</truenextnode>
+                <trueanswernote>prt1-2-T</trueanswernote>
+                <truefeedback format="html">
+                    <text><![CDATA[<p>Gut gemacht!</p>]]></text>
+                </truefeedback>
+                <falsescoremode>-</falsescoremode>
+                <falsescore>0.0000000</falsescore>
+                <falsepenalty></falsepenalty>
+                <falsenextnode>-1</falsenextnode>
+                <falseanswernote>prt1-2-F</falseanswernote>
+                <falsefeedback format="html">
+                    <text><![CDATA[<p>Der Term liegt nicht in der geforderten Form vor.</p>]]></text>
+                </falsefeedback>
+            </node>
+        </prt>
+    </question>
+
+</quiz>
