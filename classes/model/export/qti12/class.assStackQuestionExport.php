@@ -118,8 +118,9 @@ class assStackQuestionExport extends assQuestionExport
 		$this->object->addQTIMaterial($a_xml_writer, $this->object->getOptions()->getPRTCorrect());
 		$this->object->addQTIMaterial($a_xml_writer, $this->object->getOptions()->getPRTIncorrect());
 		$this->object->addQTIMaterial($a_xml_writer, $this->object->getOptions()->getPRTPartiallyCorrect());
+		$this->object->addQTIMaterial($a_xml_writer, $this->object->getOptions()->getSpecificFeedback());
 		$this->object->addQTIMaterial($a_xml_writer, $this->object->getExtraInfo()->getHowToSolve());
-		foreach ($this->object->getPRTs as $prt_name => $prt) {
+		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt) {
 			foreach ($prt->getPRTNodes() as $node_name => $node) {
 				$this->object->addQTIMaterial($a_xml_writer, $node->getFalseFeedback());
 				$this->object->addQTIMaterial($a_xml_writer, $node->getTrueFeedback());
