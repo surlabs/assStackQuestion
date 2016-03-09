@@ -308,6 +308,14 @@ class assStackQuestionStackQuestion
 				'caskey' => 'assume_pos',
 				'castype' => 'ex',
 			),
+			'matrixparens'   => array(
+				'type'       => 'list',
+				'value'      => $ilias_options->getMatrixParens(),
+				'strict'     => true,
+				'values'     => array('[', '(', '', '{', '|'),
+				'caskey'     => 'lmxchar',
+				'castype'    => 'exs',
+			)
 		);
 
 		$this->setOptions($this->getStackFactory()->get("options", $parameters));
@@ -650,7 +658,9 @@ class assStackQuestionStackQuestion
 				$this->getSession()->get_errors());
 		}*/
 
-		$this->getSession()->prune_session($this->getSessionLength());
+		if ($this->getSessionLength() > 0) {
+			$this->getSession()->prune_session($this->getSessionLength());
+		}
 	}
 
 	/**

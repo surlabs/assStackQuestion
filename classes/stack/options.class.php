@@ -95,7 +95,7 @@ class stack_options {
             ),
             'matrixparens'   => array(
                 'type'       => 'list',
-                'value'      => '[',
+                'value'      => '(',
                 'strict'     => true,
                 'values'     => array('[', '(', '', '{', '|'),
                 'caskey'     => 'lmxchar',

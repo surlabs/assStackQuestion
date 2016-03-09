@@ -376,7 +376,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			$solutions = NULL;
 			include_once "./Modules/Test/classes/class.ilObjTest.php";
 			//if (!ilObjTest::_getUsePreviousAnswers($active_id, true)) {
-				if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
+			if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
 			//}
 			$solutions =& $this->object->getSolutionValues($active_id, $pass);
 		}
@@ -399,7 +399,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		include_once "./Modules/Test/classes/class.ilObjTest.php";
 		//if (!ilObjTest::_getUsePreviousAnswers($active_id, true)) {
-			if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
+		if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
 		//}
 
 		//Create STACK Question object if doesn't exists
@@ -528,18 +528,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 		//Show solutions
-		if ($show_question_text) {
-			$user_solution = $this->object->getSolutionValues($active_id, $pass);
-
-			$this->plugin->includeClass("GUI/question_display/class.assStackQuestionFeedbackGUI.php");
-			$question_feedback_object = new assStackQuestionFeedbackGUI($this->plugin, $user_solution, $this->object->getStackQuestion()->getSpecificFeedbackInstantiated());
-
-			//addCSS
-			$tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_best_solution.css'));
-
-			//Returns best solution HTML.
-			return $question_feedback_object->getBestSolutionGUI("user")->get();
-		} else {
+		if ($show_correct_solution) {
 			$user_solution = $this->object->getSolutionValues($active_id, $pass);
 
 			$this->plugin->includeClass("GUI/question_display/class.assStackQuestionFeedbackGUI.php");
@@ -550,6 +539,17 @@ class assStackQuestionGUI extends assQuestionGUI
 
 			//Returns best solution HTML.
 			return $question_feedback_object->getBestSolutionGUI("correct")->get();
+		} elseif ($show_question_text) {
+			$user_solution = $this->object->getSolutionValues($active_id, $pass);
+
+			$this->plugin->includeClass("GUI/question_display/class.assStackQuestionFeedbackGUI.php");
+			$question_feedback_object = new assStackQuestionFeedbackGUI($this->plugin, $user_solution, $this->object->getStackQuestion()->getSpecificFeedbackInstantiated());
+
+			//addCSS
+			$tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_best_solution.css'));
+
+			//Returns best solution HTML.
+			return $question_feedback_object->getBestSolutionGUI("user")->get();
 		}
 	}
 
@@ -725,7 +725,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 			// edit page
 			$ilTabs->addTarget("preview",
-				$this->ctrl->getLinkTargetByClass("ilAssQuestionPageGUI", "preview"),
+				$this->ctrl->getLinkTargetByClass("ilAssQuestionPreviewGUI", "show"),
 				array("preview"),
 				"ilAssQuestionPageGUI", "", $force_active);
 		}
@@ -1190,10 +1190,11 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function doCreateTestcase()
 	{
+		//boolean correct
+		$correct = TRUE;
 		$testcase = sizeof($this->object->getTests()) + 1;
 
 		$new_test = new assStackQuestionTest(-1, $this->object->getId(), $testcase);
-		$new_test->save();
 
 		//Creation of inputs
 		foreach ($this->object->getInputs() as $input_name => $input) {
@@ -1201,34 +1202,50 @@ class assStackQuestionGUI extends assQuestionGUI
 
 			$new_test_input->setTestInputName(ilUtil::stripSlashes($input_name));
 
-			if (isset($_REQUEST[$input_name])) {
+			if ($_REQUEST[$input_name]) {
 				$new_test_input->setTestInputValue(ilUtil::stripSlashes($_REQUEST[$input_name]));
+			} else {
+				$correct = FALSE;
 			}
-			$new_test_input->save();
-			$test_inputs[] = $new_test_input;
 		}
-		$new_test->setTestInputs($test_inputs);
 
 		//Creation of expected results
 		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt) {
 			//Getting the PRT name
 			$new_test_expected = new assStackQuestionTestExpected(-1, $this->object->getId(), $testcase, $prt_name);
 
-			if (isset($_REQUEST['score_' . $prt_name])) {
+			if ($_REQUEST['score_' . $prt_name]) {
 				$new_test_expected->setExpectedScore(ilUtil::stripSlashes($_REQUEST['score_' . $prt_name]));
+			} else {
+				$correct = FALSE;
 			}
 
-			if (isset($_REQUEST['penalty_' . $prt_name])) {
+			if ($_REQUEST['penalty_' . $prt_name]) {
 				$new_test_expected->setExpectedPenalty(ilUtil::stripSlashes($_REQUEST['penalty_' . $prt_name]));
+			} else {
+				$correct = FALSE;
 			}
 
-			if (isset($_REQUEST['answernote_' . $prt_name])) {
+			if ($_REQUEST['answernote_' . $prt_name]) {
 				$new_test_expected->setExpectedAnswerNote(ilUtil::stripSlashes($_REQUEST['answernote_' . $prt_name]));
+			} else {
+				$correct = FALSE;
 			}
-			$new_test_expected->save();
-			$test_expected[] = $new_test_expected;
-		}
 
+			if ($correct) {
+				$new_test_expected->save();
+				$test_expected[] = $new_test_expected;
+			}
+		}
+		if ($correct) {
+			foreach ($this->object->getInputs() as $input_name => $input) {
+				$new_test_input->save();
+				$test_inputs[] = $new_test_input;
+			}
+
+			$new_test->save();
+			$new_test->setTestInputs($test_inputs);
+		}
 		$this->showUnitTests();
 	}
 

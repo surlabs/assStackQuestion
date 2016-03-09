@@ -30,6 +30,7 @@ function checkUserResponse($question_id, $input_name, $user_response)
 	require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/class.assStackQuestion.php';
 	require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/class.assStackQuestionStackQuestion.php';
 
+
 	$ilias_question = new assStackQuestion();
 	$ilias_question->loadFromDb($question_id);
 	//v1.6+ Randomisation improvements

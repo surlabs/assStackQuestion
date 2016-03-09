@@ -212,6 +212,7 @@ function get_config($section = 'qtype_stack')
 	$configs->complexno = $saved_config['options_complex_numbers'];
 	//Inverse trigonometric
 	$configs->inversetrig = $saved_config['options_inverse_trigonometric'];
+	$configs->matrixparens = "[";
 
 	/*
 	 * DEFAULT INPUTS CONFIGURATION

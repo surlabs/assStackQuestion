@@ -387,8 +387,47 @@ class assStackQuestionFeedbackGUI
 
 	private function getFilledInput($value)
 	{
-		$input = "";
-		$input .= '<input type="text" value="' . $value . '" readonly>';
+		if (preg_match("/^matrix.*/", $value)) {
+			$matrix = array();
+			$row = 0;
+			$exploded_raw1 = explode("(", $value);
+			$exploded_raw2 = rtrim($exploded_raw1["1"], ")");
+			$exploded_raw3 = explode("[", $exploded_raw2);
+			foreach ($exploded_raw3 as $raw_row) {
+				if ($raw_row != "") {
+					if (substr($raw_row, -1) == ",") {
+						//New Row
+						$row_exploded1 = rtrim($raw_row, "],");
+						$matrix[$row] = explode(",", $row_exploded1);
+						$row++;
+					} elseif (substr($raw_row, -1) == "]") {
+						//Last row
+						//New Row
+						$row_exploded1 = rtrim($raw_row, "]");
+						$matrix[$row] = explode(",", $row_exploded1);
+						$row++;
+						break;
+					}
+				}
+			}
+
+			$input = '<table>';
+			foreach ($matrix as $row) {
+				$input .= '<tr>';
+				foreach ($row as $column) {
+					$input .= '<td>';
+					$input .= "\[" . $column . "\]";
+					$input .= "<td><td>&nbsp</td>";
+				}
+				$input .= '</tr>';
+			}
+			$input .= '</table>';
+
+		} else {
+			$input = "";
+			$input .= '<input type="text"  style="width:auto" value="' . $value . '" readonly>';
+		}
+
 		return $input;
 	}
 

@@ -89,16 +89,25 @@ class assStackQuestionAuthoringGUI
 
 		//Fill headers
 		$this->getTemplate()->setVariable("AUTHORING_TABLE_TITLE", $this->getPlugin()->txt('auth_title'));
-		$this->getTemplate()->setVariable("AUTHORING_TABLE_SUBTITLE", $this->getPlugin()->txt('auth_subtitle'));
+		//Links to the authoring guides
+		$text = $this->getPlugin()->txt('auth_subtitle');
+		$text .= "</br>" . $this->getPlugin()->txt('auth_tip1') . " <a href='https://github.com/maths/moodle-qtype_stack/blob/master/doc/en/index.md' target=\"_blank\"> Link </a>";
+		$text .= " " . $this->getPlugin()->txt('auth_tip2') ."</br>"." " . $this->getPlugin()->txt('auth_tip3') ." <a href='http://www.ilias.de/docu/goto_docu_file_5087.html' target=\"_blank\"> Quick authoring guide </a>";
+		$this->getTemplate()->setVariable("AUTHORING_TABLE_SUBTITLE", $text);
 
 		//Add general properties to form like question text, title, author...
 		//ADD predefined input and validation fields
 		if ($this->getQuestionGUI()->object->getQuestion() == "") {
 			$this->getQuestionGUI()->object->setQuestion("[[input:ans1]] [[validation:ans1]]");
 		}
+
+		//Add question title when blank
+		if ($this->getQuestionGUI()->object->getTitle() == NULL) {
+			$this->getQuestionGUI()->object->setTitle($this->getPlugin()->txt('untitled_question'));
+		}
+
 		$this->getQuestionGUI()->addBasicQuestionFormProperties($this->getForm());
 		$this->getQuestionGUI()->setRTESupport($this->getForm()->getItemByPostVar('question'));
-
 
 		//Save basic data of the question
 		if (!$this->getQuestionGUI()->object->getOptions()) {
@@ -287,8 +296,11 @@ class assStackQuestionAuthoringGUI
 		$options_matrix_parens = new ilSelectInputGUI($this->getPlugin()->txt('options_matrix_parens'), 'options_matrix_parens');
 		$options_matrix_parens->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('options_matrix_parens_info') : '');
 		$options_matrix_parens->setOptions(array(
-			"]" => "]",
-			")" => ")"
+			"[" => "[",
+			"(" => "(",
+			"" => "",
+			"{" => "{",
+			"|" => "|"
 		));
 
 		//How to solve

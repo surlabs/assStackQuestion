@@ -114,6 +114,17 @@ Version History
 * Former versions can be found in ILIAS SVN: http://svn.ilias.de/svn/ilias/branches/fau/plugins, but are not longer updated
 
 
+GitHub Version 2.3.1 (2016-03-14)
+---------------------------------
+This version includes some ideas from SIG Mathe+ILIAS Meeting in Bremen. like The links to the authoring guides in the head of the authoring page.
+And solve problems with Linux installations and creaation of non-full unit test.
++The following bugs have been solved
+- http://ilias.de/mantis/view.php?id=17358 regarding Matrix in STACK, now matrix also allows |,{ and "" as matrix parents.
+- http://ilias.de/mantis/view.php?id=18091 regarding Matrix best solutions, now best solution have a Matrix form without matrix parents.
+- http://ilias.de/mantis/view.php?id=18081 regarding Error message.
+- http://ilias.de/mantis/view.php?id=18069 regarding navigation from tabs within STACK and evaluable previews.
+
+
 GitHub Version 2.3.0 (2016-02-29)
 ---------------------------------
 - STACK plugin can be used in ILIAS 5.0 and ILIAS 5.1 versions.

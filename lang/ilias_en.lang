@@ -341,7 +341,7 @@ exception_no_raw_given_in_keyval_creation#:#There was an error creating the maxi
 error_no_question_note#:#Question with random variables must have a Question note.
 error_prt_without_first_node#:#Warning, you created a question without Potential response tree structure, be sure there is at least one PRT with al least one node, the PRT should have a node set as first node.
 warning_use_evaluation_button_instead#:#Please, use the evaluate answer button above instead.
-error_in_question_text#:#The question text has the following error
+error_in_question_text#:#In question text or question variables occurs the following error
 error_in_specific_feedback#:#The specific feedback has the following error
 xqcas_error_in_question_note#:#The question note nas the following error
 error_in_prt_correct#:#The feedback for correct solution text has the following error
@@ -358,3 +358,7 @@ options_specific_feedback_info#:#By default, feedback for each potential respons
 questions_updated_new_feedback_system#:#Number of questions updated to the new feedback system
 questions_updated_new_feedback_system2#:#Feedback placeholders have been included into the specific feedback options, you can move into the question text in those questions you want
 error_lack_of_following_feedback_placeholders#:#The following Potential response trees have no feedback placeholder (like this: [[feedback:{PRT name}]]) in Question text or specific feedback:
+untitled_question#:#Untitled STACK question
+auth_tip1#:#Go to
+auth_tip2#:#to get more information about STACK Questions
+auth_tip3#:#If it's your first time with STACK questions, read the quick authoring guide, also in german here:

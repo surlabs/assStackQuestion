@@ -341,7 +341,7 @@ exception_no_raw_given_in_keyval_creation#:#Beim Erzeugen des Maxima-Befehls gab
 error_no_question_note#:#Eine Frage mit zufälligen Variablen muss eine Fragennotitz haben.
 error_prt_without_first_node#:#Warnung: Sie möchten eine Frage ohne Ergebnisbaum-Struktur erzeugen. Stellen Sie sicher, dass es mindesten einen Ergebnisbaum (PRT) mit mindestens einem Knoten als Startknoten gibt.
 warning_use_evaluation_button_instead#:#Bitte verwenden Sie stattdessen den darüber liegenden Auswertungs-Knopf.
-error_in_question_text#:#Im Fragentext gibt es den folgenden Fehler
+error_in_question_text#:#Im Fragentext oder Fragen-Variablen gibt es den folgenden Fehler
 error_in_specific_feedback#:#Im spezifischen Feedback gibt es den folgenden Fehler
 xqcas_error_in_question_note#:#In der Fragennotiz gibt es den folgenden Fehler
 error_in_prt_correct#:#Im Feedback der richtigen Antwort gibt es den folgenden Fehler
@@ -358,3 +358,7 @@ options_specific_feedback_info#:#Standardgemäß wird Feedback für jeden potenz
 questions_updated_new_feedback_system#:#Anzahl Fragen, die auf das neue Feedback-System umgestellt wurden
 questions_updated_new_feedback_system2#:#Die Feedback-Platzhalter wurden in das Feld für das spezifische feedback verschoben, Sie können sie bei Bedarf in den Fragentext zurück verschieben.
 error_lack_of_following_feedback_placeholders#:#Die folgenden Ergebnisbäume haben keinen Feedback-Platzhalter (wie [[feedback:prt1]]) im Fragentext oder spezifischen Feedback:
+untitled_question#:#Untitel STACK Frage
+auth_tip1#:#Klicken Sie bitte auf den folgenden
+auth_tip2#:#um weitere Informationen über STACK-Fragen zu erhalten
+auth_tip3#:#Wenn Sie sich das erste Mal mit STACK-Fragen beschäftigen, dann lesen Sie den "Quick Authoring Guide", hier auch auf Deutsch:
