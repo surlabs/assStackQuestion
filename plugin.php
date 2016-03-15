@@ -15,7 +15,7 @@ $version = "2.3.1";
 $ilias_min_version = "5.0.0";
 $ilias_max_version = "5.1.999";
  
-// optional, but useful: Add one or more responsible persons and a contact email
+// optional, but useful: Add one or more responsible persons and a contact email3
 $responsible = "Fred Neumann, Jesus Copado";
 $responsible_mail = "fred.neumann@ili.fau.de, jesus.copado@ili.fau.de";
 ?>
