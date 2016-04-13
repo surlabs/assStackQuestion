@@ -336,10 +336,10 @@ class assStackQuestionFeedbackGUI
 		if (is_array($this->getFeedback('prt'))) {
 			foreach ($this->getFeedback('prt') as $prt_name => $prt) {
 				foreach ($prt['response'] as $input_name => $input) {
-					if ($input['model_answer'] AND $mode == "correct") {
+					if ($input['model_answer'] != "" AND $mode == "correct") {
 						$question_text = str_replace("[[input:" . $input_name . "]]", $this->getFilledInput($input['model_answer']), $question_text);
 						$question_text = str_replace("[[feedback:" . $prt_name . "]]", NULL, $question_text);
-					} elseif ($input['model_answer'] AND $mode == "user") {
+					} elseif ($input['model_answer'] != "" AND $mode == "user") {
 						$question_text = str_replace("[[input:" . $input_name . "]]", $this->getFilledInput($input['value']), $question_text);
 						$question_text = str_replace("[[feedback:" . $prt_name . "]]", $this->replacementForPRTPlaceholders($prt, $prt_name, $input), $question_text);
 						$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", $this->replacementForPRTPlaceholders($prt, $prt_name, $input), $specific_feedback);
@@ -424,8 +424,9 @@ class assStackQuestionFeedbackGUI
 			$input .= '</table>';
 
 		} else {
+			$size = strlen($value) + 10;
 			$input = "";
-			$input .= '<input type="text"  style="width:auto" value="' . $value . '" readonly>';
+			$input .= '<input type="text" size="' . $size . '" value="' . $value . '" readonly>';
 		}
 
 		return $input;

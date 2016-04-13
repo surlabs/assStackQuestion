@@ -338,12 +338,12 @@ error_exporting_to_moodle_question_id#:#Fehler: Die Fragen-ID wurde nicht gefund
 moodlexml_no_questions_selected#:#Fehler: Sie haben keine Frage ausgewählt.
 error_not_valid_prt_name#:#Der Name des Ergebnisbaums ist ungültig.
 exception_no_raw_given_in_keyval_creation#:#Beim Erzeugen des Maxima-Befehls gab es einen Fehler.
-error_no_question_note#:#Eine Frage mit zufälligen Variablen muss eine Fragennotitz haben.
+error_no_question_note#:#Eine Frage mit zufälligen Variablen muss einen Aufgabenhinweis haben.
 error_prt_without_first_node#:#Warnung: Sie möchten eine Frage ohne Ergebnisbaum-Struktur erzeugen. Stellen Sie sicher, dass es mindesten einen Ergebnisbaum (PRT) mit mindestens einem Knoten als Startknoten gibt.
 warning_use_evaluation_button_instead#:#Bitte verwenden Sie stattdessen den darüber liegenden Auswertungs-Knopf.
 error_in_question_text#:#Im Fragentext oder Fragen-Variablen gibt es den folgenden Fehler
 error_in_specific_feedback#:#Im spezifischen Feedback gibt es den folgenden Fehler
-xqcas_error_in_question_note#:#In der Fragennotiz gibt es den folgenden Fehler
+error_in_question_note#:#Fehler im Aufgabenhinweis
 error_in_prt_correct#:#Im Feedback der richtigen Antwort gibt es den folgenden Fehler
 error_in_prt_partially_correct#:#Im Feedback der teilweise richtigen Antwort gibt es den folgenden Fehler
 error_in_prt_incorrect#:#Im Feedback der falschen Antwort gibt es den folgenden Fehler

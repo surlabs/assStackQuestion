@@ -99,6 +99,7 @@ class assStackQuestionAuthoringGUI
 		//ADD predefined input and validation fields
 		if ($this->getQuestionGUI()->object->getQuestion() == "") {
 			$this->getQuestionGUI()->object->setQuestion("[[input:ans1]] [[validation:ans1]]");
+			$this->getQuestionGUI()->object->setPoints("1");
 		}
 
 		//Add question title when blank
@@ -188,9 +189,15 @@ class assStackQuestionAuthoringGUI
 			//In case of edition
 			foreach ($this->getQuestionGUI()->object->getInputs() as $input_name => $input) {
 				$input_part = $this->getInputPart($input);
-				$input_part->setType($input_name);
+				$input_part->setTitle($input_name);
 				$inputs->addPart($input_part);
 			}
+			$this->getForm()->addItem($inputs);
+		}else{
+			$input = new assStackQuestionInput("",$this->getQuestionGUI()->object->getId(),"ans1", "algebraic", "");
+			$input_part = $this->getInputPart($input);
+			$input_part->setTitle("ans1");
+			$inputs->addPart($input_part);
 			$this->getForm()->addItem($inputs);
 		}
 	}
@@ -359,6 +366,7 @@ class assStackQuestionAuthoringGUI
 
 		$input_model_answer = new ilTextInputGUI($this->getPlugin()->txt('input_model_answer'), $input->getInputName() . '_input_model_answer');
 		$input_model_answer->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('input_model_answer_info') : '');
+		$input_model_answer->setRequired(TRUE);
 
 		$input_box_size = new ilTextInputGUI($this->getPlugin()->txt('input_box_size'), $input->getInputName() . '_input_box_size');
 		$input_box_size->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('input_box_size_info') : '');

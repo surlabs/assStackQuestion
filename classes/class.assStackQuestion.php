@@ -1087,6 +1087,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 				//load inputs
 				$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionInput.php');
 				$this->setInputs(assStackQuestionInput::_read($question_id));
+				if (sizeof($this->getInputs()) == 0) {
+					//Create options
+					$input = new assStackQuestionInput(-1, $question_id, "ans1", "algebraic", "");
+					$input->getDefaultInput();
+					$input->checkInput(TRUE);
+					$input->save();
+					$this->setInputs(array("ans1" => $input));
+				}
 
 				//load PRTs and PRT nodes
 				$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionPRT.php');
