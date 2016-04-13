@@ -192,6 +192,7 @@ class assStackQuestionStackQuestion
 	 */
 	public function init(assStackQuestion $ilias_question, $step_to_stop = '', $maintain_seed = -1)
 	{
+		global $lng;
 		//Step 0: set question id and points and set if instant validation is shown
 		$this->setQuestionId($ilias_question->getId());
 		$this->setPoints($ilias_question->getPoints());
@@ -212,7 +213,12 @@ class assStackQuestionStackQuestion
 		//Step 4: Create Session
 		$this->createSession();
 		//Step 5: Create Inputs
-		$this->createInputs($ilias_question);
+		$error = $this->createInputs($ilias_question);
+		if (is_string($error)){
+			ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_no_model_solution_for_this_input") . ": " . $error, TRUE);
+			return TRUE;
+		}
+
 		//Step 6: Add correct answer as sesion value for all inputs
 		$this->addTeacherAnswersToSession($ilias_question);
 		//Step 7: Calculate Session lenght;
@@ -308,13 +314,13 @@ class assStackQuestionStackQuestion
 				'caskey' => 'assume_pos',
 				'castype' => 'ex',
 			),
-			'matrixparens'   => array(
-				'type'       => 'list',
-				'value'      => $ilias_options->getMatrixParens(),
-				'strict'     => true,
-				'values'     => array('[', '(', '', '{', '|'),
-				'caskey'     => 'lmxchar',
-				'castype'    => 'exs',
+			'matrixparens' => array(
+				'type' => 'list',
+				'value' => $ilias_options->getMatrixParens(),
+				'strict' => true,
+				'values' => array('[', '(', '', '{', '|'),
+				'caskey' => 'lmxchar',
+				'castype' => 'exs',
 			)
 		);
 
@@ -473,6 +479,9 @@ class assStackQuestionStackQuestion
 				} else {
 					$specific_parameters = array();
 				}
+				if ($input->getTeacherAnswer() == " " OR $input->getTeacherAnswer() == "") {
+					return $input_name;
+				}
 				$input_parameters = array(
 					'type' => $input->getInputType(),
 					'name' => $input_name,
@@ -480,11 +489,14 @@ class assStackQuestionStackQuestion
 					'parameters' => $specific_parameters
 				);
 				$stack_inputs[$input_name] = $this->getStackFactory()->get("input_object", $input_parameters);
+
 			}
 			if (sizeof($stack_inputs)) {
 				$this->setInputs($stack_inputs);
 			}
 		}
+
+		return TRUE;
 	}
 
 	/**

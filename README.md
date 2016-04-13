@@ -114,6 +114,23 @@ Version History
 * Former versions can be found in ILIAS SVN: http://svn.ilias.de/svn/ilias/branches/fau/plugins, but are not longer updated
 
 
+GitHub Version 2.3.3 (2016-04-13)
+---------------------------------
+This version includes some bugfixing.
+- In configuration, the list of maxima versions available is now the same than in STACK 3.3 for Moodle. Plase notice that as it is said in the
+STACK for Moodle version, some maxima versions can present some errors.
++The following bugs have been solved
+- http://www.ilias.de/mantis/view.php?id=18124 Regarding error when model answer is 0.
+- http://www.ilias.de/mantis/view.php?id=18244 Regarding text error of question note.
+- http://www.ilias.de/mantis/view.php?id=18248 Regarding error in text.
+- http://www.ilias.de/mantis/view.php?id=18249 Regarding scoring of a new question, now set to 1.
+- http://www.ilias.de/mantis/view.php?id=18246 regarding Inputs in recently created question.
+- http://www.ilias.de/mantis/view.php?id=18247 regarding Model answer of new inputs.
+- http://www.ilias.de/mantis/view.php?id=18123 Regarding best solution showing.
+- http://www.ilias.de/mantis/view.php?id=18263 Regarding error with matrix parens
+
+
+
 GitHub Version 2.3.1 (2016-03-14)
 ---------------------------------
 This version includes some ideas from SIG Mathe+ILIAS Meeting in Bremen. like The links to the authoring guides in the head of the authoring page.

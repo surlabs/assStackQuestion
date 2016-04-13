@@ -117,6 +117,7 @@ class assStackQuestionPreviewGUI extends ilAssQuestionPreviewGUI
 		//Part 3: Question feedback when existing.
 		if ($feedback_gui) {
 			$this->getTemplate()->setVariable('QUESTION_FEEDBACK', $feedback_gui->get());
+
 		}
 	}
 

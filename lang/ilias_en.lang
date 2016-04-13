@@ -343,7 +343,7 @@ error_prt_without_first_node#:#Warning, you created a question without Potential
 warning_use_evaluation_button_instead#:#Please, use the evaluate answer button above instead.
 error_in_question_text#:#In question text or question variables occurs the following error
 error_in_specific_feedback#:#The specific feedback has the following error
-xqcas_error_in_question_note#:#The question note nas the following error
+error_in_question_note#:#Error in question note
 error_in_prt_correct#:#The feedback for correct solution text has the following error
 error_in_prt_partially_correct#:#The feedback for partially correct solution text has the following error
 error_in_prt_incorrect#:#The feedback for incorrect solution text has the following error

@@ -410,7 +410,7 @@ class assStackQuestionInput
 		}
 		if ($this->getTeacherAnswer() == NULL OR $this->getTeacherAnswer() == "") {
 			if ($solve_problems) {
-				$this->setTeacherAnswer($this->getInputName());
+				$this->setTeacherAnswer(" ");
 			} else {
 				return false;
 			}

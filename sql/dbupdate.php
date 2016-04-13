@@ -973,3 +973,36 @@ if ($ilDB->tableExists('xqcas_options') AND $ilDB->tableExists('xqcas_prts'))
 	ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_questions_updated_new_feedback_system") . ": " . $counter. ". ". $lng->txt("qpl_qst_xqcas_questions_updated_new_feedback_system"));
 }
 ?>
+<#30>
+<?php
+
+	if ($ilDB->tableExists('xqcas_options'))
+        {
+            //Get matrix parens field
+			require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/ilias_object/class.assStackQuestionOptions.php');
+			$options_result = $ilDB->query("SELECT question_id, matrix_parens FROM xqcas_options");
+            while ($options_row = $ilDB->fetchAssoc($options_result)) {
+                $matrix_parens = $options_row['matrix_parens'];
+                $question_id = $options_row['question_id'];
+                switch($matrix_parens){
+                    case "]":
+                        $options = assStackQuestionOptions::_read($question_id);
+                        $options->setMatrixParens("[");
+                        $options->save();
+                        break;
+                    case ")":
+                        $options = assStackQuestionOptions::_read($question_id);
+                        $options->setMatrixParens("(");
+                        $options->save();
+                        break;
+                    case "}":
+                        $options = assStackQuestionOptions::_read($question_id);
+                        $options->setMatrixParens("{");
+                        $options->save();
+                        break;
+                    default:
+                        break;
+                }
+            }
+		}
+?>

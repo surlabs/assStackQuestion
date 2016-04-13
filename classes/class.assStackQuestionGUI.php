@@ -224,7 +224,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		foreach ($text_inputs as $input_name) {
 			if (is_null($this->object->getInputs($input_name))) {
 				//Create new Input
-				$new_input = new assStackQuestionInput(-1, $this->object->getId(), $input_name, 'algebraic', $input_name);
+				$new_input = new assStackQuestionInput(-1, $this->object->getId(), $input_name, 'algebraic', "");
 				$new_input->getDefaultInput();
 				$new_input->checkInput(TRUE);
 				$new_input->save();
