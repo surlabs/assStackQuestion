@@ -114,6 +114,11 @@ Version History
 * Former versions can be found in ILIAS SVN: http://svn.ilias.de/svn/ilias/branches/fau/plugins, but are not longer updated
 
 
+GitHub Version 2.3.4 (2016-05-23)
+---------------------------------
+This version includes some bugfixing.
+
+
 GitHub Version 2.3.3 (2016-04-13)
 ---------------------------------
 This version includes some bugfixing.
