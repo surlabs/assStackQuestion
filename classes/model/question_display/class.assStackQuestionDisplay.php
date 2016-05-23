@@ -106,7 +106,7 @@ class assStackQuestionDisplay
 		$display_data['question_specific_feedback'] = $this->getQuestion()->getSpecificFeedbackInstantiated();
 
 		//Set question_id
-		$display_data['question_id'] = $this->getQuestion()->getQuestionId();
+		$display_data['question_id'] = (string)$this->getQuestion()->getQuestionId();
 
 		//Step 1: Get the replacement per each placeholder.
 		foreach ($this->getQuestion()->getInputs() as $input_name => $input) {
@@ -138,23 +138,14 @@ class assStackQuestionDisplay
 	{
 		//Get student answer for this inputF
 		//In assStackQuestionDisplay the User response should be store with the "value" format for assStackQuestionUtils::_getUserResponse.
-		if (!is_a($input, 'stack_matrix_input')) {
-			if($in_test){
-				$student_answer = $this->getUserResponse($input_name);
-			}else{
-				$student_answer = $this->getUserResponse();
-			}
-		} else {
-			$student_answer = $this->getUserResponse();
-		}
+		$student_answer = $this->getUserResponse($input_name, $in_test);
 
 		//Create input state
 		$state = $this->getQuestion()->getInputState($input_name, $student_answer, $input->get_parameter('forbidWords', ''));
-
 		//Return renderised input
-		if(!is_a($input, 'stack_matrix_input')){
+		if (!is_a($input, 'stack_matrix_input')) {
 			return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE);
-		}else{
+		} else {
 			return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE);
 		}
 	}
@@ -230,23 +221,48 @@ class assStackQuestionDisplay
 	 * @param string $selector
 	 * @return array
 	 */
-	public function getUserResponse($selector = '')
+	public function getUserResponse($selector = '', $in_test = FALSE)
 	{
+		$user_answer = array();
+
 		//In assStackQuestionDisplay the User response should be stored with the "value" format for assStackQuestionUtils::_getUserResponse.
 		if ($selector) {
 			if (is_array($this->user_response)) {
-				if (array_key_exists('xqcas_input_' . $selector . '_value', $this->user_response)) {
+				if ($in_test) {
+					if (array_key_exists('xqcas_input_' . $selector . '_value', $this->user_response)) {
+						foreach ($this->getQuestion()->getInputs() as $input_name => $input) {
+							if ($input_name == $selector) {
+								if (is_a($input, 'stack_matrix_input')) {
+									$user_answer[$selector] = $this->user_response['xqcas_input_' . $input_name . '_value'];
+								} else {
+									$user_answer[$selector] = array($selector => $this->user_response['xqcas_input_' . $selector . '_value']);
+								}
+							}
+						}
+					} else {
+						return array($selector => '');
+					}
+
+					return $user_answer[$selector];
+				} else {
+					//preview mode
 					foreach ($this->getQuestion()->getInputs() as $input_name => $input) {
 						if ($input_name == $selector) {
 							if (is_a($input, 'stack_matrix_input')) {
-								return $input->get_expected_data($this->user_response['xqcas_input_' . $selector . '_value']);
+								$matrix_input = array();
+								foreach ($this->user_response as $sub_key => $response) {
+									if (strpos($sub_key, $input_name . "_") !== FALSE) {
+										$matrix_input[$sub_key] = $response;
+									}
+								}
+								$user_answer[$selector] = $matrix_input;
 							} else {
-								return array($selector => $this->user_response['xqcas_input_' . $selector . '_value']);
+								$user_answer[$selector] = array($selector =>$this->user_response[$selector]);
 							}
 						}
 					}
-				} else {
-					return array($selector => '');
+
+					return $user_answer[$selector];
 				}
 			} else {
 				return array();

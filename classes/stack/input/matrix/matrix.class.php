@@ -48,8 +48,7 @@ class stack_matrix_input extends stack_input {
 
     public function get_expected_data() {
         $expected = array();
-
-		// All the matrix elements.
+        // All the matrix elements.
 		for ($i = 0; $i < $this->height; $i++)
 		{
 			for ($j = 0; $j < $this->width; $j++)
