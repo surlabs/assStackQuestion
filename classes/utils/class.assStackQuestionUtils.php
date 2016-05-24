@@ -25,14 +25,12 @@ class assStackQuestionUtils
 	 *
 	 * @param $text
 	 * @return mixed
-	 * @deprecated
 	 */
 	public static function _debugText($text)
 	{
 		$text1 = str_replace("<", "< ", $text);
 		$text2 = str_replace(">", " >", $text1);
-
-		return self::_solveHTMLProblems($text2);
+		return $text2;
 	}
 
 	/**
@@ -380,8 +378,8 @@ class assStackQuestionUtils
 							$new_user_response_array['xqcas_input_' . $input_name . '_value'] = $user_response[$input_name];
 						}
 					} else {
-						$new_user_response_array = $input->maxima_to_response_array($user_response[$input_name]);
-						unset($new_user_response_array[$input_name . '_val']);
+						$new_user_response_array['xqcas_input_' . $input_name . '_value'] = $input->maxima_to_response_array($user_response[$input_name]);
+						unset($new_user_response_array['xqcas_input_' . $input_name . '_value'][$input_name . '_val']);
 					}
 				}
 				break;

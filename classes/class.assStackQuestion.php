@@ -263,7 +263,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 
 		//Evaluate question
 		$question_evaluation = $evaluation_object->evaluateQuestion();
-
 		//Step #3: Calculate points
 		$question_evaluation->calculatePoints();
 
@@ -272,6 +271,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		$this->getPlugin()->includeClass('model/question_evaluation/class.assStackQuestionFeedback.php');
 		$feedback_object = new assStackQuestionFeedback($this->getPlugin(), $question_evaluation);
 		$feedback_data = $feedback_object->getFeedback();
+
 //Save question text instantiated
 		$this->saveWorkingDataValue($active_id, $pass, 'xqcas_text_' . $this->getStackQuestion()->getQuestionId(), $feedback_data['question_text'], NULL, $time);
 		//Save question note
@@ -290,6 +290,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 				$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_display_' . $input_name, $response['display'], NULL, $time);
 				//value1 = xqcas_input_*_model_answer, value2 = student answer for this question input in LaTeX
 				$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_' . $input_name, $response['model_answer'], NULL, $time);
+				//value1 = xqcas_input_*_model_answer_diplay_, value2 = model answer for this question input in LaTeX
+				if(isset($response['model_answer_display'])){
+					$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_display_' . $input_name, $response['model_answer_display'], NULL, $time);
+				}
 			}
 			//value1 = xqcas_input_*_errors, $value2 = feedback given by CAS
 			$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_errors', $prt['errors'], NULL, $time);
@@ -306,7 +310,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			//Set entered values as TRUE
 			$entered_values = TRUE;
 		}
-
 		return $entered_values;
 	}
 
@@ -434,6 +437,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 								unset($db_values[$index]);
 							} elseif ($value['value1'] == 'xqcas_prt_' . $prt_name . '_model_answer_' . $input_name) {
 								$results['prt'][$prt_name]['response'][$input_name]['model_answer'] = $value['value2'];
+								unset($db_values[$index]);
+							}
+							elseif ($value['value1'] == 'xqcas_prt_' . $prt_name . '_model_answer_display_' . $input_name) {
+								$results['prt'][$prt_name]['response'][$input_name]['model_answer_display'] = $value['value2'];
 								unset($db_values[$index]);
 							}
 						}
@@ -842,6 +849,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			foreach ($this->potential_responses_trees as $prt) {
 				$prt->save();
 			}
+
+			//ADD prt placeholder
+			$specific_feedback = $this->options->getSpecificFeedback();
+			$specific_feedback .= " [[feedback:prt1]]";
+			$this->options->setSpecificFeedback($specific_feedback);
+			$this->options->save();
 		}
 
 		//EXTRA info

@@ -106,6 +106,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function writePostData($always = FALSE)
 	{
+
 		$hasErrors = (!$always) ? $this->editQuestion(TRUE) : FALSE;
 		if (!$hasErrors) {
 			if ($this->deletionManagement()) {
@@ -431,6 +432,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		//Create feedback output from feedback class
 		$this->plugin->includeClass("GUI/question_display/class.assStackQuestionFeedbackGUI.php");
 		$question_feedback_object = new assStackQuestionFeedbackGUI($this->plugin, $solutions);
+
 		$feedback_data = $question_feedback_object->getFeedback();
 
 		//Include display classes
@@ -455,7 +457,6 @@ class assStackQuestionGUI extends assQuestionGUI
 		$container_tpl = $this->plugin->getTemplate("tpl.il_as_qpl_xqcas_question_container.html");
 		$container_tpl->setVariable('QUESTION', $question_display_gui->get());
 		$questionoutput = $container_tpl->get();
-
 		return $questionoutput;
 	}
 

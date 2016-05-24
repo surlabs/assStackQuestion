@@ -106,6 +106,7 @@ class assStackQuestionFeedback
 		//Prepare user response structure array
 		$user_responses = array();
 
+		$count =0;
 		//Fill user_response per each input evaluated by current PRT
 		foreach ($inputs_evaluated as $input_name => $user_response_value) {
 			//Input is Ok, use input states
@@ -113,19 +114,25 @@ class assStackQuestionFeedback
 				//Fill value
 				$user_responses[$input_name]['value'] = $this->getQuestion()->getInputStates($input_name)->__get('contentsmodified');
 				//Fill LaTeX display
-				$user_responses[$input_name]['display'] = assStackQuestionUtils::_solveKeyBracketsBug($this->getQuestion()->getInputStates($input_name)->__get('contentsdisplayed'));
+				$user_responses[$input_name]['display'] = assStackQuestionUtils::_getLatexText(assStackQuestionUtils::_solveKeyBracketsBug($this->getQuestion()->getInputStates($input_name)->__get('contentsdisplayed')));
 				//Fill model answer
 				$user_responses[$input_name]['model_answer'] = $this->getModelAnswerForInput($input_name);
+				//Fill model answer display
+				$user_responses[$input_name]['model_answer_display'] = $this->getModelAnswerDisplay($input_name);
+
 			} else {
 				//Input was not Ok, use getLatexText
 				//Fill value
 				$user_responses[$input_name]['value'] = $user_response_value;
 				//Fill LaTeX display
-				$user_responses[$input_name]['display'] = ilUtil::insertLatexImages('\[ ' . assStackQuestionUtils::_solveKeyBracketsBug($user_response_value) . ' \]');
+				$user_responses[$input_name]['display'] = ilUtil::insertLatexImages(assStackQuestionUtils::_solveKeyBracketsBug($user_response_value));
 				//Fill model answer
 				$user_responses[$input_name]['model_answer'] = $this->getModelAnswerForInput($input_name);
+				//Fill model answer display
+				$user_responses[$input_name]['model_answer_display'] = assStackQuestionUtils::_getLatexText($this->getModelAnswerDisplay($input_name));
 			}
 		}
+
 		return $user_responses;
 	}
 
@@ -146,6 +153,20 @@ class assStackQuestionFeedback
 			//If not, returns the session value with key the input name.
 			return assStackQuestionUtils::_getLatexText($this->getQuestion()->getSession()->get_display_key($input_name));
 		}
+	}
+
+	/**
+	 * Gets the model answer for the current input
+	 * @param string $input_name
+	 * @return string
+	 */
+	private function getModelAnswerDisplay($input_name)
+	{
+		//TODO MATRIX ERROR
+		$raw = $this->getQuestion()->getSession()->get_display_key($input_name);
+		$raw1 = str_replace('\left[',"",$raw);
+		$raw2 = str_replace('\right]',"",$raw1);
+		return $raw2;
 	}
 
 	/**

@@ -41,6 +41,7 @@ class assStackQuestionFeedbackGUI
 	 */
 	function __construct(ilassStackQuestionPlugin $plugin, $feedback_data, $specific_feedback = "")
 	{
+
 		//Set plugin object
 		$this->setPlugin($plugin);
 
@@ -330,17 +331,15 @@ class assStackQuestionFeedbackGUI
 	{
 		$question_text = $this->getFeedback('question_text');
 		$specific_feedback = $this->specific_feedback;
-
-
 		$question_text = preg_replace('/\[\[validation:(.*?)\]\]/', "", $question_text);
 		if (is_array($this->getFeedback('prt'))) {
 			foreach ($this->getFeedback('prt') as $prt_name => $prt) {
 				foreach ($prt['response'] as $input_name => $input) {
 					if ($input['model_answer'] != "" AND $mode == "correct") {
-						$question_text = str_replace("[[input:" . $input_name . "]]", $this->getFilledInput($input['model_answer']), $question_text);
+						$question_text = str_replace("[[input:" . $input_name . "]]", $this->getFilledInputBest($input['model_answer_display'], $input['model_answer']), $question_text);
 						$question_text = str_replace("[[feedback:" . $prt_name . "]]", NULL, $question_text);
 					} elseif ($input['model_answer'] != "" AND $mode == "user") {
-						$question_text = str_replace("[[input:" . $input_name . "]]", $this->getFilledInput($input['value']), $question_text);
+						$question_text = str_replace("[[input:" . $input_name . "]]", $this->getFilledInputUser($input['display']), $question_text);
 						$question_text = str_replace("[[feedback:" . $prt_name . "]]", $this->replacementForPRTPlaceholders($prt, $prt_name, $input), $question_text);
 						$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", $this->replacementForPRTPlaceholders($prt, $prt_name, $input), $specific_feedback);
 					} elseif ($mode == "user") {
@@ -353,7 +352,6 @@ class assStackQuestionFeedbackGUI
 				}
 			}
 		}
-
 		if ($mode == "correct") {
 			$deco_question_text = '<div class="alert alert-warning" role="alert">' . $question_text;
 			$deco_question_text .= '</div>';
@@ -385,51 +383,29 @@ class assStackQuestionFeedbackGUI
 		return $string;
 	}
 
-	private function getFilledInput($value)
+	private function getFilledInputUser($value)
 	{
 		if (preg_match("/^matrix.*/", $value)) {
-			$matrix = array();
-			$row = 0;
-			$exploded_raw1 = explode("(", $value);
-			$exploded_raw2 = rtrim($exploded_raw1["1"], ")");
-			$exploded_raw3 = explode("[", $exploded_raw2);
-			foreach ($exploded_raw3 as $raw_row) {
-				if ($raw_row != "") {
-					if (substr($raw_row, -1) == ",") {
-						//New Row
-						$row_exploded1 = rtrim($raw_row, "],");
-						$matrix[$row] = explode(",", $row_exploded1);
-						$row++;
-					} elseif (substr($raw_row, -1) == "]") {
-						//Last row
-						//New Row
-						$row_exploded1 = rtrim($raw_row, "]");
-						$matrix[$row] = explode(",", $row_exploded1);
-						$row++;
-						break;
-					}
-				}
-			}
-
-			$input = '<table>';
-			foreach ($matrix as $row) {
-				$input .= '<tr>';
-				foreach ($row as $column) {
-					$input .= '<td>';
-					$input .= "\[" . $column . "\]";
-					$input .= "<td><td>&nbsp</td>";
-				}
-				$input .= '</tr>';
-			}
-			$input .= '</table>';
-
 		} else {
 			$size = strlen($value) + 10;
 			$input = "";
 			$input .= '<input type="text" size="' . $size . '" value="' . $value . '" readonly>';
 		}
 
-		return $input;
+		return $value;
+	}
+
+	private function getFilledInputBest($model_answer_display, $model_answer)
+	{
+		if (strpos($model_answer_display, "begin{array}")) {
+			return $model_answer_display;
+
+		} else {
+			$size = strlen($model_answer) + 10;
+			$input = "";
+			$input .= '<input type="text" size="' . $size . '" value="' . $model_answer . '" readonly>';
+			return $input;
+		}
 	}
 
 	private function getQuestionHowToSolve($text)
@@ -501,7 +477,7 @@ class assStackQuestionFeedbackGUI
 			return $this->feedback['prt'][$prt_name][$selector];
 		} elseif ($selector) {
 			//For selection of specific data non related to an input.
-			if ($this->feedback[$selector]) {
+			if (isset($this->feedback[$selector])) {
 				return $this->feedback[$selector];
 			} else {
 				return "";
