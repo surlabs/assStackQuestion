@@ -451,7 +451,7 @@ class assStackQuestionOptions
 	 */
 	public function writePostData($a_rte_tags = "")
 	{
-		$this->setQuestionVariables(ilUtil::stripSlashes($_POST['options_question_variables']));
+		$this->setQuestionVariables($_POST['options_question_variables']);
 		$this->setQuestionSimplify(ilUtil::stripSlashes($_POST['options_question_simplify']));
 		$this->setSpecificFeedback(ilUtil::stripSlashes($_POST['options_specific_feedback'], true, $a_rte_tags));
 		$this->setPRTCorrect(ilUtil::stripSlashes($_POST['options_prt_correct'], true, $a_rte_tags));

@@ -114,9 +114,15 @@ Version History
 * Former versions can be found in ILIAS SVN: http://svn.ilias.de/svn/ilias/branches/fau/plugins, but are not longer updated
 
 
-GitHub Version 2.3.4 (2016-05-23)
+GitHub Version 2.3.4 (2016-05-24)
 ---------------------------------
 This version includes some bugfixing.
+- http://www.ilias.de/mantis/view.php?id=18343 Regarding error with < and <= in question variables.
+- http://www.ilias.de/mantis/view.php?id=18404 and
+- http://www.ilias.de/mantis/view.php?id=18091 Regarding error when more than one matrix in the same question
+- http://www.ilias.de/mantis/view.php?id=18263 Regarding matrix representation in best solutions
+- http://www.ilias.de/mantis/view.php?id=18347 Regarding feedback placeholder not created
+- Solved a false error message in the healthcheck.
 
 
 GitHub Version 2.3.3 (2016-04-13)
