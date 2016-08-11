@@ -84,6 +84,14 @@ il.assStackQuestion = new function () {
 			var input_value = $('#xqcas_' + question_id + '_' + input_name).val();
 		}
 
+		/**
+		 * Hide current question feedback
+		 */
+		$(".alert").hide();
+		$(".test_specific_feedback").hide();
+		$(".ilAssQuestionRelatedNavigationContainer:first").nextUntil(".ilAssQuestionRelatedNavigationContainer").hide();
+
+
 		$.getScript(config.mathjax_url, function () {
 
 			alert("Script loaded and executed.");

@@ -114,6 +114,13 @@ Version History
 * Former versions can be found in ILIAS SVN: http://svn.ilias.de/svn/ilias/branches/fau/plugins, but are not longer updated
 
 
+GitHub Version 2.3.5 (2016-8-11)
+--------------------------------
+This version includes some bugfixing.
+- http://www.ilias.de/mantis/view.php?id=18477 Regarding Error in matrix questions feedback.
+- Usability problem regarding old feedback after validation solved, now feedback given is gone when input is changed in instant validation mode or when click on validate if instant validation is not active.
+
+
 GitHub Version 2.3.4 (2016-05-24)
 ---------------------------------
 This version includes some bugfixing.
