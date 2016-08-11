@@ -419,7 +419,7 @@ $string['stackCas_CASErrorCaused']          = 'verursacht durch den folgenden Fe
 $string['Maxima_DivisionZero']  = 'Division durch Null.';
 $string['Lowest_Terms']   = 'Ihre Antwort enthält Brüche, die nicht vollständig gekürzt sind. Bitte kürzen sie entsprechende Faktoren heraus und versuchen sie es nochmal.';
 $string['Illegal_floats'] = 'Ihre Antwort enthält Fließkommazahlen, welche in dieser Aufgabe nicht erlaubt sind. Bitte geben sie die Zahlen als Brüche ein. So sollten sie 1/3 und nicht 0.3333 (welche nur eine Annäherung darstellt) eingeben.';
-$string['qm_error'] = 'Ihre Antwort enthält das Fragezeichen "?", welches in Anworten nicht erlaubt ist. Bitte ersetzen sie es mit konkreten Werten.';
+$string['qm_error'] = 'Ihre Antwort ist nicht vollständig. Bitte füllen Sie alle Lücken in der Matrix aus.';
 
 // Answer tests.
 $string['stackOptions_AnsTest_values_AlgEquiv']           =  "AlgEquiv";
