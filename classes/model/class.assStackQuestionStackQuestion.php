@@ -173,10 +173,12 @@ class assStackQuestionStackQuestion
 	 */
 	public function __construct($active_id = NULL, $pass = NULL)
 	{
-		if ($active_id == NULL OR $pass == NULL) {
+		if ($active_id == NULL OR $pass == NULL)
+		{
 			$this->setActiveId(-1);
 			$this->setPass(-1);
-		} else {
+		} else
+		{
 			$this->setActiveId($active_id);
 			$this->setPass($pass);
 		}
@@ -196,9 +198,11 @@ class assStackQuestionStackQuestion
 		//Step 0: set question id and points and set if instant validation is shown
 		$this->setQuestionId($ilias_question->getId());
 		$this->setPoints($ilias_question->getPoints());
-		if (is_object($ilias_question->getExtraInfo())) {
+		if (is_object($ilias_question->getExtraInfo()))
+		{
 			$this->setPenalty($ilias_question->getExtraInfo()->getPenalty());
-		} else {
+		} else
+		{
 			$this->setPenalty(0);
 		}
 
@@ -214,8 +218,10 @@ class assStackQuestionStackQuestion
 		$this->createSession();
 		//Step 5: Create Inputs
 		$error = $this->createInputs($ilias_question);
-		if (is_string($error)){
+		if (is_string($error))
+		{
 			ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_no_model_solution_for_this_input") . ": " . $error, TRUE);
+
 			return TRUE;
 		}
 
@@ -228,15 +234,18 @@ class assStackQuestionStackQuestion
 
 		//Step 9: Prepare all CAS Text and Instantiate the session
 		//Conversion can be stopped here when only display mode
-		if ($step_to_stop == 8) {
+		if ($step_to_stop == 8)
+		{
 			$this->prepareAllCasTexts($ilias_question, TRUE);
 
 			return TRUE;
-		} else {
+		} else
+		{
 			$this->prepareAllCasTexts($ilias_question);
 		}
 
-		if ($step_to_stop == 9) {
+		if ($step_to_stop == 9)
+		{
 			return TRUE;
 		}
 		//Step 10: Create PRT for evaluation purposes
@@ -250,79 +259,7 @@ class assStackQuestionStackQuestion
 	public function createOptions(assStackQuestionOptions $ilias_options)
 	{
 		$parameters = array( // Array of public class settings for this class.
-			'display' => array(
-				'type' => 'list',
-				'value' => 'LaTeX',
-				'strict' => true,
-				'values' => array('LaTeX', 'MathML', 'String'),
-				'caskey' => 'OPT_OUTPUT',
-				'castype' => 'string',
-			),
-			'multiplicationsign' => array(
-				'type' => 'list',
-				'value' => $ilias_options->getMultiplicationSign(),
-				'strict' => true,
-				'values' => array('dot', 'cross', 'none'),
-				'caskey' => 'make_multsgn',
-				'castype' => 'fun',
-			),
-			'complexno' => array(
-				'type' => 'list',
-				'value' => $ilias_options->getComplexNumbers(),
-				'strict' => true,
-				'values' => array('i', 'j', 'symi', 'symj'),
-				'caskey' => 'make_complexJ',
-				'castype' => 'fun',
-			),
-			'inversetrig' => array(
-				'type' => 'list',
-				'value' => $ilias_options->getInverseTrig(),
-				'strict' => true,
-				'values' => array('cos-1', 'acos', 'arccos'),
-				'caskey' => 'make_arccos',
-				'castype' => 'fun',
-			),
-			'floats' => array(
-				'type' => 'boolean',
-				'value' => 1,
-				'strict' => true,
-				'values' => array(),
-				'caskey' => 'OPT_NoFloats',
-				'castype' => 'ex',
-			),
-			'sqrtsign' => array(
-				'type' => 'boolean',
-				'value' => $ilias_options->getSqrtSign(),
-				'strict' => true,
-				'values' => array(),
-				'caskey' => 'sqrtdispflag',
-				'castype' => 'ex',
-			),
-			'simplify' => array(
-				'type' => 'boolean',
-				'value' => $ilias_options->getQuestionSimplify(),
-				'strict' => true,
-				'values' => array(),
-				'caskey' => 'simp',
-				'castype' => 'ex',
-			),
-			'assumepos' => array(
-				'type' => 'boolean',
-				'value' => $ilias_options->getAssumePositive(),
-				'strict' => true,
-				'values' => array(),
-				'caskey' => 'assume_pos',
-				'castype' => 'ex',
-			),
-			'matrixparens' => array(
-				'type' => 'list',
-				'value' => $ilias_options->getMatrixParens(),
-				'strict' => true,
-				'values' => array('[', '(', '', '{', '|'),
-				'caskey' => 'lmxchar',
-				'castype' => 'exs',
-			)
-		);
+			'display' => array('type' => 'list', 'value' => 'LaTeX', 'strict' => true, 'values' => array('LaTeX', 'MathML', 'String'), 'caskey' => 'OPT_OUTPUT', 'castype' => 'string',), 'multiplicationsign' => array('type' => 'list', 'value' => $ilias_options->getMultiplicationSign(), 'strict' => true, 'values' => array('dot', 'cross', 'none'), 'caskey' => 'make_multsgn', 'castype' => 'fun',), 'complexno' => array('type' => 'list', 'value' => $ilias_options->getComplexNumbers(), 'strict' => true, 'values' => array('i', 'j', 'symi', 'symj'), 'caskey' => 'make_complexJ', 'castype' => 'fun',), 'inversetrig' => array('type' => 'list', 'value' => $ilias_options->getInverseTrig(), 'strict' => true, 'values' => array('cos-1', 'acos', 'arccos'), 'caskey' => 'make_arccos', 'castype' => 'fun',), 'floats' => array('type' => 'boolean', 'value' => 1, 'strict' => true, 'values' => array(), 'caskey' => 'OPT_NoFloats', 'castype' => 'ex',), 'sqrtsign' => array('type' => 'boolean', 'value' => $ilias_options->getSqrtSign(), 'strict' => true, 'values' => array(), 'caskey' => 'sqrtdispflag', 'castype' => 'ex',), 'simplify' => array('type' => 'boolean', 'value' => $ilias_options->getQuestionSimplify(), 'strict' => true, 'values' => array(), 'caskey' => 'simp', 'castype' => 'ex',), 'assumepos' => array('type' => 'boolean', 'value' => $ilias_options->getAssumePositive(), 'strict' => true, 'values' => array(), 'caskey' => 'assume_pos', 'castype' => 'ex',), 'matrixparens' => array('type' => 'list', 'value' => $ilias_options->getMatrixParens(), 'strict' => true, 'values' => array('[', '(', '', '{', '|'), 'caskey' => 'lmxchar', 'castype' => 'exs',));
 
 		$this->setOptions($this->getStackFactory()->get("options", $parameters));
 	}
@@ -335,40 +272,52 @@ class assStackQuestionStackQuestion
 	 */
 	public function createSeed($ilias_question, $seed = -1)
 	{
-		if (is_a($ilias_question, "assStackQuestion")) {
+		if (is_a($ilias_question, "assStackQuestion"))
+		{
 			global $lng;
-			switch (sizeof($ilias_question->getDeployedSeeds())) {
+			switch (sizeof($ilias_question->getDeployedSeeds()))
+			{
 				//No deployed seeds for this question.
 				case 0:
 					//Question has randomisation
-					if (assStackQuestionUtils::_questionHasRandomVariables($ilias_question->getOptions()->getQuestionVariables())) {
+					if (assStackQuestionUtils::_questionHasRandomVariables($ilias_question->getOptions()->getQuestionVariables()))
+					{
 						//If we are in a test, Get seed from active_id, pass and question_id
-						if ($this->getActiveId() >= 0 AND $this->getPass() >= 0) {
-							if ($seed == -1) {
+						if ($this->getActiveId() >= 0 AND $this->getPass() >= 0)
+						{
+							if ($seed == -1)
+							{
 								$first_prt = array_shift(array_values($ilias_question->getPotentialResponsesTrees()));
 								$seed = assStackQuestionUtils::_getSeedFromTest($this->getQuestionId(), $this->getActiveId(), $this->getPass(), $first_prt->getPRTName());
-								if ($seed == NULL) {
+								if ($seed == NULL)
+								{
 									$seed = rand(1, 100);
 									$ilias_question->saveWorkingDataValue($this->getActiveId(), $this->getPass(), 'xqcas_prt_' . $first_prt->getPRTName() . '_seed', $seed, NULL, time());
 								}
 							}
-						} else {
+						} else
+						{
 							//We are in a preview, use seed from session and store it.
 							//v1.6+ Seed management in preview change.
-							if ($_GET['cmd'] != 'deployedSeedsManagement' AND !isset($_POST['deployed_seed'])) {
-								if ($seed > 0) {
+							if ($_GET['cmd'] != 'deployedSeedsManagement' AND !isset($_POST['deployed_seed']))
+							{
+								if ($seed > 0)
+								{
 									$_SESSION['q_seed_for_preview_' . $this->getQuestionId() . ''] = $seed;
-								} else {
+								} else
+								{
 									$seed = $_SESSION['q_seed_for_preview_' . $this->getQuestionId() . ''] = rand(1, 100);
 								}
 								//Send information message about random questions in previews.
-								if ($_GET['cmdClass'] != 'iltestoutputgui') {
+								if ($_GET['cmdClass'] != 'iltestoutputgui')
+								{
 									ilUtil::sendInfo($lng->txt('qpl_qst_xqcas_randomisation_info'));
 								}
 							}
 						}
 						$this->setSeed((int)$seed);
-					} else {
+					} else
+					{
 						//Question has not randomisation
 						$this->setSeed(0);
 					}
@@ -382,36 +331,46 @@ class assStackQuestionStackQuestion
 				default:
 					$seeds = $ilias_question->getDeployedSeeds();
 					//Question has randomisation
-					if (assStackQuestionUtils::_questionHasRandomVariables($ilias_question->getOptions()->getQuestionVariables())) {
+					if (assStackQuestionUtils::_questionHasRandomVariables($ilias_question->getOptions()->getQuestionVariables()))
+					{
 						//If we are in a test, Get seed from active_id, pass and question_id
-						if ($this->getActiveId() >= 0 AND $this->getPass() >= 0) {
+						if ($this->getActiveId() >= 0 AND $this->getPass() >= 0)
+						{
 							//get Seed from DB, if not, create new one
-							if ($seed == -1) {
+							if ($seed == -1)
+							{
 								$first_prt = array_shift(array_values($ilias_question->getPotentialResponsesTrees()));
 								$seed = assStackQuestionUtils::_getSeedFromTest($this->getQuestionId(), $this->getActiveId(), $this->getPass(), $first_prt->getPRTName());
-								if ($seed == NULL) {
+								if ($seed == NULL)
+								{
 									$seed = $seeds[array_rand($seeds, 1)]->getSeed();
 									//SEED value1 = xqcas_input_*_status_message, $value2 = status message
 									$ilias_question->saveWorkingDataValue($this->getActiveId(), $this->getPass(), 'xqcas_prt_' . $first_prt->getPRTName() . '_seed', $seed, NULL, time());
 								}
 							}
-						} else {
+						} else
+						{
 							//We are in a preview, use seed from session and store it.
 							//v1.6+ Seed management in preview change.
-							if (($_GET['cmd'] != 'deployedSeedsManagement' AND !isset($_POST['deployed_seed']))) {
-								if ($seed > 0) {
+							if (($_GET['cmd'] != 'deployedSeedsManagement' AND !isset($_POST['deployed_seed'])))
+							{
+								if ($seed > 0)
+								{
 									$_SESSION['q_seed_for_preview_' . $this->getQuestionId() . ''] = $seed;
-								} else {
+								} else
+								{
 									$seed = $_SESSION['q_seed_for_preview_' . $this->getQuestionId() . ''] = $seeds[array_rand($seeds, 1)]->getSeed();
 								}
 								//Send information message about random questions in previews.
-								if ($_GET['cmdClass'] != 'iltestoutputgui') {
+								if ($_GET['cmdClass'] != 'iltestoutputgui')
+								{
 									ilUtil::sendInfo($lng->txt('qpl_qst_xqcas_randomisation_info_2'));
 								}
 							}
 						}
 						$this->setSeed((int)$seed);
-					} else {
+					} else
+					{
 						//Question has not randomisation
 						$this->setSeed(0);
 					}
@@ -425,12 +384,7 @@ class assStackQuestionStackQuestion
 	 */
 	public function createQuestionVariables($question_variables_raw)
 	{
-		$question_variables_parameters = array(
-			'raw' => $question_variables_raw,
-			'options' => $this->getOptions(),
-			'seed' => $this->getSeed(),
-			'security' => 't'
-		);
+		$question_variables_parameters = array('raw' => $question_variables_raw, 'options' => $this->getOptions(), 'seed' => $this->getSeed(), 'security' => 't');
 		$this->setQuestionVariables($this->getStackFactory()->get("cas_keyval", $question_variables_parameters));
 	}
 
@@ -458,40 +412,29 @@ class assStackQuestionStackQuestion
 	public function createInputs(assStackQuestion $question)
 	{
 		$stack_inputs = array();
-		foreach ($question->getInputs() as $input_name => $input) {
+		foreach ($question->getInputs() as $input_name => $input)
+		{
 			//Boolean inputs doesn't accept most of the specific parameters so send blank array as specific parameters
-			if (is_a($input, "assStackQuestionInput")) {
-				if ($input->getInputType() != 'boolean' AND $input->getInputType() != 'singlechar') {
-					$specific_parameters = array(
-						'mustVerify' => $input->getMustVerify(),
-						//As seen in STACK hideFeedback var is the negation of ShowValidation.
-						'hideFeedback' => !$input->getShowValidation(),
-						'boxWidth' => $input->getBoxSize(),
-						'strictSyntax' => $input->getStrictSyntax(),
-						'insertStars' => $input->getInsertStars(),
-						'syntaxHint' => $input->getSyntaxHint(),
-						'forbidWords' => $input->getForbidWords(),
-						'allowWords' => $input->getAllowWords(),
-						'forbidFloats' => $input->getForbidFloat(),
-						'lowestTerms' => $input->getRequireLowestTerms(),
-						'sameType' => $input->getCheckAnswerType()
-					);
-				} else {
+			if (is_a($input, "assStackQuestionInput"))
+			{
+				if ($input->getInputType() != 'boolean' AND $input->getInputType() != 'singlechar')
+				{
+					$specific_parameters = array('mustVerify' => $input->getMustVerify(), //As seen in STACK hideFeedback var is the negation of ShowValidation.
+						'hideFeedback' => !$input->getShowValidation(), 'boxWidth' => $input->getBoxSize(), 'strictSyntax' => $input->getStrictSyntax(), 'insertStars' => $input->getInsertStars(), 'syntaxHint' => $input->getSyntaxHint(), 'forbidWords' => $input->getForbidWords(), 'allowWords' => $input->getAllowWords(), 'forbidFloats' => $input->getForbidFloat(), 'lowestTerms' => $input->getRequireLowestTerms(), 'sameType' => $input->getCheckAnswerType());
+				} else
+				{
 					$specific_parameters = array();
 				}
-				if ($input->getTeacherAnswer() == " " OR $input->getTeacherAnswer() == "") {
+				if ($input->getTeacherAnswer() == " " OR $input->getTeacherAnswer() == "")
+				{
 					return $input_name;
 				}
-				$input_parameters = array(
-					'type' => $input->getInputType(),
-					'name' => $input_name,
-					'teacheranswer' => $input->getTeacherAnswer(),
-					'parameters' => $specific_parameters
-				);
+				$input_parameters = array('type' => $input->getInputType(), 'name' => $input_name, 'teacheranswer' => $input->getTeacherAnswer(), 'parameters' => $specific_parameters);
 				$stack_inputs[$input_name] = $this->getStackFactory()->get("input_object", $input_parameters);
 
 			}
-			if (sizeof($stack_inputs)) {
+			if (sizeof($stack_inputs))
+			{
 				$this->setInputs($stack_inputs);
 			}
 		}
@@ -506,15 +449,11 @@ class assStackQuestionStackQuestion
 	public function addTeacherAnswersToSession(assStackQuestion $question)
 	{
 		$response = array();
-		foreach ($question->getInputs() as $name => $input) {
-			if (is_a($input, "assStackQuestionInput")) {
-				$teacher_answer_parameters = array(
-					'string' => (string)$input->getTeacherAnswer(),
-					'key' => $name,
-					'security' => 't',
-					'syntax' => $input->getStrictSyntax(),
-					'stars' => $input->getInsertStars()
-				);
+		foreach ($question->getInputs() as $name => $input)
+		{
+			if (is_a($input, "assStackQuestionInput"))
+			{
+				$teacher_answer_parameters = array('string' => (string)$input->getTeacherAnswer(), 'key' => $name, 'security' => 't', 'syntax' => $input->getStrictSyntax(), 'stars' => $input->getInsertStars());
 				$teacher_answer_casstring = $this->getStackFactory()->get("cas_casstring_from_parameters", $teacher_answer_parameters);
 				$teacher_answer_casstring->validate('t');
 				$teacher_answer_casstring->set_key($name);
@@ -542,36 +481,31 @@ class assStackQuestionStackQuestion
 		global $lng;
 
 		//1. Prepare question text.
-		if ($ilias_question->getQuestion()) {
-			$question_text_parameters = array('raw' => $ilias_question->getQuestion(),
-				'session' => $this->getSession(),
-				'seed' => $this->getSeed(),
-				'security' => 't',
-				'syntax' => FALSE,
-				'stars' => 1);
+		if ($ilias_question->getQuestion())
+		{
+			$question_text_parameters = array('raw' => $ilias_question->getQuestion(), 'session' => $this->getSession(), 'seed' => $this->getSeed(), 'security' => 't', 'syntax' => FALSE, 'stars' => 1);
 			$question_text = $this->getStackFactory()->get('cas_text', $question_text_parameters);
 
 			$this->setQuestionTextInstantiated($question_text->get_display_castext());
-			if ($question_text->get_errors()) {
+			if ($question_text->get_errors())
+			{
 				ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_error_in_question_text") . ": " . $question_text->get_errors(), TRUE);
 			}
 
 			//Stop here when only display mode
-			if ($stop_here) {
+			if ($stop_here)
+			{
 				return;
 			}
 		}
 
 		//2. Prepare Specific feedback.
-		if ($ilias_question->getOptions()->getSpecificFeedback()) {
-			$specific_feedback_parameters = array('raw' => $ilias_question->getOptions()->getSpecificFeedback(),
-				'session' => $this->getSession(),
-				'seed' => $this->getSeed(),
-				'security' => 't',
-				'syntax' => FALSE,
-				'stars' => 1);
+		if ($ilias_question->getOptions()->getSpecificFeedback())
+		{
+			$specific_feedback_parameters = array('raw' => $ilias_question->getOptions()->getSpecificFeedback(), 'session' => $this->getSession(), 'seed' => $this->getSeed(), 'security' => 't', 'syntax' => FALSE, 'stars' => 1);
 			$specific_feedback = $this->getStackFactory()->get('cas_text', $specific_feedback_parameters);
-			if ($specific_feedback->get_errors()) {
+			if ($specific_feedback->get_errors())
+			{
 				ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_error_in_specific_feedback") . ": " . $specific_feedback->get_errors(), TRUE);
 			}
 
@@ -579,15 +513,12 @@ class assStackQuestionStackQuestion
 		}
 
 		//3. Prepare Question Note.
-		if ($ilias_question->getOptions()->getQuestionNote()) {
-			$question_note_parameters = array('raw' => $ilias_question->getOptions()->getQuestionNote(),
-				'session' => $this->getSession(),
-				'seed' => $this->getSeed(),
-				'security' => 't',
-				'syntax' => FALSE,
-				'stars' => 1);
+		if ($ilias_question->getOptions()->getQuestionNote())
+		{
+			$question_note_parameters = array('raw' => $ilias_question->getOptions()->getQuestionNote(), 'session' => $this->getSession(), 'seed' => $this->getSeed(), 'security' => 't', 'syntax' => FALSE, 'stars' => 1);
 			$question_note = $this->getStackFactory()->get('cas_text', $question_note_parameters);
-			if ($question_note->get_errors()) {
+			if ($question_note->get_errors())
+			{
 				ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_error_in_question_note") . ": " . $question_note->get_errors(), TRUE);
 			}
 
@@ -595,64 +526,52 @@ class assStackQuestionStackQuestion
 		}
 
 		//4. Prepare PRT correct feedback.
-		if ($ilias_question->getOptions()->getPRTCorrect()) {
-			$PRT_correct_parameters = array('raw' => $ilias_question->getOptions()->getPRTCorrect(),
-				'session' => $this->getSession(),
-				'seed' => $this->getSeed(),
-				'security' => 't',
-				'syntax' => FALSE,
-				'stars' => 1);
+		if ($ilias_question->getOptions()->getPRTCorrect())
+		{
+			$PRT_correct_parameters = array('raw' => $ilias_question->getOptions()->getPRTCorrect(), 'session' => $this->getSession(), 'seed' => $this->getSeed(), 'security' => 't', 'syntax' => FALSE, 'stars' => 1);
 			$PRT_correct = $this->getStackFactory()->get('cas_text', $PRT_correct_parameters);
 
-			if ($PRT_correct->get_errors()) {
+			if ($PRT_correct->get_errors())
+			{
 				ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_error_in_prt_correct") . ": " . $PRT_correct->get_errors(), TRUE);
 			}
 			$this->setPRTCorrectInstantiated($PRT_correct->get_display_castext());
 		}
 
 		//5. Prepare PRT partially correct feedback.
-		if ($ilias_question->getOptions()->getPRTPartiallyCorrect()) {
-			$PRT_partially_correct_parameters = array('raw' => $ilias_question->getOptions()->getPRTPartiallyCorrect(),
-				'session' => $this->getSession(),
-				'seed' => $this->getSeed(),
-				'security' => 't',
-				'syntax' => FALSE,
-				'stars' => 1);
+		if ($ilias_question->getOptions()->getPRTPartiallyCorrect())
+		{
+			$PRT_partially_correct_parameters = array('raw' => $ilias_question->getOptions()->getPRTPartiallyCorrect(), 'session' => $this->getSession(), 'seed' => $this->getSeed(), 'security' => 't', 'syntax' => FALSE, 'stars' => 1);
 			$PRT_partially_correct = $this->getStackFactory()->get('cas_text', $PRT_partially_correct_parameters);
 
-			if ($PRT_partially_correct->get_errors()) {
+			if ($PRT_partially_correct->get_errors())
+			{
 				ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_error_in_prt_partially_correct") . ": " . $PRT_partially_correct->get_errors(), TRUE);
 			}
 			$this->setPRTPartiallyCorrectInstantiated($PRT_partially_correct->get_display_castext());
 		}
 
 		//6. Prepare PRT incorrect feedback.
-		if ($ilias_question->getOptions()->getPRTIncorrect()) {
-			$PRT_incorrect_parameters = array('raw' => $ilias_question->getOptions()->getPRTIncorrect(),
-				'session' => $this->getSession(),
-				'seed' => $this->getSeed(),
-				'security' => 't',
-				'syntax' => FALSE,
-				'stars' => 1);
+		if ($ilias_question->getOptions()->getPRTIncorrect())
+		{
+			$PRT_incorrect_parameters = array('raw' => $ilias_question->getOptions()->getPRTIncorrect(), 'session' => $this->getSession(), 'seed' => $this->getSeed(), 'security' => 't', 'syntax' => FALSE, 'stars' => 1);
 			$PRT_incorrect = $this->getStackFactory()->get('cas_text', $PRT_incorrect_parameters);
 
-			if ($PRT_incorrect->get_errors()) {
+			if ($PRT_incorrect->get_errors())
+			{
 				ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_error_in_prt_incorrect") . ": " . $PRT_incorrect->get_errors(), TRUE);
 			}
 			$this->setPRTIncorrectInstantiated($PRT_incorrect->get_display_castext());
 		}
 
 		//7. Prepare How to solve.
-		if (is_object($ilias_question->getExtraInfo()) and $ilias_question->getExtraInfo()->getHowToSolve()) {
-			$general_feedback_parameters = array('raw' => $ilias_question->getExtraInfo()->getHowToSolve(),
-				'session' => $this->getSession(),
-				'seed' => $this->getSeed(),
-				'security' => 't',
-				'syntax' => FALSE,
-				'stars' => 1);
+		if (is_object($ilias_question->getExtraInfo()) and $ilias_question->getExtraInfo()->getHowToSolve())
+		{
+			$general_feedback_parameters = array('raw' => $ilias_question->getExtraInfo()->getHowToSolve(), 'session' => $this->getSession(), 'seed' => $this->getSeed(), 'security' => 't', 'syntax' => FALSE, 'stars' => 1);
 			$general_feedback = $this->getStackFactory()->get('cas_text', $general_feedback_parameters);
 
-			if ($general_feedback->get_errors()) {
+			if ($general_feedback->get_errors())
+			{
 				ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_error_in_how_to_solve") . ": " . $general_feedback->get_errors(), TRUE);
 			}
 			$this->setGeneralFeedback($general_feedback->get_display_castext());
@@ -670,7 +589,8 @@ class assStackQuestionStackQuestion
 				$this->getSession()->get_errors());
 		}*/
 
-		if ($this->getSessionLength() > 0) {
+		if ($this->getSessionLength() > 0)
+		{
 			$this->getSession()->prune_session($this->getSessionLength());
 		}
 	}
@@ -681,7 +601,8 @@ class assStackQuestionStackQuestion
 	 */
 	public function adaptInputs()
 	{
-		foreach ($this->getInputs() as $name => $input) {
+		foreach ($this->getInputs() as $name => $input)
+		{
 			$teacheranswer = $this->getSession()->get_value_key($name);
 			$input->adapt_to_model_answer($teacheranswer);
 		}
@@ -697,7 +618,8 @@ class assStackQuestionStackQuestion
 	{
 		$this->validateCache($response, NULL);
 
-		if (array_key_exists($name, $this->getInputStates())) {
+		if (array_key_exists($name, $this->getInputStates()))
+		{
 			return $this->getInputStates($name);
 		}
 
@@ -706,13 +628,16 @@ class assStackQuestionStackQuestion
 		// in a PRT, the student's answer will take these values.   If the teacher defines
 		// 'ta' to be the answer, the student could type in 'ta'!  We forbid this.
 
-		if ($forbiddenkeys) {
+		if ($forbiddenkeys)
+		{
 			$forbiddenwords = explode(',', $forbiddenkeys);
 			$forbiddenkeys = array_merge($this->getSession()->get_all_keys(), $forbiddenwords);
 		}
 		$teacheranswer = $this->getSession()->get_value_key($name);
-		if (array_key_exists($name, $this->getInputs())) {
+		if (array_key_exists($name, $this->getInputs()))
+		{
 			$this->setInputStates($this->getInputs($name)->validate_student_response($response, $this->getOptions(), $teacheranswer, $forbiddenkeys), $name);
+
 			return $this->getInputStates($name);
 		}
 
@@ -724,17 +649,22 @@ class assStackQuestionStackQuestion
 	 */
 	public function validateCache($response, $acceptvalid = NULL)
 	{
-		if (is_null($this->getLastResponse())) {
+		if (is_null($this->getLastResponse()))
+		{
 			// Nothing cached yet. No worries.
 			$this->setLastResponse($response);
 			$this->setLastAcceptValid($acceptvalid);
+
 			return;
 		}
 
-		if ($this->getLastResponse() == $response && ($this->getLastAcceptValid() === NULL || $acceptvalid === NULL || $this->getLastAcceptValid() === $acceptvalid)) {
-			if ($this->getLastAcceptValid() === NULL) {
+		if ($this->getLastResponse() == $response && ($this->getLastAcceptValid() === NULL || $acceptvalid === NULL || $this->getLastAcceptValid() === $acceptvalid))
+		{
+			if ($this->getLastAcceptValid() === NULL)
+			{
 				$this->setLastAcceptValid($acceptvalid);
 			}
+
 			return; // Cache is good.
 		}
 
@@ -752,8 +682,10 @@ class assStackQuestionStackQuestion
 	{
 		//Transform ILIAS PRT into STACK PRT and set as $this->prts.
 		$stack_PRTs = array();
-		foreach ($ilias_question->getPotentialResponsesTrees() as $ilias_PRT) {
-			if (is_a($ilias_PRT, "assStackQuestionPRT") AND $ilias_PRT->checkPRT(TRUE, TRUE)) {
+		foreach ($ilias_question->getPotentialResponsesTrees() as $ilias_PRT)
+		{
+			if (is_a($ilias_PRT, "assStackQuestionPRT") AND $ilias_PRT->checkPRT(TRUE, TRUE))
+			{
 				$stack_PRTs[$ilias_PRT->getPRTName()] = $this->getStackFactory()->get("potentialresponse_tree", $ilias_PRT);
 			}
 		}
@@ -785,20 +717,28 @@ class assStackQuestionStackQuestion
 	 * This function traverse the PRT result in order to determine the points obtained
 	 * Sets the points th each PRT result and also the global calification
 	 */
-	public
-	function calculatePoints()
+	public function calculatePoints($test_mode = FALSE, $active_id = NULL, $pass = NULL, $question = NULL)
 	{
 		$max_weight = 0.0;
 		$reached_points = 0.0;
 
-		foreach ($this->getPRTResults() as $prt_evaluation_data) {
+		foreach ($this->getPRTResults() as $prt_evaluation_data)
+		{
 			$max_weight += $prt_evaluation_data['state']->__get('weight');
 		}
 
-		foreach ($this->getPRTResults() as $prt_name => $prt_evaluation_data) {
+		$time = time();
+
+		foreach ($this->getPRTResults() as $prt_name => $prt_evaluation_data)
+		{
+
 			$prt_points = ((($prt_evaluation_data['state']->__get('score') /* - ($prt_evaluation_data['state']->__get('penalty')*/) * $prt_evaluation_data['state']->__get('weight')) * $this->getPoints()) / $max_weight;
 			$reached_points += $prt_points;
 			$this->setPRTResults($prt_points, $prt_name, 'points');
+			if ($test_mode == TRUE AND $active_id != NULL)
+			{
+				$question->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name, $prt_points, $time, NULL, 0);
+			}
 		}
 
 		$this->reached_points = $reached_points;
@@ -816,7 +756,8 @@ class assStackQuestionStackQuestion
 		$ilias_question = new assStackQuestion();
 		$ilias_question->loadFromDb($question_id);
 		//Step #0: comprobation of options
-		if (!is_a($this->getOptions(), 'stack_options')) {
+		if (!is_a($this->getOptions(), 'stack_options'))
+		{
 			return FALSE;
 		}
 		//Step #1: Create seed
@@ -826,17 +767,14 @@ class assStackQuestionStackQuestion
 		//Step #3: Create Session
 		$this->createSession();
 		//Step #4 Prepare Question Note.
-		if ($question_note_raw) {
-			$question_note_parameters = array('raw' => $question_note_raw,
-				'session' => $this->getSession(),
-				'seed' => $this->getSeed(),
-				'security' => 't',
-				'syntax' => FALSE,
-				'stars' => TRUE);
+		if ($question_note_raw)
+		{
+			$question_note_parameters = array('raw' => $question_note_raw, 'session' => $this->getSession(), 'seed' => $this->getSeed(), 'security' => 't', 'syntax' => FALSE, 'stars' => TRUE);
 			$question_note = $this->getStackFactory()->get('cas_text', $question_note_parameters);
 
 			return $question_note->get_display_castext();
-		} else {
+		} else
+		{
 			return FALSE;
 		}
 	}
@@ -847,8 +785,7 @@ class assStackQuestionStackQuestion
 	 * the question variables.
 	 * @param stack_cas_session $session the CAS session to add the question variables to.
 	 */
-	public
-	function addQuestionVarsToSession(stack_cas_session $session)
+	public function addQuestionVarsToSession(stack_cas_session $session)
 	{
 		$session->merge_session($this->session);
 	}
@@ -857,18 +794,22 @@ class assStackQuestionStackQuestion
 	{
 		$forbiddenkeys = $inputs[$input_name]->get_parameter('forbidWords', '');
 		$teacheranswer = $this->getSession()->get_value_key($input_name);
-		if (array_key_exists($input_name, $this->getInputs())) {
+		if (array_key_exists($input_name, $this->getInputs()))
+		{
 			return $this->getInputs($input_name)->validate_student_response($inputs, $this->getOptions(), $teacheranswer, $forbiddenkeys)->__get('contentsmodified');
-		} else {
+		} else
+		{
 			return "";
 		}
 	}
 
 	static function cmp($a, $b)
 	{
-		if (strlen($a) == strlen($b)) {
+		if (strlen($a) == strlen($b))
+		{
 			return 0;
 		}
+
 		return (strlen($a) < strlen($b)) ? -1 : 1;
 	}
 
@@ -914,9 +855,11 @@ class assStackQuestionStackQuestion
 	 */
 	public function getInputs($name = '')
 	{
-		if ($name) {
+		if ($name)
+		{
 			return $this->inputs[$name];
-		} else {
+		} else
+		{
 			return $this->inputs;
 		}
 	}
@@ -927,9 +870,11 @@ class assStackQuestionStackQuestion
 	 */
 	public function getPRTs($selector = '')
 	{
-		if ($selector) {
+		if ($selector)
+		{
 			return $this->prts[$selector];
-		} else {
+		} else
+		{
 			return $this->prts;
 		}
 	}
@@ -1045,9 +990,11 @@ class assStackQuestionStackQuestion
 	 */
 	public function getInputStates($name = '')
 	{
-		if ($name) {
+		if ($name)
+		{
 			return $this->input_states[$name];
-		} else {
+		} else
+		{
 			return $this->input_states;
 		}
 	}
@@ -1058,9 +1005,11 @@ class assStackQuestionStackQuestion
 	 */
 	public function getPRTResults($selector = '')
 	{
-		if ($selector) {
+		if ($selector)
+		{
 			return $this->prt_results[$selector];
-		} else {
+		} else
+		{
 			return $this->prt_results;
 		}
 	}
@@ -1248,9 +1197,11 @@ class assStackQuestionStackQuestion
 	 */
 	public function setInputStates($input_states, $name = '')
 	{
-		if ($name) {
+		if ($name)
+		{
 			$this->input_states[$name] = $input_states;
-		} else {
+		} else
+		{
 			$this->input_states = $input_states;
 		}
 	}
@@ -1261,13 +1212,17 @@ class assStackQuestionStackQuestion
 	 */
 	public function setPRTResults($prt_results, $selector = '', $selector2 = '')
 	{
-		if ($selector) {
-			if ($selector2) {
+		if ($selector)
+		{
+			if ($selector2)
+			{
 				$this->prt_results[$selector][$selector2] = $prt_results;
-			} else {
+			} else
+			{
 				$this->prt_results[$selector] = $prt_results;
 			}
-		} else {
+		} else
+		{
 			$this->prt_results = $prt_results;
 		}
 	}

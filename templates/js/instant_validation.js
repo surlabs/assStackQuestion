@@ -104,7 +104,7 @@ il.instant_validation = new function () {
 				 */
 				$(".alert").hide();
 				$(".test_specific_feedback").hide();
-				$(".ilAssQuestionRelatedNavigationContainer:first").nextUntil(".ilAssQuestionRelatedNavigationContainer").hide();
+				/*$(".ilAssQuestionRelatedNavigationContainer:first").nextUntil(".ilAssQuestionRelatedNavigationContainer").hide();*/
 
 				var img = new Image();
 				img.src = "Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/css/ajax-loader.gif";
