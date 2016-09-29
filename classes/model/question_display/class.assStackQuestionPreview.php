@@ -45,13 +45,14 @@ class assStackQuestionPreview
 	 * @param assStackQuestion $question
 	 * @param array $user_response
 	 */
-	public function __construct(ilassStackQuestionPlugin $plugin, assStackQuestion $question, $seed = -1, $solutions = array())
+	public function __construct(ilassStackQuestionPlugin $plugin, assStackQuestion $question, $seed = -1, $solutions = array(), $test_mode = FALSE)
 	{
 		//Set plugin object
 		$this->setPlugin($plugin);
 		//Set question object to be displayed
 		$this->setQuestion($question);
 		//Set user solutions
+
 		$this->setUserResponse($solutions);
 		//v1.6+ New seed management in preview
 		if ($seed < 0) {
@@ -67,7 +68,7 @@ class assStackQuestionPreview
 				$this->getQuestion()->getStackQuestion()->init($this->getQuestion(), '', $seed);
 			}
 		} else {
-			//THERE WAS USER RESPONSE, EVALUATION REQUIRED
+			//THERE WAS USER RESPONSE, EVALUATION REQUIRED#
 			//Create STACK Question object if doesn't exists
 			if (!is_a($question->getStackQuestion(), 'assStackQuestionStackQuestion')) {
 				$this->getPlugin()->includeClass("model/class.assStackQuestionStackQuestion.php");
@@ -83,9 +84,10 @@ class assStackQuestionPreview
 	 * This method is called from assStackQuestionGUI to get the question Preview.
 	 * @return array STACK Questiontion preview data
 	 */
-	public function getQuestionPreviewData()
+	public function getQuestionPreviewData($test_mode = FALSE, $active_id = NULL, $pass = NULL)
 	{
 		//Step #1: Get evaluation form and evaluate question if needed.
+		//var_dump($this->getUserResponse());exit;
 		if (!assStackQuestionUtils::_isArrayEmpty($this->getUserResponse())) {
 			$evaluated_question = $this->getEvaluationForPreview();
 		} else {
@@ -95,7 +97,7 @@ class assStackQuestionPreview
 		}
 
 		//Step #2: Calculate points
-		$evaluated_question->calculatePoints();
+		$evaluated_question->calculatePoints($test_mode, $active_id, $pass, $this->question);
 
 		//Step #3: Create feedback object
 		$feedback_data = $this->getFeedbackForPreview($evaluated_question);
@@ -139,7 +141,7 @@ class assStackQuestionPreview
 		return $question_evaluation_object->evaluateQuestion();
 	}
 
-	private function getFeedbackForPreview($evaluated_question)
+	private function getFeedbackForPreview($evaluated_question, $test_mode = FALSE)
 	{
 		$this->getPlugin()->includeClass('model/question_evaluation/class.assStackQuestionFeedback.php');
 		$feedback_object = new assStackQuestionFeedback($this->getPlugin(), $evaluated_question);

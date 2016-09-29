@@ -62,7 +62,7 @@ class assStackQuestionFeedbackGUI
 		$mathJaxSetting = new ilSetting("MathJax");
 		$this->getTemplate()->addJavaScript($mathJaxSetting->get("path_to_mathjax"));
 
-		if ($specific_feedback) {
+		if (is_string($specific_feedback)) {
 			$this->specific_feedback = $specific_feedback;
 		}
 	}
@@ -135,6 +135,7 @@ class assStackQuestionFeedbackGUI
 		if ($mode == "correct") {
 			$this->getTemplate()->setVariable('HOW_TO_SOLVE', assStackQuestionUtils::_getLatexText($this->getQuestionHowToSolve($this->getFeedback('general_feedback'))));
 		}
+
 
 		/*
 		//Get model answers array
