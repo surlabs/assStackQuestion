@@ -176,7 +176,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 
 		$prts = assStackQuestionPRT::_read($this->getId());
 
-		if ($authorized and $active_id != NULL)
+		if ($authorized && ($active_id != NULL))
 		{
 			$entered_values = $this->saveWorkingDataFull($active_id, $pass, $authorized);
 		} else
@@ -245,6 +245,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			{
 				$filled_responses = assStackQuestionUtils::_getUserResponse($this->getId(), $this->getInputs(), 'reduced');
 			}
+
 
 			/*
 			 * Step 3: Convert to stack in order to evaluate the question
