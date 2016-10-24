@@ -37,49 +37,60 @@ function stack_string($key, $a = null)
 {
 	require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php';
 	$user_language = getLanguage();
-	switch ($user_language) {
+	switch ($user_language)
+	{
 		case 'en':
 			static $string = array();
-			if (empty($string)) {
+			if (empty($string))
+			{
 				include './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/lang/stack_en.php';
 			}
 			break;
 		default:
 			static $string = array();
-			if (empty($string)) {
+			if (empty($string))
+			{
 				include './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/lang/stack_de.php';
 			}
 			break;
 	}
+
 	return getString($key, $string, $a);
 }
 
 function getLanguage()
 {
 	global $lng;
+
 	return $lng->getUserLanguage();
 }
 
 function getString($identifier, $string, $a = null)
 {
 	$string = $string[$identifier];
-	if ($a !== NULL) {
-		if (is_object($a) or is_array($a)) {
+	if ($a !== NULL)
+	{
+		if (is_object($a) or is_array($a))
+		{
 			$a = (array)$a;
 			$search = array();
 			$replace = array();
-			foreach ($a as $key => $value) {
-				if (is_int($key)) {
+			foreach ($a as $key => $value)
+			{
+				if (is_int($key))
+				{
 					// we do not support numeric keys - sorry!
 					continue;
 				}
 				$search[] = '{$a->' . $key . '}';
 				$replace[] = (string)$value;
 			}
-			if ($search) {
+			if ($search)
+			{
 				$string = str_replace($search, $replace, $string);
 			}
-		} else {
+		} else
+		{
 			$string = str_replace('{$a}', (string)$a, $string);
 		}
 	}
@@ -102,12 +113,15 @@ function stack_trans()
 {
 	$nargs = func_num_args();
 
-	if ($nargs > 0) {
+	if ($nargs > 0)
+	{
 		$arg_list = func_get_args();
 		$identifier = func_get_arg(0);
 		$a = array();
-		if ($nargs > 1) {
-			for ($i = 1; $i < $nargs; $i++) {
+		if ($nargs > 1)
+		{
+			for ($i = 1; $i < $nargs; $i++)
+			{
 				$index = $i - 1;
 				$a["m{$index}"] = func_get_arg($i);
 			}
@@ -120,9 +134,11 @@ function stack_trans()
 function stack_maxima_translate($rawfeedback)
 {
 
-	if (strpos($rawfeedback, 'stack_trans') === false) {
+	if (strpos($rawfeedback, 'stack_trans') === false)
+	{
 		return trim($rawfeedback);
-	} else {
+	} else
+	{
 		$rawfeedback = str_replace('[[', '', $rawfeedback);
 		$rawfeedback = str_replace(']]', '', $rawfeedback);
 		$rawfeedback = str_replace('\n', '', $rawfeedback);
@@ -142,6 +158,7 @@ function stack_maxima_translate($rawfeedback)
  * EXCEPTIONS
  */
 require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/exceptions/class.assStackQuestionException.php');
+
 class stack_exception extends assStackQuestionException
 {
 }
@@ -167,15 +184,19 @@ function get_config($section = 'qtype_stack')
 	//Caching
 	$configs->casresultscache = $saved_config['cas_result_caching'];
 	//Maxima command - If blank: maxima
-	if (!$saved_config['maxima_command']) {
+	if (!$saved_config['maxima_command'])
+	{
 		$configs->maximacommand = "maxima";
-	} else {
+	} else
+	{
 		$configs->maximacommand = $saved_config['maxima_command'];
 	}
 	//Plot command - If blank: gnuplot
-	if (!$saved_config['plot_command']) {
+	if (!$saved_config['plot_command'])
+	{
 		$configs->plotcommand = "gnuplot";
-	} else {
+	} else
+	{
 		$configs->plotcommand = $saved_config['plot_command'];
 	}
 	//CAS debug
@@ -315,9 +336,11 @@ class html_writer
 	 */
 	public static function nonempty_tag($tagname, $contents, array $attributes = null)
 	{
-		if ($contents === '' || is_null($contents)) {
+		if ($contents === '' || is_null($contents))
+		{
 			return '';
 		}
+
 		return self::tag($tagname, $contents, $attributes);
 	}
 
@@ -330,18 +353,21 @@ class html_writer
 	 */
 	public static function attribute($name, $value)
 	{
-		if ($value instanceof moodle_url) {
+		if ($value instanceof moodle_url)
+		{
 			return ' ' . $name . '="' . $value->out() . '"';
 		}
 
 		// special case, we do not want these in output
-		if ($value === null) {
+		if ($value === null)
+		{
 			return '';
 		}
 
 		// no sloppy trimming here!
-		return ' ' . $name . '="' . $value . '"';
+		return ' ' . $name . '="' . s($value) . '"';
 	}
+
 
 	/**
 	 * Outputs a list of HTML attributes and values
@@ -354,9 +380,11 @@ class html_writer
 	{
 		$attributes = (array)$attributes;
 		$output = '';
-		foreach ($attributes as $name => $value) {
+		foreach ($attributes as $name => $value)
+		{
 			$output .= self::attribute($name, $value);
 		}
+
 		return $output;
 	}
 
@@ -373,11 +401,13 @@ class html_writer
 		static $counter = 0;
 		static $uniq;
 
-		if (!isset($uniq)) {
+		if (!isset($uniq))
+		{
 			$uniq = uniqid();
 		}
 
 		$counter++;
+
 		return $base . $uniq . $counter;
 	}
 
@@ -393,6 +423,7 @@ class html_writer
 	{
 		$attributes = (array)$attributes;
 		$attributes['href'] = $url;
+
 		return self::tag('a', $text, $attributes);
 	}
 
@@ -411,8 +442,10 @@ class html_writer
 		$attributes = (array)$attributes;
 		$output = '';
 
-		if ($label !== '' and !is_null($label)) {
-			if (empty($attributes['id'])) {
+		if ($label !== '' and !is_null($label))
+		{
+			if (empty($attributes['id']))
+			{
 				$attributes['id'] = self::random_id('checkbox_');
 			}
 		}
@@ -423,7 +456,8 @@ class html_writer
 
 		$output .= self::empty_tag('input', $attributes);
 
-		if ($label !== '' and !is_null($label)) {
+		if ($label !== '' and !is_null($label))
+		{
 			$output .= self::tag('label', $label, array('for' => $attributes['id']));
 		}
 
@@ -441,6 +475,7 @@ class html_writer
 	public static function select_yes_no($name, $selected = true, array $attributes = null)
 	{
 		$options = array('1' => get_string('yes'), '0' => get_string('no'));
+
 		return self::select($options, $name, $selected, null, $attributes);
 	}
 
@@ -461,25 +496,34 @@ class html_writer
 	public static function select(array $options, $name, $selected = '', $nothing = array('' => 'choosedots'), array $attributes = null)
 	{
 		$attributes = (array)$attributes;
-		if (is_array($nothing)) {
-			foreach ($nothing as $k => $v) {
-				if ($v === 'choose' or $v === 'choosedots') {
+		if (is_array($nothing))
+		{
+			foreach ($nothing as $k => $v)
+			{
+				if ($v === 'choose' or $v === 'choosedots')
+				{
 					$nothing[$k] = get_string('choosedots');
 				}
 			}
 			$options = $nothing + $options; // keep keys, do not override
-		} else if (is_string($nothing) and $nothing !== '') {
-			// BC
-			$options = array('' => $nothing) + $options;
+		} else
+		{
+			if (is_string($nothing) and $nothing !== '')
+			{
+				// BC
+				$options = array('' => $nothing) + $options;
+			}
 		}
 
 		// we may accept more values if multiple attribute specified
 		$selected = (array)$selected;
-		foreach ($selected as $k => $v) {
+		foreach ($selected as $k => $v)
+		{
 			$selected[$k] = (string)$v;
 		}
 
-		if (!isset($attributes['id'])) {
+		if (!isset($attributes['id']))
+		{
 			$id = 'menu' . $name;
 			// name may contaion [], which would make an invalid id. e.g. numeric question type editing form, assignment quickgrading
 			$id = str_replace('[', '', $id);
@@ -487,7 +531,8 @@ class html_writer
 			$attributes['id'] = $id;
 		}
 
-		if (!isset($attributes['class'])) {
+		if (!isset($attributes['class']))
+		{
 			$class = 'menu' . $name;
 			// name may contaion [], which would make an invalid class. e.g. numeric question type editing form, assignment quickgrading
 			$class = str_replace('[', '', $class);
@@ -498,21 +543,27 @@ class html_writer
 
 		$attributes['name'] = $name;
 
-		if (!empty($attributes['disabled'])) {
+		if (!empty($attributes['disabled']))
+		{
 			$attributes['disabled'] = 'disabled';
-		} else {
+		} else
+		{
 			unset($attributes['disabled']);
 		}
 
 		$output = '';
-		foreach ($options as $value => $label) {
-			if (is_array($label)) {
+		foreach ($options as $value => $label)
+		{
+			if (is_array($label))
+			{
 				// ignore key, it just has to be unique
 				$output .= self::select_optgroup(key($label), current($label), $selected);
-			} else {
+			} else
+			{
 				$output .= self::select_option($label, $value, $selected);
 			}
 		}
+
 		return self::tag('select', $output, $attributes);
 	}
 
@@ -528,10 +579,12 @@ class html_writer
 	{
 		$attributes = array();
 		$value = (string)$value;
-		if (in_array($value, $selected, true)) {
+		if (in_array($value, $selected, true))
+		{
 			$attributes['selected'] = 'selected';
 		}
 		$attributes['value'] = $value;
+
 		return self::tag('option', $label, $attributes);
 	}
 
@@ -545,14 +598,17 @@ class html_writer
 	 */
 	private static function select_optgroup($groupname, $options, array $selected)
 	{
-		if (empty($options)) {
+		if (empty($options))
+		{
 			return '';
 		}
 		$attributes = array('label' => $groupname);
 		$output = '';
-		foreach ($options as $value => $label) {
+		foreach ($options as $value => $label)
+		{
 			$output .= self::select_option($label, $value, $selected);
 		}
+
 		return self::tag('optgroup', $output, $attributes);
 	}
 
@@ -568,44 +624,52 @@ class html_writer
 	 */
 	public static function select_time($type, $name, $currenttime = 0, $step = 5, array $attributes = null)
 	{
-		if (!$currenttime) {
+		if (!$currenttime)
+		{
 			$currenttime = time();
 		}
 		$currentdate = usergetdate($currenttime);
 		$userdatetype = $type;
 		$timeunits = array();
 
-		switch ($type) {
+		switch ($type)
+		{
 			case 'years':
-				for ($i = 1970; $i <= 2020; $i++) {
+				for ($i = 1970; $i <= 2020; $i++)
+				{
 					$timeunits[$i] = $i;
 				}
 				$userdatetype = 'year';
 				break;
 			case 'months':
-				for ($i = 1; $i <= 12; $i++) {
+				for ($i = 1; $i <= 12; $i++)
+				{
 					$timeunits[$i] = userdate(gmmktime(12, 0, 0, $i, 15, 2000), "%B");
 				}
 				$userdatetype = 'month';
 				$currentdate['month'] = (int)$currentdate['mon'];
 				break;
 			case 'days':
-				for ($i = 1; $i <= 31; $i++) {
+				for ($i = 1; $i <= 31; $i++)
+				{
 					$timeunits[$i] = $i;
 				}
 				$userdatetype = 'mday';
 				break;
 			case 'hours':
-				for ($i = 0; $i <= 23; $i++) {
+				for ($i = 0; $i <= 23; $i++)
+				{
 					$timeunits[$i] = sprintf("%02d", $i);
 				}
 				break;
 			case 'minutes':
-				if ($step != 1) {
+				if ($step != 1)
+				{
 					$currentdate['minutes'] = ceil($currentdate['minutes'] / $step) * $step;
 				}
 
-				for ($i = 0; $i <= 59; $i += $step) {
+				for ($i = 0; $i <= 59; $i += $step)
+				{
 					$timeunits[$i] = sprintf("%02d", $i);
 				}
 				break;
@@ -613,7 +677,8 @@ class html_writer
 				throw new coding_exception("Time type $type is not supported by html_writer::select_time().");
 		}
 
-		if (empty($attributes['id'])) {
+		if (empty($attributes['id']))
+		{
 			$attributes['id'] = self::random_id('ts_');
 		}
 		$timerselector = self::select($timeunits, $name, $currentdate[$userdatetype], null, array('id' => $attributes['id']));
@@ -636,7 +701,8 @@ class html_writer
 	{
 		$output = '';
 
-		foreach ($items as $item) {
+		foreach ($items as $item)
+		{
 			$output .= html_writer::start_tag('li') . "\n";
 			$output .= $item . "\n";
 			$output .= html_writer::end_tag('li') . "\n";
@@ -656,15 +722,18 @@ class html_writer
 	{
 		$exclude = (array)$exclude;
 		$params = $url->params();
-		foreach ($exclude as $key) {
+		foreach ($exclude as $key)
+		{
 			unset($params[$key]);
 		}
 
 		$output = '';
-		foreach ($params as $key => $value) {
+		foreach ($params as $key => $value)
+		{
 			$attributes = array('type' => 'hidden', 'name' => $key, 'value' => $value);
 			$output .= self::empty_tag('input', $attributes) . "\n";
 		}
+
 		return $output;
 	}
 
@@ -677,14 +746,22 @@ class html_writer
 	 */
 	public static function script($jscode, $url = null)
 	{
-		if ($jscode) {
+		if ($jscode)
+		{
 			$attributes = array('type' => 'text/javascript');
+
 			return self::tag('script', "\n//<![CDATA[\n$jscode\n//]]>\n", $attributes) . "\n";
-		} else if ($url) {
-			$attributes = array('type' => 'text/javascript', 'src' => $url);
-			return self::tag('script', '', $attributes) . "\n";
-		} else {
-			return '';
+		} else
+		{
+			if ($url)
+			{
+				$attributes = array('type' => 'text/javascript', 'src' => $url);
+
+				return self::tag('script', '', $attributes) . "\n";
+			} else
+			{
+				return '';
+			}
 		}
 	}
 
@@ -702,67 +779,81 @@ class html_writer
 	public static function table(html_table $table)
 	{
 		// prepare table data and populate missing properties with reasonable defaults
-		if (!empty($table->align)) {
-			foreach ($table->align as $key => $aa) {
-				if ($aa) {
+		if (!empty($table->align))
+		{
+			foreach ($table->align as $key => $aa)
+			{
+				if ($aa)
+				{
 					$table->align[$key] = 'text-align:' . fix_align_rtl($aa) . ';'; // Fix for RTL languages
-				} else {
+				} else
+				{
 					$table->align[$key] = null;
 				}
 			}
 		}
-		if (!empty($table->size)) {
-			foreach ($table->size as $key => $ss) {
-				if ($ss) {
+		if (!empty($table->size))
+		{
+			foreach ($table->size as $key => $ss)
+			{
+				if ($ss)
+				{
 					$table->size[$key] = 'width:' . $ss . ';';
-				} else {
+				} else
+				{
 					$table->size[$key] = null;
 				}
 			}
 		}
-		if (!empty($table->wrap)) {
-			foreach ($table->wrap as $key => $ww) {
-				if ($ww) {
+		if (!empty($table->wrap))
+		{
+			foreach ($table->wrap as $key => $ww)
+			{
+				if ($ww)
+				{
 					$table->wrap[$key] = 'white-space:nowrap;';
-				} else {
+				} else
+				{
 					$table->wrap[$key] = '';
 				}
 			}
 		}
-		if (!empty($table->head)) {
-			foreach ($table->head as $key => $val) {
-				if (!isset($table->align[$key])) {
+		if (!empty($table->head))
+		{
+			foreach ($table->head as $key => $val)
+			{
+				if (!isset($table->align[$key]))
+				{
 					$table->align[$key] = null;
 				}
-				if (!isset($table->size[$key])) {
+				if (!isset($table->size[$key]))
+				{
 					$table->size[$key] = null;
 				}
-				if (!isset($table->wrap[$key])) {
+				if (!isset($table->wrap[$key]))
+				{
 					$table->wrap[$key] = null;
 				}
 			}
 		}
-		if (empty($table->attributes['class'])) {
+		if (empty($table->attributes['class']))
+		{
 			$table->attributes['class'] = 'generaltable';
 		}
-		if (!empty($table->tablealign)) {
+		if (!empty($table->tablealign))
+		{
 			$table->attributes['class'] .= ' boxalign' . $table->tablealign;
 		}
 
 		// explicitly assigned properties override those defined via $table->attributes
 		$table->attributes['class'] = trim($table->attributes['class']);
-		$attributes = array_merge($table->attributes, array(
-			'id' => $table->id,
-			'width' => $table->width,
-			'summary' => $table->summary,
-			'cellpadding' => $table->cellpadding,
-			'cellspacing' => $table->cellspacing,
-		));
+		$attributes = array_merge($table->attributes, array('id' => $table->id, 'width' => $table->width, 'summary' => $table->summary, 'cellpadding' => $table->cellpadding, 'cellspacing' => $table->cellspacing,));
 		$output = html_writer::start_tag('table', $attributes) . "\n";
 
 		$countcols = 0;
 
-		if (!empty($table->head)) {
+		if (!empty($table->head))
+		{
 			$countcols = count($table->head);
 
 			$output .= html_writer::start_tag('thead', array()) . "\n";
@@ -770,44 +861,48 @@ class html_writer
 			$keys = array_keys($table->head);
 			$lastkey = end($keys);
 
-			foreach ($table->head as $key => $heading) {
+			foreach ($table->head as $key => $heading)
+			{
 				// Convert plain string headings into html_table_cell objects
-				if (!($heading instanceof html_table_cell)) {
+				if (!($heading instanceof html_table_cell))
+				{
 					$headingtext = $heading;
 					$heading = new html_table_cell();
 					$heading->text = $headingtext;
 					$heading->header = true;
 				}
 
-				if ($heading->header !== false) {
+				if ($heading->header !== false)
+				{
 					$heading->header = true;
 				}
 
-				if ($heading->header && empty($heading->scope)) {
+				if ($heading->header && empty($heading->scope))
+				{
 					$heading->scope = 'col';
 				}
 
 				$heading->attributes['class'] .= ' header c' . $key;
-				if (isset($table->headspan[$key]) && $table->headspan[$key] > 1) {
+				if (isset($table->headspan[$key]) && $table->headspan[$key] > 1)
+				{
 					$heading->colspan = $table->headspan[$key];
 					$countcols += $table->headspan[$key] - 1;
 				}
 
-				if ($key == $lastkey) {
+				if ($key == $lastkey)
+				{
 					$heading->attributes['class'] .= ' lastcol';
 				}
-				if (isset($table->colclasses[$key])) {
+				if (isset($table->colclasses[$key]))
+				{
 					$heading->attributes['class'] .= ' ' . $table->colclasses[$key];
 				}
 				$heading->attributes['class'] = trim($heading->attributes['class']);
-				$attributes = array_merge($heading->attributes, array(
-					'style' => $table->align[$key] . $table->size[$key] . $heading->style,
-					'scope' => $heading->scope,
-					'colspan' => $heading->colspan,
-				));
+				$attributes = array_merge($heading->attributes, array('style' => $table->align[$key] . $table->size[$key] . $heading->style, 'scope' => $heading->scope, 'colspan' => $heading->colspan,));
 
 				$tagtype = 'td';
-				if ($heading->header === true) {
+				if ($heading->header === true)
+				{
 					$tagtype = 'th';
 				}
 				$output .= html_writer::tag($tagtype, $heading->text, $attributes) . "\n";
@@ -815,7 +910,8 @@ class html_writer
 			$output .= html_writer::end_tag('tr') . "\n";
 			$output .= html_writer::end_tag('thead') . "\n";
 
-			if (empty($table->data)) {
+			if (empty($table->data))
+			{
 				// For valid XHTML strict every table must contain either a valid tr
 				// or a valid tbody... both of which must contain a valid td
 				$output .= html_writer::start_tag('tbody', array('class' => 'empty'));
@@ -824,22 +920,29 @@ class html_writer
 			}
 		}
 
-		if (!empty($table->data)) {
+		if (!empty($table->data))
+		{
 			$oddeven = 1;
 			$keys = array_keys($table->data);
 			$lastrowkey = end($keys);
 			$output .= html_writer::start_tag('tbody', array());
 
-			foreach ($table->data as $key => $row) {
-				if (($row === 'hr') && ($countcols)) {
+			foreach ($table->data as $key => $row)
+			{
+				if (($row === 'hr') && ($countcols))
+				{
 					$output .= html_writer::tag('td', html_writer::tag('div', '', array('class' => 'tabledivider')), array('colspan' => $countcols));
-				} else {
+				} else
+				{
 					// Convert array rows to html_table_rows and cell strings to html_table_cell objects
-					if (!($row instanceof html_table_row)) {
+					if (!($row instanceof html_table_row))
+					{
 						$newrow = new html_table_row();
 
-						foreach ($row as $cell) {
-							if (!($cell instanceof html_table_cell)) {
+						foreach ($row as $cell)
+						{
+							if (!($cell instanceof html_table_cell))
+							{
 								$cell = new html_table_cell($cell);
 							}
 							$newrow->cells[] = $cell;
@@ -848,12 +951,14 @@ class html_writer
 					}
 
 					$oddeven = $oddeven ? 0 : 1;
-					if (isset($table->rowclasses[$key])) {
+					if (isset($table->rowclasses[$key]))
+					{
 						$row->attributes['class'] .= ' ' . $table->rowclasses[$key];
 					}
 
 					$row->attributes['class'] .= ' r' . $oddeven;
-					if ($key == $lastrowkey) {
+					if ($key == $lastrowkey)
+					{
 						$row->attributes['class'] .= ' lastrow';
 					}
 
@@ -862,28 +967,34 @@ class html_writer
 					$lastkey = end($keys2);
 
 					$gotlastkey = false; //flag for sanity checking
-					foreach ($row->cells as $key => $cell) {
-						if ($gotlastkey) {
+					foreach ($row->cells as $key => $cell)
+					{
+						if ($gotlastkey)
+						{
 							//This should never happen. Why do we have a cell after the last cell?
 							mtrace("A cell with key ($key) was found after the last key ($lastkey)");
 						}
 
-						if (!($cell instanceof html_table_cell)) {
+						if (!($cell instanceof html_table_cell))
+						{
 							$mycell = new html_table_cell();
 							$mycell->text = $cell;
 							$cell = $mycell;
 						}
 
-						if (($cell->header === true) && empty($cell->scope)) {
+						if (($cell->header === true) && empty($cell->scope))
+						{
 							$cell->scope = 'row';
 						}
 
-						if (isset($table->colclasses[$key])) {
+						if (isset($table->colclasses[$key]))
+						{
 							$cell->attributes['class'] .= ' ' . $table->colclasses[$key];
 						}
 
 						$cell->attributes['class'] .= ' cell c' . $key;
-						if ($key == $lastkey) {
+						if ($key == $lastkey)
+						{
 							$cell->attributes['class'] .= ' lastcol';
 							$gotlastkey = true;
 						}
@@ -892,16 +1003,10 @@ class html_writer
 						$tdstyle .= isset($table->size[$key]) ? $table->size[$key] : '';
 						$tdstyle .= isset($table->wrap[$key]) ? $table->wrap[$key] : '';
 						$cell->attributes['class'] = trim($cell->attributes['class']);
-						$tdattributes = array_merge($cell->attributes, array(
-							'style' => $tdstyle . $cell->style,
-							'colspan' => $cell->colspan,
-							'rowspan' => $cell->rowspan,
-							'id' => $cell->id,
-							'abbr' => $cell->abbr,
-							'scope' => $cell->scope,
-						));
+						$tdattributes = array_merge($cell->attributes, array('style' => $tdstyle . $cell->style, 'colspan' => $cell->colspan, 'rowspan' => $cell->rowspan, 'id' => $cell->id, 'abbr' => $cell->abbr, 'scope' => $cell->scope,));
 						$tagtype = 'td';
-						if ($cell->header === true) {
+						if ($cell->header === true)
+						{
 							$tagtype = 'th';
 						}
 						$output .= html_writer::tag($tagtype, $cell->text, $tdattributes) . "\n";
@@ -939,7 +1044,8 @@ class html_writer
 	 */
 	public static function label($text, $for, $colonize = true, array $attributes = array())
 	{
-		if (!is_null($for)) {
+		if (!is_null($for))
+		{
 			$attributes = array_merge($attributes, array('for' => $for));
 		}
 		$text = trim($text);
@@ -974,9 +1080,11 @@ class html_writer
  * @param string $var the string potentially containing HTML characters
  * @return string
  */
-function s($var) {
+function s($var)
+{
 
-	if ($var === false) {
+	if ($var === false)
+	{
 		return '0';
 	}
 

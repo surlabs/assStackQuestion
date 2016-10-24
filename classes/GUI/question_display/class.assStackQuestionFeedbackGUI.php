@@ -334,20 +334,22 @@ class assStackQuestionFeedbackGUI
 		$question_text = preg_replace('/\[\[validation:(.*?)\]\]/', "", $question_text);
 		if (is_array($this->getFeedback('prt'))) {
 			foreach ($this->getFeedback('prt') as $prt_name => $prt) {
-				foreach ($prt['response'] as $input_name => $input) {
-					if ($input['model_answer'] != "" AND $mode == "correct") {
-						$question_text = str_replace("[[input:" . $input_name . "]]", $this->getFilledInputBest($input['model_answer_display'], $input['model_answer']), $question_text);
-						$question_text = str_replace("[[feedback:" . $prt_name . "]]", NULL, $question_text);
-					} elseif ($input['model_answer'] != "" AND $mode == "user") {
-						$question_text = str_replace("[[input:" . $input_name . "]]", $this->getFilledInputUser($input['display']), $question_text);
-						$question_text = str_replace("[[feedback:" . $prt_name . "]]", $this->replacementForPRTPlaceholders($prt, $prt_name, $input), $question_text);
-						$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", $this->replacementForPRTPlaceholders($prt, $prt_name, $input), $specific_feedback);
-					} elseif ($mode == "user") {
-						$question_text = str_replace("[[input:" . $input_name . "]]", $this->getPlugin()->txt("no_model_solution_for_this_input"), $question_text);
-						$question_text = str_replace("[[feedback:" . $prt_name . "]]", $this->replacementForPRTPlaceholders($prt, $prt_name, $input), $question_text);
-					} elseif ($mode == "correct") {
-						$question_text = str_replace("[[input:" . $input_name . "]]", $this->getPlugin()->txt("no_model_solution_for_this_input"), $question_text);
-						$question_text = str_replace("[[feedback:" . $prt_name . "]]", "", $question_text);
+				if(is_array($prt['response'])){
+					foreach ($prt['response'] as $input_name => $input) {
+						if ($input['model_answer'] != "" AND $mode == "correct") {
+							$question_text = str_replace("[[input:" . $input_name . "]]", $this->getFilledInputBest($input['model_answer_display'], $input['model_answer']), $question_text);
+							$question_text = str_replace("[[feedback:" . $prt_name . "]]", NULL, $question_text);
+						} elseif ($input['model_answer'] != "" AND $mode == "user") {
+							$question_text = str_replace("[[input:" . $input_name . "]]", $this->getFilledInputUser($input['display']), $question_text);
+							$question_text = str_replace("[[feedback:" . $prt_name . "]]", $this->replacementForPRTPlaceholders($prt, $prt_name, $input), $question_text);
+							$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", $this->replacementForPRTPlaceholders($prt, $prt_name, $input), $specific_feedback);
+						} elseif ($mode == "user") {
+							$question_text = str_replace("[[input:" . $input_name . "]]", $this->getPlugin()->txt("no_model_solution_for_this_input"), $question_text);
+							$question_text = str_replace("[[feedback:" . $prt_name . "]]", $this->replacementForPRTPlaceholders($prt, $prt_name, $input), $question_text);
+						} elseif ($mode == "correct") {
+							$question_text = str_replace("[[input:" . $input_name . "]]", $this->getPlugin()->txt("no_model_solution_for_this_input"), $question_text);
+							$question_text = str_replace("[[feedback:" . $prt_name . "]]", "", $question_text);
+						}
 					}
 				}
 			}

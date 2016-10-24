@@ -110,8 +110,15 @@ input you can evaluate your answer (in self assessment mode) or move to the next
 Version History
 ===============
 
-* Versions 2.3 and higher (for ILIAS 5.0, ILIAS 5.1 and higher) are maintained in GitHub: https://github.com/ilifau/assStackQuestion
-* Former versions can be found in ILIAS SVN: http://svn.ilias.de/svn/ilias/branches/fau/plugins, but are not longer updated
+GitHub Version 2.3.7 (2016-10-24)
+---------------------------------
+
+This version includes some bugfixing.
+- The feedback presentation is now properly shown in both ILIAS 5.1 and 5.0.
+- http://www.ilias.de/mantis/view.php?id=19249 regarding random variables in preview
+- http://www.ilias.de/mantis/view.php?id=19002 and http://www.ilias.de/mantis/view.php?id=18974 regarding feedback in 5.1
+- http://www.ilias.de/mantis/view.php?id=19290 regarding changes in teacher view of students results.
+- http://www.ilias.de/mantis/view.php?id=18577 regarding feedback in 5.1
 
 
 GitHub Version 2.3.5 (2016-8-11)

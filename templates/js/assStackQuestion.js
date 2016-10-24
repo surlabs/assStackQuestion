@@ -89,7 +89,8 @@ il.assStackQuestion = new function () {
 		 */
 		$(".alert").hide();
 		$(".test_specific_feedback").hide();
-		$(".ilAssQuestionRelatedNavigationContainer:first").nextUntil(".ilAssQuestionRelatedNavigationContainer").hide();
+		/*
+		$(".ilAssQuestionRelatedNavigationContainer:first").nextUntil(".ilAssQuestionRelatedNavigationContainer").hide();*/
 
 
 		$.getScript(config.mathjax_url, function () {

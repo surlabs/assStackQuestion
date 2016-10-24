@@ -57,6 +57,7 @@ class assStackQuestionPreview
 		if ($seed < 0) {
 			$seed = $this->getSeed();
 		}
+
 		//Set grade of conversion to stack via the user response
 		if (assStackQuestionUtils::_isArrayEmpty($this->getUserResponse())) {
 			//NO USER RESPONSE, MINIMUM CONVERSION
@@ -76,6 +77,7 @@ class assStackQuestionPreview
 				$this->getQuestion()->getStackQuestion()->init($this->getQuestion(), '', $seed);
 			}
 		}
+
 	}
 
 	/**
