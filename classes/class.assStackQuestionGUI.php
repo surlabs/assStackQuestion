@@ -511,8 +511,14 @@ class assStackQuestionGUI extends assQuestionGUI
 			$solutions = $this->preview_mode["question_feedback"];
 		} else
 		{
-			//Get solutions from DB
-			$solutions =& $this->object->getSolutionValues($active_id, $pass);
+			//If ILIAS 5.1  or 5.0 using intermediate
+			if (method_exists($this->object, "getUserSolutionPreferingIntermediate"))
+			{
+				$solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
+			} else
+			{
+				$solutions =& $this->object->getSolutionValues($active_id, $pass);
+			}
 		}
 
 
@@ -693,7 +699,8 @@ class assStackQuestionGUI extends assQuestionGUI
 			} else
 			{
 				$solutions =& $this->object->getSolutionValues($active_id, $pass);
-			}		}
+			}
+		}
 
 		$specific_feedback = $this->object->getOptions()->getSpecificFeedback();
 
