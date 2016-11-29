@@ -64,6 +64,7 @@ class assStackQuestionAuthoringGUI
 		//Set form
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
+		$form->setTitle($this->getPlugin()->txt('edit_cas_question'));
 		$form->setFormAction($ilCtrl->getFormActionByClass('assStackQuestionGUI'));
 		$form->addCommandButton('save', $lng->txt('save'));
 		$form->addCommandButton('editQuestion', $lng->txt('cancel'));
@@ -86,24 +87,17 @@ class assStackQuestionAuthoringGUI
 		$this->getPlugin()->includeClass('utils/FormProperties/class.ilTabsFormPropertyGUI.php');
 		$this->getPlugin()->includeClass('utils/FormProperties/class.ilButtonFormPropertyGUI.php');
 
-
-		//Fill headers
-		$this->getTemplate()->setVariable("AUTHORING_TABLE_TITLE", $this->getPlugin()->txt('auth_title'));
-		//Links to the authoring guides
-		$text = $this->getPlugin()->txt('auth_subtitle');
-		$text .= "</br>" . $this->getPlugin()->txt('auth_tip1') . " <a href='https://github.com/maths/moodle-qtype_stack/blob/master/doc/en/index.md' target=\"_blank\"> Link </a>";
-		$text .= " " . $this->getPlugin()->txt('auth_tip2') ."</br>"." " . $this->getPlugin()->txt('auth_tip3') ." <a href='http://www.ilias.de/docu/goto_docu_file_5087.html' target=\"_blank\"> Quick authoring guide </a>";
-		$this->getTemplate()->setVariable("AUTHORING_TABLE_SUBTITLE", $text);
-
 		//Add general properties to form like question text, title, author...
 		//ADD predefined input and validation fields
-		if ($this->getQuestionGUI()->object->getQuestion() == "") {
+		if ($this->getQuestionGUI()->object->getQuestion() == "")
+		{
 			$this->getQuestionGUI()->object->setQuestion("[[input:ans1]] [[validation:ans1]]");
 			$this->getQuestionGUI()->object->setPoints("1");
 		}
 
 		//Add question title when blank
-		if ($this->getQuestionGUI()->object->getTitle() == NULL) {
+		if ($this->getQuestionGUI()->object->getTitle() == NULL)
+		{
 			$this->getQuestionGUI()->object->setTitle($this->getPlugin()->txt('untitled_question'));
 		}
 
@@ -111,7 +105,8 @@ class assStackQuestionAuthoringGUI
 		$this->getQuestionGUI()->setRTESupport($this->getForm()->getItemByPostVar('question'));
 
 		//Save basic data of the question
-		if (!$this->getQuestionGUI()->object->getOptions()) {
+		if (!$this->getQuestionGUI()->object->getOptions())
+		{
 			$this->getQuestionGUI()->object->saveToDb("", "", TRUE);
 		}
 
@@ -139,10 +134,16 @@ class assStackQuestionAuthoringGUI
 	 */
 	public function addOptions()
 	{
-		//Input creation deletion info
-		$input_info = new ilNonEditableValueGUI($this->getPlugin()->txt("input_hint"));
-		$input_info->setValue($this->getPlugin()->txt("authoring_input_creation_info"));
-		$this->getForm()->addItem($input_info);
+		//Add info as a new non editable field
+		$info = new ilNonEditableValueGUI($this->getPlugin()->txt("input_hint"));
+		$info->setHiddenTitle(TRUE);
+		//Links to the authoring guides
+		$text = "";
+		$text .= "</br>" . $this->getPlugin()->txt('auth_tip1') . " <a href='https://github.com/maths/moodle-qtype_stack/blob/master/doc/en/index.md' target=\"_blank\"> Link </a>";
+		$text .= " " . $this->getPlugin()->txt('auth_tip2') . "</br>" . " " . $this->getPlugin()->txt('auth_tip3') . " <a href='http://www.ilias.de/docu/goto_docu_file_5087.html' target=\"_blank\"> Quick authoring guide </a>";
+		$text .= "</br>" . $this->getPlugin()->txt("authoring_input_creation_info");
+		$info->setInfo($text);
+		$this->getForm()->addItem($info);
 
 		//Question variables
 		$question_variables = new ilTextAreaInputGUI($this->getPlugin()->txt('options_question_variables'), 'options_question_variables');
@@ -166,9 +167,8 @@ class assStackQuestionAuthoringGUI
 		//Options
 		$options = new ilAccordionFormPropertyGUI($this->getPlugin()->txt('options'), "question_options", 12, TRUE);
 
-		if (is_a($this->getQuestionGUI()->object->getOptions(), 'assStackQuestionOptions') AND
-			is_a($this->getQuestionGUI()->object->getExtraInfo(), 'assStackQuestionExtraInfo')
-		) {
+		if (is_a($this->getQuestionGUI()->object->getOptions(), 'assStackQuestionOptions') AND is_a($this->getQuestionGUI()->object->getExtraInfo(), 'assStackQuestionExtraInfo'))
+		{
 			//In case of edition
 			$options_part = $this->getOptionsPart($this->getQuestionGUI()->object->getOptions(), $this->getQuestionGUI()->object->getExtraInfo());
 			$options->addPart($options_part);
@@ -185,16 +185,19 @@ class assStackQuestionAuthoringGUI
 	{
 		$inputs = new ilAccordionFormPropertyGUI($this->getPlugin()->txt('inputs'), "question_inputs", 12, TRUE);
 
-		if (sizeof($this->getQuestionGUI()->object->getInputs())) {
+		if (sizeof($this->getQuestionGUI()->object->getInputs()))
+		{
 			//In case of edition
-			foreach ($this->getQuestionGUI()->object->getInputs() as $input_name => $input) {
+			foreach ($this->getQuestionGUI()->object->getInputs() as $input_name => $input)
+			{
 				$input_part = $this->getInputPart($input);
 				$input_part->setTitle($input_name);
 				$inputs->addPart($input_part);
 			}
 			$this->getForm()->addItem($inputs);
-		}else{
-			$input = new assStackQuestionInput("",$this->getQuestionGUI()->object->getId(),"ans1", "algebraic", "");
+		} else
+		{
+			$input = new assStackQuestionInput("", $this->getQuestionGUI()->object->getId(), "ans1", "algebraic", "");
 			$input_part = $this->getInputPart($input);
 			$input_part->setTitle("ans1");
 			$inputs->addPart($input_part);
@@ -209,8 +212,10 @@ class assStackQuestionAuthoringGUI
 	{
 		$prts = new ilTabsFormPropertyGUI($this->getPlugin()->txt('prts'), "question_prts", 12, FALSE);
 
-		if (sizeof($this->getQuestionGUI()->object->getPotentialResponsesTrees())) {
-			foreach ($this->getQuestionGUI()->object->getPotentialResponsesTrees() as $prt_name => $prt) {
+		if (sizeof($this->getQuestionGUI()->object->getPotentialResponsesTrees()))
+		{
+			foreach ($this->getQuestionGUI()->object->getPotentialResponsesTrees() as $prt_name => $prt)
+			{
 				$prt_part = $this->getPRTPart($prt);
 				$prt_part->setType($prt_name);
 				$prts->addPart($prt_part);
@@ -269,11 +274,7 @@ class assStackQuestionAuthoringGUI
 
 		//Options multiplication sign
 		$options_multiplication_sign = new ilSelectInputGUI($this->getPlugin()->txt('options_multiplication_sign'), 'options_multiplication_sign');
-		$options_multiplication_sign->setOptions(array(
-			"dot" => $this->getPlugin()->txt('options_mult_sign_dot'),
-			"cross" => $this->getPlugin()->txt('options_mult_sign_cross'),
-			"none" => $this->getPlugin()->txt('options_mult_sign_none')
-		));
+		$options_multiplication_sign->setOptions(array("dot" => $this->getPlugin()->txt('options_mult_sign_dot'), "cross" => $this->getPlugin()->txt('options_mult_sign_cross'), "none" => $this->getPlugin()->txt('options_mult_sign_none')));
 		$options_multiplication_sign->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('options_multiplication_sign') : '');
 
 		//Options Sqrt sign
@@ -282,33 +283,18 @@ class assStackQuestionAuthoringGUI
 
 		//Options Complex numbers
 		$options_complex_numbers = new ilSelectInputGUI($this->getPlugin()->txt('options_complex_numbers'), 'options_complex_numbers');
-		$options_complex_numbers->setOptions(array(
-			"i" => $this->getPlugin()->txt('options_complex_numbers_i'),
-			"j" => $this->getPlugin()->txt('options_complex_numbers_j'),
-			"symi" => $this->getPlugin()->txt('options_complex_numbers_symi'),
-			"symj" => $this->getPlugin()->txt('options_complex_numbers_symj')
-		));
+		$options_complex_numbers->setOptions(array("i" => $this->getPlugin()->txt('options_complex_numbers_i'), "j" => $this->getPlugin()->txt('options_complex_numbers_j'), "symi" => $this->getPlugin()->txt('options_complex_numbers_symi'), "symj" => $this->getPlugin()->txt('options_complex_numbers_symj')));
 		$options_complex_numbers->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('options_complex_numbers_info') : '');
 
 		//Options inverse trigonometric
 		$options_inverse_trigonometric = new ilSelectInputGUI($this->getPlugin()->txt('options_inverse_trigonometric'), 'options_inverse_trigonometric');
-		$options_inverse_trigonometric->setOptions(array(
-			"cos-1" => $this->getPlugin()->txt('options_inverse_trigonometric_cos'),
-			"acos" => $this->getPlugin()->txt('options_inverse_trigonometric_acos'),
-			"arccos" => $this->getPlugin()->txt('options_inverse_trigonometric_arccos')
-		));
+		$options_inverse_trigonometric->setOptions(array("cos-1" => $this->getPlugin()->txt('options_inverse_trigonometric_cos'), "acos" => $this->getPlugin()->txt('options_inverse_trigonometric_acos'), "arccos" => $this->getPlugin()->txt('options_inverse_trigonometric_arccos')));
 		$options_inverse_trigonometric->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('options_inverse_trigonometric_info') : '');
 
 		//Matrix Parens
 		$options_matrix_parens = new ilSelectInputGUI($this->getPlugin()->txt('options_matrix_parens'), 'options_matrix_parens');
 		$options_matrix_parens->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('options_matrix_parens_info') : '');
-		$options_matrix_parens->setOptions(array(
-			"[" => "[",
-			"(" => "(",
-			"" => "",
-			"{" => "{",
-			"|" => "|"
-		));
+		$options_matrix_parens->setOptions(array("[" => "[", "(" => "(", "" => "", "{" => "{", "|" => "|"));
 
 		//How to solve
 		$how_to_solve = new ilTextAreaInputGUI($this->getPlugin()->txt('options_how_to_solve'), 'options_how_to_solve');
@@ -354,13 +340,7 @@ class assStackQuestionAuthoringGUI
 		$part = new ilMultipartFormPart($this->getPlugin()->txt('show_input') . ' ' . $input->getInputName());
 
 		$input_type = new ilSelectInputGUI($this->getPlugin()->txt('input_type'), $input->getInputName() . '_input_type');
-		$input_type->setOptions(array(
-			"algebraic" => $this->getPlugin()->txt('input_type_algebraic'),
-			"boolean" => $this->getPlugin()->txt('input_type_boolean'),
-			"matrix" => $this->getPlugin()->txt('input_type_matrix'),
-			"singlechar" => $this->getPlugin()->txt('input_type_singlechar'),
-			"textarea" => $this->getPlugin()->txt('input_type_textarea')
-		));
+		$input_type->setOptions(array("algebraic" => $this->getPlugin()->txt('input_type_algebraic'), "boolean" => $this->getPlugin()->txt('input_type_boolean'), "matrix" => $this->getPlugin()->txt('input_type_matrix'), "singlechar" => $this->getPlugin()->txt('input_type_singlechar'), "textarea" => $this->getPlugin()->txt('input_type_textarea')));
 		$input_type->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('input_type_info') : '');
 		$input_type->setRequired(TRUE);
 
@@ -460,9 +440,11 @@ class assStackQuestionAuthoringGUI
 
 		//Add general settings
 		//Creation of properties of this part
-		if ($prt->getPRTName() == 'new_prt') {
+		if ($prt->getPRTName() == 'new_prt')
+		{
 			$prt_name = new ilTextInputGUI($this->getPlugin()->txt('prt_name'), 'prt_' . $prt->getPRTName() . '_name');
-		} else {
+		} else
+		{
 			$prt_name = new ilNonEditableValueGUI($this->getPlugin()->txt('prt_name'), 'prt_' . $prt->getPRTName() . '_name');
 		}
 		$prt_name->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_name_info') : '');
@@ -473,7 +455,8 @@ class assStackQuestionAuthoringGUI
 		$prt_first_node = new ilSelectInputGUI($this->getPlugin()->txt('prt_first_node'), 'prt_' . $prt->getPRTName() . '_first_node');
 		$node_list = array();
 		//Get list of nodes
-		foreach ($prt->getPRTNodes() as $prt_node) {
+		foreach ($prt->getPRTNodes() as $prt_node)
+		{
 			$node_list[$prt_node->getNodeName()] = $prt_node->getNodeName();
 		}
 		$prt_first_node->setOptions($node_list);
@@ -488,6 +471,7 @@ class assStackQuestionAuthoringGUI
 		//Add columns property and set inner division
 		$part->addFormProperty($prt_columns_container);
 		$prt_columns_container->setWidthDivision(array('title' => 0, 'content' => 12, 'footer' => 0));
+
 		return $part;
 	}
 
@@ -503,9 +487,11 @@ class assStackQuestionAuthoringGUI
 		$graph = new stack_abstract_graph();
 		$first_node_name = $prt->getFirstNodeName();
 		$nodes = array();
-		foreach ($prt->getPRTNodes() as $node) {
+		foreach ($prt->getPRTNodes() as $node)
+		{
 			$nodes[$node->getNodeName()] = $node;
-			if ((int)$node->getNodeName() == (int)$first_node_name) {
+			if ((int)$node->getNodeName() == (int)$first_node_name)
+			{
 				$first_node = $node;
 				unset($nodes[$node->getNodeName()]);
 			}
@@ -513,30 +499,35 @@ class assStackQuestionAuthoringGUI
 
 		array_unshift($nodes, $first_node);
 
-		foreach ($nodes as $node) {
-			if (is_a($node, "assStackQuestionPRTNode")) {
-				if ($node->getTrueNextNode() == -1) {
+		foreach ($nodes as $node)
+		{
+			if (is_a($node, "assStackQuestionPRTNode"))
+			{
+				if ($node->getTrueNextNode() == -1)
+				{
 					$left = null;
-				} else {
+				} else
+				{
 					$left = $node->getTrueNextNode();
 				}
-				if ($node->getFalseNextNode() == -1) {
+				if ($node->getFalseNextNode() == -1)
+				{
 					$right = null;
-				} else {
+				} else
+				{
 					$right = $node->getFalseNextNode();
 				}
-				$graph->add_node($node->getNodeName(), $left, $right,
-					$node->getTrueScoreMode() . round($node->getTrueScore(), 2),
-					$node->getFalseScoreMode() . round($node->getFalseScore(), 2),
-					'#fgroup_id_' . $prtname . 'node_' . $node->getNodeName());
+				$graph->add_node($node->getNodeName(), $left, $right, $node->getTrueScoreMode() . round($node->getTrueScore(), 2), $node->getFalseScoreMode() . round($node->getFalseScore(), 2), '#fgroup_id_' . $prtname . 'node_' . $node->getNodeName());
 			}
 		}
 
 		//Renderisation
-		try {
+		try
+		{
 			$graph->layout();
 			$svg = stack_abstract_graph_svg_renderer::render($graph, $prt->getPRTName() . 'graphsvg');
-		} catch (stack_exception $e) {
+		} catch (stack_exception $e)
+		{
 			ilUtil::sendFailure($e->getMessage(), TRUE);
 		}
 
@@ -565,10 +556,7 @@ class assStackQuestionAuthoringGUI
 		$prt_value->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_value_info') : '');
 
 		$prt_simplify = new ilSelectInputGUI($this->getPlugin()->txt('prt_simplify'), 'prt_' . $prt->getPRTName() . '_simplify');
-		$prt_simplify->setOptions(array(
-			TRUE => $lng->txt('yes'),
-			FALSE => $lng->txt('no'),
-		));
+		$prt_simplify->setOptions(array(TRUE => $lng->txt('yes'), FALSE => $lng->txt('no'),));
 		$prt_simplify->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_simplify_info') : '');
 
 		$prt_feedback_variables = new ilTextAreaInputGUI($this->getPlugin()->txt('prt_feedback_variables'), 'prt_' . $prt->getPRTName() . '_feedback_variables');
@@ -591,6 +579,7 @@ class assStackQuestionAuthoringGUI
 
 
 		$part->addPart($settings);
+
 		return $part;
 	}
 
@@ -606,9 +595,12 @@ class assStackQuestionAuthoringGUI
 		$nodes = new ilTabsFormPropertyGUI($this->getPlugin()->txt('prt_nodes'), 'prt_' . $prt->getPRTName() . '_nodes', $container_width, FALSE);
 
 		$q_nodes = $prt->getPRTNodes();
-		if (sizeof($q_nodes)) {
-			foreach ($q_nodes as $node) {
-				if ($prt->getFirstNodeName() == $node->getNodeName()) {
+		if (sizeof($q_nodes))
+		{
+			foreach ($q_nodes as $node)
+			{
+				if ($prt->getFirstNodeName() == $node->getNodeName())
+				{
 					$first_node = $node;
 					unset($q_nodes[$node->getNodeName()]);
 					array_unshift($q_nodes, $node);
@@ -616,8 +608,10 @@ class assStackQuestionAuthoringGUI
 			}
 		}
 		//Add tab per node in the current PRT
-		if (sizeof($q_nodes)) {
-			foreach ($q_nodes as $node) {
+		if (sizeof($q_nodes))
+		{
+			foreach ($q_nodes as $node)
+			{
 				$node_part = $this->getNodePart($prt, $node);
 				$node_part->setType($prt->getPRTName() . '-' . $node->getNodeName());
 				$nodes->addPart($node_part);
@@ -625,7 +619,8 @@ class assStackQuestionAuthoringGUI
 		}
 
 		//Add new node tab if not in new prt tab
-		if ($prt->getPRTName() != 'new_prt') {
+		if ($prt->getPRTName() != 'new_prt')
+		{
 			$new_prt_node = new assStackQuestionPRTNode(-1, $this->getQuestionGUI()->object->getId(), $prt->getPRTName(), $prt->getPRTName() . '_new_node', -1, -1);
 			$new_prt_node->checkPRTNode(TRUE);
 			$new_node_part = $this->getNodePart($prt, $new_prt_node);
@@ -664,6 +659,7 @@ class assStackQuestionAuthoringGUI
 		//Add common , positive and negative parts.
 		$part->addFormProperty($this->getCommonNodePart($prt, $node));
 		$part->addFormProperty($positive_negative_columns);
+
 		return $part;
 	}
 
@@ -688,7 +684,8 @@ class assStackQuestionAuthoringGUI
 		$this->getPlugin()->includeClass('stack/answertest/controller.class.php');
 		$answertests = stack_ans_test_controller::get_available_ans_tests();
 		$answertestchoices = array();
-		foreach ($answertests as $test => $string) {
+		foreach ($answertests as $test => $string)
+		{
 			$answertestchoices[$test] = stack_string($string);
 		}
 		$answer_test->setOptions($answertestchoices);
@@ -712,20 +709,19 @@ class assStackQuestionAuthoringGUI
 		$common_node_part->addFormProperty($node_options);
 
 		$node_quiet = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_quiet'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_quiet');
-		$node_quiet->setOptions(array(
-			TRUE => $lng->txt('yes'),
-			FALSE => $lng->txt('no'),
-		));
+		$node_quiet->setOptions(array(TRUE => $lng->txt('yes'), FALSE => $lng->txt('no'),));
 		$node_quiet->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_quiet_info') : '');
 		$node_quiet->setValue($node->getQuiet());
 		$common_node_part->addFormProperty($node_quiet);
 
-		if ($prt->getPRTName() != 'new_prt' AND $node->getNodeName() != $prt->getPRTName() . '_new_node') {
+		if ($prt->getPRTName() != 'new_prt' AND $node->getNodeName() != $prt->getPRTName() . '_new_node')
+		{
 			$delete_node = new ilButtonFormProperty($this->getPlugin()->txt('delete_node'), 'delete_prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName());
 			$delete_node->setAction('delete_prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName());
 			$delete_node->setCommand('save');
 			$common_node_part->addFormProperty($delete_node);
-		} else {
+		} else
+		{
 			$creation_node_info = new ilNonEditableValueGUI($this->getPlugin()->txt('node_creation_hint'));
 			$creation_node_info->setValue($this->getPlugin()->txt('node_creation_hint_text'));
 			$common_node_part->addFormProperty($creation_node_info);
@@ -751,11 +747,7 @@ class assStackQuestionAuthoringGUI
 
 		//Creation of Form properties
 		$node_pos_mode = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_pos_mod'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_pos_mod');
-		$node_pos_mode->setOptions(array(
-			"=" => "=",
-			"+" => "+",
-			"-" => "-"
-		));
+		$node_pos_mode->setOptions(array("=" => "=", "+" => "+", "-" => "-"));
 		$node_pos_mode->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_pos_mod_info') : '');
 
 		$node_pos_score = new ilTextInputGUI($this->getPlugin()->txt('prt_node_pos_score'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_pos_score');
@@ -767,7 +759,8 @@ class assStackQuestionAuthoringGUI
 		$node_pos_next_node = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_pos_next'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_pos_next');
 		$node_list = array(-1 => $this->getPlugin()->txt('end'));
 		//Get list of nodes
-		foreach ($prt->getPRTNodes() as $prt_node) {
+		foreach ($prt->getPRTNodes() as $prt_node)
+		{
 			$node_list[$prt_node->getNodeName()] = $prt_node->getNodeName();
 		}
 		$node_pos_next_node->setOptions($node_list);
@@ -793,7 +786,8 @@ class assStackQuestionAuthoringGUI
 		$positive_part->addFormProperty($node_pos_mode);
 		$positive_part->addFormProperty($node_pos_score);
 		$positive_part->addFormProperty($node_pos_penalty);
-		if ($node->getNodeName() != $prt->getPRTName() . '_new_node' AND $prt->getPRTName() != 'new_prt') {
+		if ($node->getNodeName() != $prt->getPRTName() . '_new_node' AND $prt->getPRTName() != 'new_prt')
+		{
 			$positive_part->addFormProperty($node_pos_next_node);
 		}
 		$positive_part->addFormProperty($node_pos_answernote);
@@ -816,11 +810,7 @@ class assStackQuestionAuthoringGUI
 
 		//Creation of Form properties
 		$node_neg_mode = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_neg_mod'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_neg_mod');
-		$node_neg_mode->setOptions(array(
-			"=" => "=",
-			"+" => "+",
-			"-" => "-"
-		));
+		$node_neg_mode->setOptions(array("=" => "=", "+" => "+", "-" => "-"));
 		$node_neg_mode->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_neg_mod_info') : '');
 
 		$node_neg_score = new ilTextInputGUI($this->getPlugin()->txt('prt_node_neg_score'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_neg_score');
@@ -831,7 +821,8 @@ class assStackQuestionAuthoringGUI
 
 		$node_neg_next_node = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_neg_next'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_neg_next');
 		$node_list = array(-1 => $this->getPlugin()->txt('end'));
-		foreach ($prt->getPRTNodes() as $prt_node) {
+		foreach ($prt->getPRTNodes() as $prt_node)
+		{
 			$node_list[$prt_node->getNodeName()] = $prt_node->getNodeName();
 		}
 		unset($node_list[$node->getNodeName()]);
@@ -857,7 +848,8 @@ class assStackQuestionAuthoringGUI
 		$negative_part->addFormProperty($node_neg_mode);
 		$negative_part->addFormProperty($node_neg_score);
 		$negative_part->addFormProperty($node_neg_penalty);
-		if ($node->getNodeName() != $prt->getPRTName() . '_new_node' AND $prt->getPRTName() != 'new_prt') {
+		if ($node->getNodeName() != $prt->getPRTName() . '_new_node' AND $prt->getPRTName() != 'new_prt')
+		{
 			$negative_part->addFormProperty($node_neg_next_node);
 		}
 		$negative_part->addFormProperty($node_neg_answernote);

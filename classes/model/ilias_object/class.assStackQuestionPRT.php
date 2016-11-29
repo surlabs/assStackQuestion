@@ -244,7 +244,7 @@ class assStackQuestionPRT
 	{
 		$this->setPRTValue(ilUtil::stripSlashes($_POST['prt_' . $prt_name . '_value']));
 		$this->setAutoSimplify(ilUtil::stripSlashes($_POST['prt_' . $prt_name . '_simplify']));
-		$this->setPRTFeedbackVariables(ilUtil::stripSlashes($_POST['prt_' . $prt_name . '_feedback_variables']));
+		$this->setPRTFeedbackVariables($_POST['prt_' . $prt_name . '_feedback_variables']);
 		$this->setFirstNodeName(ilUtil::stripSlashes($_POST['prt_' . $prt_name . '_first_node']));
 		//The name of the potentialresponse tree cannot be changed. in order to maintain the nodes correspondence
 		if ($new_prt_name) {

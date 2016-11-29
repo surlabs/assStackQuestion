@@ -110,6 +110,21 @@ input you can evaluate your answer (in self assessment mode) or move to the next
 Version History
 ===============
 
+
+GitHub Version 2.3.8 (2016-11-29)
+---------------------------------
+- Healthcheck no longer shows error when there are no errors.
+- General feedback is now properly shown if best solution is shown.
+- Now  Maxima's version of user solution or best solution is shown as replacement for the validation button when feedback is given or best solution is given in Tests, This is a provisional change, waiting for feedback from the community, This option is only available if specific feedback per answer option is active in the instant feedback settings.
++ Changes in the Authoring interface:
+- Now the Potential Response Tree part takes more space into the left of the page to allow teachers to check better the whole structure of the PRT.
+- Now required fields in authoring interface have a red * on the right of the title like in other ILIAS forms.
+This version includes some bugfixing.
+- http://www.ilias.de/mantis/view.php?id=19483 regarding show feedback for correct/wrong solutions when forcing feedback.
+- http://www.ilias.de/mantis/view.php?id=18939 regarding LaTeX display.
+- http://www.ilias.de/mantis/view.php?id=18343 regarding < and > symbols in feedback specific variables.
+
+
 GitHub Version 2.3.7 (2016-10-24)
 ---------------------------------
 

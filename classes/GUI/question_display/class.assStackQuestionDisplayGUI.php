@@ -89,9 +89,12 @@ class assStackQuestionDisplayGUI
 	{
 		global $tpl;
 
-		if (is_array($this->getDisplay('inputs'))) {
-			foreach ($this->getDisplay('inputs') as $input_name => $input) {
-				if ($this->getDisplay('validation', $input_name) == 'instant') {
+		if (is_array($this->getDisplay('inputs')))
+		{
+			foreach ($this->getDisplay('inputs') as $input_name => $input)
+			{
+				if ($this->getDisplay('validation', $input_name) == 'instant')
+				{
 					//Instant validation
 					$this->jsconfig = new stdClass();
 					$this->jsconfig->validate_url = ILIAS_HTTP_PATH . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/instant_validation.php";
@@ -102,7 +105,8 @@ class assStackQuestionDisplayGUI
 					$tpl->addJavascript('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/instant_validation.js');
 					$tpl->addOnLoadCode('il.instant_validation.init(' . json_encode($this->jsconfig) . ',' . json_encode($this->jstexts) . ')');
 					continue;
-				} elseif ($this->getDisplay('validation', $input_name) == 'button') {
+				} elseif ($this->getDisplay('validation', $input_name) == 'button')
+				{
 					//Button Validation
 					$this->jsconfig = new stdClass();
 					$this->jsconfig->validate_url = ILIAS_HTTP_PATH . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
@@ -124,22 +128,28 @@ class assStackQuestionDisplayGUI
 	 */
 	private function prepareExtraInfo()
 	{
-		if (is_array($this->getDisplay('inputs'))) {
-			foreach ($this->getDisplay('inputs') as $input_name => $input) {
+		if (is_array($this->getDisplay('inputs')))
+		{
+			foreach ($this->getDisplay('inputs') as $input_name => $input)
+			{
 				//Prepare validation button and division for giving feedback
-				if ($this->getDisplay('validation', $input_name) == 'instant') {
+				if ($this->getDisplay('validation', $input_name) == 'instant')
+				{
 					//Instant validation
 					$validation = $this->validationDisplayDivision($input_name, $input);
 					$this->setDisplay($validation, 'validation', $input_name);
-				} elseif ($this->getDisplay('validation', $input_name) == 'button') {
+				} elseif ($this->getDisplay('validation', $input_name) == 'button')
+				{
 					//Button Validation
 					$validation = $this->validationButton($input_name) . $this->validationDisplayDivision($input_name, $input);
 					$this->setDisplay($validation, 'validation', $input_name);
-				} elseif ($this->getDisplay('validation', $input_name) == 'hidden') {
+				} elseif ($this->getDisplay('validation', $input_name) == 'hidden')
+				{
 					//Button Validation
 					$validation = "";
 					$this->setDisplay($validation, 'validation', $input_name);
-				} else {
+				} else
+				{
 					$this->setDisplay(' ', 'validation', $input_name);
 				}
 			}
@@ -152,9 +162,11 @@ class assStackQuestionDisplayGUI
 	 */
 	private function validationDisplayDivision($input_name, $input)
 	{
-		if (isset($input['matrix_h'])) {
+		if (isset($input['matrix_h']))
+		{
 			return '<div id="validation_xqcas_roll_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div><div id="validation_xqcas_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div><div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input['matrix_w'] . '</div><div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden">' . $input['matrix_h'] . '</div>';
-		} else {
+		} else
+		{
 			return '<div id="validation_xqcas_roll_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div><div class="xqcas_input_validation"><div id="validation_xqcas_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div></div>';
 		}
 	}
@@ -185,23 +197,34 @@ class assStackQuestionDisplayGUI
 	private function replacePlaceholders($show_feedback = FALSE)
 	{
 		//Step 1: Replace placeholders per each input
-		if (is_array($this->getDisplay('inputs'))) {
-			foreach ($this->getDisplay('inputs') as $input_name => $input) {
+		if (is_array($this->getDisplay('inputs')))
+		{
+			foreach ($this->getDisplay('inputs') as $input_name => $input)
+			{
 				//Step 1.1 Replace input fields
 				$display = $this->getDisplay('inputs', $input_name);
 				$input_text = str_replace("[[input:{$input_name}]]", $display['display'], $this->getDisplay('question_text'));
 				$this->setDisplay($input_text, 'question_text');
 				//Step 1.2 Replace validation fields
-				$validation_text = str_replace("[[validation:{$input_name}]]", $this->getDisplay('validation', $input_name), $this->getDisplay('question_text'));
+				if ($show_feedback AND strlen($display["display_rendered"]) > 1)
+				{
+					$validation_text = str_replace("[[validation:{$input_name}]]", "</br>" . $this->plugin->txt("interpreted_by_maxima_as_2") . "</br>" . $display['display_rendered'], $this->getDisplay('question_text'));
+				} else
+				{
+					$validation_text = str_replace("[[validation:{$input_name}]]", $this->getDisplay('validation', $input_name), $this->getDisplay('question_text'));
+				}
 				$this->setDisplay($validation_text, 'question_text');
 			}
 		}
 
 		//Step 2: Replace feedback placeholders
-		if (is_array($this->getDisplay('prts')) AND $show_feedback) {
-			foreach ($this->getDisplay('prts') as $prt_name => $prt) {
+		if (is_array($this->getDisplay('prts')) AND $show_feedback)
+		{
+			foreach ($this->getDisplay('prts') as $prt_name => $prt)
+			{
 				//Step 2.1 Replace prt fields
-				if ($this->getDisplay('prts', $prt_name)) {
+				if ($this->getDisplay('prts', $prt_name))
+				{
 					$display = $this->getDisplay('prts', $prt_name);
 				}
 				$question_text = str_replace("[[feedback:{$prt_name}]]", $display['display'], $this->getDisplay('question_text'));
@@ -211,7 +234,8 @@ class assStackQuestionDisplayGUI
 				$this->setDisplay($question_specific_feedback, 'question_specific_feedback');
 
 			}
-		} else {
+		} else
+		{
 			$question_text = preg_replace('/\[\[feedback:(.*?)\]\]/', "", $this->getDisplay('question_text'));
 			$this->setDisplay($question_text, 'question_text');
 
@@ -241,11 +265,14 @@ class assStackQuestionDisplayGUI
 	 */
 	public function setDisplay($display, $selector = '', $selector2 = '')
 	{
-		if ($selector AND $selector2) {
+		if ($selector AND $selector2)
+		{
 			$this->display[$selector][$selector2] = $display;
-		} elseif ($selector) {
+		} elseif ($selector)
+		{
 			$this->display[$selector] = $display;
-		} else {
+		} else
+		{
 			$this->display = $display;
 		}
 	}
@@ -255,11 +282,14 @@ class assStackQuestionDisplayGUI
 	 */
 	public function getDisplay($selector = '', $selector2 = '')
 	{
-		if ($selector AND $selector2) {
+		if ($selector AND $selector2)
+		{
 			return $this->display[$selector][$selector2];
-		} elseif ($selector) {
+		} elseif ($selector)
+		{
 			return $this->display[$selector];
-		} else {
+		} else
+		{
 			return $this->display;
 		}
 	}

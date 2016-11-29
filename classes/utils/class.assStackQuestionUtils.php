@@ -30,6 +30,7 @@ class assStackQuestionUtils
 	{
 		$text1 = str_replace("<", "< ", $text);
 		$text2 = str_replace(">", " >", $text1);
+
 		return $text2;
 	}
 
@@ -44,15 +45,18 @@ class assStackQuestionUtils
 	{
 		$mathJaxSetting = new ilSetting("MathJax");
 
-		switch ((int)$mathJaxSetting->setting['limiter']) {
+		switch ((int)$mathJaxSetting->setting['limiter'])
+		{
 			case 0:
 				/*\(...\)*/
-				if ($markup) {
+				if ($markup)
+				{
 					$displaystart = '<ins>\(</ins>';
 					$displayend = '<ins>\)</ins>';
 					$inlinestart = '<ins>\(</ins>';
 					$inlineend = '<ins>\)</ins>';
-				} else {
+				} else
+				{
 					$displaystart = '\(';
 					$displayend = '\)';
 					$inlinestart = '\(';
@@ -61,12 +65,14 @@ class assStackQuestionUtils
 				break;
 			case 1:
 				/*[tex]...[/tex]*/
-				if ($markup) {
+				if ($markup)
+				{
 					$displaystart = '<ins>[tex]</ins>';
 					$displayend = '<ins>[/tex]</ins>';
 					$inlinestart = '<ins>[tex]</ins>';
 					$inlineend = '<ins>[/tex]</ins>';
-				} else {
+				} else
+				{
 					$displaystart = '[tex]';
 					$displayend = '[/tex]';
 					$inlinestart = '[tex]';
@@ -75,12 +81,14 @@ class assStackQuestionUtils
 				break;
 			case 2:
 				/*&lt;span class="math"&gt;...&lt;/span&gt;*/
-				if ($markup) {
+				if ($markup)
+				{
 					$displaystart = '<ins>&lt;span class="math"&gt;</ins>';
 					$displayend = '<ins>&lt;/span&gt;</ins>';
 					$inlinestart = '<ins>&lt;span class="math"&gt;</ins>';
 					$inlineend = '<ins>&lt;/span&gt;</ins>';
-				} else {
+				} else
+				{
 					$displaystart = '&lt;span class="math"&gt;';
 					$displayend = '&lt;/span&gt;';
 					$inlinestart = '&lt;span class="math"&gt;';
@@ -93,6 +101,7 @@ class assStackQuestionUtils
 
 		$text1 = preg_replace('~(?<!\\\\)\$\$(.*?)(?<!\\\\)\$\$~', $displaystart . '$1' . $displayend, $text);
 		$text2 = preg_replace('~(?<!\\\\)\$(.*?)(?<!\\\\)\$~', $inlinestart . '$1' . $inlineend, $text1);
+
 		return $text2;
 	}
 
@@ -105,13 +114,22 @@ class assStackQuestionUtils
 	public static function _solveKeyBracketsBug($text)
 	{
 		$text1 = str_replace("{", "&#123;", $text);
+
 		return str_replace("}", "&#125;", $text1);
 	}
 
 	public static function _removeLaTeX($text)
 	{
 		$text1 = str_replace('\[', '', $text);
+
 		return str_replace('\]', '', $text1);
+	}
+
+	public static function _addLatex($text)
+	{
+		$text1 = '\[' . $text;
+
+		return $text1 . '\]';
 	}
 
 	/**
@@ -122,10 +140,12 @@ class assStackQuestionUtils
 	public static function _getLatexText($text, $replace_placeholders = FALSE)
 	{
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
-		if ($replace_placeholders) {
+		if ($replace_placeholders)
+		{
 			$text1 = self::_replacePlaceholders($text);
 			$text2 = self::_replaceDollars($text1);
-		} else {
+		} else
+		{
 			$text2 = self::_replaceDollars($text);
 		}
 		//$text3 = self::_solveHTMLProblems($text2);
@@ -147,9 +167,11 @@ class assStackQuestionUtils
 	public static function _fromEvaluationToDisplayFormat($student_answer)
 	{
 		$display_format = array();
-		foreach ($student_answer as $input_name => $value) {
+		foreach ($student_answer as $input_name => $value)
+		{
 			$display_format['xqcas_input_' . $input_name . '_value'] = $value;
 		}
+
 		return $display_format;
 	}
 
@@ -186,18 +208,22 @@ class assStackQuestionUtils
 		$most_appearances_value = 0;
 
 		//Look for most appearances of a key in the seed given
-		foreach ($keys as $value => $key) {
+		foreach ($keys as $value => $key)
+		{
 			$count = substr_count($seed, $value);
-			if ($count > $most_appearances_value) {
+			if ($count > $most_appearances_value)
+			{
 				$most_appearances_key = $key;
 				$most_appearances_value = $count;
 			}
 		}
 
 		//Returns seed which appears more times in the seed, otherwise return last seed.
-		if ($most_appearances_key > 0) {
+		if ($most_appearances_key > 0)
+		{
 			return $array_of_seeds[$most_appearances_key]->getSeed();
-		} else {
+		} else
+		{
 			return end($array_of_seeds)->getSeed();
 		}
 	}
@@ -212,25 +238,32 @@ class assStackQuestionUtils
 		//Initialisation of parameters
 		$user_response_from_post = array();
 
-		switch ($style) {
+		switch ($style)
+		{
 			//Takes full inputs
 			//[xqcas_questionId_inputName] = value
 			case 'full':
 				//For each input, check if there is an entry in $_POST
-				foreach ($inputs as $input_name => $input) {
+				foreach ($inputs as $input_name => $input)
+				{
 					//If input is not matrix
-					if ($input->getInputType() != 'matrix') {
-						if (isset($_POST['xqcas_' . $question_id . '_' . $input_name])) {
+					if ($input->getInputType() != 'matrix')
+					{
+						if (isset($_POST['xqcas_' . $question_id . '_' . $input_name]))
+						{
 							$user_response_from_post['xqcas_' . $question_id . '_' . $input_name] = ilUtil::stripSlashes($_POST['xqcas_' . $question_id . '_' . $input_name], TRUE, '0');
 						}
-					} else {
+					} else
+					{
 						$user_response_for_matrix = array();
-						foreach ($_POST as $index => $user_response) {
+						foreach ($_POST as $index => $user_response)
+						{
 							$new_index = str_replace('xqcas_' . $question_id . '_', '', $index);
 							$user_response_for_matrix[$new_index] = $user_response;
 						}
 						$user_response_from_post = $user_response_for_matrix;
-						if (sizeof($user_response_for_matrix) == 0) {
+						if (sizeof($user_response_for_matrix) == 0)
+						{
 							return array();
 						}
 					}
@@ -240,13 +273,17 @@ class assStackQuestionUtils
 			//[inputName] = value
 			case 'reduced':
 				//For each input, check if there is an entry in $_POST
-				foreach ($inputs as $input_name => $input) {
+				foreach ($inputs as $input_name => $input)
+				{
 					//If input is not matrix
-					if ($input->getInputType() != 'matrix') {
-						if (isset($_POST['xqcas_' . $question_id . '_' . $input_name])) {
+					if ($input->getInputType() != 'matrix')
+					{
+						if (isset($_POST['xqcas_' . $question_id . '_' . $input_name]))
+						{
 							$user_response_from_post[$input_name] = ilUtil::stripSlashes($_POST['xqcas_' . $question_id . '_' . $input_name], TRUE, '0');
 						}
-					} else {
+					} else
+					{
 						$user_response_for_matrix = array();
 						//Cleaning
 						$post_values = $_POST;
@@ -261,15 +298,20 @@ class assStackQuestionUtils
 			//[xqcas_input_inputName_value] = value
 			case 'value':
 				//For each input, check if there is an entry in $_POST
-				foreach ($inputs as $input_name => $input) {
+				foreach ($inputs as $input_name => $input)
+				{
 					//If input is not matrix
-					if ($input->getInputType() != 'matrix') {
-						if (isset($_POST['xqcas_' . $question_id . '_' . $input_name . '_value'])) {
+					if ($input->getInputType() != 'matrix')
+					{
+						if (isset($_POST['xqcas_' . $question_id . '_' . $input_name . '_value']))
+						{
 							$user_response_from_post['xqcas_' . $question_id . '_' . $input_name . '_value'] = ilUtil::stripSlashes($_POST['xqcas_' . $question_id . '_' . $input_name . '_value'], TRUE, '0');
 						}
-					} else {
+					} else
+					{
 						$user_response_for_matrix = array();
-						foreach ($_POST as $index => $user_response) {
+						foreach ($_POST as $index => $user_response)
+						{
 							$new_index = str_replace('xqcas_' . $question_id . '_', '', $index);
 							$user_response_for_matrix[$new_index] = $user_response;
 						}
@@ -281,9 +323,11 @@ class assStackQuestionUtils
 				throw new stack_exception('exception_missing_style_for_user_response');
 		}
 
-		if (!assStackQuestionUtils::_isArrayEmpty($user_response_from_post)) {
+		if (!assStackQuestionUtils::_isArrayEmpty($user_response_from_post))
+		{
 			return $user_response_from_post;
-		} else {
+		} else
+		{
 			return array();
 		}
 	}
@@ -301,38 +345,53 @@ class assStackQuestionUtils
 		//Initialisation of parameters
 		$new_user_response_array = array();
 
-		switch ($change) {
+		switch ($change)
+		{
 			case 'full_to_reduced':
 				//From full to reduced
-				foreach ($inputs as $input_name => $input) {
+				foreach ($inputs as $input_name => $input)
+				{
 					//If input is not matrix
-					if ($mode == 'p') {
-						if (!is_a($input, 'stack_matrix_input')) {
-							if (isset($user_response['xqcas_' . $question_id . '_' . $input_name])) {
+					if ($mode == 'p')
+					{
+						if (!is_a($input, 'stack_matrix_input'))
+						{
+							if (isset($user_response['xqcas_' . $question_id . '_' . $input_name]))
+							{
 								$new_user_response_array[$input_name] = $user_response['xqcas_' . $question_id . '_' . $input_name];
 							}
-						} else {
-							if (is_array($user_response)) {
-								foreach ($user_response as $index => $user_response) {
+						} else
+						{
+							if (is_array($user_response))
+							{
+								foreach ($user_response as $index => $user_response)
+								{
 									$new_index = str_replace('xqcas_' . $question_id . '_', '', $index);
 									$new_user_response_for_matrix[$new_index] = $user_response;
 								}
 							}
-							if (is_array($new_user_response_for_matrix)) {
+							if (is_array($new_user_response_for_matrix))
+							{
 								$new_user_response_array = $new_user_response_for_matrix;
 							}
 						}
-					} elseif ($mode == 't') {
-						if ($input->getInputType() != 'matrix') {
-							if ($user_response['xqcas_' . $question_id . '_' . $input_name]) {
+					} elseif ($mode == 't')
+					{
+						if ($input->getInputType() != 'matrix')
+						{
+							if ($user_response['xqcas_' . $question_id . '_' . $input_name])
+							{
 								$new_user_response_array[$input_name] = $user_response['xqcas_' . $question_id . '_' . $input_name];
 							}
-						} else {
-							foreach ($user_response as $index => $user_response) {
+						} else
+						{
+							foreach ($user_response as $index => $user_response)
+							{
 								$new_index = str_replace('xqcas_' . $question_id . '_', '', $index);
 								$new_user_response_for_matrix[$new_index] = $user_response;
 							}
-							if (is_array($new_user_response_for_matrix)) {
+							if (is_array($new_user_response_for_matrix))
+							{
 								$new_user_response_array = $new_user_response_for_matrix;
 							}
 						}
@@ -341,13 +400,17 @@ class assStackQuestionUtils
 				break;
 			case 'full_to_value':
 				//from full to value
-				foreach ($inputs as $input_name => $input) {
+				foreach ($inputs as $input_name => $input)
+				{
 					//If input is not matrix
-					if (!is_a($input, 'stack_matrix_input')) {
-						if (isset($user_response['xqcas_' . $question_id . '_' . $input_name])) {
+					if (!is_a($input, 'stack_matrix_input'))
+					{
+						if (isset($user_response['xqcas_' . $question_id . '_' . $input_name]))
+						{
 							$new_user_response_array['xqcas_input_' . $input_name . '_value'] = $user_response['xqcas_' . $question_id . '_' . $input_name];
 						}
-					} else {
+					} else
+					{
 						//Don't change
 						$new_user_response_array = $user_response;
 					}
@@ -355,14 +418,19 @@ class assStackQuestionUtils
 				break;
 			case 'value_to_reduced':
 				//from value to reduced
-				foreach ($inputs as $input_name => $input) {
+				foreach ($inputs as $input_name => $input)
+				{
 					//If input is not matrix
-					if (!is_a($input, 'stack_matrix_input')) {
-						if (isset($user_response['xqcas_input_' . $input_name . '_value'])) {
+					if (!is_a($input, 'stack_matrix_input'))
+					{
+						if (isset($user_response['xqcas_input_' . $input_name . '_value']))
+						{
 							$new_user_response_array[$input_name] = $user_response['xqcas_input_' . $input_name . '_value'];
 						}
-					} else {
-						if (isset($user_response['xqcas_input_' . $input_name . '_value'])) {
+					} else
+					{
+						if (isset($user_response['xqcas_input_' . $input_name . '_value']))
+						{
 							$new_user_response_array = $input->get_expected_data($user_response['xqcas_input_' . $input_name . '_value']);
 						}
 						unset($new_user_response_array[$input_name . '_val']);
@@ -371,13 +439,17 @@ class assStackQuestionUtils
 				break;
 			case 'reduced_to_value':
 				//from reduced to value
-				foreach ($inputs as $input_name => $input) {
+				foreach ($inputs as $input_name => $input)
+				{
 					//If input is not matrix
-					if (!is_a($input, 'stack_matrix_input')) {
-						if (isset($user_response[$input_name])) {
+					if (!is_a($input, 'stack_matrix_input'))
+					{
+						if (isset($user_response[$input_name]))
+						{
 							$new_user_response_array['xqcas_input_' . $input_name . '_value'] = $user_response[$input_name];
 						}
-					} else {
+					} else
+					{
 						$new_user_response_array['xqcas_input_' . $input_name . '_value'] = $input->maxima_to_response_array($user_response[$input_name]);
 						unset($new_user_response_array['xqcas_input_' . $input_name . '_value'][$input_name . '_val']);
 					}
@@ -398,71 +470,7 @@ class assStackQuestionUtils
 	public static function _createOptions(assStackQuestionOptions $ilias_options)
 	{
 		$parameters = array( // Array of public class settings for this class.
-			'display' => array(
-				'type' => 'list',
-				'value' => 'LaTeX',
-				'strict' => true,
-				'values' => array('LaTeX', 'MathML', 'String'),
-				'caskey' => 'OPT_OUTPUT',
-				'castype' => 'string',
-			),
-			'multiplicationsign' => array(
-				'type' => 'list',
-				'value' => $ilias_options->getMultiplicationSign(),
-				'strict' => true,
-				'values' => array('dot', 'cross', 'none'),
-				'caskey' => 'make_multsgn',
-				'castype' => 'fun',
-			),
-			'complexno' => array(
-				'type' => 'list',
-				'value' => $ilias_options->getComplexNumbers(),
-				'strict' => true,
-				'values' => array('i', 'j', 'symi', 'symj'),
-				'caskey' => 'make_complexJ',
-				'castype' => 'fun',
-			),
-			'inversetrig' => array(
-				'type' => 'list',
-				'value' => $ilias_options->getInverseTrig(),
-				'strict' => true,
-				'values' => array('cos-1', 'acos', 'arccos'),
-				'caskey' => 'make_arccos',
-				'castype' => 'fun',
-			),
-			'floats' => array(
-				'type' => 'boolean',
-				'value' => 1,
-				'strict' => true,
-				'values' => array(),
-				'caskey' => 'OPT_NoFloats',
-				'castype' => 'ex',
-			),
-			'sqrtsign' => array(
-				'type' => 'boolean',
-				'value' => $ilias_options->getSqrtSign(),
-				'strict' => true,
-				'values' => array(),
-				'caskey' => 'sqrtdispflag',
-				'castype' => 'ex',
-			),
-			'simplify' => array(
-				'type' => 'boolean',
-				'value' => $ilias_options->getQuestionSimplify(),
-				'strict' => true,
-				'values' => array(),
-				'caskey' => 'simp',
-				'castype' => 'ex',
-			),
-			'assumepos' => array(
-				'type' => 'boolean',
-				'value' => $ilias_options->getAssumePositive(),
-				'strict' => true,
-				'values' => array(),
-				'caskey' => 'assume_pos',
-				'castype' => 'ex',
-			),
-		);
+			'display' => array('type' => 'list', 'value' => 'LaTeX', 'strict' => true, 'values' => array('LaTeX', 'MathML', 'String'), 'caskey' => 'OPT_OUTPUT', 'castype' => 'string',), 'multiplicationsign' => array('type' => 'list', 'value' => $ilias_options->getMultiplicationSign(), 'strict' => true, 'values' => array('dot', 'cross', 'none'), 'caskey' => 'make_multsgn', 'castype' => 'fun',), 'complexno' => array('type' => 'list', 'value' => $ilias_options->getComplexNumbers(), 'strict' => true, 'values' => array('i', 'j', 'symi', 'symj'), 'caskey' => 'make_complexJ', 'castype' => 'fun',), 'inversetrig' => array('type' => 'list', 'value' => $ilias_options->getInverseTrig(), 'strict' => true, 'values' => array('cos-1', 'acos', 'arccos'), 'caskey' => 'make_arccos', 'castype' => 'fun',), 'floats' => array('type' => 'boolean', 'value' => 1, 'strict' => true, 'values' => array(), 'caskey' => 'OPT_NoFloats', 'castype' => 'ex',), 'sqrtsign' => array('type' => 'boolean', 'value' => $ilias_options->getSqrtSign(), 'strict' => true, 'values' => array(), 'caskey' => 'sqrtdispflag', 'castype' => 'ex',), 'simplify' => array('type' => 'boolean', 'value' => $ilias_options->getQuestionSimplify(), 'strict' => true, 'values' => array(), 'caskey' => 'simp', 'castype' => 'ex',), 'assumepos' => array('type' => 'boolean', 'value' => $ilias_options->getAssumePositive(), 'strict' => true, 'values' => array(), 'caskey' => 'assume_pos', 'castype' => 'ex',),);
 
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionStackFactory.php';
 		$stack_factory = new assStackQuestionStackFactory();
@@ -477,11 +485,14 @@ class assStackQuestionUtils
 	public static function _isArrayEmpty($array)
 	{
 		//If array is not empty returns it, otherwise return FALSE;
-		foreach ($array as $value) {
-			if ($value != '') {
+		foreach ($array as $value)
+		{
+			if ($value != '')
+			{
 				return FALSE;
 			}
 		}
+
 		return TRUE;
 	}
 
@@ -505,6 +516,7 @@ class assStackQuestionUtils
 		$structure = array();
 		$structure['input'] = assStackQuestionInput::_read($question_id);
 		$structure['prt'] = assStackQuestionPRT::_read($question_id);
+
 		return $structure;
 	}
 
@@ -514,10 +526,13 @@ class assStackQuestionUtils
 		$query = 'SELECT value FROM xqcas_configuration WHERE parameter_name = "instant_validation"';
 
 		$result = $ilDB->query($query);
-		while ($row = $ilDB->fetchAssoc($result)) {
-			if ((int)$row['value']) {
+		while ($row = $ilDB->fetchAssoc($result))
+		{
+			if ((int)$row['value'])
+			{
 				return TRUE;
-			} else {
+			} else
+			{
 				return FALSE;
 			}
 		}
@@ -533,10 +548,13 @@ class assStackQuestionUtils
 		$query .= ' AND value1 = "xqcas_prt_' . $prt_name . '_seed"';
 
 		$result = $ilDB->query($query);
-		while ($row = $ilDB->fetchAssoc($result)) {
-			if ((int)$row['value2']) {
+		while ($row = $ilDB->fetchAssoc($result))
+		{
+			if ((int)$row['value2'])
+			{
 				return (int)$row['value2'];
-			} else {
+			} else
+			{
 				return FALSE;
 			}
 		}
@@ -545,11 +563,14 @@ class assStackQuestionUtils
 
 	public static function _isInputEvaluated($prt, $input_name)
 	{
-		foreach ($prt->getPRTNodes() as $node_name => $node) {
-			if (strpos($node->getStudentAnswer(), $input_name) !== false OR strpos($node->getTeacherAnswer(), $input_name)) {
+		foreach ($prt->getPRTNodes() as $node_name => $node)
+		{
+			if (strpos($node->getStudentAnswer(), $input_name) !== false OR strpos($node->getTeacherAnswer(), $input_name))
+			{
 				return TRUE;
 			}
 		}
+
 		return FALSE;
 
 	}

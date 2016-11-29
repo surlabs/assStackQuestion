@@ -362,3 +362,5 @@ untitled_question#:#Untitled STACK question
 auth_tip1#:#Go to
 auth_tip2#:#to get more information about STACK Questions
 auth_tip3#:#If it's your first time with STACK questions, read the quick authoring guide, also in german here:
+interpreted_by_maxima_as#:#Interpreted by Maxima as:
+interpreted_by_maxima_as_2#:#Your answer was interpreted as follows:

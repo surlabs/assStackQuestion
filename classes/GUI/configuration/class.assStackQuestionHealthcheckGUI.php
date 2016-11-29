@@ -72,45 +72,6 @@ class assStackQuestionHealthcheckGUI
 			$connection_status_template->setVariable('HC_EXPANDED', 'hc_expanded_hidden');
 		}
 
-		//TEST MAXIMA INSTALLED
-		if ($this->getHealthcheckData('bat_location')) {
-			$connection_status_template->setVariable('BAT_LOCATION_TITLE', $this->getPlugin()->txt('hc_bat_location_title'));
-			$connection_status_template->setVariable('BAT_LOCATION_TITLE_STATUS', $this->getPlugin()->txt('hc_passed'));
-
-			$connection_status_template->setVariable('BAT_LOCATION_MESSAGE', $this->getPlugin()->txt('hc_bat_location'));
-			$connection_status_template->setVariable('BAT_LOCATION', $this->getHealthcheckData('bat_location'));
-			$connection_status_template->setVariable('BAT_LOCATION_COLOR', 'hc_color_passed');
-		} else {
-			$connection_status_template->setVariable('BAT_LOCATION_TITLE', $this->getPlugin()->txt('hc_bat_location_title'));
-			$connection_status_template->setVariable('BAT_LOCATION_TITLE_STATUS', $this->getPlugin()->txt('hc_failed'));
-
-			$connection_status_template->setVariable('BAT_LOCATION_MESSAGE', $this->getPlugin()->txt('hc_bat_location_error'));
-			$connection_status_template->setVariable('BAT_LOCATION', $this->getHealthcheckData('error_bat_location'));
-			$connection_status_template->setVariable('BAT_LOCATION_COLOR', 'hc_color_failed');
-		}
-
-		//TEST MAXIMALOCAL CREATION AND CONTENT
-		if ($this->getHealthcheckData('maximalocal_location')) {
-			//TITLE
-			$connection_status_template->setVariable('MAXIMALOCAL_TITLE', $this->getPlugin()->txt('hc_maximalocal_title'));
-			$connection_status_template->setVariable('MAXIMALOCAL_TITLE_STATUS', $this->getPlugin()->txt('hc_passed'));
-
-			$connection_status_template->setVariable('MAXIMALOCAL_MESSAGE', $this->getPlugin()->txt('hc_maximalocal'));
-			$connection_status_template->setVariable('MAXIMALOCAL_LOCATION', $this->getHealthcheckData('maximalocal_location'));
-			$connection_status_template->setVariable('MAXIMALOCAL_COLOR', 'hc_color_passed');
-
-			//CONTENT OF MAXIMALOCAL
-			$connection_status_template->setVariable('MAXIMALOCAL_CONTENT_MESSAGE', $this->getPlugin()->txt('hc_maximalocal_content'));
-			$connection_status_template->setVariable('MAXIMALOCAL_CONTENT', '<textarea readonly>' . $this->getHealthcheckData('maximalocal_contents') . '</textarea>');
-		} else {
-			$connection_status_template->setVariable('MAXIMALOCAL_TITLE', $this->getPlugin()->txt('hc_maximalocal_title'));
-			$connection_status_template->setVariable('MAXIMALOCAL_TITLE_STATUS', $this->getPlugin()->txt('hc_failed'));
-
-			$connection_status_template->setVariable('MAXIMALOCAL_MESSAGE', $this->getPlugin()->txt('hc_maximalocal_error'));
-			$connection_status_template->setVariable('MAXIMALOCAL_LOCATION', $this->getHealthcheckData('error_maximalocal_contents'));
-			$connection_status_template->setVariable('MAXIMALOCAL_COLOR', 'hc_color_failed');
-		}
-
 		//CONNECTION STATUS AND SAMPLE COMMAND
 		if (!$this->getHealthcheckData('error_cas_sample_display')) {
 			//TITLE

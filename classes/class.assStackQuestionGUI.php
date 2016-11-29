@@ -490,7 +490,6 @@ class assStackQuestionGUI extends assQuestionGUI
 	function getSolutionOutput($active_id, $pass = NULL, $graphicalOutput = FALSE, $result_output = FALSE, $show_question_only = TRUE, $show_feedback = FALSE, $show_correct_solution = FALSE, $show_manual_scoring = FALSE, $show_question_text = TRUE)
 	{
 		$solution_template = new ilTemplate("tpl.il_as_tst_solution_output.html", TRUE, TRUE, "Modules/TestQuestionPool");
-
 		//Check for PASS
 		if ($active_id)
 		{
@@ -531,7 +530,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		{
 			//Correct solution
 			//Returns best solution HTML.
-			$solution_output = $this->getQuestionOutput($solutions, TRUE);
+			$solution_output = $this->getQuestionOutput($solutions, TRUE, $show_feedback);
 		}
 
 		$question_text = $this->object->getQuestion();
@@ -626,9 +625,16 @@ class assStackQuestionGUI extends assQuestionGUI
 									if ($best_solution)
 									{
 										$input_replacement = $input_answer["model_answer"];
+										$validation_replacement = $input_answer["model_answer_display"];
+										$question_text = str_replace("[[validation:" . $input_name . "]]", "</br>" . $this->plugin->txt("interpreted_by_maxima_as") . "</br>" . assStackQuestionUtils::_addLatex($validation_replacement), $question_text);
 									} else
 									{
 										$input_replacement = $input_answer["value"];
+										if ($show_feedback)
+										{
+											$validation_replacement = $input_answer["display"];
+											$question_text = str_replace("[[validation:" . $input_name . "]]", "</br>" . $this->plugin->txt("interpreted_by_maxima_as_2") . "</br>" . $validation_replacement, $question_text);
+										}
 									}
 									$size = strlen($input_replacement) + 5;
 									$input_text = "";
@@ -637,10 +643,11 @@ class assStackQuestionGUI extends assQuestionGUI
 									break;
 							}
 
+
 							//Replace feedback placeholder if required
 							if ($show_feedback)
 							{
-								$feedback_replacement = $prt["feedback"];
+								$feedback_replacement = $prt["status"]["message"] . $prt["feedback"];
 								$question_text = str_replace("[[feedback:" . $prt_name . "]]", $feedback_replacement, $question_text);
 							}
 						}
@@ -648,12 +655,16 @@ class assStackQuestionGUI extends assQuestionGUI
 
 				}
 			}
-
 			//Delete other place holders
 			$question_text = preg_replace('/\[\[validation:(.*?)\]\]/', "", $question_text);
 			if (!$show_feedback)
 			{
 				$question_text = preg_replace('/\[\[feedback:(.*?)\]\]/', "", $question_text);
+			}
+
+			if ($best_solution)
+			{
+				$question_text .= "</br>" . assStackQuestionUtils::_getLatexText($solutions["general_feedback"]);
 			}
 
 			//Return the question text with LaTeX problems solved.
@@ -905,11 +916,6 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 		$this->editQuestionForm();
-	}
-
-	public function saveQuestion()
-	{
-
 	}
 
 	/*

@@ -96,9 +96,11 @@ class assStackQuestionDisplay
 		$display_data = array();
 
 		//Set Question text instantiated
-		if ($in_test) {
+		if ($in_test)
+		{
 			$display_data['question_text'] = $this->getQuestionText();
-		} else {
+		} else
+		{
 			$display_data['question_text'] = $this->getQuestion()->getQuestionTextInstantiated();
 		}
 
@@ -109,19 +111,23 @@ class assStackQuestionDisplay
 		$display_data['question_id'] = (string)$this->getQuestion()->getQuestionId();
 
 		//Step 1: Get the replacement per each placeholder.
-		foreach ($this->getQuestion()->getInputs() as $input_name => $input) {
+		foreach ($this->getQuestion()->getInputs() as $input_name => $input)
+		{
 			//Step 1.1: Replacement for input placeholders
-			$display_data['inputs'][$input_name]['display'] = $this->replacementForInputPlaceholders($input, $input_name, $in_test);
+			$display_data['inputs'][$input_name]['display'] = $this->replacementForInputPlaceholders($input, $input_name, $in_test, FALSE);
+			$display_data['inputs'][$input_name]['display_rendered'] = $this->replacementForInputPlaceholders($input, $input_name, $in_test, TRUE);
 			//Step 1.2: Replacement for validation placeholders
 			$display_data['validation'][$input_name] = $this->replacementForValidationPlaceholders($input, $input_name);
 			//Step 1.3 set matrix info
-			if (is_a($input, "stack_matrix_input")) {
+			if (is_a($input, "stack_matrix_input"))
+			{
 				$display_data['inputs'][$input_name]['matrix_w'] = $input->width;
 				$display_data['inputs'][$input_name]['matrix_h'] = $input->height;
 			}
 		}
 		//Step 2: Get the replacement per each Feedback placeholder
-		foreach ($this->getQuestion()->getPRTs() as $prt_name => $prt) {
+		foreach ($this->getQuestion()->getPRTs() as $prt_name => $prt)
+		{
 			//Step 1.1: Replacement for input placeholders
 			$display_data['prts'][$prt_name]['display'] = $this->replacementForPRTPlaceholders($prt, $prt_name, $in_test);
 		}
@@ -134,7 +140,7 @@ class assStackQuestionDisplay
 	 * @param stack_input $input
 	 * @param string $input_name
 	 */
-	private function replacementForInputPlaceholders($input, $input_name, $in_test)
+	private function replacementForInputPlaceholders($input, $input_name, $in_test, $render_display = FALSE)
 	{
 		//Get student answer for this inputF
 		//In assStackQuestionDisplay the User response should be store with the "value" format for assStackQuestionUtils::_getUserResponse.
@@ -142,10 +148,16 @@ class assStackQuestionDisplay
 
 		//Create input state
 		$state = $this->getQuestion()->getInputState($input_name, $student_answer, $input->get_parameter('forbidWords', ''));
+		if ($render_display)
+		{
+			return $state->contentsdisplayed;
+		}
 		//Return renderised input
-		if (!is_a($input, 'stack_matrix_input')) {
+		if (!is_a($input, 'stack_matrix_input'))
+		{
 			return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE);
-		} else {
+		} else
+		{
 			return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE);
 		}
 	}
@@ -159,17 +171,23 @@ class assStackQuestionDisplay
 	 */
 	private function replacementForValidationPlaceholders($input, $input_name)
 	{
-		if (!is_a($input, 'stack_boolean_input')) {
-			if ($input->requires_validation()) {
-				if ($this->getQuestion()->getInstantValidation()) {
+		if (!is_a($input, 'stack_boolean_input'))
+		{
+			if ($input->requires_validation())
+			{
+				if ($this->getQuestion()->getInstantValidation())
+				{
 					return 'instant';
-				} else {
+				} else
+				{
 					return 'button';
 				}
-			} else {
+			} else
+			{
 				return 'hidden';
 			}
-		} else {
+		} else
+		{
 			return FALSE;
 		}
 	}
@@ -183,7 +201,8 @@ class assStackQuestionDisplay
 	private function replacementForPRTPlaceholders($prt, $prt_name, $in_test)
 	{
 		$string = "";
-		if (sizeof($this->getInlineFeedback())) {
+		if (sizeof($this->getInlineFeedback()))
+		{
 			//feedback
 			$string .= '<div class="alert alert-warning" role="alert">';
 			//Generic feedback
@@ -194,6 +213,7 @@ class assStackQuestionDisplay
 			$string .= $this->inline_feedback['prt'][$prt_name]['errors'];
 			$string .= '</div>';
 		}
+
 		return $string;
 	}
 
@@ -226,48 +246,66 @@ class assStackQuestionDisplay
 		$user_answer = array();
 
 		//In assStackQuestionDisplay the User response should be stored with the "value" format for assStackQuestionUtils::_getUserResponse.
-		if ($selector) {
-			if (is_array($this->user_response)) {
-				if ($in_test) {
-					if (array_key_exists('xqcas_input_' . $selector . '_value', $this->user_response)) {
-						foreach ($this->getQuestion()->getInputs() as $input_name => $input) {
-							if ($input_name == $selector) {
-								if (is_a($input, 'stack_matrix_input')) {
+		if ($selector)
+		{
+			if (is_array($this->user_response))
+			{
+				if ($in_test)
+				{
+					if (array_key_exists('xqcas_input_' . $selector . '_value', $this->user_response))
+					{
+						foreach ($this->getQuestion()->getInputs() as $input_name => $input)
+						{
+							if ($input_name == $selector)
+							{
+								if (is_a($input, 'stack_matrix_input'))
+								{
 									$user_answer[$selector] = $this->user_response['xqcas_input_' . $input_name . '_value'];
-								} else {
+								} else
+								{
 									$user_answer[$selector] = array($selector => $this->user_response['xqcas_input_' . $selector . '_value']);
 								}
 							}
 						}
-					} else {
+					} else
+					{
 						return array($selector => '');
 					}
 
 					return $user_answer[$selector];
-				} else {
+				} else
+				{
 					//preview mode
-					foreach ($this->getQuestion()->getInputs() as $input_name => $input) {
-						if ($input_name == $selector) {
-							if (is_a($input, 'stack_matrix_input')) {
+					foreach ($this->getQuestion()->getInputs() as $input_name => $input)
+					{
+						if ($input_name == $selector)
+						{
+							if (is_a($input, 'stack_matrix_input'))
+							{
 								$matrix_input = array();
-								foreach ($this->user_response as $sub_key => $response) {
-									if (strpos($sub_key, $input_name . "_") !== FALSE) {
+								foreach ($this->user_response as $sub_key => $response)
+								{
+									if (strpos($sub_key, $input_name . "_") !== FALSE)
+									{
 										$matrix_input[$sub_key] = $response;
 									}
 								}
 								$user_answer[$selector] = $matrix_input;
-							} else {
-								$user_answer[$selector] = array($selector =>$this->user_response[$selector]);
+							} else
+							{
+								$user_answer[$selector] = array($selector => $this->user_response[$selector]);
 							}
 						}
 					}
 
 					return $user_answer[$selector];
 				}
-			} else {
+			} else
+			{
 				return array();
 			}
-		} else {
+		} else
+		{
 			return $this->user_response;
 		}
 	}
@@ -294,13 +332,17 @@ class assStackQuestionDisplay
 	 */
 	public function getInlineFeedback($selector1 = '', $selector2 = '', $selector3 = '')
 	{
-		if ($selector1 AND !$selector2) {
+		if ($selector1 AND !$selector2)
+		{
 			return $this->inline_feedback[$selector1];
-		} elseif ($selector1 AND $selector2) {
+		} elseif ($selector1 AND $selector2)
+		{
 			return $this->inline_feedback[$selector1][$selector2];
-		} elseif ($selector1 AND $selector2 AND $selector3) {
+		} elseif ($selector1 AND $selector2 AND $selector3)
+		{
 			return $this->inline_feedback[$selector1][$selector2][$selector3];
-		} else {
+		} else
+		{
 			return $this->inline_feedback;
 		}
 	}
@@ -328,9 +370,11 @@ class assStackQuestionDisplay
 	public function setUserResponse($user_response, $selector = '')
 	{
 		//In assStackQuestionDisplay the User response should be stored with the "value" format for assStackQuestionUtils::_getUserResponse.
-		if ($selector) {
+		if ($selector)
+		{
 			$this->user_response[$selector] = $user_response;
-		} else {
+		} else
+		{
 			$this->user_response = $user_response;
 		}
 	}
@@ -356,9 +400,11 @@ class assStackQuestionDisplay
 	 */
 	public function setInlineFeedback($inline_feedback, $selector = '')
 	{
-		if ($selector) {
+		if ($selector)
+		{
 			$this->inline_feedback[$selector] = $inline_feedback;
-		} else {
+		} else
+		{
 			$this->inline_feedback = $inline_feedback;
 		}
 	}

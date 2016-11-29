@@ -50,17 +50,26 @@ class ilAccordionFormPropertyGUI extends ilMultipartFormPropertyGUI
 		$this->getTemplate()->setVariable("CONTAINER_WIDTH", $this->getContainerWidth());
 
 		//Filling parts
-		foreach ($this->getParts() as $part) {
+		foreach ($this->getParts() as $part)
+		{
 			//Addition of form properties
-			foreach ($part->getContent() as $form_property) {
+			foreach ($part->getContent() as $form_property)
+			{
 				$this->getTemplate()->setVariable("PART_TYPE", $part->getType());
 
 				//Fill Title and Info
 				$this->getTemplate()->setCurrentBlock('prop_container');
 				$this->getTemplate()->setVariable("PART_TYPE", $part->getType());
 
-				if ($this->getShowTitle()) {
-					$this->getTemplate()->setVariable("PROP_TITLE", $form_property->getTitle());
+				if ($this->getShowTitle())
+				{
+					if ($form_property->getRequired())
+					{
+						$this->getTemplate()->setVariable("PROP_TITLE", $form_property->getTitle() . "<font color=\"red\"> *</font>");
+					} else
+					{
+						$this->getTemplate()->setVariable("PROP_TITLE", $form_property->getTitle());
+					}
 				}
 				//Set width
 				$this->getTemplate()->setVariable("TITLE_WIDTH", $this->getWidthDivision('title'));
