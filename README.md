@@ -125,6 +125,7 @@ This version includes some bugfixing.
 - http://www.ilias.de/mantis/view.php?id=18343 regarding < and > symbols in feedback specific variables.
 
 
+
 GitHub Version 2.3.7 (2016-10-24)
 ---------------------------------
 
