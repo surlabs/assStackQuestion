@@ -110,8 +110,40 @@ input you can evaluate your answer (in self assessment mode) or move to the next
 Version History
 ===============
 
-* Versions 2.3 and higher (for ILIAS 5.0, ILIAS 5.1 and higher) are maintained in GitHub: https://github.com/ilifau/assStackQuestion
-* Former versions can be found in ILIAS SVN: http://svn.ilias.de/svn/ilias/branches/fau/plugins, but are not longer updated
+GitHub Version 2.3.9 (2017-1-31)
+--------------------------------
+- Scoring page shows a new information text explaining the behaviour of the page.
+This version includes some bugfixing.
+- http://www.ilias.de/mantis/view.php?id=20117 Regarding inconsistences when showing specific feedback.
+- http://www.ilias.de/mantis/view.php?id=18371 Regarding delete of inputs and PRT in a test, changes were not properly applied to the question pool.
+- http://www.ilias.de/mantis/view.php?id=18703 Regarding delete of PRT nodes was not done in question authoring.
+- http://www.ilias.de/mantis/view.php?id=20111 Regarding LaTeX problem in CASText.
+- http://www.ilias.de/mantis/view.php?id=19746 Regarding Matrix Parentheses always set to square brackets.
+
+GitHub Version 2.3.8 (2016-11-29)
+---------------------------------
+- Healthcheck no longer shows error when there are no errors.
+- General feedback is now properly shown if best solution is shown.
+- Now  Maxima's version of user solution or best solution is shown as replacement for the validation button when feedback is given or best solution is given in Tests, This is a provisional change, waiting for feedback from the community, This option is only available if specific feedback per answer option is active in the instant feedback settings.
++ Changes in the Authoring interface:
+- Now the Potential Response Tree part takes more space into the left of the page to allow teachers to check better the whole structure of the PRT.
+- Now required fields in authoring interface have a red * on the right of the title like in other ILIAS forms.
+This version includes some bugfixing.
+- http://www.ilias.de/mantis/view.php?id=19483 regarding show feedback for correct/wrong solutions when forcing feedback.
+- http://www.ilias.de/mantis/view.php?id=18939 regarding LaTeX display.
+- http://www.ilias.de/mantis/view.php?id=18343 regarding < and > symbols in feedback specific variables.
+
+
+
+GitHub Version 2.3.7 (2016-10-24)
+---------------------------------
+
+This version includes some bugfixing.
+- The feedback presentation is now properly shown in both ILIAS 5.1 and 5.0.
+- http://www.ilias.de/mantis/view.php?id=19249 regarding random variables in preview
+- http://www.ilias.de/mantis/view.php?id=19002 and http://www.ilias.de/mantis/view.php?id=18974 regarding feedback in 5.1
+- http://www.ilias.de/mantis/view.php?id=19290 regarding changes in teacher view of students results.
+- http://www.ilias.de/mantis/view.php?id=18577 regarding feedback in 5.1
 
 
 GitHub Version 2.3.5 (2016-8-11)

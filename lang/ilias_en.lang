@@ -362,3 +362,6 @@ untitled_question#:#Untitled STACK question
 auth_tip1#:#Go to
 auth_tip2#:#to get more information about STACK Questions
 auth_tip3#:#If it's your first time with STACK questions, read the quick authoring guide, also in german here:
+interpreted_by_maxima_as#:#Interpreted by Maxima as:
+interpreted_by_maxima_as_2#:#Your answer was interpreted as follows:
+sco_info#:#On this page, scoring is shown directly in question points. Per each node of each potential response tree, points obtained if node's Answertest is true is shown in green and points obtained if node's Answertest is false is shown in red. In addition per each potential response tree you can check their weight into the question in "Maximum points for this Potential response tree"

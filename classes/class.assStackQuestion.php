@@ -132,12 +132,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			$pass = $this->getSolutionMaxPass($active_id);
 		}
 
-		//In case of check in test
-		if ($authorizedSolution == FALSE)
-		{
-			return $this->stack_question->reached_points;
-		}
-
 		// get all saved part solutions with points assigned
 		$result = $this->getCurrentSolutionResultSet($active_id, $pass, $authorizedSolution);
 
@@ -150,63 +144,197 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			$points[$row['value1']] = (float)$row['points'];
 		}
 
-
 		return array_sum($points);
 	}
 
 	/**
-	 * Saves the learners input of the question to the database
-	 * WHEN IN TEST MODE
+	 * Saves the learners input of the question to the database.
 	 *
-	 * @param    integer $test_id The database id of the test containing this question
-	 * @return    boolean Indicates the save status (true if saved successful, false otherwise)
-	 * @access    public
-	 * @see    $answers
+	 * @param int $active_id
+	 * @param int $pass
+	 * @param bool $authorized
+	 * @return bool
 	 */
-	function saveWorkingData($active_id, $pass = NULL, $authorized = TRUE)
+	public function saveWorkingData($active_id, $pass = NULL, $authorized = true)
 	{
 		/** @var $ilDB ilDB */
 		global $ilDB;
 
 		if (is_null($pass))
 		{
-			include_once "./Modules/Test/classes/class.ilObjTest.php";
+			require_once './Modules/Test/classes/class.ilObjTest.php';
 			$pass = ilObjTest::_getPass($active_id);
 		}
 
-		$prts = assStackQuestionPRT::_read($this->getId());
+		//Determine seed for current test run
+		$seed = $this->getQuestionSeedForCurrentTestRun($active_id, $pass);
 
-		if ($authorized && ($active_id != NULL))
+		//Create STACK Question object if doesn't exists
+		if (!is_a($this->getStackQuestion(), 'assStackQuestionStackQuestion'))
 		{
-			$entered_values = $this->saveWorkingDataFull($active_id, $pass, $authorized);
-		} else
+			$this->plugin->includeClass("model/class.assStackQuestionStackQuestion.php");
+			$this->setStackQuestion(new assStackQuestionStackQuestion($active_id, $pass));
+			$this->getStackQuestion()->init($this, '', $seed);
+		}
+
+		$entered_values = 0;
+
+		$saved = true;
+
+		$user_solution = $this->getSolutionSubmit();
+
+		/*
+		if( !$this->isValidSolutionSubmit($stack_question_result) )
 		{
-			$this->getProcessLocker()->requestUserSolutionUpdateLock();
+			ilUtil::sendInfo($this->getPlugin()->txt("err_not_valid_solution_submit"), true);
+			$saved = false;
+		}*/
 
-			$solutionSubmit = $this->getSolutionSubmit();
+		//Calculate results for user_solution before save it
+		//Create evaluation object
+		$this->plugin->includeClass("model/question_evaluation/class.assStackQuestionEvaluation.php");
+		$evaluation_object = new assStackQuestionEvaluation($this->plugin, $this->getStackQuestion(), $user_solution);
 
-			foreach ($solutionSubmit as $input_name => $value)
+		//Evaluate question
+		$question_evaluation = $evaluation_object->evaluateQuestion();
+		$question_evaluation->calculatePoints();
+
+		//Get Feedback
+		$this->plugin->includeClass('model/question_evaluation/class.assStackQuestionFeedback.php');
+		$feedback_object = new assStackQuestionFeedback($this->plugin, $question_evaluation);
+		$feedback_data = $feedback_object->getFeedback();
+
+		//DB Operations
+		//$this->getProcessLocker()->requestUserSolutionUpdateLock();
+
+		//If ILIAS 5.1  or 5.0 using intermediate
+		if (method_exists($this, "getUserSolutionPreferingIntermediate"))
+		{
+			//Remove current solutions depending on the authorized parameter.
+			if ($authorized)
 			{
-				if (strlen($value))
-				{
-					foreach ($prts as $prt_name => $prt)
-					{
-						if (assStackQuestionUtils::_isInputEvaluated($prt, $input_name))
-						{
-							$this->removeCurrentSolutionCarefully($active_id, $pass, 'xqcas_prt_' . $prt_name . '_value_' . $input_name);
-							$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_value_' . $input_name, $solutionSubmit[$input_name], $authorized);
-						}
-					}
-					$entered_values = TRUE;
-				}
+				$this->removeExistingSolutions($active_id, $pass);
+			} else
+			{
+				$this->removeIntermediateSolution($active_id, $pass);
 			}
 
-			$this->getProcessLocker()->releaseUserSolutionUpdateLock();
+			//5.1
+			//Save new user solution
+			//Save question text instantiated
+			$this->saveCurrentSolution($active_id, $pass, 'xqcas_text_' . $this->getStackQuestion()->getQuestionId(), $feedback_data['question_text'], $authorized);
+			//Save question note
+			$this->saveCurrentSolution($active_id, $pass, 'xqcas_solution_' . $this->getStackQuestion()->getQuestionId(), $feedback_data['question_note'], $authorized);
+			//Save general feedback
+			$this->saveCurrentSolution($active_id, $pass, 'xqcas_general_feedback_' . $this->getStackQuestion()->getQuestionId(), $feedback_data['general_feedback'], $authorized);
+
+			//Save PRT information
+			foreach ($feedback_data['prt'] as $prt_name => $prt)
+			{
+				//value1 = xqcas_input_name, $value2 = input_name
+				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name, $authorized);
+				//TODO Add points
+				if ($prt_name)
+				{
+					$this->addPointsToPRTDBEntry($active_id, $pass, $prt_name, $prt['points']);
+				}
+				//Save input information per PRT
+				foreach ($prt['response'] as $input_name => $response)
+				{
+					//value1 = xqcas_input_*_value, value2 = student answer for this question input
+					$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_value_' . $input_name, $response['value'], $authorized);
+					//value1 = xqcas_input_*_display, value2 = student answer for this question input in LaTeX
+					$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_display_' . $input_name, $response['display'], $authorized);
+					//value1 = xqcas_input_*_model_answer, value2 = student answer for this question input in LaTeX
+					$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_' . $input_name, $response['model_answer'], $authorized);
+					//value1 = xqcas_input_*_model_answer_diplay_, value2 = model answer for this question input in LaTeX
+					if (isset($response['model_answer_display']))
+					{
+						$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_display_' . $input_name, $response['model_answer_display'], $authorized);
+					}
+					//value1 = xqcas_input_*_model_answer, value2 = student answer for this question input in LaTeX
+					$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_seed', $seed, $authorized);
+				}
+				//value1 = xqcas_input_*_errors, $value2 = feedback given by CAS
+				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_errors', $prt['errors'], $authorized);
+				//value1 = xqcas_input_*_feedback, $value2 = feedback given by CAS
+				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_feedback', $prt['feedback'], $authorized);
+				//value1 = xqcas_input_*_status, $value2 = status
+				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status', $prt['status']['value'], $authorized);
+				//value1 = xqcas_input_*_status_message, $value2 = status message
+				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status_message', $prt['status']['message'], $authorized);
+				//value1 = xqcas_input_*_status_message, $value2 = status message
+				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_answernote', $prt['answernote'], $authorized);
+				//Set entered values as TRUE
+				$entered_values = TRUE;
+			}
+
+		} else
+		{
+			//5.0
+			//Save new user solution
+
+			//Delete current data
+			$query = "DELETE FROM tst_solutions" . " WHERE active_fi = " . $ilDB->quote($active_id, "integer") . " AND pass = " . $ilDB->quote($pass, "integer") . " AND question_fi = " . $ilDB->quote($this->getId(), "integer");
+
+			$ilDB->manipulate($query);
+
+
+			//Save question text instantiated
+			$this->saveCurrentSolution($active_id, $pass, 'xqcas_text_' . $this->getStackQuestion()->getQuestionId(), $feedback_data['question_text']);
+			//Save question note
+			$this->saveCurrentSolution($active_id, $pass, 'xqcas_solution_' . $this->getStackQuestion()->getQuestionId(), $feedback_data['question_note']);
+			//Save general feedback
+			$this->saveCurrentSolution($active_id, $pass, 'xqcas_general_feedback_' . $this->getStackQuestion()->getQuestionId(), $feedback_data['general_feedback']);
+
+			//Save PRT information
+			foreach ($feedback_data['prt'] as $prt_name => $prt)
+			{
+				//value1 = xqcas_input_name, $value2 = input_name
+				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name);
+				//TODO Add points
+				if ($prt_name)
+				{
+					$this->addPointsToPRTDBEntry($active_id, $pass, $prt_name, $prt['points']);
+				}
+				//Save input information per PRT
+				foreach ($prt['response'] as $input_name => $response)
+				{
+					//value1 = xqcas_input_*_value, value2 = student answer for this question input
+					$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_value_' . $input_name, $response['value']);
+					//value1 = xqcas_input_*_display, value2 = student answer for this question input in LaTeX
+					$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_display_' . $input_name, $response['display']);
+					//value1 = xqcas_input_*_model_answer, value2 = student answer for this question input in LaTeX
+					$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_' . $input_name, $response['model_answer']);
+					//value1 = xqcas_input_*_model_answer_diplay_, value2 = model answer for this question input in LaTeX
+					if (isset($response['model_answer_display']))
+					{
+						$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_display_' . $input_name, $response['model_answer_display']);
+					}
+					//value1 = xqcas_input_*_model_answer, value2 = student answer for this question input in LaTeX
+					$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_seed', $seed);
+				}
+				//value1 = xqcas_input_*_errors, $value2 = feedback given by CAS
+				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_errors', $prt['errors']);
+				//value1 = xqcas_input_*_feedback, $value2 = feedback given by CAS
+				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_feedback', $prt['feedback']);
+				//value1 = xqcas_input_*_status, $value2 = status
+				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status', $prt['status']['value']);
+				//value1 = xqcas_input_*_status_message, $value2 = status message
+				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status_message', $prt['status']['message']);
+				//value1 = xqcas_input_*_status_message, $value2 = status message
+				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_answernote', $prt['answernote']);
+				//Set entered values as TRUE
+				$entered_values = TRUE;
+			}
+
 		}
+
+		//$this->getProcessLocker()->releaseUserSolutionUpdateLock();
 
 		if ($entered_values)
 		{
-			include_once("./Modules/Test/classes/class.ilObjAssessmentFolder.php");
+			require_once './Modules/Test/classes/class.ilObjAssessmentFolder.php';
 			if (ilObjAssessmentFolder::_enabledAssessmentLogging())
 			{
 				$this->logAction($this->lng->txtlng("assessment", "log_user_entered_values", ilObjAssessmentFolder::_getLogLanguage()), $active_id, $this->getId());
@@ -220,191 +348,43 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			}
 		}
 
-		return true;
-	}
-
-	public function removeCurrentSolutionCarefully($active_id, $pass, $value_placeholder)
-	{
-		global $ilDB;
-
-		$ilDB->manipulateF("DELETE FROM tst_solutions WHERE active_fi = %s AND question_fi = %s AND pass = %s AND value1 = %s", array('integer', 'integer', 'integer', 'text'), array($active_id, $this->getId(), $pass, $value_placeholder));
-	}
-
-	public function saveWorkingDataFull($active_id, $pass = NULL, $authorized = TRUE, $filled_responses = NULL)
-	{
-		if ($authorized)
-		{
-			$time = time();
-
-			$entered_values = FALSE;
-
-			/*
-			 * Step 2: Get user response in reduced format.
-			 */
-			if ($filled_responses == NULL)
-			{
-				$filled_responses = assStackQuestionUtils::_getUserResponse($this->getId(), $this->getInputs(), 'reduced');
-			}
-
-
-			/*
-			 * Step 3: Convert to stack in order to evaluate the question
-			 * when the user has entered something.
-			 */
-			//THERE WAS USER RESPONSE, EVALUATION REQUIRED
-			//Create STACK Question object if doesn't exists
-			$user_responses = array();
-			foreach ($this->getInputs() as $input_name => $input)
-			{
-				if ($input->getInputType() != "matrix")
-				{
-					if (array_key_exists($input_name, $filled_responses))
-					{
-						$user_responses[$input_name] = $filled_responses[$input_name];
-					} else
-					{
-						$user_responses[$input_name] = "";
-					}
-				} else
-				{
-					foreach ($filled_responses as $key => $value)
-					{
-						if (strpos($key, $input_name) >= 0)
-						{
-							$user_responses[$key] = $value;
-						}
-					}
-				}
-			}
-
-			if (!is_a($this->getStackQuestion(), 'assStackQuestionStackQuestion'))
-			{
-				$this->getPlugin()->includeClass("model/class.assStackQuestionStackQuestion.php");
-				$this->setStackQuestion(new assStackQuestionStackQuestion($active_id, $pass));
-				$this->getStackQuestion()->init($this);
-			}
-
-			/*
-			 * Step 4: Evaluate question for current user_response
-			 */
-
-			//Create evaluation object
-			$this->plugin->includeClass("model/question_evaluation/class.assStackQuestionEvaluation.php");
-			$evaluation_object = new assStackQuestionEvaluation($this->getPlugin(), $this->getStackQuestion(), $user_responses);
-
-			//Evaluate question
-			$question_evaluation = $evaluation_object->evaluateQuestion();
-			//Step #3: Calculate points
-			$question_evaluation->calculatePoints();
-
-			//Step #5: Create feedback object
-			$this->getPlugin()->includeClass('model/question_evaluation/class.assStackQuestionFeedback.php');
-			$feedback_object = new assStackQuestionFeedback($this->getPlugin(), $question_evaluation);
-			$feedback_data = $feedback_object->getFeedback();
-
-			//Save question text instantiated
-			$this->saveWorkingDataValue($active_id, $pass, 'xqcas_text_' . $this->getStackQuestion()->getQuestionId(), $feedback_data['question_text'], NULL, $time);
-			//Save question note
-			$this->saveWorkingDataValue($active_id, $pass, 'xqcas_solution_' . $this->getStackQuestion()->getQuestionId(), $feedback_data['question_note'], NULL, $time);
-			//Save general feedback
-			$this->saveWorkingDataValue($active_id, $pass, 'xqcas_general_feedback_' . $this->getStackQuestion()->getQuestionId(), $feedback_data['general_feedback'], NULL, $time); //Save working data value to DB with values from $evaluation
-
-			//Save info per input
-			foreach ($feedback_data['prt'] as $prt_name => $prt)
-			{
-				//value1 = xqcas_input_name, $value2 = input_name
-				$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name, $prt['points'], $time);
-				foreach ($prt['response'] as $input_name => $response)
-				{
-					//value1 = xqcas_input_*_value, value2 = student answer for this question input
-					$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_value_' . $input_name, $response['value'], NULL, $time);
-					//value1 = xqcas_input_*_display, value2 = student answer for this question input in LaTeX
-					$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_display_' . $input_name, $response['display'], NULL, $time);
-					//value1 = xqcas_input_*_model_answer, value2 = student answer for this question input in LaTeX
-					$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_' . $input_name, $response['model_answer'], NULL, $time);
-					//value1 = xqcas_input_*_model_answer_diplay_, value2 = model answer for this question input in LaTeX
-					if (isset($response['model_answer_display']))
-					{
-						$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_display_' . $input_name, $response['model_answer_display'], NULL, $time);
-					}
-				}
-				//value1 = xqcas_input_*_errors, $value2 = feedback given by CAS
-				$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_errors', $prt['errors'], NULL, $time);
-				//value1 = xqcas_input_*_feedback, $value2 = feedback given by CAS
-				$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_feedback', $prt['feedback'], NULL, $time);
-				//value1 = xqcas_input_*_status, $value2 = status
-				$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status', $prt['status']['value'], NULL, $time);
-				//value1 = xqcas_input_*_status_message, $value2 = status message
-				$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status_message', $prt['status']['message'], NULL, $time);
-				//value1 = xqcas_input_*_status_message, $value2 = status message
-				$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_answernote', $prt['answernote'], NULL, $time);
-				//SEED value1 = xqcas_input_*_status_message, $value2 = status message
-				$this->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_seed', $this->getStackQuestion()->getSeed(), NULL, $time);
-				//Set entered values as TRUE
-				$entered_values = TRUE;
-			}
-
-			return $entered_values;
-		}
-
+		return $saved;
 	}
 
 	/**
-	 * Save a working data value
-	 *
-	 * @param integer $active_id
-	 * @param integer $pass
-	 * @param string $key
-	 * @param string $value
-	 * @param float $points
-	 * @param integer $time
+	 * Add points to the DB entrie for a PRT in tst_solutions
+	 * @param $active_id
+	 * @param $pass
+	 * @param $prt_name
+	 * @param $points
+	 * @return int
 	 */
-	public function saveWorkingDataValue($active_id, $pass, $key, $value, $points, $time)
+	public function addPointsToPRTDBEntry($active_id, $pass, $prt_name, $points)
 	{
 		global $ilDB;
 
-		// TODO: transaction needed
-		// Hanging multiple request for a question from the same user may result in
-		// unpredictable order of DELETE and INSERT and thus points written twice.
-		// Using replace ethod instead of insert is not possible because value1 is clob.
-		// Current workaround: allow values to be stored twice and detect them
-		// in calculateReachedPoints.
+		$fieldData = array("points" => array("float", (float)$points));
 
-		$query = "DELETE FROM tst_solutions" . " WHERE active_fi = " . $ilDB->quote($active_id, "integer") . " AND pass = " . $ilDB->quote($pass, "integer") . " AND question_fi = " . $ilDB->quote($this->getId(), "integer") . " AND value1 = " . $ilDB->quote($key, "text");
+		if ($this->getStep() !== null)
+		{
+			$fieldData['step'] = array("integer", $this->getStep());
+		}
 
-		$ilDB->manipulate($query);
-
-		$next_id = $ilDB->nextId('tst_solutions');
-		$ilDB->insert("tst_solutions", array("solution_id" => array("integer", $next_id), "active_fi" => array("integer", $active_id), "pass" => array("integer", $pass), "question_fi" => array("integer", $this->getId()), "points" => array("float", $points), "value1" => array("clob", $key), "value2" => array("clob", $value), "tstamp" => array("integer", $time)));
+		return $ilDB->update("tst_solutions", $fieldData, array('active_fi' => array('integer', $active_id), 'pass' => array('integer', $pass), 'value1' => array('text', 'xqcas_prt_' . $prt_name . '_name'), 'value2' => array('text', $prt_name)));
 	}
 
 	/**
 	 * Loads solutions of a given user from the database an returns it
 	 * in a readable format.
 	 *
-	 * @param integer $test_id The database id of the test containing this question
-	 * @access public
-	 * @see $answers
+	 * @param $active_id
+	 * @param null $pass
+	 * @param bool $authorized
+	 * @return array
 	 */
-	function &getSolutionValues($active_id, $pass = NULL)
+	function &getSolutionValues($active_id, $pass = NULL, $authorized = TRUE)
 	{
-		global $ilDB;
-
-		$values = array();
-
-		if (is_null($pass))
-		{
-			$pass = $this->getSolutionMaxPass($active_id);
-		}
-
-		$result = $ilDB->queryF("SELECT * FROM tst_solutions WHERE active_fi = %s AND question_fi = %s AND pass = %s ORDER BY solution_id", array('integer', 'integer', 'integer'), array($active_id, $this->getId(), $pass));
-		while ($row = $ilDB->fetchAssoc($result))
-		{
-			array_push($values, $row);
-		}
-
-		//Formating the solutions
-		return $this->fromDBToReadableFormat($values);
+		return $this->fromDBToReadableFormat(parent::getSolutionValues($active_id, $pass, $authorized));
 	}
 
 	/**
@@ -1019,6 +999,17 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		{
 			$inputs = assStackQuestionInput::_read($origQuestionId);
 
+			//#18371 Delete Input if deleted in test
+			foreach ($inputs as $original_ikey => $original_input)
+			{
+				//If key is in original but not in current test version, delete original
+				if (!isset($this->inputs[$original_ikey]))
+				{
+					//Delete input
+					$original_input->delete();
+				}
+			}
+
 			foreach ($this->inputs as $key => $input)
 			{
 				if (is_a($input, 'assStackQuestionInput'))
@@ -1040,6 +1031,23 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		if (sizeof($this->potential_responses_trees))
 		{
 			$prts = assStackQuestionPRT::_read($origQuestionId);
+
+			//#18371 Delete PRT if deleted in test
+			foreach ($prts as $original_key => $original_prt)
+			{
+				//If key is in original but not in current test version, delete original
+				if (!isset($this->potential_responses_trees[$original_key]))
+				{
+					//Delete PRT
+					$original_prt->delete();
+
+					//Delete nodes
+					foreach ($original_prt->getPRTNodes() as $node_name => $node)
+					{
+						$node->delete();
+					}
+				}
+			}
 
 			foreach ($this->potential_responses_trees as $prt_key => $prt)
 			{
@@ -1307,7 +1315,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	}
 
 	/**
-	 * @return array
+	 * @return array | assStackQuestionInput
 	 */
 	public function getInputs($selector = '')
 	{
@@ -1738,6 +1746,68 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		{
 			$previewSession->setParticipantsSolution($submittedAnswer);
 		}
+	}
+
+	public function getQuestionSeedForCurrentTestRun($active_id, $pass)
+	{
+		global $ilDB;
+
+		$question_seed = NULL;
+
+
+		if (is_null($pass))
+		{
+			require_once './Modules/Test/classes/class.ilObjTest.php';
+			$pass = ilObjTest::_getPass($active_id);
+		}
+
+		//Determine if seed already exists and return it;
+		if (sizeof($this->getPotentialResponsesTrees()))
+		{
+			foreach ($this->getPotentialResponsesTrees() as $prt)
+			{
+				$query = $ilDB->query("SELECT tst_solutions.value2 FROM tst_solutions WHERE active_fi = " . $ilDB->quote($active_id, 'integer') . " AND pass = " . $ilDB->quote($pass, 'integer') . " AND value1 = 'xqcas_prt_" . $prt->getPRTName() . "_seed'");
+				$data = $ilDB->fetchAssoc($query);
+				if ($data["value2"])
+				{
+					$question_seed = $data["value2"];
+
+					return $question_seed;
+				}
+			}
+		}
+
+		//Create seed for test run in case it doesn't exist
+		if ($question_seed == NULL)
+		{
+			//create stack question
+			$this->plugin->includeClass("model/class.assStackQuestionStackQuestion.php");
+			$this->setStackQuestion(new assStackQuestionStackQuestion($active_id, $pass));
+			$this->getStackQuestion()->init($this);
+
+			//get seed and save it to DB
+			$question_seed = $this->getStackQuestion()->getSeed();
+			if (sizeof($this->getPotentialResponsesTrees()))
+			{
+				foreach ($this->getPotentialResponsesTrees() as $prt)
+				{
+					//If ILIAS 5.1  or 5.0 using intermediate
+					if (method_exists($this, "getUserSolutionPreferingIntermediate"))
+					{
+						//5.1
+						$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt->getPRTName() . '_seed', $this->getStackQuestion()->getSeed(), TRUE);
+						$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt->getPRTName() . '_seed', $this->getStackQuestion()->getSeed(), FALSE);
+					} else
+					{
+						//5.0
+						$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt->getPRTName() . '_seed', $this->getStackQuestion()->getSeed());
+					}
+				}
+			}
+
+			return $question_seed;
+		}
+
 	}
 
 }

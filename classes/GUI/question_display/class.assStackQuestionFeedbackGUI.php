@@ -354,8 +354,17 @@ class assStackQuestionFeedbackGUI
 			}
 		}
 		if ($mode == "correct") {
-			$deco_question_text = '<div class="alert alert-warning" role="alert">' . $question_text;
-			$deco_question_text .= '</div>';
+			$string = "";
+			//feedback
+			$string .= '<div class="alert alert-warning" role="alert">';
+			//Generic feedback
+			$string .= $prt['status']['message'];
+			$string .= '<br>';
+			//Specific feedback
+			$string .= $prt['feedback'];
+			$string .= $prt['errors'];
+			$string .= '</div>';
+			$deco_question_text = $string;
 		} elseif ($mode == "user") {
 			$deco_question_text = $question_text . '</br>' . $specific_feedback;
 		}

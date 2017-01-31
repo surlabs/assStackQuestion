@@ -362,3 +362,7 @@ untitled_question#:#Untitel STACK Frage
 auth_tip1#:#Klicken Sie bitte auf den folgenden
 auth_tip2#:#um weitere Informationen über STACK-Fragen zu erhalten
 auth_tip3#:#Wenn Sie sich das erste Mal mit STACK-Fragen beschäftigen, dann lesen Sie den "Quick Authoring Guide", hier auch auf Deutsch:
+interpreted_by_maxima_as#:#Interpretiert von Maxima als:
+interpreted_by_maxima_as_2#:#Ihre Antwort wurde wie folgt interpretiert:
+//TODO Translate the following text placeholders to german.
+sco_info#:#On this page, scoring is shown directly in question points. Per each node of each potential response tree, points obtained if node's Answertest is true is shown in green and points obtained if node's Answertest is false is shown in red. In addition per each potential response tree you can check their weight into the question in "Maximum points for this Potential response tree"

@@ -383,7 +383,7 @@ class assStackQuestionOptions
 				"complex_no" => array("text", $this->getComplexNumbers() == NULL ? "i" : $this->getComplexNumbers()),
 				"inverse_trig" => array("text", $this->getInverseTrig()),
 				"variants_selection_seed" => array("text", $this->getVariantsSelectionSeeds()),
-				"matrix_parens" => array("text", $this->getMatrixParens() == NULL ? "[" : $this->getMatrixParens())
+				"matrix_parens" => array("text", $this->getMatrixParens() === NULL ? "[" : $this->getMatrixParens())
 			)
 		);
 

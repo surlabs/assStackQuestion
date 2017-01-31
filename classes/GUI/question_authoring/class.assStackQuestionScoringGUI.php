@@ -127,6 +127,11 @@ class assStackQuestionScoringGUI
 		$new_question_points->setInfo($this->getPlugin()->txt("sco_new_scoring_info"));
 		$form->addItem($new_question_points);
 
+		//2.3.9 Show info about behaviour of this scoring page
+		$scoring_info = new ilNonEditableValueGUI("", "scoring_info");
+		$scoring_info->setValue($this->getPlugin()->txt("sco_info"));
+		$form->addItem($scoring_info);
+
 		//This command is used when the user want to show a comparison but no to set the input as point value.
 		$form->addCommandButton("showScoringComparison", $this->getPlugin()->txt("sco_show_new_scoring_form_button"));
 		//This command is used when the wants to set the input value as point value.

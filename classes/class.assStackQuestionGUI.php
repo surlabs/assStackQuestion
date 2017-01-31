@@ -7,6 +7,7 @@
 require_once "./Modules/TestQuestionPool/classes/class.assQuestionGUI.php";
 require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 
+
 /**
  * STACK Question GUI
  *
@@ -110,13 +111,11 @@ class assStackQuestionGUI extends assQuestionGUI
 		$hasErrors = (!$always) ? $this->editQuestion(TRUE) : FALSE;
 		if (!$hasErrors)
 		{
-			if ($this->deletionManagement())
-			{
-				$this->writeQuestionGenericPostData();
-				$this->writeQuestionSpecificPostData();
+			$this->deletionManagement();
+			$this->writeQuestionGenericPostData();
+			$this->writeQuestionSpecificPostData();
 
-				return 0;
-			}
+			return 0;
 		}
 
 		return 1;
@@ -139,6 +138,11 @@ class assStackQuestionGUI extends assQuestionGUI
 					unset($ptrs[$prt_name]);
 					$this->object->setPotentialResponsesTrees($ptrs);
 
+					//#18703 Should delete also nodes
+					foreach ($prt->getPRTNodes() as $node_name => $node)
+					{
+						$node->delete();
+					}
 					return TRUE;
 				}
 				foreach ($prt->getPRTNodes() as $node_name => $node)
@@ -147,7 +151,7 @@ class assStackQuestionGUI extends assQuestionGUI
 					if (isset($_POST['cmd']['save']['delete_prt_' . $prt_name . '_node_' . $node->getNodeName()]))
 					{
 						if ($this->checkPRTNodeForDeletion($prt, $node))
-						{
+						{exit;
 							return FALSE;
 						}
 						$node->delete();
@@ -156,14 +160,14 @@ class assStackQuestionGUI extends assQuestionGUI
 						$prt->setPRTNodes($nodes);
 						$this->object->setPotentialResponsesTrees($prt, $prt_name);
 
-						return TRUE;
+						return TRUE;					}
 					}
 				}
 			}
+
+			return TRUE;
 		}
 
-		return TRUE;
-	}
 
 	public function checkPRTForDeletion(assStackQuestionPRT $prt)
 	{
@@ -311,23 +315,23 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 
 	/**
-	 * @return HTML Preview of the question in a question pool or in a test
+	 * Show question preview for test and question pools
+	 * @param bool $show_question_only
+	 * @param bool $showInlineFeedback
+	 * @return string HTML Preview of the question in a question pool or in a test
 	 */
 	public function getPreview($show_question_only = FALSE, $showInlineFeedback = false)
 	{
 		global $ilTabs, $tpl;
 
-		//Set preview mode
-		$this->preview_mode = TRUE;
 		//Get solutions if given
 		$solutions = is_object($this->getPreviewSession()) ? (array)$this->getPreviewSession()->getParticipantsSolution() : array();
-
-		//Get feedback settings
-		$feedback_settings = array();
 
 		//Include preview classes and set tab
 		$this->plugin->includeClass("model/question_display/class.assStackQuestionPreview.php");
 		$this->plugin->includeClass("GUI/question_display/class.assStackQuestionPreviewGUI.php");
+
+		//Tab management
 		if ($_GET['cmd'] == 'edit')
 		{
 			$ilTabs->setTabActive('edit_page');
@@ -336,6 +340,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			$ilTabs->setTabActive('preview');
 		}
 
+		//Seed management
 		if (isset($_REQUEST['fixed_seed']))
 		{
 			$seed = $_REQUEST['fixed_seed'];
@@ -359,6 +364,10 @@ class assStackQuestionGUI extends assQuestionGUI
 		$question_preview_gui_object = new assStackQuestionPreviewGUI($this->plugin, $question_preview_data);
 		$question_preview_gui = $question_preview_gui_object->getQuestionPreviewGUI();
 
+
+		//Set preview mode
+		$this->preview_mode = $question_preview_data;
+
 		//addCSS
 		$tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_feedback.css'));
 		$tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_preview.css'));
@@ -376,151 +385,72 @@ class assStackQuestionGUI extends assQuestionGUI
 	}
 
 	/**
-	 * Show the question in Test mode
-	 * (called from ilTestOutputGUI)
-	 *
-	 * @param string $formaction The action link for the form
-	 * @param integer $active_id The active user id
-	 * @param integer $pass The test pass
-	 * @param boolean $is_postponed Question is postponed
-	 * @param boolean $use_post_solutions Use post solutions
-	 * @param boolean $show_feedback Show a feedback
-	 *
-	 * public function outQuestionForTest($formaction, $active_id, $pass = NULL, $is_postponed = FALSE, $user_post_solutions = FALSE, $show_specific_feedback = FALSE)
-	 * {
-	 * //SET TEST MODE
-	 * $this->test_mode = TRUE;
-	 *
-	 * //Get output for testmode
-	 * $test_output = $this->getTestOutput($active_id, $pass, $is_postponed, $user_post_solutions, $show_specific_feedback);
-	 * //Fill template variables
-	 * $this->tpl->setVariable("QUESTION_OUTPUT", $test_output);
-	 * $this->tpl->setVariable("FORMACTION", $formaction);
-	 * }*/
-
-	/**
 	 * Get the HTML output of the question for a test
-	 *
-	 * @param integer $active_id The active user id
-	 * @param integer $pass The test pass
-	 * @param boolean $is_postponed Question is postponed
-	 * @param boolean $use_post_solutions Use post solutions
-	 * @param boolean $show_feedback Show a feedback
-	 * @return string
+	 * @param int $active_id
+	 * @param int $pass
+	 * @param bool $is_question_postponed
+	 * @param bool $user_post_solutions
+	 * @param $show_specific_inline_feedback
+	 * @return mixed|string
 	 */
-	function getTestOutput($active_id, $pass = NULL, $is_postponed = FALSE, $use_post_solutions = FALSE, $show_feedback = FALSE)
+	public function getTestOutput($active_id, $pass = NULL, $is_question_postponed = FALSE, $user_post_solutions = FALSE, $show_specific_inline_feedback)
 	{
-
-		//SET TEST MODE
-		$this->test_mode = TRUE;
-
+		$solutions = NULL;
 		// get the solution of the user for the active pass or from the last pass if allowed
 		if ($active_id)
 		{
-			$solutions = NULL;
-			include_once "./Modules/Test/classes/class.ilObjTest.php";
-			//if (!ilObjTest::_getUsePreviousAnswers($active_id, true)) {
-			if (is_null($pass))
+
+			require_once './Modules/Test/classes/class.ilObjTest.php';
+			if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
 			{
-				$pass = ilObjTest::_getPass($active_id);
+				if (is_null($pass))
+				{
+					$pass = ilObjTest::_getPass($active_id);
+				}
 			}
-			//}
-			$solutions =& $this->object->getSolutionValues($active_id, $pass);
-		}
 
-		//Filling output template with question output and page output.
-		$questionoutput = $this->getQuestionOutput($show_feedback, $solutions, $active_id, $pass);
-		$pageoutput = $this->outQuestionPage("", $is_postponed, $active_id, $questionoutput);
-
-		return $pageoutput;
-	}
-
-	/**
-	 * Get the html output of the question for different usages in test.
-	 *
-	 * @param    boolean            show debugging fields
-	 * @param    array            values of the user's solution
-	 */
-	private function getQuestionOutput($show_feedback = false, $user_solution = null, $active_id = NULL, $pass = NULL, $block_answers = NULL)
-	{
-		global $tpl;
-
-		include_once "./Modules/Test/classes/class.ilObjTest.php";
-		if (is_null($pass))
-		{
-			$pass = ilObjTest::_getPass($active_id);
+			//If ILIAS 5.1  or 5.0 using intermediate
+			if (method_exists($this->object, "getUserSolutionPreferingIntermediate"))
+			{
+				$solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
+			} else
+			{
+				$solutions =& $this->object->getSolutionValues($active_id, $pass);
+			}
 		}
 
 		//Create STACK Question object if doesn't exists
 		if (!is_a($this->object->getStackQuestion(), 'assStackQuestionStackQuestion'))
 		{
+			//Determine seed for current test run
+			$seed = $this->object->getQuestionSeedForCurrentTestRun($active_id, $pass);
+
 			$this->plugin->includeClass("model/class.assStackQuestionStackQuestion.php");
 			$this->object->setStackQuestion(new assStackQuestionStackQuestion($active_id, $pass));
-			$this->object->getStackQuestion()->init($this->object);
+			$this->object->getStackQuestion()->init($this->object, '', $seed);
 		}
 
-		//Get user solutions from DB
-		//Adapt user solution to display model
+		//Generate the question output and filling output template with question output and page output.
+		$question_output = $this->getTestQuestionOutput($solutions, $show_specific_inline_feedback);
+		$page_output = $this->outQuestionPage("", $is_question_postponed, $active_id, $question_output);
 
-		$user_response = array();
-		if (is_array($user_solution['prt']))
-		{
-			foreach ($user_solution['prt'] as $prt_name => $prt)
-			{
-				if (is_array($prt['response']))
-				{
-					foreach ($prt['response'] as $input_name => $response)
-					{
-						$user_response[$input_name] = $response['value'];
-					}
-				}
-			}
-		}
+		return $page_output;
+	}
 
-		//Get user solutions from DB
-		//IS THE SAME THAN USER_SOLUTIONS
-		//$user_response = $this->object->getSolutionValues($active_id, $pass);
-
-		if ($show_feedback)
-		{
-
-			//Prepare question evaluation
-			$this->plugin->includeClass('model/question_evaluation/class.assStackQuestionEvaluation.php');
-			$evaluation_object = new assStackQuestionEvaluation($this->plugin, $this->object->getStackQuestion(), $user_response);
-			$this->object->setStackQuestion($evaluation_object->evaluateQuestion());
-			$this->object->saveWorkingData($active_id, $pass, TRUE);
-
-			$this->plugin->includeClass("model/question_display/class.assStackQuestionPreview.php");
-			$this->plugin->includeClass("GUI/question_display/class.assStackQuestionPreviewGUI.php");
-
-			//Get question preview data
-			$question_preview_object = new assStackQuestionPreview($this->plugin, $this->object, $this->object->getSeed(), $user_response);
-			$question_preview_data = $question_preview_object->getQuestionPreviewData(TRUE, $active_id, $pass);
-
-			//Get question preview GUI
-			$question_preview_gui_object = new assStackQuestionPreviewGUI($this->plugin, $question_preview_data);
-			if ($active_id == NULL)
-			{
-				$question_preview_gui = $question_preview_gui_object->getBestSolutionPreviewGUI(FALSE, "user");
-			} else
-			{
-				$question_preview_gui = $question_preview_gui_object->getQuestionPreviewGUI();
-			}
-			//addCSS
-			$tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_feedback.css'));
-			$tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_preview.css'));
-			$tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_display.css'));
-
-			$questionoutput = $question_preview_gui->get();
-
-			return $questionoutput;
-		}
-
+	/**
+	 * Test view for STACK Questions
+	 * @param mixed $solutions
+	 * @param bool $show_specific_inline_feedback
+	 * @return mixed
+	 * @throws stack_exception
+	 */
+	public function getTestQuestionOutput($solutions, $show_specific_inline_feedback)
+	{
+		global $tpl;
 
 		//Create feedback output from feedback class
 		$this->plugin->includeClass("GUI/question_display/class.assStackQuestionFeedbackGUI.php");
-		$question_feedback_object = new assStackQuestionFeedbackGUI($this->plugin, $user_solution);
-
+		$question_feedback_object = new assStackQuestionFeedbackGUI($this->plugin, $solutions);
 		$feedback_data = $question_feedback_object->getFeedback();
 
 		//Include display classes
@@ -536,24 +466,18 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Get question display GUI
 		$question_display_gui_object = new assStackQuestionDisplayGUI($this->plugin, $question_display_data);
-
-		$question_display_gui = $question_display_gui_object->getQuestionDisplayGUI();
+		$question_display_gui = $question_display_gui_object->getQuestionDisplayGUI($show_specific_inline_feedback);
 
 		//fill question container with HTML from assStackQuestionDisplay
 		$container_tpl = $this->plugin->getTemplate("tpl.il_as_qpl_xqcas_question_container.html");
 		$container_tpl->setVariable('QUESTION', $question_display_gui->get());
-		$questionoutput = $container_tpl->get();
+		$question_output = $container_tpl->get();
 
-		return $questionoutput;
+		return $question_output;
 	}
 
-	/*
-	 * SHOWING THE FEEDBACK
-	 */
-
 	/**
-	 * Get the question solution output (in STACK Question is called feedback)
-	 * (called from assQuestionGUI)
+	 * Get the question solution output
 	 *
 	 * @param integer $active_id The active user id
 	 * @param integer $pass The test pass
@@ -563,81 +487,207 @@ class assStackQuestionGUI extends assQuestionGUI
 	 * @param boolean $show_feedback Show the question feedback
 	 * @param boolean $show_correct_solution Show the correct solution instead of the user solution
 	 * @param boolean $show_manual_scoring Show specific information for the manual scoring output
-	 * @param boolean $show_question_text Show the question text
-	 * @return string                        The solution output of the question as HTML code
+	 * @param boolean $show_question_text
+	 * @return string The solution output of the question as HTML code
 	 */
-	public function getSolutionOutput($active_id, $pass = NULL, $graphicalOutput = FALSE, $result_output = FALSE, $show_question_only = TRUE, $show_feedback = FALSE, $show_correct_solution = FALSE, $show_manual_scoring = FALSE, $show_question_text = TRUE)
+	function getSolutionOutput($active_id, $pass = NULL, $graphicalOutput = FALSE, $result_output = FALSE, $show_question_only = TRUE, $show_feedback = FALSE, $show_correct_solution = FALSE, $show_manual_scoring = FALSE, $show_question_text = TRUE)
 	{
-		global $tpl;
-		//Add MathJax (Ensure MathJax is loaded)
-		include_once "./Services/Administration/classes/class.ilSetting.php";
-		$mathJaxSetting = new ilSetting("MathJax");
-		$tpl->addJavaScript($mathJaxSetting->get("path_to_mathjax"));
-
-		//Get feedback parameters
-		$this->getFeedbackParameters();
-
-		//Create STACK Question object if doesn't exists
-		if (!is_a($this->object->getStackQuestion(), 'assStackQuestionStackQuestion'))
+		$solution_template = new ilTemplate("tpl.il_as_tst_solution_output.html", TRUE, TRUE, "Modules/TestQuestionPool");
+		//Check for PASS
+		if ($active_id)
 		{
-			$this->plugin->includeClass("model/class.assStackQuestionStackQuestion.php");
-			$this->object->setStackQuestion(new assStackQuestionStackQuestion($active_id, $pass));
-			$this->object->getStackQuestion()->init($this->object);
+
+			require_once './Modules/Test/classes/class.ilObjTest.php';
+			if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
+			{
+				if (is_null($pass))
+				{
+					$pass = ilObjTest::_getPass($active_id);
+				}
+			}
 		}
 
-		//PREVIEW MODE SOLUTION
-		if ($this->preview_mode === TRUE)
+		//Is preview or Test
+		if (is_array($this->preview_mode))
 		{
-			$this->plugin->includeClass("model/question_display/class.assStackQuestionPreview.php");
-			$preview_user_solution = is_object($this->getPreviewSession()) ? (array)$this->getPreviewSession()->getParticipantsSolution() : array();
+			$solutions = $this->preview_mode["question_feedback"];
+		} else
+		{
+			//If ILIAS 5.1  or 5.0 using intermediate
+			if (method_exists($this->object, "getUserSolutionPreferingIntermediate"))
+			{
+				$solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
+			} else
+			{
+				$solutions =& $this->object->getSolutionValues($active_id, $pass);
+			}
+		}
 
-			//Get question preview data
-			$question_preview_object = new assStackQuestionPreview($this->plugin, $this->object, $seed, $preview_user_solution);
-			$question_preview_data = $question_preview_object->getQuestionPreviewData();
 
-			//Get question preview GUI
-			$this->plugin->includeClass("GUI/question_display/class.assStackQuestionPreviewGUI.php");
-			$question_preview_gui_object = new assStackQuestionPreviewGUI($this->plugin, $question_preview_data);
-			$solution_preview_gui = $question_preview_gui_object->getBestSolutionPreviewGUI($graphicalOutput);
-
+		if (($active_id > 0) && (!$show_correct_solution))
+		{
+			//User Solution
+			//Returns user solution HTML
+			$solution_output = $this->getQuestionOutput($solutions, FALSE, $show_feedback);
+		} else
+		{
+			//Correct solution
 			//Returns best solution HTML.
-			return $solution_preview_gui->get();
+			$solution_output = $this->getQuestionOutput($solutions, TRUE, $show_feedback);
 		}
 
-		//TEST MODE SOLUTION
-		if ($this->test_mode === TRUE)
+		$question_text = $this->object->getQuestion();
+		if ($show_question_text == true)
 		{
-			$user_solution = $this->object->getSolutionValues($active_id, $pass);
-
-			$this->plugin->includeClass("GUI/question_display/class.assStackQuestionFeedbackGUI.php");
-			$question_feedback_object = new assStackQuestionFeedbackGUI($this->plugin, $user_solution);
-
-			//addCSS
-			$tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_best_solution.css'));
-
-			//Returns best solution HTML.
-			return $question_feedback_object->getBestSolutionGUI("correct")->get();
+			$solution_template->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput($question_text, TRUE));
 		}
 
-		//Show solutions
-		if ($show_correct_solution)
+		//Bug 0020117 regarding feedback
+		//Feedback in STACK works in a different way
+		/*
+		$feedback = '';
+		if ($show_feedback)
 		{
-			$user_solution = $this->object->getSolutionValues($active_id, $pass);
+			if (!$this->isTestPresentationContext())
+			{
+				$fb = $this->getGenericFeedbackOutput($active_id, $pass);
+				$feedback .= strlen($fb) ? $fb : '';
+			}
 
-			$this->plugin->includeClass("GUI/question_display/class.assStackQuestionFeedbackGUI.php");
-			$question_feedback_object = new assStackQuestionFeedbackGUI($this->plugin, $user_solution);
+			$fb = $this->getSpecificFeedbackOutput($active_id, $pass);
+			$feedback .= strlen($fb) ? $fb : '';
+		}
+		if (strlen($feedback))
+		{
+			//$solution_template->setVariable("FEEDBACK", $this->object->prepareTextareaOutput($feedback, true));
+		}
+		*/
 
-			//addCSS
-			$tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_best_solution.css'));
+		$solution_template->setVariable("SOLUTION_OUTPUT", $solution_output);
 
-			//Returns best solution HTML.
-			return $question_feedback_object->getBestSolutionGUI("correct")->get();
+		$solution_output = $solution_template->get();
+		if (!$show_question_only)
+		{
+			// get page object output
+			$solution_output = $this->getILIASPage($solution_output);
 		}
 
-		//Show filled in question text after save solution
-		if ($show_question_text)
+		return $solution_output;
+	}
+
+	/**
+	 * Shows the question filled in with the user response or the best solution for feedback.
+	 * @param $solutions array with Solution from DB or from Preview
+	 * @param $best_solution TRUE is best solution must be shown.
+	 * @param bool $show_feedback TRUE if specific feedback per PRT must be shown.
+	 * @return string
+	 */
+	public function getQuestionOutput($solutions, $best_solution, $show_feedback = FALSE)
+	{
+		if (isset($solutions["question_text"]) AND strlen($solutions["question_text"]))
 		{
-			return $this->getQuestionOutput($show_feedback, $this->object->getSolutionValues($active_id, $pass), NULL, NULL, TRUE);
+			$question_text = $solutions["question_text"];
+
+			//Get Model answer from solutions and replace placeholders
+			if (isset($solutions["prt"]))
+			{
+				foreach ($solutions["prt"] as $prt_name => $prt)
+				{
+					if (isset($prt["response"]))
+					{
+						foreach ($prt["response"] as $input_name => $input_answer)
+						{
+							//Get input type for showing it properly
+							$input = $this->object->getInputs($input_name);
+
+							//Replace input depending on input type
+							switch ($input->getInputType())
+							{
+								case "matrix":
+									//Select replace depending on mode if $best_solution is TRUE, best solution when FALSE user solution.
+									if ($best_solution)
+									{
+										$input_replacement = $input_answer["model_answer_display"];
+									} else
+									{
+										$input_replacement = $input_answer["display"];
+									}
+									$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
+									break;
+								case "textarea";
+									if ($best_solution)
+									{
+										$input_replacement = $input_answer["model_answer"];
+									} else
+									{
+										$input_replacement = $input_answer["value"];
+									}
+									$size = $input->getBoxSize();
+									$input_text = "";
+									$input_text .= "<input type='textarea' size='" . $size . "' value='" . $input_replacement . "' readonly>";
+									$question_text = str_replace("[[input:" . $input_name . "]]", $input_text, $question_text);
+									break;
+								default:
+									if ($best_solution)
+									{
+										$input_replacement = $input_answer["model_answer"];
+										$validation_replacement = $input_answer["model_answer_display"];
+										$question_text = str_replace("[[validation:" . $input_name . "]]", "</br>" . $this->plugin->txt("interpreted_by_maxima_as") . "</br>" . assStackQuestionUtils::_addLatex($validation_replacement), $question_text);
+									} else
+									{
+										$input_replacement = $input_answer["value"];
+										if ($show_feedback)
+										{
+											$validation_replacement = $input_answer["display"];
+											$question_text = str_replace("[[validation:" . $input_name . "]]", "</br>" . $this->plugin->txt("interpreted_by_maxima_as_2") . "</br>" . $validation_replacement, $question_text);
+										}
+									}
+									$size = strlen($input_replacement) + 5;
+									$input_text = "";
+									$input_text .= "<input type='textarea' size='" . $size . "' value='" . $input_replacement . "' readonly>";
+									$question_text = str_replace("[[input:" . $input_name . "]]", $input_text, $question_text);
+									break;
+							}
+
+
+							//Replace feedback placeholder if required
+							if ($show_feedback)
+							{
+								$string = "";
+								//feedback
+								$string .= '<div class="alert alert-warning" role="alert">';
+								//Generic feedback
+								$string .= $prt["status"]["message"];
+								$string .= '<br>';
+								//Specific feedback
+								$string .= $prt["feedback"];
+								$string .= $prt["errors"];
+								$string .= '</div>';
+
+								$question_text = str_replace("[[feedback:" . $prt_name . "]]", $string, $question_text);
+							}
+						}
+					}
+
+				}
+			}
+			//Delete other place holders
+			$question_text = preg_replace('/\[\[validation:(.*?)\]\]/', "", $question_text);
+			if (!$show_feedback)
+			{
+				$question_text = preg_replace('/\[\[feedback:(.*?)\]\]/', "", $question_text);
+			}
+
+			if ($best_solution)
+			{
+				$question_text .= "</br>" . assStackQuestionUtils::_getLatexText($solutions["general_feedback"]);
+			}
+
+			//Return the question text with LaTeX problems solved.
+			return assStackQuestionUtils::_getLatexText($question_text);
+		} else
+		{
+			return "";
 		}
 	}
 
@@ -645,57 +695,76 @@ class assStackQuestionGUI extends assQuestionGUI
 	 * Return the specific feedback
 	 * @param int $active_id
 	 * @param int $pass
-	 * @return HTML
+	 * @return string
 	 **/
 	public function getSpecificFeedbackOutput($active_id, $pass)
 	{
-		global $tpl;
-		//Create STACK Question object if doesn't exists
-		if (!is_a($this->object->getStackQuestion(), 'assStackQuestionStackQuestion'))
+		//Check for PASS
+		if ($active_id)
 		{
-			$this->plugin->includeClass("model/class.assStackQuestionStackQuestion.php");
-			$this->object->setStackQuestion(new assStackQuestionStackQuestion($active_id, $pass));
-			$this->object->getStackQuestion()->init($this->object);
-		}
 
-		$question_specific_feedback = $this->object->getStackQuestion()->getSpecificFeedbackInstantiated();
-
-		//Get user solutions
-		if ($this->preview_mode)
-		{
-			$preview_solutions = is_object($this->getPreviewSession()) ? (array)$this->getPreviewSession()->getParticipantsSolution() : array();
-
-			//Get question preview data
-			$question_preview_object = new assStackQuestionPreview($this->plugin, $this->object, $seed, $preview_solutions);
-			$question_preview_data = $question_preview_object->getQuestionPreviewData();
-
-			$solutions = $question_preview_data['question_feedback'];
-		} else
-		{
-			$solutions = $this->object->getSolutionValues($active_id, $pass);
-		}
-
-		//Create feedback output from feedback class
-		$this->plugin->includeClass("GUI/question_display/class.assStackQuestionFeedbackGUI.php");
-		$question_feedback_object = new assStackQuestionFeedbackGUI($this->plugin, $solutions);
-		$feedback_data = $question_feedback_object->getFeedback();
-
-		if (is_array($feedback_data['prt']))
-		{
-			foreach ($feedback_data['prt'] as $prt_name => $prt)
+			require_once './Modules/Test/classes/class.ilObjTest.php';
+			if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
 			{
-				$prt_string .= '<div class="alert alert-warning" role="alert">';
-				$prt_string .= $prt['status']['message'];
-				$prt_string .= $prt['feedback'];
-				$prt_string .= $prt['errors'];
-				$prt_string .= '</div>';
-				$question_specific_feedback = str_replace("[[feedback:{$prt_name}]]", $prt_string, $question_specific_feedback);
-				$prt_string = "";
+				if (is_null($pass))
+				{
+					$pass = ilObjTest::_getPass($active_id);
+				}
 			}
 		}
 
-		return assStackQuestionUtils::_getLatexText($question_specific_feedback);
+		//Is preview or Test
+		if (is_array($this->preview_mode))
+		{
+			$solutions = $this->preview_mode["question_feedback"];
+		} else
+		{
+			//If ILIAS 5.1  or 5.0 using intermediate
+			if (method_exists($this->object, "getUserSolutionPreferingIntermediate"))
+			{
+				$solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
+			} else
+			{
+				$solutions =& $this->object->getSolutionValues($active_id, $pass);
+			}
+		}
 
+		$specific_feedback = $this->object->getOptions()->getSpecificFeedback();
+
+		//Search for feedback placeholders in specific feedback text.
+		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt)
+		{
+			if (preg_match("[[feedback:" . $prt_name . "]]", $specific_feedback))
+			{
+				if (isset($solutions["prt"][$prt_name]))
+				{
+					if (strlen($solutions["prt"][$prt_name]["errors"]) OR strlen($solutions["prt"][$prt_name]["feedback"]))
+					{
+						$string = "";
+						//feedback
+						$string .= '<div class="alert alert-warning" role="alert">';
+						//Generic feedback
+						$string .= $solutions["prt"][$prt_name]['status']['message'];
+						$string .= '<br>';
+						//Specific feedback
+						$string .= $solutions["prt"][$prt_name]["feedback"];
+						$string .= $solutions["prt"][$prt_name]["errors"];
+						$string .= '</div>';
+
+						$specific_feedback = $string;
+					} else
+					{
+						$specific_feedback = "";
+					}
+				} else
+				{
+					"";
+				}
+			}
+		}
+
+		//Return the question text with LaTeX problems solved.
+		return assStackQuestionUtils::_getLatexText($specific_feedback);
 	}
 
 	/**
@@ -710,69 +779,6 @@ class assStackQuestionGUI extends assQuestionGUI
 	function getAnswerFeedbackOutput($active_id, $pass)
 	{
 		return $this->getGenericFeedbackOutput($active_id, $pass);
-	}
-
-	/**
-	 * Look in the DB for the feedback fields that must be shown
-	 */
-	private function getFeedbackParameters()
-	{
-		global $ilDB;
-
-		$test_obj_id = ilObject::_lookupObjectId($_GET['ref_id']);
-
-		//Instant feedback variables
-		$query = "SELECT instant_verification, answer_feedback, answer_feedback_points, specific_feedback FROM tst_tests WHERE obj_fi = " . $test_obj_id;
-		$res = $ilDB->query($query);
-		$row = $ilDB->fetchObject($res);
-
-		//specific_feedback -  show specific feedback
-		//answer_feedback - positive negative
-		//answer_feedback_points - show points
-		//instant_verification see solutions
-
-		$this->specific_feedback_for_each_answer = (boolean)$row->specific_feedback;
-		$this->feedback_on_fully_correct_answer = (boolean)$row->answer_feedback;
-		$this->show_points = (boolean)$row->answer_feedback_points;
-		$this->instant_best_possible_answer = (boolean)$row->instant_verification;
-
-		//Show solutions after test variables
-		$query = "SELECT print_bs_with_res, results_presentation FROM tst_tests WHERE obj_fi = " . $test_obj_id;
-		$res = $ilDB->query($query);
-		$row = $ilDB->fetchObject($res);
-
-		$this->show_solution = FALSE;
-		$this->show_points = FALSE;
-		$this->general_feedback = FALSE;
-		$this->specific_feedback = FALSE;
-
-		$this->best_solution = (($row->print_bs_with_res & 1) > 0) ? TRUE : FALSE;
-
-		$value = (int)$row->results_presentation;
-
-		if ($_GET['cmd'] == 'outUserListOfAnswerPasses')
-		{
-			if (($value & 128) > 0)
-			{
-				$this->show = TRUE;
-				$this->best_solution = TRUE;
-			}
-		} else
-		{
-			if (($value & 1) > 0)
-			{
-				$this->general_feedback = TRUE;
-			}
-			if (($value & 2) > 0)
-			{
-				$this->show_solution = TRUE;
-			}
-			if (($value & 8) > 0)
-			{
-				$this->specific_feedback = TRUE;
-				$this->show_points = TRUE;
-			}
-		}
 	}
 
 
@@ -932,11 +938,6 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 		$this->editQuestionForm();
-	}
-
-	public function saveQuestion()
-	{
-
 	}
 
 	/*
