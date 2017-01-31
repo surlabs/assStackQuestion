@@ -58,6 +58,7 @@ class assStackQuestionPreview
 		if ($seed < 0) {
 			$seed = $this->getSeed();
 		}
+
 		//Set grade of conversion to stack via the user response
 		if (assStackQuestionUtils::_isArrayEmpty($this->getUserResponse())) {
 			//NO USER RESPONSE, MINIMUM CONVERSION
@@ -77,6 +78,7 @@ class assStackQuestionPreview
 				$this->getQuestion()->getStackQuestion()->init($this->getQuestion(), '', $seed);
 			}
 		}
+
 	}
 
 	/**
@@ -87,7 +89,6 @@ class assStackQuestionPreview
 	public function getQuestionPreviewData($test_mode = FALSE, $active_id = NULL, $pass = NULL)
 	{
 		//Step #1: Get evaluation form and evaluate question if needed.
-		//var_dump($this->getUserResponse());exit;
 		if (!assStackQuestionUtils::_isArrayEmpty($this->getUserResponse())) {
 			$evaluated_question = $this->getEvaluationForPreview();
 		} else {

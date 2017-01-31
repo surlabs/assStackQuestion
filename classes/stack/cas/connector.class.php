@@ -66,7 +66,20 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
 
         $this->debug->log('Maxima command', $command);
 
-        $rawresult = $this->call_maxima($command);
+        // fim: log maxima calls in the benchmark
+        global $ilBench;
+        if (is_object($ilBench))
+        {
+            $ilBench->startDbBench('MAXIMA '. $command);
+            $rawresult = $this->call_maxima($command);
+            $ilBench->stopDbBench();
+        }
+        else
+        {
+            $rawresult = $this->call_maxima($command);
+        }
+        // fim.
+
         $this->debug->log('CAS result', $rawresult);
 
         $unpackedresult = $this->unpack_raw_result($rawresult);

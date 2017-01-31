@@ -25,6 +25,7 @@ class ilTabsFormPropertyGUI extends ilMultipartFormPropertyGUI
 	{
 		parent::__construct($a_title, $a_postvar, $a_container_width, $a_show_title);
 
+		$this->setHiddenTitle("Title");
 		//Set template for accordion
 		$template = new ilTemplate('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/tpl.tabs_form_property.html', TRUE, TRUE);
 		$this->setTemplate($template);
@@ -75,8 +76,15 @@ class ilTabsFormPropertyGUI extends ilMultipartFormPropertyGUI
 				$this->getTemplate()->setVariable("CONTENT_WIDTH", $this->getWidthDivision('content'));
 				$this->getTemplate()->setVariable("FOOTER_WIDTH", $this->getWidthDivision('footer'));
 
-				if ($this->getShowTitle()) {
-					$this->getTemplate()->setVariable("PROP_TITLE", $form_property->getTitle());
+				if ($this->getShowTitle())
+				{
+					if ($form_property->getRequired())
+					{
+						$this->getTemplate()->setVariable("PROP_TITLE", $form_property->getTitle() . "<font color=\"red\"> *</font>");
+					} else
+					{
+						$this->getTemplate()->setVariable("PROP_TITLE", $form_property->getTitle());
+					}
 				}
 
 				//Fill content

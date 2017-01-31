@@ -77,8 +77,15 @@ class ilColumnsFormPropertyGUI extends ilMultipartFormPropertyGUI
 				$this->getTemplate()->setVariable("FOOTER_WIDTH", $this->getWidthDivision('footer'));
 
 				//Show title and info
-				if ($this->getShowTitle()) {
-					$this->getTemplate()->setVariable("PROP_TITLE", $form_property->getTitle());
+				if ($this->getShowTitle())
+				{
+					if ($form_property->getRequired())
+					{
+						$this->getTemplate()->setVariable("PROP_TITLE", $form_property->getTitle() . "<font color=\"red\"> *</font>");
+					} else
+					{
+						$this->getTemplate()->setVariable("PROP_TITLE", $form_property->getTitle());
+					}
 				}
 				if (isset($form_property->info)) {
 					$this->getTemplate()->setVariable("PROP_INFO", $form_property->getInfo());

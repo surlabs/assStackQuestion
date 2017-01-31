@@ -192,7 +192,7 @@ class assStackQuestionStackQuestion
 	 * @param bool $evaluation_mode
 	 * @param int $maintain_seed (v1.6+ if positive integer, use it as seed)
 	 */
-	public function init(assStackQuestion $ilias_question, $step_to_stop = '', $maintain_seed = -1)
+	public function init(assStackQuestion $ilias_question, $step_to_stop = '', $maintain_seed = -1, $authorized = TRUE)
 	{
 		global $lng;
 		//Step 0: set question id and points and set if instant validation is shown
@@ -211,7 +211,7 @@ class assStackQuestionStackQuestion
 		//Step 1: Create options and question id
 		$this->createOptions($ilias_question->getOptions());
 		//Step 2: Create seed
-		$this->createSeed($ilias_question, $maintain_seed);
+		$this->createSeed($ilias_question, $maintain_seed, $authorized);
 		//Step 3: Create Question variables
 		$this->createQuestionVariables($ilias_question->getOptions()->getQuestionVariables());
 		//Step 4: Create Session
@@ -270,7 +270,7 @@ class assStackQuestionStackQuestion
 	 * @param assStackQuestion $ilias_question (v1.6+ If negative: normal procedure, if positive set seed as value)
 	 * @param $seed (v1.6+ If negative: normal procedure, if positive set seed as value)
 	 */
-	public function createSeed($ilias_question, $seed = -1)
+	public function createSeed($ilias_question, $seed = -1, $authorized = TRUE)
 	{
 		if (is_a($ilias_question, "assStackQuestion"))
 		{
@@ -292,7 +292,6 @@ class assStackQuestionStackQuestion
 								if ($seed == NULL)
 								{
 									$seed = rand(1, 100);
-									$ilias_question->saveWorkingDataValue($this->getActiveId(), $this->getPass(), 'xqcas_prt_' . $first_prt->getPRTName() . '_seed', $seed, NULL, time());
 								}
 							}
 						} else
@@ -344,8 +343,6 @@ class assStackQuestionStackQuestion
 								if ($seed == NULL)
 								{
 									$seed = $seeds[array_rand($seeds, 1)]->getSeed();
-									//SEED value1 = xqcas_input_*_status_message, $value2 = status message
-									$ilias_question->saveWorkingDataValue($this->getActiveId(), $this->getPass(), 'xqcas_prt_' . $first_prt->getPRTName() . '_seed', $seed, NULL, time());
 								}
 							}
 						} else

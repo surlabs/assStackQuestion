@@ -132,6 +132,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			$pass = $this->getSolutionMaxPass($active_id);
 		}
 
+		//In case of check in test
+		if ($authorizedSolution == FALSE)
+		{
+			return $this->stack_question->reached_points;
+		}
+
 		// get all saved part solutions with points assigned
 		$result = $this->getCurrentSolutionResultSet($active_id, $pass, $authorizedSolution);
 
@@ -162,7 +168,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 
 		if (is_null($pass))
 		{
-			require_once './Modules/Test/classes/class.ilObjTest.php';
+			include_once "./Modules/Test/classes/class.ilObjTest.php";
 			$pass = ilObjTest::_getPass($active_id);
 		}
 
