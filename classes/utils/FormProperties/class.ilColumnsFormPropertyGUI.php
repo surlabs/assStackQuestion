@@ -91,6 +91,60 @@ class ilColumnsFormPropertyGUI extends ilMultipartFormPropertyGUI
 					$this->getTemplate()->setVariable("PROP_INFO", $form_property->getInfo());
 				}
 
+				//Add specific test info
+				$castext_english = "In this field you can use CAS Text. CASText is CAS-enabled text. CASText is simply HTML into which LaTeX mathematics and CAS commands can be embedded. These CAS commands are executed before the question is displayed to the user. Use only simple LaTeX mathematics structures. Only a small part of core LaTeX is supported.";
+				$castext_german = "In diesem Feld können Sie CAS Text verwenden, CASText ist CAS-aktivierter Text. CASText ist einfach HTML, in das LaTeX-Mathematik und CAS-Befehle eingebettet werden können. Diese CAS-Befehle werden ausgeführt, bevor die Frage dem Benutzer angezeigt wird. Verwenden Sie nur einfache LaTeX-Mathematikstrukturen. Nur ein kleiner Teil des LaTeX-Kerns wird unterstützt.";
+				$html_english = "In this field, only HTML elements are allowed, CASText won't be rendered";
+				$html_german = "In diesem Feld sind nur HTML-Elemente erlaubt, CASText wird nicht gerendert";
+				$casexpresion_english = "In this field, you can only use CAS expresion, but not HTML code.";
+				$casexpresion_german = "In diesem Feld können sie nur CAS-Ausdruck verwenden, kein HTML-Code.";
+
+				global $lng;
+
+				//Student answer
+				include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+				if (assStackQuestionUtils::_endsWith($form_property->postvar, "_student_answer"))
+				{
+					$comment_id = rand(100000, 999999);
+					require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+					ilTooltipGUI::addTooltip('ilAssStackQuestion' . $comment_id, $lng->getUserLanguage() == "de" ? $casexpresion_german : $casexpresion_english);
+					$this->getTemplate()->setVariable("COMMENT_ID", $comment_id);
+					$this->getTemplate()->setVariable("SPECIFIC_TEXT_INFO", $lng->getUserLanguage() == "de" ? "<a href='javascript:;'>[CAS Ausdruck]</a>" : "<a href='javascript:;'>[CAS Expresion]</a>");
+				}
+
+				//Teacher answer
+				include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+				if (assStackQuestionUtils::_endsWith($form_property->postvar, "_teacher_answer"))
+				{
+					$comment_id = rand(100000, 999999);
+					require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+					ilTooltipGUI::addTooltip('ilAssStackQuestion' . $comment_id, $lng->getUserLanguage() == "de" ? $casexpresion_german : $casexpresion_english);
+					$this->getTemplate()->setVariable("COMMENT_ID", $comment_id);
+					$this->getTemplate()->setVariable("SPECIFIC_TEXT_INFO", $lng->getUserLanguage() == "de" ? "<a href='javascript:;'>[CAS Ausdruck]</a>" : "<a href='javascript:;'>[CAS Expresion]</a>");
+				}
+
+				//Node options
+				include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+				if (assStackQuestionUtils::_endsWith($form_property->postvar, "_options"))
+				{
+					$comment_id = rand(100000, 999999);
+					require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+					ilTooltipGUI::addTooltip('ilAssStackQuestion' . $comment_id, $lng->getUserLanguage() == "de" ? $casexpresion_german : $casexpresion_english);
+					$this->getTemplate()->setVariable("COMMENT_ID", $comment_id);
+					$this->getTemplate()->setVariable("SPECIFIC_TEXT_INFO", $lng->getUserLanguage() == "de" ? "<a href='javascript:;'>[CAS Ausdruck]</a>" : "<a href='javascript:;'>[CAS Expresion]</a>");
+				}
+
+				//specific feedback
+				include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+				if (assStackQuestionUtils::_endsWith($form_property->postvar, "_specific_feedback"))
+				{
+					$comment_id = rand(100000, 999999);
+					require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+					ilTooltipGUI::addTooltip('ilAssStackQuestion' . $comment_id, $lng->getUserLanguage() == "de" ? $castext_german : $castext_english);
+					$this->getTemplate()->setVariable("COMMENT_ID", $comment_id);
+					$this->getTemplate()->setVariable("SPECIFIC_TEXT_INFO", "<a href='javascript:;'>[CAS Text]</a>");
+				}
+
 				//Fill property
 				$form_property->insert($this->getTemplate());
 				$this->getTemplate()->setCurrentBlock('prop_container');

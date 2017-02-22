@@ -574,4 +574,20 @@ class assStackQuestionUtils
 		return FALSE;
 
 	}
+
+	/**#
+	 * Used for show Info labels in inputs or PRT
+	 * @param $haystack
+	 * @param $needle
+	 * @return bool
+	 */
+	public static function _endsWith($haystack, $needle)
+	{
+		$length = strlen($needle);
+		if ($length == 0) {
+			return true;
+		}
+
+		return (substr($haystack, -$length) === $needle);
+	}
 }

@@ -143,6 +143,7 @@ class assStackQuestionGUI extends assQuestionGUI
 					{
 						$node->delete();
 					}
+
 					return TRUE;
 				}
 				foreach ($prt->getPRTNodes() as $node_name => $node)
@@ -151,7 +152,7 @@ class assStackQuestionGUI extends assQuestionGUI
 					if (isset($_POST['cmd']['save']['delete_prt_' . $prt_name . '_node_' . $node->getNodeName()]))
 					{
 						if ($this->checkPRTNodeForDeletion($prt, $node))
-						{exit;
+						{
 							return FALSE;
 						}
 						$node->delete();
@@ -160,13 +161,14 @@ class assStackQuestionGUI extends assQuestionGUI
 						$prt->setPRTNodes($nodes);
 						$this->object->setPotentialResponsesTrees($prt, $prt_name);
 
-						return TRUE;					}
+						return TRUE;
 					}
 				}
 			}
-
-			return TRUE;
 		}
+
+		return TRUE;
+	}
 
 
 	public function checkPRTForDeletion(assStackQuestionPRT $prt)
@@ -738,24 +740,18 @@ class assStackQuestionGUI extends assQuestionGUI
 			{
 				if (isset($solutions["prt"][$prt_name]))
 				{
-					if (strlen($solutions["prt"][$prt_name]["errors"]) OR strlen($solutions["prt"][$prt_name]["feedback"]))
-					{
-						$string = "";
-						//feedback
-						$string .= '<div class="alert alert-warning" role="alert">';
-						//Generic feedback
-						$string .= $solutions["prt"][$prt_name]['status']['message'];
-						$string .= '<br>';
-						//Specific feedback
-						$string .= $solutions["prt"][$prt_name]["feedback"];
-						$string .= $solutions["prt"][$prt_name]["errors"];
-						$string .= '</div>';
+					$string = "";
+					//feedback
+					$string .= '<div class="alert alert-warning" role="alert">';
+					//Generic feedback
+					$string .= $solutions["prt"][$prt_name]['status']['message'];
+					$string .= '<br>';
+					//Specific feedback
+					$string .= $solutions["prt"][$prt_name]["feedback"];
+					$string .= $solutions["prt"][$prt_name]["errors"];
+					$string .= '</div>';
 
-						$specific_feedback = $string;
-					} else
-					{
-						$specific_feedback = "";
-					}
+					$specific_feedback = $string;
 				} else
 				{
 					"";
@@ -891,7 +887,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function editQuestionForm()
 	{
-		global $ilTabs;
+		global $ilTabs, $ilCtrl;
 		//Set all parameters required
 		$ilTabs->activateTab('edit_properties');
 		$ilTabs->activateSubTab('edit_question');
@@ -900,16 +896,33 @@ class assStackQuestionGUI extends assQuestionGUI
 		//Create GUI object
 		$this->plugin->includeClass('GUI/question_authoring/class.assStackQuestionAuthoringGUI.php');
 		$authoring_gui = new assStackQuestionAuthoringGUI($this->plugin, $this);
-
 		//Add CSS
 		$this->tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_authoring.css'));
 		$this->tpl->addCss($this->plugin->getStyleSheetLocation('css/multipart_form.css'));
 
 		//Javascript
+
+		//Show info messages
+		$this->info_config = new stdClass();
+		$this->info_config->ajax_url = $ilCtrl->getLinkTargetByClass("assstackquestiongui", "saveInfoState", "", TRUE);
+
+		//Set to user's session value
+		if (isset($_SESSION['stack_authoring_show']))
+		{
+			$this->info_config->show = (int)$_SESSION['stack_authoring_show'];
+		} else
+		{
+			//first time must be shown
+			$this->info_config->show = 1;
+		}
+		$this->tpl->addJavascript('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/ilEnableDisableInfo.js');
+		$this->tpl->addOnLoadCode('il.EnableDisableInfo.initInfoMessages(' . json_encode($this->info_config) . ')');
+
+		//Reform authoring interface
 		$this->tpl->addJavascript('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/ilMultipartFormProperty.js');
 
 		//Returns Deployed seeds form
-		$this->tpl->setVariable("QUESTION_DATA", $authoring_gui->showAuthoringPanel($save));
+		$this->tpl->setVariable("QUESTION_DATA", $authoring_gui->showAuthoringPanel());
 	}
 
 	public function editQuestion($checkonly = FALSE)
@@ -917,8 +930,6 @@ class assStackQuestionGUI extends assQuestionGUI
 		$save = $this->isSaveCommand();
 
 		$this->editQuestionForm();
-
-		return $errors;
 	}
 
 	public function enableDisableInfo()
@@ -1573,4 +1584,19 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		return "";
 	}
+
+	/**
+	 * Save the showing info messages state in the user session
+	 * (This keeps info messages state between page moves)
+	 * @see self::addToPage()
+	 */
+	function saveInfoState()
+	{
+		$_SESSION['stack_authoring_show'] = (int)$_GET['show'];
+
+		// debugging output (normally ignored by the js part)
+		echo json_encode(array('show' => $_SESSION['stack_authoring_show']));
+		exit;
+	}
+
 }

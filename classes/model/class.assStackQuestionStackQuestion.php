@@ -218,12 +218,6 @@ class assStackQuestionStackQuestion
 		$this->createSession();
 		//Step 5: Create Inputs
 		$error = $this->createInputs($ilias_question);
-		if (is_string($error))
-		{
-			ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_no_model_solution_for_this_input") . ": " . $error, TRUE);
-
-			return TRUE;
-		}
 
 		//Step 6: Add correct answer as sesion value for all inputs
 		$this->addTeacherAnswersToSession($ilias_question);
@@ -576,7 +570,8 @@ class assStackQuestionStackQuestion
 
 
 		// Now instantiate the session.
-		$this->getSession()->instantiate();
+		//DOUBLE CALL to instantiate provokes double similar call.
+		//$this->getSession()->instantiate();
 		/*
 		if ($this->getSession()->get_errors()) {
 			// We throw an exception here because any problems with the CAS code

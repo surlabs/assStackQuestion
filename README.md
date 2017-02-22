@@ -110,6 +110,19 @@ input you can evaluate your answer (in self assessment mode) or move to the next
 Version History
 ===============
 
+
+GitHub Version 2.3.10 (2017-2-22)
+---------------------------------
++ Changes in the Authoring interface:
+- Now expandable sections for input fields are independent, it's allowed to open more than one input field at the same time.
+- Now inputs and option field takes the whole page like PRTs, to give the user a better view of the different options.
+- Now enable and disable info messages is done instantly by clicking the button in top of the authoring interface. Info messages are shown by default
+  And is user's decision about this is saved in session, so user can move among pages having always the same view.
+- Info messages of certain settings also includes a tooltip explaining which type of content the input accepts (CAS Text, HTML or CAS commands)
+- Teacher answer and Student answer are now required fields.
+This version includes some bugfixing:
+- http://www.ilias.de/mantis/view.php?id=20184 regarding feedback report in specific feedback block.
+
 GitHub Version 2.3.9 (2017-1-31)
 --------------------------------
 - Scoring page shows a new information text explaining the behaviour of the page.

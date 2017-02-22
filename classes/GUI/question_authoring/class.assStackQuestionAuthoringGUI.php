@@ -39,11 +39,6 @@ class assStackQuestionAuthoringGUI
 	 */
 	private $template;
 
-	/**
-	 * @var bool Show info fields in inputs
-	 */
-	private $show_info;
-
 
 	/**
 	 * Object constructor
@@ -61,6 +56,16 @@ class assStackQuestionAuthoringGUI
 		//Set templates
 		$this->setTemplate($this->getPlugin()->getTemplate('tpl.il_as_qpl_xqcas_authoring_container.html'));
 
+		//Set toolbar
+		require_once("./Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php");
+		$toolbar = new ilToolbarGUI();
+		require_once('./Services/UIComponent/Button/classes/class.ilButton.php');
+		$show_info_button = ilButton::getInstance();
+		$show_info_button->setCaption($this->getPlugin()->txt("enable_disable_info"), FALSE);
+		$show_info_button->setId("enable_disable_info");
+		$toolbar->addButtonInstance($show_info_button);
+		$this->getTemplate()->setVariable("TOOLBAR", $toolbar->getHTML());
+
 		//Set form
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
@@ -68,10 +73,8 @@ class assStackQuestionAuthoringGUI
 		$form->setFormAction($ilCtrl->getFormActionByClass('assStackQuestionGUI'));
 		$form->addCommandButton('save', $lng->txt('save'));
 		$form->addCommandButton('editQuestion', $lng->txt('cancel'));
-		$form->addCommandButton('enableDisableInfo', $this->getPlugin()->txt('enable_disable_info'));
 
 		//Set show info;
-		$this->setShowInfo($_SESSION['show_input_info_fields_in_form']);
 		$this->setForm($form);
 	}
 
@@ -86,6 +89,14 @@ class assStackQuestionAuthoringGUI
 		$this->getPlugin()->includeClass('utils/FormProperties/class.ilColumnsFormPropertyGUI.php');
 		$this->getPlugin()->includeClass('utils/FormProperties/class.ilTabsFormPropertyGUI.php');
 		$this->getPlugin()->includeClass('utils/FormProperties/class.ilButtonFormPropertyGUI.php');
+
+		//SESSION STATUS OF INFO MESSAGES
+		//If first time, show info messages
+		if (!isset($_SESSION['stack_show_info']))
+		{
+			$_SESSION['show_info'] = TRUE;
+		}
+		$_SESSION['show_info'] = $_POST['show_info'];
 
 		//Add general properties to form like question text, title, author...
 		//ADD predefined input and validation fields
@@ -135,32 +146,51 @@ class assStackQuestionAuthoringGUI
 	public function addOptions()
 	{
 		//Add info as a new non editable field
-		$info = new ilNonEditableValueGUI($this->getPlugin()->txt("input_hint"));
-		$info->setHiddenTitle(TRUE);
+		$info = new ilNonEditableValueGUI($this->getPlugin()->txt("input_hint"), 'options_hints_info');
+
 		//Links to the authoring guides
 		$text = "";
 		$text .= "</br>" . $this->getPlugin()->txt('auth_tip1') . " <a href='https://github.com/maths/moodle-qtype_stack/blob/master/doc/en/index.md' target=\"_blank\"> Link </a>";
 		$text .= " " . $this->getPlugin()->txt('auth_tip2') . "</br>" . " " . $this->getPlugin()->txt('auth_tip3') . " <a href='http://www.ilias.de/docu/goto_docu_file_5087.html' target=\"_blank\"> Quick authoring guide </a>";
 		$text .= "</br>" . $this->getPlugin()->txt("authoring_input_creation_info");
+		$info->setPostVar("options_hints_info");
 		$info->setInfo($text);
 		$this->getForm()->addItem($info);
 
 		//Question variables
 		$question_variables = new ilTextAreaInputGUI($this->getPlugin()->txt('options_question_variables'), 'options_question_variables');
-		$question_variables->setInfo($this->getPlugin()->txt('options_question_variables_info'));
+		//Add Text Tooltip
+		$question_variables_info_text = $this->getPlugin()->txt('options_question_variables_info') . "</br>";
+		$comment_id = rand(100000, 999999);
+		require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+		ilTooltipGUI::addTooltip('ilAssStackQuestion' . $comment_id, $this->getPlugin()->txt("casexpresion_info"));
+		$question_variables_info_text .= "<span id=\"ilAssStackQuestion" . $comment_id . "\">" . "<a href='javascript:;'>[" . $this->getPlugin()->txt("casexpresion_name") . "]</a>" . "</span>";
+		$question_variables->setInfo($question_variables_info_text);
 		$question_variables->setValue($this->getQuestionGUI()->object->getOptions()->getQuestionVariables());
 		$this->getForm()->addItem($question_variables);
 
 		//Question note
 		$question_note = new ilTextAreaInputGUI($this->getPlugin()->txt('options_question_note'), 'options_question_note');
-		$question_note->setInfo($this->getPlugin()->txt('options_question_note_info'));
+		//Add Text Tooltip
+		$question_note_info_text = $this->getPlugin()->txt('options_question_note_info') . "</br>";
+		$comment_id = rand(100000, 999999);
+		require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+		ilTooltipGUI::addTooltip('ilAssStackQuestion' . $comment_id, $this->getPlugin()->txt("castext_info"));
+		$question_note_info_text .= "<span id=\"ilAssStackQuestion" . $comment_id . "\">" . "<a href='javascript:;'>[CAS Text]</a>" . "</span>";
+		$question_note->setInfo($question_note_info_text);
 		$question_note->setValue($this->getQuestionGUI()->object->getOptions()->getQuestionNote());
 		$this->getForm()->addItem($question_note);
 
 		//Question specific feedback
 		$question_specific_feedback = new ilTextAreaInputGUI($this->getPlugin()->txt('options_specific_feedback'), 'options_specific_feedback');
-		$question_specific_feedback->setInfo($this->getPlugin()->txt('options_specific_feedback_info'));
+		//Add Text Tooltip
+		$question_specific_feedback_info_text = $this->getPlugin()->txt('options_specific_feedback_info') . "</br>";
+		$comment_id = rand(100000, 999999);
+		require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+		ilTooltipGUI::addTooltip('ilAssStackQuestion' . $comment_id, $this->getPlugin()->txt("html_info"));
+		$question_specific_feedback_info_text .= "<span id=\"ilAssStackQuestion" . $comment_id . "\">" . "<a href='javascript:;'>[HTML]</a>" . "</span>";
 		$question_specific_feedback->setValue($this->getQuestionGUI()->object->getOptions()->getSpecificFeedback());
+		$question_specific_feedback->setInfo($question_specific_feedback_info_text);
 		$this->getQuestionGUI()->setRTESupport($question_specific_feedback);
 		$this->getForm()->addItem($question_specific_feedback);
 
@@ -183,7 +213,7 @@ class assStackQuestionAuthoringGUI
 	 */
 	public function addInputs()
 	{
-		$inputs = new ilAccordionFormPropertyGUI($this->getPlugin()->txt('inputs'), "question_inputs", 12, TRUE);
+		$inputs = new ilAccordionFormPropertyGUI($this->getPlugin()->txt('inputs'), 'question_inputs', 12, TRUE);
 
 		if (sizeof($this->getQuestionGUI()->object->getInputs()))
 		{
@@ -191,7 +221,7 @@ class assStackQuestionAuthoringGUI
 			foreach ($this->getQuestionGUI()->object->getInputs() as $input_name => $input)
 			{
 				$input_part = $this->getInputPart($input);
-				$input_part->setTitle($input_name);
+				$input_part->setTitle($input_name . "<font color='red'> *</font>");
 				$inputs->addPart($input_part);
 			}
 			$this->getForm()->addItem($inputs);
@@ -253,53 +283,58 @@ class assStackQuestionAuthoringGUI
 
 		//Options question simplify
 		$options_question_simplify = new ilCheckboxInputGUI($this->getPlugin()->txt('options_question_simplify'), 'options_question_simplify');
-		$options_question_simplify->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('options_question_simplify_info') : '');
+		$options_question_simplify->setInfo($this->getPlugin()->txt('options_question_simplify_info'));
 
 		//Options assume positive
 		$options_assume_positive = new ilCheckboxInputGUI($this->getPlugin()->txt('options_assume_positive'), 'options_assume_positive');
-		$options_assume_positive->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('options_assume_positive_info') : '');
+		$options_assume_positive->setInfo($this->getPlugin()->txt('options_assume_positive_info'));
 
 
 		//Options Standard feedback for correct answer
 		$options_prt_correct = new ilTextAreaInputGUI($this->getPlugin()->txt('options_prt_correct'), 'options_prt_correct');
 		$this->getQuestionGUI()->setRTESupport($options_prt_correct);
+		$options_prt_correct->setInfo("");
 
 		//Options Standard feedback for partially correct answer
 		$options_prt_partially_correct = new ilTextAreaInputGUI($this->getPlugin()->txt('options_prt_partially_correct'), 'options_prt_partially_correct');
 		$this->getQuestionGUI()->setRTESupport($options_prt_partially_correct);
+		$options_prt_partially_correct->setInfo("");
+
 
 		//Options Standard feedback for incorrect answer
 		$options_prt_incorrect = new ilTextAreaInputGUI($this->getPlugin()->txt('options_prt_incorrect'), 'options_prt_incorrect');
 		$this->getQuestionGUI()->setRTESupport($options_prt_incorrect);
+		$options_prt_incorrect->setInfo("");
+
 
 		//Options multiplication sign
 		$options_multiplication_sign = new ilSelectInputGUI($this->getPlugin()->txt('options_multiplication_sign'), 'options_multiplication_sign');
 		$options_multiplication_sign->setOptions(array("dot" => $this->getPlugin()->txt('options_mult_sign_dot'), "cross" => $this->getPlugin()->txt('options_mult_sign_cross'), "none" => $this->getPlugin()->txt('options_mult_sign_none')));
-		$options_multiplication_sign->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('options_multiplication_sign') : '');
+		$options_multiplication_sign->setInfo($this->getPlugin()->txt('options_multiplication_sign'));
 
 		//Options Sqrt sign
 		$options_sqrt_sign = new ilCheckboxInputGUI($this->getPlugin()->txt('options_sqrt_sign'), 'options_sqrt_sign');
-		$options_sqrt_sign->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('options_sqrt_sign_info') : '');
+		$options_sqrt_sign->setInfo($this->getPlugin()->txt('options_sqrt_sign_info'));
 
 		//Options Complex numbers
 		$options_complex_numbers = new ilSelectInputGUI($this->getPlugin()->txt('options_complex_numbers'), 'options_complex_numbers');
 		$options_complex_numbers->setOptions(array("i" => $this->getPlugin()->txt('options_complex_numbers_i'), "j" => $this->getPlugin()->txt('options_complex_numbers_j'), "symi" => $this->getPlugin()->txt('options_complex_numbers_symi'), "symj" => $this->getPlugin()->txt('options_complex_numbers_symj')));
-		$options_complex_numbers->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('options_complex_numbers_info') : '');
+		$options_complex_numbers->setInfo($this->getPlugin()->txt('options_complex_numbers_info'));
 
 		//Options inverse trigonometric
 		$options_inverse_trigonometric = new ilSelectInputGUI($this->getPlugin()->txt('options_inverse_trigonometric'), 'options_inverse_trigonometric');
 		$options_inverse_trigonometric->setOptions(array("cos-1" => $this->getPlugin()->txt('options_inverse_trigonometric_cos'), "acos" => $this->getPlugin()->txt('options_inverse_trigonometric_acos'), "arccos" => $this->getPlugin()->txt('options_inverse_trigonometric_arccos')));
-		$options_inverse_trigonometric->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('options_inverse_trigonometric_info') : '');
+		$options_inverse_trigonometric->setInfo($this->getPlugin()->txt('options_inverse_trigonometric_info'));
 
 		//Matrix Parens
 		$options_matrix_parens = new ilSelectInputGUI($this->getPlugin()->txt('options_matrix_parens'), 'options_matrix_parens');
-		$options_matrix_parens->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('options_matrix_parens_info') : '');
+		$options_matrix_parens->setInfo($this->getPlugin()->txt('options_matrix_parens_info'));
 		$options_matrix_parens->setOptions(array("[" => "[", "(" => "(", "" => "", "{" => "{", "|" => "|"));
 
 		//How to solve
 		$how_to_solve = new ilTextAreaInputGUI($this->getPlugin()->txt('options_how_to_solve'), 'options_how_to_solve');
 		$this->getQuestionGUI()->setRTESupport($how_to_solve);
-		$how_to_solve->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('options_how_to_solve_info') : '');
+		$how_to_solve->setInfo($this->getPlugin()->txt('options_how_to_solve_info'));
 
 		//Set value if exists
 		$options_question_simplify->setChecked($options->getQuestionSimplify());
@@ -341,48 +376,48 @@ class assStackQuestionAuthoringGUI
 
 		$input_type = new ilSelectInputGUI($this->getPlugin()->txt('input_type'), $input->getInputName() . '_input_type');
 		$input_type->setOptions(array("algebraic" => $this->getPlugin()->txt('input_type_algebraic'), "boolean" => $this->getPlugin()->txt('input_type_boolean'), "matrix" => $this->getPlugin()->txt('input_type_matrix'), "singlechar" => $this->getPlugin()->txt('input_type_singlechar'), "textarea" => $this->getPlugin()->txt('input_type_textarea')));
-		$input_type->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('input_type_info') : '');
+		$input_type->setInfo($this->getPlugin()->txt('input_type_info'));
 		$input_type->setRequired(TRUE);
 
 		$input_model_answer = new ilTextInputGUI($this->getPlugin()->txt('input_model_answer'), $input->getInputName() . '_input_model_answer');
-		$input_model_answer->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('input_model_answer_info') : '');
+		$input_model_answer->setInfo($this->getPlugin()->txt('input_model_answer_info'));
 		$input_model_answer->setRequired(TRUE);
 
 		$input_box_size = new ilTextInputGUI($this->getPlugin()->txt('input_box_size'), $input->getInputName() . '_input_box_size');
-		$input_box_size->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('input_box_size_info') : '');
+		$input_box_size->setInfo($this->getPlugin()->txt('input_box_size_info'));
 
 		$input_strict_syntax = new ilCheckboxInputGUI($this->getPlugin()->txt('input_strict_syntax'), $input->getInputName() . '_input_strict_syntax');
-		$input_strict_syntax->setInfo($this->getShowInfo() ? $this->getPlugin()->txt("input_strict_syntax_info") : '');
+		$input_strict_syntax->setInfo($this->getPlugin()->txt("input_strict_syntax_info"));
 
 		$input_insert_stars = new ilCheckboxInputGUI($this->getPlugin()->txt('input_insert_stars'), $input->getInputName() . '_input_insert_stars');
-		$input_insert_stars->setInfo($this->getShowInfo() ? $this->getPlugin()->txt("input_insert_stars_info") : '');
+		$input_insert_stars->setInfo($this->getPlugin()->txt("input_insert_stars_info"));
 
 		$input_syntax_hint = new ilTextInputGUI($this->getPlugin()->txt('input_syntax_hint'), $input->getInputName() . '_input_syntax_hint');
-		$input_syntax_hint->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('input_syntax_hint_info') : '');
+		$input_syntax_hint->setInfo($this->getPlugin()->txt('input_syntax_hint_info'));
 
 		$input_forbidden_words = new ilTextInputGUI($this->getPlugin()->txt('input_forbidden_words'), $input->getInputName() . '_input_forbidden_words');
-		$input_forbidden_words->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('input_forbidden_words_info') : '');
+		$input_forbidden_words->setInfo($this->getPlugin()->txt('input_forbidden_words_info'));
 
 		$input_allow_words = new ilTextInputGUI($this->getPlugin()->txt('input_allow_words'), $input->getInputName() . '_input_allow_words');
-		$input_allow_words->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('input_allow_words_info') : '');
+		$input_allow_words->setInfo($this->getPlugin()->txt('input_allow_words_info'));
 
 		$input_forbid_float = new ilCheckboxInputGUI($this->getPlugin()->txt('input_forbid_float'), $input->getInputName() . '_input_forbid_float');
-		$input_forbid_float->setInfo($this->getShowInfo() ? $this->getPlugin()->txt("input_forbid_float_info") : '');
+		$input_forbid_float->setInfo($this->getPlugin()->txt("input_forbid_float_info"));
 
 		$input_require_lowest_terms = new ilCheckboxInputGUI($this->getPlugin()->txt('input_require_lowest_terms'), $input->getInputName() . '_input_require_lowest_terms');
-		$input_require_lowest_terms->setInfo($this->getShowInfo() ? $this->getPlugin()->txt("input_require_lowest_terms_info") : '');
+		$input_require_lowest_terms->setInfo($this->getPlugin()->txt("input_require_lowest_terms_info"));
 
 		$input_check_answer_type = new ilCheckboxInputGUI($this->getPlugin()->txt('input_check_answer_type'), $input->getInputName() . '_input_check_answer_type');
-		$input_check_answer_type->setInfo($this->getShowInfo() ? $this->getPlugin()->txt("input_check_answer_type_info") : '');
+		$input_check_answer_type->setInfo($this->getPlugin()->txt("input_check_answer_type_info"));
 
 		$input_must_verify = new ilCheckboxInputGUI($this->getPlugin()->txt('input_must_verify'), $input->getInputName() . '_input_must_verify');
-		$input_must_verify->setInfo($this->getShowInfo() ? $this->getPlugin()->txt("input_must_verify_info") : '');
+		$input_must_verify->setInfo($this->getPlugin()->txt("input_must_verify_info"));
 
 		$input_show_validation = new ilCheckboxInputGUI($this->getPlugin()->txt('input_show_validation'), $input->getInputName() . '_input_show_validation');
-		$input_show_validation->setInfo($this->getShowInfo() ? $this->getPlugin()->txt("input_show_validation_info") : '');
+		$input_show_validation->setInfo($this->getPlugin()->txt("input_show_validation_info"));
 
 		$input_options = new ilTextInputGUI($this->getPlugin()->txt('input_options'), $input->getInputName() . '_input_options');
-		$input_options->setInfo($this->getShowInfo() ? $this->getPlugin()->txt("input_options_info") : '');
+		$input_options->setInfo($this->getPlugin()->txt("input_options_info"));
 
 		//Set Value
 		$input_type->setValue($input->getInputType());
@@ -447,7 +482,7 @@ class assStackQuestionAuthoringGUI
 		{
 			$prt_name = new ilNonEditableValueGUI($this->getPlugin()->txt('prt_name'), 'prt_' . $prt->getPRTName() . '_name');
 		}
-		$prt_name->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_name_info') : '');
+		$prt_name->setInfo($this->getPlugin()->txt('prt_name_info'));
 		$prt_name->setRequired(TRUE);
 		$prt_name->setValue($prt->getPRTName());
 		$settings_column->addFormProperty($prt_name);
@@ -553,14 +588,14 @@ class assStackQuestionAuthoringGUI
 		$settings = new ilMultipartFormPart($this->getPlugin()->txt('prt_settings'));
 
 		$prt_value = new ilTextInputGUI($this->getPlugin()->txt('prt_value'), 'prt_' . $prt->getPRTName() . '_value');
-		$prt_value->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_value_info') : '');
+		$prt_value->setInfo($this->getPlugin()->txt('prt_value_info'));
 
 		$prt_simplify = new ilSelectInputGUI($this->getPlugin()->txt('prt_simplify'), 'prt_' . $prt->getPRTName() . '_simplify');
 		$prt_simplify->setOptions(array(TRUE => $lng->txt('yes'), FALSE => $lng->txt('no'),));
-		$prt_simplify->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_simplify_info') : '');
+		$prt_simplify->setInfo($this->getPlugin()->txt('prt_simplify_info'));
 
 		$prt_feedback_variables = new ilTextAreaInputGUI($this->getPlugin()->txt('prt_feedback_variables'), 'prt_' . $prt->getPRTName() . '_feedback_variables');
-		$prt_feedback_variables->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_feedback_variables_info') : '');
+		$prt_feedback_variables->setInfo($this->getPlugin()->txt('prt_feedback_variables_info'));
 
 		$delete_prt = new ilButtonFormProperty($this->getPlugin()->txt('delete_prt'), 'delete_full_prt_' . $prt->getPRTName());
 		$delete_prt->setAction('delete_full_prt_' . $prt->getPRTName());
@@ -689,28 +724,30 @@ class assStackQuestionAuthoringGUI
 			$answertestchoices[$test] = stack_string($string);
 		}
 		$answer_test->setOptions($answertestchoices);
-		$answer_test->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_answer_test_info') : '');
+		$answer_test->setInfo($this->getPlugin()->txt('prt_node_answer_test_info'));
 		$answer_test->setValue($node->getAnswerTest());
 		$common_node_part->addFormProperty($answer_test);
 
 		$node_student_answer = new ilTextInputGUI($this->getPlugin()->txt('prt_node_student_answer'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_student_answer');
-		$node_student_answer->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_student_answer_info') : '');
+		$node_student_answer->setInfo($this->getPlugin()->txt('prt_node_student_answer_info'));
 		$node_student_answer->setValue($node->getStudentAnswer() == " " ? '' : $node->getStudentAnswer());
+		$node_student_answer->setRequired(TRUE);
 		$common_node_part->addFormProperty($node_student_answer);
 
 		$node_teacher_answer = new ilTextInputGUI($this->getPlugin()->txt('prt_node_teacher_answer'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_teacher_answer');
-		$node_teacher_answer->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_teacher_answer_info') : '');
+		$node_teacher_answer->setInfo($this->getPlugin()->txt('prt_node_teacher_answer_info'));
 		$node_teacher_answer->setValue($node->getTeacherAnswer() == " " ? '' : $node->getTeacherAnswer());
+		$node_teacher_answer->setRequired(TRUE);
 		$common_node_part->addFormProperty($node_teacher_answer);
 
 		$node_options = new ilTextInputGUI($this->getPlugin()->txt('prt_node_options'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_options');
-		$node_options->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_options_info') : '');
+		$node_options->setInfo($this->getPlugin()->txt('prt_node_options_info'));
 		$node_options->setValue($node->getTestOptions());
 		$common_node_part->addFormProperty($node_options);
 
 		$node_quiet = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_quiet'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_quiet');
 		$node_quiet->setOptions(array(TRUE => $lng->txt('yes'), FALSE => $lng->txt('no'),));
-		$node_quiet->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_quiet_info') : '');
+		$node_quiet->setInfo($this->getPlugin()->txt('prt_node_quiet_info'));
 		$node_quiet->setValue($node->getQuiet());
 		$common_node_part->addFormProperty($node_quiet);
 
@@ -748,13 +785,13 @@ class assStackQuestionAuthoringGUI
 		//Creation of Form properties
 		$node_pos_mode = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_pos_mod'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_pos_mod');
 		$node_pos_mode->setOptions(array("=" => "=", "+" => "+", "-" => "-"));
-		$node_pos_mode->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_pos_mod_info') : '');
+		$node_pos_mode->setInfo($this->getPlugin()->txt('prt_node_pos_mod_info'));
 
 		$node_pos_score = new ilTextInputGUI($this->getPlugin()->txt('prt_node_pos_score'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_pos_score');
-		$node_pos_score->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_pos_score_info') : '');
+		$node_pos_score->setInfo($this->getPlugin()->txt('prt_node_pos_score_info'));
 
 		$node_pos_penalty = new ilTextInputGUI($this->getPlugin()->txt('prt_node_pos_penalty'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_pos_penalty');
-		$node_pos_penalty->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_pos_penalty_info') : '');
+		$node_pos_penalty->setInfo($this->getPlugin()->txt('prt_node_pos_penalty_info'));
 
 		$node_pos_next_node = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_pos_next'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_pos_next');
 		$node_list = array(-1 => $this->getPlugin()->txt('end'));
@@ -764,15 +801,15 @@ class assStackQuestionAuthoringGUI
 			$node_list[$prt_node->getNodeName()] = $prt_node->getNodeName();
 		}
 		$node_pos_next_node->setOptions($node_list);
-		$node_pos_next_node->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_pos_next_info') : '');
+		$node_pos_next_node->setInfo($this->getPlugin()->txt('prt_node_pos_next_info'));
 
 		$node_pos_answernote = new ilTextInputGUI($this->getPlugin()->txt('prt_node_pos_answernote'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_pos_answernote');
-		$node_pos_answernote->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_pos_answernote_info') : '');
+		$node_pos_answernote->setInfo($this->getPlugin()->txt('prt_node_pos_answernote_info'));
 
 		$node_pos_specific_feedback = new ilTextAreaInputGUI($this->getPlugin()->txt('prt_node_pos_specific_feedback'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_pos_specific_feedback');
 		$this->getQuestionGUI()->setRTESupport($node_pos_specific_feedback);
 
-		$node_pos_specific_feedback->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_pos_specific_feedback_info') : '');
+		$node_pos_specific_feedback->setInfo($this->getPlugin()->txt('prt_node_pos_specific_feedback_info'));
 
 		//Set value
 		$node_pos_mode->setValue($node->getTrueScoreMode());
@@ -811,13 +848,13 @@ class assStackQuestionAuthoringGUI
 		//Creation of Form properties
 		$node_neg_mode = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_neg_mod'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_neg_mod');
 		$node_neg_mode->setOptions(array("=" => "=", "+" => "+", "-" => "-"));
-		$node_neg_mode->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_neg_mod_info') : '');
+		$node_neg_mode->setInfo($this->getPlugin()->txt('prt_node_neg_mod_info'));
 
 		$node_neg_score = new ilTextInputGUI($this->getPlugin()->txt('prt_node_neg_score'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_neg_score');
-		$node_neg_score->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_neg_score_info') : '');
+		$node_neg_score->setInfo($this->getPlugin()->txt('prt_node_neg_score_info'));
 
 		$node_neg_penalty = new ilTextInputGUI($this->getPlugin()->txt('prt_node_neg_penalty'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_neg_penalty');
-		$node_neg_penalty->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_neg_penalty_info') : '');
+		$node_neg_penalty->setInfo($this->getPlugin()->txt('prt_node_neg_penalty_info'));
 
 		$node_neg_next_node = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_neg_next'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_neg_next');
 		$node_list = array(-1 => $this->getPlugin()->txt('end'));
@@ -827,14 +864,14 @@ class assStackQuestionAuthoringGUI
 		}
 		unset($node_list[$node->getNodeName()]);
 		$node_neg_next_node->setOptions($node_list);
-		$node_neg_next_node->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_neg_next_info') : '');
+		$node_neg_next_node->setInfo($this->getPlugin()->txt('prt_node_neg_next_info'));
 
 		$node_neg_answernote = new ilTextInputGUI($this->getPlugin()->txt('prt_node_neg_answernote'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_neg_answernote');
-		$node_neg_answernote->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_neg_answernote_info') : '');
+		$node_neg_answernote->setInfo($this->getPlugin()->txt('prt_node_neg_answernote_info'));
 
 		$node_neg_specific_feedback = new ilTextAreaInputGUI($this->getPlugin()->txt('prt_node_neg_specific_feedback'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_neg_specific_feedback');
 		$this->getQuestionGUI()->setRTESupport($node_neg_specific_feedback);
-		$node_neg_specific_feedback->setInfo($this->getShowInfo() ? $this->getPlugin()->txt('prt_node_neg_specific_feedback_info') : '');
+		$node_neg_specific_feedback->setInfo($this->getPlugin()->txt('prt_node_neg_specific_feedback_info'));
 
 		//Set value
 		$node_neg_mode->setValue($node->getFalseScoreMode());
@@ -927,20 +964,5 @@ class assStackQuestionAuthoringGUI
 		return $this->template;
 	}
 
-	/**
-	 * @param boolean $show_info
-	 */
-	public function setShowInfo($show_info)
-	{
-		$this->show_info = $show_info;
-	}
-
-	/**
-	 * @return boolean
-	 */
-	public function getShowInfo()
-	{
-		return $this->show_info;
-	}
 
 }

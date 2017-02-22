@@ -1321,7 +1321,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	}
 
 	/**
-	 * @return array | assStackQuestionInput
+	 * @return assStackQuestionInput
 	 */
 	public function getInputs($selector = '')
 	{
@@ -1556,22 +1556,74 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 */
 	function isComplete()
 	{
-		if (strlen($this->title) && $this->author && $this->question)
+		$isComplete = TRUE;
+		$isCompleteErrorMessage = "";
+
+		//Check all inputs have a model answer
+		$incomplete_model_answers = "";
+		foreach ($this->getInputs() as $input_name => $input)
 		{
-			//Check if all feedback placeholders have been included
-			$no_placeholder_prts = " ";
-			foreach ($this->getPotentialResponsesTrees() as $prt_name => $prt)
+			if ($input->getTeacherAnswer() == "" OR $input->getTeacherAnswer() == " ")
 			{
-				if (strpos($this->getQuestion(), '[[feedback:' . $prt_name . ']]') == false AND strpos($this->getOptions()->getSpecificFeedback(), '[[feedback:' . $prt_name . ']]') == false)
+
+				$isComplete = FALSE;
+				$incomplete_model_answers .= $input_name . ", ";
+			}
+		}
+		$incomplete_model_answers = substr($incomplete_model_answers, 0, -2);
+
+		//Check student answer is always filled in
+		$incomplete_student_answers = "";
+		foreach ($this->getPotentialResponsesTrees() as $prt_name => $prt)
+		{
+			foreach ($prt->getPRTNodes() as $node_name => $node)
+			{
+				if ($node->getStudentAnswer() == "" OR $node->getStudentAnswer() == "")
 				{
-					$no_placeholder_prts .= $prt_name . ", ";
+					$isComplete = FALSE;
+					$incomplete_student_answers .= $prt_name . " / " . $node_name . ", ";
 				}
 			}
+		}
+		$incomplete_student_answers = substr($incomplete_student_answers, 0, -2);
 
-			return true;
+		//Check teacher answer is always filled in
+		$incomplete_teacher_answers = "";
+		foreach ($this->getPotentialResponsesTrees() as $prt_name => $prt)
+		{
+			foreach ($prt->getPRTNodes() as $node_name => $node)
+			{
+				if ($node->getTeacherAnswer() == "" OR $node->getTeacherAnswer() == " ")
+				{
+					$isComplete = FALSE;
+					$incomplete_teacher_answers .= $prt_name . " / " . $node_name . ", ";
+				}
+			}
+		}
+		$incomplete_teacher_answers = substr($incomplete_teacher_answers, 0, -2);
+
+		if (!$isComplete)
+		{
+			if ($incomplete_model_answers != "")
+			{
+				$isCompleteErrorMessage .= $this->getPlugin()->txt("error_model_answer_missing") . " " . $incomplete_model_answers . "</br>";
+			}
+			if ($incomplete_student_answers != "")
+			{
+				$isCompleteErrorMessage .= $this->getPlugin()->txt("error_student_answer_missing") . " " . $incomplete_student_answers . "</br>";
+			}
+			if ($incomplete_teacher_answers != "")
+			{
+				$isCompleteErrorMessage .= $this->getPlugin()->txt("error_teacher_answer_missing") . " " . $incomplete_teacher_answers . "</br>";
+			}
 		}
 
-		return false;
+		if (!$isComplete)
+		{
+			ilUtil::sendFailure($isCompleteErrorMessage, TRUE);
+		}
+
+		return $isComplete;
 	}
 
 	/**
