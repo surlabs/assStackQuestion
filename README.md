@@ -120,6 +120,8 @@ GitHub Version 2.3.10 (2017-2-22)
   And is user's decision about this is saved in session, so user can move among pages having always the same view.
 - Info messages of certain settings also includes a tooltip explaining which type of content the input accepts (CAS Text, HTML or CAS commands)
 - Teacher answer and Student answer are now required fields.
+- Error messages when fields are missing or when CAS validation failed has been re-built, If input has no model answer and if node has no
+  student answer or teacher answer, error message persist until fail have been solved.
 This version includes some bugfixing:
 - http://www.ilias.de/mantis/view.php?id=20184 regarding feedback report in specific feedback block.
 

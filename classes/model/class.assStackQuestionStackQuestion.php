@@ -376,7 +376,11 @@ class assStackQuestionStackQuestion
 	public function createQuestionVariables($question_variables_raw)
 	{
 		$question_variables_parameters = array('raw' => $question_variables_raw, 'options' => $this->getOptions(), 'seed' => $this->getSeed(), 'security' => 't');
-		$this->setQuestionVariables($this->getStackFactory()->get("cas_keyval", $question_variables_parameters));
+
+		$question_variables = $this->getStackFactory()->get("cas_keyval", $question_variables_parameters);
+		$question_variables->instantiate();
+
+		$this->setQuestionVariables($question_variables);
 	}
 
 	/**
@@ -471,16 +475,18 @@ class assStackQuestionStackQuestion
 	{
 		global $lng;
 
+		$this->setSession($this->getSession()->instantiate());
+
 		//1. Prepare question text.
 		if ($ilias_question->getQuestion())
 		{
 			$question_text_parameters = array('raw' => $ilias_question->getQuestion(), 'session' => $this->getSession(), 'seed' => $this->getSeed(), 'security' => 't', 'syntax' => FALSE, 'stars' => 1);
 			$question_text = $this->getStackFactory()->get('cas_text', $question_text_parameters);
 
-			$this->setQuestionTextInstantiated($question_text->get_display_castext());
-			if ($question_text->get_errors())
+			$this->setQuestionTextInstantiated($question_text["text"]);
+			if ($question_text["errors"])
 			{
-				ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_error_in_question_text") . ": " . $question_text->get_errors(), TRUE);
+				$ilias_question->setErrors($lng->txt("qpl_qst_xqcas_error_in_question_text") . ": " . $question_text["errors"]);
 			}
 
 			//Stop here when only display mode
@@ -495,12 +501,11 @@ class assStackQuestionStackQuestion
 		{
 			$specific_feedback_parameters = array('raw' => $ilias_question->getOptions()->getSpecificFeedback(), 'session' => $this->getSession(), 'seed' => $this->getSeed(), 'security' => 't', 'syntax' => FALSE, 'stars' => 1);
 			$specific_feedback = $this->getStackFactory()->get('cas_text', $specific_feedback_parameters);
-			if ($specific_feedback->get_errors())
+			$this->setSpecificFeedbackInstantiated($specific_feedback["text"]);
+			if ($specific_feedback["errors"])
 			{
-				ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_error_in_specific_feedback") . ": " . $specific_feedback->get_errors(), TRUE);
+				$ilias_question->setErrors($lng->txt("qpl_qst_xqcas_error_in_specific_feedback") . ": " . $specific_feedback["errors"]);
 			}
-
-			$this->setSpecificFeedbackInstantiated($specific_feedback->get_display_castext());
 		}
 
 		//3. Prepare Question Note.
@@ -508,12 +513,11 @@ class assStackQuestionStackQuestion
 		{
 			$question_note_parameters = array('raw' => $ilias_question->getOptions()->getQuestionNote(), 'session' => $this->getSession(), 'seed' => $this->getSeed(), 'security' => 't', 'syntax' => FALSE, 'stars' => 1);
 			$question_note = $this->getStackFactory()->get('cas_text', $question_note_parameters);
-			if ($question_note->get_errors())
+			$this->setQuestionNoteInstantiated($question_note["text"]);
+			if ($question_note["errors"])
 			{
-				ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_error_in_question_note") . ": " . $question_note->get_errors(), TRUE);
+				$ilias_question->setErrors($lng->txt("qpl_qst_xqcas_error_in_question_note") . ": " . $question_note["errors"]);
 			}
-
-			$this->setQuestionNoteInstantiated($question_note->get_display_castext());
 		}
 
 		//4. Prepare PRT correct feedback.
@@ -521,12 +525,12 @@ class assStackQuestionStackQuestion
 		{
 			$PRT_correct_parameters = array('raw' => $ilias_question->getOptions()->getPRTCorrect(), 'session' => $this->getSession(), 'seed' => $this->getSeed(), 'security' => 't', 'syntax' => FALSE, 'stars' => 1);
 			$PRT_correct = $this->getStackFactory()->get('cas_text', $PRT_correct_parameters);
+			$this->setPRTCorrectInstantiated($PRT_correct["text"]);
 
-			if ($PRT_correct->get_errors())
+			if ($PRT_correct["errors"])
 			{
-				ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_error_in_prt_correct") . ": " . $PRT_correct->get_errors(), TRUE);
+				$ilias_question->setErrors($lng->txt("qpl_qst_xqcas_error_in_prt_correct") . ": " . $PRT_correct["errors"]);
 			}
-			$this->setPRTCorrectInstantiated($PRT_correct->get_display_castext());
 		}
 
 		//5. Prepare PRT partially correct feedback.
@@ -534,12 +538,12 @@ class assStackQuestionStackQuestion
 		{
 			$PRT_partially_correct_parameters = array('raw' => $ilias_question->getOptions()->getPRTPartiallyCorrect(), 'session' => $this->getSession(), 'seed' => $this->getSeed(), 'security' => 't', 'syntax' => FALSE, 'stars' => 1);
 			$PRT_partially_correct = $this->getStackFactory()->get('cas_text', $PRT_partially_correct_parameters);
+			$this->setPRTPartiallyCorrectInstantiated($PRT_partially_correct["text"]);
 
-			if ($PRT_partially_correct->get_errors())
+			if ($PRT_partially_correct["errors"])
 			{
-				ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_error_in_prt_partially_correct") . ": " . $PRT_partially_correct->get_errors(), TRUE);
+				$ilias_question->setErrors($lng->txt("qpl_qst_xqcas_error_in_prt_partially_correct") . ": " . $PRT_partially_correct["errors"]);
 			}
-			$this->setPRTPartiallyCorrectInstantiated($PRT_partially_correct->get_display_castext());
 		}
 
 		//6. Prepare PRT incorrect feedback.
@@ -547,12 +551,12 @@ class assStackQuestionStackQuestion
 		{
 			$PRT_incorrect_parameters = array('raw' => $ilias_question->getOptions()->getPRTIncorrect(), 'session' => $this->getSession(), 'seed' => $this->getSeed(), 'security' => 't', 'syntax' => FALSE, 'stars' => 1);
 			$PRT_incorrect = $this->getStackFactory()->get('cas_text', $PRT_incorrect_parameters);
+			$this->setPRTIncorrectInstantiated($PRT_incorrect["text"]);
 
-			if ($PRT_incorrect->get_errors())
+			if ($PRT_incorrect["errors"])
 			{
-				ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_error_in_prt_incorrect") . ": " . $PRT_incorrect->get_errors(), TRUE);
+				$ilias_question->setErrors($lng->txt("qpl_qst_xqcas_error_in_prt_incorrect") . ": " . $PRT_incorrect["errors"]);
 			}
-			$this->setPRTIncorrectInstantiated($PRT_incorrect->get_display_castext());
 		}
 
 		//7. Prepare How to solve.
@@ -560,30 +564,18 @@ class assStackQuestionStackQuestion
 		{
 			$general_feedback_parameters = array('raw' => $ilias_question->getExtraInfo()->getHowToSolve(), 'session' => $this->getSession(), 'seed' => $this->getSeed(), 'security' => 't', 'syntax' => FALSE, 'stars' => 1);
 			$general_feedback = $this->getStackFactory()->get('cas_text', $general_feedback_parameters);
+			$this->setGeneralFeedback($general_feedback["text"]);
 
-			if ($general_feedback->get_errors())
+			if ($general_feedback["errors"])
 			{
-				ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_error_in_how_to_solve") . ": " . $general_feedback->get_errors(), TRUE);
+				$ilias_question->setErrors($lng->txt("qpl_qst_xqcas_error_in_how_to_solve") . ": " . $general_feedback["errors"]);
 			}
-			$this->setGeneralFeedback($general_feedback->get_display_castext());
 		}
 
-
-		// Now instantiate the session.
-		//DOUBLE CALL to instantiate provokes double similar call.
-		//$this->getSession()->instantiate();
-		/*
-		if ($this->getSession()->get_errors()) {
-			// We throw an exception here because any problems with the CAS code
-			// up to this point should have been caught during validation when
-			// the question was edited or deployed.
-			throw new stack_exception('qtype_stack_question : CAS error when instantiating the session: ' .
-				$this->getSession()->get_errors());
-		}*/
-
-		if ($this->getSessionLength() > 0)
+		//8 Add error message for question variables:
+		if ($this->getQuestionVariables()->get_errors())
 		{
-			$this->getSession()->prune_session($this->getSessionLength());
+			$ilias_question->setErrors($lng->txt("qpl_qst_xqcas_error_in_question_variables") . ": " . $this->getQuestionVariables()->get_errors());
 		}
 	}
 

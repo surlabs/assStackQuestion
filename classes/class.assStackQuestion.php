@@ -87,7 +87,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 */
 	private $instant_validation;
 
-
 	/**
 	 * CONSTRUCTOR.
 	 * @param string $title
@@ -789,13 +788,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 				$edit_question = TRUE;
 			}
 
-			//Question variables are OK
-			if (is_string($this->getStackQuestion()->getQuestionVariables()->get_errors()))
-			{
-				include_once "./Services/Utilities/classes/class.ilUtil.php";
-				ilUtil::sendFailure($this->getStackQuestion()->getQuestionVariables()->get_errors(), TRUE);
-			}
-
 			$this->saveQuestionDataToDb($original_id);
 
 			if (isset($_REQUEST["cmd"]["insertQuestions"]))
@@ -824,7 +816,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			parent::saveToDb($original_id);
 		} else
 		{
-			ilUtil::sendFailure($this->getPlugin()->txt('error_fields_missing'), TRUE);
+			$this->setErrors($this->getPlugin()->txt('error_fields_missing'));
 
 			return FALSE;
 		}
@@ -916,23 +908,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 					$node->save();
 				}
 			}
-		} else
-		{
-			$prt_object = new assStackQuestionPRT(-1, $this->getId());
-			$prt_object->setPRTName('prt1');
-			$prt_node_object = new assStackQuestionPRTNode(-1, $this->getId(), 'prt1', 0, -1, -1);
-			$prt_object->setPRTNodes(array(0 => $prt_node_object));
-			$this->potential_responses_trees['prt1'] = $prt_object;
-			foreach ($this->potential_responses_trees as $prt)
-			{
-				$prt->save();
-			}
-
-			//ADD prt placeholder
-			$specific_feedback = $this->options->getSpecificFeedback();
-			$specific_feedback .= " [[feedback:prt1]]";
-			$this->options->setSpecificFeedback($specific_feedback);
-			$this->options->save();
 		}
 
 		//EXTRA info
@@ -1072,7 +1047,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 					$nodes = $orig_prt->getPRTNodes();
 
 					//POTENTIAL RESPONSE TREES NODES
-
 					$new_prt_nodes = array();
 					foreach ($prt->getPRTNodes() as $node_key => $node)
 					{
@@ -1557,38 +1531,30 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	function isComplete()
 	{
 		$isComplete = TRUE;
-		$isCompleteErrorMessage = "";
 
 		//Check all inputs have a model answer
-		$incomplete_model_answers = "";
 		foreach ($this->getInputs() as $input_name => $input)
 		{
 			if ($input->getTeacherAnswer() == "" OR $input->getTeacherAnswer() == " ")
 			{
 
 				$isComplete = FALSE;
-				$incomplete_model_answers .= $input_name . ", ";
 			}
 		}
-		$incomplete_model_answers = substr($incomplete_model_answers, 0, -2);
 
 		//Check student answer is always filled in
-		$incomplete_student_answers = "";
 		foreach ($this->getPotentialResponsesTrees() as $prt_name => $prt)
 		{
 			foreach ($prt->getPRTNodes() as $node_name => $node)
 			{
-				if ($node->getStudentAnswer() == "" OR $node->getStudentAnswer() == "")
+				if ($node->getStudentAnswer() == "" OR $node->getStudentAnswer() == " ")
 				{
 					$isComplete = FALSE;
-					$incomplete_student_answers .= $prt_name . " / " . $node_name . ", ";
 				}
 			}
 		}
-		$incomplete_student_answers = substr($incomplete_student_answers, 0, -2);
 
 		//Check teacher answer is always filled in
-		$incomplete_teacher_answers = "";
 		foreach ($this->getPotentialResponsesTrees() as $prt_name => $prt)
 		{
 			foreach ($prt->getPRTNodes() as $node_name => $node)
@@ -1596,31 +1562,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 				if ($node->getTeacherAnswer() == "" OR $node->getTeacherAnswer() == " ")
 				{
 					$isComplete = FALSE;
-					$incomplete_teacher_answers .= $prt_name . " / " . $node_name . ", ";
 				}
 			}
-		}
-		$incomplete_teacher_answers = substr($incomplete_teacher_answers, 0, -2);
-
-		if (!$isComplete)
-		{
-			if ($incomplete_model_answers != "")
-			{
-				$isCompleteErrorMessage .= $this->getPlugin()->txt("error_model_answer_missing") . " " . $incomplete_model_answers . "</br>";
-			}
-			if ($incomplete_student_answers != "")
-			{
-				$isCompleteErrorMessage .= $this->getPlugin()->txt("error_student_answer_missing") . " " . $incomplete_student_answers . "</br>";
-			}
-			if ($incomplete_teacher_answers != "")
-			{
-				$isCompleteErrorMessage .= $this->getPlugin()->txt("error_teacher_answer_missing") . " " . $incomplete_teacher_answers . "</br>";
-			}
-		}
-
-		if (!$isComplete)
-		{
-			ilUtil::sendFailure($isCompleteErrorMessage, TRUE);
 		}
 
 		return $isComplete;
@@ -1867,5 +1810,22 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		}
 
 	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getErrors()
+	{
+		return $_SESSION["stack_authoring_errors"];
+	}
+
+	/**
+	 * @param mixed $errors
+	 */
+	public function setErrors($error)
+	{
+		$_SESSION["stack_authoring_errors"][] = $error;
+	}
+
 
 }

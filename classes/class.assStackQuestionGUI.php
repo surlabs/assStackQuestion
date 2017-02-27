@@ -23,6 +23,8 @@ class assStackQuestionGUI extends assQuestionGUI
 	protected $rte_module = "xqcas";
 	protected $rte_tags = array();
 
+	private $plugin;
+
 	public function __construct($id = -1)
 	{
 		parent::__construct();
@@ -115,6 +117,9 @@ class assStackQuestionGUI extends assQuestionGUI
 			$this->writeQuestionGenericPostData();
 			$this->writeQuestionSpecificPostData();
 
+			//Get errors from authoring
+			$this->getErrors();
+
 			return 0;
 		}
 
@@ -175,7 +180,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	{
 		if (sizeof($this->object->getPotentialResponsesTrees()) < 2)
 		{
-			ilUtil::sendFailure($this->object->getPlugin()->txt('deletion_error_not_enought_prts'));
+			$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_not_enought_prts'));
 
 			return TRUE;
 		}
@@ -188,14 +193,14 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		if (sizeof($prt->getPRTNodes()) < 2)
 		{
-			ilUtil::sendFailure($this->object->getPlugin()->txt('deletion_error_not_enought_prt_nodes'));
+			$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_not_enought_prt_nodes'));
 
 			return TRUE;
 		}
 
 		if ((int)$prt->getFirstNodeName() == (int)$node->getNodeName())
 		{
-			ilUtil::sendFailure($this->object->getPlugin()->txt('deletion_error_first_node'));
+			$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_first_node'));
 
 			return TRUE;
 		}
@@ -204,7 +209,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		{
 			if ($prt_node->getTrueNextNode() == $node->getNodeName() OR $prt_node->getFalseNextNode() == $node->getNodeName())
 			{
-				ilUtil::sendFailure($this->object->getPlugin()->txt('deletion_error_connected_node'));
+				$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_connected_node'));
 
 				return TRUE;
 			}
@@ -1590,13 +1595,96 @@ class assStackQuestionGUI extends assQuestionGUI
 	 * (This keeps info messages state between page moves)
 	 * @see self::addToPage()
 	 */
-	function saveInfoState()
+	public function saveInfoState()
 	{
 		$_SESSION['stack_authoring_show'] = (int)$_GET['show'];
 
 		// debugging output (normally ignored by the js part)
 		echo json_encode(array('show' => $_SESSION['stack_authoring_show']));
 		exit;
+	}
+
+	public function getErrors()
+	{
+		//Clean session errors
+		$_SESSION["stack_authoring_errors"] = array();
+
+		$isComplete = TRUE;
+
+		//Check all inputs have a model answer
+		$incomplete_model_answers = "";
+		foreach ($this->object->getInputs() as $input_name => $input)
+		{
+			if ($input->getTeacherAnswer() == "")
+			{
+				$isComplete = FALSE;
+				$incomplete_model_answers .= $input_name . ", ";
+			}
+		}
+		$incomplete_model_answers = substr($incomplete_model_answers, 0, -2);
+
+		//Check student answer is always filled in
+		$incomplete_student_answers = "";
+		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt)
+		{
+			foreach ($prt->getPRTNodes() as $node_name => $node)
+			{
+				if ($node->getStudentAnswer() == "" OR $node->getStudentAnswer() == " ")
+				{
+					$isComplete = FALSE;
+					$incomplete_student_answers .= $prt_name . " / " . $node_name . ", ";
+				}
+			}
+		}
+		$incomplete_student_answers = substr($incomplete_student_answers, 0, -2);
+
+		//Check teacher answer is always filled in
+		$incomplete_teacher_answers = "";
+		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt)
+		{
+			foreach ($prt->getPRTNodes() as $node_name => $node)
+			{
+				if ($node->getTeacherAnswer() == "" OR $node->getTeacherAnswer() == " ")
+				{
+					$isComplete = FALSE;
+					$incomplete_teacher_answers .= $prt_name . " / " . $node_name . ", ";
+				}
+			}
+		}
+
+		$incomplete_teacher_answers = substr($incomplete_teacher_answers, 0, -2);
+
+		if (!$isComplete AND $this->object->getTitle() != NULL)
+		{
+			if ($incomplete_model_answers != "")
+			{
+				$this->object->setErrors($this->getPlugin()->txt("error_model_answer_missing") . " " . $incomplete_model_answers);
+			}
+			if ($incomplete_student_answers != "")
+			{
+				$this->object->setErrors($this->getPlugin()->txt("error_student_answer_missing") . " " . $incomplete_student_answers);
+			}
+			if ($incomplete_teacher_answers != "")
+			{
+				$this->object->setErrors($this->getPlugin()->txt("error_teacher_answer_missing") . " " . $incomplete_teacher_answers);
+			}
+		}
+	}
+
+	/**
+	 * @return null
+	 */
+	public function getPlugin()
+	{
+		return $this->plugin;
+	}
+
+	/**
+	 * @param null $plugin
+	 */
+	public function setPlugin($plugin)
+	{
+		$this->plugin = $plugin;
 	}
 
 }

@@ -189,9 +189,9 @@ class assStackQuestionHealthcheck
 		//Create CAS text
 		$ct = $this->getStackFactory()->get('cas_text', array('raw' => $cas_text));
 		//Set content to array
-		$CAS_text_content['display'] = stack_maths::process_display_castext($ct->get_display_castext());
-		$CAS_text_content['errors'] = $ct->get_errors();
-		$CAS_text_content['debug_info'] = $ct->get_debuginfo();
+		$CAS_text_content['display'] = stack_maths::process_display_castext($ct["text"]);
+		$CAS_text_content['errors'] = $ct["errors"];
+		$CAS_text_content['debug_info'] = $ct["debug"];
 
 		return $CAS_text_content;
 	}

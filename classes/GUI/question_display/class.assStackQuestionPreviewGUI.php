@@ -78,10 +78,10 @@ class assStackQuestionPreviewGUI extends ilAssQuestionPreviewGUI
 		return $this->getTemplate();
 	}
 
-	public function getBestSolutionPreviewGUI($graphicalOutput = FALSE, $mode = "correct"){
+	public function getBestSolutionPreviewGUI($graphicalOutput = FALSE){
 		$this->getPlugin()->includeClass('GUI/question_display/class.assStackQuestionFeedbackGUI.php');
 		$feedback_gui = new assStackQuestionFeedbackGUI($this->getPlugin(), $this->getPreview('question_feedback'), TRUE);
-		return $feedback_gui->getBestSolutionGUI($mode);
+		return $feedback_gui->getBestSolutionGUI();
 	}
 
 	/**

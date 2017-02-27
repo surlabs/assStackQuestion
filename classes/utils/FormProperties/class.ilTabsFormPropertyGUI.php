@@ -23,6 +23,7 @@ class ilTabsFormPropertyGUI extends ilMultipartFormPropertyGUI
 
 	function __construct($a_title = "", $a_postvar = "", $a_container_width = "", $a_show_title = "")
 	{
+		$a_title = "";
 		parent::__construct($a_title, $a_postvar, $a_container_width, $a_show_title);
 
 		$this->setHiddenTitle("Title");

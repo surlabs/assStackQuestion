@@ -359,14 +359,19 @@ questions_updated_new_feedback_system#:#Anzahl Fragen, die auf das neue Feedback
 questions_updated_new_feedback_system2#:#Die Feedback-Platzhalter wurden in das Feld für das spezifische feedback verschoben, Sie können sie bei Bedarf in den Fragentext zurück verschieben.
 error_lack_of_following_feedback_placeholders#:#Die folgenden Ergebnisbäume haben keinen Feedback-Platzhalter (wie [[feedback:prt1]]) im Fragentext oder spezifischen Feedback:
 untitled_question#:#Untitel STACK Frage
-auth_tip1#:#Klicken Sie bitte auf den folgenden
-auth_tip2#:#um weitere Informationen über STACK-Fragen zu erhalten
-auth_tip3#:#Wenn Sie sich das erste Mal mit STACK-Fragen beschäftigen, dann lesen Sie den "Quick Authoring Guide", hier auch auf Deutsch:
+auth_tip1#:#Klicken Sie bitte hier, um die STACK Question Quick Authoring Guide auf English zu lesen
+auth_tip2#:#Klicken Sie bitte hier, um die STACK Question Quick Authoring Guide auf Deutsch zu lesen
+auth_tip3#:#
 interpreted_by_maxima_as#:#Interpretiert von Maxima als:
 interpreted_by_maxima_as_2#:#Ihre Antwort wurde wie folgt interpretiert:
 sco_info#:#Diese Seite zeigt die Fragenbewertung in Punkten. Für jeden Knoten eines Ergebnisbaums werden die Punkte des positiven Antworttests in grün und die des negativen Antworttests in rot angezeigt. Für jeden Ergebnisbaum zeigen die maximal erreichbaren Punkte seine Gewichtung innerhalb der Frage
 castext_info#:#In diesem Feld können Sie CAS Text verwenden, CASText ist CAS-aktivierter Text. CASText ist einfach HTML, in das LaTeX-Mathematik und CAS-Befehle eingebettet werden können. Diese CAS-Befehle werden ausgeführt, bevor die Frage dem Benutzer angezeigt wird. Verwenden Sie nur einfache LaTeX-Mathematikstrukturen. Nur ein kleiner Teil des LaTeX-Kerns wird unterstützt
 html_info#:#In diesem Feld sind nur HTML-Elemente erlaubt, CASText wird nicht gerendert
-casexpresion_info#:#In diesem Feld können sie nur CAS-Ausdruck verwenden, kein HTML-Code
-casexpresion_name#:#CAS Ausdruck
+casexpression_info#:#In diesem Feld können sie nur CAS-Ausdruck verwenden, kein HTML-Code
+casexpression_name#:#CAS Ausdruck
 inputs_star#:#Test-Eingaben *
+error_in_question_variables#:#Der folgende Fehler tritt bei Fragevariablen auf:
+auth_inputs#:#Einstellungen der Eingabe
+info_allowed#:#Erlaubte Elemente:
+castext_name#:#CAS Text
+html_name#:#HTML

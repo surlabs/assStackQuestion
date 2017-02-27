@@ -19,7 +19,8 @@ class assStackQuestionStackFactory
 	//FACTORY METHOD
 	public function get($select, $parameters = "")
 	{
-		switch ($select) {
+		switch ($select)
+		{
 			case "cas_casstring_from_input":
 				return $this->getStackCasCasstringFromInput($parameters);
 			case "cas_casstring_from_array":
@@ -75,9 +76,11 @@ class assStackQuestionStackFactory
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/casstring.class.php';
 		$cas_casstring = new stack_cas_casstring($input->getTeacherAnswer());
 		$cas_casstring->set_key($input->getInputName());
-		if ($cas_casstring->get_valid()) {
+		if ($cas_casstring->get_valid())
+		{
 			return $cas_casstring;
-		} else {
+		} else
+		{
 			return $cas_casstring;
 		}
 	}
@@ -97,9 +100,11 @@ class assStackQuestionStackFactory
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/casstring.class.php';
 		$cas_casstring = new stack_cas_casstring($parameters["string"]);
 		$cas_casstring->set_key($parameters["key"]);
-		if ($cas_casstring->get_valid($parameters["security"], $parameters["syntax"], (int)$parameters["stars"])) {
+		if ($cas_casstring->get_valid($parameters["security"], $parameters["syntax"], (int)$parameters["stars"]))
+		{
 			return $cas_casstring;
-		} else {
+		} else
+		{
 			return $cas_casstring;
 		}
 	}
@@ -111,9 +116,11 @@ class assStackQuestionStackFactory
 		$cas_casstring = new stack_cas_casstring($parameters["string"]);
 		$cas_casstring->set_key($parameters["name"]);
 		$cas_casstring->validate('t');
-		if ($cas_casstring->get_valid()) {
+		if ($cas_casstring->get_valid())
+		{
 			return $cas_casstring;
-		} else {
+		} else
+		{
 			return $cas_casstring;
 		}
 	}
@@ -134,28 +141,36 @@ class assStackQuestionStackFactory
 		global $lng;
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/cassession.class.php';
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/keyval.class.php';
-		if (!isset($parameters['raw']) OR strlen($parameters['raw']) <= 0) {
+		if (!isset($parameters['raw']) OR strlen($parameters['raw']) <= 0)
+		{
 			throw new assStackQuestionException($lng->txt('exception_no_raw_given_in_keyval_creation'));
-		} else {
-			if (!isset($parameters['options']) OR !is_a($parameters['options'], 'stack_options')) {
+		} else
+		{
+			if (!isset($parameters['options']) OR !is_a($parameters['options'], 'stack_options'))
+			{
 				$parameters['options'] = $this->getStackDefaultOptions();
 			}
-			if (!isset($parameters['seed'])) {
+			if (!isset($parameters['seed']))
+			{
 				$parameters['seed'] = NULL;
 			}
-			if (!isset($parameters['security'])) {
+			if (!isset($parameters['security']))
+			{
 				//Set student security by default
 				$parameters['security'] = 's';
 			}
-			if (!isset($parameters['syntax'])) {
+			if (!isset($parameters['syntax']))
+			{
 				//Use strict syntax by default
 				$parameters['syntax'] = TRUE;
 			}
-			if (!isset($parameters['stars'])) {
+			if (!isset($parameters['stars']))
+			{
 				//Do not insert stars by default
 				//Changed to integer for STACK 3.3
 				$parameters['stars'] = 0;
 			}
+
 			return new stack_cas_keyval($parameters['raw'], $parameters['options'], $parameters['seed'], $parameters['security'], $parameters['syntax'], (int)$parameters['stars']);
 		}
 	}
@@ -173,34 +188,47 @@ class assStackQuestionStackFactory
 	 */
 	public function getStackCasText($parameters)
 	{
+		$cas_text = array();
 		global $lng;
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/cassession.class.php';
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/castext.class.php';
-		if (!isset($parameters['raw']) OR strlen($parameters['raw']) <= 0) {
+		if (!isset($parameters['raw']) OR strlen($parameters['raw']) <= 0)
+		{
 			throw new stack_exception($lng->txt('exception_no_raw_given_in_castext_creation'));
-		} else {
-			if (!isset($parameters['session']) OR !is_a($parameters['session'], 'stack_cas_session')) {
+		} else
+		{
+			if (!isset($parameters['session']) OR !is_a($parameters['session'], 'stack_cas_session'))
+			{
 				$parameters['session'] = $this->getStackCasSessionDefault();
 			}
-			if (!isset($parameters['seed'])) {
+			if (!isset($parameters['seed']))
+			{
 				$parameters['seed'] = NULL;
 			}
-			if (!isset($parameters['security'])) {
+			if (!isset($parameters['security']))
+			{
 				//Set student security by default
 				$parameters['security'] = 's';
 			}
-			if (!isset($parameters['syntax'])) {
+			if (!isset($parameters['syntax']))
+			{
 				//Use strict syntax by default
 				$parameters['syntax'] = TRUE;
 			}
-			if (!isset($parameters['stars'])) {
+			if (!isset($parameters['stars']))
+			{
 				//Do not insert stars by default
 				//Changed to integer for STACK 3.3
 				$parameters['stars'] = 0;
 			}
 			$castext = new stack_cas_text((string)$parameters['raw'], $parameters['session'], $parameters['seed'], $parameters['security'], $parameters['syntax'], (int)$parameters['stars']);
 
-			return $castext;
+			$cas_text["valid"]= $castext->get_valid();
+			$cas_text["text"] = $castext->get_display_castext();
+			$cas_text["errors"] = $castext->get_errors();
+			$cas_text["debug"] = $castext->get_debuginfo();
+
+			return $cas_text;
 		}
 	}
 
@@ -211,6 +239,7 @@ class assStackQuestionStackFactory
 		//DEFAULT OPTIONS ARRAY GIVEN BY STACK
 		//stack options creation
 		$settings = array();
+
 		return new stack_options($settings);
 	}
 
@@ -228,20 +257,26 @@ class assStackQuestionStackFactory
 		global $lng;
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/factory.class.php';
 		//If $parameters is an assStackQuestionInput object
-		if (is_a($parameters, 'assStackQuestionInput')) {
+		if (is_a($parameters, 'assStackQuestionInput'))
+		{
 			return stack_input_factory::make($parameters->getInputType(), $parameters->getInputName(), $parameters->getTeacherAnswer(), $parameters);
 		}
 		//If $parameters is an Array
-		if (!isset($parameters['type']) OR !isset($parameters['name'])) {
+		if (!isset($parameters['type']) OR !isset($parameters['name']))
+		{
 			throw new assStackQuestionException($lng->txt('ex_input_creation_is_not_possible'));
-		} else {
-			if (!isset($parameters['teacheranswer'])) {
+		} else
+		{
+			if (!isset($parameters['teacheranswer']))
+			{
 				$parameters['teacheranswer'] = NULL;
 			}
-			if (!isset($parameters['parameters'])) {
+			if (!isset($parameters['parameters']))
+			{
 				$parameters['parameters'] = NULL;
 			}
 		}
+
 		return stack_input_factory::make($parameters['type'], $parameters['name'], $parameters['teacheranswer'], $parameters['parameters']);
 	}
 
@@ -265,10 +300,13 @@ class assStackQuestionStackFactory
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/inputstate.class.php';
 		global $lng;
 		//State value translation to stack constans.
-		if (!isset($parameters['status'])) {
+		if (!isset($parameters['status']))
+		{
 			throw new assStackQuestionException($lng->txt('ex_unknown_input_state'));
-		} else {
-			switch ($parameters['status']) {
+		} else
+		{
+			switch ($parameters['status'])
+			{
 				case 'blank':
 					$status = stack_input::BLANK;
 					break;
@@ -287,21 +325,27 @@ class assStackQuestionStackFactory
 			}
 		}
 		//Check other data
-		if (!isset($parameters['contents']) OR !is_array($parameters['contents'])) {
+		if (!isset($parameters['contents']) OR !is_array($parameters['contents']))
+		{
 			$parameters['contents'] = array();
 		}
-		if (!isset($parameters['contentsmodified'])) {
+		if (!isset($parameters['contentsmodified']))
+		{
 			$parameters['contentsmodified'] = '';
 		}
-		if (!isset($parameters['contentsdisplayed'])) {
+		if (!isset($parameters['contentsdisplayed']))
+		{
 			$parameters['contentsdisplayed'] = '';
 		}
-		if (!isset($parameters['errors'])) {
+		if (!isset($parameters['errors']))
+		{
 			$parameters['errors'] = '';
 		}
-		if (!isset($parameters['note'])) {
+		if (!isset($parameters['note']))
+		{
 			$parameters['note'] = '';
 		}
+
 		//Returns object.
 		return new stack_input_state($status, $parameters['contents'], $parameters['contentsmodified'], $parameters['contentsdisplayed'], $parameters['errors'], $parameters['note']);
 	}
@@ -309,6 +353,7 @@ class assStackQuestionStackFactory
 	public function getStackOptions($parameters)
 	{
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/options.class.php';
+
 		//stack options creation
 		return new stack_options($parameters);
 	}
@@ -335,26 +380,25 @@ class assStackQuestionStackFactory
 	{
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/potentialresponsetree.class.php';
 		//Feedback variables conversion
-		$feedback_variables_parameters = array(
-			'raw' => $ilias_PRT->getPRTFeedbackVariables(),
-			'options' => $this->get('default_options'),
-			'seed' => 1,
-			'security' => 't'
-		);
+		$feedback_variables_parameters = array('raw' => $ilias_PRT->getPRTFeedbackVariables(), 'options' => $this->get('default_options'), 'seed' => 1, 'security' => 't');
 		$stack_feedback_variables = $this->get("cas_keyval", $feedback_variables_parameters);
 		$stack_feedback_variables->instantiate();
 
 		//Nodes conversion
 		$stack_nodes = array();
-		foreach ($ilias_PRT->getPRTNodes() as $ilias_node) {
-			if (is_a($ilias_node, "assStackQuestionPRTNode")) {
+		foreach ($ilias_PRT->getPRTNodes() as $ilias_node)
+		{
+			if (is_a($ilias_node, "assStackQuestionPRTNode"))
+			{
 				$stack_nodes[$ilias_node->getNodeName()] = $this->get("potentialresponse_node", $ilias_node);
 			}
 		}
 
-		try {
+		try
+		{
 			return new stack_potentialresponse_tree($ilias_PRT->getPRTName(), "", (boolean)$ilias_PRT->getAutoSimplify(), $ilias_PRT->getPRTValue(), $stack_feedback_variables->get_session(), $stack_nodes, $ilias_PRT->getFirstNodeName());
-		} catch (stack_exception $e) {
+		} catch (stack_exception $e)
+		{
 			ilUtil::sendFailure($e->getMessage(), TRUE);
 		}
 	}
@@ -362,12 +406,14 @@ class assStackQuestionStackFactory
 	public function getStackPotentialResponseTreeState(array $parameters)
 	{
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/potentialresponsetreestate.class.php';
+
 		return new stack_potentialresponse_tree_state($parameters['weight'], $parameters['valid'], $parameters['score'], $parameters['penalty']);
 	}
 
 	public function getStackPotentialResponseTreeStateBlank($prts_data)
 	{
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/potentialresponsetreestate.class.php';
+
 		return new stack_potentialresponse_tree_state($prts_data['weight'], $prts_data['valid'], $prts_data['score'], $prts_data['penalty'], $prts_data['errors'], $prts_data['answernote'], $prts_data['feedback']);
 	}
 
@@ -375,14 +421,14 @@ class assStackQuestionStackFactory
 	{
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/questiontest.php';
 
-		foreach ($ilias_tests as $ilias_test) {
+		foreach ($ilias_tests as $ilias_test)
+		{
 			//Create test and inputs
 			$stack_question_test = new stack_question_test($ilias_test->getInputsForSTACKtest());
 			//Add expected results
-			foreach ($ilias_test->getTestExpected() as $expected) {
-				$stack_question_test->add_expected_result($expected->getTestPRTName(), new stack_potentialresponse_tree_state(1, true,
-					$expected->getExpectedScore(), $expected->getExpectedPenalty(),
-					'', array($expected->getExpectedAnswerNote())));
+			foreach ($ilias_test->getTestExpected() as $expected)
+			{
+				$stack_question_test->add_expected_result($expected->getTestPRTName(), new stack_potentialresponse_tree_state(1, true, $expected->getExpectedScore(), $expected->getExpectedPenalty(), '', array($expected->getExpectedAnswerNote())));
 			}
 		}
 
