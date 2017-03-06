@@ -33,7 +33,8 @@ class assStackQuestionException extends ilException
 			}
 			$backtrace .= '['.$i.'] '.$_SERVER['REQUEST_URI'];
 
-			ilUtil::sendFailure("<pre>" . $a_message . "\n" . $backtrace, TRUE);
+			$a_message = $a_message."\n".$backtrace;
+			parent::__construct($a_message);
 		}
 		else
 		{

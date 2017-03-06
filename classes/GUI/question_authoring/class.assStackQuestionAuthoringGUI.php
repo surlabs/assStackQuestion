@@ -476,7 +476,7 @@ class assStackQuestionAuthoringGUI
 			$graphical_column->addFormProperty($this->getGraphicalPart($prt));
 		} catch (assStackQuestionException $exception)
 		{
-			ilUtil::sendFailure($exception, TRUE);
+			ilUtil::sendFailure($exception->getMessage(), TRUE);
 		}
 		$prt_columns_container->addPart($graphical_column, 3);
 
