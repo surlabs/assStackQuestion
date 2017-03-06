@@ -60,20 +60,18 @@ class assStackQuestionAuthoringGUI
 		//Set toolbar
 		require_once("./Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php");
 		$toolbar = new ilToolbarGUI();
+
 		require_once('./Services/UIComponent/Button/classes/class.ilButton.php');
 		$show_info_button = ilButton::getInstance();
 		$show_info_button->setCaption($this->getPlugin()->txt("enable_disable_info"), FALSE);
 		$show_info_button->setId("enable_disable_info");
 		$toolbar->addButtonInstance($show_info_button);
 
-		//Links to the authoring guides
-		$help_message = "<div class=\"help-block\">";
-		$help_message .= "<a href='https://github.com/maths/moodle-qtype_stack/blob/master/doc/en/index.md' target=\\'_blank\\'>" . $this->getPlugin()->txt("auth_tip1") . "</a></br>";
-		$help_message .= "<a href='http://www.ilias.de/docu/goto_docu_file_5087.html' target=\\'_blank\\'>" . $this->getPlugin()->txt("auth_tip2") . "</a></br>";
-		//Quick tip about input creation
-		$help_message .= $this->getPlugin()->txt("authoring_input_creation_info") . "</div>";
+		$show_link_button = ilButton::getInstance();
+		$show_link_button->setCaption($this->getPlugin()->txt("auth_guide_name"), FALSE);
+		$show_link_button->setId("auth_guide_name");
+		$toolbar->addButtonInstance($show_link_button);
 
-		$toolbar->addText($help_message);
 		$this->getTemplate()->setVariable("TOOLBAR", $toolbar->getHTML());
 
 		//Set form
@@ -123,6 +121,9 @@ class assStackQuestionAuthoringGUI
 		{
 			$this->getQuestionGUI()->object->saveToDb("", "", TRUE);
 		}
+
+		$question_text = $this->getForm()->getItemByPostVar('question');
+		$question_text->setInfo($this->getPlugin()->txt("authoring_input_creation_info"));
 
 		$points = new ilNonEditableValueGUI($this->getPlugin()->txt('preview_points_message_p3'));
 		$points->setInfo($this->getPlugin()->txt('authoring_points_info'));

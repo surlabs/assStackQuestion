@@ -375,3 +375,4 @@ auth_inputs#:#Einstellungen der Eingabe
 info_allowed#:#Erlaubte Elemente:
 castext_name#:#CAS Text
 html_name#:#HTML
+auth_guide_name#:#STACK Authoring guide

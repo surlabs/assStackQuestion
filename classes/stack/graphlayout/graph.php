@@ -263,6 +263,7 @@ class stack_abstract_graph {
         }
 
         if (array_pop($this->stack) != $currentnode->name) {
+            //fim Use ilias stack exception
             require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/exceptions/class.assStackQuestionException.php');
             throw new assStackQuestionException('Something went wrong with the stack.');
         }
@@ -323,6 +324,7 @@ class stack_abstract_graph {
      */
     public function get($nodename) {
         if (!array_key_exists($nodename, $this->nodes)) {
+            //fim Use ilias stack exception
             require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/exceptions/class.assStackQuestionException.php');
             throw new assStackQuestionException('Node ' . $nodename . ' is not in the graph.');
         }

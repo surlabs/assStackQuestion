@@ -47,6 +47,7 @@ class stack_maths_output_maths extends stack_maths_output_filter_base {
         global $CFG;
 
         if (!self::filter_is_installed()) {
+            //fim Use ilias stack exception
             require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
             throw new assStackQuestionException('The OU maths filter is not installed.');
         }

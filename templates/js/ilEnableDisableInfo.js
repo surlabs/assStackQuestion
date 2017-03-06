@@ -41,6 +41,9 @@ il.EnableDisableInfo = new function () {
 
 		//If click on toolbar button, change status
 		$("#enable_disable_info").click(self.toggleInfo);
+
+		//If click on show guide
+		$("#auth_guide_name").click(self.showGuide);
 	};
 
 
@@ -98,5 +101,13 @@ il.EnableDisableInfo = new function () {
 		}).done(function (data) {
 			//alert(info_config.ajax_url);
 		});
+	}
+
+	/**
+	 * open a new tab with the auth guide
+	 * @returns {boolean}
+	 */
+	this.showGuide = function () {
+		window.open("https://github.com/maths/moodle-qtype_stack/blob/master/doc/en/index.md");
 	}
 }
