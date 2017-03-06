@@ -111,8 +111,8 @@ Version History
 ===============
 
 
-GitHub Version 2.3.10 (2017-2-22)
----------------------------------
+GitHub Version 2.3.10 (2017-3-6)
+--------------------------------
 + Changes in the Authoring interface:
 - Now expandable sections for input fields are independent, it's allowed to open more than one input field at the same time.
 - Now inputs and option field takes the whole page like PRTs, to give the user a better view of the different options.
@@ -124,6 +124,7 @@ GitHub Version 2.3.10 (2017-2-22)
   student answer or teacher answer, error message persist until fail have been solved.
 This version includes some bugfixing:
 - http://www.ilias.de/mantis/view.php?id=20184 regarding feedback report in specific feedback block.
+- Error when  nodes are not part of a PRT in question authoring no longer shows a blank page but an error message.
 
 GitHub Version 2.3.9 (2017-1-31)
 --------------------------------

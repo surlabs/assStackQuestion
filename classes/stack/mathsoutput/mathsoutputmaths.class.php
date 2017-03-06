@@ -47,7 +47,8 @@ class stack_maths_output_maths extends stack_maths_output_filter_base {
         global $CFG;
 
         if (!self::filter_is_installed()) {
-            throw new coding_exception('The OU maths filter is not installed.');
+            require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
+            throw new assStackQuestionException('The OU maths filter is not installed.');
         }
 
         require_once($CFG->dirroot . '/filter/maths/filter.php');

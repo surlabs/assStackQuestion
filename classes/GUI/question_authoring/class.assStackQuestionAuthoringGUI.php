@@ -470,7 +470,13 @@ class assStackQuestionAuthoringGUI
 
 		//Add First column for representation
 		$graphical_column = new ilMultipartFormPart($this->getPlugin()->txt('graphical_title'));
-		$graphical_column->addFormProperty($this->getGraphicalPart($prt));
+		try
+		{
+			$graphical_column->addFormProperty($this->getGraphicalPart($prt));
+		} catch (assStackQuestionException $exception)
+		{
+			ilUtil::sendFailure($exception, TRUE);
+		}
 		$prt_columns_container->addPart($graphical_column, 3);
 
 		//Add Second column for PRT general settings and nodes
@@ -897,7 +903,6 @@ class assStackQuestionAuthoringGUI
 
 		$this->getQuestionGUI()->setRTESupport($node_neg_specific_feedback);
 
-
 		//Set value
 		$node_neg_mode->setValue($node->getFalseScoreMode());
 		$node_neg_score->setValue($node->getFalseScore());
@@ -917,7 +922,6 @@ class assStackQuestionAuthoringGUI
 		$negative_part->addFormProperty($node_neg_answernote);
 		$negative_part->addFormProperty($node_neg_specific_feedback);
 
-
 		return $negative_part;
 	}
 
@@ -930,6 +934,7 @@ class assStackQuestionAuthoringGUI
 
 		// If exists error messages stored in session
 		$session_error_message = "";
+		$session_info_message = "";
 		if (sizeof($_SESSION["stack_authoring_errors"]))
 		{
 			foreach ($_SESSION["stack_authoring_errors"] as $session_error)

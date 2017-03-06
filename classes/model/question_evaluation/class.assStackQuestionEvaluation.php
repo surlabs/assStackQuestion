@@ -63,18 +63,23 @@ class assStackQuestionEvaluation
 	public function evaluateQuestion($forbiddenkeys = '')
 	{
 		//Step #1: Checks availability of parts needed for evaluating a question
-		if ($this->isQuestionEvaluable()) {
+		if ($this->isQuestionEvaluable())
+		{
 			//Step #2: Evaluates question
-			if ($this->doEvaluation($forbiddenkeys)) {
+			if ($this->doEvaluation($forbiddenkeys))
+			{
 				$this->log['question_evaluated'] = TRUE;
 			}
-			if (!is_float($this->getQuestion()->getPoints())) {
+			if (!is_float($this->getQuestion()->getPoints()))
+			{
 				$this->getQuestion()->setPoints(0.0);
 			}
+
 			//Step 3: Returns evaluation data
 
 			return $this->getQuestion();
-		} else {
+		} else
+		{
 			//Returns the log for showing the error messages.
 			return $this->log;
 		}
@@ -98,17 +103,27 @@ class assStackQuestionEvaluation
 	{
 		//This loop checks that each PRT has the whole information needed to be evaluated
 		//and evaluates it, filling an entry in the evaluation data array
-		foreach (array_keys($this->getQuestion()->getPRTs()) as $potentialresponse_tree_name) {
-			if ($this->previousCheckingForEvaluation($potentialresponse_tree_name, TRUE, $forbiddenkeys)) {
+		foreach (array_keys($this->getQuestion()->getPRTs()) as $potentialresponse_tree_name)
+		{
+			if ($this->previousCheckingForEvaluation($potentialresponse_tree_name, TRUE, $forbiddenkeys))
+			{
 				//Evaluate each potential response tree and store it into the evaluation data array.
-				$this->evaluatePotentialResponseTree($potentialresponse_tree_name, TRUE);
-			} else {
+				try
+				{
+					$this->evaluatePotentialResponseTree($potentialresponse_tree_name, TRUE);
+				} catch (stack_exception $e)
+				{
+					ilUtil::sendFailure($e, TRUE);
+				}
+			} else
+			{
 				//A blank entry in the question's PRT Result has been created for this PRT
 				$error = TRUE;
 			}
 		}
 		//Check for penalty
-		if ($this->error) {
+		if ($this->error)
+		{
 			$this->addPenalty();
 		}
 
@@ -128,13 +143,15 @@ class assStackQuestionEvaluation
 		$this->getQuestion()->validateCache($this->getUserResponse(), $accept_valid);
 
 		//Step #2: Check if it's already evaluated, if it does, return the previous evaluation info.
-		if (array_key_exists($potentialresponse_tree_name, $this->getQuestion()->getPRTResults())) {
+		if (array_key_exists($potentialresponse_tree_name, $this->getQuestion()->getPRTResults()))
+		{
 			return FALSE;
 		}
 
 		//Step #3: Check if potential response tree has enought input to be evaluated.
 		$potentialresponse_tree = $this->getQuestion()->getPRTs($potentialresponse_tree_name);
-		if (!$this->hasNecessaryPotentialResponseTreeInputs($potentialresponse_tree, $accept_valid, $forbiddenkeys)) {
+		if (!$this->hasNecessaryPotentialResponseTreeInputs($potentialresponse_tree, $accept_valid, $forbiddenkeys))
+		{
 			return FALSE;
 		}
 
@@ -152,16 +169,20 @@ class assStackQuestionEvaluation
 	private function hasNecessaryPotentialResponseTreeInputs(stack_potentialresponse_tree $potentialresponse_tree, $accept_valid, $forbiddenkeys = '')
 	{
 		//From all the required variables, are the variables in an appropiate status?
-		foreach ($potentialresponse_tree->get_required_variables(array_keys($this->getQuestion()->getInputs())) as $input_name) {
+		foreach ($potentialresponse_tree->get_required_variables(array_keys($this->getQuestion()->getInputs())) as $input_name)
+		{
 
 			//In assStackQuestionEvaluation the User response should be store with the "reduced" format for assStackQuestionUtils::_getUserResponse.
 			//Notice this is the unique place where getInputState is called from this class, in the following occasions, use getInputStates in order to improve the performance
 			$input_state = $this->getQuestion()->getInputState($input_name, $this->getUserResponse(), $forbiddenkeys);
-			if (stack_input::SCORE == $input_state->status || ($accept_valid && stack_input::VALID == $input_state->status)) {
+			if (stack_input::SCORE == $input_state->status || ($accept_valid && stack_input::VALID == $input_state->status))
+			{
 				//This input is in an OK state.
-			} else {
+			} else
+			{
 				//This input is in a not valid status, so the PRT cannot be evaluated.
 				$this->manageInvalidPRT($potentialresponse_tree, $input_name, $input_state, $accept_valid);
+
 				return FALSE;
 			}
 		}
@@ -181,7 +202,8 @@ class assStackQuestionEvaluation
 	{
 		$errors = $this->getQuestion()->getInputStates($input_name)->__get('errors');
 
-		if (!$errors) {
+		if (!$errors)
+		{
 			$errors = stack_string('ATSysEquiv_SA_missing_variables');
 		}
 		$answer_note = $this->getQuestion()->getInputStates($input_name)->__get('note');
@@ -219,8 +241,10 @@ class assStackQuestionEvaluation
 		$potentialresponse_tree_state = $potentialresponse_tree->evaluate_response($this->getQuestion()->getSession(), $this->getQuestion()->getOptions(), $prt_inputs, $this->getQuestion()->getSeed());
 
 		//Check for penalty
-		if ((float)$potentialresponse_tree_state->__get('score') != 1.0) {
-			if ((float)$potentialresponse_tree_state->__get('penalty') == 0.0) {
+		if ((float)$potentialresponse_tree_state->__get('score') != 1.0)
+		{
+			if ((float)$potentialresponse_tree_state->__get('penalty') == 0.0)
+			{
 				$potentialresponse_tree_state->_penalty = $this->getQuestion()->getPenalty();
 			}
 		}
@@ -237,8 +261,10 @@ class assStackQuestionEvaluation
 
 	private function addPenalty()
 	{
-		foreach ($this->getQuestion()->getPRTResults() as $prt_name => $data) {
-			if ($data['state']->_valid) {
+		foreach ($this->getQuestion()->getPRTResults() as $prt_name => $data)
+		{
+			if ($data['state']->_valid)
+			{
 				$data['state']->_penalty = $this->getQuestion()->getPenalty();
 				$this->getQuestion()->setPRTResults($data['state'], $prt_name, 'state');
 			}
@@ -261,13 +287,16 @@ class assStackQuestionEvaluation
 		$prt_inputs = array();
 
 		//Checking of inputs
-		foreach ($potentialresponse_tree->get_required_variables(array_keys($this->getQuestion()->getInputs())) as $input_name) {
+		foreach ($potentialresponse_tree->get_required_variables(array_keys($this->getQuestion()->getInputs())) as $input_name)
+		{
 			//In assStackQuestionEvaluation the User response should be store with the "reduced" format for assStackQuestionUtils::_getUserResponse.
 			$input_state = $this->getQuestion()->getInputStates($input_name);
-			if (stack_input::SCORE == $input_state->status || ($accept_valid AND stack_input::VALID == $input_state->status)) {
+			if (stack_input::SCORE == $input_state->status || ($accept_valid AND stack_input::VALID == $input_state->status))
+			{
 				$prt_inputs[$input_name] = $input_state->contentsmodified;
 			}
-			if ($show_response) {
+			if ($show_response)
+			{
 				$prt_inputs[$input_name] = $this->getUserResponse($input_name);
 			}
 		}
@@ -325,9 +354,11 @@ class assStackQuestionEvaluation
 	 */
 	public function getUserResponse($input_name = '')
 	{
-		if ($input_name) {
+		if ($input_name)
+		{
 			return $this->user_response[$input_name];
-		} else {
+		} else
+		{
 			return $this->user_response;
 		}
 	}

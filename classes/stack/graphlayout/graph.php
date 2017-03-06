@@ -234,7 +234,7 @@ class stack_abstract_graph {
      * @param stack_abstract_graph_node $currentnode
      * @param integer $depth
      */
-    protected function depth_first_search(stack_abstract_graph_node $currentnode, $depth) {
+    protected function depth_first_search(stack_abstract_graph_node $currentnode, $depth){
 
         if ($currentnode->depth >= $depth) {
             return; // Aready done, and at least as deep as this path.
@@ -263,8 +263,8 @@ class stack_abstract_graph {
         }
 
         if (array_pop($this->stack) != $currentnode->name) {
-			//fim: change this coding exception
-            throw new stack_exception('Something went wrong with the stack.');
+            require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/exceptions/class.assStackQuestionException.php');
+            throw new assStackQuestionException('Something went wrong with the stack.');
         }
     }
 
@@ -323,7 +323,8 @@ class stack_abstract_graph {
      */
     public function get($nodename) {
         if (!array_key_exists($nodename, $this->nodes)) {
-            throw new coding_exception('Node ' . $nodename . ' is not in the graph.');
+            require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/exceptions/class.assStackQuestionException.php');
+            throw new assStackQuestionException('Node ' . $nodename . ' is not in the graph.');
         }
         return $this->nodes[$nodename];
     }

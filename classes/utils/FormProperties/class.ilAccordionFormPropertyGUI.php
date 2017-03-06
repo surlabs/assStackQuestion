@@ -91,7 +91,7 @@ class ilAccordionFormPropertyGUI extends ilMultipartFormPropertyGUI
 				$this->getTemplate()->setVariable("FOOTER_WIDTH", $this->getWidthDivision('footer'));
 				$this->getTemplate()->parseCurrentBlock();
 			}
-			$accordion->addItem($part->getTitle(), $this->getTemplate()->get());
+			$accordion->addItem($part->getTitle(), $this->getTemplate()->get(), TRUE);
 			//Set template for accordion
 			$template = new ilTemplate('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/tpl.accordion_form_property.html', TRUE, TRUE);
 			$this->setTemplate($template);

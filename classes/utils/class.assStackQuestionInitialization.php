@@ -674,7 +674,7 @@ class html_writer
 				}
 				break;
 			default:
-				throw new coding_exception("Time type $type is not supported by html_writer::select_time().");
+				throw new assStackQuestionException("Time type $type is not supported by html_writer::select_time().");
 		}
 
 		if (empty($attributes['id']))

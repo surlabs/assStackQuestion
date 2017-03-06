@@ -577,6 +577,7 @@ class assStackQuestionStackQuestion
 		{
 			$ilias_question->setErrors($lng->txt("qpl_qst_xqcas_error_in_question_variables") . ": " . $this->getQuestionVariables()->get_errors());
 		}
+
 	}
 
 	/**
@@ -600,6 +601,12 @@ class assStackQuestionStackQuestion
 	 */
 	public function getInputState($name, $response, $forbiddenkeys = '')
 	{
+		if (!is_a($this->getSession(), "stack_cas_session"))
+		{
+			$this->createSession();
+		}
+
+
 		$this->validateCache($response, NULL);
 
 		if (array_key_exists($name, $this->getInputStates()))
@@ -633,6 +640,7 @@ class assStackQuestionStackQuestion
 	 */
 	public function validateCache($response, $acceptvalid = NULL)
 	{
+
 		if (is_null($this->getLastResponse()))
 		{
 			// Nothing cached yet. No worries.

@@ -337,7 +337,6 @@ class stack_cas_text {
         if (null === $this->instantiated) {
             $this->instantiate();
         } else if (false === $this->instantiated) {
-            exit;
             return false;
         }
         return $this->castext;

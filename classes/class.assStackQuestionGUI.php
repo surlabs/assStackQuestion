@@ -271,6 +271,8 @@ class assStackQuestionGUI extends assQuestionGUI
 				$new_input->checkInput(TRUE);
 				$new_input->save();
 				$this->object->setInputs($input, $input_name);
+
+				$this->object->setErrors(array("new_input" => $this->object->getPlugin()->txt("new_input_info_message")));
 			}
 		}
 
@@ -1615,7 +1617,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$incomplete_model_answers = "";
 		foreach ($this->object->getInputs() as $input_name => $input)
 		{
-			if ($input->getTeacherAnswer() == "")
+			if ($input->getTeacherAnswer() == "" OR $input->getTeacherAnswer() == " ")
 			{
 				$isComplete = FALSE;
 				$incomplete_model_answers .= $input_name . ", ";
@@ -1651,7 +1653,6 @@ class assStackQuestionGUI extends assQuestionGUI
 				}
 			}
 		}
-
 		$incomplete_teacher_answers = substr($incomplete_teacher_answers, 0, -2);
 
 		if (!$isComplete AND $this->object->getTitle() != NULL)
