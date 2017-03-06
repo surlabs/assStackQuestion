@@ -967,7 +967,7 @@ class assStackQuestionAuthoringGUI
 		switch ($a_type)
 		{
 			case "cas_expression":
-				ilTooltipGUI::addTooltip('ilAssStackQuestion' . $comment_id, $this->getPlugin()->txt("casexpresion_info"));
+				ilTooltipGUI::addTooltip('ilAssStackQuestion' . $comment_id, $this->getPlugin()->txt("casexpression_info"));
 				$text .= "<span id=\"ilAssStackQuestion" . $comment_id . "\">" . $this->getPlugin()->txt('info_allowed') . "<a href='javascript:;'> " . $this->getPlugin()->txt('casexpression_name') . "</a>" . "</span>";
 				break;
 			case "cas_text":
