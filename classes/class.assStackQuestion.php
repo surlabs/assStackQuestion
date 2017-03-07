@@ -784,7 +784,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			{
 				$this->getPlugin()->includeClass("model/class.assStackQuestionStackQuestion.php");
 				$this->setStackQuestion(new assStackQuestionStackQuestion());
-				$this->getStackQuestion()->init($this);
+				$this->getStackQuestion()->init($this, "", "", "", TRUE);
 				$edit_question = TRUE;
 			}
 

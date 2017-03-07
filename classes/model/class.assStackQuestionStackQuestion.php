@@ -192,7 +192,7 @@ class assStackQuestionStackQuestion
 	 * @param bool $evaluation_mode
 	 * @param int $maintain_seed (v1.6+ if positive integer, use it as seed)
 	 */
-	public function init(assStackQuestion $ilias_question, $step_to_stop = '', $maintain_seed = -1, $authorized = TRUE)
+	public function init(assStackQuestion $ilias_question, $step_to_stop = '', $maintain_seed = -1, $authorized = TRUE, $instanciate = FALSE)
 	{
 		global $lng;
 		//Step 0: set question id and points and set if instant validation is shown
@@ -230,12 +230,12 @@ class assStackQuestionStackQuestion
 		//Conversion can be stopped here when only display mode
 		if ($step_to_stop == 8)
 		{
-			$this->prepareAllCasTexts($ilias_question, TRUE);
+			$this->prepareAllCasTexts($ilias_question, TRUE, $instanciate);
 
 			return TRUE;
 		} else
 		{
-			$this->prepareAllCasTexts($ilias_question);
+			$this->prepareAllCasTexts($ilias_question, "", $instanciate);
 		}
 
 		if ($step_to_stop == 9)
@@ -471,11 +471,14 @@ class assStackQuestionStackQuestion
 	 * @param $ilias_question
 	 * @throws stack_exception
 	 */
-	public function prepareAllCasTexts($ilias_question, $stop_here = FALSE)
+	public function prepareAllCasTexts($ilias_question, $stop_here = FALSE, $instanciate = FALSE)
 	{
 		global $lng;
 
-		//$this->setSession($this->getSession()->instantiate());
+		if ($instanciate)
+		{
+			$this->setSession($this->getSession()->instantiate());
+		}
 
 		//1. Prepare question text.
 		if ($ilias_question->getQuestion())
@@ -763,6 +766,7 @@ class assStackQuestionStackQuestion
 		{
 			$question_note_parameters = array('raw' => $question_note_raw, 'session' => $this->getSession(), 'seed' => $this->getSeed(), 'security' => 't', 'syntax' => FALSE, 'stars' => TRUE);
 			$question_note = $this->getStackFactory()->get('cas_text', $question_note_parameters);
+
 			return $question_note["text"];
 		} else
 		{
