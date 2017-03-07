@@ -475,7 +475,7 @@ class assStackQuestionStackQuestion
 	{
 		global $lng;
 
-		$this->setSession($this->getSession()->instantiate());
+		//$this->setSession($this->getSession()->instantiate());
 
 		//1. Prepare question text.
 		if ($ilias_question->getQuestion())
@@ -763,8 +763,7 @@ class assStackQuestionStackQuestion
 		{
 			$question_note_parameters = array('raw' => $question_note_raw, 'session' => $this->getSession(), 'seed' => $this->getSeed(), 'security' => 't', 'syntax' => FALSE, 'stars' => TRUE);
 			$question_note = $this->getStackFactory()->get('cas_text', $question_note_parameters);
-
-			return $question_note->get_display_castext();
+			return $question_note["text"];
 		} else
 		{
 			return FALSE;
