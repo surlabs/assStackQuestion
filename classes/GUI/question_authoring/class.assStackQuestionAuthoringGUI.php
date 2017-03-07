@@ -60,18 +60,24 @@ class assStackQuestionAuthoringGUI
 		//Set toolbar
 		require_once("./Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php");
 		$toolbar = new ilToolbarGUI();
+		include_once('./Services/UIComponent/Button/classes/class.ilButton.php');
+		//20287 distinction between 5.1 and 5.0
+		if (method_exists("ilButton", "setFormNovalidate"))
+		{
+			$show_info_button = ilButton::getInstance();
+			$show_info_button->setCaption($this->getPlugin()->txt("enable_disable_info"), FALSE);
+			$show_info_button->setId("enable_disable_info");
+			$toolbar->addButtonInstance($show_info_button);
 
-		require_once('./Services/UIComponent/Button/classes/class.ilButton.php');
-		$show_info_button = ilButton::getInstance();
-		$show_info_button->setCaption($this->getPlugin()->txt("enable_disable_info"), FALSE);
-		$show_info_button->setId("enable_disable_info");
-		$toolbar->addButtonInstance($show_info_button);
-
-		$show_link_button = ilButton::getInstance();
-		$show_link_button->setCaption($this->getPlugin()->txt("auth_guide_name"), FALSE);
-		$show_link_button->setId("auth_guide_name");
-		$toolbar->addButtonInstance($show_link_button);
-
+			$show_link_button = ilButton::getInstance();
+			$show_link_button->setCaption($this->getPlugin()->txt("auth_guide_name"), FALSE);
+			$show_link_button->setId("auth_guide_name");
+			$toolbar->addButtonInstance($show_link_button);
+		} else
+		{
+			$toolbar->addButton($this->getPlugin()->txt("enable_disable_info"), "", "", "", "", "enable_disable_info");
+			$toolbar->addButton($this->getPlugin()->txt("auth_guide_name"), "", "", "", "", "auth_guide_name");
+		}
 		$this->getTemplate()->setVariable("TOOLBAR", $toolbar->getHTML());
 
 		//Set form
