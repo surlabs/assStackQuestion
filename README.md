@@ -125,6 +125,7 @@ GitHub Version 2.3.10 (2017-3-6)
 This version includes some bugfixing:
 - http://www.ilias.de/mantis/view.php?id=20184 regarding feedback report in specific feedback block.
 - Error when  nodes are not part of a PRT in question authoring no longer shows a blank page but an error message.
+- http://www.ilias.de/mantis/view.php?id=20287 Error in ILIAS 5.0 for using ilButton::getInstance
 
 GitHub Version 2.3.9 (2017-1-31)
 --------------------------------
