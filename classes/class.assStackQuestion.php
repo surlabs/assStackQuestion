@@ -510,24 +510,18 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		return $export->toXML($a_include_header, $a_include_binary, $a_shuffle, $test_output, $force_image_references);
 	}
 
+
+
 	/**
-	 * Creates an Excel worksheet for the detailed cumulated results of this question
-	 *
-	 * @param object $worksheet Reference to the parent excel worksheet
-	 * @param object $startrow Startrow of the output in the excel worksheet
-	 * @param object $active_id Active id of the participant
-	 * @param object $pass Test pass
-	 * @param object $format_title Excel title format
-	 * @param object $format_bold Excel bold format
-	 * @param array $eval_data Cumulated evaluation data
-	 * @access public
+	 * {@inheritdoc}
 	 */
-	public function setExportDetailsXLS(&$worksheet, $startrow, $active_id, $pass, &$format_title, &$format_bold)
+	public function setExportDetailsXLS($worksheet, $startrow, $active_id, $pass)
 	{
 		global $lng;
 		require_once 'Services/Excel/classes/class.ilExcelUtils.php';
 		$answered_inputs = array();
 		$solution = $this->getSolutionValues($active_id, $pass);
+		//TODO change this method
 		$worksheet->writeString($startrow, 0, $this->lng->txt($this->plugin->txt('assStackQuestion')), $format_title);
 		$worksheet->writeString($startrow, 1, $this->getTitle(), $format_title);
 		$i = 1;
@@ -1573,10 +1567,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 * @param int $active_id
 	 * @param int $pass
 	 * @param bool $obligationsAnswered
+	 * @param bool $authorized
 	 */
-	protected function reworkWorkingData($active_id, $pass, $obligationsAnswered)
+	protected function reworkWorkingData($active_id, $pass, $obligationsAnswered, $authorized)
 	{
+		// TODO: Implement reworkWorkingData() method.
 	}
+
 
 	public function getAllQuestionsFromPool()
 	{

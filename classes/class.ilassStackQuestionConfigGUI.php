@@ -200,6 +200,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$platform_type->setOptions(array(
 			"win" => $this->plugin_object->txt('windows'),
 			"unix" => $this->plugin_object->txt('unix'),
+			//"unix-optimised" => $this->plugin_object->txt('unix_optimised'),
 			"server" => $this->plugin_object->txt('server')
 		));
 		$platform_type->setInfo($this->plugin_object->txt('platform_type_info'));

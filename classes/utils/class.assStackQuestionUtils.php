@@ -43,66 +43,7 @@ class assStackQuestionUtils
 	 */
 	public static function _replaceDollars($text, $markup = false)
 	{
-		$mathJaxSetting = new ilSetting("MathJax");
-
-		switch ((int)$mathJaxSetting->setting['limiter'])
-		{
-			case 0:
-				/*\(...\)*/
-				if ($markup)
-				{
-					$displaystart = '<ins>\(</ins>';
-					$displayend = '<ins>\)</ins>';
-					$inlinestart = '<ins>\(</ins>';
-					$inlineend = '<ins>\)</ins>';
-				} else
-				{
-					$displaystart = '\(';
-					$displayend = '\)';
-					$inlinestart = '\(';
-					$inlineend = '\)';
-				}
-				break;
-			case 1:
-				/*[tex]...[/tex]*/
-				if ($markup)
-				{
-					$displaystart = '<ins>[tex]</ins>';
-					$displayend = '<ins>[/tex]</ins>';
-					$inlinestart = '<ins>[tex]</ins>';
-					$inlineend = '<ins>[/tex]</ins>';
-				} else
-				{
-					$displaystart = '[tex]';
-					$displayend = '[/tex]';
-					$inlinestart = '[tex]';
-					$inlineend = '[/tex]';
-				}
-				break;
-			case 2:
-				/*&lt;span class="math"&gt;...&lt;/span&gt;*/
-				if ($markup)
-				{
-					$displaystart = '<ins>&lt;span class="math"&gt;</ins>';
-					$displayend = '<ins>&lt;/span&gt;</ins>';
-					$inlinestart = '<ins>&lt;span class="math"&gt;</ins>';
-					$inlineend = '<ins>&lt;/span&gt;</ins>';
-				} else
-				{
-					$displaystart = '&lt;span class="math"&gt;';
-					$displayend = '&lt;/span&gt;';
-					$inlinestart = '&lt;span class="math"&gt;';
-					$inlineend = '&lt;/span&gt;';
-				}
-				break;
-			default:
-
-		}
-
-		$text1 = preg_replace('~(?<!\\\\)\$\$(.*?)(?<!\\\\)\$\$~', $displaystart . '$1' . $displayend, $text);
-		$text2 = preg_replace('~(?<!\\\\)\$(.*?)(?<!\\\\)\$~', $inlinestart . '$1' . $inlineend, $text1);
-
-		return $text2;
+		return self::_getLatex($text);
 	}
 
 	/**
@@ -140,18 +81,24 @@ class assStackQuestionUtils
 	public static function _getLatexText($text, $replace_placeholders = FALSE)
 	{
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
+
+		return self::_getLatex($text);
+
 		if ($replace_placeholders)
 		{
-			$text1 = self::_replacePlaceholders($text);
-			$text2 = self::_replaceDollars($text1);
+			$text2 = self::_replacePlaceholders($text);
 		} else
 		{
+
 			$text2 = self::_replaceDollars($text);
 		}
 		//$text3 = self::_solveHTMLProblems($text2);
 		$text3 = self::_solveKeyBracketsBug($text2);
 
-		return stack_maths::process_display_castext($text3);
+		$text4 = stack_maths::process_display_castext($text3);
+
+		return $text4;
+
 	}
 
 	public static function _replacePlaceholders($text, $replacement = '')
@@ -584,10 +531,63 @@ class assStackQuestionUtils
 	public static function _endsWith($haystack, $needle)
 	{
 		$length = strlen($needle);
-		if ($length == 0) {
+		if ($length == 0)
+		{
 			return true;
 		}
 
 		return (substr($haystack, -$length) === $needle);
+	}
+
+	public static function _getLatex($raw_text)
+	{
+
+		//Replace dollars but using mathjax settings in each platform.
+		$mathJaxSetting = new ilSetting("MathJax");
+
+		switch ((int)$mathJaxSetting->setting['limiter'])
+		{
+			case 0:
+				/*\(...\)*/
+				$start = '\(';
+				$end = '\)';
+				break;
+			case 1:
+				/*[tex]...[/tex]*/
+				$start = '[tex]';
+				$end = '[/tex]';
+				break;
+			case 2:
+				/*&lt;span class="math"&gt;...&lt;/span&gt;*/
+				$start = '&lt;span class="math"&gt;';
+				$end = '&lt;/span&gt;';
+				break;
+			default:
+
+		}
+
+		//Get all $$ to replace it
+		$text = preg_replace('~(?<!\\\\)\$\$(.*?)(?<!\\\\)\$\$~', $start . '$1' . $end, $raw_text);
+		$text = preg_replace('~(?<!\\\\)\$(.*?)(?<!\\\\)\$~', $start . '$1' . $end, $text);
+
+		//Search for all /(/) and change it to the current limiter in Mathjaxsettings
+		$text = str_replace('\(', $start, $text);
+		$text = str_replace('\)', $end, $text);
+
+		//Search for all \[\] and change it to the current limiter in Mathjaxsettings
+		$text = str_replace('\[', $start, $text);
+		$text = str_replace('\]', $end, $text);
+
+		//Search for all [tex] and change it to the current limiter in Mathjaxsettings
+		$text = str_replace('[tex]', $start, $text);
+		$text = str_replace('[/tex]', $end, $text);
+
+		//Search for all &lt;span class="math"&gt;...&lt;/span&gt; and change it to the current limiter in Mathjaxsettings
+		$text = str_replace('&lt;span class="math"&gt;', $start, $text);
+		$text = str_replace('&lt;/span&gt;', $end, $text);
+
+		include_once './Services/MathJax/classes/class.ilMathJax.php';
+
+		return ilMathJax::getInstance()->insertLatexImages($text, $start, $end);
 	}
 }

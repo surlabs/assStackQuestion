@@ -111,6 +111,10 @@ Version History
 ===============
 
 
+GitHub Version 2.4.0 (2017-X-X)
+-------------------------------
+
+
 GitHub Version 2.3.10 (2017-3-6)
 --------------------------------
 + Changes in the Authoring interface:

@@ -60,8 +60,8 @@ class assStackQuestionGUI extends assQuestionGUI
 		{
 
 			$this->rte_tags = $this->required_tags;
-
-			ilObjAdvancedEditing::_setUsedHTMLTags($this->rte_tags, $this->rte_module);
+			//TODO change this uncomment
+			//ilObjAdvancedEditing::_setUsedHTMLTags($this->rte_tags, $this->rte_module);
 		}
 	}
 
@@ -480,6 +480,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		//fill question container with HTML from assStackQuestionDisplay
 		$container_tpl = $this->plugin->getTemplate("tpl.il_as_qpl_xqcas_question_container.html");
 		$container_tpl->setVariable('QUESTION', $question_display_gui->get());
+
 		$question_output = $container_tpl->get();
 
 		return $question_output;
