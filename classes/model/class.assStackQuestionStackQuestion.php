@@ -609,7 +609,6 @@ class assStackQuestionStackQuestion
 			$this->createSession();
 		}
 
-
 		$this->validateCache($response, NULL);
 
 		if (array_key_exists($name, $this->getInputStates()))

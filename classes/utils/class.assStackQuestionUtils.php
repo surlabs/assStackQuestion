@@ -35,18 +35,6 @@ class assStackQuestionUtils
 	}
 
 	/**
-	 * Replace dollar delimiters ($...$ and $$...$$) in text with the safer
-	 * \(...\) and \[...\].
-	 * @param string $text the original text.
-	 * @param bool $markup surround the change with <ins></ins> tags.
-	 * @return string the text with delimiters replaced.
-	 */
-	public static function _replaceDollars($text, $markup = false)
-	{
-		return self::_getLatex($text);
-	}
-
-	/**
 	 * Replace key brackets by their ascii code, to avoid
 	 * Bug: http://www.ilias.de/mantis/view.php?id=12878
 	 * @param string $text the original text.
@@ -71,34 +59,6 @@ class assStackQuestionUtils
 		$text1 = '\[' . $text;
 
 		return $text1 . '\]';
-	}
-
-	/**
-	 * Get a well formed LaTeX string
-	 * @param string $text
-	 * @return string the text to be displayed
-	 */
-	public static function _getLatexText($text, $replace_placeholders = FALSE)
-	{
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
-
-		return self::_getLatex($text);
-
-		if ($replace_placeholders)
-		{
-			$text2 = self::_replacePlaceholders($text);
-		} else
-		{
-
-			$text2 = self::_replaceDollars($text);
-		}
-		//$text3 = self::_solveHTMLProblems($text2);
-		$text3 = self::_solveKeyBracketsBug($text2);
-
-		$text4 = stack_maths::process_display_castext($text3);
-
-		return $text4;
-
 	}
 
 	public static function _replacePlaceholders($text, $replacement = '')
@@ -539,11 +499,21 @@ class assStackQuestionUtils
 		return (substr($haystack, -$length) === $needle);
 	}
 
-	public static function _getLatex($raw_text)
+	/**
+	 * This function returns the LaTeX rendered version of $text
+	 * @param $text The raw text
+	 * @return string
+	 */
+	public static function _getLatex($text)
 	{
-
+		/*
+		 * Step 1 check current platform's LaTeX delimiters
+		 */
 		//Replace dollars but using mathjax settings in each platform.
 		$mathJaxSetting = new ilSetting("MathJax");
+		//By default [tex]
+		$start = '[tex]';
+		$end = '[/tex]';
 
 		switch ((int)$mathJaxSetting->setting['limiter'])
 		{
@@ -566,8 +536,11 @@ class assStackQuestionUtils
 
 		}
 
+		/*
+		 * Step 2 Replace $$ from STACK and all other LaTeX delimiter to the current platform's delimiter.
+		 */
 		//Get all $$ to replace it
-		$text = preg_replace('~(?<!\\\\)\$\$(.*?)(?<!\\\\)\$\$~', $start . '$1' . $end, $raw_text);
+		$text = preg_replace('~(?<!\\\\)\$\$(.*?)(?<!\\\\)\$\$~', $start . '$1' . $end, $text);
 		$text = preg_replace('~(?<!\\\\)\$(.*?)(?<!\\\\)\$~', $start . '$1' . $end, $text);
 
 		//Search for all /(/) and change it to the current limiter in Mathjaxsettings
@@ -583,11 +556,29 @@ class assStackQuestionUtils
 		$text = str_replace('[/tex]', $end, $text);
 
 		//Search for all &lt;span class="math"&gt;...&lt;/span&gt; and change it to the current limiter in Mathjaxsettings
-		$text = str_replace('&lt;span class="math"&gt;', $start, $text);
-		$text = str_replace('&lt;/span&gt;', $end, $text);
+		$text = preg_replace('/<span class="math">(.*?)<\/span>/', $start . '$1' . $end, $text);
 
+		//Search for all &lt;span class="latex"&gt;...&lt;/span&gt; and change it to the current limiter in Mathjaxsettings
+		$text = preg_replace('/<span class="latex">(.*?)<\/span>/', $start . '$1' . $end, $text);
+
+		// replace special characters to prevent problems with the ILIAS template system
+		// eg. if someone uses {1} as an answer, nothing will be shown without the replacement
+		$text = str_replace("{", "&#123;", $text);
+		$text = str_replace("}", "&#125;", $text);
+		$text = str_replace("\\", "&#92;", $text);
+
+
+		/*
+		 * Step 3 User ilMathJax::getInstance()->insertLatexImages to deliver the LaTeX code.
+		 */
 		include_once './Services/MathJax/classes/class.ilMathJax.php';
-
-		return ilMathJax::getInstance()->insertLatexImages($text, $start, $end);
+		//ilMathJax::getInstance()->insertLatexImages cannot render \( delimiters so we change it to [tex]
+		if ($start == '\(')
+		{
+			return ilMathJax::getInstance()->insertLatexImages($text);
+		} else
+		{
+			return ilMathJax::getInstance()->insertLatexImages($text, $start, $end);
+		}
 	}
 }

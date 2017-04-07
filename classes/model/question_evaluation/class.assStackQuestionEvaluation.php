@@ -174,6 +174,9 @@ class assStackQuestionEvaluation
 
 			//In assStackQuestionEvaluation the User response should be store with the "reduced" format for assStackQuestionUtils::_getUserResponse.
 			//Notice this is the unique place where getInputState is called from this class, in the following occasions, use getInputStates in order to improve the performance
+
+			//The following line solves a bug of allow users to insert forbidden variables to the question and get right.
+			$forbiddenkeys = $this->getQuestion()->getInputs($input_name)->get_parameter('forbidWords', '');
 			$input_state = $this->getQuestion()->getInputState($input_name, $this->getUserResponse(), $forbiddenkeys);
 			if (stack_input::SCORE == $input_state->status || ($accept_valid && stack_input::VALID == $input_state->status))
 			{

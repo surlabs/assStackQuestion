@@ -60,7 +60,8 @@ class assStackQuestionFeedback
 		$question_feedback['points'] = $this->getQuestion()->reached_points;
 
 		//Fill specific PRT vars
-		foreach ($this->getQuestion()->getPRTResults() as $prt_name => $prt_data) {
+		foreach ($this->getQuestion()->getPRTResults() as $prt_name => $prt_data)
+		{
 			$question_feedback['prt'][$prt_name] = $this->createPRTFeedback($prt_name, $prt_data);
 		}
 
@@ -106,30 +107,33 @@ class assStackQuestionFeedback
 		//Prepare user response structure array
 		$user_responses = array();
 
-		$count =0;
+		$count = 0;
 		//Fill user_response per each input evaluated by current PRT
-		foreach ($inputs_evaluated as $input_name => $user_response_value) {
+		foreach ($inputs_evaluated as $input_name => $user_response_value)
+		{
 			//Input is Ok, use input states
-			if (is_a($this->getQuestion()->getInputStates($input_name), 'stack_input_state')) {
+			if (is_a($this->getQuestion()->getInputStates($input_name), 'stack_input_state'))
+			{
 				//Fill value
 				$user_responses[$input_name]['value'] = $this->getQuestion()->getInputStates($input_name)->__get('contentsmodified');
 				//Fill LaTeX display
-				$user_responses[$input_name]['display'] = assStackQuestionUtils::_getLatexText(assStackQuestionUtils::_solveKeyBracketsBug($this->getQuestion()->getInputStates($input_name)->__get('contentsdisplayed')));
+				$user_responses[$input_name]['display'] = assStackQuestionUtils::_getLatex(assStackQuestionUtils::_solveKeyBracketsBug($this->getQuestion()->getInputStates($input_name)->__get('contentsdisplayed')));
 				//Fill model answer
 				$user_responses[$input_name]['model_answer'] = $this->getModelAnswerForInput($input_name);
 				//Fill model answer display
 				$user_responses[$input_name]['model_answer_display'] = $this->getModelAnswerDisplay($input_name);
 
-			} else {
+			} else
+			{
 				//Input was not Ok, use getLatexText
 				//Fill value
 				$user_responses[$input_name]['value'] = $user_response_value;
 				//Fill LaTeX display
-				$user_responses[$input_name]['display'] = ilUtil::insertLatexImages(assStackQuestionUtils::_solveKeyBracketsBug($user_response_value));
+				$user_responses[$input_name]['display'] = assStackQuestionUtils::_getLatex(assStackQuestionUtils::_solveKeyBracketsBug($user_response_value));
 				//Fill model answer
 				$user_responses[$input_name]['model_answer'] = $this->getModelAnswerForInput($input_name);
 				//Fill model answer display
-				$user_responses[$input_name]['model_answer_display'] = assStackQuestionUtils::_getLatexText($this->getModelAnswerDisplay($input_name));
+				$user_responses[$input_name]['model_answer_display'] = assStackQuestionUtils::_getLatex($this->getModelAnswerDisplay($input_name));
 			}
 		}
 
@@ -146,12 +150,14 @@ class assStackQuestionFeedback
 		//Get the session value with key the teacher answer
 		$teacher_answer = $this->getQuestion()->getSession()->get_value_key($input_name);
 
-		if ($teacher_answer) {
+		if ($teacher_answer)
+		{
 			//If session value with key the teacher answer is set, returns it.
 			return $teacher_answer;
-		} else {
+		} else
+		{
 			//If not, returns the session value with key the input name.
-			return assStackQuestionUtils::_getLatexText($this->getQuestion()->getSession()->get_display_key($input_name));
+			return assStackQuestionUtils::_getLatex($this->getQuestion()->getSession()->get_display_key($input_name));
 		}
 	}
 
@@ -164,8 +170,9 @@ class assStackQuestionFeedback
 	{
 		//TODO MATRIX ERROR
 		$raw = $this->getQuestion()->getSession()->get_display_key($input_name);
-		$raw1 = str_replace('\left[',"",$raw);
-		$raw2 = str_replace('\right]',"",$raw1);
+		$raw1 = str_replace('\left[', "", $raw);
+		$raw2 = str_replace('\right]', "", $raw1);
+
 		return $raw2;
 	}
 
@@ -180,8 +187,10 @@ class assStackQuestionFeedback
 		$feedback = '';
 
 		//For each feedback obj add a line the the message with the feedback.
-		if ($prt_state->__get('feedback')) {
-			foreach ($prt_state->__get('feedback') as $feedback_obj) {
+		if ($prt_state->__get('feedback'))
+		{
+			foreach ($prt_state->__get('feedback') as $feedback_obj)
+			{
 				$feedback .= $prt_state->substitue_variables_in_feedback($feedback_obj->feedback);
 				$feedback .= '</br>';
 			}
@@ -200,15 +209,18 @@ class assStackQuestionFeedback
 		//Prepare status structure
 		$status = array();
 
-		if ((float)$prt_state->__get('score') * (float)$prt_state->__get('weight') == (float)$prt_state->__get('weight')) {
+		if ((float)$prt_state->__get('score') * (float)$prt_state->__get('weight') == (float)$prt_state->__get('weight'))
+		{
 			//CORRECT
 			$status['value'] = 1;
 			$status['message'] = $this->getQuestion()->getPRTCorrectInstantiated();
-		} elseif ((float)$prt_state->__get('score') > 0.0 AND (float)$prt_state->__get('score') < (float)$prt_state->__get('weight')) {
+		} elseif ((float)$prt_state->__get('score') > 0.0 AND (float)$prt_state->__get('score') < (float)$prt_state->__get('weight'))
+		{
 			//PARTIALLY CORRECT
 			$status['value'] = 0;
 			$status['message'] = $this->getQuestion()->getPRTPartiallyCorrectInstantiated();
-		} else {
+		} else
+		{
 			//INCORRECT
 			$status['value'] = -1;
 			$status['message'] = $this->getQuestion()->getPRTIncorrectInstantiated();
@@ -224,7 +236,8 @@ class assStackQuestionFeedback
 	 */
 	private function fillAnswerNote($prt_state)
 	{
-		if (is_array($prt_state->__get('answernotes'))) {
+		if (is_array($prt_state->__get('answernotes')))
+		{
 			return implode('_', $prt_state->__get('answernotes'));
 		}
 	}
