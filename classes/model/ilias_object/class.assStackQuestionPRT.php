@@ -160,12 +160,13 @@ class assStackQuestionPRT
 
 	public function create()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
 		//Get an ID for this object
-		$this->setPRTId((int)$ilDB->nextId('xqcas_prts'));
+		$this->setPRTId((int)$db->nextId('xqcas_prts'));
 		//Insert Object into DB
-		$ilDB->insert("xqcas_prts", array(
+		$db->insert("xqcas_prts", array(
 			"id" => array("integer", $this->getPRTId()),
 			"question_id" => array("integer", $this->getQuestionId()),
 			"name" => array("text", $this->getPRTName()),
@@ -179,18 +180,19 @@ class assStackQuestionPRT
 
 	public static function _read($question_id)
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		//Inputs array
 		$PRTs = array();
 		//Select query
 		$query = 'SELECT * FROM xqcas_prts WHERE question_id = '
-			. $ilDB->quote($question_id, 'integer')
+			. $db->quote($question_id, 'integer')
 			. ' ORDER BY xqcas_prts.id';
-		$res = $ilDB->query($query);
+		$res = $db->query($query);
 
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/ilias_object/class.assStackQuestionPRTNode.php';
 		//If there is a result returns object, otherwise returns false.
-		while ($row = $ilDB->fetchAssoc($res)) {
+		while ($row = $db->fetchAssoc($res)) {
 			//PRT object to return in case there are options in DB for this $question_id
 			$PRT = new assStackQuestionPRT((int)$row["id"], $question_id);
 			//Filling object with data from DB
@@ -209,9 +211,10 @@ class assStackQuestionPRT
 
 	public function update()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
-		$ilDB->replace('xqcas_prts',
+		$db->replace('xqcas_prts',
 			array(
 				"id" => array('integer', $this->getPRTId())),
 			array(
@@ -229,9 +232,10 @@ class assStackQuestionPRT
 
 	public function delete()
 	{
-		global $ilDB;
-		$query = 'DELETE FROM xqcas_prts WHERE id = ' . $ilDB->quote($this->getPRTId(), 'integer');
-		$ilDB->manipulate($query);
+		global $DIC;
+		$db = $DIC->database();
+		$query = 'DELETE FROM xqcas_prts WHERE id = ' . $db->quote($this->getPRTId(), 'integer');
+		$db->manipulate($query);
 	}
 
 	/**

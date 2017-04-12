@@ -253,12 +253,15 @@ class assStackQuestionTestGUI
 	 */
 	private function getGeneralForm()
 	{
-		global $ilCtrl, $lng;
+		global $DIC;
+
+		$lng = $DIC->language();
 
 		//Initialization
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
-		$form->setFormAction($ilCtrl->getFormActionByClass('assStackQuestionGUI'));
+		$ctrl = $DIC->ctrl();
+		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
 
 		//Values
 		$question_id = new ilHiddenInputGUI('question_id');
@@ -280,12 +283,13 @@ class assStackQuestionTestGUI
 	 */
 	private function getTestcaseCommandsForm(assStackQuestionTest $unit_test)
 	{
-		global $ilCtrl;
+		global $DIC;
 
 		//Initialization
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
-		$form->setFormAction($ilCtrl->getFormActionByClass('assStackQuestionGUI'));
+		$ctrl = $DIC->ctrl();
+		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
 
 		//Values
 		$test_id = new ilHiddenInputGUI('test_id');
@@ -316,7 +320,9 @@ class assStackQuestionTestGUI
 	 */
 	public function editTestcaseForm($testcase)
 	{
-		global $ilCtrl, $lng;
+		global $DIC;
+
+		$lng = $DIC->language();
 
 		//Must be a testcase to edit
 		if (!$testcase) {
@@ -329,7 +335,8 @@ class assStackQuestionTestGUI
 		//Initialization
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
-		$form->setFormAction($ilCtrl->getFormActionByClass('assStackQuestionGUI'));
+		$ctrl = $DIC->ctrl();
+		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
 
 		$testcase_name = new ilHiddenInputGUI('testcase_name');
 		$testcase_name->setValue($testcase);
@@ -385,12 +392,15 @@ class assStackQuestionTestGUI
 	 */
 	public function createTestcaseForm($question_id)
 	{
-		global $ilCtrl, $lng;
+		global $DIC;
+
+		$lng = $DIC->language();
 
 		//Initialization
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
-		$form->setFormAction($ilCtrl->getFormActionByClass('assStackQuestionGUI'));
+		$ctrl = $DIC->ctrl();
+		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
 
 		//Guess question structure in order to create needed fields
 		$structure = assStackQuestionUtils::_getInputsAndPRTStructure($question_id);

@@ -48,7 +48,7 @@ class assStackQuestionAuthoringGUI
 	 */
 	function __construct($plugin, $question)
 	{
-		global $ilCtrl, $lng;
+		global $DIC;
 
 		//Set global vars
 		$this->setPlugin($plugin);
@@ -84,7 +84,9 @@ class assStackQuestionAuthoringGUI
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
 		$form->setTitle($this->getPlugin()->txt('edit_cas_question'));
-		$form->setFormAction($ilCtrl->getFormActionByClass('assStackQuestionGUI'));
+		$ctrl = $DIC->ctrl();
+		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
+		$lng = $DIC->language();
 		$form->addCommandButton('save', $lng->txt('save'));
 		$form->addCommandButton('editQuestion', $lng->txt('cancel'));
 
@@ -95,7 +97,6 @@ class assStackQuestionAuthoringGUI
 
 	public function showAuthoringPanel()
 	{
-		global $ilCtrl;
 		//Initialization
 		$this->getPlugin()->includeClass('utils/FormProperties/class.ilMultipartFormPropertyGUI.php');
 		$this->getPlugin()->includeClass('utils/FormProperties/class.ilMultipartFormPart.php');
@@ -605,7 +606,9 @@ class assStackQuestionAuthoringGUI
 	 */
 	public function getSettingsPart(assStackQuestionPRT $prt, $container_width = "")
 	{
-		global $lng;
+		global $DIC;
+
+		$lng = $DIC->language();
 
 		//Creation of Form properties
 		$part = new ilAccordionFormPropertyGUI($this->getPlugin()->txt('prt_settings_and_nodes'), 'prt_' . $prt->getPRTName() . '_settings', 12, TRUE);
@@ -731,7 +734,9 @@ class assStackQuestionAuthoringGUI
 	 */
 	public function getCommonNodePart(assStackQuestionPRT $prt, assStackQuestionPRTNode $node)
 	{
-		global $lng;
+		global $DIC;
+
+		$lng = $DIC->language();
 
 		$common_column = new ilColumnsFormPropertyGUI($this->getPlugin()->txt('prt_node_common'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_common', 12, TRUE);
 
@@ -937,8 +942,6 @@ class assStackQuestionAuthoringGUI
 	 */
 	public function manageErrorMessages()
 	{
-		global $lng;
-
 		// If exists error messages stored in session
 		$session_error_message = "";
 		$session_info_message = "";

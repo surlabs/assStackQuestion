@@ -282,13 +282,14 @@ class assStackQuestionOptions
 
 	public function create()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		include_once("./Services/RTE/classes/class.ilRTE.php");
 
 		//Get an ID for this object
-		$this->setOptionsId((int)$ilDB->nextId('xqcas_options'));
+		$this->setOptionsId((int)$db->nextId('xqcas_options'));
 		//Insert Object into DB
-		$ilDB->insert("xqcas_options", array(
+		$db->insert("xqcas_options", array(
 			"id" => array("integer", $this->getOptionsId()),
 			"question_id" => array("integer", $this->getQuestionId()),
 			"question_variables" => array("clob", $this->getQuestionVariables()),
@@ -315,7 +316,8 @@ class assStackQuestionOptions
 
 	public static function _read($question_id)
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		include_once("./Services/RTE/classes/class.ilRTE.php");
 
 		//Options object to return in case there are options in DB for this $question_id
@@ -323,9 +325,9 @@ class assStackQuestionOptions
 
 		//Select query
 		$query = 'SELECT * FROM xqcas_options WHERE question_id = '
-			. $ilDB->quote($question_id, 'integer');
-		$res = $ilDB->query($query);
-		$row = $ilDB->fetchObject($res);
+			. $db->quote($question_id, 'integer');
+		$res = $db->query($query);
+		$row = $db->fetchObject($res);
 
 		//If there is a result returns object, otherwise returns false.
 		if ($row) {
@@ -358,10 +360,11 @@ class assStackQuestionOptions
 
 	public function update()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		include_once("./Services/RTE/classes/class.ilRTE.php");
 
-		$ilDB->replace('xqcas_options',
+		$db->replace('xqcas_options',
 			array(
 				"id" => array('integer', $this->getOptionsId())),
 			array(
@@ -392,21 +395,23 @@ class assStackQuestionOptions
 
 	public function delete()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
-		$query = 'DELETE FROM xqcas_options WHERE id = ' . $ilDB->quote($this->getOptionsId(), 'integer');
-		$ilDB->manipulate($query);
+		$query = 'DELETE FROM xqcas_options WHERE id = ' . $db->quote($this->getOptionsId(), 'integer');
+		$db->manipulate($query);
 	}
 
 	public function getDefaultOptions()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
 		//Select query
 		$query = 'SELECT * FROM xqcas_configuration WHERE group_name = "options"';
-		$res = $ilDB->query($query);
+		$res = $db->query($query);
 
-		while ($row = $ilDB->fetchAssoc($res)) {
+		while ($row = $db->fetchAssoc($res)) {
 			//Filling object with data from DB
 			$this->setQuestionVariables(" ");
 			$this->setSpecificFeedback(" ");

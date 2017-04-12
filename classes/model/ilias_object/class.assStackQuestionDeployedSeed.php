@@ -118,12 +118,13 @@ class assStackQuestionDeployedSeed
 	 */
 	private function create()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
 		//Get an ID for this object
-		$this->setSeedId((int)$ilDB->nextId('xqcas_deployed_seeds'));
+		$this->setSeedId((int)$db->nextId('xqcas_deployed_seeds'));
 		//Insert Object into DB
-		$ilDB->insert("xqcas_deployed_seeds", array(
+		$db->insert("xqcas_deployed_seeds", array(
 			"id" => array("integer", $this->getSeedId()),
 			"question_id" => array("integer", $this->getQuestionId()),
 			"seed" => array("integer", $this->getSeed())
@@ -138,15 +139,16 @@ class assStackQuestionDeployedSeed
 	 */
 	public static function _read($question_id)
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		//Inputs array
 		$seeds = array();
 		//Select query
-		$query = 'SELECT * FROM xqcas_deployed_seeds WHERE question_id = ' . $ilDB->quote($question_id, 'integer');
-		$res = $ilDB->query($query);
+		$query = 'SELECT * FROM xqcas_deployed_seeds WHERE question_id = ' . $db->quote($question_id, 'integer');
+		$res = $db->query($query);
 
 		//If there is a result returns object, otherwise returns false.
-		while ($row = $ilDB->fetchAssoc($res)) {
+		while ($row = $db->fetchAssoc($res)) {
 			//Options object to return in case there are options in DB for this $question_id
 			$seed = new assStackQuestionDeployedSeed((int)$row["id"], (int)$question_id, (int)$row["seed"]);
 			$seeds[] = $seed;
@@ -156,10 +158,11 @@ class assStackQuestionDeployedSeed
 
 	public function delete()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
-		$query = 'DELETE FROM xqcas_deployed_seeds WHERE id = ' . $ilDB->quote($this->getSeedId(), 'integer');
-		$ilDB->manipulate($query);
+		$query = 'DELETE FROM xqcas_deployed_seeds WHERE id = ' . $db->quote($this->getSeedId(), 'integer');
+		$db->manipulate($query);
 	}
 
 	/**

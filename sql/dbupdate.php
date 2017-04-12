@@ -15,17 +15,19 @@
 /*
  * Create the new question type
  */
+global $DIC;
+$db = $DIC->database();
 
-$res = $ilDB->queryF("SELECT * FROM qpl_qst_type WHERE type_tag = %s", array('text'), array('assStackQuestion')
+$res = $db->queryF("SELECT * FROM qpl_qst_type WHERE type_tag = %s", array('text'), array('assStackQuestion')
 );
 
 if ($res->numRows() == 0)
 {
-    $res = $ilDB->query("SELECT MAX(question_type_id) maxid FROM qpl_qst_type");
-    $data = $ilDB->fetchAssoc($res);
+    $res = $db->query("SELECT MAX(question_type_id) maxid FROM qpl_qst_type");
+    $data = $db->fetchAssoc($res);
     $max = $data["maxid"] + 1;
 
-    $affectedRows = $ilDB->manipulateF("INSERT INTO qpl_qst_type (question_type_id, type_tag, plugin) VALUES (%s, %s, %s)", array("integer", "text", "integer"), array($max, 'assStackQuestion', 1)
+    $affectedRows = $db->manipulateF("INSERT INTO qpl_qst_type (question_type_id, type_tag, plugin) VALUES (%s, %s, %s)", array("integer", "text", "integer"), array($max, 'assStackQuestion', 1)
     );
 }
 ?>
@@ -34,7 +36,7 @@ if ($res->numRows() == 0)
 /*
  * STACK name: options "Stores the main options for each Stack question"
  */
-if (!$ilDB->tableExists('xqcas_options'))
+if (!$db->tableExists('xqcas_options'))
 {
     $fields = array(
         'id' => array(
@@ -139,9 +141,9 @@ if (!$ilDB->tableExists('xqcas_options'))
             'default' => NULL
         )
     );
-    $ilDB->createTable("xqcas_options", $fields);
-    $ilDB->createSequence("xqcas_options");
-    $ilDB->addPrimaryKey("xqcas_options", array("id"));
+    $db->createTable("xqcas_options", $fields);
+    $db->createSequence("xqcas_options");
+    $db->addPrimaryKey("xqcas_options", array("id"));
 
     /*
      * 2 indexes to be created
@@ -153,7 +155,7 @@ if (!$ilDB->tableExists('xqcas_options'))
 /*
  * STACK name: inputs "One row for each input in the question."
  */
-if (!$ilDB->tableExists('xqcas_inputs'))
+if (!$db->tableExists('xqcas_inputs'))
 {
     $fields = array(
         'id' => array(
@@ -244,9 +246,9 @@ if (!$ilDB->tableExists('xqcas_inputs'))
             'notnull' => true
         )
     );
-    $ilDB->createTable("xqcas_inputs", $fields);
-    $ilDB->createSequence("xqcas_inputs");
-    $ilDB->addPrimaryKey("xqcas_inputs", array("id"));
+    $db->createTable("xqcas_inputs", $fields);
+    $db->createSequence("xqcas_inputs");
+    $db->addPrimaryKey("xqcas_inputs", array("id"));
 
     /*
      * 3 indexes to be created
@@ -258,7 +260,7 @@ if (!$ilDB->tableExists('xqcas_inputs'))
 /*
  * STACK name: prts "One row for each PRT in the question."
  */
-if (!$ilDB->tableExists('xqcas_prts'))
+if (!$db->tableExists('xqcas_prts'))
 {
     $fields = array(
         'id' => array(
@@ -297,9 +299,9 @@ if (!$ilDB->tableExists('xqcas_prts'))
             'notnull' => true
         )
     );
-    $ilDB->createTable("xqcas_prts", $fields);
-    $ilDB->createSequence("xqcas_prts");
-    $ilDB->addPrimaryKey("xqcas_prts", array("id"));
+    $db->createTable("xqcas_prts", $fields);
+    $db->createSequence("xqcas_prts");
+    $db->addPrimaryKey("xqcas_prts", array("id"));
 
     /*
      * 3 indexes to be created
@@ -311,7 +313,7 @@ if (!$ilDB->tableExists('xqcas_prts'))
 /*
  * STACK name: prt_nodes "One row for each node in each PRT in the question."
  */
-if (!$ilDB->tableExists('xqcas_prt_nodes'))
+if (!$db->tableExists('xqcas_prt_nodes'))
 {
     $fields = array(
         'id' => array(
@@ -437,9 +439,9 @@ if (!$ilDB->tableExists('xqcas_prt_nodes'))
             'default' => 0
         )
     );
-    $ilDB->createTable("xqcas_prt_nodes", $fields);
-    $ilDB->createSequence("xqcas_prt_nodes");
-    $ilDB->addPrimaryKey("xqcas_prt_nodes", array("id"));
+    $db->createTable("xqcas_prt_nodes", $fields);
+    $db->createSequence("xqcas_prt_nodes");
+    $db->addPrimaryKey("xqcas_prt_nodes", array("id"));
 
     /*
      * 3 indexes to be created
@@ -451,7 +453,7 @@ if (!$ilDB->tableExists('xqcas_prt_nodes'))
 /*
  * STACK name: cas_cache "Caches the resuts of calls to Maxima."
  */
-if (!$ilDB->tableExists('xqcas_cas_cache'))
+if (!$db->tableExists('xqcas_cas_cache'))
 {
     $fields = array(
         'id' => array(
@@ -473,9 +475,9 @@ if (!$ilDB->tableExists('xqcas_cas_cache'))
             'notnull' => true
         )
     );
-    $ilDB->createTable("xqcas_cas_cache", $fields);
-    $ilDB->createSequence("xqcas_cas_cache");
-    $ilDB->addPrimaryKey("xqcas_cas_cache", array("id"));
+    $db->createTable("xqcas_cas_cache", $fields);
+    $db->createSequence("xqcas_cas_cache");
+    $db->addPrimaryKey("xqcas_cas_cache", array("id"));
 
     /*
      * 2 indexes to be created
@@ -487,7 +489,7 @@ if (!$ilDB->tableExists('xqcas_cas_cache'))
 /*
  * STACK name: qtests "One row for each questiontest for each question."
  */
-if (!$ilDB->tableExists('xqcas_qtests'))
+if (!$db->tableExists('xqcas_qtests'))
 {
     $fields = array(
         'id' => array(
@@ -506,9 +508,9 @@ if (!$ilDB->tableExists('xqcas_qtests'))
             'notnull' => true
         )
     );
-    $ilDB->createTable("xqcas_qtests", $fields);
-    $ilDB->createSequence("xqcas_qtests");
-    $ilDB->addPrimaryKey("xqcas_qtests", array("id"));
+    $db->createTable("xqcas_qtests", $fields);
+    $db->createSequence("xqcas_qtests");
+    $db->addPrimaryKey("xqcas_qtests", array("id"));
 
     /*
      * 3 indexes to be created
@@ -520,7 +522,7 @@ if (!$ilDB->tableExists('xqcas_qtests'))
 /*
  * STACK name: qtest_inputs "The value for each input for the question tests."
  */
-if (!$ilDB->tableExists('xqcas_qtest_inputs'))
+if (!$db->tableExists('xqcas_qtest_inputs'))
 {
     $fields = array(
         'id' => array(
@@ -549,9 +551,9 @@ if (!$ilDB->tableExists('xqcas_qtest_inputs'))
             'notnull' => true
         )
     );
-    $ilDB->createTable("xqcas_qtest_inputs", $fields);
-    $ilDB->createSequence("xqcas_qtest_inputs");
-    $ilDB->addPrimaryKey("xqcas_qtest_inputs", array("id"));
+    $db->createTable("xqcas_qtest_inputs", $fields);
+    $db->createSequence("xqcas_qtest_inputs");
+    $db->addPrimaryKey("xqcas_qtest_inputs", array("id"));
 
     /*
      * 3 indexes to be created
@@ -563,7 +565,7 @@ if (!$ilDB->tableExists('xqcas_qtest_inputs'))
 /*
  * STACK name: qtest_expected "Holds the expected outcomes for each PRT for this question t"
  */
-if (!$ilDB->tableExists('xqcas_qtest_expected'))
+if (!$db->tableExists('xqcas_qtest_expected'))
 {
     $fields = array(
         'id' => array(
@@ -604,9 +606,9 @@ if (!$ilDB->tableExists('xqcas_qtest_expected'))
             'notnull' => true
         )
     );
-    $ilDB->createTable("xqcas_qtest_expected", $fields);
-    $ilDB->createSequence("xqcas_qtest_expected");
-    $ilDB->addPrimaryKey("xqcas_qtest_expected", array("id"));
+    $db->createTable("xqcas_qtest_expected", $fields);
+    $db->createSequence("xqcas_qtest_expected");
+    $db->addPrimaryKey("xqcas_qtest_expected", array("id"));
 
     /*
      * 3 indexes to be created
@@ -618,7 +620,7 @@ if (!$ilDB->tableExists('xqcas_qtest_expected'))
 /*
  * STACK name: deployed_seeds "Holds the seeds for the variants of each question that have "
  */
-if (!$ilDB->tableExists('xqcas_deployed_seeds'))
+if (!$db->tableExists('xqcas_deployed_seeds'))
 {
     $fields = array(
         'id' => array(
@@ -637,9 +639,9 @@ if (!$ilDB->tableExists('xqcas_deployed_seeds'))
             'notnull' => true
         )
     );
-    $ilDB->createTable("xqcas_deployed_seeds", $fields);
-    $ilDB->createSequence("xqcas_deployed_seeds");
-    $ilDB->addPrimaryKey("xqcas_deployed_seeds", array("id"));
+    $db->createTable("xqcas_deployed_seeds", $fields);
+    $db->createSequence("xqcas_deployed_seeds");
+    $db->addPrimaryKey("xqcas_deployed_seeds", array("id"));
 
     /*
      * 3 indexes to be created
@@ -654,15 +656,15 @@ $allow_words_column = array(
     'length' => 255,
     'notnull' => true
 );
-if (!$ilDB->tableColumnExists("xqcas_inputs", "allow_words"))
+if (!$db->tableColumnExists("xqcas_inputs", "allow_words"))
 {
-    $ilDB->addTableColumn("xqcas_inputs", "allow_words", $allow_words_column);
+    $db->addTableColumn("xqcas_inputs", "allow_words", $allow_words_column);
 }
 ?>
 <#13>
 <#14>
 <?php
-if (!$ilDB->tableExists('xqcas_ilias_specific'))
+if (!$db->tableExists('xqcas_ilias_specific'))
 {
     $fields = array(
         'id' => array(
@@ -679,16 +681,16 @@ if (!$ilDB->tableExists('xqcas_ilias_specific'))
             'type' => 'clob'
         )
     );
-    $ilDB->createTable("xqcas_ilias_specific", $fields);
-    $ilDB->createSequence("xqcas_ilias_specific");
-    $ilDB->addPrimaryKey("xqcas_ilias_specific", array("id"));
+    $db->createTable("xqcas_ilias_specific", $fields);
+    $db->createSequence("xqcas_ilias_specific");
+    $db->addPrimaryKey("xqcas_ilias_specific", array("id"));
 }
 ?>
 <#15>
 <#16>
 <#17>
 <?php
-if (!$ilDB->tableExists('xqcas_configuration'))
+if (!$db->tableExists('xqcas_configuration'))
 {
 	$fields = array(
 		'parameter_name' => array(
@@ -704,16 +706,16 @@ if (!$ilDB->tableExists('xqcas_configuration'))
 			'length' => 255
 		)
 	);
-	$ilDB->createTable("xqcas_configuration", $fields);
-	$ilDB->addPrimaryKey("xqcas_configuration", array("parameter_name"));
+	$db->createTable("xqcas_configuration", $fields);
+	$db->addPrimaryKey("xqcas_configuration", array("parameter_name"));
 }
 ?>
 <#18>
 <?php
 //Check if connection entries in DB have been created, otherwise create it.
 $query = 'SELECT * FROM xqcas_configuration WHERE group_name = "connection"';
-$result = $ilDB->query($query);
-if (!$ilDB->fetchAssoc($result)) {
+$result = $db->query($query);
+if (!$db->fetchAssoc($result)) {
 	//Default values for connection
 	$connection_default_values = array(
 		'platform_type' => 'unix',
@@ -725,7 +727,7 @@ if (!$ilDB->fetchAssoc($result)) {
 		'cas_debugging' => '0'
 	);
 	foreach ($connection_default_values as $paremeter_name => $value) {
-		$ilDB->insert("xqcas_configuration",
+		$db->insert("xqcas_configuration",
 			array(
 				'parameter_name' => array('text', $paremeter_name),
 				'value' => array('clob', $value),
@@ -736,15 +738,15 @@ if (!$ilDB->fetchAssoc($result)) {
 
 //Check if display entries in DB have been created, otherwise create it.
 $query = 'SELECT * FROM xqcas_configuration WHERE group_name = "display"';
-$result = $ilDB->query($query);
-if (!$ilDB->fetchAssoc($result)) {
+$result = $db->query($query);
+if (!$db->fetchAssoc($result)) {
 	$display_default_values = array(
 		'instant_validation' => '0',
 		'maths_filter' => 'mathjax',
 		'replace_dollars' => '1'
 	);
 	foreach ($display_default_values as $paremeter_name => $value) {
-		$ilDB->insert("xqcas_configuration",
+		$db->insert("xqcas_configuration",
 			array(
 				'parameter_name' => array('text', $paremeter_name),
 				'value' => array('clob', $value),
@@ -755,8 +757,8 @@ if (!$ilDB->fetchAssoc($result)) {
 
 //Check if default options entries in DB have been created, otherwise create it.
 $query = 'SELECT * FROM xqcas_configuration WHERE group_name = "options"';
-$result = $ilDB->query($query);
-if (!$ilDB->fetchAssoc($result)) {
+$result = $db->query($query);
+if (!$db->fetchAssoc($result)) {
 	$options_default_values = array(
 		'options_question_simplify' => '1',
 		'options_assume_positive' => '0',
@@ -769,7 +771,7 @@ if (!$ilDB->fetchAssoc($result)) {
 		'options_inverse_trigonometric' => 'cos-1'
 	);
 	foreach ($options_default_values as $paremeter_name => $value) {
-		$ilDB->insert("xqcas_configuration",
+		$db->insert("xqcas_configuration",
 			array(
 				'parameter_name' => array('text', $paremeter_name),
 				'value' => array('clob', $value),
@@ -781,8 +783,8 @@ if (!$ilDB->fetchAssoc($result)) {
 
 //Check if default input entries in DB have been created, otherwise create it.
 $query = 'SELECT * FROM xqcas_configuration WHERE group_name = "inputs"';
-$result = $ilDB->query($query);
-if (!$ilDB->fetchAssoc($result)) {
+$result = $db->query($query);
+if (!$db->fetchAssoc($result)) {
 	$inputs_default_values = array(
 		'input_type' => 'algebraic',
 		'input_box_size' => '15',
@@ -796,7 +798,7 @@ if (!$ilDB->fetchAssoc($result)) {
 		'input_show_validation' => '1'
 	);
 	foreach ($inputs_default_values as $paremeter_name => $value) {
-		$ilDB->insert("xqcas_configuration",
+		$db->insert("xqcas_configuration",
 			array(
 				'parameter_name' => array('text', $paremeter_name),
 				'value' => array('clob', $value),
@@ -811,22 +813,22 @@ $config->setDefaultSettingsForConnection();
 ?>
 <#19>
 <?php
-global $ilDB;
-if (!$ilDB->tableExists('xqcas_ilias_specific'))
+global $db;
+if (!$db->tableExists('xqcas_ilias_specific'))
 {
 
 //Inserting index
 //Inputs
-$ilDB->addIndex('xqcas_inputs', array('question_id','name'),'i1', FALSE);
+$db->addIndex('xqcas_inputs', array('question_id','name'),'i1', FALSE);
 //PRT Nodes
-$ilDB->addIndex('xqcas_prt_nodes', array('question_id','prt_name', 'node_name'),'i2', FALSE);
+$db->addIndex('xqcas_prt_nodes', array('question_id','prt_name', 'node_name'),'i2', FALSE);
 //Cache
-$ilDB->addIndex('xqcas_cas_cache', array('hash'),'i3', FALSE);
+$db->addIndex('xqcas_cas_cache', array('hash'),'i3', FALSE);
 //Tests
-$ilDB->addIndex('xqcas_qtest_inputs', array('question_id','test_case', 'input_name'),'i4', FALSE);
-$ilDB->addIndex('xqcas_qtest_expected', array('question_id','test_case', 'prt_name'),'i5', FALSE);
+$db->addIndex('xqcas_qtest_inputs', array('question_id','test_case', 'input_name'),'i4', FALSE);
+$db->addIndex('xqcas_qtest_expected', array('question_id','test_case', 'prt_name'),'i5', FALSE);
 //Seeds
-$ilDB->addIndex('xqcas_deployed_seeds', array('question_id','seed'),'i6', FALSE);
+$db->addIndex('xqcas_deployed_seeds', array('question_id','seed'),'i6', FALSE);
 }
 ?>
 <#20>
@@ -837,9 +839,9 @@ $penalty_column = array(
 	'type' => 'text',
 	'length' => 21
 );
-if (!$ilDB->tableColumnExists("xqcas_ilias_specific", "penalty"))
+if (!$db->tableColumnExists("xqcas_ilias_specific", "penalty"))
 {
-	$ilDB->addTableColumn("xqcas_ilias_specific", "penalty", $penalty_column);
+	$db->addTableColumn("xqcas_ilias_specific", "penalty", $penalty_column);
 }
 //Hidden
 
@@ -847,23 +849,23 @@ $hidden_column = array(
 	'type' => 'integer',
 	'length' => 4
 );
-if (!$ilDB->tableColumnExists("xqcas_ilias_specific", "hídden"))
+if (!$db->tableColumnExists("xqcas_ilias_specific", "hídden"))
 {
-	$ilDB->addTableColumn("xqcas_ilias_specific", "hidden", $hidden_column);
+	$db->addTableColumn("xqcas_ilias_specific", "hidden", $hidden_column);
 }
 ?>
 <#21>
 <#22>
 <#23>
 <?php
-global $ilDB;
+global $db;
 //Change name to ilias_specific and sequence
-if ($ilDB->tableExists('xqcas_ilias_specific'))
+if ($db->tableExists('xqcas_ilias_specific'))
 {
-	$ilDB->dropTable("xqcas_ilias_specific", FALSE);
-	$ilDB->dropTable("xqcas_ilias_specific_seq", FALSE);
+	$db->dropTable("xqcas_ilias_specific", FALSE);
+	$db->dropTable("xqcas_ilias_specific_seq", FALSE);
 }
-if (!$ilDB->tableExists('xqcas_extra_info'))
+if (!$db->tableExists('xqcas_extra_info'))
 {
 	$fields = array(
 		'id' => array(
@@ -888,9 +890,9 @@ if (!$ilDB->tableExists('xqcas_extra_info'))
 			'length' => 4
 		)
 	);
-	$ilDB->createTable("xqcas_extra_info", $fields);
-	$ilDB->createSequence("xqcas_extra_info");
-	$ilDB->addPrimaryKey("xqcas_extra_info", array("id"));
+	$db->createTable("xqcas_extra_info", $fields);
+	$db->createSequence("xqcas_extra_info");
+	$db->addPrimaryKey("xqcas_extra_info", array("id"));
 }
 ?>
 <#24>
@@ -902,19 +904,19 @@ if (!$ilDB->tableExists('xqcas_extra_info'))
  * add id to old version of the plugin
  */
 
-$res = $ilDB->queryF("SELECT * FROM qpl_qst_type WHERE type_tag = %s", array('text'), array('assCasQuestion')
+$res = $db->queryF("SELECT * FROM qpl_qst_type WHERE type_tag = %s", array('text'), array('assCasQuestion')
 );
 
 if ($res->numRows() != 0)
 {
 	//Update the old plugin name
-	$res = $ilDB->query("UPDATE qpl_qst_type SET type_tag = 'assStackQuestion' WHERE type_tag = 'assCasQuestion'");
+	$res = $db->query("UPDATE qpl_qst_type SET type_tag = 'assStackQuestion' WHERE type_tag = 'assCasQuestion'");
 	//Get last id
-	$res = $ilDB->query("SELECT MAX(question_type_id) maxid FROM qpl_qst_type");
-	$data = $ilDB->fetchAssoc($res);
+	$res = $db->query("SELECT MAX(question_type_id) maxid FROM qpl_qst_type");
+	$data = $db->fetchAssoc($res);
 	$max = $data["maxid"];
 	//Delete new plugin
-	$res = $ilDB->query("DELETE FROM qpl_qst_type WHERE question_type_id = " . $max);
+	$res = $db->query("DELETE FROM qpl_qst_type WHERE question_type_id = " . $max);
 }
 ?>
 <#28>
@@ -924,31 +926,30 @@ $matrix_parens = array(
 	'type' => 'text',
 	'length' => 8
 );
-if ($ilDB->tableExists('xqcas_options'))
+if ($db->tableExists('xqcas_options'))
 {
-	if (!$ilDB->tableColumnExists("xqcas_options", "matrix_parens"))
+	if (!$db->tableColumnExists("xqcas_options", "matrix_parens"))
 	{
-		$ilDB->addTableColumn("xqcas_options", "matrix_parens", $matrix_parens);
+		$db->addTableColumn("xqcas_options", "matrix_parens", $matrix_parens);
 	}
 }
 ?>
 <#29>
 <?php
-global $lng;
-//Adding of all feedback placeholder in question specific feedback
-if ($ilDB->tableExists('xqcas_options') AND $ilDB->tableExists('xqcas_prts'))
+$lng = $DIC->language();//Adding of all feedback placeholder in question specific feedback
+if ($db->tableExists('xqcas_options') AND $db->tableExists('xqcas_prts'))
 {
 	$counter = 0;
 
 	//Get specific feedback text and question_id
-	$options_result = $ilDB->query("SELECT question_id, specific_feedback FROM xqcas_options");
-	while ($options_row = $ilDB->fetchAssoc($options_result)) {
+	$options_result = $db->query("SELECT question_id, specific_feedback FROM xqcas_options");
+	while ($options_row = $db->fetchAssoc($options_result)) {
 		$question_id = $options_row['question_id'];
 		$specific_feedback_text = $options_row['specific_feedback'];
 
 		//Get question text of those STACK questions
-		$question_result = $ilDB->query("SELECT question_text FROM qpl_questions WHERE question_id = '" . $question_id . "'");
-		$question_row = $ilDB->fetchAssoc($question_result);
+		$question_result = $db->query("SELECT question_text FROM qpl_questions WHERE question_id = '" . $question_id . "'");
+		$question_row = $db->fetchAssoc($question_result);
 		$question_text = $question_row['question_text'];
 
 		//If no feedback placeholder in question text and specific_feedback
@@ -957,8 +958,8 @@ if ($ilDB->tableExists('xqcas_options') AND $ilDB->tableExists('xqcas_prts'))
 			$options = assStackQuestionOptions::_read($question_id);
 
 			//get PRT name
-			$prt_results = $ilDB->query("SELECT name FROM xqcas_prts WHERE question_id = '" . $question_id . "'");
-			while ($prt_row = $ilDB->fetchAssoc($prt_results)) {
+			$prt_results = $db->query("SELECT name FROM xqcas_prts WHERE question_id = '" . $question_id . "'");
+			while ($prt_row = $db->fetchAssoc($prt_results)) {
 				$specific_feedback_text .= "<p>[[feedback:";
 				$specific_feedback_text .= $prt_row['name'];
 				$specific_feedback_text .= "]]</p>";
@@ -976,12 +977,12 @@ if ($ilDB->tableExists('xqcas_options') AND $ilDB->tableExists('xqcas_prts'))
 <#30>
 <?php
 
-	if ($ilDB->tableExists('xqcas_options'))
+	if ($db->tableExists('xqcas_options'))
         {
             //Get matrix parens field
 			require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/ilias_object/class.assStackQuestionOptions.php');
-			$options_result = $ilDB->query("SELECT question_id, matrix_parens FROM xqcas_options");
-            while ($options_row = $ilDB->fetchAssoc($options_result)) {
+			$options_result = $db->query("SELECT question_id, matrix_parens FROM xqcas_options");
+            while ($options_row = $db->fetchAssoc($options_result)) {
                 $matrix_parens = $options_row['matrix_parens'];
                 $question_id = $options_row['question_id'];
                 switch($matrix_parens){
@@ -1005,4 +1006,8 @@ if ($ilDB->tableExists('xqcas_options') AND $ilDB->tableExists('xqcas_prts'))
                 }
             }
 		}
+?>
+    <#30>
+<?php
+
 ?>

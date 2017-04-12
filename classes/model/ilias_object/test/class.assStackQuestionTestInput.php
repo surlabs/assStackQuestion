@@ -102,12 +102,13 @@ class assStackQuestionTestInput
 
 	public function create()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
 		//Get an ID for this object
-		$this->setTestInputId((int)$ilDB->nextId('xqcas_qtest_inputs'));
+		$this->setTestInputId((int)$db->nextId('xqcas_qtest_inputs'));
 		//Insert Object into DB
-		$ilDB->insert("xqcas_qtest_inputs", array(
+		$db->insert("xqcas_qtest_inputs", array(
 			"id" => array("integer", $this->getTestInputId()),
 			"question_id" => array("integer", $this->getQuestionId()),
 			"test_case" => array("integer", $this->getTestCase()),
@@ -119,16 +120,17 @@ class assStackQuestionTestInput
 
 	public static function _read($question_id, $testcase_name)
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		//Inputs array
 		$tests_input = array();
 		//Select query
 		$query = 'SELECT * FROM xqcas_qtest_inputs WHERE question_id = '
-			. $ilDB->quote($question_id, 'integer') . ' AND test_case = ' . $ilDB->quote($testcase_name, 'integer');
-		$res = $ilDB->query($query);
+			. $db->quote($question_id, 'integer') . ' AND test_case = ' . $db->quote($testcase_name, 'integer');
+		$res = $db->query($query);
 
 		//If there is a result returns object, otherwise returns false.
-		while ($row = $ilDB->fetchAssoc($res)) {
+		while ($row = $db->fetchAssoc($res)) {
 			//Options object to return in case there are options in DB for this $question_id
 			$input = new assStackQuestionTestInput((int)$row["id"], $question_id, (int)$row["test_case"]);
 			//Filling object with data from DB
@@ -141,10 +143,11 @@ class assStackQuestionTestInput
 
 	public function update()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
 		$query = 'UPDATE xqcas_qtest_inputs SET value="' . $this->getTestInputValue() . '" WHERE id=' . $this->getTestInputId();
-		$res = $ilDB->query($query);
+		$res = $db->query($query);
 
 		return;
 	}

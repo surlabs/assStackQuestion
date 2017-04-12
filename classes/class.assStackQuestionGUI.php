@@ -331,8 +331,9 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function getPreview($show_question_only = FALSE, $showInlineFeedback = false)
 	{
-		global $ilTabs, $tpl;
+		global $DIC, $tpl;
 
+		$tabs = $DIC->tabs();
 		//Get solutions if given
 		$solutions = is_object($this->getPreviewSession()) ? (array)$this->getPreviewSession()->getParticipantsSolution() : array();
 
@@ -343,10 +344,10 @@ class assStackQuestionGUI extends assQuestionGUI
 		//Tab management
 		if ($_GET['cmd'] == 'edit')
 		{
-			$ilTabs->setTabActive('edit_page');
+			$tabs->setTabActive('edit_page');
 		} elseif ($_GET['cmd'] == 'preview')
 		{
-			$ilTabs->setTabActive('preview');
+			$tabs->setTabActive('preview');
 		}
 
 		//Seed management
@@ -796,7 +797,9 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function setQuestionTabs()
 	{
-		global $rbacsystem, $ilTabs, $lng;
+		global $DIC,$rbacsystem;
+
+		$tabs = $DIC->tabs();
 
 		$this->ctrl->setParameterByClass("ilAssQuestionPageGUI", "q_id", $_GET["q_id"]);
 		include_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
@@ -817,11 +820,11 @@ class assStackQuestionGUI extends assQuestionGUI
 			{
 				// edit page
 
-				$ilTabs->addTarget("edit_page", $this->ctrl->getLinkTargetByClass("ilAssQuestionPageGUI", "edit"), array("edit", "insert", "exec_pg"), "", "", $force_active);
+				$tabs->addTarget("edit_page", $this->ctrl->getLinkTargetByClass("ilAssQuestionPageGUI", "edit"), array("edit", "insert", "exec_pg"), "", "", "");
 			}
 
 			// edit page
-			$ilTabs->addTarget("preview", $this->ctrl->getLinkTargetByClass("ilAssQuestionPreviewGUI", "show"), array("preview"), "ilAssQuestionPageGUI", "", $force_active);
+			$tabs->addTarget("preview", $this->ctrl->getLinkTargetByClass("ilAssQuestionPreviewGUI", "show"), array("preview"), "ilAssQuestionPageGUI", "", "");
 		}
 
 		$force_active = false;
@@ -845,18 +848,18 @@ class assStackQuestionGUI extends assQuestionGUI
 				}
 			}
 			// edit question properties
-			$ilTabs->addTarget("edit_properties", $url, array("editQuestion", "save", "cancel", "addSuggestedSolution", "cancelExplorer", "linkChilds", "removeSuggestedSolution", "parseQuestion", "saveEdit", "suggestRange"), $classname, "", $force_active);
+			$tabs->addTarget("edit_properties", $url, array("editQuestion", "save", "cancel", "addSuggestedSolution", "cancelExplorer", "linkChilds", "removeSuggestedSolution", "parseQuestion", "saveEdit", "suggestRange"), $classname, "", $force_active);
 
-			$this->addTab_QuestionFeedback($ilTabs);
+			$this->addTab_QuestionFeedback($tabs);
 
 			if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'deployedSeedsManagement', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runUnitTests', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle',)))
 			{
-				$ilTabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
-				$ilTabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
-				$ilTabs->addSubTab('deployed_seeds_management', $this->plugin->txt('dsm_deployed_seeds'), $this->ctrl->getLinkTargetByClass($classname, "deployedSeedsManagement"));
-				$ilTabs->addSubTab('unit_tests', $this->plugin->txt('ut_title'), $this->ctrl->getLinkTargetByClass($classname, "showUnitTests"));
-				$ilTabs->addSubTab('import_from_moodle', $this->plugin->txt('import_from_moodle'), $this->ctrl->getLinkTargetByClass($classname, "importQuestionFromMoodleForm"));
-				$ilTabs->addSubTab('export_to_moodle', $this->plugin->txt('export_to_moodle'), $this->ctrl->getLinkTargetByClass($classname, "exportQuestiontoMoodleForm"));
+				$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
+				$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
+				$tabs->addSubTab('deployed_seeds_management', $this->plugin->txt('dsm_deployed_seeds'), $this->ctrl->getLinkTargetByClass($classname, "deployedSeedsManagement"));
+				$tabs->addSubTab('unit_tests', $this->plugin->txt('ut_title'), $this->ctrl->getLinkTargetByClass($classname, "showUnitTests"));
+				$tabs->addSubTab('import_from_moodle', $this->plugin->txt('import_from_moodle'), $this->ctrl->getLinkTargetByClass($classname, "importQuestionFromMoodleForm"));
+				$tabs->addSubTab('export_to_moodle', $this->plugin->txt('export_to_moodle'), $this->ctrl->getLinkTargetByClass($classname, "exportQuestiontoMoodleForm"));
 			}
 
 		}
@@ -864,7 +867,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		// Assessment of questions sub menu entry
 		if ($_GET["q_id"])
 		{
-			$ilTabs->addTarget("statistics", $this->ctrl->getLinkTargetByClass($classname, "assessment"), array("assessment"), $classname, "");
+			$tabs->addTarget("statistics", $this->ctrl->getLinkTargetByClass($classname, "assessment"), array("assessment"), $classname, "");
 		}
 
 		if (($_GET["calling_test"] > 0) || ($_GET["test_ref_id"] > 0))
@@ -874,10 +877,10 @@ class assStackQuestionGUI extends assQuestionGUI
 			{
 				$ref_id = $_GET["test_ref_id"];
 			}
-			$ilTabs->setBackTarget($this->lng->txt("backtocallingtest"), "ilias.php?baseClass=ilObjTestGUI&cmd=questions&ref_id=$ref_id");
+			$tabs->setBackTarget($this->lng->txt("backtocallingtest"), "ilias.php?baseClass=ilObjTestGUI&cmd=questions&ref_id=$ref_id");
 		} else
 		{
-			$ilTabs->setBackTarget($this->lng->txt("qpl"), $this->ctrl->getLinkTargetByClass("ilobjquestionpoolgui", "questions"));
+			$tabs->setBackTarget($this->lng->txt("qpl"), $this->ctrl->getLinkTargetByClass("ilobjquestionpoolgui", "questions"));
 		}
 
 	}
@@ -895,10 +898,13 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function editQuestionForm()
 	{
-		global $ilTabs, $ilCtrl;
+		global $DIC;
+
+		$tabs = $DIC->tabs();
+
 		//Set all parameters required
-		$ilTabs->activateTab('edit_properties');
-		$ilTabs->activateSubTab('edit_question');
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('edit_question');
 		$this->getQuestionTemplate();
 
 		//Create GUI object
@@ -912,7 +918,8 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Show info messages
 		$this->info_config = new stdClass();
-		$this->info_config->ajax_url = $ilCtrl->getLinkTargetByClass("assstackquestiongui", "saveInfoState", "", TRUE);
+		$ctrl = $DIC->ctrl();
+		$this->info_config->ajax_url = $ctrl->getLinkTargetByClass("assstackquestiongui", "saveInfoState", "", TRUE);
 
 		//Set to user's session value
 		if (isset($_SESSION['stack_authoring_show']))
@@ -965,10 +972,11 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function deployedSeedsManagement()
 	{
-		global $ilTabs;
+		global $DIC;
+		$tabs = $DIC->tabs();
 		//Set all parameters required
-		$ilTabs->activateTab('edit_properties');
-		$ilTabs->activateSubTab('deployed_seeds_management');
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('deployed_seeds_management');
 		$this->getQuestionTemplate();
 
 		//Create GUI object
@@ -989,10 +997,11 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function createNewDeployedSeed()
 	{
-		global $ilTabs;
+		global $DIC;
+		$tabs = $DIC->tabs();
 		//Set all parameters required
-		$ilTabs->activateTab('edit_properties');
-		$ilTabs->activateSubTab('deployed_seeds_management');
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('deployed_seeds_management');
 		$this->getQuestionTemplate();
 
 		//New seed creation
@@ -1011,10 +1020,11 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function deleteDeployedSeed()
 	{
-		global $ilTabs;
+		global $DIC;
+		$tabs = $DIC->tabs();
 		//Set all parameters required
-		$ilTabs->activateTab('edit_properties');
-		$ilTabs->activateSubTab('deployed_seeds_management');
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('deployed_seeds_management');
 		$this->getQuestionTemplate();
 
 		//New seed creation
@@ -1048,10 +1058,11 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function scoringManagementPanel($new_question_points = '')
 	{
-		global $ilTabs;
+		global $DIC;
+		$tabs = $DIC->tabs();
 		//Set all parameters required
-		$ilTabs->activateTab('edit_properties');
-		$ilTabs->activateSubTab('scoring_management');
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('scoring_management');
 		$this->getQuestionTemplate();
 
 		//Create GUI object
@@ -1111,11 +1122,12 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function showUnitTests()
 	{
-		global $ilTabs;
+		global $DIC;
+		$tabs = $DIC->tabs();
 
 		//Set all parameters required
-		$ilTabs->activateTab('edit_properties');
-		$ilTabs->activateSubTab('unit_tests');
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('unit_tests');
 		$this->getQuestionTemplate();
 
 		//Create GUI object
@@ -1138,12 +1150,13 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function runTestcases()
 	{
-		global $ilTabs;
+		global $DIC;
+		$tabs = $DIC->tabs();
 
 		//Set all parameters required
 		$this->plugin->includeClass('utils/class.assStackQuestionStackFactory.php');
-		$ilTabs->activateTab('edit_properties');
-		$ilTabs->activateSubTab('unit_tests');
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('unit_tests');
 		$this->getQuestionTemplate();
 
 		//get Post vars
@@ -1167,7 +1180,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		if (!is_a($this->object->getStackQuestion(), 'assStackQuestionStackQuestion'))
 		{
 			$this->plugin->includeClass("model/class.assStackQuestionStackQuestion.php");
-			$this->object->setStackQuestion(new assStackQuestionStackQuestion($active_id, $pass));
+			$this->object->setStackQuestion(new assStackQuestionStackQuestion());
 			$this->object->getStackQuestion()->init($this->object);
 		}
 
@@ -1192,12 +1205,13 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function editTestcases()
 	{
-		global $ilTabs;
+		global $DIC;
+		$tabs = $DIC->tabs();
 
 		//Set all parameters required
 		$this->plugin->includeClass('utils/class.assStackQuestionStackFactory.php');
-		$ilTabs->activateTab('edit_properties');
-		$ilTabs->activateSubTab('unit_tests');
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('unit_tests');
 		$this->getQuestionTemplate();
 
 		//get Post vars
@@ -1245,7 +1259,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			$testcase_name = FALSE;
 		}
 
-		$new_tests = assStackQuestionTest::_read($this->object->getId(), $testcase);
+		$new_tests = assStackQuestionTest::_read($this->object->getId());
 		$new_test = $new_tests[$testcase_name];
 
 		if (is_a($new_test, 'assStackQuestionTest'))
@@ -1290,11 +1304,12 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function createTestcases()
 	{
-		global $ilTabs;
+		global $DIC;
+		$tabs = $DIC->tabs();
 		//Set all parameters required
 		$this->plugin->includeClass('utils/class.assStackQuestionStackFactory.php');
-		$ilTabs->activateTab('edit_properties');
-		$ilTabs->activateSubTab('unit_tests');
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('unit_tests');
 		$this->getQuestionTemplate();
 
 		if (isset($_POST['test_id']))
@@ -1433,11 +1448,13 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function importQuestionFromMoodleForm()
 	{
-		global $lng, $ilTabs;
+		global $DIC;
 
+		$lng = $DIC->language();
+		$tabs = $DIC->tabs();
 		//Set all parameters required
-		$ilTabs->activateTab('edit_properties');
-		$ilTabs->activateSubTab('import_from_moodle');
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('import_from_moodle');
 
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 
@@ -1462,11 +1479,12 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function importQuestionFromMoodle()
 	{
-		global $lng, $ilTabs;
+		global $DIC;
+		$tabs = $DIC->tabs();
 
 		//Set all parameters required
-		$ilTabs->activateTab('edit_properties');
-		$ilTabs->activateSubTab('import_from_moodle');
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('import_from_moodle');
 
 		//Getting the xml file from $_FILES
 		if (file_exists($_FILES["questions_xml"]["tmp_name"]))
@@ -1497,11 +1515,13 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function exportQuestiontoMoodleForm()
 	{
-		global $lng, $ilTabs;
+		global $DIC;
+		$tabs = $DIC->tabs();
+		$lng = $DIC->language();
 
 		//Set all parameters required
-		$ilTabs->activateTab('edit_properties');
-		$ilTabs->activateSubTab('export_to_moodle');
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('export_to_moodle');
 
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 
@@ -1544,13 +1564,15 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function exportQuestionToMoodle()
 	{
-		global $lng, $ilTabs;
+		global $DIC;
+		$tabs = $DIC->tabs();
+		$lng = $DIC->language();
 
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/export/MoodleXML/class.assStackQuestionMoodleXMLExport.php';
 
 		//Set all parameters required
-		$ilTabs->activateTab('edit_properties');
-		$ilTabs->activateSubTab('export_to_moodle');
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('export_to_moodle');
 
 		//Getting data from POST
 		if (isset($_POST['first_question_id']) AND isset($_POST['xqcas_all_from_pool']))
@@ -1584,11 +1606,11 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function showFeedback()
 	{
-		global $lng, $ilTabs;
-
+		global $DIC;
+		$tabs = $DIC->tabs();
 		//Set all parameters required
-		$ilTabs->activateTab('edit_properties');
-		$ilTabs->activateSubTab('feedback');
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('feedback');
 
 		return "";
 	}

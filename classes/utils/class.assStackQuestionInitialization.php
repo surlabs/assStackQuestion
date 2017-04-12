@@ -60,7 +60,9 @@ function stack_string($key, $a = null)
 
 function getLanguage()
 {
-	global $lng;
+	global $DIC;
+
+	$lng = $DIC->language();
 
 	return $lng->getUserLanguage();
 }

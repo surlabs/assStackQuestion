@@ -108,11 +108,12 @@ class assStackQuestionScoringGUI
 	 */
 	private function getScoringCreationForm($new_question_points_value = '')
 	{
-		global $ilCtrl;
+		global $DIC;
 
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
-		$form->setFormAction($ilCtrl->getFormActionByClass('assStackQuestionGUI'));
+		$ctrl = $DIC->ctrl();
+		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
 		$form->setTitle($this->getPlugin()->txt("sco_scoring_form"));
 
 		//Current points field

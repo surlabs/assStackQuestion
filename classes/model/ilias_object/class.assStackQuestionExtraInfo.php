@@ -132,13 +132,14 @@ class assStackQuestionExtraInfo
 
     public function create()
     {
-        global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		include_once("./Services/RTE/classes/class.ilRTE.php");
 
 		//Get an ID for this object
-        $this->setSpecificId((int) $ilDB->nextId('xqcas_extra_info'));
+        $this->setSpecificId((int) $db->nextId('xqcas_extra_info'));
         //Insert Object into DB
-        $ilDB->insert("xqcas_extra_info", array(
+        $db->insert("xqcas_extra_info", array(
             "id" => array("integer", $this->getSpecificId()),
             "question_id" => array("integer", $this->getQuestionId()),
             "general_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($this->getHowToSolve(), 0)),
@@ -155,18 +156,19 @@ class assStackQuestionExtraInfo
      */
     public static function _read($question_id)
     {
-        global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		include_once("./Services/RTE/classes/class.ilRTE.php");
 
         //Inputs array
         $extra_info = array();
         //Select query
         $query = 'SELECT * FROM xqcas_extra_info WHERE question_id = '
-                . $ilDB->quote($question_id, 'integer');
-        $res = $ilDB->query($query);
+                . $db->quote($question_id, 'integer');
+        $res = $db->query($query);
 
         //If there is a result returns object, otherwise returns false.
-        while ($row = $ilDB->fetchAssoc($res))
+        while ($row = $db->fetchAssoc($res))
         {
             //Options object to return in case there are options in DB for this $question_id
             $specific = new assStackQuestionExtraInfo((int) $row["id"], (int) $question_id);
@@ -180,10 +182,11 @@ class assStackQuestionExtraInfo
 
     public function update()
     {
-        global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		include_once("./Services/RTE/classes/class.ilRTE.php");
 
-        $ilDB->replace('xqcas_extra_info',
+        $db->replace('xqcas_extra_info',
             array(
                 "id" => array('integer', $this->getSpecificId())),
             array(

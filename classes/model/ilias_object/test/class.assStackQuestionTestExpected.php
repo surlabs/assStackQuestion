@@ -125,12 +125,13 @@ class assStackQuestionTestExpected
 
 	public function create()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
 		//Get an ID for this object
-		$this->setTestExpectedId((int)$ilDB->nextId('xqcas_qtest_expected'));
+		$this->setTestExpectedId((int)$db->nextId('xqcas_qtest_expected'));
 		//Insert Object into DB
-		$ilDB->insert("xqcas_qtest_expected", array(
+		$db->insert("xqcas_qtest_expected", array(
 			"id" => array("integer", $this->getTestExpectedId()),
 			"question_id" => array("integer", $this->getQuestionId()),
 			"test_case" => array("integer", $this->getTestCase()),
@@ -144,16 +145,17 @@ class assStackQuestionTestExpected
 
 	public static function _read($question_id, $testcase_name)
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		//Inputs array
 		$tests_expected = array();
 		//Select query
 		$query = 'SELECT * FROM xqcas_qtest_expected WHERE question_id = '
-			. $ilDB->quote($question_id, 'integer') . ' AND test_case = ' . $ilDB->quote($testcase_name, 'integer');
-		$res = $ilDB->query($query);
+			. $db->quote($question_id, 'integer') . ' AND test_case = ' . $db->quote($testcase_name, 'integer');
+		$res = $db->query($query);
 
 		//If there is a result returns object, otherwise returns false.
-		while ($row = $ilDB->fetchAssoc($res)) {
+		while ($row = $db->fetchAssoc($res)) {
 			//Options object to return in case there are options in DB for this $question_id
 			$expected = new assStackQuestionTestExpected((int)$row["id"], $question_id, $row["test_case"], $row["prt_name"]);
 			//Filling object with data from DB
@@ -167,12 +169,13 @@ class assStackQuestionTestExpected
 
 	public function update()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
 		$query = 'UPDATE xqcas_qtest_expected SET expected_score="' . $this->getExpectedScore()
 			. '", expected_penalty="' . $this->getExpectedPenalty() . '", expected_answer_note="' . $this->getExpectedAnswerNote()
 			. '"  WHERE id=' . $this->getTestExpectedId();
-		$res = $ilDB->query($query);
+		$res = $db->query($query);
 
 		return;
 	}

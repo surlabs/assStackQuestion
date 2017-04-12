@@ -196,13 +196,14 @@ class assStackQuestionMoodleImport
 
 	public function deletePredefinedQuestionData($question_id)
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
 		$query = 'DELETE FROM xqcas_options WHERE question_id = ' . $question_id;
-		$ilDB->manipulate($query);
+		$db->manipulate($query);
 
 		$query = 'DELETE FROM xqcas_inputs WHERE question_id = ' . $question_id;
-		$ilDB->manipulate($query);
+		$db->manipulate($query);
 	}
 	/*
 	 * PARSER

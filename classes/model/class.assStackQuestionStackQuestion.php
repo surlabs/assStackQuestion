@@ -194,7 +194,6 @@ class assStackQuestionStackQuestion
 	 */
 	public function init(assStackQuestion $ilias_question, $step_to_stop = '', $maintain_seed = -1, $authorized = TRUE, $instanciate = FALSE)
 	{
-		global $lng;
 		//Step 0: set question id and points and set if instant validation is shown
 		$this->setQuestionId($ilias_question->getId());
 		$this->setPoints($ilias_question->getPoints());
@@ -268,7 +267,9 @@ class assStackQuestionStackQuestion
 	{
 		if (is_a($ilias_question, "assStackQuestion"))
 		{
-			global $lng;
+			global $DIC;
+
+			$lng = $DIC->language();
 			switch (sizeof($ilias_question->getDeployedSeeds()))
 			{
 				//No deployed seeds for this question.
@@ -473,7 +474,9 @@ class assStackQuestionStackQuestion
 	 */
 	public function prepareAllCasTexts($ilias_question, $stop_here = FALSE, $instanciate = FALSE)
 	{
-		global $lng;
+		global $DIC;
+
+		$lng = $DIC->language();
 
 		if ($instanciate)
 		{

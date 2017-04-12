@@ -79,8 +79,9 @@ abstract class stack_connection_helper {
         switch (self::$config->casresultscache) {
             case 'db':
 				//fim: use the ilias database
-				global $ilDB;
-				$connection = new stack_cas_connection_db_cache($connection, $debuglog, $ilDB);
+                global $DIC;
+                $db = $DIC->database();
+				$connection = new stack_cas_connection_db_cache($connection, $debuglog, $db);
 				//fim.
 				break;
 			case 'otherdb':

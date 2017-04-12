@@ -229,8 +229,6 @@ class assStackQuestionFeedbackGUI
 	 */
 	private function fillSpecificPrtFeedback($show_question_text, $prt_name, $prt, $graphical_output, $show_points, $show_feedback, $show_correct_solution)
 	{
-		global $rbacsystem;
-
 		//Set block
 		$this->getTemplate()->setCurrentBlock('question_part');
 		$this->getTemplate()->setVariable('PRT_NAME', $prt_name);

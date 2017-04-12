@@ -117,11 +117,12 @@ class assStackQuestionTest
 
 	public function create()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		//Get an ID for this object
-		$this->setTestId((int)$ilDB->nextId('xqcas_qtests'));
+		$this->setTestId((int)$db->nextId('xqcas_qtests'));
 		//Insert Object into DB
-		$ilDB->insert("xqcas_qtests", array(
+		$db->insert("xqcas_qtests", array(
 			"id" => array("integer", $this->getTestId()),
 			"question_id" => array("integer", $this->getQuestionId()),
 			"test_case" => array("integer", $this->getTestCase())
@@ -131,21 +132,22 @@ class assStackQuestionTest
 
 	public static function _read($question_id, $test_case = '')
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		//Inputs array
 		$tests = array();
 		//Select query
 		$query = 'SELECT * FROM xqcas_qtests WHERE question_id = '
-			. $ilDB->quote($question_id, 'integer');
+			. $db->quote($question_id, 'integer');
 		if ($test_case) {
 			$query .= ' AND test_case = ' . $test_case;
 		}
-		$res = $ilDB->query($query);
+		$res = $db->query($query);
 
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/ilias_object/test/class.assStackQuestionTestInput.php';
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/ilias_object/test/class.assStackQuestionTestExpected.php';
 		//If there is a result returns object, otherwise returns false.
-		while ($row = $ilDB->fetchAssoc($res)) {
+		while ($row = $db->fetchAssoc($res)) {
 			//Test object to return in case there are options in DB for this $question_id
 			$test = new assStackQuestionTest((int)$row["id"], $question_id, (int)$row["test_case"]);
 			//Reading test data
@@ -165,19 +167,20 @@ class assStackQuestionTest
 
 	public function delete($question_id, $testcase_name)
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
-		$test = $ilDB->manipulateF("DELETE FROM xqcas_qtests WHERE question_id = %s AND test_case = %s",
+		$test = $db->manipulateF("DELETE FROM xqcas_qtests WHERE question_id = %s AND test_case = %s",
 			array('integer','integer'),
 			array($question_id, $testcase_name)
 		);
 
-		$inputs = $ilDB->manipulateF("DELETE FROM xqcas_qtest_inputs WHERE question_id = %s AND test_case = %s",
+		$inputs = $db->manipulateF("DELETE FROM xqcas_qtest_inputs WHERE question_id = %s AND test_case = %s",
 			array('integer','integer'),
 			array($question_id, $testcase_name)
 		);
 
-		$expected = $ilDB->manipulateF("DELETE FROM xqcas_qtest_expected WHERE question_id = %s AND test_case = %s",
+		$expected = $db->manipulateF("DELETE FROM xqcas_qtest_expected WHERE question_id = %s AND test_case = %s",
 			array('integer','integer'),
 			array($question_id, $testcase_name)
 		);

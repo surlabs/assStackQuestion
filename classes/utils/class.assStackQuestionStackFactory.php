@@ -72,7 +72,6 @@ class assStackQuestionStackFactory
 
 	public function getStackCasCasstringFromInput(assStackQuestionInput $input)
 	{
-		global $lng;
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/casstring.class.php';
 		$cas_casstring = new stack_cas_casstring($input->getTeacherAnswer());
 		$cas_casstring->set_key($input->getInputName());
@@ -111,7 +110,6 @@ class assStackQuestionStackFactory
 
 	public function getStackCasCasstringFromArray($parameters)
 	{
-		global $lng;
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/casstring.class.php';
 		$cas_casstring = new stack_cas_casstring($parameters["string"]);
 		$cas_casstring->set_key($parameters["name"]);
@@ -138,7 +136,9 @@ class assStackQuestionStackFactory
 	 */
 	public function getStackCasKeyVal(array $parameters)
 	{
-		global $lng;
+		global $DIC;
+
+		$lng = $DIC->language();
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/cassession.class.php';
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/keyval.class.php';
 		if (!isset($parameters['raw']) OR strlen($parameters['raw']) <= 0)
@@ -189,7 +189,9 @@ class assStackQuestionStackFactory
 	public function getStackCasText($parameters)
 	{
 		$cas_text = array();
-		global $lng;
+		global $DIC;
+
+		$lng = $DIC->language();
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/cassession.class.php';
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/castext.class.php';
 		if (!isset($parameters['raw']) OR strlen($parameters['raw']) <= 0)
@@ -254,7 +256,9 @@ class assStackQuestionStackFactory
 	 */
 	public function getStackInput($parameters)
 	{
-		global $lng;
+		global $DIC;
+
+		$lng = $DIC->language();
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/factory.class.php';
 		//If $parameters is an assStackQuestionInput object
 		if (is_a($parameters, 'assStackQuestionInput'))
@@ -282,7 +286,6 @@ class assStackQuestionStackFactory
 
 	/**
 	 *
-	 * @global type $lng
 	 * @param array $parameters
 	 * Composition:
 	 * ['status'] = string actual status.
@@ -298,7 +301,9 @@ class assStackQuestionStackFactory
 	{
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/inputbase.class.php';
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/inputstate.class.php';
-		global $lng;
+		global $DIC;
+
+		$lng = $DIC->language();
 		//State value translation to stack constans.
 		if (!isset($parameters['status']))
 		{

@@ -19,19 +19,19 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 	/**
 	 *
-	 * @global type $ilCtrl
 	 * @param type $cmd
 	 */
 	public function performCommand($cmd)
 	{
-		global $ilCtrl;
+		global $DIC;
 
 		//Set config object
 		$this->plugin_object->includeClass("model/configuration/class.assStackQuestionConfig.php");
 		$this->config = new assStackQuestionConfig($this->plugin_object);
 
 		// control flow
-		$cmd = $ilCtrl->getCmd($this, "configure");
+		$ctrl = $DIC->ctrl();
+		$cmd = $ctrl->getCmd($this, "configure");
 		switch ($cmd) {
 			case 'showOtherSettings':
 			case 'showDisplaySettings':
@@ -59,20 +59,22 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	 */
 	public function initTabs($a_mode = "")
 	{
-		global $ilCtrl, $ilTabs;
+		global $DIC;
+		$ctrl = $DIC->ctrl();
+		$tabs = $DIC->tabs();
 		switch ($a_mode) {
 			case 'others':
-				$ilTabs->addTab("show_connection_settings", $this->plugin_object->txt('show_connection_settings'), $ilCtrl->getLinkTarget($this, 'showConnectionSettings'));
-				$ilTabs->addTab("show_other_settings", $this->plugin_object->txt('show_other_settings'), $ilCtrl->getLinkTarget($this, 'showOtherSettings'));
-				$ilTabs->addSubTab('show_display_settings', $this->plugin_object->txt('show_display_settings'), $ilCtrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showDisplaySettings'));
-				$ilTabs->addSubTab('show_default_options_settings', $this->plugin_object->txt('show_default_options_settings'), $ilCtrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showDefaultOptionsSettings'));
-				$ilTabs->addSubTab('show_default_inputs_settings', $this->plugin_object->txt('show_default_inputs_settings'), $ilCtrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showDefaultInputsSettings'));
-				$ilTabs->addTab("show_healthcheck", $this->plugin_object->txt('show_healthcheck'), $ilCtrl->getLinkTarget($this, 'showHealthcheck'));
+				$tabs->addTab("show_connection_settings", $this->plugin_object->txt('show_connection_settings'), $ctrl->getLinkTarget($this, 'showConnectionSettings'));
+				$tabs->addTab("show_other_settings", $this->plugin_object->txt('show_other_settings'), $ctrl->getLinkTarget($this, 'showOtherSettings'));
+				$tabs->addSubTab('show_display_settings', $this->plugin_object->txt('show_display_settings'), $ctrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showDisplaySettings'));
+				$tabs->addSubTab('show_default_options_settings', $this->plugin_object->txt('show_default_options_settings'), $ctrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showDefaultOptionsSettings'));
+				$tabs->addSubTab('show_default_inputs_settings', $this->plugin_object->txt('show_default_inputs_settings'), $ctrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showDefaultInputsSettings'));
+				$tabs->addTab("show_healthcheck", $this->plugin_object->txt('show_healthcheck'), $ctrl->getLinkTarget($this, 'showHealthcheck'));
 				break;
 			default:
-				$ilTabs->addTab("show_connection_settings", $this->plugin_object->txt('show_connection_settings'), $ilCtrl->getLinkTarget($this, 'showConnectionSettings'));
-				$ilTabs->addTab("show_other_settings", $this->plugin_object->txt('show_other_settings'), $ilCtrl->getLinkTarget($this, 'showOtherSettings'));
-				$ilTabs->addTab("show_healthcheck", $this->plugin_object->txt('show_healthcheck'), $ilCtrl->getLinkTarget($this, 'showHealthcheck'));
+				$tabs->addTab("show_connection_settings", $this->plugin_object->txt('show_connection_settings'), $ctrl->getLinkTarget($this, 'showConnectionSettings'));
+				$tabs->addTab("show_other_settings", $this->plugin_object->txt('show_other_settings'), $ctrl->getLinkTarget($this, 'showOtherSettings'));
+				$tabs->addTab("show_healthcheck", $this->plugin_object->txt('show_healthcheck'), $ctrl->getLinkTarget($this, 'showHealthcheck'));
 				break;
 		}
 	}
@@ -92,8 +94,9 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 	public function showConnectionSettings()
 	{
-		global $tpl, $ilTabs;
-		$ilTabs->setTabActive('show_connection_settings');
+		global $DIC, $tpl;
+		$tabs = $DIC->tabs();
+		$tabs->setTabActive('show_connection_settings');
 
 		$form = $this->getConnectionSettingsForm();
 		$tpl->setContent($form->getHTML());
@@ -101,18 +104,20 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 	public function showOtherSettings()
 	{
-		global $tpl, $ilTabs, $ilCtrl;
-		$ilTabs->setTabActive('show_other_settings');
-		$ilTabs->setSubTabActive('show_display_settings');
+		global $DIC;
+		$tabs = $DIC->tabs();
+		$tabs->setTabActive('show_other_settings');
+		$tabs->setSubTabActive('show_display_settings');
 
 		$this->showDisplaySettings();
 	}
 
 	public function showDisplaySettings()
 	{
-		global $tpl, $ilTabs;
-		$ilTabs->setTabActive('show_other_settings');
-		$ilTabs->setSubTabActive('show_display_settings');
+		global $DIC, $tpl;
+		$tabs = $DIC->tabs();
+		$tabs->setTabActive('show_other_settings');
+		$tabs->setSubTabActive('show_display_settings');
 
 		$form = $this->getDisplaySettingsForm();
 		$tpl->setContent($form->getHTML());
@@ -120,9 +125,10 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 	public function showDefaultOptionsSettings()
 	{
-		global $tpl, $ilTabs;
-		$ilTabs->setTabActive('show_other_settings');
-		$ilTabs->setSubTabActive('show_default_options_settings');
+		global $DIC, $tpl;
+		$tabs = $DIC->tabs();
+		$tabs->setTabActive('show_other_settings');
+		$tabs->setSubTabActive('show_default_options_settings');
 
 		$form = $this->getDefaultOptionsSettingsForm();
 		$tpl->setContent($form->getHTML());
@@ -130,9 +136,10 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 	public function showDefaultInputsSettings()
 	{
-		global $tpl, $ilTabs;
-		$ilTabs->setTabActive('show_other_settings');
-		$ilTabs->setSubTabActive('show_default_inputs_settings');
+		global $DIC, $tpl;
+		$tabs = $DIC->tabs();
+		$tabs->setTabActive('show_other_settings');
+		$tabs->setSubTabActive('show_default_inputs_settings');
 
 		$form = $this->getDefaultInputsSettingsForm();
 		$tpl->setContent($form->getHTML());
@@ -144,15 +151,29 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	 */
 	public function showHealthcheck($a_mode = "")
 	{
-		global $tpl, $ilCtrl, $ilTabs;
-		$ilTabs->setTabActive('show_healthcheck');
+		global $DIC, $tpl;
+		$tabs = $DIC->tabs();
+		$tabs->setTabActive('show_healthcheck');
 
 		require_once("./Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php");
 		$toolbar = new ilToolbarGUI();
-		$toolbar->setFormAction($ilCtrl->getFormAction($this));
-		$toolbar->addFormButton($this->plugin_object->txt("healthcheck_reduced"), "healthcheckReduced");
-		$toolbar->addFormButton($this->plugin_object->txt("healthcheck_expanded"), "healthcheckExpanded");
-		$toolbar->addFormButton($this->plugin_object->txt("clear_cache"), "clearCache");
+		$ctrl = $DIC->ctrl();
+		$toolbar->setFormAction($ctrl->getFormAction($this));
+		include_once('./Services/UIComponent/Button/classes/class.ilButton.php');
+		$healthcheck_reduced_button = ilButton::getInstance();
+		$healthcheck_reduced_button->setCaption($this->plugin_object->txt("healthcheck_reduced"), FALSE);
+		$healthcheck_reduced_button->setName("healthcheckReduced");
+		$toolbar->addButtonInstance($healthcheck_reduced_button);
+
+		$healthcheck_expanded_button = ilButton::getInstance();
+		$healthcheck_expanded_button->setCaption($this->plugin_object->txt("healthcheck_expanded"), FALSE);
+		$healthcheck_expanded_button->setName("healthcheckExpanded");
+		$toolbar->addButtonInstance($healthcheck_expanded_button);
+
+		$clear_cache_button = ilButton::getInstance();
+		$clear_cache_button->setCaption($this->plugin_object->txt("clear_cache"), FALSE);
+		$clear_cache_button->setName("clearCache");
+		$toolbar->addButtonInstance($clear_cache_button);
 
 		if ($a_mode != "") {
 			//Create Healthcheck
@@ -177,10 +198,11 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 	public function getConnectionSettingsForm()
 	{
-		global $ilCtrl;
+		global $DIC;
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
-		$form->setFormAction($ilCtrl->getFormAction($this));
+		$ctrl = $DIC->ctrl();
+		$form->setFormAction($ctrl->getFormAction($this));
 
 		//Values from DB
 		$connection_data = assStackQuestionConfig::_getStoredSettings('connection');
@@ -280,10 +302,11 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 	public function getDisplaySettingsForm()
 	{
-		global $ilCtrl;
+		global $DIC;
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
-		$form->setFormAction($ilCtrl->getFormAction($this));
+		$ctrl = $DIC->ctrl();
+		$form->setFormAction($ctrl->getFormAction($this));
 
 		//Values from DB
 		$display_data = assStackQuestionConfig::_getStoredSettings('display');
@@ -327,10 +350,11 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 	public function getDefaultOptionsSettingsForm()
 	{
-		global $ilCtrl;
+		global $DIC;
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
-		$form->setFormAction($ilCtrl->getFormAction($this));
+		$ctrl = $DIC->ctrl();
+		$form->setFormAction($ctrl->getFormAction($this));
 
 		//Values from DB
 		$options_data = assStackQuestionConfig::_getStoredSettings('options');
@@ -413,10 +437,11 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 	public function getDefaultInputsSettingsForm()
 	{
-		global $ilCtrl;
+		global $DIC;
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
-		$form->setFormAction($ilCtrl->getFormAction($this));
+		$ctrl = $DIC->ctrl();
+		$form->setFormAction($ctrl->getFormAction($this));
 
 		//Values from DB
 		$inputs_data = assStackQuestionConfig::_getStoredSettings('inputs');

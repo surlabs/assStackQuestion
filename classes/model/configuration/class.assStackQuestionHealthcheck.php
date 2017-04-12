@@ -74,10 +74,13 @@ class assStackQuestionHealthcheck
 
 	public function healthcheckForm()
 	{
-		global $lng, $ilCtrl;
+		global $DIC;
+
+		$lng = $DIC->language();
 		require_once("./Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php");
 		$toolbar = new ilToolbarGUI();
-		$toolbar->setFormAction($ilCtrl->getFormAction($this));
+		$ctrl = $DIC->ctrl();
+		$toolbar->setFormAction($ctrl->getFormAction($this));
 		$toolbar->addFormButton($this->getPlugin()->txt('healthcheck_reduced'), 'healthcheckReduced');
 		$toolbar->addSeparator();
 		$toolbar->addFormButton($lng->txt('healthcheck_expanded'), 'healthcheckExpanded');
@@ -275,10 +278,10 @@ class assStackQuestionHealthcheck
 
 	public function clearCache()
 	{
-		global $ilDB;
-
+		global $DIC;
+		$db = $DIC->database();
 		$query = "TRUNCATE table xqcas_cas_cache";
-		$ilDB->manipulate($query);
+		$db->manipulate($query);
 
 		return TRUE;
 	}

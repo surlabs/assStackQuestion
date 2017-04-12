@@ -303,13 +303,14 @@ class assStackQuestionPRTNode
 
 	public function create()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		include_once("./Services/RTE/classes/class.ilRTE.php");
 
 		//Get an ID for this object
-		$this->setNodeId((int)$ilDB->nextId('xqcas_prt_nodes'));
+		$this->setNodeId((int)$db->nextId('xqcas_prt_nodes'));
 		//Insert Object into DB
-		$ilDB->insert("xqcas_prt_nodes", array(
+		$db->insert("xqcas_prt_nodes", array(
 			"id" => array("integer", $this->getNodeId()),
 			"question_id" => array("integer", $this->getQuestionId()),
 			"prt_name" => array("text", $this->getPRTName()),
@@ -339,19 +340,20 @@ class assStackQuestionPRTNode
 
 	public static function _read($question_id, $prt_name)
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		include_once("./Services/RTE/classes/class.ilRTE.php");
 
 		//Inputs array
 		$PRT_Nodes = array();
 		//Select query
 		$query = 'SELECT * FROM xqcas_prt_nodes WHERE question_id = '
-			. $ilDB->quote($question_id, 'integer') .
-			' AND prt_name = ' . $ilDB->quote($prt_name, 'text');
-		$res = $ilDB->query($query);
+			. $db->quote($question_id, 'integer') .
+			' AND prt_name = ' . $db->quote($prt_name, 'text');
+		$res = $db->query($query);
 
 		//If there is a result returns object, otherwise returns false.
-		while ($row = $ilDB->fetchAssoc($res)) {
+		while ($row = $db->fetchAssoc($res)) {
 			//Options object to return in case there are options in DB for this $question_id
 			$node = new assStackQuestionPRTNode($row["id"], $question_id, $row["prt_name"], $row["node_name"], $row["true_next_node"], $row["false_next_node"]);
 			//Filling object with data from DB
@@ -380,10 +382,11 @@ class assStackQuestionPRTNode
 
 	public function update()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		include_once("./Services/RTE/classes/class.ilRTE.php");
 
-		$ilDB->replace('xqcas_prt_nodes',
+		$db->replace('xqcas_prt_nodes',
 			array(
 				"id" => array('integer', $this->getNodeId())),
 			array(
@@ -466,10 +469,11 @@ class assStackQuestionPRTNode
 
 	public function delete()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
-		$query = 'DELETE FROM xqcas_prt_nodes WHERE id = ' . $ilDB->quote($this->getNodeId(), 'integer');
-		$ilDB->manipulate($query);
+		$query = 'DELETE FROM xqcas_prt_nodes WHERE id = ' . $db->quote($this->getNodeId(), 'integer');
+		$db->manipulate($query);
 	}
 
 	/**
@@ -595,8 +599,6 @@ class assStackQuestionPRTNode
 
 	public function isComplete()
 	{
-		global $lng;
-
 		if (strlen($this->getStudentAnswer()) AND strlen($this->getTeacherAnswer())) {
 				return TRUE;
 		}

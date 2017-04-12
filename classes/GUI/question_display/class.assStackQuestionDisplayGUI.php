@@ -82,7 +82,6 @@ class assStackQuestionDisplayGUI
 
 	/**
 	 * Create all variables needed for the validation through Ajax, JQuery and JavaScript.
-	 * @global type $lng
 	 * @global ilTemplate $tpl
 	 */
 	public function enableAjax()
@@ -173,13 +172,14 @@ class assStackQuestionDisplayGUI
 
 	/**
 	 * Returns the button for current input field.
-	 * @global type $lng
 	 * @param string $input_name
 	 * @return HTML the HTML code of the button of validation for this input.
 	 */
 	private function validationButton($input_name)
 	{
-		global $lng;
+		global $DIC;
+
+		$lng = $DIC->language();
 
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$this->getPlugin()->includeClass('utils/FormProperties/class.ilButtonFormPropertyGUI.php');

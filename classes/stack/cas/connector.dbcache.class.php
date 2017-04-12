@@ -40,10 +40,11 @@ class stack_cas_connection_db_cache implements stack_cas_connection
 	// fim: use ilias database
 	public function __construct(stack_cas_connection $rawconnection, stack_debug_log $debuglog, $db = "")
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		$this->rawconnection = $rawconnection;
 		$this->debug = $debuglog;
-		$this->db = $ilDB;
+		$this->db = $db;
 	}
 	// fim.
 

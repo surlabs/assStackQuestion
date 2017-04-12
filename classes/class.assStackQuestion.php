@@ -124,7 +124,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			throw new ilTestException('return details not implemented for ' . __METHOD__);
 		}*/
 
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
 		if (is_null($pass))
 		{
@@ -144,7 +145,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		// so collect them by the part result (value1)
 		// and summarize them afterwards
 		$points = array();
-		while ($row = $ilDB->fetchAssoc($result))
+		while ($row = $db->fetchAssoc($result))
 		{
 			$points[$row['value1']] = (float)$row['points'];
 		}
@@ -162,8 +163,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 */
 	public function saveWorkingData($active_id, $pass = NULL, $authorized = true)
 	{
-		/** @var $ilDB ilDB */
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
 		if (is_null($pass))
 		{
@@ -280,9 +281,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			//Save new user solution
 
 			//Delete current data
-			$query = "DELETE FROM tst_solutions" . " WHERE active_fi = " . $ilDB->quote($active_id, "integer") . " AND pass = " . $ilDB->quote($pass, "integer") . " AND question_fi = " . $ilDB->quote($this->getId(), "integer");
+			$query = "DELETE FROM tst_solutions" . " WHERE active_fi = " . $db->quote($active_id, "integer") . " AND pass = " . $db->quote($pass, "integer") . " AND question_fi = " . $db->quote($this->getId(), "integer");
 
-			$ilDB->manipulate($query);
+			$db->manipulate($query);
 
 
 			//Save question text instantiated
@@ -366,7 +367,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 */
 	public function addPointsToPRTDBEntry($active_id, $pass, $prt_name, $points)
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
 		$fieldData = array("points" => array("float", (float)$points));
 
@@ -375,7 +377,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			$fieldData['step'] = array("integer", $this->getStep());
 		}
 
-		return $ilDB->update("tst_solutions", $fieldData, array('active_fi' => array('integer', $active_id), 'pass' => array('integer', $pass), 'value1' => array('text', 'xqcas_prt_' . $prt_name . '_name'), 'value2' => array('text', $prt_name)));
+		return $db->update("tst_solutions", $fieldData, array('active_fi' => array('integer', $active_id), 'pass' => array('integer', $pass), 'value1' => array('text', 'xqcas_prt_' . $prt_name . '_name'), 'value2' => array('text', $prt_name)));
 	}
 
 	/**
@@ -517,7 +519,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 */
 	public function setExportDetailsXLS($worksheet, $startrow, $active_id, $pass)
 	{
-		global $lng;
+		global $DIC;
+
+		$lng = $DIC->language();
 		require_once 'Services/Excel/classes/class.ilExcelUtils.php';
 		$answered_inputs = array();
 		$solution = $this->getSolutionValues($active_id, $pass);
@@ -750,13 +754,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 */
 	public function deleteAdditionalTableData($question_id)
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		$additional_table_name = $this->getAdditionalTableName();
 		foreach ($additional_table_name as $table)
 		{
 			if (strlen($table))
 			{
-				$affectedRows = $ilDB->manipulateF("DELETE FROM $table WHERE question_id = %s", array('integer'), array($question_id));
+				$affectedRows = $db->manipulateF("DELETE FROM $table WHERE question_id = %s", array('integer'), array($question_id));
 			}
 		}
 	}
@@ -842,7 +847,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			//Check if it has random variable, in this case this is mandatory. Solve bug 0016426
 			if (assStackQuestionUtils::_questionHasRandomVariables($this->options->getQuestionVariables()))
 			{
-				global $lng;
+				global $DIC;
+
+				$lng = $DIC->language();
 				if ($this->options->getQuestionNote() == "" OR $this->options->getQuestionNote() == " ")
 				{
 					ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_error_no_question_note"), TRUE);
@@ -1178,11 +1185,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	{
 		if ($this->getId() != $question_id)
 		{
-			global $ilDB;
+			global $DIC;
+			$db = $DIC->database();
 			//load the basic question data
-			$result = $ilDB->query("SELECT qpl_questions.* FROM qpl_questions WHERE question_id = " . $ilDB->quote($question_id, 'integer'));
+			$result = $db->query("SELECT qpl_questions.* FROM qpl_questions WHERE question_id = " . $db->quote($question_id, 'integer'));
 
-			$data = $ilDB->fetchAssoc($result);
+			$data = $db->fetchAssoc($result);
 			$this->setId($question_id);
 			$this->setTitle($data["title"]);
 			$this->setComment($data["description"]);
@@ -1577,7 +1585,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 
 	public function getAllQuestionsFromPool()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
 		$q_type_id = $this->getQuestionTypeID();
 		$question_id = $this->getId();
@@ -1586,11 +1595,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 
 		if ($question_id > 0 AND $q_type_id)
 		{
-			$result = $ilDB->queryF("SELECT question_id FROM qpl_questions AS qpl
+			$result = $db->queryF("SELECT question_id FROM qpl_questions AS qpl
 									WHERE qpl.obj_fi = (SELECT obj_fi FROM qpl_questions WHERE question_id = %s)
 									AND qpl.question_type_fi = %s", array('integer', 'integer'), array($question_id, $q_type_id));
 
-			while ($row = $ilDB->fetchAssoc($result))
+			while ($row = $db->fetchAssoc($result))
 			{
 				$new_question_id = $row['question_id'];
 
@@ -1606,7 +1615,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 
 	public function getAllQuestionsFromTest()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
 		$q_type_id = $this->getQuestionTypeID();
 		$question_id = $this->getId();
@@ -1615,12 +1625,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 
 		if ($question_id > 0 AND $q_type_id)
 		{
-			$result = $ilDB->queryF("SELECT question_fi FROM tst_test_question AS tst INNER JOIN qpl_questions AS qpl
+			$result = $db->queryF("SELECT question_fi FROM tst_test_question AS tst INNER JOIN qpl_questions AS qpl
 								WHERE tst.question_fi = qpl.question_id
 								AND tst.test_fi = (SELECT test_fi FROM tst_test_question WHERE question_fi = %s)
 								AND qpl.question_type_fi = %s", array('integer', 'integer'), array($question_id, $q_type_id));
 
-			while ($row = $ilDB->fetchAssoc($result))
+			while ($row = $db->fetchAssoc($result))
 			{
 				$new_question_id = $row['question_fi'];
 
@@ -1692,24 +1702,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	{
 		require_once './Modules/TestQuestionPool/classes/class.ilUserQuestionResult.php';
 
-		/** @var ilDB $ilDB */
-		global $ilDB;
 		$result = new ilUserQuestionResult($this, $active_id, $pass);
-
-		/*
-		$data = $ilDB->queryF(
-			"SELECT value1, value2 FROM tst_solutions WHERE active_fi = %s AND pass = %s AND question_fi = %s AND step = (
-				SELECT MAX(step) FROM tst_solutions WHERE active_fi = %s AND pass = %s AND question_fi = %s
-			)",
-			array("integer", "integer", "integer","integer", "integer", "integer"),
-			array($active_id, $pass, $this->getId(), $active_id, $pass, $this->getId())
-		);
-
-		while($row = $ilDB->fetchAssoc($data))
-		{
-			$result->addKeyValue($row["value1"], $row["value2"]);
-		}
-		*/
 
 		$points = (float)$this->calculateReachedPoints($active_id, $pass);
 		$max_points = (float)$this->getMaximumPoints();
@@ -1748,7 +1741,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 
 	public function getQuestionSeedForCurrentTestRun($active_id, $pass)
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
 		$question_seed = NULL;
 
@@ -1764,8 +1758,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		{
 			foreach ($this->getPotentialResponsesTrees() as $prt)
 			{
-				$query = $ilDB->query("SELECT tst_solutions.value2 FROM tst_solutions WHERE active_fi = " . $ilDB->quote($active_id, 'integer') . " AND pass = " . $ilDB->quote($pass, 'integer') . " AND value1 = 'xqcas_prt_" . $prt->getPRTName() . "_seed'");
-				$data = $ilDB->fetchAssoc($query);
+				$query = $db->query("SELECT tst_solutions.value2 FROM tst_solutions WHERE active_fi = " . $db->quote($active_id, 'integer') . " AND pass = " . $db->quote($pass, 'integer') . " AND value1 = 'xqcas_prt_" . $prt->getPRTName() . "_seed'");
+				$data = $db->fetchAssoc($query);
 				if ($data["value2"])
 				{
 					$question_seed = $data["value2"];

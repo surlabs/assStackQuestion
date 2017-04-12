@@ -429,11 +429,12 @@ class assStackQuestionUtils
 
 	public static function _useInstantValidation()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		$query = 'SELECT value FROM xqcas_configuration WHERE parameter_name = "instant_validation"';
 
-		$result = $ilDB->query($query);
-		while ($row = $ilDB->fetchAssoc($result))
+		$result = $db->query($query);
+		while ($row = $db->fetchAssoc($result))
 		{
 			if ((int)$row['value'])
 			{
@@ -448,14 +449,15 @@ class assStackQuestionUtils
 
 	public static function _getSeedFromTest($question_id, $active_id, $pass, $prt_name)
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		$query = 'SELECT value2 FROM tst_solutions WHERE question_fi = ' . $question_id;
 		$query .= ' AND active_fi = ' . $active_id;
 		$query .= ' AND pass = ' . $pass;
 		$query .= ' AND value1 = "xqcas_prt_' . $prt_name . '_seed"';
 
-		$result = $ilDB->query($query);
-		while ($row = $ilDB->fetchAssoc($result))
+		$result = $db->query($query);
+		while ($row = $db->fetchAssoc($result))
 		{
 			if ((int)$row['value2'])
 			{

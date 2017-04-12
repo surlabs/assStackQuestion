@@ -113,6 +113,8 @@ Version History
 
 GitHub Version 2.4.0 (2017-X-X)
 -------------------------------
+- STACK can be used now in ILIAS 5.2
+- DIC is now used when possible
 
 
 GitHub Version 2.3.10 (2017-3-6)

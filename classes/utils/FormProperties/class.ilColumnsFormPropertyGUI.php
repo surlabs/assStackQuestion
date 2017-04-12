@@ -99,7 +99,9 @@ class ilColumnsFormPropertyGUI extends ilMultipartFormPropertyGUI
 				$casexpresion_english = "In this field, you can only use CAS expresion, but not HTML code.";
 				$casexpresion_german = "In diesem Feld können sie nur CAS-Ausdruck verwenden, kein HTML-Code.";
 
-				global $lng;
+				global $DIC;
+
+				$lng = $DIC->language();
 
 				//Student answer
 				include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';

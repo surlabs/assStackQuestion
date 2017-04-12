@@ -233,12 +233,13 @@ class assStackQuestionInput
 
 	public function create()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
 		//Get an ID for this object
-		$this->setInputId((int)$ilDB->nextId('xqcas_inputs'));
+		$this->setInputId((int)$db->nextId('xqcas_inputs'));
 		//Insert Object into DB
-		$ilDB->insert("xqcas_inputs", array(
+		$db->insert("xqcas_inputs", array(
 			"id" => array("integer", $this->getInputId()),
 			"question_id" => array("integer", $this->getQuestionId()),
 			"name" => array("text", $this->getInputName()),
@@ -262,16 +263,17 @@ class assStackQuestionInput
 
 	public static function _read($question_id)
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		//Inputs array
 		$inputs = array();
 		//Select query
 		$query = 'SELECT * FROM xqcas_inputs WHERE question_id = '
-			. $ilDB->quote($question_id, 'integer');
-		$res = $ilDB->query($query);
+			. $db->quote($question_id, 'integer');
+		$res = $db->query($query);
 
 		//If there is a result returns object, otherwise returns false.
-		while ($row = $ilDB->fetchAssoc($res)) {
+		while ($row = $db->fetchAssoc($res)) {
 			//Options object to return in case there are options in DB for this $question_id
 			$input = new assStackQuestionInput((int)$row["id"], (int)$question_id, $row["name"], $row["type"], $row["tans"]);
 			//Filling object with data from DB
@@ -295,8 +297,9 @@ class assStackQuestionInput
 
 	public function update()
 	{
-		global $ilDB;
-		$ilDB->replace('xqcas_inputs',
+		global $DIC;
+		$db = $DIC->database();
+		$db->replace('xqcas_inputs',
 			array(
 				"id" => array('integer', $this->getInputId())),
 			array(
@@ -324,22 +327,24 @@ class assStackQuestionInput
 
 	public function delete()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
-		$query = 'DELETE FROM xqcas_inputs WHERE id = ' . $ilDB->quote($this->getInputId(), 'integer');
-		$ilDB->manipulate($query);
+		$query = 'DELETE FROM xqcas_inputs WHERE id = ' . $db->quote($this->getInputId(), 'integer');
+		$db->manipulate($query);
 	}
 
 	public function getDefaultInput()
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 
 
 		//Select query
 		$query = 'SELECT * FROM xqcas_configuration WHERE group_name = "inputs"';
-		$res = $ilDB->query($query);
+		$res = $db->query($query);
 
-		while ($row = $ilDB->fetchAssoc($res)) {
+		while ($row = $db->fetchAssoc($res)) {
 			if ($row['parameter_name'] == 'input_box_size') {
 				$this->setBoxSize((int)$row['value']);
 			}

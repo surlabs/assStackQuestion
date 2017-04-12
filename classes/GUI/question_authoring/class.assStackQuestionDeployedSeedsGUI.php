@@ -141,8 +141,6 @@ class assStackQuestionDeployedSeedsGUI
 
 	private function fillTemplate()
 	{
-		global $ilCtrl;
-
 		//Step #1: Fill deployed seeds part
 		$this->getTemplate()->setVariable('DEPLOYED_SEEDS_TABLE_SUBTITLE', $this->getPlugin()->txt('dsm_subtitle'));
 		$this->getTemplate()->setVariable('DEPLOYED_SEEDS_TABLE_TITLE', $this->getPlugin()->txt('dsm_deployed_seeds'));
@@ -181,11 +179,12 @@ class assStackQuestionDeployedSeedsGUI
 
 	private function getDeployedSeedCreationForm()
 	{
-		global $ilCtrl;
+		global $DIC;
 
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
-		$form->setFormAction($ilCtrl->getFormActionByClass('assStackQuestionGUI'));
+		$ctrl = $DIC->ctrl();
+		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
 		$form->setTitle($this->getPlugin()->txt("dsm_new_deployed_seed_form"));
 
 		//Input field
@@ -206,11 +205,12 @@ class assStackQuestionDeployedSeedsGUI
 
 	private function getDeployedSeedViewForm($seed)
 	{
-		global $ilCtrl;
+		global $DIC;
 
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
-		$form->setFormAction($ilCtrl->getFormActionByClass('assStackQuestionGUI'));
+		$ctrl = $DIC->ctrl();
+		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
 
 		$delete_seed = new ilHiddenInputGUI('deployed_seed');
 		$delete_seed->setValue($seed);
@@ -224,12 +224,12 @@ class assStackQuestionDeployedSeedsGUI
 		$question_id->setValue($this->getQuestionId());
 		$form->addItem($question_id);
 
-		$ilCtrl->setParameterByClass("ilAssQuestionPageGUI", "fixed_seed", $seed);
+		$ctrl->setParameterByClass("ilAssQuestionPageGUI", "fixed_seed", $seed);
 
 		$ftpl = new ilTemplate("tpl.external_settings.html", true, true, "Services/Administration");
 
 		$ftpl->setCurrentBlock("edit_bl");
-		$ftpl->setVariable("URL_EDIT", $ilCtrl->getLinkTargetByClass("ilassquestionpagegui", "preview"));
+		$ftpl->setVariable("URL_EDIT", $ctrl->getLinkTargetByClass("ilassquestionpagegui", "preview"));
 		$ftpl->setVariable("TXT_EDIT", $this->getPlugin()->txt("dsm_fix_deployed_seed_form_button"));
 		$ftpl->parseCurrentBlock();
 

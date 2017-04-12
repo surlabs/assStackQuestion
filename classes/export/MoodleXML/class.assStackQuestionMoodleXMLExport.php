@@ -22,7 +22,9 @@ class assStackQuestionMoodleXMLExport
 
 	function __construct($stack_questions)
 	{
-		global $lng;
+		global $DIC;
+
+		$lng = $DIC->language();
 		if (is_array($stack_questions) AND sizeof($stack_questions)) {
 			$this->setStackQuestions($stack_questions);
 		} else {

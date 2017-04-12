@@ -32,15 +32,16 @@ class assStackQuestionConfig
 	 */
 	public static function _getStoredSettings($selector)
 	{
-		global $ilDB;
+		global $DIC;
+		$db = $DIC->database();
 		$settings = array();
 		if ($selector == 'all') {
 			$query = 'SELECT * FROM xqcas_configuration';
 		} else {
 			$query = 'SELECT * FROM xqcas_configuration WHERE group_name = "' . $selector . '"';
 		}
-		$result = $ilDB->query($query);
-		while ($row = $ilDB->fetchAssoc($result)) {
+		$result = $db->query($query);
+		while ($row = $db->fetchAssoc($result)) {
 			$settings[$row['parameter_name']] = $row['value'];
 		}
 
@@ -56,7 +57,6 @@ class assStackQuestionConfig
 	 */
 	public function saveConnectionSettings()
 	{
-		global $ilDB;
 		//Old settings
 
 		$saved_connection_data = self::_getStoredSettings('connection');
@@ -104,7 +104,6 @@ class assStackQuestionConfig
 	 */
 	public function saveDisplaySettings()
 	{
-		global $ilDB;
 		//Old settings
 		$saved_display_data = self::_getStoredSettings('display');
 		//New settings
@@ -132,7 +131,6 @@ class assStackQuestionConfig
 	 */
 	public function saveDefaultOptionsSettings()
 	{
-		global $ilDB;
 		//Old settings
 		$saved_options_data = self::_getStoredSettings('options');
 		//New settings
@@ -163,7 +161,6 @@ class assStackQuestionConfig
 	 */
 	public function saveDefaultInputsSettings()
 	{
-		global $ilDB;
 		//Old settings
 		$saved_inputs_data = self::_getStoredSettings('inputs');
 		//New settings
@@ -208,8 +205,9 @@ class assStackQuestionConfig
 	 */
 	private function saveToDB($parameter_name, $value, $group_name)
 	{
-		global $ilDB;
-		$ilDB->replace('xqcas_configuration',
+		global $DIC;
+		$db = $DIC->database();
+		$db->replace('xqcas_configuration',
 			array(
 				'parameter_name' => array('text', $parameter_name)
 			),
@@ -244,7 +242,6 @@ class assStackQuestionConfig
 	 */
 	public function setDefaultSettingsForConnection()
 	{
-		global $ilDB;
 		//Default values for connection
 		$connection_default_values = array(
 			'platform_type' => 'unix',
@@ -272,7 +269,6 @@ class assStackQuestionConfig
 	 */
 	public function setDefaultSettingsForDisplay()
 	{
-		global $ilDB;
 		//Default values for display
 		$display_default_values = array(
 			'instant_validation' => '0',
@@ -290,7 +286,6 @@ class assStackQuestionConfig
 	 */
 	public function setDefaultSettingsForOptions()
 	{
-		global $ilDB;
 		//Default values for options
 		$options_default_values = array(
 			'options_question_simplify' => '1',
@@ -314,7 +309,6 @@ class assStackQuestionConfig
 	 */
 	public function setDefaultSettingsForInputs()
 	{
-		global $ilDB;
 		//Default values for inputs
 		$inputs_default_values = array(
 			'input_type' => 'algebraic',
