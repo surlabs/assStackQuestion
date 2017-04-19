@@ -538,6 +538,8 @@ class assStackQuestionGUI extends assQuestionGUI
 			//User Solution
 			//Returns user solution HTML
 			$solution_output = $this->getQuestionOutput($solutions, FALSE, $show_feedback);
+			//2.3.12 add feedback to solution
+			$solution_output .= $this->getSpecificFeedbackOutput($active_id, $pass);
 		} else
 		{
 			//Correct solution
@@ -689,11 +691,11 @@ class assStackQuestionGUI extends assQuestionGUI
 
 			if ($best_solution)
 			{
-				$question_text .= "</br>" . assStackQuestionUtils::_getLatexText($solutions["general_feedback"]);
+				$question_text .= "</br>" . assStackQuestionUtils::_getLatex($solutions["general_feedback"]);
 			}
 
 			//Return the question text with LaTeX problems solved.
-			return assStackQuestionUtils::_getLatexText($question_text);
+			return assStackQuestionUtils::_getLatex($question_text);
 		} else
 		{
 			return "";
@@ -758,7 +760,7 @@ class assStackQuestionGUI extends assQuestionGUI
 					$string .= $solutions["prt"][$prt_name]["errors"];
 					$string .= '</div>';
 
-					$specific_feedback = $string;
+					$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", $string, $specific_feedback);
 				} else
 				{
 					"";
@@ -767,7 +769,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 		//Return the question text with LaTeX problems solved.
-		return assStackQuestionUtils::_getLatexText($specific_feedback);
+		return assStackQuestionUtils::_getLatex($specific_feedback);
 	}
 
 	/**

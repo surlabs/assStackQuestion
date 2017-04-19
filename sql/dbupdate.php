@@ -1006,3 +1006,91 @@ if ($ilDB->tableExists('xqcas_options') AND $ilDB->tableExists('xqcas_prts'))
             }
 		}
 ?>
+<#31>
+<?php
+        if ($ilDB->tableExists('xqcas_options'))
+        {
+            $ilDB->modifyTableColumn("xqcas_options","question_variables", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_options","specific_feedback", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_options","specific_feedback_format", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_options","question_note", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_options","question_simplify", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_options","assume_positive", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_options","prt_correct", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_options","prt_correct_format", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_options","prt_partially_correct", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_options","prt_partially_correct_format", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_options","prt_incorrect", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_options","prt_incorrect_format", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_options","multiplication_sign", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_options","sqrt_sign", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_options","complex_no", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_options","inverse_trig", array("notnull" => false));
+        }
+        if ($ilDB->tableExists('xqcas_inputs'))
+        {
+            $ilDB->modifyTableColumn("xqcas_inputs","name", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_inputs","type", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_inputs","tans", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_inputs","box_size", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_inputs","strict_syntax", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_inputs","insert_stars", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_inputs","syntax_hint", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_inputs","forbid_words", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_inputs","forbid_float", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_inputs","require_lowest_terms", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_inputs","check_answer_type", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_inputs","must_verify", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_inputs","show_validation", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_inputs","options", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_inputs","allow_words", array("notnull" => false));
+        }
+        if ($ilDB->tableExists('xqcas_prts'))
+        {
+            $ilDB->modifyTableColumn("xqcas_prts","name", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prts","value", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prts","auto_simplify", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prts","feedback_variables", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prts","first_node_name", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prts","name", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prts","name", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prts","name", array("notnull" => false));
+        }
+
+        if ($ilDB->tableExists('xqcas_prt_nodes'))
+        {
+            $ilDB->modifyTableColumn("xqcas_prt_nodes","prt_name", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prt_nodes","node_name", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prt_nodes","answer_test", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prt_nodes","sans", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prt_nodes","tans", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prt_nodes","test_options", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prt_nodes","quiet", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prt_nodes","true_score_mode", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prt_nodes","true_score", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prt_nodes","true_answer_note", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prt_nodes","true_feedback", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prt_nodes","true_feedback_format", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prt_nodes","false_score_mode", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prt_nodes","false_score", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prt_nodes","false_answer_note", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prt_nodes","false_feedback", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_prt_nodes","false_feedback_format", array("notnull" => false));
+        }
+        if ($ilDB->tableExists('xqcas_qtests'))
+        {
+            $ilDB->modifyTableColumn("xqcas_qtests","test_case", array("notnull" => false));
+        }
+        if ($ilDB->tableExists('xqcas_qtest_inputs'))
+        {
+            $ilDB->modifyTableColumn("xqcas_qtest_inputs","test_case", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_qtest_inputs","input_name", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_qtest_inputs","value", array("notnull" => false));
+        }
+        if ($ilDB->tableExists('xqcas_qtest_expected'))
+        {
+            $ilDB->modifyTableColumn("xqcas_qtest_expected","test_case", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_qtest_expected","prt_name", array("notnull" => false));
+            $ilDB->modifyTableColumn("xqcas_qtest_expected","expected_answer_note", array("notnull" => false));
+        }
+?>

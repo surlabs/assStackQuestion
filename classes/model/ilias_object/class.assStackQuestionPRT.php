@@ -171,7 +171,7 @@ class assStackQuestionPRT
 			"name" => array("text", $this->getPRTName()),
 			"value" => array("text", $this->getPRTValue() == NULL ? "1" : $this->getPRTValue()),
 			"auto_simplify" => array("integer", $this->getAutoSimplify() == NULL ? 0 : $this->getAutoSimplify()),
-			"feedback_variables" => array("clob", $this->getPRTFeedbackVariables() == NULL ? " " : $this->getPRTFeedbackVariables()),
+			"feedback_variables" => array("clob", $this->getPRTFeedbackVariables() == NULL ? "" : $this->getPRTFeedbackVariables()),
 			"first_node_name" => array("text", $this->getFirstNodeName() == NULL ? "0" : $this->getFirstNodeName()),
 		));
 		return true;
@@ -289,7 +289,7 @@ class assStackQuestionPRT
 		//Other Not Null variables:
 		if ($this->getPRTFeedbackVariables() == NULL OR $this->getPRTFeedbackVariables() == "") {
 			if ($solve_problems) {
-				$this->setPRTFeedbackVariables(" ");
+				$this->setPRTFeedbackVariables("");
 			} else {
 				return false;
 			}

@@ -75,8 +75,16 @@ class assStackQuestionAuthoringGUI
 			$toolbar->addButtonInstance($show_link_button);
 		} else
 		{
-			$toolbar->addButton($this->getPlugin()->txt("enable_disable_info"), "", "", "", "", "enable_disable_info");
-			$toolbar->addButton($this->getPlugin()->txt("auth_guide_name"), "", "", "", "", "auth_guide_name");
+			//0020387 problem in ILIAS 5.0
+			include_once('./Services/UIComponent/Button/classes/class.ilLinkButton.php');
+			$enable = ilLinkButton::getInstance();
+			$enable->setCaption($this->getPlugin()->txt("enable_disable_info"), FALSE);
+			$enable->setId("enable_disable_info");
+			$toolbar->addButtonInstance($enable);
+			$link = ilLinkButton::getInstance();
+			$link->setCaption($this->getPlugin()->txt("auth_guide_name"), FALSE);
+			$link->setId("auth_guide_name");
+			$toolbar->addButtonInstance($link);
 		}
 		$this->getTemplate()->setVariable("TOOLBAR", $toolbar->getHTML());
 
@@ -189,6 +197,7 @@ class assStackQuestionAuthoringGUI
 
 		if (is_a($this->getQuestionGUI()->object->getOptions(), 'assStackQuestionOptions') AND is_a($this->getQuestionGUI()->object->getExtraInfo(), 'assStackQuestionExtraInfo'))
 		{
+
 			//In case of edition
 			$options_part = $this->getOptionsPart($this->getQuestionGUI()->object->getOptions(), $this->getQuestionGUI()->object->getExtraInfo());
 			$options->addPart($options_part);

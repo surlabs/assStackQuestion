@@ -173,7 +173,7 @@ class assStackQuestionDeployedSeedsGUI
 		foreach ($this->getDeployedSeeds() as $deployed_seed) {
 			$this->getTemplate()->setCurrentBlock('deployed_seeds_overview');
 			$this->getTemplate()->setVariable('DEPLOYED_SEED', $deployed_seed->getSeed());
-			$this->getTemplate()->setVariable('QUESTION_NOTE', assStackQuestionUtils::_replaceDollars(assStackQuestionUtils::_solveKeyBracketsBug($deployed_seed->getQuestionNote())));
+			$this->getTemplate()->setVariable('QUESTION_NOTE', assStackQuestionUtils::_getLatex(assStackQuestionUtils::_solveKeyBracketsBug($deployed_seed->getQuestionNote())));
 			$this->getTemplate()->setVariable('VIEW_FORM', $this->getDeployedSeedViewForm($deployed_seed->getSeed())->getHTML());
 			$this->getTemplate()->ParseCurrentBlock();
 		}

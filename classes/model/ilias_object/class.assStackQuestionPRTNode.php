@@ -430,23 +430,23 @@ class assStackQuestionPRTNode
 		$this->setAnswerTest($_POST[$prefix . '_answer_test']);
 		$this->setStudentAnswer($_POST[$prefix . '_student_answer']);
 		$this->setTeacherAnswer($_POST[$prefix . '_teacher_answer']);
-		$this->setTestOptions($_POST[$prefix . '_options'] == NULL ? " " : $_POST[$prefix . '_options']);
+		$this->setTestOptions($_POST[$prefix . '_options'] == NULL ? "" : $_POST[$prefix . '_options']);
 		$this->setQuiet($_POST[$prefix . '_quiet']);
 
 		$this->setTrueScore(ilUtil::stripSlashes($_POST[$prefix . '_pos_score']) == NULL ? 0 : ilUtil::stripSlashes($_POST[$prefix . '_pos_score']));
 		$this->setTrueScoreMode(ilUtil::stripSlashes($_POST[$prefix . '_pos_mod']));
 		$this->setTruePenalty(ilUtil::stripSlashes($_POST[$prefix . '_pos_penalty']) == NULL ? 0 : ilUtil::stripSlashes($_POST[$prefix . '_pos_penalty']));
 		$this->setTrueNextNode(ilUtil::stripSlashes($_POST[$prefix . '_pos_next']));
-		$this->setTrueAnswerNote(ilUtil::stripSlashes($_POST[$prefix . '_pos_answernote'] == NULL ? " " : $_POST[$prefix . '_pos_answernote']));
-		$this->setTrueFeedback(ilUtil::stripSlashes($_POST[$prefix . '_pos_specific_feedback'] == NULL ? " " : $_POST[$prefix . '_pos_specific_feedback'], true, $a_rte_tags));
+		$this->setTrueAnswerNote(ilUtil::stripSlashes($_POST[$prefix . '_pos_answernote'] == NULL ? "" : $_POST[$prefix . '_pos_answernote']));
+		$this->setTrueFeedback(ilUtil::stripSlashes($_POST[$prefix . '_pos_specific_feedback'] == NULL ? "" : $_POST[$prefix . '_pos_specific_feedback'], true, $a_rte_tags));
 		$this->setTrueFeedbackFormat(1);
 
 		$this->setFalseScore(ilUtil::stripSlashes($_POST[$prefix . '_neg_score']) == NULL ? 0 : ilUtil::stripSlashes($_POST[$prefix . '_neg_score']));
 		$this->setFalseScoreMode(ilUtil::stripSlashes($_POST[$prefix . '_neg_mod']));
 		$this->setFalsePenalty(ilUtil::stripSlashes($_POST[$prefix . '_neg_penalty']) == NULL ? 0 : ilUtil::stripSlashes($_POST[$prefix . '_neg_penalty']));
 		$this->setFalseNextNode(ilUtil::stripSlashes($_POST[$prefix . '_neg_next']));
-		$this->setFalseAnswerNote(ilUtil::stripSlashes($_POST[$prefix . '_neg_answernote'] == NULL ? " " : $_POST[$prefix . '_neg_answernote']));
-		$this->setFalseFeedback(ilUtil::stripSlashes($_POST[$prefix . '_neg_specific_feedback'] == NULL ? " " : $_POST[$prefix . '_neg_specific_feedback'], true, $a_rte_tags));
+		$this->setFalseAnswerNote(ilUtil::stripSlashes($_POST[$prefix . '_neg_answernote'] == NULL ? "" : $_POST[$prefix . '_neg_answernote']));
+		$this->setFalseFeedback(ilUtil::stripSlashes($_POST[$prefix . '_neg_specific_feedback'] == NULL ? "" : $_POST[$prefix . '_neg_specific_feedback'], true, $a_rte_tags));
 		$this->setFalseFeedbackFormat(1);
 
 		if ($new_prt_name) {
@@ -494,28 +494,28 @@ class assStackQuestionPRTNode
 		//Other Not Null variables:
 		if ($this->getAnswerTest() == NULL OR $this->getAnswerTest() == "") {
 			if ($solve_problems) {
-				$this->setAnswerTest(" ");
+				$this->setAnswerTest("");
 			} else {
 				return false;
 			}
 		}
 		if ($this->getStudentAnswer() == NULL OR $this->getStudentAnswer() == "") {
 			if ($solve_problems) {
-				$this->setStudentAnswer(" ");
+				$this->setStudentAnswer("");
 			} else {
 				return false;
 			}
 		}
 		if ($this->getTeacherAnswer() == NULL OR $this->getTeacherAnswer() == "") {
 			if ($solve_problems) {
-				$this->setTeacherAnswer(" ");
+				$this->setTeacherAnswer("");
 			} else {
 				return false;
 			}
 		}
 		if ($this->getTestOptions() == NULL OR $this->getTestOptions() == "") {
 			if ($solve_problems) {
-				$this->setTestOptions(" ");
+				$this->setTestOptions("");
 			} else {
 				return false;
 			}
@@ -534,16 +534,16 @@ class assStackQuestionPRTNode
 				return false;
 			}
 		}
-		if ($this->getTrueAnswerNote() == NULL OR $this->getTrueAnswerNote() == " " OR $this->getTrueAnswerNote() == "") {
+		if ($this->getTrueAnswerNote() == NULL OR $this->getTrueAnswerNote() == "" OR $this->getTrueAnswerNote() == "") {
 			if ($this->getPRTName() == 'new_prt' OR $this->getNodeName() == $this->getPRTName() . '_new_node') {
-				$this->setTrueAnswerNote(" ");
+				$this->setTrueAnswerNote("");
 			} else {
 				$this->setTrueAnswerNote($this->getPRTName() . '-' . $this->getNodeName() . '-T');
 			}
 		}
 		if ($this->getTrueFeedback() == NULL OR $this->getTrueFeedback() == "") {
 			if ($solve_problems) {
-				$this->setTrueFeedback(" ");
+				$this->setTrueFeedback("");
 			} else {
 				return false;
 			}
@@ -569,16 +569,16 @@ class assStackQuestionPRTNode
 				return false;
 			}
 		}
-		if ($this->getFalseAnswerNote() == NULL OR $this->getFalseAnswerNote() == " " OR $this->getFalseAnswerNote() == "") {
+		if ($this->getFalseAnswerNote() == NULL OR $this->getFalseAnswerNote() == "" OR $this->getFalseAnswerNote() == "") {
 			if ($this->getPRTName() == 'new_prt' OR $this->getNodeName() == $this->getPRTName() . '_new_node') {
-				$this->setFalseAnswerNote(" ");
+				$this->setFalseAnswerNote("");
 			} else {
 				$this->setFalseAnswerNote($this->getPRTName() . '-' . $this->getNodeName() . '-F');
 			}
 		}
 		if ($this->getFalseFeedback() == NULL OR $this->getFalseFeedback() == "") {
 			if ($solve_problems) {
-				$this->setFalseFeedback(" ");
+				$this->setFalseFeedback("");
 			} else {
 				return false;
 			}
