@@ -538,6 +538,8 @@ class assStackQuestionGUI extends assQuestionGUI
 			//User Solution
 			//Returns user solution HTML
 			$solution_output = $this->getQuestionOutput($solutions, FALSE, $show_feedback);
+			//2.3.12 add feedback to solution
+			$solution_output .= $this->getSpecificFeedbackOutput($active_id, $pass);
 		} else
 		{
 			//Correct solution

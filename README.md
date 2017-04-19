@@ -110,6 +110,13 @@ input you can evaluate your answer (in self assessment mode) or move to the next
 Version History
 ===============
 
+GitHub Version 2.3.12 (2017-4-19)
+---------------------------------
+- Now specific feedback is also shown in Test results
+- This version includes some bugfixing:
+- http://www.ilias.de/mantis/view.php?id=20387 about error displaying info messages in ILIAS 5.0.
+- http://www.ilias.de/mantis/view.php?id=20407 about mistake in german text.
+
 GitHub Version 2.3.11 (2017-4-19)
 ---------------------------------
 This version includes some bugfixing:
