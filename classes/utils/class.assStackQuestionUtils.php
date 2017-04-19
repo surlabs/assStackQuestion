@@ -584,10 +584,92 @@ class assStackQuestionUtils
 	public static function _endsWith($haystack, $needle)
 	{
 		$length = strlen($needle);
-		if ($length == 0) {
+		if ($length == 0)
+		{
 			return true;
 		}
 
 		return (substr($haystack, -$length) === $needle);
+	}
+
+	/**
+	 * This function returns the LaTeX rendered version of $text
+	 * @param $text The raw text
+	 * @return string
+	 */
+	public static function _getLatex($text)
+	{
+		/*
+		 * Step 1 check current platform's LaTeX delimiters
+		 */
+		//Replace dollars but using mathjax settings in each platform.
+		$mathJaxSetting = new ilSetting("MathJax");
+		//By default [tex]
+		$start = '[tex]';
+		$end = '[/tex]';
+
+		switch ((int)$mathJaxSetting->setting['limiter'])
+		{
+			case 0:
+				/*\(...\)*/
+				$start = '\(';
+				$end = '\)';
+				break;
+			case 1:
+				/*[tex]...[/tex]*/
+				$start = '[tex]';
+				$end = '[/tex]';
+				break;
+			case 2:
+				/*&lt;span class="math"&gt;...&lt;/span&gt;*/
+				$start = '&lt;span class="math"&gt;';
+				$end = '&lt;/span&gt;';
+				break;
+			default:
+
+		}
+
+		/*
+		 * Step 2 Replace $$ from STACK and all other LaTeX delimiter to the current platform's delimiter.
+		 */
+		//Get all $$ to replace it
+		$text = preg_replace('~(?<!\\\\)\$\$(.*?)(?<!\\\\)\$\$~', $start . '$1' . $end, $text);
+		$text = preg_replace('~(?<!\\\\)\$(.*?)(?<!\\\\)\$~', $start . '$1' . $end, $text);
+
+		//Search for all /(/) and change it to the current limiter in Mathjaxsettings
+		$text = str_replace('\(', $start, $text);
+		$text = str_replace('\)', $end, $text);
+
+		//Search for all \[\] and change it to the current limiter in Mathjaxsettings
+		$text = str_replace('\[', $start, $text);
+		$text = str_replace('\]', $end, $text);
+
+		//Search for all [tex] and change it to the current limiter in Mathjaxsettings
+		$text = str_replace('[tex]', $start, $text);
+		$text = str_replace('[/tex]', $end, $text);
+
+		//Search for all &lt;span class="math"&gt;...&lt;/span&gt; and change it to the current limiter in Mathjaxsettings
+		$text = preg_replace('/<span class="math">(.*?)<\/span>/', $start . '$1' . $end, $text);
+
+		//Search for all &lt;span class="latex"&gt;...&lt;/span&gt; and change it to the current limiter in Mathjaxsettings
+		$text = preg_replace('/<span class="latex">(.*?)<\/span>/', $start . '$1' . $end, $text);
+
+		// replace special characters to prevent problems with the ILIAS template system
+		// eg. if someone uses {1} as an answer, nothing will be shown without the replacement
+		$text = str_replace("{", "&#123;", $text);
+		$text = str_replace("}", "&#125;", $text);
+		$text = str_replace("\\", "&#92;", $text);
+
+		/*
+		 * Step 3 User ilMathJax::getInstance()->insertLatexImages to deliver the LaTeX code.
+		 */
+		//ilMathJax::getInstance()->insertLatexImages cannot render \( delimiters so we change it to [tex]
+		if ($start == '\(')
+		{
+			return ilUtil::insertLatexImages($text);
+		} else
+		{
+			return ilUtil::insertLatexImages($text, $start, $end);
+		}
 	}
 }

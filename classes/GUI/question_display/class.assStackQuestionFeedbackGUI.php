@@ -129,11 +129,11 @@ class assStackQuestionFeedbackGUI
 	private function fillBestSolutionTemplate($mode = "correct")
 	{
 		//Fill question text
-		$this->getTemplate()->setVariable('QUESTION_TEXT', assStackQuestionUtils::_getLatexText($this->getQuestionTextFilledIn($mode)));
+		$this->getTemplate()->setVariable('QUESTION_TEXT', assStackQuestionUtils::_getLatex($this->getQuestionTextFilledIn($mode)));
 
 		//Fill how to solve
 		if ($mode == "correct") {
-			$this->getTemplate()->setVariable('HOW_TO_SOLVE', assStackQuestionUtils::_getLatexText($this->getQuestionHowToSolve($this->getFeedback('general_feedback'))));
+			$this->getTemplate()->setVariable('HOW_TO_SOLVE', assStackQuestionUtils::_getLatex($this->getQuestionHowToSolve($this->getFeedback('general_feedback'))));
 		}
 
 
@@ -180,24 +180,24 @@ class assStackQuestionFeedbackGUI
 			//If test is finished use LaTeX
 			if ($_GET['cmd'] != 'preview') {
 				$this->getTemplate()->setVariable('QUESTION_TEXT_MESSAGE', $this->getPlugin()->txt('message_question_text'));
-				$this->getTemplate()->setVariable('QUESTION_TEXT', assStackQuestionUtils::_replacePlaceholders(assStackQuestionUtils::_getLatexText($this->getFeedback('question_text'))));
+				$this->getTemplate()->setVariable('QUESTION_TEXT', assStackQuestionUtils::_replacePlaceholders(assStackQuestionUtils::_getLatex($this->getFeedback('question_text'))));
 			} else {
 				$this->getTemplate()->setVariable('QUESTION_TEXT_MESSAGE', $this->getPlugin()->txt('message_question_text'));
-				$this->getTemplate()->setVariable('QUESTION_TEXT', assStackQuestionUtils::_replacePlaceholders(assStackQuestionUtils::_getLatexText($this->getFeedback('general_feedback'))));
+				$this->getTemplate()->setVariable('QUESTION_TEXT', assStackQuestionUtils::_replacePlaceholders(assStackQuestionUtils::_getLatex($this->getFeedback('general_feedback'))));
 			}
 
 		} elseif ($this->getFeedback('general_feedback') != '' AND $_GET['activecommand'] == 'directfeedback') {
 
 			//If test is finished use LaTeX
 			$this->getTemplate()->setVariable('QUESTION_TEXT_MESSAGE', $this->getPlugin()->txt('message_general_feedback'));
-			$this->getTemplate()->setVariable('QUESTION_TEXT', assStackQuestionUtils::_replacePlaceholders(assStackQuestionUtils::_getLatexText($this->getFeedback('general_feedback'))));
+			$this->getTemplate()->setVariable('QUESTION_TEXT', assStackQuestionUtils::_replacePlaceholders(assStackQuestionUtils::_getLatex($this->getFeedback('general_feedback'))));
 
 		}
 		//If there are general feedback to be shown
 		if ($show_feedback AND $this->getFeedback('general_feedback') != '') {
 			//If test is finished use LaTeX
 			//$this->getTemplate()->setVariable('GENERAL_FEEDBACK_MESSAGE', $this->getPlugin()->txt('message_general_feedback'));
-			//$this->getTemplate()->setVariable('GENERAL_FEEDBACK', assStackQuestionUtils::_getLatexText($this->getFeedback('general_feedback')));
+			//$this->getTemplate()->setVariable('GENERAL_FEEDBACK', assStackQuestionUtils::_getLatex($this->getFeedback('general_feedback')));
 		} else {
 			//Show message for no general feedback.
 			//v1.6.1 Not use general_feedback
@@ -208,7 +208,7 @@ class assStackQuestionFeedbackGUI
 		 * v1.6.1 Not use question_note
 		if ($this->getShowCorrectSolution() AND $this->getFeedback('question_note')) {
 			$this->getTemplate()->setVariable('BEST_SOLUTION_MESSAGE', $this->getPlugin()->txt('message_best_solution'));
-			$this->getTemplate()->setVariable('BEST_SOLUTION', assStackQuestionUtils::_getLatexText($this->getFeedback('question_note')));
+			$this->getTemplate()->setVariable('BEST_SOLUTION', assStackQuestionUtils::_getLatex($this->getFeedback('question_note')));
 		}
 		*/
 
@@ -252,12 +252,12 @@ class assStackQuestionFeedbackGUI
 		//Errors
 		if ($prt['errors'] AND $show_feedback) {
 			$this->getTemplate()->setVariable('ERROR_MESSAGE', $this->getPlugin()->txt('message_error_part'));
-			$this->getTemplate()->setVariable('ERROR', assStackQuestionUtils::_getLatexText($prt['errors']));
+			$this->getTemplate()->setVariable('ERROR', assStackQuestionUtils::_getLatex($prt['errors']));
 		}
 		//Specific feedback given for this prt
 		if ($prt['feedback']) {
 			//$this->getTemplate()->setVariable('FEEDBACK_MESSAGE', $this->getPlugin()->txt('message_feedback_solution_part'));
-			$this->getTemplate()->setVariable('PART_FEEDBACK', assStackQuestionUtils::_getLatexText($prt['feedback']));
+			$this->getTemplate()->setVariable('PART_FEEDBACK', assStackQuestionUtils::_getLatex($prt['feedback']));
 		}
 		//answer note given for this prt
 		/* Hidden in feedback.

@@ -408,10 +408,10 @@ class assStackQuestionOptions
 
 		while ($row = $ilDB->fetchAssoc($res)) {
 			//Filling object with data from DB
-			$this->setQuestionVariables(" ");
-			$this->setSpecificFeedback(" ");
+			$this->setQuestionVariables("");
+			$this->setSpecificFeedback("");
 			$this->setSpecificFeedbackFormat(1);
-			$this->setQuestionNote(" ");
+			$this->setQuestionNote("");
 			if ($row['parameter_name'] == 'options_question_simplify') {
 				$this->setQuestionSimplify((int)$row['value']);
 			}
@@ -481,14 +481,14 @@ class assStackQuestionOptions
 		//Not Null variables:
 		if ($this->getQuestionVariables() == NULL OR $this->getQuestionVariables() == "") {
 			if ($solve_problems) {
-				$this->setQuestionVariables(" ");
+				$this->setQuestionVariables("");
 			} else {
 				return false;
 			}
 		}
 		if ($this->getSpecificFeedback() == NULL OR $this->getSpecificFeedback() == "") {
 			if ($solve_problems) {
-				$this->setSpecificFeedback(" ");
+				$this->setSpecificFeedback("");
 			} else {
 				return false;
 			}
@@ -502,35 +502,35 @@ class assStackQuestionOptions
 		}
 		if ($this->getQuestionNote() == NULL OR $this->getQuestionNote() == "") {
 			if ($solve_problems) {
-				$this->setQuestionNote(" ");
+				$this->setQuestionNote("");
 			} else {
 				return false;
 			}
 		}
 		if ($this->getQuestionNote() == NULL OR $this->getQuestionNote() == "") {
 			if ($solve_problems) {
-				$this->setQuestionNote(" ");
+				$this->setQuestionNote("");
 			} else {
 				return false;
 			}
 		}
 		if ($this->getPRTCorrect() == NULL OR $this->getPRTCorrect() == "") {
 			if ($solve_problems) {
-				$this->setPRTCorrect(" ");
+				$this->setPRTCorrect("");
 			} else {
 				return false;
 			}
 		}
 		if ($this->getPRTPartiallyCorrect() == NULL OR $this->getPRTPartiallyCorrect() == "") {
 			if ($solve_problems) {
-				$this->setPRTPartiallyCorrect(" ");
+				$this->setPRTPartiallyCorrect("");
 			} else {
 				return false;
 			}
 		}
 		if ($this->getPRTIncorrect() == NULL OR $this->getPRTIncorrect() == "") {
 			if ($solve_problems) {
-				$this->setPRTIncorrect(" ");
+				$this->setPRTIncorrect("");
 			} else {
 				return false;
 			}

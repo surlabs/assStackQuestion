@@ -189,6 +189,7 @@ class assStackQuestionAuthoringGUI
 
 		if (is_a($this->getQuestionGUI()->object->getOptions(), 'assStackQuestionOptions') AND is_a($this->getQuestionGUI()->object->getExtraInfo(), 'assStackQuestionExtraInfo'))
 		{
+
 			//In case of edition
 			$options_part = $this->getOptionsPart($this->getQuestionGUI()->object->getOptions(), $this->getQuestionGUI()->object->getExtraInfo());
 			$options->addPart($options_part);

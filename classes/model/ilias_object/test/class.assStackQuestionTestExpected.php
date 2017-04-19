@@ -204,7 +204,7 @@ class assStackQuestionTestExpected
 		//Other Not Null variables:
 		if ($this->getExpectedAnswerNote() == NULL OR $this->getExpectedAnswerNote() == "") {
 			if ($solve_problems) {
-				$this->setExpectedAnswerNote(" ");
+				$this->setExpectedAnswerNote("");
 			} else {
 				return false;
 			}

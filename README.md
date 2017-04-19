@@ -110,6 +110,13 @@ input you can evaluate your answer (in self assessment mode) or move to the next
 Version History
 ===============
 
+GitHub Version 2.3.11 (2017-4-19)
+---------------------------------
+This version includes some bugfixing:
+- Now forbidden words are properly forbidden when used by students in a STACK question
+- Feedback is now properly shown when there are more than two feedback placeholder on the specific feedback.
+- Info for feedback in a node is now properly shown.
+- Input fields in authoring interface now doesn't have a blank space by default, we changed the DB structure in order to avoid this problem.
 
 GitHub Version 2.3.10 (2017-3-6)
 --------------------------------

@@ -67,6 +67,7 @@ class assStackQuestionStackFactory
 		$options = $this->get("default_options");
 		//$seed will be set as time() INCOMPLETE
 		$seed = null;
+
 		return new stack_cas_session($session, $options, $seed);
 	}
 
@@ -143,36 +144,34 @@ class assStackQuestionStackFactory
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/keyval.class.php';
 		if (!isset($parameters['raw']) OR strlen($parameters['raw']) <= 0)
 		{
-			throw new assStackQuestionException($lng->txt('exception_no_raw_given_in_keyval_creation'));
-		} else
-		{
-			if (!isset($parameters['options']) OR !is_a($parameters['options'], 'stack_options'))
-			{
-				$parameters['options'] = $this->getStackDefaultOptions();
-			}
-			if (!isset($parameters['seed']))
-			{
-				$parameters['seed'] = NULL;
-			}
-			if (!isset($parameters['security']))
-			{
-				//Set student security by default
-				$parameters['security'] = 's';
-			}
-			if (!isset($parameters['syntax']))
-			{
-				//Use strict syntax by default
-				$parameters['syntax'] = TRUE;
-			}
-			if (!isset($parameters['stars']))
-			{
-				//Do not insert stars by default
-				//Changed to integer for STACK 3.3
-				$parameters['stars'] = 0;
-			}
-
-			return new stack_cas_keyval($parameters['raw'], $parameters['options'], $parameters['seed'], $parameters['security'], $parameters['syntax'], (int)$parameters['stars']);
+			$parameters['raw'] = " ";
 		}
+		if (!isset($parameters['options']) OR !is_a($parameters['options'], 'stack_options'))
+		{
+			$parameters['options'] = $this->getStackDefaultOptions();
+		}
+		if (!isset($parameters['seed']))
+		{
+			$parameters['seed'] = NULL;
+		}
+		if (!isset($parameters['security']))
+		{
+			//Set student security by default
+			$parameters['security'] = 's';
+		}
+		if (!isset($parameters['syntax']))
+		{
+			//Use strict syntax by default
+			$parameters['syntax'] = TRUE;
+		}
+		if (!isset($parameters['stars']))
+		{
+			//Do not insert stars by default
+			//Changed to integer for STACK 3.3
+			$parameters['stars'] = 0;
+		}
+
+		return new stack_cas_keyval($parameters['raw'], $parameters['options'], $parameters['seed'], $parameters['security'], $parameters['syntax'], (int)$parameters['stars']);
 	}
 
 	/**
@@ -194,42 +193,40 @@ class assStackQuestionStackFactory
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/castext.class.php';
 		if (!isset($parameters['raw']) OR strlen($parameters['raw']) <= 0)
 		{
-			throw new stack_exception($lng->txt('exception_no_raw_given_in_castext_creation'));
-		} else
-		{
-			if (!isset($parameters['session']) OR !is_a($parameters['session'], 'stack_cas_session'))
-			{
-				$parameters['session'] = $this->getStackCasSessionDefault();
-			}
-			if (!isset($parameters['seed']))
-			{
-				$parameters['seed'] = NULL;
-			}
-			if (!isset($parameters['security']))
-			{
-				//Set student security by default
-				$parameters['security'] = 's';
-			}
-			if (!isset($parameters['syntax']))
-			{
-				//Use strict syntax by default
-				$parameters['syntax'] = TRUE;
-			}
-			if (!isset($parameters['stars']))
-			{
-				//Do not insert stars by default
-				//Changed to integer for STACK 3.3
-				$parameters['stars'] = 0;
-			}
-			$castext = new stack_cas_text((string)$parameters['raw'], $parameters['session'], $parameters['seed'], $parameters['security'], $parameters['syntax'], (int)$parameters['stars']);
-
-			$cas_text["valid"]= $castext->get_valid();
-			$cas_text["text"] = $castext->get_display_castext();
-			$cas_text["errors"] = $castext->get_errors();
-			$cas_text["debug"] = $castext->get_debuginfo();
-
-			return $cas_text;
+			$parameters['raw'] = " ";
 		}
+		if (!isset($parameters['session']) OR !is_a($parameters['session'], 'stack_cas_session'))
+		{
+			$parameters['session'] = $this->getStackCasSessionDefault();
+		}
+		if (!isset($parameters['seed']))
+		{
+			$parameters['seed'] = NULL;
+		}
+		if (!isset($parameters['security']))
+		{
+			//Set student security by default
+			$parameters['security'] = 's';
+		}
+		if (!isset($parameters['syntax']))
+		{
+			//Use strict syntax by default
+			$parameters['syntax'] = TRUE;
+		}
+		if (!isset($parameters['stars']))
+		{
+			//Do not insert stars by default
+			//Changed to integer for STACK 3.3
+			$parameters['stars'] = 0;
+		}
+		$castext = new stack_cas_text((string)$parameters['raw'], $parameters['session'], $parameters['seed'], $parameters['security'], $parameters['syntax'], (int)$parameters['stars']);
+
+		$cas_text["valid"] = $castext->get_valid();
+		$cas_text["text"] = $castext->get_display_castext();
+		$cas_text["errors"] = $castext->get_errors();
+		$cas_text["debug"] = $castext->get_debuginfo();
+
+		return $cas_text;
 	}
 
 

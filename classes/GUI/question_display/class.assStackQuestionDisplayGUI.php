@@ -252,7 +252,7 @@ class assStackQuestionDisplayGUI
 	{
 		$this->getTemplate()->setVariable('QUESTION_ID', $this->getDisplay('question_id'));
 		$this->getTemplate()->setVariable('VALIDATION_URL', ILIAS_HTTP_PATH . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php");
-		$this->getTemplate()->setVariable('QUESTION_TEXT', assStackQuestionUtils::_getLatexText($this->getDisplay('question_text')));
+		$this->getTemplate()->setVariable('QUESTION_TEXT', assStackQuestionUtils::_getLatex($this->getDisplay('question_text')));
 		//$this->getTemplate()->setVariable('SPECIFIC_FEEDBACK', assStackQuestionUtils::_getLatexText($this->getDisplay('question_specific_feedback')));
 	}
 

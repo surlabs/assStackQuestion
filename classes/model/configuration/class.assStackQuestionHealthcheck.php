@@ -163,6 +163,7 @@ class assStackQuestionHealthcheck
 				return $locations;
 				break;
 			case 'unix':
+			case 'unix-optimised':
 				if (file_exists($CFG->dataroot . '/stack/maxima.bat')) {
 					return $CFG->dataroot . '/stack/maxima.bat';
 				} else {
