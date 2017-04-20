@@ -176,14 +176,14 @@ class assStackQuestionTestInput
 		//Other Not Null variables:
 		if ($this->getTestInputName() == NULL OR $this->getTestInputName() == "") {
 			if ($solve_problems) {
-				$this->setTestInputName(" ");
+				$this->setTestInputName("");
 			} else {
 				return false;
 			}
 		}
 		if ($this->getTestInputValue() == NULL OR $this->getTestInputValue() == "") {
 			if ($solve_problems) {
-				$this->setTestInputValue(" ");
+				$this->setTestInputValue("");
 			} else {
 				return false;
 			}

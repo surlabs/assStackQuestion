@@ -260,7 +260,7 @@ prt_node_pos_next_info#:#Knoten, mit dem fortgefahren wird (anhalten wenn leer).
 prt_node_pos_answernote#:#Antworthinweis wenn wahr
 prt_node_pos_answernote_info#:#Dieses Tag dient zur Berichterstattung. Es bestimmt den eindeutigen Pfad durch den Baum und das Ergebnis jeder Antwort. Es wird automatisch erzeugt, kann aber auch manuell zu etwas Sinnvollem geändert werden.
 prt_node_pos_specific_feedback#:#Feedback wenn wahr
-prt_node_pos_specific_feedback_info#:#Dieses Tag dient zur Berichterstattung. Es bestimmt den eindeutigen Pfad durch den Baum und das Ergebnis jeder Antwort. Es wird automatisch erzeugt, kann aber auch manuell zu etwas Sinnvollem geändert werden.
+prt_node_pos_specific_feedback_info#:#Dieser CASText kann die Aufgabenvariablen, die Eingabeelemente oder andere Feedbackvariablen verwenden. Er wird ausgewertet und angezeigt, sobald ein Studierender diesen Zweig erreicht.
 prt_node_neg_mod#:#Mod
 prt_node_neg_mod_info#:#Wie die Bepunktung angepasst wird. "=" setzt die Punkte auf einen bestimmten Wert. "+/-" addieren oder subtrahieren Punkte von der aktuellen Summe.
 prt_node_neg_score#:#Punkte wenn falsch
@@ -272,7 +272,7 @@ prt_node_neg_next_info#:#Knoten, mit dem fortgefahren wird (anhalten wenn leer).
 prt_node_neg_answernote#:#Antworthinweis wenn falsch
 prt_node_neg_answernote_info#:#Dieses Tag dient zur Berichterstattung. Es bestimmt den eindeutigen Pfad durch den Baum und das Ergebnis jeder Antwort. Es wird automatisch erzeugt, kann aber auch manuell zu etwas Sinnvollem geändert werden.
 prt_node_neg_specific_feedback#:#Feedback wenn falsch
-prt_node_neg_specific_feedback_info#:#Dieses Tag dient zur Berichterstattung. Es bestimmt den eindeutigen Pfad durch den Baum und das Ergebnis jeder Antwort. Es wird automatisch erzeugt, kann aber auch manuell zu etwas Sinnvollem geändert werden.
+prt_node_neg_specific_feedback_info#:#Dieser CASText kann die Aufgabenvariablen, die Eingabeelemente oder andere Feedbackvariablen verwenden. Er wird ausgewertet und angezeigt, sobald ein Studierender diesen Zweig erreicht.
 inputs#:#Test-Eingaben
 options#:#Optionen
 show_options#:#Zeige Fragenoptionen

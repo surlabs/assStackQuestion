@@ -244,19 +244,19 @@ class assStackQuestionInput
 			"question_id" => array("integer", $this->getQuestionId()),
 			"name" => array("text", $this->getInputName()),
 			"type" => array("text", $this->getInputType()),
-			"tans" => array("text", $this->getTeacherAnswer() !== NULL ? $this->getTeacherAnswer() : " "),
+			"tans" => array("text", $this->getTeacherAnswer() !== NULL ? $this->getTeacherAnswer() : ""),
 			"box_size" => array("integer", $this->getBoxSize() !== NULL ? $this->getBoxSize() : "15"),
 			"strict_syntax" => array("integer", $this->getStrictSyntax() !== NULL ? $this->getStrictSyntax() : "1"),
 			"insert_stars" => array("integer", $this->getInsertStars() !== NULL ? $this->getInsertStars() : "0"),
-			"syntax_hint" => array("text", $this->getSyntaxHint() !== NULL ? $this->getSyntaxHint() : " "),
-			"forbid_words" => array("text", $this->getForbidWords() !== NULL ? $this->getForbidWords() : " "),
-			"allow_words" => array("text", $this->getAllowWords() !== NULL ? $this->getAllowWords() : " "),
+			"syntax_hint" => array("text", $this->getSyntaxHint() !== NULL ? $this->getSyntaxHint() : ""),
+			"forbid_words" => array("text", $this->getForbidWords() !== NULL ? $this->getForbidWords() : ""),
+			"allow_words" => array("text", $this->getAllowWords() !== NULL ? $this->getAllowWords() : ""),
 			"forbid_float" => array("integer", $this->getForbidFloat() !== NULL ? $this->getForbidFloat() : "1"),
 			"require_lowest_terms" => array("integer", $this->getRequireLowestTerms() !== NULL ? $this->getRequireLowestTerms() : "0"),
 			"check_answer_type" => array("integer", $this->getCheckAnswerType() !== NULL ? $this->getCheckAnswerType() : "0"),
 			"must_verify" => array("integer", $this->getMustVerify() !== NULL ? $this->getMustVerify() : "1"),
 			"show_validation" => array("integer", $this->getShowValidation() !== NULL ? $this->getShowValidation() : "1"),
-			"options" => array("clob", $this->getOptions() !== NULL ? $this->getOptions() : " ")
+			"options" => array("clob", $this->getOptions() !== NULL ? $this->getOptions() : "")
 		));
 		return true;
 	}
@@ -281,7 +281,7 @@ class assStackQuestionInput
 			$input->setStrictSyntax((boolean)$row["strict_syntax"]);
 			$input->setInsertStars((int)$row["insert_stars"]);
             $input->setTeacherAnswer($row["tans"]);
-			$input->setSyntaxHint((isset($row["syntax_hint"]) AND $row["syntax_hint"] != NULL) ? trim($row["syntax_hint"]) : " ");
+			$input->setSyntaxHint((isset($row["syntax_hint"]) AND $row["syntax_hint"] != NULL) ? trim($row["syntax_hint"]) : "");
 			$input->setForbidWords($row["forbid_words"]);
 			$input->setAllowWords($row["allow_words"]);
 			$input->setForbidFloat((boolean)$row["forbid_float"]);
@@ -310,15 +310,15 @@ class assStackQuestionInput
 				"box_size" => array("integer", $this->getBoxSize()),
 				"strict_syntax" => array("integer", $this->getStrictSyntax()),
 				"insert_stars" => array("integer", $this->getInsertStars()),
-				"syntax_hint" => array("text", $this->getSyntaxHint() == NULL ? " " : $this->getSyntaxHint()),
-				"forbid_words" => array("text", $this->getForbidWords()== NULL ? " " : $this->getForbidWords()),
-				"allow_words" => array("text", $this->getAllowWords()== NULL ? " " : $this->getAllowWords()),
+				"syntax_hint" => array("text", $this->getSyntaxHint() == NULL ? "" : $this->getSyntaxHint()),
+				"forbid_words" => array("text", $this->getForbidWords()== NULL ? "" : $this->getForbidWords()),
+				"allow_words" => array("text", $this->getAllowWords()== NULL ? "" : $this->getAllowWords()),
 				"forbid_float" => array("integer", $this->getForbidFloat()== NULL ? 0 : $this->getForbidFloat()),
 				"require_lowest_terms" => array("integer", $this->getRequireLowestTerms()== NULL ? 0 : $this->getRequireLowestTerms()),
 				"check_answer_type" => array("integer", $this->getCheckAnswerType()== NULL ? 0 : $this->getCheckAnswerType()),
 				"must_verify" => array("integer", $this->getMustVerify()== NULL ? 0 : $this->getMustVerify()),
 				"show_validation" => array("integer", $this->getShowValidation()== NULL ? 0 : $this->getShowValidation()),
-				"options" => array("clob", $this->getOptions()== NULL ? " " : $this->getOptions())
+				"options" => array("clob", $this->getOptions()== NULL ? "" : $this->getOptions())
 			)
 		);
 
@@ -384,7 +384,7 @@ class assStackQuestionInput
 		$this->setBoxSize(ilUtil::stripSlashes($_POST[$input_name . '_input_box_size']));
 		$this->setStrictSyntax(ilUtil::stripSlashes($_POST[$input_name . '_input_strict_syntax']));
 		$this->setInsertStars(ilUtil::stripSlashes($_POST[$input_name . '_input_insert_stars']));
-		$this->setSyntaxHint((isset($_POST[$input_name . '_input_syntax_hint']) AND $_POST[$input_name . '_input_syntax_hint'] != NULL) ? trim($_POST[$input_name . '_input_syntax_hint']) : " ");
+		$this->setSyntaxHint((isset($_POST[$input_name . '_input_syntax_hint']) AND $_POST[$input_name . '_input_syntax_hint'] != NULL) ? trim($_POST[$input_name . '_input_syntax_hint']) : "");
 		$this->setForbidWords(ilUtil::stripSlashes($_POST[$input_name . '_input_forbidden_words']));
 		$this->setAllowWords(ilUtil::stripSlashes($_POST[$input_name . '_input_allow_words']));
 		$this->setForbidFloat(ilUtil::stripSlashes($_POST[$input_name . '_input_forbid_float']));
@@ -415,7 +415,7 @@ class assStackQuestionInput
 		}
 		if ($this->getTeacherAnswer() == NULL OR $this->getTeacherAnswer() == "") {
 			if ($solve_problems) {
-				$this->setTeacherAnswer(" ");
+				$this->setTeacherAnswer("");
 			} else {
 				return false;
 			}
@@ -423,21 +423,21 @@ class assStackQuestionInput
 		//Other Not Null variables:
 		if ($this->getSyntaxHint() == NULL OR $this->getSyntaxHint() == "") {
 			if ($solve_problems) {
-				$this->setSyntaxHint(" ");
+				$this->setSyntaxHint("");
 			} else {
 				return false;
 			}
 		}
 		if ($this->getForbidWords() == NULL OR $this->getForbidWords() == "") {
 			if ($solve_problems) {
-				$this->setForbidWords(" ");
+				$this->setForbidWords("");
 			} else {
 				return false;
 			}
 		}
 		if ($this->getAllowWords() == NULL OR $this->getAllowWords() == "") {
 			if ($solve_problems) {
-				$this->setAllowWords(" ");
+				$this->setAllowWords("");
 			} else {
 				return false;
 			}
@@ -451,7 +451,7 @@ class assStackQuestionInput
 		}
 		if ($this->getOptions() == NULL OR $this->getOptions() == "") {
 			if ($solve_problems) {
-				$this->setOptions(" ");
+				$this->setOptions("");
 			} else {
 				return false;
 			}

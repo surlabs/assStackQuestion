@@ -36,6 +36,8 @@ if ($res->numRows() == 0)
 /*
  * STACK name: options "Stores the main options for each Stack question"
  */
+global $DIC;
+$db = $DIC->database();
 if (!$db->tableExists('xqcas_options'))
 {
     $fields = array(
@@ -155,6 +157,8 @@ if (!$db->tableExists('xqcas_options'))
 /*
  * STACK name: inputs "One row for each input in the question."
  */
+global $DIC;
+$db = $DIC->database();
 if (!$db->tableExists('xqcas_inputs'))
 {
     $fields = array(
@@ -260,6 +264,8 @@ if (!$db->tableExists('xqcas_inputs'))
 /*
  * STACK name: prts "One row for each PRT in the question."
  */
+global $DIC;
+$db = $DIC->database();
 if (!$db->tableExists('xqcas_prts'))
 {
     $fields = array(
@@ -313,6 +319,8 @@ if (!$db->tableExists('xqcas_prts'))
 /*
  * STACK name: prt_nodes "One row for each node in each PRT in the question."
  */
+global $DIC;
+$db = $DIC->database();
 if (!$db->tableExists('xqcas_prt_nodes'))
 {
     $fields = array(
@@ -453,6 +461,8 @@ if (!$db->tableExists('xqcas_prt_nodes'))
 /*
  * STACK name: cas_cache "Caches the resuts of calls to Maxima."
  */
+global $DIC;
+$db = $DIC->database();
 if (!$db->tableExists('xqcas_cas_cache'))
 {
     $fields = array(
@@ -489,6 +499,8 @@ if (!$db->tableExists('xqcas_cas_cache'))
 /*
  * STACK name: qtests "One row for each questiontest for each question."
  */
+global $DIC;
+$db = $DIC->database();
 if (!$db->tableExists('xqcas_qtests'))
 {
     $fields = array(
@@ -522,6 +534,8 @@ if (!$db->tableExists('xqcas_qtests'))
 /*
  * STACK name: qtest_inputs "The value for each input for the question tests."
  */
+global $DIC;
+$db = $DIC->database();
 if (!$db->tableExists('xqcas_qtest_inputs'))
 {
     $fields = array(
@@ -565,6 +579,8 @@ if (!$db->tableExists('xqcas_qtest_inputs'))
 /*
  * STACK name: qtest_expected "Holds the expected outcomes for each PRT for this question t"
  */
+global $DIC;
+$db = $DIC->database();
 if (!$db->tableExists('xqcas_qtest_expected'))
 {
     $fields = array(
@@ -620,6 +636,8 @@ if (!$db->tableExists('xqcas_qtest_expected'))
 /*
  * STACK name: deployed_seeds "Holds the seeds for the variants of each question that have "
  */
+global $DIC;
+$db = $DIC->database();
 if (!$db->tableExists('xqcas_deployed_seeds'))
 {
     $fields = array(
@@ -651,6 +669,8 @@ if (!$db->tableExists('xqcas_deployed_seeds'))
 <#11>
 <#12>
 <?php
+global $DIC;
+$db = $DIC->database();
 $allow_words_column = array(
     'type' => 'text',
     'length' => 255,
@@ -664,6 +684,8 @@ if (!$db->tableColumnExists("xqcas_inputs", "allow_words"))
 <#13>
 <#14>
 <?php
+global $DIC;
+$db = $DIC->database();
 if (!$db->tableExists('xqcas_ilias_specific'))
 {
     $fields = array(
@@ -690,6 +712,8 @@ if (!$db->tableExists('xqcas_ilias_specific'))
 <#16>
 <#17>
 <?php
+global $DIC;
+$db = $DIC->database();
 if (!$db->tableExists('xqcas_configuration'))
 {
 	$fields = array(
@@ -712,6 +736,8 @@ if (!$db->tableExists('xqcas_configuration'))
 ?>
 <#18>
 <?php
+global $DIC;
+$db = $DIC->database();
 //Check if connection entries in DB have been created, otherwise create it.
 $query = 'SELECT * FROM xqcas_configuration WHERE group_name = "connection"';
 $result = $db->query($query);
@@ -813,7 +839,8 @@ $config->setDefaultSettingsForConnection();
 ?>
 <#19>
 <?php
-global $db;
+global $DIC;
+$db = $DIC->database();
 if (!$db->tableExists('xqcas_ilias_specific'))
 {
 
@@ -858,7 +885,8 @@ if (!$db->tableColumnExists("xqcas_ilias_specific", "hídden"))
 <#22>
 <#23>
 <?php
-global $db;
+global $DIC;
+$db = $DIC->database();
 //Change name to ilias_specific and sequence
 if ($db->tableExists('xqcas_ilias_specific'))
 {
@@ -903,7 +931,8 @@ if (!$db->tableExists('xqcas_extra_info'))
 /*
  * add id to old version of the plugin
  */
-
+global $DIC;
+$db = $DIC->database();
 $res = $db->queryF("SELECT * FROM qpl_qst_type WHERE type_tag = %s", array('text'), array('assCasQuestion')
 );
 
@@ -921,6 +950,8 @@ if ($res->numRows() != 0)
 ?>
 <#28>
 <?php
+global $DIC;
+$db = $DIC->database();
 //Add matrix parens column for STACK 3.3
 $matrix_parens = array(
 	'type' => 'text',
@@ -936,6 +967,8 @@ if ($db->tableExists('xqcas_options'))
 ?>
 <#29>
 <?php
+global $DIC;
+$db = $DIC->database();
 $lng = $DIC->language();//Adding of all feedback placeholder in question specific feedback
 if ($db->tableExists('xqcas_options') AND $db->tableExists('xqcas_prts'))
 {
@@ -976,7 +1009,8 @@ if ($db->tableExists('xqcas_options') AND $db->tableExists('xqcas_prts'))
 ?>
 <#30>
 <?php
-
+global $DIC;
+$db = $DIC->database();
 	if ($db->tableExists('xqcas_options'))
         {
             //Get matrix parens field
@@ -1007,7 +1041,93 @@ if ($db->tableExists('xqcas_options') AND $db->tableExists('xqcas_prts'))
             }
 		}
 ?>
-    <#30>
+<#31>
 <?php
+global $DIC;
+$db = $DIC->database();
+if ($db->tableExists('xqcas_options'))
+{
+    $db->modifyTableColumn("xqcas_options","question_variables", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_options","specific_feedback", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_options","specific_feedback_format", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_options","question_note", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_options","question_simplify", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_options","assume_positive", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_options","prt_correct", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_options","prt_correct_format", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_options","prt_partially_correct", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_options","prt_partially_correct_format", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_options","prt_incorrect", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_options","prt_incorrect_format", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_options","multiplication_sign", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_options","sqrt_sign", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_options","complex_no", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_options","inverse_trig", array("notnull" => false));
+}
+if ($db->tableExists('xqcas_inputs'))
+{
+    $db->modifyTableColumn("xqcas_inputs","name", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_inputs","type", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_inputs","tans", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_inputs","box_size", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_inputs","strict_syntax", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_inputs","insert_stars", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_inputs","syntax_hint", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_inputs","forbid_words", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_inputs","forbid_float", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_inputs","require_lowest_terms", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_inputs","check_answer_type", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_inputs","must_verify", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_inputs","show_validation", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_inputs","options", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_inputs","allow_words", array("notnull" => false));
+}
+if ($db->tableExists('xqcas_prts'))
+{
+    $db->modifyTableColumn("xqcas_prts","name", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prts","value", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prts","auto_simplify", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prts","feedback_variables", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prts","first_node_name", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prts","name", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prts","name", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prts","name", array("notnull" => false));
+}
 
+if ($db->tableExists('xqcas_prt_nodes'))
+{
+    $db->modifyTableColumn("xqcas_prt_nodes","prt_name", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prt_nodes","node_name", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prt_nodes","answer_test", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prt_nodes","sans", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prt_nodes","tans", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prt_nodes","test_options", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prt_nodes","quiet", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prt_nodes","true_score_mode", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prt_nodes","true_score", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prt_nodes","true_answer_note", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prt_nodes","true_feedback", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prt_nodes","true_feedback_format", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prt_nodes","false_score_mode", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prt_nodes","false_score", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prt_nodes","false_answer_note", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prt_nodes","false_feedback", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_prt_nodes","false_feedback_format", array("notnull" => false));
+}
+if ($db->tableExists('xqcas_qtests'))
+{
+    $db->modifyTableColumn("xqcas_qtests","test_case", array("notnull" => false));
+}
+if ($db->tableExists('xqcas_qtest_inputs'))
+{
+    $db->modifyTableColumn("xqcas_qtest_inputs","test_case", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_qtest_inputs","input_name", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_qtest_inputs","value", array("notnull" => false));
+}
+if ($db->tableExists('xqcas_qtest_expected'))
+{
+    $db->modifyTableColumn("xqcas_qtest_expected","test_case", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_qtest_expected","prt_name", array("notnull" => false));
+    $db->modifyTableColumn("xqcas_qtest_expected","expected_answer_note", array("notnull" => false));
+}
 ?>

@@ -113,9 +113,23 @@ Version History
 
 GitHub Version 2.4.0 (2017-X-X)
 -------------------------------
-- STACK can be used now in ILIAS 5.2
-- DIC is now used when possible
+- STACK versions 2.4.x can be used only on ILIAS 5.2+ platforms.
+- DIC is now used as global for database, control, language and tabs.
 
+GitHub Version 2.3.12 (2017-4-19) For ILIAS 5.0 and 5.1
+-------------------------------------------------------
+- Now specific feedback is also shown in Test results
+- This version includes some bugfixing:
+- http://www.ilias.de/mantis/view.php?id=20387 about error displaying info messages in ILIAS 5.0.
+- http://www.ilias.de/mantis/view.php?id=20407 about mistake in german text.
+
+GitHub Version 2.3.11 (2017-4-19)
+---------------------------------
+This version includes some bugfixing:
+- Now forbidden words are properly forbidden when used by students in a STACK question
+- Feedback is now properly shown when there are more than two feedback placeholder on the specific feedback.
+- Info for feedback in a node is now properly shown.
+- Input fields in authoring interface now doesn't have a blank space by default, we changed the DB structure in order to avoid this problem.
 
 GitHub Version 2.3.10 (2017-3-6)
 --------------------------------
