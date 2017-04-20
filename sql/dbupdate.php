@@ -860,6 +860,8 @@ $db->addIndex('xqcas_deployed_seeds', array('question_id','seed'),'i6', FALSE);
 ?>
 <#20>
 <?php
+global $DIC;
+$db = $DIC->database();
 //Adding extra fields in moodle XML
 //Penalty
 $penalty_column = array(
