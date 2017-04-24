@@ -574,13 +574,14 @@ class assStackQuestionUtils
 		 * Step 3 User ilMathJax::getInstance()->insertLatexImages to deliver the LaTeX code.
 		 */
 		include_once './Services/MathJax/classes/class.ilMathJax.php';
+		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
 		//ilMathJax::getInstance()->insertLatexImages cannot render \( delimiters so we change it to [tex]
 		if ($start == '\(')
 		{
-			return ilMathJax::getInstance()->insertLatexImages($text);
+			return stack_maths::process_display_castext(ilMathJax::getInstance()->insertLatexImages($text));
 		} else
 		{
-			return ilMathJax::getInstance()->insertLatexImages($text, $start, $end);
+			return stack_maths::process_display_castext(ilMathJax::getInstance()->insertLatexImages($text, $start, $end));
 		}
 	}
 }
