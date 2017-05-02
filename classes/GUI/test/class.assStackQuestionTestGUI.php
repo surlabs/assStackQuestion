@@ -24,7 +24,7 @@ class assStackQuestionTestGUI
 	private $plugin;
 
 	/**
-	 * @var ilTemplate for showing the deployed seeds panel
+	 * @var ilTemplate for
 	 */
 	private $template;
 
@@ -47,34 +47,73 @@ class assStackQuestionTestGUI
 
 	/**
 	 * Sets required data for unit tests management
-	 * @param $plugin ilassStackQuestionPlugin instance
-	 * @param $question_id int
-	 * @param $unit_tests array of unit tests
+	 * @param $a_parent_obj assStackQuestionGUI
+	 * @param $unit_test_results array
 	 */
-	function __construct($plugin, $question_id, $unit_test_results = array())
+	function __construct($a_parent_obj, $plugin, $unit_test_results = array())
 	{
 		//Set plugin and template objects
 		$this->setPlugin($plugin);
 		$this->setTemplate($this->getPlugin()->getTemplate('tpl.il_as_qpl_xqcas_unit_tests_container.html'));
-		$this->setQuestionId($question_id);
+		$this->setQuestionId($a_parent_obj->object->getId());
 
 		//Set Unit tests data
 		$this->setTests(assStackQuestionTest::_read($this->getQuestionId()));
 		$this->setUnitTestResults($unit_test_results);
+		$this->question_gui = $a_parent_obj;
+
+		global $tpl;
+		$this->tpl = $tpl;
 	}
 
 	/**
 	 * ### MAIN METHOD OF THIS CLASS ###
 	 * @return HTML
 	 */
-	public function showUnitTestsPanel()
+	public function showUnitTestsPanel($a_mode = FALSE)
 	{
-		//Step #1: Fill Unit header
-		$this->fillUnitTestHeader();
-		//Step #2: Fill Unit tests panel
-		$this->fillUnitTestsPanel();
-		//Step #3: Returns the html of the panel
-		return $this->getTemplate()->get();
+		global $DIC;
+
+		//Set mode to TRUE if test run data exists
+		if ($a_mode === TRUE)
+		{
+			$this->mode = TRUE;
+		}
+		//Toolbar creation
+		include_once("./Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php");
+		include_once('./Services/UIComponent/Button/classes/class.ilButton.php');
+		$lng = $DIC->language();
+		$ctrl = $DIC->ctrl();
+
+		$toolbar = new ilToolbarGUI();
+		$create_test_case = ilButton::getInstance();
+		$create_test_case->setCaption($lng->txt("create"), FALSE);
+		$create_test_case->setName("createTestcases", TRUE);
+		$create_test_case->setFormAction($ctrl->getLinkTargetByClass("assSTACKQuestionGUI", "createTestcases"));
+		$toolbar->addButtonInstance($create_test_case);
+
+		$run_all_tests = ilButton::getInstance();
+		$run_all_tests->setCaption($this->getPlugin()->txt("ut_run_all_tests"), FALSE);
+		$run_all_tests->setName("runTestcases", TRUE);
+		$run_all_tests->setFormAction($ctrl->getLinkTargetByClass("assSTACKQuestionGUI", "runTestcases"));
+		$toolbar->addButtonInstance($run_all_tests);
+		$toolbar->setFormAction($ctrl->getLinkTargetByClass("assSTACKQuestionGUI"));
+
+		if (sizeof($this->getTests()))
+		{
+			include_once './Services/Accordion/classes/class.ilAccordionGUI.php';
+			$unit_tests_accordion = new ilAccordionGUI();
+			foreach ($this->getTests() as $test)
+			{
+				$unit_tests_accordion->addItem($this->fillTestCaseHeader($test), $this->fillTestCaseContent($test), TRUE);
+			}
+
+			return $toolbar->getHTML() . $unit_tests_accordion->getHTML();
+		} else
+		{
+			return $toolbar->getHTML();
+		}
+
 	}
 
 	/*
@@ -82,299 +121,218 @@ class assStackQuestionTestGUI
 	 */
 
 	/**
-	 * Fill unit tests panel headers
+	 * @param assStackQuestionTest $test
+	 * @return string
 	 */
-	private function fillUnitTestHeader()
+	public function fillTestCaseHeader($test)
 	{
-		$this->getTemplate()->setVariable('UNIT_TESTS_TABLE_TITLE', $this->getPlugin()->txt('ut_title'));
-		$this->getTemplate()->setVariable('UNIT_TESTS_TABLE_SUBTITLE', $this->getPlugin()->txt('ut_subtitle'));
-	}
-
-	/**
-	 * Fill unit tests panel
-	 */
-	private function fillUnitTestsPanel()
-	{
-		$this->panel_template = $this->getPlugin()->getTemplate('tpl.il_as_qpl_xqcas_unit_tests_panel.html');
-		foreach ($this->getTests() as $unit_test) {
-			$this->panel_template->setCurrentBlock('ut_testcase');
-			//Fill testcases depending on results
-			if (is_array($this->getUnitTestResults($unit_test->getTestCase()))) {
-				$this->fillTestcase($unit_test, TRUE);
-			} else {
-				$this->fillTestcase($unit_test, FALSE);
-			}
-			$this->panel_template->ParseCurrentBlock();
-		}
-
-		//Add form
-		$this->getGeneralForm();
-
-		//Set panel to template
-		$this->getTemplate()->setVariable('UNIT_TESTS_PANEL', $this->panel_template->get());
-	}
-
-	/**
-	 * Fill testcases
-	 * @param assStackQuestionTest $unit_test
-	 * @param boolean $mode
-	 */
-	private function fillTestcase(assStackQuestionTest $unit_test, $mode)
-	{
-		//Fill inputs part
-		$this->fillInputsPart($unit_test, $mode);
-		//Fill prt part
-		$this->fillPRTPart($unit_test, $mode);
-	}
-
-	/**
-	 * Fill inputs part
-	 * @param assStackQuestionTest $unit_test
-	 * @param boolean $mode
-	 */
-	private function fillInputsPart($unit_test, $mode)
-	{
-		//Fill header messages
-		$this->inputs_template = $this->getPlugin()->getTemplate('tpl.il_as_qpl_xqcas_unit_test_inputs_view.html');
-		$this->inputs_template->setVariable('UT_TESTCASE_NAME_MESSAGE', $this->getPlugin()->txt('ut_testcase_name'));
-		$this->inputs_template->setVariable('UT_TESTCASE_NAME', $unit_test->getTestCase());
-
-		//Fill inputs
-		if ($mode) {
-			//EXISTS RESULTS FOR THIS TESTCASE
-			$results = $this->getUnitTestResults($unit_test->getTestCase());
-			$testcase_inputs = $results['inputs'];
-			foreach ($testcase_inputs as $input_name => $input_value) {
-				if (!preg_match('/_val/', $input_name)) {
-					$this->inputs_template->setCurrentBlock('ut_inputs');
-					$this->inputs_template->setVariable('UT_INPUT_NAME', $input_name);
-					$this->inputs_template->setVariable('UT_SENT_ANSWER', $input_value);
-					if ($results['test_passed']) {
-						$this->inputs_template->setVariable('UT_TEST_PASSED', $this->getPlugin()->txt('ut_test_passed'));
-					} else {
-						$this->inputs_template->setVariable('UT_TEST_PASSED', $this->getPlugin()->txt('ut_test_failed'));
-					}
-					$this->inputs_template->setVariable('TEST_PASSED_COLOR', $this->getTestcaseColor($results['test_passed']));
-					$this->inputs_template->ParseCurrentBlock();
+		require_once 'Services/UIComponent/Glyph/classes/class.ilGlyphGUI.php';
+		if ($this->mode)
+		{
+			$unit_test_results = $this->getUnitTestResults($test->getTestCase());
+			if (isset($unit_test_results["test_passed"]))
+			{
+				if ($unit_test_results["test_passed"])
+				{
+					$icon = ilUtil::getImagePath("icon_ok.svg");
+				} else
+				{
+					$icon = ilUtil::getImagePath("icon_not_ok.svg");
 				}
+
+				return $this->getPlugin()->txt("ut_testcase_name") . " " . $test->getTestCase() . " " . '<img src="' . $icon . '" /> ';
+
+			} else
+			{
+				return $this->getPlugin()->txt("ut_testcase_name") . " " . $test->getTestCase();
 			}
-		} else {
-			//DOESN'T EXISTS RESULTS FOR THIS TESTCASE
-			$testcase_inputs = $this->getTests($unit_test->getTestCase());
-			foreach ($testcase_inputs->getTestInputs() as $input) {
-				$this->inputs_template->setCurrentBlock('ut_inputs');
-				$this->inputs_template->setVariable('UT_INPUT_NAME', $input->getTestInputName());
-				$this->inputs_template->setVariable('UT_SENT_ANSWER', $input->getTestInputValue());
-				$this->inputs_template->setVariable('TEST_PASSED_COLOR', $this->getTestcaseColor('grey'));
-				$this->inputs_template->ParseCurrentBlock();
-			}
+		} else
+		{
+			return $this->getPlugin()->txt("ut_testcase_name") . " " . $test->getTestCase();
 		}
 
-		//Return input part
-		$this->panel_template->setVariable('INPUTS_PART', $this->inputs_template->get());
 	}
 
 	/**
-	 * Fill PRT part
-	 * @param assStackQuestionTest $unit_test
-	 * @param boolean $mode
+	 * @param assStackQuestionTest $test
+	 * @return string
 	 */
-	private function fillPRTPart($unit_test, $mode)
-	{
-		//Fill header
-		$this->prt_template = $this->getPlugin()->getTemplate('tpl.il_as_qpl_xqcas_unit_test_prt_view.html');
-		$this->fillPRTHeader($unit_test);
-		//Fill PRT Data
-		if ($mode) {
-			//EXISTS RESULTS FOR THIS TESTCASE
-			$results = $this->getUnitTestResults($unit_test->getTestCase());
-			$testcase_prts = $results['prts'];
-			foreach ($testcase_prts as $prt_name => $prt_data) {
-				$this->prt_template->setCurrentBlock('ut_prt');
-				$this->prt_template->setVariable('UT_PRT_PRTNAME', $prt_name);
-				//SCORE
-				$this->prt_template->setVariable('UT_PRT_EXPECTED_SCORE', $prt_data['expected_score']);
-				$this->prt_template->setVariable('UT_PRT_RECEIVED_SCORE', $prt_data['received_score']);
-				$this->prt_template->setVariable('UT_SCORE_TEST_COLOR', $this->getTestcaseColor($prt_data['score_test']));
-				//PENALTY
-				$this->prt_template->setVariable('UT_PRT_EXPECTED_PENALTY', $prt_data['expected_penalty']);
-				$this->prt_template->setVariable('UT_PRT_RECEIVED_PENALTY', $prt_data['received_penalty']);
-				$this->prt_template->setVariable('UT_PENALTY_TEST_COLOR', $this->getTestcaseColor($prt_data['penalty_test']));
-				//ANSWERNOTE
-				$this->prt_template->setVariable('UT_PRT_EXPECTED_ANSWERNOTE', $prt_data['expected_answernote']);
-				$this->prt_template->setVariable('UT_PRT_RECEIVED_ANSWERNOTE', $prt_data['received_answernote']);
-				$this->prt_template->setVariable('UT_ANSWERNOTE_TEST_COLOR', $this->getTestcaseColor($prt_data['answernote_test']));
-				//ERRORS AND FEEDBACK
-				$this->prt_template->setVariable('UT_PRT_CAS_ERRORS', $prt_data['cas_errors']);
-				$this->prt_template->setVariable('UT_PRT_CAS_FEEDBACK', $prt_data['cas_feedback']);
-				$this->prt_template->ParseCurrentBlock();
-			}
-		} else {
-			//DOESN'T EXISTS RESULTS FOR THIS TESTCASE
-			$testcase_prts = $this->getTests($unit_test->getTestCase());
-			foreach ($testcase_prts->getTestExpected() as $prt_data) {
-				$this->prt_template->setCurrentBlock('ut_prt');
-				$this->prt_template->setVariable('UT_PRT_PRTNAME', $prt_data->getTestPRTName());
-				//SCORE
-				$this->prt_template->setVariable('UT_PRT_EXPECTED_SCORE', $prt_data->getExpectedScore());
-				//PENALTY
-				$this->prt_template->setVariable('UT_PRT_EXPECTED_PENALTY', $prt_data->getExpectedPenalty());
-				//ANSWERNOTE
-				$this->prt_template->setVariable('UT_PRT_EXPECTED_ANSWERNOTE', $prt_data->getExpectedAnswerNote());
-				$this->prt_template->ParseCurrentBlock();
-			}
-		}
-		$this->panel_template->setVariable('PRTS_PART', $this->prt_template->get());
-	}
-
-	/**
-	 * Fill header of testcase
-	 * @param assStackQuestionTest $unit_test
-	 */
-	private function fillPRTHeader($unit_test)
-	{
-		$this->prt_template->setVariable('UT_PRT_PRTNAME_H', $this->getTestcaseCommandsForm($unit_test));
-		$this->prt_template->setVariable('UT_PRT_EXPECTED_SCORE_H', $this->getPlugin()->txt('ut_expected_mark'));
-		$this->prt_template->setVariable('UT_PRT_RECEIVED_SCORE_H', $this->getPlugin()->txt('ut_received_mark'));
-		$this->prt_template->setVariable('UT_PRT_EXPECTED_PENALTY_H', $this->getPlugin()->txt('ut_expected_penalty'));
-		$this->prt_template->setVariable('UT_PRT_RECEIVED_PENALTY_H', $this->getPlugin()->txt('ut_received_penalty'));
-		$this->prt_template->setVariable('UT_PRT_EXPECTED_ANSWERNOTE_H', $this->getPlugin()->txt('ut_expected_answer_note'));
-		$this->prt_template->setVariable('UT_PRT_RECEIVED_ANSWERNOTE_H', $this->getPlugin()->txt('ut_received_answer_note'));
-		$this->prt_template->setVariable('UT_PRT_CAS_ERRORS_H', $this->getPlugin()->txt('ut_cas_errors'));
-		$this->prt_template->setVariable('UT_PRT_CAS_FEEDBACK_H', $this->getPlugin()->txt('ut_cas_feedback'));
-	}
-
-	/*
-	 * FORMS
-	 */
-
-	/**
-	 * Get form for create unit test and run all.
-	 */
-	private function getGeneralForm()
+	public function fillTestCaseContent($test)
 	{
 		global $DIC;
 
+		include_once "Services/UIComponent/Panel/classes/class.ilPanelGUI.php";
+		include_once 'Services/Table/classes/class.ilTable2GUI.php';
+		include_once('./Services/UIComponent/Button/classes/class.ilButton.php');
 		$lng = $DIC->language();
-
-		//Initialization
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
-		$form = new ilPropertyFormGUI();
 		$ctrl = $DIC->ctrl();
-		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
 
-		//Values
-		$question_id = new ilHiddenInputGUI('question_id');
-		$question_id->setValue($this->getQuestionId());
-		$form->addItem($question_id);
-
-		//Commands
-		$form->addCommandButton("createTestcases", $lng->txt("create"));
-		$form->addCommandButton("runTestcases", $this->getPlugin()->txt('ut_run_all_tests'));
-		$form->setShowTopButtons(FALSE);
-
-		$this->panel_template->setVariable('UNIT_TEST_GENERAL_FORM', $form->getHTML());
-	}
-
-	/**
-	 * Returns the commands form for one testcase
-	 * @param assStackQuestionTest $unit_test
-	 * @return HTML
-	 */
-	private function getTestcaseCommandsForm(assStackQuestionTest $unit_test)
-	{
-		global $DIC;
-
-		//Initialization
+		$container_panel = ilPanelGUI::getInstance();
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
-		$form = new ilPropertyFormGUI();
-		$ctrl = $DIC->ctrl();
-		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
 
-		//Values
-		$test_id = new ilHiddenInputGUI('test_id');
-		$test_id->setValue($unit_test->getTestId());
-		$form->addItem($test_id);
-
+		$testcase_toolbar = new ilPropertyFormGUI();
+		$testcase_toolbar->addCommandButton("runTestcases", $this->getPlugin()->txt("ut_run_testcase"));
+		$testcase_toolbar->addCommandButton("editTestcases", $lng->txt("edit"));
+		$testcase_toolbar->addCommandButton("doDeleteTestcase", $lng->txt("delete"));
+		$testcase_toolbar->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
 		$testcase_name = new ilHiddenInputGUI('testcase_name');
-		$testcase_name->setValue($unit_test->getTestCase());
-		$form->addItem($testcase_name);
-
+		$testcase_name->setValue($test->getTestCase());
+		$testcase_toolbar->addItem($testcase_name);
 		$question_id = new ilHiddenInputGUI('question_id');
 		$question_id->setValue($this->getQuestionId());
-		$form->addItem($question_id);
+		$testcase_toolbar->addItem($question_id);
 
-		//Commands
-		$form->addCommandButton("runTestcases", $this->getPlugin()->txt('ut_run_testcase') . ' ' . $unit_test->getTestCase());
-		$form->addCommandButton("editTestcases", $this->getPlugin()->txt("ut_edit_testcase") . ' ' . $unit_test->getTestCase());
-		$form->addCommandButton("doDeleteTestcase", $this->getPlugin()->txt("ut_delete_testcase") . ' ' . $unit_test->getTestCase());
-		$form->setShowTopButtons(FALSE);
+		//Part 1: Inputs panel
+		$inputs_panel = ilPanelGUI::getInstance();
+		$inputs_panel->setPanelStyle(ilPanelGUI::PANEL_STYLE_PRIMARY);
+		$inputs_panel->setHeadingStyle(ilPanelGUI::PANEL_STYLE_SECONDARY);
+		$inputs_panel->setHeading($this->getPlugin()->txt('inputs'));
+		$body = "";
 
-		return $form->getHTML();
+		$inputs_panel->setBody($this->getQuestionFilledIn($test->getInputsForUnitTest()));
+
+		//Part 2: PRT panel
+		$prts_panel = ilPanelGUI::getInstance();
+		$prts_panel->setPanelStyle(ilPanelGUI::PANEL_STYLE_PRIMARY);
+		$prts_panel->setHeadingStyle(ilPanelGUI::PANEL_STYLE_SECONDARY);
+		$prts_panel->setHeading($this->getPlugin()->txt('prts'));
+		$body = $this->getPRTTable($test);
+		$prts_panel->setBody($body);
+
+		//Join both in Container panel
+		$container_panel->setBody($testcase_toolbar->getHTML() . $inputs_panel->getHTML() . $prts_panel->getHTML());
+
+		return $container_panel->getHTML();
+	}
+
+	public function getQuestionFilledIn($inputs)
+	{
+		$body = "";
+		foreach ($inputs as $input_name => $input)
+		{
+			$body .= $input_name . ": " . $input. "</br>";
+		}
+
+		return $body;
 	}
 
 	/**
-	 * Return the editing form for unit test
 	 * @param $testcase
-	 * @return HTML
+	 * @param bool $mode
+	 * @return mixed
 	 */
-	public function editTestcaseForm($testcase)
+	public function getPRTTable($testcase)
 	{
-		global $DIC;
-
-		$lng = $DIC->language();
-
-		//Must be a testcase to edit
-		if (!$testcase) {
-			return;
-		} else {
-			$unit_tests = assStackQuestionTest::_read($this->getQuestionId(), $testcase);
-			$unit_test = $unit_tests[$testcase];
+		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/GUI/tables/class.assStackQuestionTestTableGUI.php';
+		$prts_table = new assStackQuestionTestTableGUI($this, "showUnitTests");
+		if ($this->mode)
+		{
+			$prts_table->prepareData($this->getUnitTestResults($testcase->getTestCase()));
+		} else
+		{
+			$prts_table->prepareData($testcase);
 		}
 
-		//Initialization
+		return $prts_table->getHTML();
+	}
+
+	/**
+	 * This methos returns the form GUI for edit a testcase
+	 * @param string $testcase_name
+	 * @param array $question_inputs
+	 * @param array $question_prts
+	 */
+	public function editTestcaseForm($testcase_name, $question_inputs, $question_prts)
+	{
+		global $DIC;
+		$lng = $DIC->language();
+		$ctrl = $DIC->ctrl();
+
+		include_once "Services/UIComponent/Panel/classes/class.ilPanelGUI.php";
+		$form_container = ilPanelGUI::getInstance();
+		$form_container->setPanelStyle(ilPanelGUI::PANEL_STYLE_PRIMARY);
+		$form_container->setHeadingStyle(ilPanelGUI::PANEL_STYLE_SECONDARY);
+		$form_container->setHeading($this->getPlugin()->txt("ut_testcase_name") . " " . $testcase_name);
+
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
-		$ctrl = $DIC->ctrl();
 		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
 
-		$testcase_name = new ilHiddenInputGUI('testcase_name');
-		$testcase_name->setValue($testcase);
-		$form->addItem($testcase_name);
+		//Get testcase data
+		$unit_test = $this->getTests($testcase_name);
+
+		//Initialization
+		$testcase_name_hidden = new ilHiddenInputGUI('testcase_name');
+		$testcase_name_hidden->setValue($testcase_name);
+		$form->addItem($testcase_name_hidden);
 
 		//Student inputs
 		$inputs_title = new ilNonEditableValueGUI($this->getPlugin()->txt('ut_student_response'), 'inputs');
 		$form->addItem($inputs_title);
-		foreach ($unit_test->getTestInputs() as $input) {
-			$input_field = new ilTextInputGUI($input->getTestInputName(), $input->getTestInputName());
-			$input_field->setValue($input->getTestInputValue());
+
+		//Check all inputs are presented
+		foreach ($question_inputs as $input_name => $q_input)
+		{
+			$input_field = new ilTextInputGUI($input_name, $input_name);
+			foreach ($unit_test->getTestInputs() as $input)
+			{
+				if ($input_name == $input->getTestInputName())
+				{
+					$input_field->setValue($input->getTestInputValue());
+					break;
+				}
+			}
 			$form->addItem($input_field);
 		}
 
 		//Expected score
 		$expected_score_title = new ilNonEditableValueGUI($this->getPlugin()->txt('ut_expected_mark'), 'expected_score_title');
 		$form->addItem($expected_score_title);
-		foreach ($unit_test->getTestExpected() as $prt => $expected) {
-			$expected_score = new ilTextInputGUI($this->getPlugin()->txt('ut_expected_score_for') . ' ' . $expected->getTestPRTName(), 'score_' . $expected->getTestPRTName());
-			$expected_score->setValue($expected->getExpectedScore());
+		foreach ($question_prts as $prt_name => $q_prt)
+		{
+			$expected_score = new ilTextInputGUI($this->getPlugin()->txt('ut_expected_score_for') . ' ' . $prt_name, 'score_' . $prt_name);
+			foreach ($unit_test->getTestExpected() as $prt => $expected)
+			{
+				if ($prt_name == $expected->getTestPRTName())
+				{
+					$expected_score->setValue($expected->getExpectedScore());
+					break;
+				}
+			}
 			$form->addItem($expected_score);
 		}
 
 		//Expected penalty
 		$expected_penalty_title = new ilNonEditableValueGUI($this->getPlugin()->txt('ut_expected_penalty'), 'expected_penalty_title');
 		$form->addItem($expected_penalty_title);
-		foreach ($unit_test->getTestExpected() as $prt => $expected) {
-			$expected_penalty = new ilTextInputGUI($this->getPlugin()->txt('ut_expected_penalty_for') . ' ' . $expected->getTestPRTName(), 'penalty_' . $expected->getTestPRTName());
-			$expected_penalty->setValue($expected->getExpectedPenalty());
+		foreach ($question_prts as $prt_name => $q_prt)
+		{
+			$expected_penalty = new ilTextInputGUI($this->getPlugin()->txt('ut_expected_penalty_for') . ' ' . $prt_name, 'penalty_' . $prt_name);
+			foreach ($unit_test->getTestExpected() as $prt => $expected)
+			{
+				if ($prt_name == $expected->getTestPRTName())
+				{
+					$expected_penalty->setValue($expected->getExpectedPenalty());
+					break;
+				}
+			}
 			$form->addItem($expected_penalty);
 		}
 
 		//Expected answernote
 		$expected_answernote_title = new ilNonEditableValueGUI($this->getPlugin()->txt('ut_expected_answer_note'), 'expected_answernote_title');
 		$form->addItem($expected_answernote_title);
-		foreach ($unit_test->getTestExpected() as $prt => $expected) {
-			$expected_answernote = new ilTextInputGUI($this->getPlugin()->txt('ut_expected_answernote_for') . ' ' . $expected->getTestPRTName(), 'answernote_' . $expected->getTestPRTName());
-			$expected_answernote->setValue($expected->getExpectedAnswerNote());
+		foreach ($question_prts as $prt_name => $q_prt)
+		{
+			$expected_answernote = new ilTextInputGUI($this->getPlugin()->txt('ut_expected_answernote_for') . ' ' . $prt_name, 'answernote_' . $prt_name);
+			foreach ($unit_test->getTestExpected() as $prt => $expected)
+			{
+				if ($prt_name == $expected->getTestPRTName())
+				{
+					$expected_answernote->setValue($expected->getExpectedAnswerNote());
+					break;
+				}
+			}
 			$form->addItem($expected_answernote);
 		}
 
@@ -382,7 +340,10 @@ class assStackQuestionTestGUI
 		$form->addCommandButton("doEditTestcase", $lng->txt('save'));
 		$form->addCommandButton("showUnitTests", $lng->txt('cancel'));
 
-		return $form->getHTML();
+		$body = $form->getHTML();
+		$form_container->setBody($body);
+
+		return $form_container->getHTML();
 	}
 
 	/**
@@ -390,82 +351,77 @@ class assStackQuestionTestGUI
 	 * @param $question_id
 	 * @return HTML
 	 */
-	public function createTestcaseForm($question_id)
+	public function createTestcaseForm($testcase_name, $question_inputs, $question_prts)
 	{
 		global $DIC;
-
 		$lng = $DIC->language();
+		$ctrl = $DIC->ctrl();
 
-		//Initialization
+		include_once "Services/UIComponent/Panel/classes/class.ilPanelGUI.php";
+		$form_container = ilPanelGUI::getInstance();
+		$form_container->setPanelStyle(ilPanelGUI::PANEL_STYLE_PRIMARY);
+		$form_container->setHeadingStyle(ilPanelGUI::PANEL_STYLE_SECONDARY);
+		$form_container->setHeading($this->getPlugin()->txt("ut_testcase_name") . " " . $testcase_name);
+
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
-		$ctrl = $DIC->ctrl();
 		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
 
-		//Guess question structure in order to create needed fields
-		$structure = assStackQuestionUtils::_getInputsAndPRTStructure($question_id);
+		//Initialization
+		$testcase_name_hidden = new ilHiddenInputGUI('testcase_name');
+		$testcase_name_hidden->setValue($testcase_name);
+		$form->addItem($testcase_name_hidden);
 
 		//Student inputs
-		$inputs_title = new ilNonEditableValueGUI($this->getPlugin()->txt('ut_student_response'), 'inputs_title');
+		$inputs_title = new ilNonEditableValueGUI($this->getPlugin()->txt('ut_student_response'), 'inputs');
 		$form->addItem($inputs_title);
-		foreach ($structure['input'] as $input_name => $input) {
+
+		//Check all inputs are presented
+		foreach ($question_inputs as $input_name => $q_input)
+		{
 			$input_field = new ilTextInputGUI($input_name, $input_name);
-			$input_field->setValue('');
+			$input_field->setValue("");
 			$form->addItem($input_field);
 		}
 
 		//Expected score
 		$expected_score_title = new ilNonEditableValueGUI($this->getPlugin()->txt('ut_expected_mark'), 'expected_score_title');
 		$form->addItem($expected_score_title);
-		foreach ($structure['prt'] as $prt => $expected) {
-			$expected_score = new ilTextInputGUI($this->getPlugin()->txt('ut_expected_score_for') . ' ' . $expected->getPRTName(), 'score' . '_' . $expected->getPRTName());
-			$expected_score->setValue('');
+		foreach ($question_prts as $prt_name => $q_prt)
+		{
+			$expected_score = new ilTextInputGUI($this->getPlugin()->txt('ut_expected_score_for') . ' ' . $prt_name, 'score_' . $prt_name);
+			$expected_score->setValue("");
 			$form->addItem($expected_score);
 		}
 
 		//Expected penalty
-		$expected_score_title = new ilNonEditableValueGUI($this->getPlugin()->txt('ut_expected_penalty'), 'expected_penalty_title');
-		$form->addItem($expected_score_title);
-		foreach ($structure['prt'] as $prt => $expected) {
-			$expected_score = new ilTextInputGUI($this->getPlugin()->txt('ut_expected_penalty_for') . ' ' . $expected->getPRTName(), 'penalty' . '_' . $expected->getPRTName());
-			$expected_score->setValue('');
-			$form->addItem($expected_score);
+		$expected_penalty_title = new ilNonEditableValueGUI($this->getPlugin()->txt('ut_expected_penalty'), 'expected_penalty_title');
+		$form->addItem($expected_penalty_title);
+		foreach ($question_prts as $prt_name => $q_prt)
+		{
+			$expected_penalty = new ilTextInputGUI($this->getPlugin()->txt('ut_expected_penalty_for') . ' ' . $prt_name, 'penalty_' . $prt_name);
+			$expected_penalty->setValue("");
+			$form->addItem($expected_penalty);
 		}
 
 		//Expected answernote
-		$expected_score_title = new ilNonEditableValueGUI($this->getPlugin()->txt('ut_expected_answer_note'), 'expected_answernote_title');
-		$form->addItem($expected_score_title);
-		foreach ($structure['prt'] as $prt => $expected) {
-			$expected_score = new ilTextInputGUI($this->getPlugin()->txt('ut_expected_answernote_for') . ' ' . $expected->getPRTName(), 'answernote' . '_' . $expected->getPRTName());
-			$expected_score->setValue('');
-			$form->addItem($expected_score);
+		$expected_answernote_title = new ilNonEditableValueGUI($this->getPlugin()->txt('ut_expected_answer_note'), 'expected_answernote_title');
+		$form->addItem($expected_answernote_title);
+		foreach ($question_prts as $prt_name => $q_prt)
+		{
+			$expected_answernote = new ilTextInputGUI($this->getPlugin()->txt('ut_expected_answernote_for') . ' ' . $prt_name, 'answernote_' . $prt_name);
+			$expected_answernote->setValue("");
+			$form->addItem($expected_answernote);
 		}
 
 		//Commands
-		$form->addCommandButton("doCreateTestcase", $lng->txt('create'));
+		$form->addCommandButton("doCreateTestcase", $lng->txt('save'));
 		$form->addCommandButton("showUnitTests", $lng->txt('cancel'));
 
-		return $form->getHTML();
-	}
+		$body = $form->getHTML();
+		$form_container->setBody($body);
 
-	/*
-	 * UTILS
-	 */
-
-	/**
-	 * Determine color
-	 * @param boolean|string $test_passed
-	 * @return string
-	 */
-	private function getTestcaseColor($test_passed)
-	{
-		if (!is_bool($test_passed)) {
-			return '#CCCCCC';
-		} elseif ($test_passed) {
-			return '#B5EEAC';
-		} else {
-			return '#FFCCCC';
-		}
+		return $form_container->getHTML();
 	}
 
 	/*
@@ -533,9 +489,11 @@ class assStackQuestionTestGUI
 	 */
 	public function getTests($selector = '')
 	{
-		if ($selector) {
+		if ($selector)
+		{
 			return $this->tests[$selector];
-		} else {
+		} else
+		{
 			return $this->tests;
 		}
 	}
@@ -553,9 +511,11 @@ class assStackQuestionTestGUI
 	 */
 	public function getUnitTestResults($selector = '')
 	{
-		if ($selector) {
+		if ($selector)
+		{
 			return $this->unit_test_results[$selector];
-		} else {
+		} else
+		{
 			return $this->unit_test_results;
 		}
 	}

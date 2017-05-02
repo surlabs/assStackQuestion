@@ -29,7 +29,7 @@ class assStackQuestionImport extends assQuestionImport
 	 * @param array $import_mapping An array containing references to included ILIAS objects
 	 * @access public
 	 */
-	function fromXML(&$item, &$questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping)
+	function fromXML(&$item, $questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping)
 	{
 		global $ilUser;
 

@@ -584,4 +584,24 @@ class assStackQuestionUtils
 			return stack_maths::process_display_castext(ilMathJax::getInstance()->insertLatexImages($text, $start, $end));
 		}
 	}
+
+	public static function _getNewTestCaseNumber($question_id)
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		$query = 'SELECT MAX(test_case) FROM xqcas_qtests WHERE question_id = ' . $question_id;
+
+		$result = $db->query($query);
+		while ($row = $db->fetchAssoc($result))
+		{
+			if ((int)$row['MAX(test_case)'])
+			{
+				return ((int)$row['MAX(test_case)'] + 1);
+			} else
+			{
+				return FALSE;
+			}
+		}
+	}
 }

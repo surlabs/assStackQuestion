@@ -52,7 +52,14 @@ class assStackQuestionUnitTests
 	{
 		//Set general info
 		$this->setPlugin($plugin);
+
+		//allow all words
+		foreach ($question->getInputs() as $input)
+		{
+			$input->setForbidWords("");
+		}
 		$this->setQuestion($question);
+
 	}
 
 	/**
@@ -62,13 +69,29 @@ class assStackQuestionUnitTests
 	public function runTest($testcase = '')
 	{
 		//If $testcase given, then executes the specific testcase, if not, execute all test in current question.
-		if ($testcase) {
-			return array($testcase => $this->evaluateTestcase($testcase));
-		} else {
+		if ($testcase)
+		{
 			$test_results = array();
-			foreach ($this->getQuestion()->getTests() as $unit_test) {
+			foreach ($this->getQuestion()->getTests() as $unit_test)
+			{
+				if ($unit_test->getTestCase() == $testcase)
+				{
+					$test_results[$unit_test->getTestCase()] = $this->evaluateTestcase($testcase);
+				} else
+				{
+					$test_results[$unit_test->getTestCase()] = "";
+				}
+			}
+
+			return $test_results;
+		} else
+		{
+			$test_results = array();
+			foreach ($this->getQuestion()->getTests() as $unit_test)
+			{
 				$test_results[$unit_test->getTestCase()] = $this->evaluateTestcase($unit_test->getTestCase());
 			}
+
 			return $test_results;
 		}
 	}
@@ -110,18 +133,22 @@ class assStackQuestionUnitTests
 		$unit_test_results['inputs'] = $user_response;
 
 		//Get comparison with results
-		foreach ($evaluation_data as $prt_name => $data) {
+		foreach ($evaluation_data as $prt_name => $data)
+		{
 			$prt_state = $data['state'];
 			//Fill array with received results
 			//SCORE TEST
 			$unit_test_results['prts'][$prt_name]['received_score'] = $prt_state->__get('score');
-			if ((float)$unit_test_results['prts'][$prt_name]['received_score'] == (float)$unit_test_results['prts'][$prt_name]['expected_score']) {
+			if ((float)$unit_test_results['prts'][$prt_name]['received_score'] == (float)$unit_test_results['prts'][$prt_name]['expected_score'])
+			{
 				$unit_test_results['prts'][$prt_name]['score_test'] = TRUE;
-			} else {
+			} else
+			{
 				$unit_test_results['test_passed'] = FALSE;
 				$unit_test_results['prts'][$prt_name]['score_test'] = FALSE;
 			}
-			//PENALTY TEST
+
+			//PENALTY TEST IS NOT USED IN ILIAS
 			$unit_test_results['prts'][$prt_name]['received_penalty'] = $prt_state->__get('penalty');
 			/*Comment this part of the code to solve bug 0016211*/
 			//if ((float)$unit_test_results['prts'][$prt_name]['received_penalty'] == (float)$unit_test_results['prts'][$prt_name]['expected_penalty']) {
@@ -134,34 +161,46 @@ class assStackQuestionUnitTests
 					$unit_test_results['prts'][$prt_name]['penalty_test'] = FALSE;
 				}
 			}*/
+
 			//ANSWERNOTE TEST
-			if (is_array($prt_state->__get('answernotes'))) {
+			if (is_array($prt_state->__get('answernotes')))
+			{
 				$index = sizeof($prt_state->__get('answernotes')) - 1;
 				$unit_test_results['prts'][$prt_name]['received_answernote'] = $prt_state->__get('answernotes')[$index];
-				if ($unit_test_results['prts'][$prt_name]['received_answernote'] == $unit_test_results['prts'][$prt_name]['expected_answernote']) {
+
+				if ($unit_test_results['prts'][$prt_name]['received_answernote'] == $unit_test_results['prts'][$prt_name]['expected_answernote'])
+				{
 					$unit_test_results['prts'][$prt_name]['answernote_test'] = TRUE;
-				} else {
+				} else
+				{
 					$unit_test_results['test_passed'] = FALSE;
 					$unit_test_results['prts'][$prt_name]['answernote_test'] = FALSE;
 				}
-			} elseif ($prt_state->__get('answernotes') == NULL) {
+			} elseif ($prt_state->__get('answernotes') == NULL)
+			{
 				$unit_test_results['prts'][$prt_name]['received_answernote'] = NULL;
-				if (strcmp($unit_test_results['prts'][$prt_name]['expected_answernote'], "NULL") == 0) {
+				if (strcmp($unit_test_results['prts'][$prt_name]['expected_answernote'], "NULL") == 0)
+				{
 					$unit_test_results['prts'][$prt_name]['answernote_test'] = TRUE;
-				} else {
+				} else
+				{
 					$unit_test_results['test_passed'] = FALSE;
 					$unit_test_results['prts'][$prt_name]['answernote_test'] = FALSE;
 				}
 			}
 
 			//ADD FEEDBACK AND ERRORS INFO
+			$feedback_string = "";
 			$unit_test_results['prts'][$prt_name]['cas_errors'] = $prt_state->__get('errors');
-			if (is_array($prt_state->__get('feedback'))) {
-				foreach ($prt_state->__get('feedback') as $feedback) {
+			if (is_array($prt_state->__get('feedback')))
+			{
+				foreach ($prt_state->__get('feedback') as $feedback)
+				{
 					$feedback_string .= $feedback->feedback;
 				}
 				$unit_test_results['prts'][$prt_name]['cas_feedback'] = $feedback_string;
-			} else {
+			} else
+			{
 				$unit_test_results['prts'][$prt_name]['cas_feedback'] = '';
 			}
 		}
@@ -181,11 +220,13 @@ class assStackQuestionUnitTests
 		$unit_test = $this->getQuestion()->getTests($testcase);
 
 		//Fill data
-		foreach ($unit_test->getTestExpected() as $test) {
+		foreach ($unit_test->getTestExpected() as $test)
+		{
 			$expected_results['prts'][$test->getTestPRTName()]['expected_answernote'] = $test->getExpectedAnswerNote();
 			$expected_results['prts'][$test->getTestPRTName()]['expected_score'] = $test->getExpectedScore();
 			$expected_results['prts'][$test->getTestPRTName()]['expected_penalty'] = $test->getExpectedPenalty();
 		}
+
 		return $expected_results;
 	}
 
@@ -211,10 +252,13 @@ class assStackQuestionUnitTests
 		$cs->set_key('simp');
 		$vars[] = $cs;
 		// Now add the expressions we want evaluated.
-		foreach ($inputs as $name => $value) {
-			if ('' !== $value) {
+		foreach ($inputs as $name => $value)
+		{
+			if ('' !== $value)
+			{
 				$cs = new stack_cas_casstring($value);
-				if ($cs->get_valid('t')) {
+				if ($cs->get_valid('t'))
+				{
 					$cs->set_key('testresponse_' . $name);
 					$vars[] = $cs;
 				}
@@ -225,20 +269,24 @@ class assStackQuestionUnitTests
 		$cascontext->instantiate();
 
 		$response = array();
-		foreach ($inputs as $name => $notused) {
+		foreach ($inputs as $name => $notused)
+		{
 			$computedinput = $cascontext->get_value_key('testresponse_' . $name);
 			// In the case we start with an invalid input, and hence don't send it to the CAS
 			// We want the response to constitute the raw invalid input.
 			// This permits invalid expressions in the inputs, and to compute with valid expressions.
-			if ('' == $computedinput) {
+			if ('' == $computedinput)
+			{
 				$computedinput = $inputs[$name];
 			}
-			if (array_key_exists($name, $this->getQuestion()->getStackQuestion()->getInputs())) {
+			if (array_key_exists($name, $this->getQuestion()->getStackQuestion()->getInputs()))
+			{
 				$response = array_merge($response, $this->getQuestion()->getStackQuestion()->getInputs($name)->maxima_to_response_array($computedinput));
 			}
 		}
 
-		foreach ($response as $key => $value) {
+		foreach ($response as $key => $value)
+		{
 			$response[$key] = str_replace(' ', '', $value);
 		}
 

@@ -556,6 +556,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			$solution_template->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput($question_text, TRUE));
 		}
 
+
 		//Bug 0020117 regarding feedback
 		//Feedback in STACK works in a different way
 		/*
@@ -576,6 +577,12 @@ class assStackQuestionGUI extends assQuestionGUI
 			//$solution_template->setVariable("FEEDBACK", $this->object->prepareTextareaOutput($feedback, true));
 		}
 		*/
+
+		//2.4.0 Print view on test, just show the questions
+		if ($active_id == "" AND $pass == "" AND $_REQUEST["cmd"] == "print")
+		{
+			return $this->getQuestionOutput($solutions, FALSE, $show_feedback);
+		}
 
 		$solution_template->setVariable("SOLUTION_OUTPUT", $solution_output);
 
@@ -854,7 +861,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 			$this->addTab_QuestionFeedback($tabs);
 
-			if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'deployedSeedsManagement', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runUnitTests', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle',)))
+			if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'deployedSeedsManagement', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle',)))
 			{
 				$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 				$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
@@ -1134,7 +1141,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Create GUI object
 		$this->plugin->includeClass('GUI/test/class.assStackQuestionTestGUI.php');
-		$unit_test_gui = new assStackQuestionTestGUI($this->plugin, $this->object->getId(), $this->object->getPoints());
+		$unit_test_gui = new assStackQuestionTestGUI($this, $this->plugin);
 
 		//Add CSS
 		$this->tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
@@ -1193,13 +1200,13 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Create GUI object
 		$this->plugin->includeClass('GUI/test/class.assStackQuestionTestGUI.php');
-		$unit_test_gui = new assStackQuestionTestGUI($this->plugin, $this->object->getId(), $unit_test_results);
+		$unit_test_gui = new assStackQuestionTestGUI($this, $this->plugin, $unit_test_results);
 
 		//Add CSS
 		$this->tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
 
 		//Returns Deployed seeds form
-		$this->tpl->setVariable("QUESTION_DATA", $unit_test_gui->showUnitTestsPanel());
+		$this->tpl->setVariable("QUESTION_DATA", $unit_test_gui->showUnitTestsPanel(TRUE));
 	}
 
 	/**
@@ -1239,13 +1246,13 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Create GUI object
 		$this->plugin->includeClass('GUI/test/class.assStackQuestionTestGUI.php');
-		$unit_test_gui = new assStackQuestionTestGUI($this->plugin, $this->object->getId());
+		$unit_test_gui = new assStackQuestionTestGUI($this, $this->plugin);
 
 		//Add CSS
 		$this->tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
 
 		//Returns Deployed seeds form
-		$this->tpl->setVariable("QUESTION_DATA", $unit_test_gui->editTestcaseForm($testcase_name));
+		$this->tpl->setVariable("QUESTION_DATA", $unit_test_gui->editTestcaseForm($testcase_name, $this->object->getInputs(), $this->object->getPotentialResponsesTrees()));
 	}
 
 	/**
@@ -1256,31 +1263,46 @@ class assStackQuestionGUI extends assQuestionGUI
 		if (isset($_POST['testcase_name']))
 		{
 			$testcase_name = $_POST['testcase_name'];
+			$test = $this->object->getTests($testcase_name);
 		} else
 		{
 			$testcase_name = FALSE;
 		}
 
-		$new_tests = assStackQuestionTest::_read($this->object->getId());
-		$new_test = $new_tests[$testcase_name];
-
-		if (is_a($new_test, 'assStackQuestionTest'))
+		if (is_a($test, 'assStackQuestionTest'))
 		{
 			//Creation of inputs
-			foreach ($new_test->getTestInputs() as $input)
+			foreach ($this->object->getInputs() as $input_name => $q_input)
 			{
-				if (isset($_REQUEST[$input->getTestInputName()]))
+				$exists = FALSE;
+				foreach ($test->getTestInputs() as $input)
 				{
-					$input->setTestInputValue($_REQUEST[$input->getTestInputName()]);
-					$input->checkTestInput();
-					$input->save();
+					if ($input->getTestInputName() == $input_name)
+					{
+						if (isset($_REQUEST[$input->getTestInputName()]))
+						{
+							$input->setTestInputValue($_REQUEST[$input->getTestInputName()]);
+							$input->checkTestInput();
+							$input->save();
+							$exists = TRUE;
+						}
+					}
+				}
+
+				//Correct current mistakes
+				if (!$exists)
+				{
+					$new_test_input = new assStackQuestionTestInput(-1, $this->object->getId(), $testcase_name);
+					$new_test_input->setTestInputName($input_name);
+					$new_test_input->setTestInputValue("");
+					$new_test_input->save();
 				}
 			}
 
-			//Creation of expected results
-			foreach ($new_test->getTestExpected() as $index => $prt)
-			{
 
+			//Creation of expected results
+			foreach ($test->getTestExpected() as $index => $prt)
+			{
 				if (isset($_REQUEST['score_' . $prt->getTestPRTName()]))
 				{
 					$prt->setExpectedScore(ilUtil::stripSlashes($_REQUEST['score_' . $prt->getTestPRTName()]));
@@ -1314,28 +1336,16 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tabs->activateSubTab('unit_tests');
 		$this->getQuestionTemplate();
 
-		if (isset($_POST['test_id']))
-		{
-			$test_id = $_POST['test_id'];
-		}
-		if (isset($_GET['q_id']))
-		{
-			$question_id = $_GET['q_id'];
-		}
-
-		//Create unit test object
-		$this->plugin->includeClass("model/ilias_object/test/class.assStackQuestionUnitTests.php");
-		$unit_tests_object = new assStackQuestionUnitTests($this->plugin, $this->object);
-
 		//Create GUI object
 		$this->plugin->includeClass('GUI/test/class.assStackQuestionTestGUI.php');
-		$unit_test_gui = new assStackQuestionTestGUI($this->plugin, $this->object->getId());
+		$unit_test_gui = new assStackQuestionTestGUI($this, $this->plugin);
 
 		//Add CSS
 		$this->tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
 
 		//Returns Deployed seeds form
-		$this->tpl->setVariable("QUESTION_DATA", $unit_test_gui->createTestcaseForm($question_id));
+		$testcase_name = assStackQuestionUtils::_getNewTestCaseNumber($this->object->getId());
+		$this->tpl->setVariable("QUESTION_DATA", $unit_test_gui->createTestcaseForm($testcase_name, $this->object->getInputs(), $this->object->getPotentialResponsesTrees()));
 	}
 
 	/*
@@ -1344,25 +1354,25 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function doCreateTestcase()
 	{
 		//boolean correct
-		$correct = TRUE;
-		$testcase = sizeof($this->object->getTests()) + 1;
-
+		$testcase = assStackQuestionUtils::_getNewTestCaseNumber($this->object->getId());
 		$new_test = new assStackQuestionTest(-1, $this->object->getId(), $testcase);
 
 		//Creation of inputs
 		foreach ($this->object->getInputs() as $input_name => $input)
 		{
 			$new_test_input = new assStackQuestionTestInput(-1, $this->object->getId(), $testcase);
+			$new_test_input->setTestInputName($input_name);
 
-			$new_test_input->setTestInputName(ilUtil::stripSlashes($input_name));
-
-			if ($_REQUEST[$input_name])
+			if (isset($_REQUEST[$input_name]))
 			{
 				$new_test_input->setTestInputValue(ilUtil::stripSlashes($_REQUEST[$input_name]));
 			} else
 			{
-				$correct = FALSE;
+				$new_test_input->setTestInputValue("");
 			}
+
+			$new_test_input->save();
+			$test_inputs[] = $new_test_input;
 		}
 
 		//Creation of expected results
@@ -1371,47 +1381,37 @@ class assStackQuestionGUI extends assQuestionGUI
 			//Getting the PRT name
 			$new_test_expected = new assStackQuestionTestExpected(-1, $this->object->getId(), $testcase, $prt_name);
 
-			if ($_REQUEST['score_' . $prt_name])
+			if (isset($_REQUEST['score_' . $prt_name]))
 			{
 				$new_test_expected->setExpectedScore(ilUtil::stripSlashes($_REQUEST['score_' . $prt_name]));
 			} else
 			{
-				$correct = FALSE;
+				$new_test_expected->setExpectedScore("");
 			}
 
-			if ($_REQUEST['penalty_' . $prt_name])
+			if (isset($_REQUEST['penalty_' . $prt_name]))
 			{
 				$new_test_expected->setExpectedPenalty(ilUtil::stripSlashes($_REQUEST['penalty_' . $prt_name]));
 			} else
 			{
-				$correct = FALSE;
+				$new_test_expected->setExpectedPenalty("");
 			}
 
-			if ($_REQUEST['answernote_' . $prt_name])
+			if (isset($_REQUEST['answernote_' . $prt_name]))
 			{
 				$new_test_expected->setExpectedAnswerNote(ilUtil::stripSlashes($_REQUEST['answernote_' . $prt_name]));
 			} else
 			{
-				$correct = FALSE;
+				$new_test_expected->setExpectedAnswerNote("");
 			}
-
-			if ($correct)
-			{
-				$new_test_expected->save();
-				$test_expected[] = $new_test_expected;
-			}
+			$new_test_expected->save();
+			$test_expected[] = $new_test_expected;
 		}
-		if ($correct)
-		{
-			foreach ($this->object->getInputs() as $input_name => $input)
-			{
-				$new_test_input->save();
-				$test_inputs[] = $new_test_input;
-			}
 
-			$new_test->save();
-			$new_test->setTestInputs($test_inputs);
-		}
+		$new_test->setTestExpected($test_expected);
+		$new_test->setTestInputs($test_inputs);
+		$new_test->save();
+
 		$this->showUnitTests();
 	}
 

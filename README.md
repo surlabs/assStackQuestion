@@ -111,10 +111,13 @@ Version History
 ===============
 
 
-GitHub Version 2.4.0 (2017-X-X)
+GitHub Version 2.4.1 (2017-5-2)
 -------------------------------
 - STACK versions 2.4.x can be used only on ILIAS 5.2+ platforms.
+- STACK versions 2.4.x can be used with PHP5 and PHP7.
 - DIC is now used as global for database, control, language and tabs.
+- STACK questions are now well present in print view on ILIAS Tests.
+- New Unit Test GUI. Unit test are now shown in a more ILIAS style way.
 
 GitHub Version 2.3.12 (2017-4-19) For ILIAS 5.0 and 5.1
 -------------------------------------------------------

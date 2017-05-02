@@ -64,7 +64,7 @@ class assStackQuestionPreviewGUI extends ilAssQuestionPreviewGUI
 	 * This method is called from assStackQuestionGUI to get the question Preview HTML.
 	 * @return ilTemplate the STACK Question preview HTML
 	 */
-	public function getQuestionPreviewGUI()
+	public function getQuestionPreviewGUI($showInlineFeedback = FALSE)
 	{
 		//Step 1 Prepare Display GUI
 		$display_gui = $this->prepareDisplayGUI();
