@@ -5,7 +5,6 @@ Copyright 2012 University of Birmingham
 licensed under GPLv3 or later, see classes/stack/COPYING.txt
 http://stack.bham.ac.uk
 
-================================
 ILIAS STACK Question Type Plugin.
 ================================
 
@@ -105,11 +104,8 @@ beneath that field to check how your input is interpretet. This will give you a 
 already be simplified. If you entry can't be interpreted, you will get an error message. When you are satisfied with your
 input you can evaluate your answer (in self assessment mode) or move to the next question (in an exam).
 
-
-===============
 Version History
 ===============
-
 
 GitHub Version 2.4.1 (2017-5-2)
 -------------------------------
