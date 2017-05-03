@@ -553,12 +553,19 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 	public function saveConnectionSettings()
 	{
-		$ok = $this->config->saveConnectionSettings();
-		if ($ok) {
-			ilUtil::sendSuccess($this->plugin_object->txt('config_connection_changed_message'));
-		} else {
-			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
-		}
+	    try
+        {
+            $ok = $this->config->saveConnectionSettings();
+            if ($ok) {
+                ilUtil::sendSuccess($this->plugin_object->txt('config_connection_changed_message'));
+            } else {
+                ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
+            }
+        }
+        catch (Exception $exception )
+        {
+            ilUtil::sendFailure($exception->getMessage());
+        }
 		$this->showConnectionSettings();
 	}
 
