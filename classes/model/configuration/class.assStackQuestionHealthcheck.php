@@ -72,21 +72,6 @@ class assStackQuestionHealthcheck
 		return $this->getMaximaConnectionStatus();
 	}
 
-	public function healthcheckForm()
-	{
-		global $DIC;
-
-		$lng = $DIC->language();
-		require_once("./Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php");
-		$toolbar = new ilToolbarGUI();
-		$ctrl = $DIC->ctrl();
-		$toolbar->setFormAction($ctrl->getFormAction($this));
-		$toolbar->addFormButton($this->getPlugin()->txt('healthcheck_reduced'), 'healthcheckReduced');
-		$toolbar->addSeparator();
-		$toolbar->addFormButton($lng->txt('healthcheck_expanded'), 'healthcheckExpanded');
-		return $toolbar->getHTML();
-	}
-
 	public function checkMaximaConnection()
 	{
 		global $CFG;

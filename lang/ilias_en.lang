@@ -64,7 +64,7 @@ cas_debugging#:#CAS debugging
 cas_debugging_info#:#Whether to store debugging information about the CAS connection.
 connection_settings#:#Connection to Maxima settings
 instant_validation#:#Instant validation
-instant_validation_info#:#With this setting turned on, the students current input will be validated whenever they pause in their typing. This gives a better user experience, but is likely to increase the server load.
+instant_validation_info#:#With this setting turned on, the students current input will be validated whenever they pause in their typing. This gives a better user experience, but is likely to increase the server load. Therefore this setting can only be activated if a maxima pool is used (see 'Connection to Maxima').
 maths_filter#:#Maths filter
 maths_filter_info#:#The method used to display maths. If you select MathJax, then you will need to follow the instrucions on the Healthcheck page to set it up. If you select a filter, then you must ensure that filter is enabled on the Manage filters configuration page.
 replace_dollars#:#Replace $ and $$

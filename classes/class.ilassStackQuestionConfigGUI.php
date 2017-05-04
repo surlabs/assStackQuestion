@@ -179,14 +179,25 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 			//Create Healthcheck
 			$this->plugin_object->includeClass("model/configuration/class.assStackQuestionHealthcheck.php");
 			$healthcheck_object = new assStackQuestionHealthcheck($this->plugin_object);
-			$healthcheck_data = $healthcheck_object->doHealthcheck();
 
-			//Show healthcheck
-			$this->plugin_object->includeClass("GUI/configuration/class.assStackQuestionHealthcheckGUI.php");
-			$healthcheck_gui_object = new assStackQuestionHealthcheckGUI($this->plugin_object, $healthcheck_data);
-			$healthcheck_gui = $healthcheck_gui_object->showHealthcheck($a_mode);
+			try
+            {
+                $healthcheck_data = $healthcheck_object->doHealthcheck();
+            }
+            catch (Exception $e)
+            {
+                ilUtil::sendFailure($e->getMessage());
+                $healthcheck_data = false;
+            }
 
-			$result_html = $healthcheck_gui->get();
+            if ($healthcheck_data)
+            {
+                //Show healthcheck
+                $this->plugin_object->includeClass("GUI/configuration/class.assStackQuestionHealthcheckGUI.php");
+                $healthcheck_gui_object = new assStackQuestionHealthcheckGUI($this->plugin_object, $healthcheck_data);
+                $healthcheck_gui = $healthcheck_gui_object->showHealthcheck($a_mode);
+                $result_html = $healthcheck_gui->get();
+            }
 		}
 
 		$tpl->setContent($toolbar->getHTML() . $result_html);

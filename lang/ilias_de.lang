@@ -64,7 +64,7 @@ cas_debugging#:#CAS Debugging
 cas_debugging_info#:#Speichern von Debbugging-Informationen zur CAS-Verbindung
 connection_settings#:#Einstellungen zur CAS-Verbindung
 instant_validation#:#Automatische Validierung
-instant_validation_info#:#Die Eingaben werden beim Eintippen kontinuierlich validiert. Das erhöht den Komfort, aber auch die Server-Belastung.
+instant_validation_info#:#Die Eingaben werden beim Eintippen kontinuierlich validiert. Das erhöht den Komfort, aber auch die Server-Belastung. Daher kann diese Einstellung nur bei der Verwendung eines Maxima-Pools gesetzt werden (Siehe "Verbindung zu Maxima").
 maths_filter#:#Formelanzeige
 maths_filter_info#:#Methode zur Formelanzeige. MathJax ist Standard. Überprüfen Sie die Einstellung auf der Status-Seite.
 replace_dollars#:#$ und $$ ersetzen
