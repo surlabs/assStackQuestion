@@ -340,7 +340,10 @@ class assStackQuestionMoodleImport
 		$question_options = new assStackQuestionOptions(-1, $this->getQuestion()->getId());
 
 		//Question Variables
-		$question_options->setQuestionVariables($data['questionvariables'][0]['text']);
+        if (isset($data['questionvariables'][0]['text']))
+        {
+            $question_options->setQuestionVariables($data['questionvariables'][0]['text']);
+        }
 
 		//Specific feedback
 		$mapping = $this->getMediaObjectsFromXML($data['specificfeedback'][0]['file']);
