@@ -1802,6 +1802,70 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 
 	}
 
+
+    /**
+     * Lookup if an authorized or intermediate solution exists (specific for STACK question: don't lookup seeds)
+     * @param 	int 		$activeId
+     * @param 	int 		$pass
+     * @return 	array		['authorized' => bool, 'intermediate' => bool]
+     */
+    public function lookupForExistingSolutions($activeId, $pass)
+    {
+        global $ilDB;
+
+        $return = array(
+            'authorized' => false,
+            'intermediate' => false
+        );
+
+        $query = "
+			SELECT authorized, COUNT(*) cnt
+			FROM tst_solutions
+			WHERE active_fi = " . $ilDB->quote($activeId, 'integer') ."
+			AND question_fi = ". $ilDB->quote($this->getId(), 'integer') ."
+			AND pass = " .$ilDB->quote($pass, 'integer') ."
+			AND value1 not like '%_seed'
+			AND value2 is not null
+			AND value2 <> ''
+			GROUP BY authorized
+		";
+        $result = $ilDB->query($query);
+
+        while ($row = $ilDB->fetchAssoc($result))
+        {
+            if ($row['authorized']) {
+                $return['authorized'] = $row['cnt'] > 0;
+            }
+            else
+            {
+                $return['intermediate'] = $row['cnt'] > 0;
+            }
+        }
+        return $return;
+    }
+
+    /**
+     * Remove an existing solution without removing the variables (specific for STACK question: don't delete seeds)
+     * @param 	int 		$activeId
+     * @param 	int 		$pass
+     * @return int
+     */
+    public function removeExistingSolutions($activeId, $pass)
+    {
+        global $ilDB;
+
+        $query = "
+			DELETE FROM tst_solutions
+			WHERE active_fi = " . $ilDB->quote($activeId, 'integer') ."
+			AND question_fi = ". $ilDB->quote($this->getId(), 'integer') ."
+			AND pass = " .$ilDB->quote($pass, 'integer') ."
+			AND value1 not like '%_seed'
+		";
+
+        return $ilDB->manipulate($query);
+    }
+
+
 	/**
 	 * @return mixed
 	 */
