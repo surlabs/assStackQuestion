@@ -13,6 +13,7 @@ require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/as
  * @version $Id: 1.8$
  * @ingroup    ModulesTestQuestionPool
  *
+ * @ilCtrl_isCalledBy assStackQuestionTestGUI: ilObjQuestionPoolGUI
  */
 class assStackQuestionTestGUI
 {
