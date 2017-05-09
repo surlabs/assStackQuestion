@@ -753,6 +753,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$specific_feedback = $this->object->getOptions()->getSpecificFeedback();
 
 		//Search for feedback placeholders in specific feedback text.
+
 		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt)
 		{
 			if (preg_match("[[feedback:" . $prt_name . "]]", $specific_feedback))
@@ -773,7 +774,7 @@ class assStackQuestionGUI extends assQuestionGUI
 					$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", $string, $specific_feedback);
 				} else
 				{
-					"";
+					$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", $this->object->getPlugin()->txt("preview_no_answer"), $specific_feedback);
 				}
 			}
 		}

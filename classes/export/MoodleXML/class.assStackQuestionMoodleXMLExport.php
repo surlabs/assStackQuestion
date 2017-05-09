@@ -74,7 +74,7 @@ class assStackQuestionMoodleXMLExport
 
 			//Question Text
 			$a_xml_writer->xmlStartTag("questiontext", array("format" => "html"));
-			$media = $this->getRTEMedia($question->getQuestion());
+			$media = $this->getRTEMedia($question->getQuestion(), $question);
 			$this->addRTEText($a_xml_writer, $question->getQuestion());
 			$this->addRTEMedia($a_xml_writer, $media);
 			$a_xml_writer->xmlEndTag("questiontext");
@@ -276,9 +276,10 @@ class assStackQuestionMoodleXMLExport
 	/**
 	 * Get the media files used in an RTE text
 	 * @param 	string		text to analyze
+	 * @param 	assStackQuestion question
 	 * @return	array		name => file content
 	 */
-	private function getRTEMedia($a_text)
+	private function getRTEMedia($a_text, $stack_question = "")
 	{
 		$media = array();
 		$matches = array();
@@ -289,9 +290,11 @@ class assStackQuestionMoodleXMLExport
 			$id = $matches[1][$i];
 			$name = $matches[2][$i];
 
-			if (is_file(ilUtil::getWebspaceDir()."/mobs/mm_".$id.'/'.$name))
+			$new_match =explode('?',$name);
+
+			if (is_file(ilUtil::getWebspaceDir()."/mobs/mm_".$id.'/'.$new_match[0]))
 			{
-				$media[$name] = file_get_contents(ilUtil::getWebspaceDir()."/mobs/mm_".$id.'/'.$name);
+				$media[$new_match[0]] = file_get_contents(ilUtil::getWebspaceDir()."/mobs/mm_".$id.'/'.$new_match[0]);
 			}
 		}
 		return $media;

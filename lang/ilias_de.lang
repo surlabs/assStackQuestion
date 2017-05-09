@@ -369,14 +369,15 @@ castext_info#:#In diesem Feld können Sie CAS-Text verwenden. Das ist HTML-Code,
 html_info#:#In diesem Feld sind nur HTML-Elemente erlaubt, kein LaTeX und keine Maxima-Ausdrücke.
 casexpression_info#:#In diesem Feld können sie nur Maxima-Code eingeben, kein LaTeX und kein HTML.
 casexpression_name#:#CAS-Ausdruck
-error_model_answer_missing#:#Zur folgenden Testeingabe fehlt die Musterlösung:
-error_student_answer_missing#:#Im folgenden Rückmeldebaum / Konten fehlt die Eingabe "SAns":
-error_teacher_answer_missing#:#Im folgenden Rückmeldebaum / Konten fehlt die Eingabe "TAns":
 inputs_star#:#Test-Eingaben *
 error_in_question_variables#:#Der folgende Fehler tritt bei Fragevariablen auf:
 auth_inputs#:#Einstellungen der Eingabe
 info_allowed#:#Inhalt:
 castext_name#:#CAS-Text
 html_name#:#HTML
-auth_guide_name#:#STACK Authoring Guide
-unix_optimised#:#Linux (optimiert)
+auth_guide_name#:#STACK Authoring guide
+unix_optimised#:#Linux (Optimiert)
+error_model_answer_missing#:#Die Musterlösung der folgenden Eingabe(n) fehlt:
+error_student_answer_missing#:#Die Studierendenantwort für den folgenden PRT / Knoten fehlt:
+error_teacher_answer_missing#:#Die Dozierendenantwort für den folgenden PRT / Knoten fehlt:
+preview_no_answer#:#Du musst die Frage beantworten, um Feedback zu erhalten.

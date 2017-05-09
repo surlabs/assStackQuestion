@@ -683,10 +683,11 @@ class assStackQuestionMoodleImport
 		foreach ($mapping as $name => $id)
 		{
 			$text = str_replace(
-				'src="@@PLUGINFILE@@/' . $name .'"',
+				'src="@@PLUGINFILE@@/' . $name ,
 				'src="'. ILIAS_HTTP_PATH . '/data/' . CLIENT_ID . '/mobs/mm_' . $id . "/" . $name . '"',
 				$text);
 		}
+
 		return $text;
 	}
 
