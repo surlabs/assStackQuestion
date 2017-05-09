@@ -369,6 +369,9 @@ castext_info#:#In diesem Feld können Sie CAS-Text verwenden. Das ist HTML-Code,
 html_info#:#In diesem Feld sind nur HTML-Elemente erlaubt, kein LaTeX und keine Maxima-Ausdrücke.
 casexpression_info#:#In diesem Feld können sie nur Maxima-Code eingeben, kein LaTeX und kein HTML.
 casexpression_name#:#CAS-Ausdruck
+error_model_answer_missing#:#Zur folgenden Testeingabe fehlt die Musterlösung:
+error_student_answer_missing#:#Im folgenden Rückmeldebaum / Konten fehlt die Eingabe "SAns":
+error_teacher_answer_missing#:#Im folgenden Rückmeldebaum / Konten fehlt die Eingabe "TAns":
 inputs_star#:#Test-Eingaben *
 error_in_question_variables#:#Der folgende Fehler tritt bei Fragevariablen auf:
 auth_inputs#:#Einstellungen der Eingabe
