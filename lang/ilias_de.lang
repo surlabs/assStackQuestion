@@ -118,7 +118,7 @@ input_require_lowest_terms_info#:#Jeder Koeffizient oder jede rationale Zahl in 
 input_check_answer_type#:#Antwort-Typ überprüfen
 input_check_answer_type_info#:#Antworten mit einem anderen Typ als erwartet (z.B. Ausdruck, Gleichung, Matrix, Liste, Menge) werden als ungültig abgewiesen.
 input_must_verify#:#Verifizierung erforderlich
-input_must_verify_info#:#Die eingegebene Antwort wird zur Bestätigung zurückgemeldet, bebor sie bewertet wird.
+input_must_verify_info#:#Die eingegebene Antwort wird zur Bestätigung zurückgemeldet, bevor sie bewertet wird.
 input_show_validation#:#Validierung anzeigen
 input_show_validation_info#:#Jede Rückmeldung aus der Eingabe-Validierung anzeigen, einschließlich Darstellung des Ausdrucks in traditioneller zweidimensionaler Schreibweise.
 default_input_settings#:#Standard-Einstellungen für Eingaben
@@ -138,9 +138,9 @@ validation_feedback_error_message#:#Ungültige Antwort:
 error_importing_question_to_test#:#STACK Fragen können nicht direkt mit einem Test importiert werden. Versuchen Sie, die Frage in einen Fragenpool zu importieren und von dort in einen Test zu kopieren.
 message_best_solution#:#Die beste Lösung ist:
 show_other_settings#:#Allgemeine Einstellungen
-show_healthcheck#:#Funktiontest
+show_healthcheck#:#Funktionstest
 healthcheck_expanded#:#Fehleranalyse-Daten anzeigen
-healthcheck_reduced#:#Funktiontest durchführen
+healthcheck_reduced#:#Funktionstest durchführen
 hc_passed#:#Bestanden
 hc_failed#:#Fehler aufgetreten!
 hc_connection_expanded_title#:#Überprüfung der Maxima-Verbindung (erweiterte Version)
@@ -149,11 +149,11 @@ hc_bat_location_title#:#Wurde eine installierte Maxima-Version vom Plugin gefund
 hc_bat_location#:#Maxima ist installiert und wurde vom Plugin erkannt. Die Datei maxima.bat wurde an folgender Stelle gefunden:
 hc_bat_location_error#:#Maxima ist nicht installiert oder wurde vom Plugin nicht gefunden. Die Datei maxima.bat sollte in einem der folgenden Verzeichnisse vorhanden sein:
 hc_maximalocal_title#:#Wurde maximalocal.mac korrekt erzeugt?
-hc_maximalocal#:#Die Datei maximalocal.mac wurde erfolgreich an folgender Stelle geschrieben:
+hc_maximalocal#:#Die Datei maximalocal.mac wurde erfolgreich an folgende Stelle geschrieben:
 hc_maximalocal_content#:#Der Inhalt von maximalocal.mac ist:
 hc_maximalocal_error#:#Die Datei maximalocal.mac konnte nicht geschrieben werden und wurde nicht an folgender Stelle gefunden:
 hc_connection_status_title#:#Verbindung zu Maxima
-hc_connection_status_display#:#In diesem Abschnitt wird immer ein echter Aufruf an Maxima gesendet, unabhängig von der Cache-Einstellung. Damit wird gestet, ob die Maxima-Verbindung tatsächlich funktioniert.
+hc_connection_status_display#:#In diesem Abschnitt wird immer ein echter Aufruf an Maxima gesendet, unabhängig von der Cache-Einstellung. Damit wird getestet, ob die Maxima-Verbindung tatsächlich funktioniert.
 hc_sample_command#:#Der folgende CAS-Text wird zu Evaluation gesendet:
 hc_sample_command_title#:#Versuch zur Maxima-Verbindung
 hc_connection_reduced_title#:#Überprüfung der Maxima-Verbindung
@@ -179,7 +179,7 @@ message_teacher_solution_part#:#Die Lösung ist:
 message_error_part#:#Die folgenden Fehler wurden gefunden:
 message_user_response_container#:#Die folgenden Antworten wurden ausgewertet:
 dsm_deployed_seeds#:#Vorbereitete Zufallswerte
-dsm_question_doesnt_use_randomisation#:#Diese Frage ist nicht ranomisiert, daher können Sie keine Zufallswerte erzeugen.
+dsm_question_doesnt_use_randomisation#:#Diese Frage ist nicht randomisiert, daher können Sie keine Zufallswerte erzeugen.
 dsm_deployed_seeds_header#:#Zufallswert
 dsm_question_notes_header#:#Fragen-Notiz für den Zufallswert
 dsm_view_form_header#:#Aktionen
@@ -210,7 +210,7 @@ exp_question_note#:#Fragen-Notiz
 exp_general_feedback#:#Allgemeines Feedback
 exp_student_answer#:#Abgegebene Antwort
 sco_current_scoring_info#:#Dies sind die aktuell maximal erreichbaren Punkte für diese Frage.
-sco_new_scoring_info#:#Hier können sie einen neuen Wert eingeben, um die Berechnung aus den Teilpunkten zu vergleichen oder eine neue maximale Punktzahhl festzulegen.
+sco_new_scoring_info#:#Hier können sie einen neuen Wert eingeben, um die Berechnung aus den Teilpunkten zu vergleichen oder eine neue maximale Punktzahl festzulegen.
 bs_your_solution_was#:#Ihre Lösung:
 bs_best_solution#:#Vorgeschlagene Lösung:
 ut_title#:#Testfälle
@@ -231,7 +231,7 @@ ut_run_testcase#:#Testfall starten
 ut_edit_testcase#:#Testfall bearbeiten
 ut_delete_testcase#:#Testfall löschen
 ut_run_all_tests#:#Alle Testfälle dieser Frage starten
-ut_expected_score_for#:#Erwartete Bewetung für
+ut_expected_score_for#:#Erwartete Bewertung für
 ut_expected_penalty_for#:#Erwarteter Punktabzug für
 ut_expected_answernote_for#:#Erwartete Antwort-Notiz für
 ut_test_passed#:#Bestanden
@@ -299,8 +299,8 @@ prt_node_teacher_answer#:#TAns
 prt_node_options#:#Test-Optionen
 prt_node_quiet#:#Feedback unterdrücken
 prt_node_answer_test_info#:#Eine Antwortüberprüfung ist ein Test um zwei Ausdrücke dahingehend zu vergleichen, ob sie bestimmte mathematische Eigenschaften erfüllen.
-prt_node_student_answer_info#:#Dies ist das erste Argument der Antwortüberprüfungsfunktion. In asymmetrischen Tests wird dies als die Studierendenantwort angesehen, obwohl es jeder gültige CAS Ausdruck sein könnte. Es können darin auch Variablen aus der Aufgabe oder dem Feedback benutzt werden.
-prt_node_teacher_answer_info#:#Dies ist das zweite Argument der Antwortüberprüfungsfunktion. In asymmetrischen Tests wird dies als die Dozentenantwort angesehen, obwohl es jeder gültige CAS Ausdruck sein könnte. Es können darin auch Variablen aus der Aufgabe oder dem Feedback benutzt werden.
+prt_node_student_answer_info#:#Dies ist das erste Argument der Antwortüberprüfungsfunktion. In asymmetrischen Tests wird dies als die Studierenden-Antwort angesehen, obwohl es jeder gültige CAS Ausdruck sein könnte. Es können darin auch Variablen aus der Aufgabe oder dem Feedback benutzt werden.
+prt_node_teacher_answer_info#:#Dies ist das zweite Argument der Antwortüberprüfungsfunktion. In asymmetrischen Tests wird dies als die Dozierenden-Antwort angesehen, obwohl es jeder gültige CAS Ausdruck sein könnte. Es können darin auch Variablen aus der Aufgabe oder dem Feedback benutzt werden.
 prt_node_options_info#:#Dieses Feld erlaubt Antwortüberprüfung eine Option zu verwenden, z.B. eine Variable oder eine bestimmte numerische Präzision.
 prt_node_quiet_info#:#Falls JA, wird jedes von der Antwortüberprüfung automatisch generierte Feedback unterdrückt und dem Studierenden nicht angezeigt. Dies betrifft aber nicht die Feedback-Felder der Verzweigungen des Rückmeldebaums.
 add_new_prt#:#Neuer Rückmeldebaum (PRT)
@@ -314,16 +314,16 @@ options_question_variables_info#:#Dieses Feld erlaubt es, CAS-Variablen zu defin
 options_how_to_solve#:#Allgemeines Feedback
 options_how_to_solve_info#:#Das allgemeine Feedback, auch Musterlösung genannt, wird den Studierenden nach seinem Beantwortungsversuch gezeigt. Im Gegensatz zum (spezifischen) Feedback wird es allen Studierenden gleichermaßen gezeigt, unabhängig von ihrer eingegebenen Antwort. Hier können Variablen aus dem Aufgabentext verwendet werden.
 node_creation_hint#:#Hinweis zur Knotenerstellung
-node_creation_hint_text#:#Um einen neuen Knoten zu erstellen, füllen sie die Felder SAns (Studentische Antwort), TAns (Lehrer-Antwort) und eines der Punkte- oder Abzugfelder aus. Nach dem Speichern kann der Knoten zum Rückmeldebaum hinzugefügt werden.
+node_creation_hint_text#:#Um einen neuen Knoten zu erstellen, füllen Sie die Felder SAns (Studierenden-Antwort), TAns (Dozierenden-Antwort) und eines der Punkte- oder Abzugfelder aus. Nach dem Speichern kann der Knoten zum Rückmeldebaum hinzugefügt werden.
 input_model_answer#:#Musterlösung
 input_model_answer_info#:#Der Dozent muss eine Musterlösung für jedes Eingabefeld angeben. Dies muss eine gültige Maxima-Zeichenkette sein. Sie kann Variablen aus dem Aufgabentext enthalten.
 options_question_note#:#Aufgabenhinweis
 options_question_note_info#:#Mit dem Aufgabenhinweis soll zwischen den verschiedenen zufälligen Versionen einer Frage unterschieden werden. Zwei Fragen sind gleich, genau dann wenn die Aufgabenhinweise gleich sind. Für die spätere Analyse ist es hilfreich sinnvolle Antworthinweise zu erstellen.
 server#:#Server
 error_fields_missing#:#Einige Pflichtangaben fehlen.
-dsm_fix_deployed_seed_form_button_text#:#Fix this seed for preview mode.
-dsm_fix_deployed_seed_form_button#:#See preview
-prt_first_node#:#Erste Knoten
+dsm_fix_deployed_seed_form_button_text#:#Korrigieren Sie diesen Wert für den Vorschau-Modus.
+dsm_fix_deployed_seed_form_button#:#Siehe Vorschau
+prt_first_node#:#Erster Knoten
 export_to_moodle#:#Export nach MoodleXML
 export_to_moodlexml#:#Export nach MoodleXML
 all_from_pool#:#Mode
@@ -341,14 +341,14 @@ exception_no_raw_given_in_keyval_creation#:#Beim Erzeugen des Maxima-Befehls gab
 error_no_question_note#:#Eine Frage mit zufälligen Variablen muss einen Aufgabenhinweis haben.
 error_prt_without_first_node#:#Warnung: Sie möchten eine Frage ohne Ergebnisbaum-Struktur erzeugen. Stellen Sie sicher, dass es mindesten einen Ergebnisbaum (PRT) mit mindestens einem Knoten als Startknoten gibt.
 warning_use_evaluation_button_instead#:#Bitte verwenden Sie stattdessen den darüber liegenden Auswertungs-Knopf.
-error_in_question_text#:#Im Fragentext oder Fragen-Variablen gibt es den folgenden Fehler:
-error_in_specific_feedback#:#Im spezifischen Feedback gibt es den folgenden Fehler:
+error_in_question_text#:#Im Fragentext oder Fragen-Variablen gibt es den folgenden Fehler
+error_in_specific_feedback#:#Im spezifischen Feedback gibt es den folgenden Fehler
 error_in_question_note#:#Fehler im Aufgabenhinweis.
-error_in_prt_correct#:#Im Feedback der richtigen Antwort gibt es den folgenden Fehler:
-error_in_prt_partially_correct#:#Im Feedback der teilweise richtigen Antwort gibt es den folgenden Fehler:
-error_in_prt_incorrect#:#Im Feedback der falschen Antwort gibt es den folgenden Fehler:
-error_in_how_to_solve#:#In der Musterlösung gibt es den folgenden Fehler:
-error_in_node_creation#:#Der Knoten konnte nicht gültig erzeugt werden. Er muss eine Studenten-Antwort, eine Lehrer-Antwort und Punkte oder Punktabzug enthalten.
+error_in_prt_correct#:#Im Feedback der richtigen Antwort gibt es den folgenden Fehler
+error_in_prt_partially_correct#:#Im Feedback der teilweise richtigen Antwort gibt es den folgenden Fehler
+error_in_prt_incorrect#:#Im Feedback der falschen Antwort gibt es den folgenden Fehler
+error_in_how_to_solve#:#In der Musterlösung gibt es den folgenden Fehler
+error_in_node_creation#:#Der Knoten konnte nicht gültig erzeugt werden. Er muss eine Studierenden-Antwort, eine Dozierenden-Antwort und Punkte oder Punktabzug enthalten.
 deletion_error_not_enought_prts#:#Sie können den einzigen Ergebnisbaum der Frage nicht löschen.
 deletion_error_not_enought_prt_nodes#:#Sie können den einzigen Knoten in diesem Ergebnisbaum nicht löschen.
 deletion_error_first_node#:#Sie können den Startknoten des Ergebnisbaums nicht löschen.
@@ -356,7 +356,7 @@ no_model_solution_for_this_input#:#Zu dieser Eingabe gibt es keine Musterlösung
 options_specific_feedback#:#Spezifisches Feedback
 options_specific_feedback_info#:#Standardgemäß wird Feedback für jeden potenziellen Rückmeldebaum in diesem Block angezeigt. Es kann auch zum Aufgabentext verschoben werden, wobei dann allerdings die Anzeige nicht abhängig von der Eingabe gemacht wird.
 questions_updated_new_feedback_system#:#Anzahl Fragen, die auf das neue Feedback-System umgestellt wurden
-questions_updated_new_feedback_system2#:#Die Feedback-Platzhalter wurden in das Feld für das spezifische feedback verschoben, Sie können sie bei Bedarf in den Fragentext zurück verschieben.
+questions_updated_new_feedback_system2#:#Die Feedback-Platzhalter wurden in das Feld für das spezifische Feedback verschoben, Sie können sie bei Bedarf zurück in den Fragentext verschieben.
 error_lack_of_following_feedback_placeholders#:#Die folgenden Ergebnisbäume haben keinen Feedback-Platzhalter (wie [[feedback:prt1]]) im Fragentext oder spezifischen Feedback:
 untitled_question#:#Untitel STACK Frage
 auth_tip1#:#Klicken Sie bitte hier, um den STACK Question Quick Authoring Guide auf Englisch zu lesen
@@ -367,7 +367,7 @@ interpreted_by_maxima_as_2#:#Ihre Antwort wurde wie folgt interpretiert:
 sco_info#:#Diese Seite zeigt die Fragenbewertung in Punkten. Für jeden Knoten eines Ergebnisbaums werden die Punkte des positiven Antworttests in grün und die des negativen Antworttests in rot angezeigt. Für jeden Ergebnisbaum zeigen die maximal erreichbaren Punkte seine Gewichtung innerhalb der Frage
 castext_info#:#In diesem Feld können Sie CAS-Text verwenden. Das ist HTML-Code, in den LaTeX zwischen "\\(" und "\\)" und Maxima-Code zwischen "@" und "@" eingebettet werden können. Maxima-Code wird ausgeführt, bevor die Frage angezeigt wird. Er ist auch innerhalb von LaTeX möglich.
 html_info#:#In diesem Feld sind nur HTML-Elemente erlaubt, kein LaTeX und keine Maxima-Ausdrücke.
-casexpression_info#:#In diesem Feld können sie nur Maxima-Code eingeben, kein LaTeX und kein HTML.
+casexpression_info#:#In diesem Feld können Sie nur Maxima-Code eingeben, kein LaTeX und kein HTML.
 casexpression_name#:#CAS-Ausdruck
 inputs_star#:#Test-Eingaben *
 error_in_question_variables#:#Der folgende Fehler tritt bei Fragevariablen auf:

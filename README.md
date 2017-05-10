@@ -89,7 +89,15 @@ Version History
 Version 2.4.2 (2017-05-10)
 --------------------------
 This is the fist stable version for ILIAS 5.2.
-- 
+- STACK questions are now adapted to ILIAS 5.2 Test navigation
+- Some changes in authoring interface were made in order to help the user experience creating a STACK Question.
+- Error messages in Authoring interface are now well displayed.
+- This version includes some bugfixing:
+- Solved a bug when importing questions with images to Moodle XML and re-import it to ILIAS.
+- Changed the allthequestions.xml file to solve a bug with the "Cubic spline" question.
+- http://www.ilias.de/mantis/view.php?id=20442 about error creating question in a test.
+- http://www.ilias.de/mantis/view.php?id=17195 about error creating questions with no title.
+- Some text variables have been fixed in German language.
 
 Version 2.4.1 (2017-05-02)
 --------------------------
