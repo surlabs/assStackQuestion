@@ -86,18 +86,19 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
 
-Version 2.4.2 (2017-05-10)
---------------------------
-This is the fist stable version for ILIAS 5.2.
-- STACK questions are now adapted to ILIAS 5.2 Test navigation
-- Some changes in authoring interface were made in order to help the user experience creating a STACK Question.
-- Error messages in Authoring interface are now well displayed.
+Version 2.4.2 (2017-05-10) for ILIAS 5.2
+----------------------------------------
+This is the first stable version for ILIAS 5.2.
+
+- STACK questions are now adapted to ILIAS 5.2 test navigation
+- Some changes in authoring interface were made in order to help the user experience creating a STACK question.
+- Error messages in authoring interface are now well displayed.
 - This version includes some bugfixing:
-- Solved a bug when importing questions with images to Moodle XML and re-import it to ILIAS.
-- Changed the allthequestions.xml file to solve a bug with the "Cubic spline" question.
-- http://www.ilias.de/mantis/view.php?id=20442 about error creating question in a test.
-- http://www.ilias.de/mantis/view.php?id=17195 about error creating questions with no title.
-- Some text variables have been fixed in German language.
+    - Solved a bug when importing questions with images to Moodle XML and re-import it to ILIAS.
+    - Changed the allthequestions.xml file to solve a bug with the "Cubic spline" question.
+    - http://www.ilias.de/mantis/view.php?id=20442 about error creating question in a test.
+    - http://www.ilias.de/mantis/view.php?id=17195 about error creating questions with no title.
+    - Some text variables have been fixed in German language.
 
 Version 2.4.1 (2017-05-02)
 --------------------------
@@ -107,60 +108,60 @@ Version 2.4.1 (2017-05-02)
 - STACK questions are now well present in print view on ILIAS Tests.
 - New Unit Test GUI. Unit test are now shown in a more ILIAS style way.
 
-Version 2.3.12 (2017-4-19) For ILIAS 5.0 and 5.1
--------------------------------------------------------
+Version 2.3.12 (2017-4-19) for ILIAS 5.0 and 5.1
+------------------------------------------------
 - Now specific feedback is also shown in Test results
 - This version includes some bugfixing:
-- http://www.ilias.de/mantis/view.php?id=20387 about error displaying info messages in ILIAS 5.0.
-- http://www.ilias.de/mantis/view.php?id=20407 about mistake in german text.
+    - http://www.ilias.de/mantis/view.php?id=20387 about error displaying info messages in ILIAS 5.0.
+    - http://www.ilias.de/mantis/view.php?id=20407 about mistake in german text.
 
-GitHub Version 2.3.11 (2017-04-19)
----------------------------------
-This version includes some bugfixing:
-- Now forbidden words are properly forbidden when used by students in a STACK question
-- Feedback is now properly shown when there are more than two feedback placeholder on the specific feedback.
-- Info for feedback in a node is now properly shown.
-- Input fields in authoring interface now doesn't have a blank space by default, we changed the DB structure in order to avoid this problem.
+Version 2.3.11 (2017-04-19)
+---------------------------
+- This version includes some bugfixing:
+    - Now forbidden words are properly forbidden when used by students in a STACK question
+    - Feedback is now properly shown when there are more than two feedback placeholder on the specific feedback.
+    - Info for feedback in a node is now properly shown.
+    - Input fields in authoring interface now doesn't have a blank space by default, we changed the DB structure in order to avoid this problem.
 
 Version 2.3.10 (2017-03-06)
 ---------------------------
-+ Changes in the Authoring interface:
-- Now expandable sections for input fields are independent, it's allowed to open more than one input field at the same time.
-- Now inputs and option field takes the whole page like PRTs, to give the user a better view of the different options.
-- Now enable and disable info messages is done instantly by clicking the button in top of the authoring interface. Info messages are shown by default
-  And is user's decision about this is saved in session, so user can move among pages having always the same view.
-- Info messages of certain settings also includes a tooltip explaining which type of content the input accepts (CAS Text, HTML or CAS commands)
-- Teacher answer and Student answer are now required fields.
-- Error messages when fields are missing or when CAS validation failed has been re-built, If input has no model answer and if node has no
-  student answer or teacher answer, error message persist until fail have been solved.
-This version includes some bugfixing:
-- http://www.ilias.de/mantis/view.php?id=20184 regarding feedback report in specific feedback block.
-- Error when  nodes are not part of a PRT in question authoring no longer shows a blank page but an error message.
-- http://www.ilias.de/mantis/view.php?id=20287 Error in ILIAS 5.0 for using ilButton::getInstance
-- Solved error related to random variables
+- Changes in the Authoring interface:
+    - Now expandable sections for input fields are independent, it's allowed to open more than one input field at the same time.
+    - Now inputs and option field takes the whole page like PRTs, to give the user a better view of the different options.
+    - Now enable and disable info messages is done instantly by clicking the button in top of the authoring interface. Info messages are shown by default
+      And is user's decision about this is saved in session, so user can move among pages having always the same view.
+    - Info messages of certain settings also includes a tooltip explaining which type of content the input accepts (CAS Text, HTML or CAS commands)
+    - Teacher answer and Student answer are now required fields.
+    - Error messages when fields are missing or when CAS validation failed has been re-built, If input has no model answer and if node has no
+      student answer or teacher answer, error message persist until fail have been solved.
+- This version includes some bugfixing:
+    - http://www.ilias.de/mantis/view.php?id=20184 regarding feedback report in specific feedback block.
+    - Error when  nodes are not part of a PRT in question authoring no longer shows a blank page but an error message.
+    - http://www.ilias.de/mantis/view.php?id=20287 Error in ILIAS 5.0 for using ilButton::getInstance
+    - Solved error related to random variables
 
 Version 2.3.9 (2017-1-31)
 -------------------------
 - Scoring page shows a new information text explaining the behaviour of the page.
-This version includes some bugfixing.
-- http://www.ilias.de/mantis/view.php?id=20117 Regarding inconsistences when showing specific feedback.
-- http://www.ilias.de/mantis/view.php?id=18371 Regarding delete of inputs and PRT in a test, changes were not properly applied to the question pool.
-- http://www.ilias.de/mantis/view.php?id=18703 Regarding delete of PRT nodes was not done in question authoring.
-- http://www.ilias.de/mantis/view.php?id=20111 Regarding LaTeX problem in CASText.
-- http://www.ilias.de/mantis/view.php?id=19746 Regarding Matrix Parentheses always set to square brackets.
+- This version includes some bugfixing.
+    - http://www.ilias.de/mantis/view.php?id=20117 Regarding inconsistences when showing specific feedback.
+    - http://www.ilias.de/mantis/view.php?id=18371 Regarding delete of inputs and PRT in a test, changes were not properly applied to the question pool.
+    - http://www.ilias.de/mantis/view.php?id=18703 Regarding delete of PRT nodes was not done in question authoring.
+    - http://www.ilias.de/mantis/view.php?id=20111 Regarding LaTeX problem in CASText.
+    - http://www.ilias.de/mantis/view.php?id=19746 Regarding Matrix Parentheses always set to square brackets.
 
 Version 2.3.8 (2016-11-29)
 --------------------------
 - Healthcheck no longer shows error when there are no errors.
 - General feedback is now properly shown if best solution is shown.
-- Now  Maxima's version of user solution or best solution is shown as replacement for the validation button when feedback is given or best solution is given in Tests, This is a provisional change, waiting for feedback from the community, This option is only available if specific feedback per answer option is active in the instant feedback settings.
-+ Changes in the Authoring interface:
-- Now the Potential Response Tree part takes more space into the left of the page to allow teachers to check better the whole structure of the PRT.
-- Now required fields in authoring interface have a red * on the right of the title like in other ILIAS forms.
-This version includes some bugfixing.
-- http://www.ilias.de/mantis/view.php?id=19483 regarding show feedback for correct/wrong solutions when forcing feedback.
-- http://www.ilias.de/mantis/view.php?id=18939 regarding LaTeX display.
-- http://www.ilias.de/mantis/view.php?id=18343 regarding < and > symbols in feedback specific variables.
+- Now Maxima's version of user solution or best solution is shown as replacement for the validation button when feedback is given or best solution is given in Tests, This is a provisional change, waiting for feedback from the community, This option is only available if specific feedback per answer option is active in the instant feedback settings.
+- Changes in the Authoring interface:
+    - Now the Potential Response Tree part takes more space into the left of the page to allow teachers to check better the whole structure of the PRT.
+    - Now required fields in authoring interface have a red * on the right of the title like in other ILIAS forms.
+- This version includes some bugfixing.
+    - http://www.ilias.de/mantis/view.php?id=19483 regarding show feedback for correct/wrong solutions when forcing feedback.
+    - http://www.ilias.de/mantis/view.php?id=18939 regarding LaTeX display.
+    - http://www.ilias.de/mantis/view.php?id=18343 regarding < and > symbols in feedback specific variables.
 
 Version 2.3.7 (2016-10-24)
 --------------------------
@@ -173,44 +174,43 @@ This version includes some bugfixing.
 
 Version 2.3.5 (2016-08-11)
 --------------------------
-This version includes some bugfixing.
-- http://www.ilias.de/mantis/view.php?id=18477 Regarding Error in matrix questions feedback.
-- Usability problem regarding old feedback after validation solved, now feedback given is gone when input is changed in instant validation mode or when click on validate if instant validation is not active.
+- This version includes some bugfixing.
+    - http://www.ilias.de/mantis/view.php?id=18477 Regarding Error in matrix questions feedback.
+    - Usability problem regarding old feedback after validation solved, now feedback given is gone when input is changed in instant validation mode or when click on validate if instant validation is not active.
 
 Version 2.3.4 (2016-05-24)
 --------------------------
-This version includes some bugfixing.
-- http://www.ilias.de/mantis/view.php?id=18343 Regarding error with < and <= in question variables.
-- http://www.ilias.de/mantis/view.php?id=18404 and
-- http://www.ilias.de/mantis/view.php?id=18091 Regarding error when more than one matrix in the same question
-- http://www.ilias.de/mantis/view.php?id=18263 Regarding matrix representation in best solutions
-- http://www.ilias.de/mantis/view.php?id=18347 Regarding feedback placeholder not created
-- Solved a false error message in the healthcheck.
+- This version includes some bugfixing.
+    - http://www.ilias.de/mantis/view.php?id=18343 Regarding error with < and <= in question variables.
+    - http://www.ilias.de/mantis/view.php?id=18404 and
+    - http://www.ilias.de/mantis/view.php?id=18091 Regarding error when more than one matrix in the same question
+    - http://www.ilias.de/mantis/view.php?id=18263 Regarding matrix representation in best solutions
+    - http://www.ilias.de/mantis/view.php?id=18347 Regarding feedback placeholder not created
+    - Solved a false error message in the healthcheck.
 
 Version 2.3.3 (2016-04-13)
 --------------------------
-This version includes some bugfixing.
 - In configuration, the list of maxima versions available is now the same than in STACK 3.3 for Moodle. Plase notice that as it is said in the
 STACK for Moodle version, some maxima versions can present some errors.
-+The following bugs have been solved
-- http://www.ilias.de/mantis/view.php?id=18124 Regarding error when model answer is 0.
-- http://www.ilias.de/mantis/view.php?id=18244 Regarding text error of question note.
-- http://www.ilias.de/mantis/view.php?id=18248 Regarding error in text.
-- http://www.ilias.de/mantis/view.php?id=18249 Regarding scoring of a new question, now set to 1.
-- http://www.ilias.de/mantis/view.php?id=18246 regarding Inputs in recently created question.
-- http://www.ilias.de/mantis/view.php?id=18247 regarding Model answer of new inputs.
-- http://www.ilias.de/mantis/view.php?id=18123 Regarding best solution showing.
-- http://www.ilias.de/mantis/view.php?id=18263 Regarding error with matrix parens
+- The following bugs have been solved
+    - http://www.ilias.de/mantis/view.php?id=18124 Regarding error when model answer is 0.
+    - http://www.ilias.de/mantis/view.php?id=18244 Regarding text error of question note.
+    - http://www.ilias.de/mantis/view.php?id=18248 Regarding error in text.
+    - http://www.ilias.de/mantis/view.php?id=18249 Regarding scoring of a new question, now set to 1.
+    - http://www.ilias.de/mantis/view.php?id=18246 regarding Inputs in recently created question.
+    - http://www.ilias.de/mantis/view.php?id=18247 regarding Model answer of new inputs.
+    - http://www.ilias.de/mantis/view.php?id=18123 Regarding best solution showing.
+    - http://www.ilias.de/mantis/view.php?id=18263 Regarding error with matrix parens
 
 Version 2.3.1 (2016-03-14)
 --------------------------
-This version includes some ideas from SIG Mathe+ILIAS Meeting in Bremen. like The links to the authoring guides in the head of the authoring page.
-And solve problems with Linux installations and creaation of non-full unit test.
-+The following bugs have been solved
-- http://ilias.de/mantis/view.php?id=17358 regarding Matrix in STACK, now matrix also allows |,{ and "" as matrix parents.
-- http://ilias.de/mantis/view.php?id=18091 regarding Matrix best solutions, now best solution have a Matrix form without matrix parents.
-- http://ilias.de/mantis/view.php?id=18081 regarding Error message.
-- http://ilias.de/mantis/view.php?id=18069 regarding navigation from tabs within STACK and evaluable previews.
+This version includes some ideas from SIG Mathe+ILIAS Meeting in Bremen, like the links to the authoring guides in the head of the authoring page.
+- It solve problems with Linux installations and creaation of non-full unit test.
+- The following bugs have been solved
+    - http://ilias.de/mantis/view.php?id=17358 regarding Matrix in STACK, now matrix also allows |,{ and "" as matrix parents.
+    - http://ilias.de/mantis/view.php?id=18091 regarding Matrix best solutions, now best solution have a Matrix form without matrix parents.
+    - http://ilias.de/mantis/view.php?id=18081 regarding Error message.
+    - http://ilias.de/mantis/view.php?id=18069 regarding navigation from tabs within STACK and evaluable previews.
 
 Version 2.3.0 (2016-02-29)
 --------------------------
@@ -229,14 +229,14 @@ Version 2.3.0 (2016-02-29)
 - In question preview, STACK Evaluation button is not longer used, now the ILIAS check button is used to send the user answer in previews.
 - The adaptation process to the new feedback system makes that all questions with no feedback placeholders will get automatically one feedback placeholder per PRT in
   the specific feedback field. Teachers can move this placeholder to the question text if they want.
-+The following bugs have been solved:
-- http://www.ilias.de/mantis/view.php?id=17984 regarding export to Moodle.
-- http://www.ilias.de/mantis/view.php?id=17989 regarding using of the plugin with ILIAS 5.1
-- http://www.ilias.de/mantis/view.php?id=15904 regarding order in PRT feedback
-- http://www.ilias.de/mantis/view.php?id=16915 regarding feedback report.
-- http://www.ilias.de/mantis/view.php?id=15088 regarding feedback report.
-- http://www.ilias.de/mantis/view.php?id=16074 regarding feedback report.
-- http://www.ilias.de/mantis/view.php?id=16665 regarding random variables in preview.
-- http://www.ilias.de/mantis/view.php?id=16640 regarding feedback report.
-- http://www.ilias.de/mantis/view.php?id=16645 regarding feedback report.
-- http://www.ilias.de/mantis/view.php?id=17774 regarding using of previous answer
+    - The following bugs have been solved:
+    - http://www.ilias.de/mantis/view.php?id=17984 regarding export to Moodle.
+    - http://www.ilias.de/mantis/view.php?id=17989 regarding using of the plugin with ILIAS 5.1
+    - http://www.ilias.de/mantis/view.php?id=15904 regarding order in PRT feedback
+    - http://www.ilias.de/mantis/view.php?id=16915 regarding feedback report.
+    - http://www.ilias.de/mantis/view.php?id=15088 regarding feedback report.
+    - http://www.ilias.de/mantis/view.php?id=16074 regarding feedback report.
+    - http://www.ilias.de/mantis/view.php?id=16665 regarding random variables in preview.
+    - http://www.ilias.de/mantis/view.php?id=16640 regarding feedback report.
+    - http://www.ilias.de/mantis/view.php?id=16645 regarding feedback report.
+    - http://www.ilias.de/mantis/view.php?id=17774 regarding using of previous answer
