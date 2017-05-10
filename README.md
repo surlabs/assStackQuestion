@@ -1,4 +1,4 @@
-Copyright 2016 Institut fuer Lern-Innovation,Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3 or later, see LICENSE
+Copyright 2017 Institut fuer Lern-Innovation,Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3 or later, see LICENSE
 
 Includes a modified core part of STACK version 3.3
 Copyright 2012 University of Birmingham
@@ -47,7 +47,6 @@ cdn.mathjax.org or downloaded to your own web server. It has to be configured in
 
 First Installation of the plugin
 --------------------------------
-
 1. Copy the assStackQuestion directory to your ILIAS installation at the followin path
 (create subdirectories, if neccessary):
 Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion
@@ -57,29 +56,8 @@ Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion
 4. Choose action "Activate" for the assStackQuestion plugin
 5. Choose action "Refresh Languages" for the assStackQuestion plugin
 
-Update from version 1
----------------------
-
-Version 1 and version 2 share the same internal id (xqcas) but have different names
-and require different ILIAS versions:
-
-- Version 1: assCasQuestion (ILIAS 4.4)
-- Version 2: assStackQuestion (ILIAS 5.0)
-
-Steps to update the plugin:
-1. Update ILIAS to version 5 
-   (the assCasQuestion plugin is deactivated by that step)
-2. Copy the assStackQuestion folder to Customizing/global/plugins/Modules/TestQuestionPool/Questions/
-3. Go to Administration > Plugins
-4. Choose action "Update" for the assStackQuestion plugin
-   (all settings and questions of assCasQuestion will be migrated to assStackQuestion) 
-5. Choose action "Activate" for the assStackQuestion plugin
-6. Delete the assCasQuestion folder from Customizing/global/plugins/Modules/TestQuestionPool/Questions/
-
-
 Configuration and test of the plugin
 ------------------------------------
-
 1. Go to Administration > Plugins
 2. Choose action "Configure" for the assStackQuestion plugin
 3. Set the platform type and maxima version according your installation
@@ -88,7 +66,6 @@ Configuration and test of the plugin
 
 Import of questions from moodleXML
 ----------------------------------
-
 1. Create an ILIAS question pool
 2. Click "Create question", choose "Stack Question" and click "Create"
 3. Click "Create Question from MoodleXML"
@@ -96,7 +73,6 @@ Import of questions from moodleXML
 
 Usage of STACK questions
 ------------------------
-
 You can work with a STACK question like any other question in ILIAS. You can preview it in the question pool
 and already try it out there. You can copy it to an ILIAS test and use it there.  A a test participant you will
 normally answer a question in two steps. First you enter your answer as a formula in an input field and click "Validate"
@@ -107,22 +83,30 @@ input you can evaluate your answer (in self assessment mode) or move to the next
 Version History
 ===============
 
-GitHub Version 2.4.1 (2017-5-2)
--------------------------------
+* The stable version 2.4.x for **ILIAS 5.2** is found in the GitHub branch **master-ilias52**
+* The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
+
+Version 2.4.2 (2017-05-10)
+--------------------------
+This is the fist stable version for ILIAS 5.2.
+- 
+
+Version 2.4.1 (2017-05-02)
+--------------------------
 - STACK versions 2.4.x can be used only on ILIAS 5.2+ platforms.
 - STACK versions 2.4.x can be used with PHP5 and PHP7.
 - DIC is now used as global for database, control, language and tabs.
 - STACK questions are now well present in print view on ILIAS Tests.
 - New Unit Test GUI. Unit test are now shown in a more ILIAS style way.
 
-GitHub Version 2.3.12 (2017-4-19) For ILIAS 5.0 and 5.1
+Version 2.3.12 (2017-4-19) For ILIAS 5.0 and 5.1
 -------------------------------------------------------
 - Now specific feedback is also shown in Test results
 - This version includes some bugfixing:
 - http://www.ilias.de/mantis/view.php?id=20387 about error displaying info messages in ILIAS 5.0.
 - http://www.ilias.de/mantis/view.php?id=20407 about mistake in german text.
 
-GitHub Version 2.3.11 (2017-4-19)
+GitHub Version 2.3.11 (2017-04-19)
 ---------------------------------
 This version includes some bugfixing:
 - Now forbidden words are properly forbidden when used by students in a STACK question
@@ -130,8 +114,8 @@ This version includes some bugfixing:
 - Info for feedback in a node is now properly shown.
 - Input fields in authoring interface now doesn't have a blank space by default, we changed the DB structure in order to avoid this problem.
 
-GitHub Version 2.3.10 (2017-3-6)
---------------------------------
+Version 2.3.10 (2017-03-06)
+---------------------------
 + Changes in the Authoring interface:
 - Now expandable sections for input fields are independent, it's allowed to open more than one input field at the same time.
 - Now inputs and option field takes the whole page like PRTs, to give the user a better view of the different options.
@@ -147,8 +131,8 @@ This version includes some bugfixing:
 - http://www.ilias.de/mantis/view.php?id=20287 Error in ILIAS 5.0 for using ilButton::getInstance
 - Solved error related to random variables
 
-GitHub Version 2.3.9 (2017-1-31)
---------------------------------
+Version 2.3.9 (2017-1-31)
+-------------------------
 - Scoring page shows a new information text explaining the behaviour of the page.
 This version includes some bugfixing.
 - http://www.ilias.de/mantis/view.php?id=20117 Regarding inconsistences when showing specific feedback.
@@ -157,8 +141,8 @@ This version includes some bugfixing.
 - http://www.ilias.de/mantis/view.php?id=20111 Regarding LaTeX problem in CASText.
 - http://www.ilias.de/mantis/view.php?id=19746 Regarding Matrix Parentheses always set to square brackets.
 
-GitHub Version 2.3.8 (2016-11-29)
----------------------------------
+Version 2.3.8 (2016-11-29)
+--------------------------
 - Healthcheck no longer shows error when there are no errors.
 - General feedback is now properly shown if best solution is shown.
 - Now  Maxima's version of user solution or best solution is shown as replacement for the validation button when feedback is given or best solution is given in Tests, This is a provisional change, waiting for feedback from the community, This option is only available if specific feedback per answer option is active in the instant feedback settings.
@@ -170,11 +154,8 @@ This version includes some bugfixing.
 - http://www.ilias.de/mantis/view.php?id=18939 regarding LaTeX display.
 - http://www.ilias.de/mantis/view.php?id=18343 regarding < and > symbols in feedback specific variables.
 
-
-
-GitHub Version 2.3.7 (2016-10-24)
----------------------------------
-
+Version 2.3.7 (2016-10-24)
+--------------------------
 This version includes some bugfixing.
 - The feedback presentation is now properly shown in both ILIAS 5.1 and 5.0.
 - http://www.ilias.de/mantis/view.php?id=19249 regarding random variables in preview
@@ -182,16 +163,14 @@ This version includes some bugfixing.
 - http://www.ilias.de/mantis/view.php?id=19290 regarding changes in teacher view of students results.
 - http://www.ilias.de/mantis/view.php?id=18577 regarding feedback in 5.1
 
-
-GitHub Version 2.3.5 (2016-8-11)
---------------------------------
+Version 2.3.5 (2016-08-11)
+--------------------------
 This version includes some bugfixing.
 - http://www.ilias.de/mantis/view.php?id=18477 Regarding Error in matrix questions feedback.
 - Usability problem regarding old feedback after validation solved, now feedback given is gone when input is changed in instant validation mode or when click on validate if instant validation is not active.
 
-
-GitHub Version 2.3.4 (2016-05-24)
----------------------------------
+Version 2.3.4 (2016-05-24)
+--------------------------
 This version includes some bugfixing.
 - http://www.ilias.de/mantis/view.php?id=18343 Regarding error with < and <= in question variables.
 - http://www.ilias.de/mantis/view.php?id=18404 and
@@ -200,9 +179,8 @@ This version includes some bugfixing.
 - http://www.ilias.de/mantis/view.php?id=18347 Regarding feedback placeholder not created
 - Solved a false error message in the healthcheck.
 
-
-GitHub Version 2.3.3 (2016-04-13)
----------------------------------
+Version 2.3.3 (2016-04-13)
+--------------------------
 This version includes some bugfixing.
 - In configuration, the list of maxima versions available is now the same than in STACK 3.3 for Moodle. Plase notice that as it is said in the
 STACK for Moodle version, some maxima versions can present some errors.
@@ -216,10 +194,8 @@ STACK for Moodle version, some maxima versions can present some errors.
 - http://www.ilias.de/mantis/view.php?id=18123 Regarding best solution showing.
 - http://www.ilias.de/mantis/view.php?id=18263 Regarding error with matrix parens
 
-
-
-GitHub Version 2.3.1 (2016-03-14)
----------------------------------
+Version 2.3.1 (2016-03-14)
+--------------------------
 This version includes some ideas from SIG Mathe+ILIAS Meeting in Bremen. like The links to the authoring guides in the head of the authoring page.
 And solve problems with Linux installations and creaation of non-full unit test.
 +The following bugs have been solved
@@ -228,9 +204,8 @@ And solve problems with Linux installations and creaation of non-full unit test.
 - http://ilias.de/mantis/view.php?id=18081 regarding Error message.
 - http://ilias.de/mantis/view.php?id=18069 regarding navigation from tabs within STACK and evaluable previews.
 
-
-GitHub Version 2.3.0 (2016-02-29)
----------------------------------
+Version 2.3.0 (2016-02-29)
+--------------------------
 - STACK plugin can be used in ILIAS 5.0 and ILIAS 5.1 versions.
 - New feedback report system:
 - New ILIAS feedback tab, it works like in the other ILIAS question types and is ILIAS only, cannot be exported to Moodle. This feedback is shown when
@@ -257,106 +232,3 @@ GitHub Version 2.3.0 (2016-02-29)
 - http://www.ilias.de/mantis/view.php?id=16640 regarding feedback report.
 - http://www.ilias.de/mantis/view.php?id=16645 regarding feedback report.
 - http://www.ilias.de/mantis/view.php?id=17774 regarding using of previous answer
-
-
-SVN Version 2.2.1 (2016-02-22)
-------------------------------
-Extended HTML support with images and tables in rich text fields, also with import and export. This solves the following bugs:
-- http://www.ilias.de/mantis/view.php?id=17345
-- http://www.ilias.de/mantis/view.php?id=17345
-
-
-SVN Version 2.2.0 (2015-12-14)
-------------------------------
-- Added Export to MoodleXML functionality. A new sub-tab in question editing allows to export to MoodleXML format the current question or all the questions of the current question pool where the question is in.
-* The export to MoodleXML doesn't work if the question have images.
-+ The following bugs have been solved in this version:
-- http://www.ilias.de/mantis/view.php?id=17531 regarding Errors when a node have no points given.
-- http://www.ilias.de/mantis/view.php?id=16879 regarding Errors when a node have no points given.
-- http://www.ilias.de/mantis/view.php?id=17390 regarding Errors when a node have no points given.
-- http://www.ilias.de/mantis/view.php?id=17377 regarding @0@ forbidden expression.
-- http://www.ilias.de/mantis/view.php?id=17116 regarding import/export from pool.
-- http://www.ilias.de/mantis/view.php?id=17634 regarding translations to German.
-- http://www.ilias.de/mantis/view.php?id=17472 regarding translations to German.
-+ The following bug have a temporary solution:
-- http://www.ilias.de/mantis/view.php?id=17345 regarding Tables and Images in TinyMCE, Now in authoring interface tables and images are always allowed.
-- http://www.ilias.de/mantis/view.php?id=17195 regarding Question with no titles, Now you don't get an blank page when creates a question with no text, but the changes are not saved.
-
-SVN Version 2.1.8 (2015-10-23)
-------------------------------
-- Added support for the FormATest plugin
-- Translated some messages to German
-
-SVN Version 2.1.7 (2015-10-21)
------------------------------
-+ The following bugs have been solved in this version:
-- http://www.ilias.de/mantis/view.php?id=16669 regarding Editing in test, copy to question pool.
-- http://www.ilias.de/mantis/view.php?id=17072 regarding formating in general feedback.
-- Formating is now also activated in nodes specific feedback.
-- http://www.ilias.de/mantis/view.php?id=16946 regarding the validation button.
-- http://www.ilias.de/mantis/view.php?id=17068 regarding error creating questions.
-- Added sopme error messages.
-
-
-SVN Version 2.1.6 (2015-09-30)
------------------------------
-+ The following bugs have been solved in this version:
-- http://www.ilias.de/mantis/view.php?id=16742 regarding unusual order of nodes in a PRT.
-- http://www.ilias.de/mantis/view.php?id=16727 regarding duplicate question notes.
-- http://www.ilias.de/mantis/view.php?id=16783 regarding dissapearance of question text.
-- Include a small bugfix will try to solve the following bug: http://www.ilias.de/mantis/view.php?id=15904 in OPTES.
-- Added some error messages missing.
-
-
-SVN Version 2.1.5 (2015-09-23)
------------------------------
-+ The following bugs have been solved in this version:
-- http://www.ilias.de/mantis/view.php?id=16633 regarding check button in previews error.
-- http://www.ilias.de/mantis/view.php?id=15972 regarding seeds used in tests.
-- http://www.ilias.de/mantis/view.php?id=15986 regarding error with allowed words.
-- http://www.ilias.de/mantis/view.php?id=16426 regarding answer note/question note.
-- http://www.ilias.de/mantis/view.php?id=16211 regarding penalties in unit test.
-- http://www.ilias.de/mantis/view.php?id=16073 regarding validation button looks like.
-- http://www.ilias.de/mantis/view.php?id=16100 regarding question variables.
-- http://www.ilias.de/mantis/view.php?id=16635 regarding missing t in info message.
-- http://www.ilias.de/mantis/view.php?id=16644 regarding prt names.
-
-
-SVN Version 2.1.4 (2015-03-04)
------------------------------
-+ The following bugs have been solved in this version:
-- http://www.ilias.de/mantis/view.php?id=14362 Regarding rectangular brackets problem when importing.
-- http://www.ilias.de/mantis/view.php?id=15391 Regarding incorrect order of PRT when more than 9 PRT in a question.
-- http://www.ilias.de/mantis/view.php?id=14566 Regarding validation in Text area inputs
-- http://www.ilias.de/mantis/view.php?id=14483 Regarding validation in Single character inputs
-- http://www.ilias.de/mantis/view.php?id=14534 Regarding validation in Matrix inputs
-
-SVN Version 2.1.1 (2015-03-04)
-------------------------------
-+ STACK core classes have been updated to the last 3.3 version.
-+ Instant validation is now available when in server mode. By checking the instant validation in the configuration of the plugin, all the questions of the platform will use the instant validation system which avoids clicking to validate an answer, the answer will be validated automatically two seconds after finish write in the input field. This option is available for algebraic input only.
-+ Preview of questions with deployed seeds now show a fixed version of the question using always the same seed if it has been fixed. To fix a seed to a preview go to the Seed label and click on see preview in the selected seed. This choice works during the session of the user.
-The following errors in Mantis have been solved:
--	No test results, when user doesn’t answer a question. http://www.ilias.de/mantis/view.php?id=14370, http://www.ilias.de/mantis/view.php?id=14793
--	Inverse trigonometric functions aren’t displayed as set in the settings. http://www.ilias.de/mantis/view.php?id=14198
--	Never-ending but CPU-high consuming call. http://www.ilias.de/mantis/view.php?id=14680
--	Problems with evaluation in question preview. http://www.ilias.de/mantis/view.php?id=13965
--	Problems importing question with < or > in the text or variables. http://www.ilias.de/mantis/view.php?id=14094 http://www.ilias.de/mantis/view.php?id=15068
-Other issues have been solved as problems when importing question pools or test, also copying or moving the questions to other question pool.
-
-SVN Version 2.0.2 (2015-02-05)
-------------------------------
-* Added the "Server" option to the configuration of the Maxima Connection
-* Bug fixes
-
-SVN Version 2.0.1 (2014-12-23)
-------------------------------
-* intermediate version 
-
-
-SVN Version 2.0.0 (2014-12-03)
-------------------------------
-* first version 2 published in SVN
-* alpha version of the question authoring interface
-* for version 1 history see http://svn.ilias.de/svn/ilias/branches/fau/plugins/assCasQuestion/README
-
