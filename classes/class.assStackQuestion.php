@@ -241,7 +241,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 				//TODO Add points
 				if ($prt_name)
 				{
-					$this->addPointsToPRTDBEntry($active_id, $pass, $prt_name, $prt['points']);
+					$this->addPointsToPRTDBEntry($this->getStackQuestion()->getQuestionId(), $active_id, $pass, $prt_name, $prt['points']);
 				}
 				//Save input information per PRT
 				foreach ($prt['response'] as $input_name => $response)
@@ -300,7 +300,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 				//TODO Add points
 				if ($prt_name)
 				{
-					$this->addPointsToPRTDBEntry($active_id, $pass, $prt_name, $prt['points']);
+					$this->addPointsToPRTDBEntry($this->getStackQuestion()->getQuestionId(), $active_id, $pass, $prt_name, $prt['points']);
 				}
 				//Save input information per PRT
 				foreach ($prt['response'] as $input_name => $response)
@@ -364,7 +364,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 * @param $points
 	 * @return int
 	 */
-	public function addPointsToPRTDBEntry($active_id, $pass, $prt_name, $points)
+	public function addPointsToPRTDBEntry($question_id, $active_id, $pass, $prt_name, $points)
 	{
 		global $ilDB;
 
@@ -375,7 +375,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			$fieldData['step'] = array("integer", $this->getStep());
 		}
 
-		return $ilDB->update("tst_solutions", $fieldData, array('active_fi' => array('integer', $active_id), 'pass' => array('integer', $pass), 'value1' => array('text', 'xqcas_prt_' . $prt_name . '_name'), 'value2' => array('text', $prt_name)));
+		$ilDB->update("tst_solutions", $fieldData, array('question_fi' => array('integer', $question_id), 'active_fi' => array('integer', $active_id), 'pass' => array('integer', $pass), 'value1' => array('text', 'xqcas_prt_' . $prt_name . '_name'), 'value2' => array('text', $prt_name)));
 	}
 
 	/**
