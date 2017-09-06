@@ -385,7 +385,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			}
 		}
 
-
 		//Replace points in tst_solution solution_id entry
 		if ($solution_id != NULL)
 		{
