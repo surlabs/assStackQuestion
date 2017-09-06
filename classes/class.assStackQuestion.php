@@ -238,11 +238,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			{
 				//value1 = xqcas_input_name, $value2 = input_name
 				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name, $authorized);
-				//TODO Add points
-				if ($prt_name)
-				{
-					$this->addPointsToPRTDBEntry($this->getStackQuestion()->getQuestionId(), $active_id, $pass, $prt_name, $prt['points']);
-				}
+
 				//Save input information per PRT
 				foreach ($prt['response'] as $input_name => $response)
 				{
@@ -270,10 +266,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status_message', $prt['status']['message'], $authorized);
 				//value1 = xqcas_input_*_status_message, $value2 = status message
 				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_answernote', $prt['answernote'], $authorized);
+				if ($prt_name)
+				{
+					$this->addPointsToPRTDBEntry($this->getStackQuestion()->getQuestionId(), $active_id, $pass, $prt_name, $prt['points'], $authorized);
+				}
 				//Set entered values as TRUE
 				$entered_values = TRUE;
 			}
-
 		} else
 		{
 			//5.0
@@ -297,11 +296,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			{
 				//value1 = xqcas_input_name, $value2 = input_name
 				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name);
-				//TODO Add points
-				if ($prt_name)
-				{
-					$this->addPointsToPRTDBEntry($this->getStackQuestion()->getQuestionId(), $active_id, $pass, $prt_name, $prt['points']);
-				}
 				//Save input information per PRT
 				foreach ($prt['response'] as $input_name => $response)
 				{
@@ -329,6 +323,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status_message', $prt['status']['message']);
 				//value1 = xqcas_input_*_status_message, $value2 = status message
 				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_answernote', $prt['answernote']);
+				if ($prt_name)
+				{
+					$this->addPointsToPRTDBEntry($this->getStackQuestion()->getQuestionId(), $active_id, $pass, $prt_name, $prt['points']);
+				}
 				//Set entered values as TRUE
 				$entered_values = TRUE;
 			}
@@ -362,20 +360,37 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 * @param $pass
 	 * @param $prt_name
 	 * @param $points
-	 * @return int
 	 */
-	public function addPointsToPRTDBEntry($question_id, $active_id, $pass, $prt_name, $points)
+	public function addPointsToPRTDBEntry($question_id, $active_id, $pass, $prt_name, $points, $authorized = NULL)
 	{
 		global $ilDB;
 
 		$fieldData = array("points" => array("float", (float)$points));
 
+		//Get step in case it exists
 		if ($this->getStep() !== null)
 		{
 			$fieldData['step'] = array("integer", $this->getStep());
 		}
 
-		$ilDB->update("tst_solutions", $fieldData, array('question_fi' => array('integer', $question_id), 'active_fi' => array('integer', $active_id), 'pass' => array('integer', $pass), 'value1' => array('text', 'xqcas_prt_' . $prt_name . '_name'), 'value2' => array('text', $prt_name)));
+		//get Solution Id for prt_name field in tst_solutions
+		$solution_id = NULL;
+		$solution_values = parent::getSolutionValues($active_id, $pass, $authorized);
+		foreach ($solution_values as $solution)
+		{
+			if ($solution['value1'] == 'xqcas_prt_' . $prt_name . '_name')
+			{
+				$solution_id = $solution['solution_id'];
+				break;
+			}
+		}
+
+
+		//Replace points in tst_solution solution_id entry
+		if ($solution_id != NULL)
+		{
+			$ilDB->update("tst_solutions", $fieldData, array('solution_id' => array('integer', (int)$solution_id)));
+		}
 	}
 
 	/**
@@ -531,6 +546,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		$worksheet->writeString($startrow, 0, $this->lng->txt($this->plugin->txt('assStackQuestion')), $format_title);
 		$worksheet->writeString($startrow, 1, $this->getTitle(), $format_title);
 		$i = 1;
+		
 		foreach ($solution as $solution_id => $solutionvalue)
 		{
 			if ($solution_id != 'prt')
