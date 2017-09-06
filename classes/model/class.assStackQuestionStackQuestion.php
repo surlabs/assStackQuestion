@@ -732,7 +732,7 @@ class assStackQuestionStackQuestion
 			$this->setPRTResults($prt_points, $prt_name, 'points');
 			if ($test_mode == TRUE AND $active_id != NULL)
 			{
-				$question->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name, $prt_points, $time, NULL, 0);
+				//$question->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name, $prt_points, $time, NULL, 0);
 			}
 		}
 

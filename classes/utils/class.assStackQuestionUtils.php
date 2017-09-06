@@ -642,6 +642,7 @@ class assStackQuestionUtils
 
 		}
 
+
 		/*
 		 * Step 2 Replace $$ from STACK and all other LaTeX delimiter to the current platform's delimiter.
 		 */
