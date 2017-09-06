@@ -373,23 +373,15 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			$fieldData['step'] = array("integer", $this->getStep());
 		}
 
-		//get Solution Id for prt_name field in tst_solutions
-		$solution_id = NULL;
-		$solution_values = parent::getSolutionValues($active_id, $pass, $authorized);
-		foreach ($solution_values as $solution)
-		{
-			if ($solution['value1'] == 'xqcas_prt_' . $prt_name . '_name')
-			{
-				$solution_id = $solution['solution_id'];
-				break;
-			}
-		}
+		$whereData = array(
+			'question_fi' => array('integer', $question_id),
+			'active_fi' => array('integer', $active_id),
+			'pass' => array('integer', $pass),
+			'value1' => array('text', 'xqcas_prt_' . $prt_name . '_name'),
+			'value2' => array('text', $prt_name)
+		);
 
-		//Replace points in tst_solution solution_id entry
-		if ($solution_id != NULL)
-		{
-			$ilDB->update("tst_solutions", $fieldData, array('solution_id' => array('integer', (int)$solution_id)));
-		}
+		$ilDB->update("tst_solutions", $fieldData, $whereData);
 	}
 
 	/**
