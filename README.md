@@ -89,7 +89,7 @@ Version History
 
 Version 2.4.5 (2017-11-03) for ILIAS 5.2
 ----------------------------------------
-- Solved a bug realted to points calculations also in ILIAS 5.2
+- Solved a bug related to points calculations also in ILIAS 5.2
 
 
 Version 2.4.2 (2017-05-10) for ILIAS 5.2
