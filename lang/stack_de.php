@@ -387,7 +387,7 @@ $string['stackCas_missingLeftBracket']      = 'Es fehlt eine linke Klammer <span
 $string['stackCas_missingRightBracket']     = 'Es fehlt eine rechte Klammer <span class="stacksyntaxexample">{$a->bracket}</span> in dem Ausdruck: {$a->cmd}.';
 $string['stackCas_apostrophe']              = 'Apostroph-Zeichen sind in Rückmeldungen nicht erlaubt.';
 $string['stackCas_newline']                 = 'Zeilenvorschub-Zeichen sind in Rückmeldungen nicht erlaubt.';
-$string['stackCas_forbiddenChar']           = 'CAS Befehler dürfen die folgenden Zeichen nicht enthalten: {$a->char}.';
+$string['stackCas_forbiddenChar']           = 'CAS Ausdrücke dürfen die folgenden Zeichen nicht enthalten: {$a->char}.';
 $string['stackCas_finalChar']               = '\'{$a->char}\' ist ein ungültiges Endzeichen in {$a->cmd}';
 $string['stackCas_MissingStars']            = 'Anscheinend fehlen "*" Zeichen. Vielleicht meinten sie {$a->cmd}.';
 $string['stackCas_unknownFunction']         = 'Unbekannte Funktion: {$a->forbid}.';

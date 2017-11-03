@@ -86,6 +86,12 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
 
+
+Version 2.4.5 (2017-11-03) for ILIAS 5.2
+----------------------------------------
+- Solved https://www.ilias.de/mantis/view.php?id=21536 bug regarding point calculations also in ILIAS 5.2
+
+
 Version 2.4.2 (2017-05-10) for ILIAS 5.2
 ----------------------------------------
 This is the first stable version for ILIAS 5.2.
