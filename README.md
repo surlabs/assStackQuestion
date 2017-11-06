@@ -91,8 +91,17 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
 
-Version 2.3.12 (2017-4-19) for ILIAS 5.0 and 5.1
-------------------------------------------------
+Version 2.3.14 (2017-09-06) for ILIAS 5.0 and 5.1
+-------------------------------------------------
+- fixed https://www.ilias.de/mantis/view.php?id=21538 (Taxonomies missing)
+
+Version 2.3.13 (2017-09-06)
+---------------------------
+- fixed an interference of calculated points between stack questions in a test
+- fixed a plot rendering problem
+
+Version 2.3.12 (2017-04-19)
+---------------------------
 - Now specific feedback is also shown in Test results
 - This version includes some bugfixing:
     - http://www.ilias.de/mantis/view.php?id=20387 about error displaying info messages in ILIAS 5.0.
