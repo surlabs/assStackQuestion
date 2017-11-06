@@ -153,6 +153,9 @@ class assStackQuestionAuthoringGUI
 		//Add PRTs
 		$this->addPRTs();
 
+		//Add Taxonomies
+		$this->getQuestionGUI()->populateTaxonomyFormSection($this->getForm());
+
 		//FILL TPL
 		$this->getTemplate()->setVariable("FORM", $this->getForm()->getHTML());
 

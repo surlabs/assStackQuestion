@@ -116,6 +116,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			$this->deletionManagement();
 			$this->writeQuestionGenericPostData();
 			$this->writeQuestionSpecificPostData();
+			$this->saveTaxonomyAssignments();
 
 			//Get errors from authoring
 			$this->getErrors();
@@ -932,6 +933,17 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Returns Deployed seeds form
 		$this->tpl->setVariable("QUESTION_DATA", $authoring_gui->showAuthoringPanel());
+	}
+
+
+	/**
+	 * Populate taxonomy section in a form
+	 * (made public to be called from authoring GUI)
+	 * @param ilPropertyFormGUI $form
+	 */
+	public function populateTaxonomyFormSection(ilPropertyFormGUI $form)
+	{
+		parent::populateTaxonomyFormSection($form);
 	}
 
 	public function editQuestion($checkonly = FALSE)
