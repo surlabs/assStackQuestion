@@ -186,7 +186,7 @@ function get_config($section = 'qtype_stack')
 	//Caching
 	$configs->casresultscache = $saved_config['cas_result_caching'];
 	//Maxima command - If blank: maxima
-	if (!$saved_config['maxima_command'])
+	if (!$saved_config['maxima_command'] OR $saved_config['platform_type'] == 'unix')
 	{
 		$configs->maximacommand = "maxima";
 	} else
