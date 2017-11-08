@@ -1775,7 +1775,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			foreach ($this->getPotentialResponsesTrees() as $prt)
 			{
 				//Solve https://www.ilias.de/mantis/view.php?id=21536 bug
-				$query = $ilDB->query("SELECT tst_solutions.value2 FROM tst_solutions WHERE active_fi = " . $db->quote($active_id, 'integer') . " AND pass = " . $db->quote($pass, 'integer') . " AND value1 = 'xqcas_prt_" . $prt->getPRTName() . "_seed'". " AND question_fi = ". $this->getId());
+				$query = $ilDB->query("SELECT tst_solutions.value2 FROM tst_solutions WHERE active_fi = " . $ilDB->quote($active_id, 'integer') . " AND pass = " . $ilDB->quote($pass, 'integer') . " AND value1 = 'xqcas_prt_" . $prt->getPRTName() . "_seed'". " AND question_fi = ". $this->getId());
 				$data = $ilDB->fetchAssoc($query);
 				if ($data["value2"])
 				{
