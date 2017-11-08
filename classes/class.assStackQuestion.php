@@ -1774,12 +1774,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		{
 			foreach ($this->getPotentialResponsesTrees() as $prt)
 			{
-				$query = $db->query("SELECT tst_solutions.value2 FROM tst_solutions WHERE active_fi = " . $db->quote($active_id, 'integer') . " AND pass = " . $db->quote($pass, 'integer') . " AND value1 = 'xqcas_prt_" . $prt->getPRTName() . "_seed'");
+				//Solve https://www.ilias.de/mantis/view.php?id=21536 bug
+				$query = $db->query("SELECT tst_solutions.value2 FROM tst_solutions WHERE active_fi = " . $db->quote($active_id, 'integer') . " AND pass = " . $db->quote($pass, 'integer') . " AND value1 = 'xqcas_prt_" . $prt->getPRTName() . "_seed'". " AND question_fi = ". $this->getId());
 				$data = $db->fetchAssoc($query);
 				if ($data["value2"])
 				{
 					$question_seed = $data["value2"];
-
 					return $question_seed;
 				}
 			}
