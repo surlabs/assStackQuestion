@@ -413,7 +413,7 @@ $string['stackCas_MissingCloseInline']      = 'Fehlende \)';
 $string['stackCas_MissingOpenHTML']         = 'Fehlendes öffnendes HTML Tag';
 $string['stackCas_MissingCloseHTML']        = 'Fehlendes schließendes HTML Tag';
 $string['stackCas_failedValidation']        = 'fehlgeschlagene CASText Validierung. ';
-$string['stackCas_invalidCommand']          = 'CAS Befehle sind ungültig. ';
+$string['stackCas_invalidCommand']          = 'CAS Ausdrücke sind ungültig. ';
 $string['stackCas_CASErrorCaused']          = 'verursacht durch den folgenden Fehler:';
 
 $string['Maxima_DivisionZero']  = 'Division durch Null.';
