@@ -16,6 +16,7 @@ require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/as
  * @version    $Id: 2.3$$
  * @ingroup    ModulesTestQuestionPool
  * @ilCtrl_isCalledBy assStackQuestionGUI: ilObjQuestionPoolGUI, ilObjTestGUI
+ * @ilCtrl_Calls assStackQuestionGUI: ilFormPropertyDispatchGUI
  *
  */
 class assStackQuestionGUI extends assQuestionGUI
@@ -116,6 +117,15 @@ class assStackQuestionGUI extends assQuestionGUI
 			$this->deletionManagement();
 			$this->writeQuestionGenericPostData();
 			$this->writeQuestionSpecificPostData();
+
+			// save the taxonomy assignments
+			// a checkInput() is needed on the taxonomy inputs
+			// otherwise a reset of taxonomy assignmentd will prodice an error
+			require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+			$form = new ilPropertyFormGUI();
+			$this->populateTaxonomyFormSection($form);
+			$form->checkInput();
+			$this->saveTaxonomyAssignments();
 
 			//Get errors from authoring
 			$this->getErrors();
@@ -948,6 +958,17 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Returns Deployed seeds form
 		$this->tpl->setVariable("QUESTION_DATA", $authoring_gui->showAuthoringPanel());
+	}
+
+
+	/**
+	 * Populate taxonomy section in a form
+	 * (made public to be called from authoring GUI)
+	 * @param ilPropertyFormGUI $form
+	 */
+	public function populateTaxonomyFormSection(ilPropertyFormGUI $form)
+	{
+		parent::populateTaxonomyFormSection($form);
 	}
 
 	public function editQuestion($checkonly = FALSE)
