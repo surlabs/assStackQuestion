@@ -92,11 +92,6 @@ il.assStackQuestion = new function () {
 		/*
 		$(".ilAssQuestionRelatedNavigationContainer:first").nextUntil(".ilAssQuestionRelatedNavigationContainer").hide();*/
 
-
-		$.getScript(config.mathjax_url, function () {
-
-			alert("Script loaded and executed.");
-		});
 		$.get(config.validate_url, {
 			'question_id': question_id,
 			'input_name': input_name,
