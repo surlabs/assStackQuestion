@@ -83,8 +83,12 @@ input you can evaluate your answer (in self assessment mode) or move to the next
 Version History
 ===============
 
-* The stable version 2.4.x for **ILIAS 5.2** is found in the GitHub branch **master-ilias52**
+* The stable version 2.4.x for **ILIAS 5.2 to 5.3** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
+
+Version 2.5.0 (2017-12-07) for ILIAS 5.2 and 5.3
+----------------------------------------
+- Users must avoid importing questions from Moodle in MoodleXML format which has been created under STACK 4.0 or higher versions. The behaviour of CASText in this version is different as previous one, and This version of STACK for ILIAS doesn't support it.
 
 Version 2.4.6 (2017-11-06) for ILIAS 5.2
 ----------------------------------------
