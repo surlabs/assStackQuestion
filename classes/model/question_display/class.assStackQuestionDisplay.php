@@ -145,7 +145,12 @@ class assStackQuestionDisplay
 		//Get student answer for this inputF
 		//In assStackQuestionDisplay the User response should be store with the "value" format for assStackQuestionUtils::_getUserResponse.
 		$student_answer = $this->getUserResponse($input_name, $in_test);
-
+		//Bug https://www.ilias.de/mantis/view.php?id=22129 about matrix syntax hint
+		if (!sizeof($student_answer) AND ($input->get_parameter('syntaxHint') != '') AND is_a($input, 'stack_matrix_input'))
+		{
+			$student_answer = assStackQuestionUtils::_changeUserResponseStyle(array($input_name => $input->get_parameter('syntaxHint')), $this->getQuestion()->getQuestionId(), array($input_name => $input), 'reduced_to_value');
+			$student_answer = $student_answer["xqcas_input_" . $input_name . "_value"];
+		}
 		//Create input state
 		$state = $this->getQuestion()->getInputState($input_name, $student_answer, $input->get_parameter('forbidWords', ''));
 		if ($render_display)

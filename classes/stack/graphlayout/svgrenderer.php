@@ -144,6 +144,10 @@ class stack_abstract_graph_svg_renderer {
         $initialdirection = $direction / 2;
 
         $midx = null;
+		//fim: #32 Check division by zero before make it to prevent errors.
+		if(($cy - $py)==0 OR ($initialdirection==0)){
+			return;
+		}
         if (($cx - $px) / ($cy - $py) / $initialdirection < 1) {
             // A bit narrow, use a curve.
             $midy = $py + 3 * (1 - pow(5 / 6, $child->depth - $parent->depth)) * self::SCALE;

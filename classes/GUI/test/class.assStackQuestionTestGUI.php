@@ -186,8 +186,6 @@ class assStackQuestionTestGUI
 		//Part 1: Inputs panel
 		$inputs_panel = ilPanelGUI::getInstance();
 		$inputs_panel->setPanelStyle(ilPanelGUI::PANEL_STYLE_PRIMARY);
-		$inputs_panel->setHeadingStyle(ilPanelGUI::PANEL_STYLE_SECONDARY);
-		$inputs_panel->setHeading($this->getPlugin()->txt('inputs'));
 		$body = "";
 
 		$inputs_panel->setBody($this->getQuestionFilledIn($test->getInputsForUnitTest()));
@@ -195,8 +193,6 @@ class assStackQuestionTestGUI
 		//Part 2: PRT panel
 		$prts_panel = ilPanelGUI::getInstance();
 		$prts_panel->setPanelStyle(ilPanelGUI::PANEL_STYLE_PRIMARY);
-		$prts_panel->setHeadingStyle(ilPanelGUI::PANEL_STYLE_SECONDARY);
-		$prts_panel->setHeading($this->getPlugin()->txt('prts'));
 		$body = $this->getPRTTable($test);
 		$prts_panel->setBody($body);
 

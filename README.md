@@ -86,13 +86,26 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
 
-Version 2.5.0 (2017-12-07) for ILIAS 5.2 and 5.3
+
+Version 2.5.0 (2018-03-06) for ILIAS 5.2
 ----------------------------------------
-- Users must avoid importing questions from Moodle in MoodleXML format which has been created under STACK 4.0 or higher versions. The behaviour of CASText in this version is different as previous one, and This version of STACK for ILIAS doesn't support it.
+Please note, this version uses the old syntax for CASText (@...@) so, questions created with the new syntax may not work properly.
+We highly recommend to update to ILIAS 5.3 and use the STACK plugin version 3.0 which will be released in a few days.
+
+Deployed seeds in authoring interface has now a new look, more "ILIAS" style.
+
+- This version includes some bugfixing:
+- https://www.ilias.de/mantis/view.php?id=20905 About export to Excel
+- https://www.ilias.de/mantis/view.php?id=20783 About Latex display
+- https://www.ilias.de/mantis/view.php?id=20905 about matrix parenthesis on import
+- https://www.ilias.de/mantis/view.php?id=22289 about next node in authoring interface
+- https://www.ilias.de/mantis/view.php?id=22286 about german text mistake
+- https://www.ilias.de/mantis/view.php?id=22129 about matrix syntax hints
 
 Version 2.4.6 (2017-11-06) for ILIAS 5.2
 ----------------------------------------
 - fixed https://www.ilias.de/mantis/view.php?id=21538 (Taxonomies missing)
+
 
 Version 2.4.5 (2017-11-03) for ILIAS 5.2
 ----------------------------------------

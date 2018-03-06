@@ -844,9 +844,13 @@ class assStackQuestionAuthoringGUI
 		$node_pos_next_node = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_pos_next'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_pos_next');
 		$node_list = array(-1 => $this->getPlugin()->txt('end'));
 		//Get list of nodes
+		//Solve 22289
 		foreach ($prt->getPRTNodes() as $prt_node)
 		{
-			$node_list[$prt_node->getNodeName()] = $prt_node->getNodeName();
+			if ($prt_node->getNodeName() != $node->getNodeName())
+			{
+				$node_list[$prt_node->getNodeName()] = $prt_node->getNodeName();
+			}
 		}
 		$node_pos_next_node->setOptions($node_list);
 		$node_pos_next_node->setInfo($this->getPlugin()->txt('prt_node_pos_next_info'));
@@ -908,11 +912,14 @@ class assStackQuestionAuthoringGUI
 
 		$node_neg_next_node = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_neg_next'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_neg_next');
 		$node_list = array(-1 => $this->getPlugin()->txt('end'));
+		//Solve 22289
 		foreach ($prt->getPRTNodes() as $prt_node)
 		{
-			$node_list[$prt_node->getNodeName()] = $prt_node->getNodeName();
+			if ($prt_node->getNodeName() != $node->getNodeName())
+			{
+				$node_list[$prt_node->getNodeName()] = $prt_node->getNodeName();
+			}
 		}
-		unset($node_list[$node->getNodeName()]);
 		$node_neg_next_node->setOptions($node_list);
 		$node_neg_next_node->setInfo($this->getPlugin()->txt('prt_node_neg_next_info'));
 

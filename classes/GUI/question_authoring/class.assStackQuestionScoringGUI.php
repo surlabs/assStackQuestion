@@ -114,7 +114,7 @@ class assStackQuestionScoringGUI
 		$form = new ilPropertyFormGUI();
 		$ctrl = $DIC->ctrl();
 		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
-		$form->setTitle($this->getPlugin()->txt("sco_scoring_form"));
+		//$form->setTitle($this->getPlugin()->txt("sco_scoring_form"));
 
 		//Current points field
 		$current_question_points = new ilNonEditableValueGUI($this->getPlugin()->txt("sco_current_scoring_form_input"), 'current_scoring');
