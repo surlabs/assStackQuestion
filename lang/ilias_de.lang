@@ -71,7 +71,7 @@ replace_dollars#:#$ und $$ ersetzen
 replace_dollars_info#:#Im Fragentext sollen die Begrenzer $...$ und $$...$$ zusätzlich zu \[...\] und \(...\) ersetzt werden.
 display_settings#:#Mathematische Anzeigeoptionen
 options_question_simplify#:#Aufgabenweite-Vereinfachung
-options_question_simplify_info#:#Setzt die Variable "simp" für die Feedback-Variablen in diesem Rückmeldebaum, sowie für die Bewertung des Baums. Diese Einstellung überschreibt die Einstellung in Optionen.
+options_question_simplify_info#:#Setzt innerhalb MAXIMA die globale Variable "simp" für die gesamte Aufgabe.
 options_assume_positive#:#Positiv annehmen
 options_assume_positive_info#:#Setzt die Maxima-Variable "assume_pos".
 options_prt_correct#:#Rückmeldung für korrekte Antworten
@@ -244,7 +244,7 @@ prts#:#Rückmeldebäume (PRTs)
 prt_value#:#Aufgabenwert
 prt_value_info#:#Dieses Feld erlaubt es, CAS Variablen zu definieren und zu verändern, z.B. um Zufallsversionen zu ermöglichen. Diese Variablen sind in allen anderen Teilen der Aufgabe verfügbar.
 prt_simplify#:#Vereinfachung
-prt_simplify_info#:#Setzt innerhalb MAXIMA die globale Variable "simp" für die gesamte Aufgabe.
+prt_simplify_info#:#Setzt die Variable "simp" für die Feedback-Variablen in diesem Rückmeldebaum, sowie für die Bewertung des Baums. Diese Einstellung überschreibt die Einstellung in Optionen.
 prt_feedback_variables#:#Feedback-Variablen
 prt_feedback_variables_info#:#Die Feedback-Variablen erlauben es die Eingabe zusammen mit den Aufgabenvariablen zu manipulieren, bevor der Rückmeldebaum durchlaufen wird. Variablen, die hier definiert werden, können überall im Rückmeldebaum benutzt werden.
 node_positive_part#:#Knoten wenn WAHR

@@ -42,7 +42,7 @@ class assStackQuestionMoodleImport
 	private $error_log;
 
 	/**
-	 * @var string	allowed html tags, e.g. "<em><strong>..."
+	 * @var string    allowed html tags, e.g. "<em><strong>..."
 	 */
 	private $rte_tags = "";
 
@@ -50,7 +50,7 @@ class assStackQuestionMoodleImport
 	/**
 	 * media objects created for an imported question
 	 * This list will be cleared for every new question
-	 * @var array	id => object
+	 * @var array    id => object
 	 */
 	private $media_objects = array();
 
@@ -87,6 +87,7 @@ class assStackQuestionMoodleImport
 		$raw_data = $this->getDataFromXML($xml_file);
 		//Step 2: Import questions.
 		$import_status = $this->importQuestions($raw_data, $first_question_id);
+
 		//Step 3: Return status.
 		return $import_status;
 	}
@@ -101,13 +102,15 @@ class assStackQuestionMoodleImport
 			$this->clearMediaObjects();
 
 			//Check for not category
-			if (is_array($data['category'])) {
+			if (is_array($data['category']))
+			{
 				continue;
 			}
 
 			//Step 2.1: Create standard question
 			$ok = $this->createStandardQuestion($data);
-			if ($ok === FALSE) {
+			if ($ok === FALSE)
+			{
 				//Do not continue creating question
 				$this->purgeMediaObjects();
 				continue;
@@ -120,7 +123,8 @@ class assStackQuestionMoodleImport
 			//Step 2.3: Get Inputs from data and set as Input OBJ in cas_question
 			$ok = $question_inputs = $this->getInputsFromXML($data['input']);
 			$this->getQuestion()->setInputs($question_inputs);
-			if ($ok === FALSE) {
+			if ($ok === FALSE)
+			{
 				//Delete current question data
 				$this->getQuestion()->delete($this->getQuestion()->getId());
 				$this->purgeMediaObjects();
@@ -132,7 +136,8 @@ class assStackQuestionMoodleImport
 			//Step 2.4.B: Get Nodes from each PRT and set as Node OBJ in each PRT.
 			$ok = $question_PRTs = $this->getPRTsFromXML($data['prt']);
 			$this->getQuestion()->setPotentialResponsesTrees($question_PRTs);
-			if ($ok === FALSE) {
+			if ($ok === FALSE)
+			{
 				//Delete current question data
 				$this->getQuestion()->delete($this->getQuestion()->getId());
 				$this->purgeMediaObjects();
@@ -142,18 +147,22 @@ class assStackQuestionMoodleImport
 
 			//Step 2.5.A: Get Test from from data and set as Test OBJ in cas_question
 			//Step 2.5.B: Get Test Inputs and Expected from data and set as TestInput/Expected OBJ in cas_question
-			if (isset($data['qtest'])) {
+			if (isset($data['qtest']))
+			{
 				$question_tests = $this->getTestsFromXML($data['qtest']);
 				$this->getQuestion()->setTests($question_tests);
-			} else {
+			} else
+			{
 				$this->getQuestion()->setTests(array());
 			}
 
 			//Step 2.6: Get deployed seeds
-			if (isset($data['deployedseed'])) {
+			if (isset($data['deployedseed']))
+			{
 				$question_seeds = $this->getDeployedSeedsFromXML($data['deployedseed']);
 				$this->getQuestion()->setDeployedSeeds($question_seeds);
-			} else {
+			} else
+			{
 				$this->getQuestion()->setDeployedSeeds(array());
 			}
 
@@ -165,7 +174,8 @@ class assStackQuestionMoodleImport
 			$question_is_ok = $this->checkQuestion($this->getQuestion());
 
 			//Step 2.9: Insert into DB or delete if question is not OK
-			if ($question_is_ok) {
+			if ($question_is_ok)
+			{
 				//Delete options from created question.
 				$this->deletePredefinedQuestionData($this->getQuestion()->getId());
 
@@ -176,20 +186,24 @@ class assStackQuestionMoodleImport
 
 				//Set $question to a new question
 				$this->getQuestion()->setId(-1);
-			} else {
+			} else
+			{
 				//Delete current question data
 				$this->getQuestion()->delete($this->getQuestion()->getId());
 				$this->purgeMediaObjects();
 			}
 		}
-		if (sizeof($this->error_log)) {
+		if (sizeof($this->error_log))
+		{
 			ilUtil::sendFailure(implode('</br>', $this->error_log));
 		}
 
 		//Number of questions created info
-		if ($number_of_questions_created > 1) {
+		if ($number_of_questions_created > 1)
+		{
 			ilUtil::sendSuccess($number_of_questions_created . ' ' . $this->getPlugin()->txt('import_number_of_questions_created'));
-		} elseif ($number_of_questions_created) {
+		} elseif ($number_of_questions_created)
+		{
 			ilUtil::sendSuccess($number_of_questions_created . ' ' . $this->getPlugin()->txt('import_number_of_questions_created_1'));
 		}
 	}
@@ -218,6 +232,7 @@ class assStackQuestionMoodleImport
 	{
 		$xml = simplexml_load_file($xml_file);
 		$raw_array = $this->xml2array($xml);
+
 		return $raw_array;
 	}
 
@@ -229,39 +244,50 @@ class assStackQuestionMoodleImport
 	private function xml2array($xml)
 	{
 		$arr = array();
-		foreach ($xml as $element) {
+		foreach ($xml as $element)
+		{
 			$tag = $element->getName();
 			$e = get_object_vars($element);
 			//Deployed seed bug fixing
-			if ($element->getName() == "deployedseed") {
-				$arr[$tag][] = strip_tags((string) $element);
-			} else {
-				if (!empty($e)) {
-					if ( $element instanceof SimpleXMLElement ) {
+			if ($element->getName() == "deployedseed")
+			{
+				$arr[$tag][] = strip_tags((string)$element);
+			} else
+			{
+				if (!empty($e))
+				{
+					if ($element instanceof SimpleXMLElement)
+					{
 						$elem_arr = $this->xml2array($element);
-						if (empty($elem_arr)) {
-							$elem_arr['_content'] = (string) $element;
+						if (empty($elem_arr))
+						{
+							$elem_arr['_content'] = (string)$element;
 						}
-						foreach ($element->attributes() as $name => $value) {
-							$elem_arr['_attributes'][$name] = (string) $value;
+						foreach ($element->attributes() as $name => $value)
+						{
+							$elem_arr['_attributes'][$name] = (string)$value;
 						}
 						$arr[$tag][] = $elem_arr;
+					} else
+					{
+						$arr[$tag][] = (string)$e;
 					}
-					else {
-						$arr[$tag][] = (string) $e;
-					}
-				} else {
-					$arr[$tag] = (string) $element;
+				} else
+				{
+					$arr[$tag] = (string)$element;
 				}
 			}
 		}
+
 		return $arr;
 	}
 
 	private function cleanXML($xml_data)
 	{
-		foreach ($xml_data as $array) {
-			if (sizeof($array) > 1) {
+		foreach ($xml_data as $array)
+		{
+			if (sizeof($array) > 1)
+			{
 				return $array;
 			}
 		}
@@ -278,24 +304,32 @@ class assStackQuestionMoodleImport
 	private function createStandardQuestion($data)
 	{
 		//Question id management.
-		if ($this->getQuestion()->getId() == $this->getFirstQuestion()) {
+		if ($this->getQuestion()->getId() == $this->getFirstQuestion())
+		{
 			//Nothing to do, first question
-		} else {
+		} else
+		{
 			$this->getQuestion()->setId(-1);
 		}
 
-		if (!isset($data['name'][0]['text']) OR $data['name'][0]['text'] == '') {
+		if (!isset($data['name'][0]['text']) OR $data['name'][0]['text'] == '')
+		{
 			$this->error_log[] = $this->getPlugin()->txt('error_import_no_title');
+
 			return FALSE;
 		}
 
-		if (!isset($data['questiontext'][0]['text']) OR $data['questiontext'][0]['text'] == '') {
+		if (!isset($data['questiontext'][0]['text']) OR $data['questiontext'][0]['text'] == '')
+		{
 			$this->error_log[] = $this->getPlugin()->txt('error_import_no_question_text') . ' ' . $data['name'][0]['text'];
+
 			return FALSE;
 		}
 
-		if (!isset($data['defaultgrade']) OR $data['defaultgrade'] == '') {
+		if (!isset($data['defaultgrade']) OR $data['defaultgrade'] == '')
+		{
 			$this->error_log[] = $this->getPlugin()->txt('error_import_no_points') . ' ' . $data['name'][0]['text'];
+
 			return FALSE;
 		}
 
@@ -318,10 +352,13 @@ class assStackQuestionMoodleImport
 		$has_inputs = array_key_exists('input', $data);
 		$has_prts = array_key_exists('prt', $data);
 
-		if ($has_name AND $has_question_variables AND $has_inputs AND $has_prts) {
+		if ($has_name AND $has_question_variables AND $has_inputs AND $has_prts)
+		{
 			return TRUE;
-		} else {
+		} else
+		{
 			ilUtil::sendInfo($this->cas_question->getPlugin()->txt('error_importing_question_malformed'));
+
 			return FALSE;
 		}
 	}
@@ -340,10 +377,10 @@ class assStackQuestionMoodleImport
 		$question_options = new assStackQuestionOptions(-1, $this->getQuestion()->getId());
 
 		//Question Variables
-        if (isset($data['questionvariables'][0]['text']))
-        {
-            $question_options->setQuestionVariables($data['questionvariables'][0]['text']);
-        }
+		if (isset($data['questionvariables'][0]['text']))
+		{
+			$question_options->setQuestionVariables($data['questionvariables'][0]['text']);
+		}
 
 		//Specific feedback
 		$mapping = $this->getMediaObjectsFromXML($data['specificfeedback'][0]['file']);
@@ -355,8 +392,8 @@ class assStackQuestionMoodleImport
 		$question_options->setQuestionNote($data['questionnote'][0]['text']);
 
 		//Question simplify? Assume possitive?
-		$question_options->setQuestionSimplify((int) $data['questionsimplify']);
-		$question_options->setAssumePositive((int) $data['assumepositive']);
+		$question_options->setQuestionSimplify((int)$data['questionsimplify']);
+		$question_options->setAssumePositive((int)$data['assumepositive']);
 
 		//PRT Messages
 		$question_options->setPRTCorrectFormat(1);
@@ -381,6 +418,8 @@ class assStackQuestionMoodleImport
 		$question_options->setComplexNumbers(strip_tags($data['complexno']));
 		$question_options->setInverseTrig(isset($data['inversetrig']) ? strip_tags($data['inversetrig']) : 'cos-1');
 		$question_options->setVariantsSelectionSeeds(strip_tags($data['variantsselectionseed']));
+		//Solve 20905 bug
+		$question_options->setMatrixParens(isset($data['matrixparens']) ? strip_tags($data['matrixparens']) : '[');
 
 		return $question_options;
 	}
@@ -397,8 +436,10 @@ class assStackQuestionMoodleImport
 		$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionInput.php');
 
 		$inputs = array();
-		if (is_array($data)) {
-			foreach ($data as $input) {
+		if (is_array($data))
+		{
+			foreach ($data as $input)
+			{
 
 				//Main attributes needed to create an InputOBJ
 				$input_name = strip_tags($input['name']);
@@ -422,15 +463,20 @@ class assStackQuestionMoodleImport
 
 				$inputs[$input_name] = $new_input;
 			}
-		} else {
+		} else
+		{
 			$this->error_log[] = $this->getPlugin()->txt('error_import_no_inputs') . ' ' . $this->getQuestion()->getTitle();
+
 			return FALSE;
 		}
 
-		if (!is_array($inputs)) {
+		if (!is_array($inputs))
+		{
 			$this->error_log[] = $this->getPlugin()->txt('error_import_no_inputs') . ' ' . $this->getQuestion()->getTitle();
+
 			return FALSE;
 		}
+
 		//array of assStackQuestionInputs
 		return $inputs;
 	}
@@ -448,8 +494,10 @@ class assStackQuestionMoodleImport
 		$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionPRT.php');
 		$prts = array();
 
-		if (is_array($data)) {
-			foreach ($data as $prt) {
+		if (is_array($data))
+		{
+			foreach ($data as $prt)
+			{
 				//Creation of the PRT
 				$new_prt = new assStackQuestionPRT(-1, $this->getQuestion()->getId());
 				$prt_name = strip_tags($prt['name']);
@@ -470,15 +518,20 @@ class assStackQuestionMoodleImport
 				$prts[] = $new_prt;
 			}
 
-		} else {
+		} else
+		{
 			$this->error_log[] = $this->getPlugin()->txt('error_import_no_prt') . ' ' . $this->getQuestion()->getTitle();
+
 			return FALSE;
 		}
 
-		if (!is_array($prts)) {
+		if (!is_array($prts))
+		{
 			$this->error_log[] = $this->getPlugin()->txt('error_import_no_prt') . ' ' . $this->getQuestion()->getTitle();
+
 			return FALSE;
 		}
+
 		//array of assStackQuestionPRT
 		return $prts;
 	}
@@ -499,7 +552,8 @@ class assStackQuestionMoodleImport
 
 		//First node var
 		$is_first_node = true;
-		foreach ($data as $prt_node) {
+		foreach ($data as $prt_node)
+		{
 			//Main attributes for creating the PRTNode OBJ
 			$node_name = strip_tags($prt_node['name']);
 
@@ -538,7 +592,8 @@ class assStackQuestionMoodleImport
 			$falsefeedback = $this->replaceMediaObjectReferences($prt_node['falsefeedback'][0]['text'], $mapping);
 			$new_node->setFalseFeedback(ilUtil::secureString($falsefeedback, true, $this->getRTETags()));
 
-			if ($is_first_node) {
+			if ($is_first_node)
+			{
 				$prt_nodes['first'] = $new_node->getNodeName();
 				$is_first_node = false;
 			}
@@ -555,9 +610,10 @@ class assStackQuestionMoodleImport
 		$this->getPlugin()->includeClass('model/ilias_object/test/class.assStackQuestionTest.php');
 		$tests = array();
 
-		foreach ($data as $test) {
+		foreach ($data as $test)
+		{
 			//Main attributes needed to create an TestOBJ
-			$test_case = (int) $test['testcase'];
+			$test_case = (int)$test['testcase'];
 			$new_test = new assStackQuestionTest(-1, $this->getQuestion()->getId(), $test_case);
 
 			//Creation of inputs
@@ -580,7 +636,8 @@ class assStackQuestionMoodleImport
 		$this->getPlugin()->includeClass('model/ilias_object/test/class.assStackQuestionTestInput.php');
 		$test_inputs = array();
 
-		foreach ($data as $input) {
+		foreach ($data as $input)
+		{
 			$new_test_input = new assStackQuestionTestInput(-1, $this->getQuestion()->getId(), $test_case);
 
 			$new_test_input->setTestInputName($input['name']);
@@ -588,6 +645,7 @@ class assStackQuestionMoodleImport
 
 			$test_inputs[] = $new_test_input;
 		}
+
 		//array of assStackQuestionTestInput
 		return $test_inputs;
 	}
@@ -597,7 +655,8 @@ class assStackQuestionMoodleImport
 		$this->getPlugin()->includeClass('model/ilias_object/test/class.assStackQuestionTestExpected.php');
 		$test_expected = array();
 
-		foreach ($data as $expected) {
+		foreach ($data as $expected)
+		{
 			//Getting the PRT name
 			$prt_name = strip_tags($expected['name']);
 			$new_test_expected = new assStackQuestionTestExpected(-1, $this->getQuestion()->getId(), $test_case, $prt_name);
@@ -618,8 +677,9 @@ class assStackQuestionMoodleImport
 		$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionDeployedSeed.php');
 		$deployed_seeds = array();
 
-		foreach ($data as $deployed_seed_string) {
-			$deployed_seed = new assStackQuestionDeployedSeed(-1, $this->getQuestion()->getId(), (int) $deployed_seed_string);
+		foreach ($data as $deployed_seed_string)
+		{
+			$deployed_seed = new assStackQuestionDeployedSeed(-1, $this->getQuestion()->getId(), (int)$deployed_seed_string);
 			$deployed_seeds[] = $deployed_seed;
 		}
 
@@ -649,13 +709,13 @@ class assStackQuestionMoodleImport
 
 	/**
 	 * Create media objects from array converted file elements
-	 * @param 	array 	$data	 [['_attributes' => ['name' => string, 'path' => string], '_content' => string], ...]
-	 * @return	array			 filename => object_id
+	 * @param    array $data [['_attributes' => ['name' => string, 'path' => string], '_content' => string], ...]
+	 * @return    array             filename => object_id
 	 */
 	private function getMediaObjectsFromXML($data = array())
 	{
 		$mapping = array();
-		foreach((array) $data as $file)
+		foreach ((array)$data as $file)
 		{
 			$name = $file['_attributes']['name'];
 			$path = $file['_attributes']['path'];
@@ -669,23 +729,21 @@ class assStackQuestionMoodleImport
 			$this->media_objects[$media_object->getId()] = $media_object;
 			$mapping[$name] = $media_object->getId();
 		}
+
 		return $mapping;
 	}
 
 	/**
 	 * Replace references to media objects in a text
-	 * @param 	string 	text from moodleXML with local references
-	 * @param 	array 	mapping of filenames to media object IDs
-	 * @return	string	text with paths to media objects
+	 * @param    string    text from moodleXML with local references
+	 * @param    array    mapping of filenames to media object IDs
+	 * @return    string    text with paths to media objects
 	 */
 	private function replaceMediaObjectReferences($text = "", $mapping = array())
 	{
 		foreach ($mapping as $name => $id)
 		{
-			$text = str_replace(
-				'src="@@PLUGINFILE@@/' . $name ,
-				'src="'. ILIAS_HTTP_PATH . '/data/' . CLIENT_ID . '/mobs/mm_' . $id . "/" . $name . '"',
-				$text);
+			$text = str_replace('src="@@PLUGINFILE@@/' . $name, 'src="' . ILIAS_HTTP_PATH . '/data/' . CLIENT_ID . '/mobs/mm_' . $id . "/" . $name . '"', $text);
 		}
 
 		return $text;
@@ -702,7 +760,7 @@ class assStackQuestionMoodleImport
 
 	/**
 	 * Save the usages of media objects in a question
-	 * @param integer	$question_id
+	 * @param integer $question_id
 	 */
 	private function saveMediaObjectUsages($question_id)
 	{
@@ -734,31 +792,43 @@ class assStackQuestionMoodleImport
 	public function checkQuestion(assStackQuestion $question)
 	{
 		//Step 1: Check if there is one option object and at least one input, one prt with at least one node;
-		if (!is_a($question->getOptions(), 'assStackQuestionOptions')) {
+		if (!is_a($question->getOptions(), 'assStackQuestionOptions'))
+		{
 			return false;
 		}
-		if (is_array($question->getInputs())) {
-			foreach ($question->getInputs() as $input) {
-				if (!is_a($input, 'assStackQuestionInput')) {
+		if (is_array($question->getInputs()))
+		{
+			foreach ($question->getInputs() as $input)
+			{
+				if (!is_a($input, 'assStackQuestionInput'))
+				{
 					return false;
 				}
 			}
-		} else {
+		} else
+		{
 			return false;
 		}
-		if (is_array($question->getPotentialResponsesTrees())) {
-			foreach ($question->getPotentialResponsesTrees() as $prt) {
-				if (!is_a($prt, 'assStackQuestionPRT')) {
+		if (is_array($question->getPotentialResponsesTrees()))
+		{
+			foreach ($question->getPotentialResponsesTrees() as $prt)
+			{
+				if (!is_a($prt, 'assStackQuestionPRT'))
+				{
 					return false;
-				} else {
-					foreach ($prt->getPRTNodes() as $node) {
-						if (!is_a($node, 'assStackQuestionPRTNode')) {
+				} else
+				{
+					foreach ($prt->getPRTNodes() as $node)
+					{
+						if (!is_a($node, 'assStackQuestionPRTNode'))
+						{
 							return false;
 						}
 					}
 				}
 			}
-		} else {
+		} else
+		{
 			return false;
 		}
 
@@ -766,25 +836,34 @@ class assStackQuestionMoodleImport
 		$options_are_ok = $question->getOptions()->checkOptions(TRUE);
 
 		//Step 3: Check inputs
-		foreach ($question->getInputs() as $input) {
+		foreach ($question->getInputs() as $input)
+		{
 			$inputs_are_ok = $input->checkInput(TRUE);
-			if ($inputs_are_ok == FALSE) {
+			if ($inputs_are_ok == FALSE)
+			{
 				break;
 			}
 		}
 
 		//Step 4A: Check PRT
-		if (is_array($question->getPotentialResponsesTrees())) {
-			foreach ($question->getPotentialResponsesTrees() as $PRT) {
+		if (is_array($question->getPotentialResponsesTrees()))
+		{
+			foreach ($question->getPotentialResponsesTrees() as $PRT)
+			{
 				$PRTs_are_ok = $PRT->checkPRT(TRUE);
-				if ($PRTs_are_ok == FALSE) {
+				if ($PRTs_are_ok == FALSE)
+				{
 					break;
-				} else {
+				} else
+				{
 					//Step 4B: Check Nodes
-					if (is_array($PRT->getPRTNodes())) {
-						foreach ($PRT->getPRTNodes() as $node) {
+					if (is_array($PRT->getPRTNodes()))
+					{
+						foreach ($PRT->getPRTNodes() as $node)
+						{
 							$Nodes_are_ok = $node->checkPRTNode(TRUE);
-							if ($Nodes_are_ok == FALSE) {
+							if ($Nodes_are_ok == FALSE)
+							{
 								break;
 							}
 						}
@@ -795,40 +874,53 @@ class assStackQuestionMoodleImport
 		}
 
 		//Step 5: Check tests
-		if (sizeof($question->getTests())) {
-			foreach ($question->getTests() as $test) {
-				if (!is_a($test, 'assStackQuestionTest')) {
+		if (sizeof($question->getTests()))
+		{
+			foreach ($question->getTests() as $test)
+			{
+				if (!is_a($test, 'assStackQuestionTest'))
+				{
 					return false;
-				} else {
+				} else
+				{
 					$tests_creation_is_ok = $test->checkTest(TRUE);
 					//Step 5B: Check inputs
-					foreach ($test->getTestInputs() as $input) {
+					foreach ($test->getTestInputs() as $input)
+					{
 						$test_inputs_are_ok = $input->checkTestInput(TRUE);
-						if ($test_inputs_are_ok == FALSE) {
+						if ($test_inputs_are_ok == FALSE)
+						{
 							break;
 						}
 					}
 					//Step 5C: Check expected
-					foreach ($test->getTestExpected() as $expected) {
+					foreach ($test->getTestExpected() as $expected)
+					{
 						$test_expected_are_ok = $expected->checkTestExpected(TRUE);
-						if ($test_expected_are_ok == FALSE) {
+						if ($test_expected_are_ok == FALSE)
+						{
 							break;
 						}
 					}
-					if ($tests_creation_is_ok AND $test_inputs_are_ok AND $test_expected_are_ok) {
+					if ($tests_creation_is_ok AND $test_inputs_are_ok AND $test_expected_are_ok)
+					{
 						$test_are_ok = TRUE;
-					} else {
+					} else
+					{
 						$test_are_ok = FALSE;
 					}
 				}
 			}
-		} else {
+		} else
+		{
 			$test_are_ok = TRUE;
 		}
 
-		if ($options_are_ok AND $inputs_are_ok AND $PRTs_are_ok AND $Nodes_are_ok AND $test_are_ok) {
+		if ($options_are_ok AND $inputs_are_ok AND $PRTs_are_ok AND $Nodes_are_ok AND $test_are_ok)
+		{
 			return true;
-		} else {
+		} else
+		{
 			return false;
 		}
 	}
@@ -886,7 +978,7 @@ class assStackQuestionMoodleImport
 	}
 
 	/**
-	 *	@return string 	allowed html tags, e.g. "<em><strong>..."
+	 * @return string    allowed html tags, e.g. "<em><strong>..."
 	 */
 	public function setRTETags($tags)
 	{
@@ -894,7 +986,7 @@ class assStackQuestionMoodleImport
 	}
 
 	/**
-	 * @return string	allowed html tags, e.g. "<em><strong>..."
+	 * @return string    allowed html tags, e.g. "<em><strong>..."
 	 */
 	public function getRTETags()
 	{

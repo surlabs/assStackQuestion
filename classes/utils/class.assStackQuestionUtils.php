@@ -537,7 +537,6 @@ class assStackQuestionUtils
 			default:
 
 		}
-
 		/*
 		 * Step 2 Replace $$ from STACK and all other LaTeX delimiter to the current platform's delimiter.
 		 */
@@ -545,18 +544,19 @@ class assStackQuestionUtils
 		$text = preg_replace('~(?<!\\\\)\$\$(.*?)(?<!\\\\)\$\$~', $start . '$1' . $end, $text);
 		$text = preg_replace('~(?<!\\\\)\$(.*?)(?<!\\\\)\$~', $start . '$1' . $end, $text);
 
+		//Comment this in order to have different ebhaviour between display and inline mode of LaTeX,
+		//Solving bug 20783
 		//Search for all /(/) and change it to the current limiter in Mathjaxsettings
-		$text = str_replace('\(', $start, $text);
-		$text = str_replace('\)', $end, $text);
+		//$text = str_replace('\(', $start, $text);
+		//$text = str_replace('\)', $end, $text);
 
 		//Search for all \[\] and change it to the current limiter in Mathjaxsettings
-		$text = str_replace('\[', $start, $text);
-		$text = str_replace('\]', $end, $text);
+		//$text = str_replace('\[', $start, $text);
+		//$text = str_replace('\]', $end, $text);
 
 		//Search for all [tex] and change it to the current limiter in Mathjaxsettings
 		$text = str_replace('[tex]', $start, $text);
 		$text = str_replace('[/tex]', $end, $text);
-
 		//Search for all &lt;span class="math"&gt;...&lt;/span&gt; and change it to the current limiter in Mathjaxsettings
 		$text = preg_replace('/<span class="math">(.*?)<\/span>/', $start . '$1' . $end, $text);
 
@@ -568,7 +568,6 @@ class assStackQuestionUtils
 		$text = str_replace("{", "&#123;", $text);
 		$text = str_replace("}", "&#125;", $text);
 		$text = str_replace("\\", "&#92;", $text);
-
 
 		/*
 		 * Step 3 User ilMathJax::getInstance()->insertLatexImages to deliver the LaTeX code.
@@ -584,6 +583,7 @@ class assStackQuestionUtils
 			return stack_maths::process_display_castext(ilMathJax::getInstance()->insertLatexImages($text, $start, $end));
 		}
 	}
+
 
 	public static function _getNewTestCaseNumber($question_id)
 	{

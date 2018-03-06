@@ -13,6 +13,7 @@ require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/as
  * @version $Id: 1.6.2$
  * @ingroup    ModulesTestQuestionPool
  *
+ * @ilCtrl_isCalledBy assStackQuestionDeployedSeedsGUI: ilObjQuestionPoolGUI
  */
 class assStackQuestionDeployedSeedsGUI
 {
@@ -60,42 +61,14 @@ class assStackQuestionDeployedSeedsGUI
 	 */
 	public function showDeployedSeedsPanel()
 	{
-		//Step #1: Checks if question has deployed seeds and gets the question note per each seed
-		if (!$this->createDataToDisplay()) {
-			return;
-		}
+		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/GUI/tables/class.assStackQuestionSeedsTableGUI.php';
+		$seeds_table = new assStackQuestionSeedsTableGUI($this, "deployedSeedsManagement");
+		$this->getQuestionNotesForSeeds();
+		$seeds_table->prepareData($this->getDeployedSeeds());
 
-		//Step #2: Fill the template
-		$this->fillTemplate();
-
-		//Step #3: Returns the html of the panel
-		return $this->getTemplate()->get();
+		return $this->getDeployedSeedCreationForm()->getHTML() . $seeds_table->getHTML();
 	}
 
-	/**
-	 * Checks if question has deployed seeds in order to determine what to show.
-	 * @return bool
-	 */
-	private function createDataToDisplay()
-	{
-		if (assStackQuestionUtils::_isArrayEmpty($this->getDeployedSeeds())) {
-			//Question hasn't deployed seeds
-			//#Step 1.1: Check if question uses randomisation in order to determine if new seeds can be created or a message should be shown.
-			$question_options = assStackQuestionOptions::_read($this->getQuestionId());
-			if (!assStackQuestionUtils::_questionHasRandomVariables($question_options->getQuestionVariables())) {
-				//Question doesn't use randomisation, show an information message
-				ilUtil::sendInfo($this->getPlugin()->txt('dsm_question_doesnt_use_randomisation'));
-				return FALSE;
-			} else {
-				//Continue to show form for creation of seeds
-				return TRUE;
-			}
-		} else {
-			//Question has deployed seeds, continue with process
-			$this->getQuestionNotesForSeeds();
-			return TRUE;
-		}
-	}
 
 	private function getQuestionNotesForSeeds()
 	{
@@ -109,20 +82,25 @@ class assStackQuestionDeployedSeedsGUI
 		$stack_question->createOptions($ilias_options);
 
 		//Get question note for each different seed
-		foreach ($this->getDeployedSeeds() as $deployed_seed) {
+		foreach ($this->getDeployedSeeds() as $deployed_seed)
+		{
 			$deployed_seed->setQuestionNote($stack_question->getQuestionNoteForSeed($deployed_seed->getSeed(), $question_variables_raw, $question_note_raw, $this->getQuestionId()));
 		}
 
 		//Avoid duplicates bugr 16727#
 		$valid_seeds = array();
 		$number_of_valid_seeds = 0;
-		foreach ($this->getDeployedSeeds() as $deployed_seed) {
+		foreach ($this->getDeployedSeeds() as $deployed_seed)
+		{
 			$q_note = $deployed_seed->getQuestionNote();
 			$include = TRUE;
 
-			if (sizeof($valid_seeds)) {
-				foreach ($valid_seeds as $valid_seed) {
-					if ($valid_seed->getQuestionNote() == $q_note) {
+			if (sizeof($valid_seeds))
+			{
+				foreach ($valid_seeds as $valid_seed)
+				{
+					if ($valid_seed->getQuestionNote() == $q_note)
+					{
 						$deployed_seed->delete();
 						$include = FALSE;
 						break;
@@ -130,51 +108,14 @@ class assStackQuestionDeployedSeedsGUI
 				}
 			}
 
-			if($include){
+			if ($include)
+			{
 				$number_of_valid_seeds++;
 				$valid_seeds[] = $deployed_seed;
 			}
 		}
 
 		$this->setDeployedSeeds($valid_seeds);
-	}
-
-	private function fillTemplate()
-	{
-		//Step #1: Fill deployed seeds part
-		$this->getTemplate()->setVariable('DEPLOYED_SEEDS_TABLE_SUBTITLE', $this->getPlugin()->txt('dsm_subtitle'));
-		$this->getTemplate()->setVariable('DEPLOYED_SEEDS_TABLE_TITLE', $this->getPlugin()->txt('dsm_deployed_seeds'));
-
-		//Fill Headers
-		$this->getTemplate()->setVariable('DEPLOYED_SEEDS_HEADER', $this->getPlugin()->txt('dsm_deployed_seeds_header'));
-		$this->getTemplate()->setVariable('QUESTION_NOTES_HEADER', $this->getPlugin()->txt('dsm_question_notes_header'));
-		$this->getTemplate()->setVariable('VIEW_FORM_HEADER', $this->getPlugin()->txt('dsm_view_form_header'));
-
-		if (!assStackQuestionUtils::_isArrayEmpty($this->getDeployedSeeds())) {
-			$this->fillDeployedSeedsPart();
-		} else {
-			$this->getTemplate()->setCurrentBlock('deployed_seeds_overview');
-			$this->getTemplate()->setVariable('DEPLOYED_SEED', '');
-			$this->getTemplate()->setVariable('QUESTION_NOTE', $this->getPlugin()->txt('dsm_no_deployed_seeds'));
-			$this->getTemplate()->setVariable('VIEW_FORM', '');
-			$this->getTemplate()->ParseCurrentBlock();
-		}
-
-		//Step #2: Fill form part
-		$this->getTemplate()->setVariable('NEW_DEPLOYED_SEED_FORM', $this->getDeployedSeedCreationForm()->getHTML());
-
-	}
-
-	private function fillDeployedSeedsPart()
-	{
-		//Fill deployed seeds
-		foreach ($this->getDeployedSeeds() as $deployed_seed) {
-			$this->getTemplate()->setCurrentBlock('deployed_seeds_overview');
-			$this->getTemplate()->setVariable('DEPLOYED_SEED', $deployed_seed->getSeed());
-			$this->getTemplate()->setVariable('QUESTION_NOTE', assStackQuestionUtils::_getLatex(assStackQuestionUtils::_solveKeyBracketsBug($deployed_seed->getQuestionNote())));
-			$this->getTemplate()->setVariable('VIEW_FORM', $this->getDeployedSeedViewForm($deployed_seed->getSeed())->getHTML());
-			$this->getTemplate()->ParseCurrentBlock();
-		}
 	}
 
 	private function getDeployedSeedCreationForm()
@@ -203,46 +144,7 @@ class assStackQuestionDeployedSeedsGUI
 		return $form;
 	}
 
-	private function getDeployedSeedViewForm($seed)
-	{
-		global $DIC;
 
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
-		$form = new ilPropertyFormGUI();
-		$ctrl = $DIC->ctrl();
-		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
-
-		$delete_seed = new ilHiddenInputGUI('deployed_seed');
-		$delete_seed->setValue($seed);
-		$form->addItem($delete_seed);
-
-		$fixed_seed = new ilHiddenInputGUI('fixed_seed');
-		$fixed_seed->setValue($seed);
-		$form->addItem($fixed_seed);
-
-		$question_id = new ilHiddenInputGUI('question_id');
-		$question_id->setValue($this->getQuestionId());
-		$form->addItem($question_id);
-
-		$ctrl->setParameterByClass("ilAssQuestionPageGUI", "fixed_seed", $seed);
-
-		$ftpl = new ilTemplate("tpl.external_settings.html", true, true, "Services/Administration");
-
-		$ftpl->setCurrentBlock("edit_bl");
-		$ftpl->setVariable("URL_EDIT", $ctrl->getLinkTargetByClass("ilassquestionpagegui", "preview"));
-		$ftpl->setVariable("TXT_EDIT", $this->getPlugin()->txt("dsm_fix_deployed_seed_form_button"));
-		$ftpl->parseCurrentBlock();
-
-		$ext = new ilCustomInputGUI($this->getPlugin()->txt("dsm_fix_deployed_seed_form_button_text"));
-		$ext->setHtml($ftpl->get());
-		$form->addItem($ext);
-
-		$form->addCommandButton("deleteDeployedSeed", $this->getPlugin()->txt("dsm_delete_deployed_seed_form_button"));
-
-		$form->setShowTopButtons(FALSE);
-
-		return $form;
-	}
 
 	/*
 	 * GETTERS AND SETTERS
@@ -259,7 +161,7 @@ class assStackQuestionDeployedSeedsGUI
 	/**
 	 * @return \ilassStackQuestionPlugin
 	 */
-	private function getPlugin()
+	public function getPlugin()
 	{
 		return $this->plugin;
 	}
@@ -291,7 +193,7 @@ class assStackQuestionDeployedSeedsGUI
 	/**
 	 * @return mixed
 	 */
-	private function getDeployedSeeds()
+	public function getDeployedSeeds()
 	{
 		return $this->deployed_seeds;
 	}

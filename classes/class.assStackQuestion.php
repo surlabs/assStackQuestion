@@ -535,13 +535,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 */
 	public function setExportDetailsXLS($worksheet, $startrow, $active_id, $pass)
 	{
-		global $DIC;
+		parent::setExportDetailsXLS($worksheet, $startrow, $active_id, $pass);
 
-		$lng = $DIC->language();
-		require_once 'Services/Excel/classes/class.ilExcel.php';
-		$answered_inputs = array();
 		$solution = $this->getSolutionValues($active_id, $pass);
-		//TODO change this method
+		global $DIC;
+		$lng = $DIC->language();
+		$answered_inputs = array();
+
 		$worksheet->setCell($startrow, 0, $this->lng->txt($this->plugin->txt('assStackQuestion')), $format_title);
 		$worksheet->setCell($startrow, 1, $this->getTitle(), $format_title);
 		$i = 1;
@@ -552,25 +552,25 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 				if ($solution_id == 'question_text')
 				{
 					$worksheet->setCell($startrow + $i, 0, $this->plugin->txt('message_question_text'), $format_title);
-					$worksheet->write($startrow + $i, 1, $solutionvalue);
+					$worksheet->setCell($startrow + $i, 1, $solutionvalue);
 					$i++;
 				}
 				if ($solution_id == 'question_note')
 				{
 					$worksheet->setCell($startrow + $i, 0, $this->plugin->txt('exp_question_note'), $format_title);
-					$worksheet->write($startrow + $i, 1, $solutionvalue);
+					$worksheet->setCell($startrow + $i, 1, $solutionvalue);
 					$i++;
 				}
 				if ($solution_id == 'general_feedback')
 				{
 					$worksheet->setCell($startrow + $i, 0, $this->plugin->txt('exp_general_feedback'), $format_title);
-					$worksheet->write($startrow + $i, 1, $solutionvalue);
+					$worksheet->setCell($startrow + $i, 1, $solutionvalue);
 					$i++;
 				}
 				if ($solution_id == 'points')
 				{
 					$worksheet->setCell($startrow + $i, 0, $lng->txt('points'), $format_title);
-					$worksheet->write($startrow + $i, 1, $solutionvalue);
+					$worksheet->setCell($startrow + $i, 1, $solutionvalue);
 					$i++;
 				}
 			} else
@@ -580,13 +580,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 					if (isset($prt_value['points']))
 					{
 						$worksheet->setCell($startrow + $i, 0, $prt_name . ' ' . $lng->txt('points'), $format_bold);
-						$worksheet->write($startrow + $i, 1, $prt_value['points']);
+						$worksheet->setCell($startrow + $i, 1, $prt_value['points']);
 						$i++;
 					}
 					if ($prt_value['answernote'])
 					{
 						$worksheet->setCell($startrow + $i, 0, $prt_name . ' ' . $this->plugin->txt('message_answernote_part'), $format_bold);
-						$worksheet->write($startrow + $i, 1, $prt_value['answernote']);
+						$worksheet->setCell($startrow + $i, 1, $prt_value['answernote']);
 						$i++;
 					}
 					if ($prt_value['response'])
@@ -594,7 +594,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 						foreach ($prt_value['response'] as $input_name => $input)
 						{
 							$worksheet->setCell($startrow + $i, 0, $input_name . ' ' . $this->plugin->txt('exp_student_answer'), $format_bold);
-							$worksheet->write($startrow + $i, 1, $input['value']);
+							$worksheet->setCell($startrow + $i, 1, $input['value']);
 							$answered_inputs[$input_name] = $input['value'];
 							$i++;
 						}
@@ -604,6 +604,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		}
 
 		return $startrow + $i + 1;
+
 	}
 
 	/*
@@ -1815,9 +1816,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 
 			return $question_seed;
 		}
-
 	}
-
 
     /**
      * Lookup if an authorized or intermediate solution exists (specific for STACK question: don't lookup seeds)
