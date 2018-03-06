@@ -82,10 +82,7 @@ il.instant_validation = new function () {
 				} else {
 					var input_value = $('#xqcas_' + question_id + '_' + input_name).val();
 				}
-				$.getScript(config.mathjax_url, function () {
 
-					alert("Script loaded and executed.");
-				});
 				$.get(config.validate_url, {
 					'question_id': question_id,
 					'input_name': input_name,
@@ -123,10 +120,7 @@ il.instant_validation = new function () {
 				var question_id = name.substr(0, i);
 				var input_name = name.substr(i + 1);
 				var input_value = $('#xqcas_' + question_id + '_' + input_name).val();
-				$.getScript(config.mathjax_url, function () {
 
-					alert("Script loaded and executed.");
-				});
 				$.get(config.validate_url, {
 					'question_id': question_id,
 					'input_name': input_name,
