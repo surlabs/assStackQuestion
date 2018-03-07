@@ -87,7 +87,7 @@ Version History
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
 * The stable version 3.0.x for **ILIAS 5.3** with new functionalities from STACK such a new input types is found in the Github branch **master-ilias53**
 
-Version 3.0.0 (2018-03-02) for ILIAS 5.3
+Version 3.0.0 (2018-03-07) for ILIAS 5.3
 ----------------------------------------
 - This is a major version, with many important changes to the code. This version uses the STACK core classes from version 4.0, the sample questions have also be changed. Notice that during the update script of this version, all STACK questions of your platform will be translated to the new syntax for CAS text in STACK (use of {@..@} instead of @...@) This change is made automatically  but we recommend to check the questions before use it in tests. This translation is also done when importing questions from ILIAS or MoodleXML, but please, notice that this conversion is one way, you can import "old CASText behaviour" questions to a platform with STACK plugin version 3.0+ but if you import "new CASText behaviour" questions to a platform with a previous version of the plugin, your question will not be properly shown on that platform.
 - NEW FEATURES:
