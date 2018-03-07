@@ -85,6 +85,7 @@ Version History
 
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
+* The stable version 3.0.x for **ILIAS 5.3** with new functionalities from STACK such a new input types is found in the Github branch **master-ilias53**
 
 Version 3.0.0 (2018-03-02) for ILIAS 5.3
 ----------------------------------------
