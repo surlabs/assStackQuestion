@@ -5,6 +5,8 @@
  */
 require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionStackFactory.php';
+require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
+
 
 /**
  * STACK Question Healthcheck
@@ -75,100 +77,113 @@ class assStackQuestionHealthcheck
 	public function checkMaximaConnection()
 	{
 		global $CFG;
-		$this->getPlugin()->includeClass('stack/cas/installhelper.class.php');
+		$this->getPlugin()->includeClass('stack/mathsoutput/mathsoutput.class.php');
+		$this->getPlugin()->includeClass('stack/cas/castext.class.php');
 
-		//Platform settings
-		$stored_platform_type = $this->getConfig('platform_type');
+		//Check LaTeX is being converted correctly
+		$this->setMaximaConnectionStatus('<b>' . html_writer::tag('p', stack_string('healthchecklatex')) . '</b>', 'healthchecklatex');
+		//healthcheckmathsdisplaymethod
+		$this->setMaximaConnectionStatus(html_writer::tag('p', stack_string('healthcheckmathsdisplaymethod', stack_maths::configured_output_name())), 'healthcheckmathsdisplaymethod');
+		//healthchecklatexintro
+		$this->setMaximaConnectionStatus(html_writer::tag('p', stack_string('healthchecklatexintro')), 'healthchecklatexintro');
+		//texdisplaystyle
+		$this->setMaximaConnectionStatus(html_writer::tag('p', stack_string('texdisplaystyle')), 'texdisplaystyle');
+		//healthchecksampledisplaytex
+		$this->setMaximaConnectionStatus(html_writer::tag('p', stack_string('healthchecksampledisplaytex')), 'healthchecksampledisplaytex');
+		//texinlinestyle
+		$this->setMaximaConnectionStatus(html_writer::tag('p', stack_string('texinlinestyle')), 'texinlinestyle');
+		//healthchecksampleinlinetex
+		$this->setMaximaConnectionStatus(html_writer::tag('p', assStackQuestionUtils::_solveKeyBracketsBug(stack_string('healthchecksampleinlinetex'))), 'healthchecksampleinlinetex');
+		//healthchecklatexmathjax
+		$this->setMaximaConnectionStatus(html_writer::tag('p', stack_string('healthchecklatexmathjax')), 'healthchecklatexmathjax');
 
-		//Get maxima bat location
-		$bat_location = $this->getMaximaBatLocation($stored_platform_type);
-		if (is_array($bat_location)) {
-			//ERROR
-			$error_message = '';
-			foreach ($bat_location as $location) {
-				$error_message .= $location . '</br>';
+		//Maxima configuration file
+		// Try to list available versions of Maxima (linux only, without the DB).
+		if ($this->config->platform !== 'win')
+		{
+			$connection = stack_connection_helper::make();
+			if (is_a($connection, 'stack_cas_connection_unix'))
+			{
+				$this->setMaximaConnectionStatus('<b>' . html_writer::tag('pre', $connection->get_maxima_available()) . '</b>', 'pre');
 			}
-			$this->setMaximaConnectionStatus($error_message, 'error_bat_location');
-		} else {
-			//SUCCESS
-			$this->setMaximaConnectionStatus($bat_location, 'bat_location');
+		}
+		//Check for location of Maxima.
+		$maximalocation = stack_cas_configuration::confirm_maxima_win_location();
+		if ('' != $maximalocation)
+		{
+			$message = stack_string('healthcheckconfigintro1') . ' ' . html_writer::tag('tt', $maximalocation);
+			$this->setMaximaConnectionStatus('<b>' . html_writer::tag('p', $message) . '</b>', 'healthcheckconfigintro1');
+		}
+		//Check if the current options for library packages are permitted (maximalibraries).
+		list($valid, $message) = stack_cas_configuration::validate_maximalibraries();
+		if (!$valid)
+		{
+			$this->setMaximaConnectionStatus('<b>' . html_writer::tag('p', $message) . '</b>', 'validatemaximalibraries');
+		}
+		//Try to connect to create maxima local.
+		$this->setMaximaConnectionStatus(html_writer::tag('p', stack_string('healthcheckconfigintro2')), 'healthcheckconfigintro2');
+		//Create maximalocal
+		stack_cas_configuration::create_maximalocal();
+
+		$this->setMaximaConnectionStatus(html_writer::tag('textarea', stack_cas_configuration::generate_maximalocal_contents(), array('readonly' => 'readonly', 'wrap' => 'virtual', 'rows' => '32', 'cols' => '100')), 'generatemaximalocalcontents');
+
+		// Maxima config.
+		if (stack_cas_configuration::maxima_bat_is_missing())
+		{
+			$message = stack_string('healthcheckmaximabatinfo', $CFG->dataroot);
+			$this->setMaximaConnectionStatus(html_writer::tag('p', $message), 'healthcheckmaximabatinfo');
+		}
+		// Test an *uncached* call to the CAS.  I.e. a genuine call to the process.
+		$this->setMaximaConnectionStatus(html_writer::tag('p', stack_string('healthuncachedintro')), 'healthuncachedintro');
+		list($message, $genuinedebug, $result) = stack_connection_helper::stackmaxima_genuine_connect();
+		$this->setMaximaConnectionStatus($result, 'healthuncachedresult');
+		$this->setMaximaConnectionStatus(html_writer::tag('p', $message), 'healthuncachedmessage');
+		$this->setMaximaConnectionStatus($this->output_debug(stack_string('debuginfo'), $genuinedebug), 'debuginfo');
+		$genuinecascall = $result;
+		// Test Maxima connection.
+		//// Intentionally use get_string for the sample CAS and plots, so we don't render
+		/// // the maths too soon.
+		$healthcheckconnect = $this->showCASText(stack_string('healthchecksamplecas'));
+		if (is_array($healthcheckconnect))
+		{
+			foreach ($healthcheckconnect as $name => $item)
+			{
+				$this->setMaximaConnectionStatus($item, 'healthcheckconnect' . $name);
+			}
 		}
 
-		//Create maximalocal file
-		if ($this->getMaximaConnectionStatus('bat_location')) {
-			stack_cas_configuration::create_maximalocal();
-			//Get maximalocal location
-			$this->setMaximaConnectionStatus(stack_cas_configuration::maximalocal_location(), 'maximalocal_location');
+		// If we have a linux machine, and we are testing the raw connection then we should
+		//// attempt to automatically create an optimized maxima image on the system.
+		if ($this->config->platform === 'unix' and $genuinecascall)
+		{
+			$this->setMaximaConnectionStatus(html_writer::tag('p', stack_string('healthautomaxoptintro')), 'healthautomaxoptintro');
+			list($message, $debug, $result, $commandline) = stack_connection_helper::stackmaxima_auto_maxima_optimise($genuinedebug);#
+			$this->setMaximaConnectionStatus(html_writer::tag('p', $message), 'healthautomaxoptintromessage');
+			$this->setMaximaConnectionStatus($this->output_debug(stack_string('debuginfo'), $debug), 'healthautomaxoptintrodebug');
+			$this->setMaximaConnectionStatus($result, 'healthautomaxoptintroresult');
+		}
+		// Test the version of the STACK libraries that Maxima is using.
+		// When Maxima is being run pre-compiled (maxima-optimise) or on a server,
+		// it is possible for the version of the Maxima libraries to get out of synch
+		// with the qtype_stack code.
+		list($message, $details, $result) = stack_connection_helper::stackmaxima_version_healthcheck();
+		$this->setMaximaConnectionStatus(html_writer::tag('p', stack_string($message, $details)), 'maximaversionhealthcheckmessage');
+
+		// Test plots.
+
+		$healthcheckplotsintro = $this->output_cas_text(stack_string('healthcheckplots'), stack_string('healthcheckplotsintro'), stack_string('healthchecksampleplots'));
+
+		if (is_array($healthcheckplotsintro))
+		{
+			foreach ($healthcheckplotsintro as $name => $item)
+			{
+				$this->setMaximaConnectionStatus($item, 'healthcheckplotsintro' . $name);
+			}
 		}
 
-		if (is_file($this->getMaximaConnectionStatus('maximalocal_location'))) {
-			$this->setMaximaConnectionStatus(stack_cas_configuration::generate_maximalocal_contents(), 'maximalocal_contents');
-		} else {
-			$this->setMaximaConnectionStatus(stack_cas_configuration::maximalocal_location(), 'error_maximalocal_contents');
-		}
-
-		//Show status of connection
-
-		//Create sample command
-		$this->setMaximaConnectionStatus('The derivative of @ x^4/(1+x^4) @ is \[ \frac{d}{dx} \frac{x^4}{1+x^4} = @ diff(x^4/(1+x^4),x) @. \]', 'sample_command');
-		$sample_CAS_text = $this->showCASText($this->getMaximaConnectionStatus('sample_command'));
-		$this->setMaximaConnectionStatus($sample_CAS_text['display'], 'cas_sample_display');
-		$this->setMaximaConnectionStatus($sample_CAS_text['errors'], 'error_cas_sample_display');
-		$this->setMaximaConnectionStatus($sample_CAS_text['debug'], 'debug_cas_sample_display');
-
-		//Check connection status
-		$genuine_connect = stack_connection_helper::stackmaxima_genuine_connect();
-		$this->setMaximaConnectionStatus($genuine_connect[1], 'connection_status_display');
-		$this->setMaximaConnectionStatus($genuine_connect[0], 'error_connection_status_display');
-
-		//Check Maxima version
-		/*TODO. not completed
-		 * $maxima_version = stack_connection_helper::stackmaxima_version_healthcheck();
-		if ($maxima_version[0] == 'healthchecksstackmaximaversionok') {
-			$this->setMaximaConnectionStatus($maxima_version, 'maxima_version');
-		} elseif ($maxima_version[0] == 'healthchecksstackmaximaversionmismatch') {
-			$this->setMaximaConnectionStatus($maxima_version[1]['fix'], 'error_mismatch_maxima_version');
-		}
-		 */
-
-	}
-
-	public function getMaximaBatLocation($stored_platform_type)
-	{
-		global $CFG;
-
-		switch ($stored_platform_type) {
-			case 'win':
-				$locations = array();
-				$locations[] = 'C:/Program Files/Maxima/bin/maxima.bat';
-				$locations[] = 'C:/Program Files (x86)/Maxima/bin/maxima.bat';
-				$locations[] = 'C:/Maxima/bin/maxima.bat';
-				foreach ($locations as $location) {
-					if (file_exists($location)) {
-						return $location;
-					}
-				}
-				return $locations;
-				break;
-			case 'unix':
-			case 'unix-optimised':
-				if (file_exists($CFG->dataroot . '/stack/maxima.bat')) {
-					return $CFG->dataroot . '/stack/maxima.bat';
-				} else {
-					return array($CFG->dataroot . '/stack/maxima.bat');
-				}
-				break;
-			case 'server':
-				if (file_exists($CFG->dataroot . '/stack/maxima.bat')) {
-					return $CFG->dataroot . '/stack/maxima.bat';
-				} else {
-					return array($CFG->dataroot . '/stack/maxima.bat');
-				}
-				break;
-			default:
-				throw new stack_exception('error_platform_type');
-				break;
-		}
+		// State of the cache.
+		$message = stack_string('healthcheckcache_' . $this->config->casresultscache);
+		$this->setMaximaConnectionStatus(html_writer::tag('p', $message), 'healthcheckcache');
 	}
 
 	public function showCASText($cas_text)
@@ -178,7 +193,7 @@ class assStackQuestionHealthcheck
 		//Create CAS text
 		$ct = $this->getStackFactory()->get('cas_text', array('raw' => $cas_text));
 		//Set content to array
-		$CAS_text_content['display'] = stack_maths::process_display_castext($ct["text"]);
+		$CAS_text_content['display'] = assStackQuestionUtils::_solveKeyBracketsBug(stack_maths::process_display_castext($ct["text"]));
 		$CAS_text_content['errors'] = $ct["errors"];
 		$CAS_text_content['debug_info'] = $ct["debug"];
 
@@ -214,9 +229,11 @@ class assStackQuestionHealthcheck
 	 */
 	public function getConfig($selector = '')
 	{
-		if ($selector) {
+		if ($selector)
+		{
 			return $this->config[$selector];
-		} else {
+		} else
+		{
 			return $this->config;
 		}
 	}
@@ -242,9 +259,11 @@ class assStackQuestionHealthcheck
 	 */
 	public function setMaximaConnectionStatus($maxima_connection_status, $selector = '')
 	{
-		if ($selector) {
+		if ($selector)
+		{
 			$this->maxima_connection_status[$selector] = $maxima_connection_status;
-		} else {
+		} else
+		{
 			$this->maxima_connection_status = $maxima_connection_status;
 		}
 	}
@@ -254,9 +273,11 @@ class assStackQuestionHealthcheck
 	 */
 	public function getMaximaConnectionStatus($selector = '')
 	{
-		if ($selector) {
+		if ($selector)
+		{
 			return $this->maxima_connection_status[$selector];
-		} else {
+		} else
+		{
 			return $this->maxima_connection_status;
 		}
 	}
@@ -271,5 +292,37 @@ class assStackQuestionHealthcheck
 		return TRUE;
 	}
 
+	function output_cas_text($title, $intro, $castext)
+	{
+		if (is_string($castext))
+		{
+			global $OUTPUT;
+			$summary['intro'] = html_writer::tag('p', $intro);
+			$summary['castext'] = html_writer::tag('pre', s($castext));
 
+			$ct = new stack_cas_text($castext, null, 0, 't');
+
+			$summary['display'] = html_writer::tag('p', stack_maths::process_display_castext($ct->get_display_castext()));
+			$summary['errors'] = $this->output_debug(stack_string('errors'), $ct->get_errors());
+			$summary['debug'] = $this->output_debug(stack_string('debuginfo'), $ct->get_debuginfo());
+
+			return $summary;
+		} else
+		{
+			return array();
+		}
+
+	}
+
+	function output_debug($title, $message)
+	{
+		global $OUTPUT;
+
+		if (!$message)
+		{
+			return;
+		}
+
+		return $title . $message;
+	}
 }

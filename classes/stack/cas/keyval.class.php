@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,6 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * "key=value" class to parse user-entered data into CAS sessions.
@@ -71,7 +73,7 @@ class stack_cas_keyval {
         }
     }
 
-    private function validate() {
+    private function validate($inputs) {
         if (empty($this->raw) or '' == trim($this->raw)) {
             $this->valid = true;
             return true;
@@ -84,9 +86,23 @@ class stack_cas_keyval {
             return false;
         }
 
-        $str = stack_utils::remove_comments(str_replace("\n", '; ', $this->raw));
+        // Subtle one: must protect things inside strings before we explode.
+        $str = $this->raw;
+        $strings = stack_utils::all_substring_strings($str);
+        foreach ($strings as $key => $string) {
+            $str = str_replace('"'.$string.'"', '[STR:'.$key.']', $str);
+        }
+
+        $str = str_replace("\n", ';', $str);
+        $str = stack_utils::remove_comments($str);
         $str = str_replace(';', "\n", $str);
+
         $kvarray = explode("\n", $str);
+        foreach ($strings as $key => $string) {
+            foreach ($kvarray as $kkey => $kstr) {
+                $kvarray[$kkey] = str_replace('[STR:'.$key.']', '"'.$string.'"', $kstr);
+            }
+        }
 
         // 23/4/12 - significant changes to the way keyvals are interpreted.  Use Maxima assignmentsm i.e. x:2.
         $errors  = '';
@@ -96,7 +112,7 @@ class stack_cas_keyval {
             $kvs = trim($kvs);
             if ('' != $kvs) {
                 $cs = new stack_cas_casstring($kvs);
-                $cs->validate($this->security, $this->syntax, $this->insertstars);
+                $cs->get_valid($this->security, $this->syntax, $this->insertstars);
                 $vars[] = $cs;
             }
         }
@@ -104,18 +120,32 @@ class stack_cas_keyval {
         $this->session->add_vars($vars);
         $this->valid       = $this->session->get_valid();
         $this->errors      = $this->session->get_errors();
+        // Prevent reference to inputs in the values of the question variables.
+        if (is_array($inputs)) {
+            $keys = $this->session->get_all_keys();
+            foreach ($keys as $key) {
+                if (in_array($key, $inputs)) {
+                    $this->valid = false;
+                    $this->errors .= stack_string('stackCas_inputsdefined', $key);
+                }
+            }
+        }
     }
 
-    public function get_valid() {
-        if (null === $this->valid) {
-            $this->validate();
+    /*
+     * @array $inputs Holds an array of the input names which are forbidden as keys.
+     * @bool $inputstrict Decides if we should forbid any reference to the inputs in the values of variables.
+     */
+    public function get_valid($inputs = null) {
+        if (null === $this->valid || is_array($inputs)) {
+            $this->validate($inputs);
         }
         return $this->valid;
     }
 
     public function get_errors($casdebug=false) {
         if (null === $this->valid) {
-            $this->validate();
+            $this->validate(null);
         }
         if ($casdebug) {
             return $this->errors.$this->session->get_debuginfo();
@@ -125,7 +155,7 @@ class stack_cas_keyval {
 
     public function instantiate() {
         if (null === $this->valid) {
-            $this->validate();
+            $this->validate(null);
         }
         if (!$this->valid) {
             return false;
@@ -136,7 +166,7 @@ class stack_cas_keyval {
 
     public function get_session() {
         if (null === $this->valid) {
-            $this->validate();
+            $this->validate(null);
         }
         return $this->session;
     }

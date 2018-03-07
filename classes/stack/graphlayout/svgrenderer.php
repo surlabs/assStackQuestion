@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
  */
 
 
-//fim: defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die();
 
 
 /**
@@ -144,6 +144,10 @@ class stack_abstract_graph_svg_renderer {
         $initialdirection = $direction / 2;
 
         $midx = null;
+        //fim: #32 Check division by zero before make it to prevent errors.
+		if(($cy - $py)==0 OR ($initialdirection==0)){
+			return;
+		}
         if (($cx - $px) / ($cy - $py) / $initialdirection < 1) {
             // A bit narrow, use a curve.
             $midy = $py + 3 * (1 - pow(5 / 6, $child->depth - $parent->depth)) * self::SCALE;
@@ -218,9 +222,7 @@ class stack_abstract_graph_svg_renderer {
     protected function node(stack_abstract_graph_node $node) {
         list($x, $y) = $this->position($node);
         if ($node->url) {
-            $this->svg[] = html_writer::start_tag('a', array('href' => $node->url,
-			'role'=>'tab',
-			"data-toggle"=>"tab"));
+            $this->svg[] = html_writer::start_tag('a', array('xlink:href' => $node->url));
         }
         $this->svg[] = html_writer::empty_tag('circle', array('r' => self::NODE_RADIUS,
                 'cx' => $x, 'cy' => $y, 'class' => 'node'));

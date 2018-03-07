@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ $qa = $dm->load_question_attempt($qaid);
 $question = $qa->get_question();
 
 $input = $question->inputs[$inputname];
-$state = $question->get_input_state($inputname, $input->maxima_to_response_array($inputvalue));
+$state = $question->get_input_state($inputname, $inputvalue, true);
 
 $result = array(
     'input'   => $inputvalue,

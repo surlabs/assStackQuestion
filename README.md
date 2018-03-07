@@ -86,6 +86,29 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
 
+Version 3.0.0 (2018-03-02) for ILIAS 5.3
+----------------------------------------
+- This is a major version, with many important changes to the code. This version uses the STACK core classes from version 4.0, the sample questions have also be changed. Notice that during the update script of this version, all STACK questions of your platform will be translated to the new syntax for CAS text in STACK (use of {@..@} instead of @...@) This change is made automatically  but we recommend to check the questions before use it in tests. This translation is also done when importing questions from ILIAS or MoodleXML, but please, notice that this conversion is one way, you can import "old CASText behaviour" questions to a platform with STACK plugin version 3.0+ but if you import "new CASText behaviour" questions to a platform with a previous version of the plugin, your question will not be properly shown on that platform.
+- NEW FEATURES:
+- 8 new input types (We highly recommend to read the Documentation of all new input types that can be found here: https://stack2.maths.ed.ac.uk/demo/question/type/stack/doc/doc.php/Authoring/Inputs.md):
+	- Numerical input:
+      This input type requires the student to type in a number of some kind. Any expression with a variable will be rejected as invalid.
+    - Scientific units input:
+    The support for scientific units includes an input type which enables teachers to check units as valid/invalid.
+    - Equivalence reasoning input:
+      The purpose of this input type is to enable students to work line by line and reason by equivalence. Note, the teacher's answer and any syntax hint must be a list! If you just pass in an expression strange behaviour may result.
+    - Dropdown/Checkbox/Radio:
+      The dropdown, checkbox and radio input types enable teachers to create multiple choice questions.
+    - String input:
+      This is a normal input into which students may type whatever they choose. It is always converted into a Maxima string internally. Note that there is no way whatsoever to parse the student's string into a Maxima expression. If you accept a string, then it will always remain a string! You can't later check for algebraic equivalence, the only tests available will be simple string matches, regular expressions etc
+    - Notes input
+      This input is a text area into which students may type whatever they choose. It can be used to gather their notes or "working". However, this input always returns an empty value to the CAS, so that the contents are never assessed.
+ - CASText now supports conditional statements and adaptive blocks.
+ - Healthcheck has been rebuilt, now shows more information about the CAS connection and the Maxima version used.
+ - Maxima Libraries can be added to maximalocal from plugin configuration (Notice that this feature doesn't work with server configuration)
+ 
+ 
+ 
 Version 2.5.0 (2017-12-07) for ILIAS 5.2 and 5.3
 ----------------------------------------
 - Users must avoid importing questions from Moodle in MoodleXML format which has been created under STACK 4.0 or higher versions. The behaviour of CASText in this version is different as previous one, and This version of STACK for ILIAS doesn't support it.

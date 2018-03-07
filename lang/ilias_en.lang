@@ -381,3 +381,15 @@ html_name#:#HTML
 auth_guide_name#:#STACK Authoring guide
 unix_optimised#:#Linux (Optimized)
 preview_no_answer#:#You must answer the question to get feedback.
+update_to_version_3#:#The update to version 3 of STACK for ILIAS includes changes in all current STACK questions of the platform to the new CASText syntax. Although those changes are made automatically, please, check the STACK questions already available on the platform in order to ensure it works properly.
+update_to_version_3_2#:#Check the questions you imported because some changes were made in order to keep the questions in line to the new CASText syntax of this STACK question plugin version.
+input_type_checkbox#:#Checkbox
+input_type_dropdown#:#Drop down list
+input_type_equiv#:#Equivalence reasoning
+input_type_notes#:#Notes
+input_type_radio#:#Radio
+input_type_units#:#Units
+maxima_libraries#:#Maxima libraries
+cas_maxima_libraries_info#:#This is a comma separated list of Maxima library names which will be automatically loaded into Maxima. Only supported library names can be used: see the documentation for supported library names. These libraries will not be loaded if you have saved a maxima image to optimise performance.
+input_type_string#:#String
+input_type_numerical#:#Numerical

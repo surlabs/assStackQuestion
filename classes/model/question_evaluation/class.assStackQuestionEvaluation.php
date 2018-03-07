@@ -294,6 +294,7 @@ class assStackQuestionEvaluation
 		{
 			//In assStackQuestionEvaluation the User response should be store with the "reduced" format for assStackQuestionUtils::_getUserResponse.
 			$input_state = $this->getQuestion()->getInputStates($input_name);
+
 			if (stack_input::SCORE == $input_state->status || ($accept_valid AND stack_input::VALID == $input_state->status))
 			{
 				$prt_inputs[$input_name] = $input_state->contentsmodified;

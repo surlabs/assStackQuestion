@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
+//fim: #24 avoid MOODLE_INTERNAL
+//defined('MOODLE_INTERNAL') || die();
+//fim.
 
 /**
  * Various utility classes for Stack.
@@ -113,6 +116,9 @@ class stack_debug_log_null implements stack_debug_log {
 class stack_utils {
     /** @var object the STACK config data, so we only ever have to load it from the DB once. */
     protected static $config = null;
+
+    /** @var A list of mathematics environments we search for, from AMSmath package 2.0. */
+    protected static $mathdelimiters = array('equation', 'align', 'gather', 'flalign', 'multline', 'alignat', 'split');
 
     /**
      * @var string fragment of regular expression that matches valid PRT and
@@ -247,6 +253,9 @@ class stack_utils {
                 $end++;
             }
 
+            if ($nesting > 0) {
+                return array('', -1, -1);
+            }
         }
 
         return array(substr($string, $start, $end - $start), $start, $end - 1);
@@ -343,6 +352,7 @@ class stack_utils {
             } else {
                 // Found startchar, looking for end.
                 if ($char[$i] == $right) {
+                    // @codingStandardsIgnoreStart
                     if ($skipempty && $empty) {
                         // Do nothing.
                     } else if (!isset($replacements[$matches])) {
@@ -351,6 +361,7 @@ class stack_utils {
                         $result .= $replacements[$matches];
                         $matches++;
                     }
+                    // @codingStandardsIgnoreEnd
                     $searching = true;
                     $result .= $char[$i];
                 }
@@ -410,15 +421,6 @@ class stack_utils {
 
 
     /**
-     * Replaces @blah@ with $@blah@$ if the castext is not otherwise enclosed by $'s.
-     * @param string
-     * @return string
-     */
-    public static function wrap_around($string) {
-        return self::wrap($string);
-    }
-
-    /**
      * Ensures that all elements within this text that need to be in math mode, are so.
      * Specifically, CAS elements and inline input macros.
      * @param string
@@ -438,10 +440,14 @@ class stack_utils {
 
     /**
      * Returns the first position of an opening math delimiter in $text from the $offset.
-     * Helper function for wrap().
+     * Helper function for wrap_around().
      */
     public static function math_start($text, $offset = 0) {
         $delimiters = array('$', '$$', '\(', '\[');
+        foreach (self::$mathdelimiters as $delim) {
+            $delimiters[] = '\begin{'.$delim.'}';
+            $delimiters[] = '\begin{'.$delim.'*}';
+        }
         $at = false; // Not yet found.
         foreach ($delimiters as $d) {
             $pos = strpos($text, $d, $offset);
@@ -456,10 +462,14 @@ class stack_utils {
 
     /**
      * Returns the position of the character following a closing math delimiter in $text from the $offset.
-     * Helper function for wrap().
+     * Helper function for wrap_around().
      */
     public static function math_length($text, $start) {
         $delimiters = array('$', '$$', '\)', '\]');
+        foreach (self::$mathdelimiters as $delim) {
+            $delimiters[] = '\end{'.$delim.'}';
+            $delimiters[] = '\end{'.$delim.'*}';
+        }
         $at = false;
         $ender = '';
         $len = strlen($text);
@@ -486,14 +496,19 @@ class stack_utils {
         }
     }
 
-    public static function wrap($text) {
+    /**
+     * Replaces @blah@ with \(@blah@\) if the castext is not otherwise enclosed by mathematics environments.
+     * @param string
+     * @return string
+     */
+    public static function wrap_around($text) {
         $mathstart = self::math_start($text);
         if ($mathstart !== false) { // We have some maths ahead.
             $pre = substr($text, 0, $mathstart); // Get previous text.
             $for = self::math_length($text, $mathstart);
             $maths = substr($text, $mathstart, $for);
             $rest = substr($text, $mathstart + $for);
-            return self::delimit($pre).$maths.self::wrap($rest);
+            return self::delimit($pre).$maths.self::wrap_around($rest);
         } else { // No math sections left.
             return self::delimit($text);
         }
@@ -539,6 +554,77 @@ class stack_utils {
     }
 
     /**
+     * Extracts double quoted strings with \-escapes, extracts only the content
+     * not the quotes.
+     *
+     * @access public
+     * @return array
+     */
+    public static function all_substring_strings($string) {
+        $strings = array();
+        $i = 0;
+        $lastslash = false;
+        $instring = false;
+        $stringentry = -1;
+        while ($i < strlen($string)) {
+            $c = $string[$i];
+            $i++;
+            if ($instring) {
+                if ($c == '"' && !$lastslash) {
+                    $instring = false;
+                    // Last -1 to drop the quote.
+                    $s = substr($string, $stringentry, ($i - $stringentry) - 1);
+                    $strings[] = $s;
+                } else if ($c == "\\") {
+                    $lastslash = !$lastslash;
+                } else if ($lastslash) {
+                    $lastslash = false;
+                }
+            } else if ($c == '"') {
+                $instring = true;
+                $lastslash = false;
+                $stringentry = $i;
+            }
+        }
+        return $strings;
+    }
+
+    /**
+     * Replaces all Maxima strings with zero length strings to eliminate string
+     * contents for validation tasks.
+     *
+     * @access public
+     * @return string
+     */
+    public static function eliminate_strings($string) {
+        $cleared = $string;
+        $i = 0;
+        $lastslash = false;
+        $instring = false;
+        $stringentry = -1;
+        while ($i < strlen($string)) {
+            $c = $string[$i];
+            $i++;
+            if ($instring) {
+                if ($c == '"' && !$lastslash) {
+                    $instring = false;
+                    $s = substr($string, $stringentry - 1, ($i - $stringentry + 1));
+                    $cleared = str_replace($s, '""', $cleared);
+                } else if ($c == "\\") {
+                    $lastslash = !$lastslash;
+                } else if ($lastslash) {
+                    $lastslash = false;
+                }
+            } else if ($c == '"') {
+                $instring = true;
+                $lastslash = false;
+                $stringentry = $i;
+            }
+        }
+        return $cleared;
+    }
+
+    /**
      * Converts a CSV string into an array, removing empty entries.
      *
      * @param string in
@@ -565,7 +651,7 @@ class stack_utils {
      */
     public static function array_to_cvs($array) {
         if (!empty($array)) {
-            $string = "";
+            $string = '';
             $i = 0;
             foreach ($array as $element) {
                 if ($i > 0) {
@@ -625,7 +711,7 @@ class stack_utils {
         }
     }
 
-    private static function list_to_array_workhorse($list, $rec=true) {
+    private static function list_to_array_workhorse($list, $rec = true) {
         $array = array();
         $list = trim($list);
         $list = substr($list, 1, strlen($list) - 2); // Trims outermost [] only.
@@ -832,5 +918,331 @@ class stack_utils {
         } else {
             collatorlib::ksort($array);
         }
+    }
+
+    /**
+     * Converts a PHP string object to a PHP string object containing the Maxima code that would generate a similar
+     * string in Maxima.
+     * @param a string
+     * @return a string that contains ""-quotes around the content.
+     */
+    public static function php_string_to_maxima_string($string) {
+        $converted = str_replace("\\", "\\\\", $string);
+        $converted = str_replace("\"", "\\\"", $converted);
+        return '"' . $converted . '"';
+    }
+    /**
+     * Converts a PHP string object containing a Maxima string as presented by the grind command to a PHP string object.
+     * @param a string that contains ""-quotes around the content.
+     * @return a string without those quotes.
+     */
+    public static function maxima_string_to_php_string($string) {
+        $converted = str_replace("\\\\", "\\", $string);
+        $converted = str_replace("\\\"", '"', $converted);
+        return substr($converted, 1, -1);
+    }
+
+    /**
+     * Find a rational approximation to $n
+     * @param float $n
+     * @param int $accuracy Stop when we get within this many decimal places of $n
+     */
+    public static function rational_approximation($n, $accuracy) {
+        $accuracy = pow(10, -$accuracy);
+
+        $i = floor($n);
+        if ($i == $n) { // If n is an integer, its rational representation is obvious.
+            return array($n, 1);
+        }
+
+        // Take away the integer part of n.
+        // From now on, we can assume 0 < n < 1.
+        $nint = $i;
+        $n = $n - $i;
+
+        // We'll keep track of our working as (numx*n +numc)/(denx*n+denc).
+        $numx = 0;
+        $numc = 1;
+        $denx = 1;
+        $denc = 0;
+
+        $frac = array(); // Continued fraction coefficients.
+        $diff = $n - $i; // Difference between current approximation and n.
+
+        $steps = 0;
+        $onum = 0;
+        $oden = 1;
+        while (abs($diff) > $accuracy && $steps < 1000) {
+            $steps = $steps + 1;
+
+            // Evaluate current working to a fraction.
+            $nume = $numx * $n + $numc;
+            $dene = $denx * $n + $denc;
+            $div = $nume / $dene; // Then to a float.
+            $i = floor($div); // Integer part - this is the next coefficient in the continued fraction.
+            if ($dene <= $nume) {
+                // If i>=1.
+                array_unshift($frac, $i);
+            }
+
+            // Reduce the continued fraction.
+            $onum = 0;
+            $oden = 1;
+            foreach ($frac as $c) {
+                list($oden, $onum) = array($oden * $c + $onum, $oden);
+            }
+            $diff = $n - $onum / $oden;
+
+            // Subtract i from our working, and then take its reciprocal.
+            list($numx, $numc, $denx, $denc) = array($denx, $denc, $numx - $denx * $i, $numc - $denc * $i);
+        }
+        return array($nint * $oden + $onum, $oden);
+    }
+
+    public static function fix_to_continued_fraction($n, $accuracy) {
+        $frac = self::rational_approximation($n, $accuracy);
+        return $frac[0] / $frac[1];
+    }
+
+    /**
+     * Establish bounds on the number of significant decimal digits in a number.
+     * @param string $string Input string to unpack.
+     */
+    public static function decimal_digits($string) {
+        $leadingzeros = 0;
+        $indefinitezeros = 0;
+        $trailingzeros = 0;
+        $meaningfulldigits = 0;
+        $decimalplaces = 0;
+        $infrontofdecimaldeparator = true;
+        $scientificnotation = false;
+
+        $string = str_split(trim($string));
+
+        foreach ($string as $i => $c) {
+            if (!$infrontofdecimaldeparator && ctype_digit($c)) {
+                $decimalplaces++;
+            }
+            if (strtolower($c) == 'e') {
+                $scientificnotation = true;
+            }
+            if ($c == '0') {
+                if ($meaningfulldigits == 0) {
+                    $leadingzeros++;
+                } else if ($infrontofdecimaldeparator) {
+                    $indefinitezeros++;
+                } else if ($meaningfulldigits > 0) {
+                    $meaningfulldigits += 1 + $indefinitezeros + $trailingzeros;
+                    $indefinitezeros = 0;
+                    $trailingzeros = 0;
+                } else {
+                    $trailingzeros++;
+                }
+            } else if (($c == '-' || $c == '+') && $meaningfulldigits == 0) {
+                continue;
+            } else if ($c == '.' && $infrontofdecimaldeparator) {
+                $infrontofdecimaldeparator = false;
+                // This case takes care of 100. (where we have a period at the end).
+                $meaningfulldigits += $indefinitezeros;
+                $indefinitezeros = 0;
+                $leadingzeros = 0;
+            } else if (ctype_digit($c)) {
+                $meaningfulldigits += $indefinitezeros + 1;
+                $indefinitezeros = 0;
+            } else {
+                break;
+            }
+        }
+
+        $ret = array('lowerbound' => 0, 'upperbound' => 0,
+                'decimalplaces' => $decimalplaces, 'fltfmt' => '"~a"');
+
+        if ($meaningfulldigits == 0) {
+            // This is the case when we have only zeros in the number.
+            $ret['lowerbound'] = max(1, $leadingzeros);
+            $ret['upperbound'] = max(1, $leadingzeros);
+        } else if (!$infrontofdecimaldeparator) {
+            $ret['lowerbound'] = $ret['upperbound'] = $meaningfulldigits;
+        } else {
+            $ret['lowerbound'] = $meaningfulldigits;
+            $ret['upperbound'] = $meaningfulldigits + $indefinitezeros;
+        }
+
+        if ($decimalplaces > 0) {
+            $ret['fltfmt'] = '"~,' . $decimalplaces . 'f"';
+        }
+        if ($scientificnotation) {
+            $ret['fltfmt'] = '"~e"';
+            if ($ret['lowerbound'] > 1) {
+                $ret['fltfmt'] = '"~,' . ($ret['upperbound'] - 1) . 'e"';
+            }
+        }
+
+        return $ret;
+    }
+
+    /**
+     * Change fraction marks close to 1/3 or 2/3 to the values exact to 7 decimal places.
+     *
+     * Moodle rounds fractional marks close to 1/3 (0.33 <= x <= 0.34) or 2/3
+     * (0.66 <= x <= 0.67) to exactly 0.3333333 and 0.6666667, for example whe @author tjh238
+     * course is backed up and restored. Some of the fractional marks that STACK
+     * uses are affected by this, and others are not. Thereofore, after a course
+     * is backed up and restored, some question tests start failing.
+     *
+     * Therefore, this fucntion is used to match Moodle's logic.
+     *
+     * @param float $fraction a fractional mark between 0 and 1.
+     * @return float $fraction, except that values close to 1/3 or 2/3 are returned to 7 decimal places.
+     */
+    public static function fix_approximate_thirds($fraction) {
+        if ($fraction >= 0.33 && $fraction <= 0.34) {
+            return 0.3333333;
+        } else if ($fraction >= 0.66 && $fraction <= 0.67) {
+            return 0.6666667;
+        } else {
+            return $fraction;
+        }
+    }
+
+    /**
+     * This function takes a raw casstring, and returns another raw casstring in which every
+     * variable name has been interpreted as a product of single letters.
+     * @param unknown $rawcasstring
+     */
+    public static function make_single_char_vars($rawcasstring, $options, $syntax, $stars, $allowwords) {
+
+        // Guard clause:  if we have no letters then we just don't need to call the CAS.
+        preg_match("/([A-Za-z].*)/", $rawcasstring, $output);
+        if ($output == array()) {
+            return $rawcasstring;
+        }
+        $rawcasstring = stack_utils::logic_nouns_sort($rawcasstring, 'add');
+        $cs = new stack_cas_casstring($rawcasstring);
+        // We need to use the student here to allow a wider range of star patterns.
+        $cs->get_valid('s', true, $stars, $allowwords);
+
+        // If we have certain errors in this casstring we should bail at this point.
+        if ($cs->get_answernote() !== '') {
+            // We only need to worry about the difference between 's' and 't' validation here.
+            // If we get past this clause we still validate as "t" below, so no need to list everything.
+            $rejectnotes = array('trigexp' => true, 'trigparens' => true,
+                    'trigop' => true, 'triginv' => true);
+            foreach ($cs->get_answernote('raw') as $note) {
+                if (array_key_exists($note, $rejectnotes)) {
+                    return $rawcasstring;
+                }
+            }
+        }
+
+        // Use the modified $casstring to get the most liberal interpretation.
+        $casstring = $cs->get_casstring();
+        $lvars = new stack_cas_casstring('listofvars('.$casstring.')');
+        $lvars->get_valid('t', $syntax, $stars, $allowwords);
+        $lops = new stack_cas_casstring('get_ops('.$casstring.')');
+        $lops->get_valid('t', $syntax, $stars, $allowwords);
+        $session = new stack_cas_session(array($lvars, $lops), $options, 0);
+        $session->instantiate();
+        $session = $session->get_session();
+        $lvars  = $session[0];
+        $lops  = $session[1];
+        $errors = stack_maxima_translate($lvars->get_errors());
+        // Only put in *s to the original expression.
+        if ($stars != 5) {
+            $casstring = $rawcasstring;
+        }
+        if ('' != $errors) {
+            $valid = false;
+        } else {
+            // Create an array of variable names in the answer.
+            $lvars = $lvars->get_value();
+            $lvars = substr($lvars, 1, -1);
+            $lvars = explode(',', $lvars);
+            // Deal with subscripts.
+            $lvarsub = array();
+            foreach ($lvars as $var) {
+                $lvarsub[] = explode('_', $var);
+            }
+            $lvars = call_user_func_array('array_merge', $lvarsub);
+            $lops = $lops->get_value();
+            $lops = substr($lops, 1, -1);
+            $lops = explode(',', $lops);
+            // We need to check if the $var is a substring of an operation in the answer.
+            // For example, if we have "sin(in)" then we want "sin(i*n)" not "si*n(i*n)".
+            // To avoid this we safely replace operands with !!STACKOP??!! first.
+            foreach ($lops as $key => $op) {
+                $casstring = str_replace($op.'(', '!!STACKOP'.$key.'!!(', $casstring);
+            }
+            foreach ($lvars as $var) {
+                if (strlen($var) > 1) {
+                    // Split the variable and substitute.
+                    $subvar = implode('*', str_split($var));
+                    $casstring = str_replace($var, $subvar, $casstring);
+                }
+            }
+            foreach ($lops as $key => $op) {
+                $casstring = str_replace('!!STACKOP'.$key.'!!', $op, $casstring);
+            }
+        }
+        return $casstring;
+    }
+
+    /* The purpose of this function is to make all occurances of the logical
+     * operators "and" and "or" into their noun equivalent versions.  The support
+     * for these opertators in Maxima relies on the underlying lisp version and hence
+     * it is impossible to turn simplification off and make them inert.  In particular
+     * expressions such as x=1 or x=2 immediately evaluate to false in Maxima,
+     * which is awkward for students' input.
+     *
+     * Teachers need to use the non-intert forms in loops and conditional statements.
+     *
+     * If the parameter is 'add' we put in noun versions, and if 'remove' we remove them.
+     */
+    public static function logic_nouns_sort($str, $direction) {
+
+        if ($direction != 'add' && $direction != 'remove') {
+            throw new stack_exception('logic_nouns_sort: direction must be "add" or "remove", but received: '. $direction);
+        }
+
+        $connectives = array(' and' => ' nounand', ' or' => ' nounor', ')and' => ') nounand', ')or' => ') nounor');
+        // The last two patterns are fine in the reverse direction as these patterns will have gone.
+
+        foreach ($connectives as $key => $val) {
+            if ($direction === 'add') {
+                $str = str_replace($key, $val, $str);
+            } else {
+                $str = str_replace($val, $key, $str);
+            }
+        }
+
+        if ($direction === 'add') {
+            // Check if we are using equational reasoning.
+            if (substr(trim($str), 0, 1) === "=") {
+                $trimmed = trim(substr(trim($str), 1));
+                if ( $trimmed !== '') {
+                    $str = 'stackeq(' . $trimmed . ')';
+                }
+            }
+        } else {
+            if (substr(trim($str), 0, 8) == 'stackeq(' && substr(trim($str), -1, 1) == ')') {
+                $str = '=' . substr(trim($str), 8, -1);
+            }
+        }
+
+        return $str;
+    }
+
+    /*
+     * This function takes user input of the form "option:arg" and splits them up.
+     * Used to sort out options to the inputs field.
+     */
+    public static function parse_option($option) {
+        $arg = '';
+        if (!(strpos($option, ':') === false)) {
+            $ops = explode(':', $option);
+            $option = $ops[0];
+            $arg = trim($ops[1]);
+        }
+        return(array($option, $arg));
     }
 }

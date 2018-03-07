@@ -241,6 +241,7 @@ class assStackQuestionStackQuestion
 		{
 			return TRUE;
 		}
+
 		//Step 10: Create PRT for evaluation purposes
 		$this->createPotentialResponseTrees($ilias_question);
 	}
@@ -416,7 +417,8 @@ class assStackQuestionStackQuestion
 				if ($input->getInputType() != 'boolean' AND $input->getInputType() != 'singlechar')
 				{
 					$specific_parameters = array('mustVerify' => $input->getMustVerify(), //As seen in STACK hideFeedback var is the negation of ShowValidation.
-						'hideFeedback' => !$input->getShowValidation(), 'boxWidth' => $input->getBoxSize(), 'strictSyntax' => $input->getStrictSyntax(), 'insertStars' => $input->getInsertStars(), 'syntaxHint' => $input->getSyntaxHint(), 'forbidWords' => $input->getForbidWords(), 'allowWords' => $input->getAllowWords(), 'forbidFloats' => $input->getForbidFloat(), 'lowestTerms' => $input->getRequireLowestTerms(), 'sameType' => $input->getCheckAnswerType());
+						//'hideFeedback' => !$input->getShowValidation()
+					 'boxWidth' => $input->getBoxSize(), 'strictSyntax' => $input->getStrictSyntax(), 'insertStars' => $input->getInsertStars(), 'syntaxHint' => $input->getSyntaxHint(), 'forbidWords' => $input->getForbidWords(), 'allowWords' => $input->getAllowWords(), 'forbidFloats' => $input->getForbidFloat(), 'lowestTerms' => $input->getRequireLowestTerms(), 'sameType' => $input->getCheckAnswerType(), 'options' => $input->getOptions());
 				} else
 				{
 					$specific_parameters = array();
@@ -425,7 +427,7 @@ class assStackQuestionStackQuestion
 				{
 					return $input_name;
 				}
-				$input_parameters = array('type' => $input->getInputType(), 'name' => $input_name, 'teacheranswer' => $input->getTeacherAnswer(), 'parameters' => $specific_parameters);
+				$input_parameters = array('type' => $input->getInputType(), 'name' => $input_name, 'teacheranswer' => $input->getTeacherAnswer(), 'options' => $this->getOptions(), 'parameters' => $specific_parameters);
 				$stack_inputs[$input_name] = $this->getStackFactory()->get("input_object", $input_parameters);
 
 			}
@@ -632,7 +634,24 @@ class assStackQuestionStackQuestion
 		$teacheranswer = $this->getSession()->get_value_key($name);
 		if (array_key_exists($name, $this->getInputs()))
 		{
-			$this->setInputStates($this->getInputs($name)->validate_student_response($response, $this->getOptions(), $teacheranswer, $forbiddenkeys), $name);
+			$final_response = array();
+			switch (get_class($this->getInputs($name)))
+			{
+				case "stack_matrix_input":
+					$final_response = $response;
+					break;
+				case "stack_algebraic_input":
+					$final_response = $response;
+					break;
+				case "stack_units_input":
+					$final_response = $response;
+					break;
+				default:
+					$final_response = $response;
+					break;
+			}
+
+			$this->setInputStates($this->getInputs($name)->validate_student_response($final_response, $this->getOptions(), $teacheranswer, $forbiddenkeys), $name);
 
 			return $this->getInputStates($name);
 		}
@@ -1280,5 +1299,30 @@ class assStackQuestionStackQuestion
 		return $this->instant_validation;
 	}
 
+	/**
+	 * Give all the input elements a chance to configure themselves given the
+	 * teacher's model answers.
+	 */
+	protected function adapt_inputs() {
+		foreach ($this->inputs as $name => $input) {
+			$teacheranswer = $this->session->get_value_key($name);
+			$input->adapt_to_model_answer($teacheranswer);
+		}
+	}
+
+	/**
+	 * Helper method used by initialise_question_from_seed.
+	 * @param string $text a textual part of the question that is CAS text.
+	 * @param stack_cas_session $session the question's CAS session.
+	 * @return stack_cas_text the CAS text version of $text.
+	 */
+	protected function prepare_cas_text($text, $session) {
+		$castext = new stack_cas_text($text, $session, $this->seed, 't', false, 1);
+		if ($castext->get_errors()) {
+			throw new stack_exception('qtype_stack_question : Error part of the question: ' .
+				$castext->get_errors());
+		}
+		return $castext;
+	}
 
 }

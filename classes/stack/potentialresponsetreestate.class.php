@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,6 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * This class represents the current state of a potential response tree.
@@ -36,6 +38,11 @@ class stack_potentialresponse_tree_state {
      * @var array of answernote strings for the teacher.
      */
     public $_answernotes = array();
+
+    /**
+     * @var array of detailed tracing for the teacher.
+     */
+    public $_trace = array();
 
     /**
      * @var boolean Is this attempt valid?
@@ -79,7 +86,7 @@ class stack_potentialresponse_tree_state {
      * @param array $feedback the current contents of this input.
      */
     public function __construct($weight, $valid = true, $score = null, $penalty = null,
-            $errors = '', $answernotes = array(), $feedback = array()) {
+            $errors = '', $answernotes = array(), $feedback = array(), $debuginfo = null) {
         $this->_weight      = $weight;
         $this->_valid       = $valid;
         $this->_score       = $score;
@@ -87,6 +94,7 @@ class stack_potentialresponse_tree_state {
         $this->_errors      = $errors;
         $this->_answernotes = $answernotes;
         $this->_feedback    = $feedback;
+        $this->_debuginfo   = $debuginfo;
     }
 
     public function __get($field) {
@@ -109,6 +117,10 @@ class stack_potentialresponse_tree_state {
                 return $this->_feedback;
             case 'answernotes':
                 return $this->_answernotes;
+            case 'trace':
+                return $this->_trace;
+            case 'debuginfo':
+                return $this->_debuginfo;
             default:
                 throw new stack_exception('stack_potentialresponse_tree_state: __get().  Unrecognised property name ' . $field);
         }
@@ -168,6 +180,14 @@ class stack_potentialresponse_tree_state {
         $result = $feedbackct->get_display_castext();
         $this->_errors = trim($this->_errors . ' ' . $feedbackct->get_errors());
         return $result;
+    }
+
+    /**
+     * Add another answer trace to the list.
+     * @param array $trace the line in the trace.
+     */
+    public function add_trace($trace) {
+        $this->_trace[] = $trace;
     }
 }
 

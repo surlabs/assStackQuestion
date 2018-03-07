@@ -427,7 +427,7 @@ class assStackQuestionGUI extends assQuestionGUI
 				{
 					$pass = ilObjTest::_getPass($active_id);
 				}
-			}
+			}#
 
 			//If ILIAS 5.1  or 5.0 using intermediate
 			if (method_exists($this->object, "getUserSolutionPreferingIntermediate"))
@@ -438,7 +438,6 @@ class assStackQuestionGUI extends assQuestionGUI
 				$solutions =& $this->object->getSolutionValues($active_id, $pass);
 			}
 		}
-
 		//Create STACK Question object if doesn't exists
 		if (!is_a($this->object->getStackQuestion(), 'assStackQuestionStackQuestion'))
 		{
@@ -467,7 +466,6 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function getTestQuestionOutput($solutions, $show_specific_inline_feedback)
 	{
 		global $tpl;
-
 		//Create feedback output from feedback class
 		$this->plugin->includeClass("GUI/question_display/class.assStackQuestionFeedbackGUI.php");
 		$question_feedback_object = new assStackQuestionFeedbackGUI($this->plugin, $solutions);
@@ -480,14 +478,13 @@ class assStackQuestionGUI extends assQuestionGUI
 		//Get question display data
 		$tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_display.css'));
 
-		$value_format_user_response = assStackQuestionUtils::_changeUserResponseStyle($question_feedback_object->getUserAnswersFromFeedback(), $this->object->getId(), $this->object->getStackQuestion()->getInputs(), 'reduced_to_value');
+		$value_format_user_response = assStackQuestionUtils::_getUserResponse($this->object->getId(), $this->object->getStackQuestion()->getInputs(), $feedback_data);
 		$question_display_object = new assStackQuestionDisplay($this->plugin, $this->object->getStackQuestion(), $value_format_user_response, $feedback_data);
 		$question_display_data = $question_display_object->getQuestionDisplayData(TRUE);
 
 		//Get question display GUI
 		$question_display_gui_object = new assStackQuestionDisplayGUI($this->plugin, $question_display_data);
 		$question_display_gui = $question_display_gui_object->getQuestionDisplayGUI($show_specific_inline_feedback);
-
 		//fill question container with HTML from assStackQuestionDisplay
 		$container_tpl = $this->plugin->getTemplate("tpl.il_as_qpl_xqcas_question_container.html");
 		$container_tpl->setVariable('QUESTION', $question_display_gui->get());
@@ -549,7 +546,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		{
 			//User Solution
 			//Returns user solution HTML
-			$solution_output = $this->getQuestionOutput($solutions, FALSE, $show_feedback);
+			$solution_output = $this->getQuestionOutput($solutions, FALSE, $show_feedback, TRUE);
 			//2.3.12 add feedback to solution
 			$solution_output .= $this->getSpecificFeedbackOutput($active_id, $pass);
 
@@ -613,7 +610,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 * @param bool $show_feedback TRUE if specific feedback per PRT must be shown.
 	 * @return string
 	 */
-	public function getQuestionOutput($solutions, $best_solution, $show_feedback = FALSE)
+	public function getQuestionOutput($solutions, $best_solution, $show_feedback = FALSE, $just_show = FALSE)
 	{
 		if (isset($solutions["question_text"]) AND strlen($solutions["question_text"]))
 		{
@@ -634,6 +631,28 @@ class assStackQuestionGUI extends assQuestionGUI
 							//Replace input depending on input type
 							switch ($input->getInputType())
 							{
+								case "dropdown":
+								case "checkbox":
+								case "radio":
+									if ($best_solution)
+									{
+										$input_replacement = $input_answer["model_answer"];
+										$validation_replacement = $input_answer["model_answer_display"];
+										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
+									} else
+									{
+										if($just_show){
+											$input_replacement = "</br>".$input_answer["display"];
+											$question_text = str_replace("[[validation:" . $input_name . "]]", "", $question_text);
+
+										}else{
+											$input_replacement = $input_answer["value"];
+											$question_text = str_replace("[[validation:" . $input_name . "]]", $this->object->getStackQuestion()->getInputs($input_name)->render_validation($this->object->getStackQuestion()->getInputState($input_name, $input_replacement), $input_name), $question_text);
+										}
+									}
+
+								$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
+								break;
 								case "matrix":
 									//Select replace depending on mode if $best_solution is TRUE, best solution when FALSE user solution.
 									if ($best_solution)
@@ -641,21 +660,22 @@ class assStackQuestionGUI extends assQuestionGUI
 										$input_replacement = $input_answer["model_answer_display"];
 									} else
 									{
-										$input_replacement = $input_answer["display"];
+										$input_replacement = "</br>".$input_answer["display"];
 									}
 									$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
 									break;
 								case "textarea";
+								case "equiv";
 									if ($best_solution)
 									{
-										$input_replacement = $input_answer["model_answer"];
+										$input_replacement = $input_answer["model_answer_display"];
 									} else
 									{
-										$input_replacement = $input_answer["value"];
+										$input_replacement = "</br>".$input_answer["value"];
 									}
 									$size = $input->getBoxSize();
 									$input_text = "";
-									$input_text .= "<input type='textarea' size='" . $size . "' value='" . $input_replacement . "' readonly>";
+									$input_text .= $input_replacement;
 									$question_text = str_replace("[[input:" . $input_name . "]]", $input_text, $question_text);
 									break;
 								default:
@@ -663,19 +683,19 @@ class assStackQuestionGUI extends assQuestionGUI
 									{
 										$input_replacement = $input_answer["model_answer"];
 										$validation_replacement = $input_answer["model_answer_display"];
-										$question_text = str_replace("[[validation:" . $input_name . "]]", "</br>" . $this->plugin->txt("interpreted_by_maxima_as") . "</br>" . assStackQuestionUtils::_addLatex($validation_replacement), $question_text);
+										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
 									} else
 									{
-										$input_replacement = $input_answer["value"];
+										$input_replacement = "</br>".$input_answer["value"];
 										if ($show_feedback)
 										{
 											$validation_replacement = $input_answer["display"];
-											$question_text = str_replace("[[validation:" . $input_name . "]]", "</br>" . $this->plugin->txt("interpreted_by_maxima_as_2") . "</br>" . $validation_replacement, $question_text);
+											$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
 										}
 									}
 									$size = strlen($input_replacement) + 5;
 									$input_text = "";
-									$input_text .= "<input type='textarea' size='" . $size . "' value='" . $input_replacement . "' readonly>";
+									$input_text .= $input_replacement;
 									$question_text = str_replace("[[input:" . $input_name . "]]", $input_text, $question_text);
 									break;
 							}
@@ -689,7 +709,7 @@ class assStackQuestionGUI extends assQuestionGUI
 								$string .= '<div class="alert alert-warning" role="alert">';
 								//Generic feedback
 								$string .= $prt["status"]["message"];
-								$string .= '<br>';
+								//$string .= '<br>';
 								//Specific feedback
 								$string .= $prt["feedback"];
 								$string .= $prt["errors"];
@@ -702,6 +722,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 				}
 			}
+
 			//Delete other place holders
 			$question_text = preg_replace('/\[\[validation:(.*?)\]\]/', "", $question_text);
 			if (!$show_feedback)
@@ -711,9 +732,8 @@ class assStackQuestionGUI extends assQuestionGUI
 
 			if ($best_solution)
 			{
-				$question_text .= "</br>" . assStackQuestionUtils::_getLatex($solutions["general_feedback"]);
+				$question_text .= $solutions["general_feedback"];
 			}
-
 			//Return the question text with LaTeX problems solved.
 			return assStackQuestionUtils::_getLatex($question_text);
 		} else
@@ -775,7 +795,7 @@ class assStackQuestionGUI extends assQuestionGUI
 					$string .= '<div class="alert alert-warning" role="alert">';
 					//Generic feedback
 					$string .= $solutions["prt"][$prt_name]['status']['message'];
-					$string .= '<br>';
+					//$string .= '<br>';
 					//Specific feedback
 					$string .= $solutions["prt"][$prt_name]["feedback"];
 					$string .= $solutions["prt"][$prt_name]["errors"];

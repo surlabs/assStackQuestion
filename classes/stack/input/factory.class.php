@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,21 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Defined the stack_input_factory class.
- */
+defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/../options.class.php');
 require_once(__DIR__ . '/inputbase.class.php');
 
+// Input factory. Provides a convenient way to create an input of any type,
+// and to get metadata about the input types.
+//
+// @copyright  2012 University of Birmingham.
+// @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
-/**
- * Input factory. Provides a convenient way to create an input of any type,
- * and to get metadata about the input types.
- *
- * @copyright  2012 University of Birmingham
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 class stack_input_factory {
     /**
      * @var array type name => array of parameter names used. Used to cache the
@@ -49,9 +45,9 @@ class stack_input_factory {
      * @param array $param some sort of options.
      * @return stack_input the requested input.
      */
-    public static function make($type, $name, $teacheranswer, $parameters = null) {
+    public static function make($type, $name, $teacheranswer, $options = null, $parameters = null) {
         $class = self::class_for_type($type);
-        return new $class($name, $teacheranswer, $parameters);
+        return new $class($name, $teacheranswer, $options, $parameters);
     }
 
     /**
@@ -78,8 +74,10 @@ class stack_input_factory {
 
     /**
      * @return array of available type names.
+	 //fim: #15 Refactoring of this method which uses several moodle methods
      */
     public static function get_available_types() {
+    	/*
         $ignored = array('CVS', '_vti_cnf', 'tests', 'yui', 'phpunit');
         $types = array();
 
@@ -117,14 +115,10 @@ class stack_input_factory {
 
             // Yay! finally we have confirmed we have a valid input plugin!
             $types[$inputname] = $class;
-        }
+        }*/
 
-        // TODO remove this next line once it is acutally possible to create dropdown
-        // inputs. At the moment, there is nowhere to input the list of choices, and
-        // nowhere to store that information in the database.
-        unset($types['dropdown']);
-
-        return $types;
+		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+		return assStackQuestionUtils::_getAvailableTypes();
     }
 
     /**

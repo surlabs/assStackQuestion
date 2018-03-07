@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-//fim: Remove locallib required
-//require_once(__DIR__ . '/../../locallib.php');
-//fim
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/../../locallib.php');
 require_once(__DIR__ . '/../options.class.php');
 require_once(__DIR__ . '/../cas/casstring.class.php');
 require_once(__DIR__ . '/../cas/cassession.class.php');
@@ -66,6 +66,11 @@ class stack_input_state {
     protected $_note;
 
     /**
+     * @var string any variables found in the student's answer, in displayed form.
+     */
+    protected $_lvars;
+
+    /**
      * Constructor
      *
      * @param array $contents the current contents of this input.  An array with
@@ -76,7 +81,7 @@ class stack_input_state {
      * @param string $status one of the constants stack_input::EMPTY, stack_input::INVALID, ...
      * @param string $feedback the feedback for the current contents.
      */
-    public function __construct($status, $contents, $contentsmodified, $contentsdisplayed, $errors, $note) {
+    public function __construct($status, $contents, $contentsmodified, $contentsdisplayed, $errors, $note, $lvars) {
         if (!is_array($contents)) {
             throw new stack_exception('stack_input_state: contents field of constructor must be an array.');
         }
@@ -86,6 +91,7 @@ class stack_input_state {
         $this->_contentsdisplayed   = $contentsdisplayed;
         $this->_errors              = $errors;
         $this->_note                = $note;
+        $this->_lvars               = $lvars;
     }
 
     public function __get($field) {
@@ -102,6 +108,8 @@ class stack_input_state {
                 return $this->_errors;
             case 'note':
                 return $this->_note;
+            case 'lvars':
+                return $this->_lvars;
             default:
                 throw new stack_exception('stack_input_state: unrecognised property name ' . $field);
         }

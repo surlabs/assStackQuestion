@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->libdir . '/filterlib.php');
@@ -47,9 +48,7 @@ class stack_maths_output_maths extends stack_maths_output_filter_base {
         global $CFG;
 
         if (!self::filter_is_installed()) {
-            //fim Use ilias stack exception
-            require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
-            throw new assStackQuestionException('The OU maths filter is not installed.');
+            throw new coding_exception('The OU maths filter is not installed.');
         }
 
         require_once($CFG->dirroot . '/filter/maths/filter.php');

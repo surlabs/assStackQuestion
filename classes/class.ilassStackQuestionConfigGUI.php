@@ -165,10 +165,10 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$healthcheck_reduced_button->setName("healthcheckReduced");
 		$toolbar->addButtonInstance($healthcheck_reduced_button);
 
-		$healthcheck_expanded_button = ilButton::getInstance();
-		$healthcheck_expanded_button->setCaption($this->plugin_object->txt("healthcheck_expanded"), FALSE);
-		$healthcheck_expanded_button->setName("healthcheckExpanded");
-		$toolbar->addButtonInstance($healthcheck_expanded_button);
+		//$healthcheck_expanded_button = ilButton::getInstance();
+		//$healthcheck_expanded_button->setCaption($this->plugin_object->txt("healthcheck_expanded"), FALSE);
+		//$healthcheck_expanded_button->setName("healthcheckExpanded");
+		//$toolbar->addButtonInstance($healthcheck_expanded_button);
 
 		$clear_cache_button = ilButton::getInstance();
 		$clear_cache_button->setCaption($this->plugin_object->txt("clear_cache"), FALSE);
@@ -248,7 +248,9 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 			'5.31.1' => '5.31.1', '5.31.2' => '5.31.2', '5.31.3' => '5.31.3',
 			'5.32.0' => '5.32.0', '5.32.1' => '5.32.1', '5.33.0' => '5.33.0',
 			'5.34.0' => '5.34.0', '5.34.1' => '5.34.1', '5.35.1' => '5.35.1',
-			'5.35.1.2' => '3.35.1.2', '5.36.0' => '5.36.0', '5.36.1' => '5.36.1',
+			'5.35.1.2' => '5.35.1.2', '5.36.0' => '5.36.0', '5.36.1' => '5.36.1',
+			'5.37.3' => '5.37.3', '5.38.0' => '5.38.0', '5.38.1' => '5.38.1',
+			'5.39.0' => '5.39.0', '5.40.0' => '5.40.0', '5.41.0' => '5.41.0',
 			'default' => 'default'));
 		$maxima_version->setInfo($this->plugin_object->txt('maxima_version_info'));
 		$maxima_version->setValue($connection_data['maxima_version']);
@@ -302,6 +304,12 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$cas_debugging = new ilHiddenInputGUI('cas_debugging');
 		$cas_debugging->setValue('0');
 		$form->addItem($cas_debugging);
+
+		//Maxima libraries
+		$maxima_libraries = new ilTextInputGUI($this->plugin_object->txt('maxima_libraries'), 'cas_maxima_libraries');
+		$maxima_libraries->setInfo($this->plugin_object->txt('cas_maxima_libraries_info'));
+		$maxima_libraries->setValue($connection_data['cas_maxima_libraries']);
+		$form->addItem($maxima_libraries);
 
 		$form->setTitle($this->plugin_object->txt('connection_settings'));
 		$form->addCommandButton("saveConnectionSettings", $this->plugin_object->txt("save"));

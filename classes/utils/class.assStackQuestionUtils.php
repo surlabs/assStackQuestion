@@ -136,110 +136,50 @@ class assStackQuestionUtils
 	}
 
 	/**
-	 * @param $question_id int question_id
-	 * @param $inputs array array with the stack inputs for the question
-	 * @return array|bool
+	 * @param array $user_response
+	 * @param $question_id
+	 * @param array $inputs
+	 * @param $format
 	 */
-	public static function _getUserResponse($question_id, $inputs, $style)
+	public static function _getUserResponse($question_id, array $inputs, array $previous_response = array())
 	{
-		//Initialisation of parameters
-		$user_response_from_post = array();
+		$current_response = array();
+		$user_response_from_db = array();
 
-		switch ($style)
-		{
-			//Takes full inputs
-			//[xqcas_questionId_inputName] = value
-			case 'full':
-				//For each input, check if there is an entry in $_POST
-				foreach ($inputs as $input_name => $input)
-				{
-					//If input is not matrix
-					if ($input->getInputType() != 'matrix')
+		if(sizeof($previous_response)){
+			foreach ($previous_response["prt"] as $prt_name => $prt_info)
+			{
+				if(sizeof($prt_info)){
+					foreach ($prt_info["response"] as $input_name => $input_info)
 					{
-						if (isset($_POST['xqcas_' . $question_id . '_' . $input_name]))
-						{
-							$user_response_from_post['xqcas_' . $question_id . '_' . $input_name] = ilUtil::stripSlashes($_POST['xqcas_' . $question_id . '_' . $input_name], TRUE, '0');
-						}
-					} else
-					{
-						$user_response_for_matrix = array();
-						foreach ($_POST as $index => $user_response)
-						{
-							$new_index = str_replace('xqcas_' . $question_id . '_', '', $index);
-							$user_response_for_matrix[$new_index] = $user_response;
-						}
-						$user_response_from_post = $user_response_for_matrix;
-						if (sizeof($user_response_for_matrix) == 0)
-						{
-							return array();
-						}
+						$user_response_from_db[$input_name] = $input_info["value"];
 					}
 				}
-				break;
-			//Takes full inputs and reduce it.
-			//[inputName] = value
-			case 'reduced':
-				//For each input, check if there is an entry in $_POST
-				foreach ($inputs as $input_name => $input)
-				{
-					//If input is not matrix
-					if ($input->getInputType() != 'matrix')
-					{
-						if (isset($_POST['xqcas_' . $question_id . '_' . $input_name]))
-						{
-							$user_response_from_post[$input_name] = ilUtil::stripSlashes($_POST['xqcas_' . $question_id . '_' . $input_name], TRUE, '0');
-						}
-					} else
-					{
-						$user_response_for_matrix = array();
-						//Cleaning
-						$post_values = $_POST;
-						unset($post_values['cmd']);
-						unset($post_values['formtimestamp']);
-						$user_response_for_matrix = self::_changeUserResponseStyle($post_values, $question_id, array($input_name => $input), 'full_to_reduced', 't');
-						$user_response_from_post = $user_response_for_matrix;
-					}
-				}
-				break;
-			//Takes full inputs with '_value' at the end
-			//[xqcas_input_inputName_value] = value
-			case 'value':
-				//For each input, check if there is an entry in $_POST
-				foreach ($inputs as $input_name => $input)
-				{
-					//If input is not matrix
-					if ($input->getInputType() != 'matrix')
-					{
-						if (isset($_POST['xqcas_' . $question_id . '_' . $input_name . '_value']))
-						{
-							$user_response_from_post['xqcas_' . $question_id . '_' . $input_name . '_value'] = ilUtil::stripSlashes($_POST['xqcas_' . $question_id . '_' . $input_name . '_value'], TRUE, '0');
-						}
-					} else
-					{
-						$user_response_for_matrix = array();
-						foreach ($_POST as $index => $user_response)
-						{
-							$new_index = str_replace('xqcas_' . $question_id . '_', '', $index);
-							$user_response_for_matrix[$new_index] = $user_response;
-						}
-						$user_response_from_post = $user_response_for_matrix;
-					}
-				}
-				break;
-			default:
-				throw new stack_exception('exception_missing_style_for_user_response');
+			}
 		}
 
-		if (!assStackQuestionUtils::_isArrayEmpty($user_response_from_post))
+		$user_response = array();
+		foreach ($inputs as $input_name => $input)
 		{
-			return $user_response_from_post;
-		} else
-		{
-			return array();
+			//Check if its an ILIAS object, or a STACK object
+			if (is_a($input, "assStackQuestionInput"))
+			{
+				//We have an ILIAS object input
+
+			} elseif (is_subclass_of($input, "stack_input"))
+			{
+				$user_response[$input_name] = $input->maxima_to_response_array($user_response_from_db[$input_name]);
+			} else
+			{
+				//We have something wrong
+				ilUtil::sendFailure("Error in manageUserResponse, inputs provided are neither ILIAS or STACK inputs", TRUE);
+			}
 		}
+
+		return $user_response;
 	}
 
-	/**
+	 /**
 	 * @param $user_response
 	 * @param $question_id
 	 * @param $inputs
@@ -251,7 +191,6 @@ class assStackQuestionUtils
 	{
 		//Initialisation of parameters
 		$new_user_response_array = array();
-
 		switch ($change)
 		{
 			case 'full_to_reduced':
@@ -259,9 +198,12 @@ class assStackQuestionUtils
 				foreach ($inputs as $input_name => $input)
 				{
 					//If input is not matrix
+
 					if ($mode == 'p')
 					{
-						if (!is_a($input, 'stack_matrix_input'))
+						if (is_a($input, 'stack_checkbox_input'))
+						{
+						} elseif (!is_a($input, 'stack_matrix_input'))
 						{
 							if (isset($user_response['xqcas_' . $question_id . '_' . $input_name]))
 							{
@@ -284,7 +226,10 @@ class assStackQuestionUtils
 						}
 					} elseif ($mode == 't')
 					{
-						if ($input->getInputType() != 'matrix')
+
+						if (is_a($input, 'stack_checkbox_input'))
+						{
+						} elseif (!is_a($input, 'stack_matrix_input'))
 						{
 							if ($user_response['xqcas_' . $question_id . '_' . $input_name])
 							{
@@ -310,7 +255,10 @@ class assStackQuestionUtils
 				foreach ($inputs as $input_name => $input)
 				{
 					//If input is not matrix
-					if (!is_a($input, 'stack_matrix_input'))
+					if (is_a($input, 'stack_checkbox_input'))
+					{
+
+					} elseif (!is_a($input, 'stack_matrix_input'))
 					{
 						if (isset($user_response['xqcas_' . $question_id . '_' . $input_name]))
 						{
@@ -328,7 +276,10 @@ class assStackQuestionUtils
 				foreach ($inputs as $input_name => $input)
 				{
 					//If input is not matrix
-					if (!is_a($input, 'stack_matrix_input'))
+					if (is_a($input, 'stack_checkbox_input'))
+					{
+
+					} elseif (!is_a($input, 'stack_matrix_input'))
 					{
 						if (isset($user_response['xqcas_input_' . $input_name . '_value']))
 						{
@@ -349,7 +300,10 @@ class assStackQuestionUtils
 				foreach ($inputs as $input_name => $input)
 				{
 					//If input is not matrix
-					if (!is_a($input, 'stack_matrix_input'))
+					if (is_subclass_of($input,"stack_dropdown_input"))
+					{
+						$new_user_response_array['xqcas_input_' . $input_name . '_value'] = $input->maxima_to_response_array($user_response[$input_name]);
+					} elseif (!is_a($input, 'stack_matrix_input'))
 					{
 						if (isset($user_response[$input_name]))
 						{
@@ -369,6 +323,7 @@ class assStackQuestionUtils
 
 		return $new_user_response_array;
 	}
+
 
 	/**
 	 * Creates stack_options from an assStackQuestionOptions object.
@@ -394,7 +349,7 @@ class assStackQuestionUtils
 		//If array is not empty returns it, otherwise return FALSE;
 		foreach ($array as $value)
 		{
-			if ($value != '')
+			if ($value != '' AND $value != '[]')
 			{
 				return FALSE;
 			}
@@ -537,7 +492,6 @@ class assStackQuestionUtils
 			default:
 
 		}
-
 		/*
 		 * Step 2 Replace $$ from STACK and all other LaTeX delimiter to the current platform's delimiter.
 		 */
@@ -545,18 +499,19 @@ class assStackQuestionUtils
 		$text = preg_replace('~(?<!\\\\)\$\$(.*?)(?<!\\\\)\$\$~', $start . '$1' . $end, $text);
 		$text = preg_replace('~(?<!\\\\)\$(.*?)(?<!\\\\)\$~', $start . '$1' . $end, $text);
 
+		//Comment this in order to have different ebhaviour between display and inline mode of LaTeX,
+		//Solving bug 20783
 		//Search for all /(/) and change it to the current limiter in Mathjaxsettings
-		$text = str_replace('\(', $start, $text);
-		$text = str_replace('\)', $end, $text);
+		//$text = str_replace('\(', $start, $text);
+		//$text = str_replace('\)', $end, $text);
 
 		//Search for all \[\] and change it to the current limiter in Mathjaxsettings
-		$text = str_replace('\[', $start, $text);
-		$text = str_replace('\]', $end, $text);
+		//$text = str_replace('\[', $start, $text);
+		//$text = str_replace('\]', $end, $text);
 
 		//Search for all [tex] and change it to the current limiter in Mathjaxsettings
 		$text = str_replace('[tex]', $start, $text);
 		$text = str_replace('[/tex]', $end, $text);
-
 		//Search for all &lt;span class="math"&gt;...&lt;/span&gt; and change it to the current limiter in Mathjaxsettings
 		$text = preg_replace('/<span class="math">(.*?)<\/span>/', $start . '$1' . $end, $text);
 
@@ -568,7 +523,6 @@ class assStackQuestionUtils
 		$text = str_replace("{", "&#123;", $text);
 		$text = str_replace("}", "&#125;", $text);
 		$text = str_replace("\\", "&#92;", $text);
-
 
 		/*
 		 * Step 3 User ilMathJax::getInstance()->insertLatexImages to deliver the LaTeX code.
@@ -604,4 +558,86 @@ class assStackQuestionUtils
 			}
 		}
 	}
+
+	/**
+	 * This method convert a text with old delimiters such $$ or @ to the new {@ and platform delimiter
+	 * and also to the platform delimiter for LaTeX in case this delimiter is different as the one used in the question.
+	 * This come from version 4.0 of STACK in Moodle
+	 * @param $old_text string Text to be converted
+	 * @param $platform_latex_delimiter string
+	 * @return array
+	 */
+	public static function _updateMathDelimiters($old_text, $platform_latex_delimiter)
+	{
+		$results = array();
+
+		return $results;
+	}
+
+	/**
+	 * @return array of available type names.
+	 * Refactoring of stack_input_factory::get_availavle_types
+	 */
+	public static function _getAvailableTypes()
+	{
+
+		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/algebraic/algebraic.class.php';
+		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/boolean/boolean.class.php';
+		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/checkbox/checkbox.class.php';
+		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/dropdown/dropdown.class.php';
+		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/equiv/equiv.class.php';
+		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/matrix/matrix.class.php';
+		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/notes/notes.class.php';
+		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/radio/radio.class.php';
+		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/singlechar/singlechar.class.php';
+		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/textarea/textarea.class.php';
+		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/units/units.class.php';
+
+		$types = array('algebraic' => 'stack_algebraic_input', 'boolean' => 'stack_boolean_input', 'checkbox' => 'stack_checkbox_input', 'dropdown' => 'stack_dropdown_input', 'equiv' => 'stack_equiv_input', 'matrix' => 'stack_matrix_input', 'notes' => 'stack_notes_input', 'radio' => 'stack_radio_input', 'singlechar' => 'stack_singlechar_input', 'textarea' => 'stack_textarea_input', 'units' => 'stack_units_input');
+
+		return $types;
+	}
+
+	/**
+	 * This function will be use in the import routines, in order to check if the questions follow the new syntax for STACK questions.
+	 * @param string $a_text
+	 * @return string The converted text.
+	 */
+	public static function _casTextConverter($a_text, $a_question_title = "", $a_show_alert = FALSE)
+	{
+		global $DIC;
+		$lng = $DIC->language();
+		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
+		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
+
+		//Do replacement
+		$new_text = ilUtil::secureString(stack_maths::replace_dollars($a_text));
+
+		//STEP 4 Send back the fixed text
+		return $new_text;
+	}
+
+	public static function _adaptUserResponseTo($user_response, $question_id, $format)
+	{
+		$adapted_user_response = array();
+		foreach ($user_response as $input_name => $input_value)
+		{
+			if ($format == "only_input_names")
+			{
+				$adapted_user_response[str_replace("xqcas_" . $question_id . "_", "", $input_name)] = $input_value;
+			}
+		}
+
+		return $adapted_user_response;
+	}
+
+
+	public static function stack_output_castext($castext)
+	{
+		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
+		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
+
+		return stack_maths::process_display_castext($castext);
+	}
+
 }

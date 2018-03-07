@@ -1133,3 +1133,136 @@ if ($db->tableExists('xqcas_qtest_expected'))
     $db->modifyTableColumn("xqcas_qtest_expected","expected_answer_note", array("notnull" => false));
 }
 ?>
+<#32>
+<?php
+
+/*
+ */
+
+try{
+	global $DIC;
+	$db = $DIC->database();
+
+	$lng = $DIC->language();
+	require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+
+//DB Update Script TEST
+//Check for STACK questions IDs
+
+//Change questions base
+//Change all question Texts in qpl_questions of questions with question_fi same as STACK type, collect all
+
+//Get assStackQuestion question type id in current platform
+	$type_id_query = "SELECT question_type_id FROM qpl_qst_type WHERE type_tag = \"assStackQuestion\"";
+	$res = $db->query($type_id_query);
+	$data = $db->fetchAssoc($res);
+	$type_id = $data["question_type_id"];
+
+//Change question texts and get all question_id of stack questions
+	$select_stack_questions_query = "SELECT question_id, question_text FROM qpl_questions WHERE question_type_fi = " . $type_id;
+	$stack_questions_result = $db->query($select_stack_questions_query);
+	while ($row = $db->fetchAssoc($stack_questions_result))
+	{
+		$fieldData = array(
+			"question_text" => array("clob", assStackQuestionUtils::_casTextConverter($row["question_text"])),
+            "tstamp" => array("integer", time())
+		);
+
+		$db->update("qpl_questions", $fieldData, array(
+			'question_id' => array('integer', $row["question_id"])
+		));
+	}
+
+//Change all question note and specific feedback
+	$select_question_note_specific_feedback_query = "SELECT question_id, question_note, specific_feedback FROM xqcas_options";
+	$stack_options_result = $db->query($select_question_note_specific_feedback_query);
+	while ($row = $db->fetchAssoc($stack_options_result))
+	{
+		if ($row["question_note"] != "")
+		{
+			$fieldData = array(
+				"question_note" => array("clob", assStackQuestionUtils::_casTextConverter($row["question_note"]))
+			);
+
+			$db->update("xqcas_options", $fieldData, array(
+				'question_id' => array('integer', $row["question_id"])
+			));
+		}
+
+		if ($row["specific_feedback"] != "")
+		{
+			$fieldData = array(
+				"specific_feedback" => array("clob", assStackQuestionUtils::_casTextConverter($row["specific_feedback"]))
+			);
+
+			$db->update("xqcas_options", $fieldData, array(
+				'question_id' => array('integer', $row["question_id"])
+			));
+		}
+	}
+
+//General feedback from xqcas_extra_info
+	$select_general_feedback_query = "SELECT question_id, general_feedback FROM xqcas_extra_info";
+	$stack_general_feedback_result = $db->query($select_general_feedback_query);
+	while ($row = $db->fetchAssoc($stack_general_feedback_result))
+	{
+		if ($row["general_feedback"] != "")
+		{
+			$fieldData = array(
+				"general_feedback" => array("clob", assStackQuestionUtils::_casTextConverter($row["general_feedback"]))
+			);
+
+			$db->update("xqcas_extra_info", $fieldData, array(
+				'question_id' => array('integer', $row["question_id"])
+			));
+		}
+	}
+//True feedback and false feedback from xqcas_prt_nodes
+	$select_truefalse_feedback_query = "SELECT question_id, true_feedback, false_feedback FROM xqcas_prt_nodes";
+	$stack_truefalse_feedback_result = $db->query($select_truefalse_feedback_query);
+	while ($row = $db->fetchAssoc($stack_truefalse_feedback_result))
+	{
+		if ($row["true_feedback"] != "")
+		{
+			$fieldData = array(
+				"true_feedback" => array("clob", assStackQuestionUtils::_casTextConverter($row["true_feedback"]))
+			);
+
+			$db->update("xqcas_prt_nodes", $fieldData, array(
+				'question_id' => array('integer', $row["question_id"])
+			));
+		}
+
+		if ($row["false_feedback"] != "")
+		{
+			$fieldData = array(
+				"false_feedback" => array("clob", assStackQuestionUtils::_casTextConverter($row["false_feedback"]))
+			);
+
+			$db->update("xqcas_prt_nodes", $fieldData, array(
+				'question_id' => array('integer', $row["question_id"])
+			));		}
+	}
+
+	ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_update_to_version_3"), TRUE);
+}
+catch (ResponseSendingException $e){
+    ilUtil::sendFailure($e->getMessage(), TRUE);
+    throw new Exception("Error in the update script of all current questions of the platform, try to run the db update again");
+}
+
+?>
+<#33>
+<?php
+global $DIC;
+$db = $DIC->database();
+if ($db->tableExists('xqcas_configuration'))
+{
+	$db->insert("xqcas_configuration",
+		array(
+			'parameter_name' => array('text', 'cas_maxima_libraries'),
+			'value' => array('clob', ''),
+			'group_name' => array('text', 'connection')
+		));
+}
+?>

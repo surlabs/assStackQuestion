@@ -67,6 +67,7 @@ class assStackQuestionStackFactory
 		$options = $this->get("default_options");
 		//$seed will be set as time() INCOMPLETE
 		$seed = null;
+
 		return new stack_cas_session($session, $options, $seed);
 	}
 
@@ -112,9 +113,11 @@ class assStackQuestionStackFactory
 	{
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/casstring.class.php';
 		$cas_casstring = new stack_cas_casstring($parameters["string"]);
-		$cas_casstring->set_key($parameters["name"]);
-		$cas_casstring->validate('t');
-		if ($cas_casstring->get_valid())
+		#Unknown function problem solution
+		//$cas_casstring->set_key($parameters["name"]);
+		//$cas_casstring->validate('t');
+
+		if ($cas_casstring->get_valid('t'))
 		{
 			return $cas_casstring;
 		} else
@@ -221,7 +224,6 @@ class assStackQuestionStackFactory
 			$parameters['stars'] = 0;
 		}
 		$castext = new stack_cas_text((string)$parameters['raw'], $parameters['session'], $parameters['seed'], $parameters['security'], $parameters['syntax'], (int)$parameters['stars']);
-
 		$cas_text["valid"] = $castext->get_valid();
 		$cas_text["text"] = $castext->get_display_castext();
 		$cas_text["errors"] = $castext->get_errors();
@@ -261,6 +263,23 @@ class assStackQuestionStackFactory
 		{
 			return stack_input_factory::make($parameters->getInputType(), $parameters->getInputName(), $parameters->getTeacherAnswer(), $parameters);
 		}
+
+		$all_parameters_used = stack_input_factory::get_parameters_used();
+		$parameters_used_by_input_type = $all_parameters_used[$parameters['type']];
+
+		//Create a new array with all parameters used by input type
+		$used_parameters = array();
+		if (is_array($parameters_used_by_input_type))
+		{
+			foreach ($parameters_used_by_input_type as $key => $value)
+			{
+				if (key_exists($value, $parameters['parameters']))
+				{
+					$used_parameters[$value] = $parameters['parameters'][$value];
+				}
+			}
+		}
+
 		//If $parameters is an Array
 		if (!isset($parameters['type']) OR !isset($parameters['name']))
 		{
@@ -277,7 +296,8 @@ class assStackQuestionStackFactory
 			}
 		}
 
-		return stack_input_factory::make($parameters['type'], $parameters['name'], $parameters['teacheranswer'], $parameters['parameters']);
+		//We need to choose which parameters should we send to the render, because if a unused parameter is sent, we get an Exception.
+		return stack_input_factory::make($parameters['type'], $parameters['name'], $parameters['teacheranswer'], $parameters['options'], $used_parameters);
 	}
 
 	/**
@@ -368,7 +388,6 @@ class assStackQuestionStackFactory
 		$stack_student_answer = $this->get("cas_casstring_from_array", $student_answer_parameters);
 		$teacher_answer_parameters = array("name" => $ilias_node->getNodeName(), "string" => $ilias_node->getTeacherAnswer());
 		$stack_teacher_answer = $this->get("cas_casstring_from_array", $teacher_answer_parameters);
-
 		$node = new stack_potentialresponse_node($stack_student_answer, $stack_teacher_answer, $ilias_node->getAnswerTest(), $ilias_node->getTestOptions(), (boolean)$ilias_node->getQuiet(), "", $ilias_node->getNodeId());
 
 		$node->add_branch(0, $ilias_node->getFalseScoreMode(), $ilias_node->getFalseScore(), $ilias_node->getFalsePenalty(), $ilias_node->getFalseNextNode(), $ilias_node->getFalseFeedback(), $ilias_node->getFalseFeedbackFormat(), $ilias_node->getFalseAnswerNote());

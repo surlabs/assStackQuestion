@@ -41,6 +41,7 @@ il.assStackQuestion = new function () {
 		config = a_config;
 		texts = a_texts;
 		$('tr#xqcas_question_display input[type="submit"]').click(self.validate);
+		//$('tr#xqcas_question_display textarea[rows="5"]').click(self.validate);
 	};
 
 

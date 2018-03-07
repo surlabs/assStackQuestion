@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
 
-/**
- * Holds the results of one {@link stack_question_test).
- *
- * @copyright 2012 The Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+// Holds the results of one {@link stack_question_test).
+//
+// @copyright 2012 The Open University.
+// @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
+
 class stack_question_test_result {
     /**
      * @var stack_question_test the test case that this is the results for.
@@ -30,27 +30,32 @@ class stack_question_test_result {
     /**
      * @var array input name => actual value put into this input.
      */
-     public $inputvalues;
+    public $inputvalues;
 
     /**
      * @var array input name => the displayed value of that input.
      */
-     public $inputdisplayed;
+    public $inputdisplayed;
 
     /**
      * @var array input name => any errors created by invalid input.
      */
-     public $inputerrors;
+    public $inputerrors;
 
      /**
       * @var array input name => the input statues. One of the stack_input::STATUS_... constants.
       */
-     public $inputstatuses;
+    public $inputstatuses;
 
      /**
       * @var array prt name => stack_potentialresponse_tree_state object
       */
-     public $actualresults;
+    public $actualresults;
+
+     /**
+      * @var array prt name => debuginfo
+      */
+    public $debuginfo;
 
     /**
      * Constructor
@@ -118,16 +123,19 @@ class stack_question_test_result {
                 $state->score = $actualresult->score;
                 $state->penalty = $actualresult->penalty;
                 $state->answernote = implode(' | ', $actualresult->answernotes);
+                $state->trace = implode("\n", $actualresult->trace);
                 $feedback = array();
                 foreach ($actualresult->feedback as $fb) {
                     $feedback[] = $fb->feedback;
                 }
                 $state->feedback = implode(' ', $feedback);
+                $state->debuginfo = $actualresult->debuginfo;
             } else {
                 $state->score = '';
                 $state->penalty = '';
                 $state->answernote = '';
                 $state->feedback = '';
+                $state->debuginfo = '';
             }
 
             $state->testoutcome = true;

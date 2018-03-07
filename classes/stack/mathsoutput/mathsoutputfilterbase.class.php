@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-
-require_once($CFG->libdir . '/filterlib.php');
-require_once($CFG->dirroot . '/filter/tex/filter.php');
-
+defined('MOODLE_INTERNAL') || die();
+//fim: #2 Do not use filterlib and filter system from Moodle
+//require_once($CFG->libdir . '/filterlib.php');
+//require_once($CFG->dirroot . '/filter/tex/filter.php');
+//fim.
 
 /**
  * Base class for STACK maths output methods that use a Moodle text filter to do the work.
@@ -86,12 +87,14 @@ abstract class stack_maths_output_filter_base extends stack_maths_output {
      */
     protected function render_equation($tex, $displaystyle) {
         if ($displaystyle) {
+        	//fim: #28 do not use Moodle filters.
             return $this->displaywrapstart .
-                    $this->get_filter()->filter($this->displaystart . $tex .
-                            $this->displayend) . $this->displaywrapend;
+                    $this->displaystart . $tex .
+                            $this->displayend . $this->displaywrapend;
         } else {
-            return $this->get_filter()->filter($this->inlinestart . $tex . $this->inlineend);
+            return $this->inlinestart . $tex . $this->inlineend;
         }
+		//fim.
     }
 
     /**

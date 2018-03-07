@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -23,11 +23,12 @@
  */
 
 
-/*fim: defined('MOODLE_INTERNAL') || die();*/
-//fim modify paths
-require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/graphlayout/graphnode.php');
-require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/graphlayout/graphclump.php');
-require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/graphlayout/svgrenderer.php');
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/graphnode.php');
+require_once(__DIR__ . '/graphclump.php');
+require_once(__DIR__ . '/svgrenderer.php');
+
 
 /**
  * Abstract representation of a graph (e.g. a PRT).
@@ -36,7 +37,6 @@ require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/as
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class stack_abstract_graph {
-
     /** @var int constant representing a left branch direction. */
     const LEFT = -1;
     /** @var int constant representing a right branch direction. */
@@ -121,7 +121,6 @@ class stack_abstract_graph {
             $this->depth_first_search($firstnode, 1);
         }
 
-
         // Next, but build arrays listing the nodes at each depth.
         $this->nodesbydepth = array();
         foreach ($this->nodes as $node) {
@@ -177,10 +176,12 @@ class stack_abstract_graph {
                         $this->remove_clump($rightclump);
                     }
 
+                    // @codingStandardsIgnoreStart
                     // Weighted mean based on the length of the two branches.
                     $xpos = (($leftchild->x + 1) * ($rightchild->depth - $node->depth) +
                                 ($rightchild->x - 1) * ($leftchild->depth - $node->depth)) /
-                            ($rightchild->depth - $node->depth + $leftchild->depth - $node->depth);
+                                ($rightchild->depth - $node->depth + $leftchild->depth - $node->depth);
+                    // @codingStandardsIgnoreEnd
 
                     $leftclump->add_node($node, $xpos, 2);
                 }
@@ -205,7 +206,6 @@ class stack_abstract_graph {
 
         // Sort the roots into name order.
         ksort($this->roots);
-
     }
 
     /**
@@ -234,7 +234,7 @@ class stack_abstract_graph {
      * @param stack_abstract_graph_node $currentnode
      * @param integer $depth
      */
-    protected function depth_first_search(stack_abstract_graph_node $currentnode, $depth){
+    protected function depth_first_search(stack_abstract_graph_node $currentnode, $depth) {
 
         if ($currentnode->depth >= $depth) {
             return; // Aready done, and at least as deep as this path.
@@ -263,9 +263,7 @@ class stack_abstract_graph {
         }
 
         if (array_pop($this->stack) != $currentnode->name) {
-            //fim Use ilias stack exception
-            require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/exceptions/class.assStackQuestionException.php');
-            throw new assStackQuestionException('Something went wrong with the stack.');
+            throw new coding_exception('Something went wrong with the stack.');
         }
     }
 
@@ -301,8 +299,7 @@ class stack_abstract_graph {
                 return $clump;
             }
         }
-		//fim: change this coding exception
-		throw new stack_exception($node->name . ' is not in any clump.');
+        throw new coding_exception($node->name . ' is not in any clump.');
     }
 
     /**
@@ -312,7 +309,7 @@ class stack_abstract_graph {
     protected function remove_clump(stack_abstract_graph_node_clump $clump) {
         $key = array_search($clump, $this->clumps);
         if (is_null($key)) {
-            throw new stack_exception('Unknown clump.');
+            throw new coding_exception('Unknown clump.');
         }
         unset($this->clumps[$key]);
     }
@@ -324,9 +321,7 @@ class stack_abstract_graph {
      */
     public function get($nodename) {
         if (!array_key_exists($nodename, $this->nodes)) {
-            //fim Use ilias stack exception
-            require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/exceptions/class.assStackQuestionException.php');
-            throw new assStackQuestionException('Node ' . $nodename . ' is not in the graph.');
+            throw new coding_exception('Node ' . $nodename . ' is not in the graph.');
         }
         return $this->nodes[$nodename];
     }
@@ -470,19 +465,4 @@ class stack_abstract_graph {
         }
         return $string;
     }
-
-	//fim: adaptation to ILIAS
-	/**
-	 * Insert property html
-	 *
-	 */
-	function insert(&$a_tpl, $a_content_width = "", $a_svg = "")
-	{
-		$a_tpl->setCurrentBlock("prop_generic");
-		$a_tpl->setVariable("PROP_GENERIC", $a_svg);
-		if ($a_content_width) {
-			$a_tpl->setVariable("CONTENT_WIDTH", $a_content_width);
-		}
-		$a_tpl->parseCurrentBlock();
-	}
 }

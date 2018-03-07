@@ -57,66 +57,12 @@ class assStackQuestionHealthcheckGUI
 	{
 		$connection_status_template = $this->getPlugin()->getTemplate('tpl.il_as_qpl_xqcas_healthcheck.html');
 
-		if ($a_mode == 'expanded')
+		foreach ($this->getHealthcheckData() as $healthcheckDataid => $value)
 		{
-			//EXPANDED HEALTHCHECK EXPLANATION
-			$connection_status_template->setVariable('HEALTHCHECK_TITLE', $this->getPlugin()->txt('hc_connection_expanded_title'));
-			$connection_status_template->setVariable('HEALTHCHECK_CONNECTION_EXPLANATION', $this->getPlugin()->txt('hc_connection_expanded_explanation'));
-			$connection_status_template->setVariable('HC_EXPANDED', 'hc_expanded_shown');
+			$connection_status_template->setCurrentBlock('healthcheck_property');
+			$connection_status_template->setVariable('PROPERTY', $value);
+			$connection_status_template->ParseCurrentBlock();
 		}
-		else
-		{
-			//REDUCED HEALTHCHECK EXPLANATION
-			$connection_status_template->setVariable('HEALTHCHECK_TITLE', $this->getPlugin()->txt('hc_connection_reduced_title'));
-			$connection_status_template->setVariable('HEALTHCHECK_CONNECTION_EXPLANATION', $this->getPlugin()->txt('hc_connection_reduced_explanation'));
-			$connection_status_template->setVariable('HC_EXPANDED', 'hc_expanded_hidden');
-		}
-
-		//CONNECTION STATUS AND SAMPLE COMMAND
-		if (!$this->getHealthcheckData('error_cas_sample_display')) {
-			//TITLE
-			$connection_status_template->setVariable('CONNECTION_STATUS_TITLE', $this->getPlugin()->txt('hc_connection_status_title'));
-			$connection_status_template->setVariable('CONNECTION_STATUS_TITLE_STATUS', $this->getPlugin()->txt('hc_passed'));
-			$connection_status_template->setVariable('SAMPLE_COMMAND_TITLE', $this->getPlugin()->txt('hc_sample_command_title'));
-			$connection_status_template->setVariable('SAMPLE_COMMAND_TITLE_STATUS', $this->getPlugin()->txt('hc_passed'));
-
-			//Connection status
-			$connection_status_template->setVariable('CONNECTION_STATUS_MESSAGE', $this->getPlugin()->txt('hc_connection_status_display'));
-			$connection_status_template->setVariable('CONNECTION_STATUS', $this->getHealthcheckData('connection_status_display'));
-			$connection_status_template->setVariable('CONNECTION_STATUS_COLOR', 'hc_color_passed');
-
-			//Sample command
-			$connection_status_template->setVariable('SAMPLE_COMMAND_MESSAGE_1', $this->getPlugin()->txt('hc_sample_command'));
-			$connection_status_template->setVariable('SAMPLE_COMMAND_1', assStackQuestionUtils::_removeLaTeX($this->getHealthcheckData('sample_command')));
-			$connection_status_template->setVariable('SAMPLE_COMMAND_2', assStackQuestionUtils::_solveKeyBracketsBug($this->getHealthcheckData('cas_sample_display')));
-
-		} else {
-			//TITLE
-			$connection_status_template->setVariable('CONNECTION_STATUS_TITLE', $this->getPlugin()->txt('hc_connection_status_title'));
-			$connection_status_template->setVariable('CONNECTION_STATUS_TITLE_STATUS', $this->getPlugin()->txt('hc_failed'));
-			$connection_status_template->setVariable('SAMPLE_COMMAND_TITLE', $this->getPlugin()->txt('hc_sample_command_title'));
-			$connection_status_template->setVariable('SAMPLE_COMMAND_TITLE_STATUS', $this->getPlugin()->txt('hc_failed'));
-
-			$connection_status_template->setVariable('CONNECTION_STATUS_MESSAGE', $this->getPlugin()->txt('hc_connection_status_display_error'));
-			$connection_status_template->setVariable('CONNECTION_STATUS', $this->getHealthcheckData('error_connection_status_display'));
-			$connection_status_template->setVariable('SAMPLE_COMMAND_1', $this->getHealthcheckData('debug_cas_sample_display'));
-			$connection_status_template->setVariable('CONNECTION_STATUS_COLOR', 'hc_color_failed');
-		}
-
-		//MAXIMA CONNECTION
-		/*
-		 * TODO: not completed
-		if($this->getHealthcheckData('maxima_version')){
-
-		}else{
-			$connection_status_template->setVariable('MAXIMA_VERSION_TITLE', $this->getPlugin()->txt('hc_maxima_version_title'));
-			$connection_status_template->setVariable('MAXIMA_VERSION_TITLE_STATUS', $this->getPlugin()->txt('hc_failed'));
-
-			$connection_status_template->setVariable('MAXIMA_VERSION_MESSAGE', $this->getPlugin()->txt('hc_maxima_version_error'));
-			$connection_status_template->setVariable('MAXIMA_VERSION', $this->getHealthcheckData('error_mismatch_maxima_version'));
-			$connection_status_template->setVariable('MAXIMA_VERSION_COLOR', 'hc_color_failed');
-		}
-		*/
 
 		return $connection_status_template;
 	}
@@ -139,9 +85,11 @@ class assStackQuestionHealthcheckGUI
 	 */
 	public function getHealthcheckData($selector = '')
 	{
-		if ($selector) {
+		if ($selector)
+		{
 			return $this->healthcheck_data[$selector];
-		} else {
+		} else
+		{
 			return $this->healthcheck_data;
 		}
 	}

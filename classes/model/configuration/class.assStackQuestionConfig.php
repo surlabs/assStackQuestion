@@ -35,13 +35,16 @@ class assStackQuestionConfig
 		global $DIC;
 		$db = $DIC->database();
 		$settings = array();
-		if ($selector == 'all') {
+		if ($selector == 'all')
+		{
 			$query = 'SELECT * FROM xqcas_configuration';
-		} else {
+		} else
+		{
 			$query = 'SELECT * FROM xqcas_configuration WHERE group_name = "' . $selector . '"';
 		}
 		$result = $db->query($query);
-		while ($row = $db->fetchAssoc($result)) {
+		while ($row = $db->fetchAssoc($result))
+		{
 			$settings[$row['parameter_name']] = $row['value'];
 		}
 
@@ -57,6 +60,7 @@ class assStackQuestionConfig
 	 */
 	public function saveConnectionSettings()
 	{
+		global $CFG;
 		//Old settings
 
 		$saved_connection_data = self::_getStoredSettings('connection');
@@ -81,20 +85,31 @@ class assStackQuestionConfig
 		*/
 
 		//Checkboxes workaround
-		if (!array_key_exists('cas_debugging', $new_connection_data)) {
+		if (!array_key_exists('cas_debugging', $new_connection_data))
+		{
 			$new_connection_data['cas_debugging'] = 0;
 		}
 
 		//Save to DB
-		foreach ($saved_connection_data as $paremeter_name => $saved_value) {
-			if (array_key_exists($paremeter_name, $new_connection_data) AND $saved_connection_data[$paremeter_name] != $new_connection_data[$paremeter_name]) {
+		foreach ($saved_connection_data as $paremeter_name => $saved_value)
+		{
+			if (array_key_exists($paremeter_name, $new_connection_data) AND $saved_connection_data[$paremeter_name] != $new_connection_data[$paremeter_name])
+			{
 				$this->saveToDB($paremeter_name, $new_connection_data[$paremeter_name], 'connection');
 			}
 		}
 
-		//Create new maximalocal file
+		//Force re-creation of maxima local file with new content from stack4.
+		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
 		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php');
-		stack_cas_configuration::create_maximalocal();
+
+		if (!file_exists($CFG->dataroot . '/stack/maximalocal.mac'))
+		{
+			stack_cas_configuration::create_maximalocal();
+		}else{
+			unlink($CFG->dataroot . '/stack/maximalocal.mac');
+			stack_cas_configuration::create_maximalocal();
+		}
 
 		return TRUE;
 	}
@@ -110,19 +125,24 @@ class assStackQuestionConfig
 		$new_display_data = $this->getAdminInput();
 
 		//Checkboxes workaround
-		if (!array_key_exists('instant_validation', $new_display_data)) {
+		if (!array_key_exists('instant_validation', $new_display_data))
+		{
 			$new_display_data['instant_validation'] = 0;
 		}
-		if (!array_key_exists('replace_dollars', $new_display_data)) {
+		if (!array_key_exists('replace_dollars', $new_display_data))
+		{
 			$new_display_data['replace_dollars'] = 0;
 		}
 
 		//Save to DB
-		foreach ($saved_display_data as $paremeter_name => $saved_value) {
-			if (array_key_exists($paremeter_name, $new_display_data) AND $saved_display_data[$paremeter_name] != $new_display_data[$paremeter_name]) {
+		foreach ($saved_display_data as $paremeter_name => $saved_value)
+		{
+			if (array_key_exists($paremeter_name, $new_display_data) AND $saved_display_data[$paremeter_name] != $new_display_data[$paremeter_name])
+			{
 				$this->saveToDB($paremeter_name, $new_display_data[$paremeter_name], 'display');
 			}
 		}
+
 		return TRUE;
 	}
 
@@ -137,22 +157,28 @@ class assStackQuestionConfig
 		$new_options_data = $this->getAdminInput();
 
 		//Checkboxes workaround
-		if (!array_key_exists('options_question_simplify', $new_options_data)) {
+		if (!array_key_exists('options_question_simplify', $new_options_data))
+		{
 			$new_options_data['options_question_simplify'] = 0;
 		}
-		if (!array_key_exists('options_assume_positive', $new_options_data)) {
+		if (!array_key_exists('options_assume_positive', $new_options_data))
+		{
 			$new_options_data['options_assume_positive'] = 0;
 		}
-		if (!array_key_exists('options_sqrt_sign', $new_options_data)) {
+		if (!array_key_exists('options_sqrt_sign', $new_options_data))
+		{
 			$new_options_data['options_sqrt_sign'] = 0;
 		}
 
 		//Save to DB
-		foreach ($saved_options_data as $paremeter_name => $saved_value) {
-			if (array_key_exists($paremeter_name, $new_options_data) AND $saved_options_data[$paremeter_name] != $new_options_data[$paremeter_name]) {
+		foreach ($saved_options_data as $paremeter_name => $saved_value)
+		{
+			if (array_key_exists($paremeter_name, $new_options_data) AND $saved_options_data[$paremeter_name] != $new_options_data[$paremeter_name])
+			{
 				$this->saveToDB($paremeter_name, $new_options_data[$paremeter_name], 'options');
 			}
 		}
+
 		return TRUE;
 	}
 
@@ -167,34 +193,44 @@ class assStackQuestionConfig
 		$new_inputs_data = $this->getAdminInput();
 
 		//Checkboxes workaround
-		if (!array_key_exists('input_strict_syntax', $new_inputs_data)) {
+		if (!array_key_exists('input_strict_syntax', $new_inputs_data))
+		{
 			$new_inputs_data['input_strict_syntax'] = 0;
 		}
-		if (!array_key_exists('input_insert_stars', $new_inputs_data)) {
+		if (!array_key_exists('input_insert_stars', $new_inputs_data))
+		{
 			$new_inputs_data['input_insert_stars'] = 0;
 		}
-		if (!array_key_exists('input_forbid_float', $new_inputs_data)) {
+		if (!array_key_exists('input_forbid_float', $new_inputs_data))
+		{
 			$new_inputs_data['input_forbid_float'] = 0;
 		}
-		if (!array_key_exists('input_require_lowest_terms', $new_inputs_data)) {
+		if (!array_key_exists('input_require_lowest_terms', $new_inputs_data))
+		{
 			$new_inputs_data['input_require_lowest_terms'] = 0;
 		}
-		if (!array_key_exists('input_check_answer_type', $new_inputs_data)) {
+		if (!array_key_exists('input_check_answer_type', $new_inputs_data))
+		{
 			$new_inputs_data['input_check_answer_type'] = 0;
 		}
-		if (!array_key_exists('input_must_verify', $new_inputs_data)) {
+		if (!array_key_exists('input_must_verify', $new_inputs_data))
+		{
 			$new_inputs_data['input_must_verify'] = 0;
 		}
-		if (!array_key_exists('input_show_validation', $new_inputs_data)) {
+		if (!array_key_exists('input_show_validation', $new_inputs_data))
+		{
 			$new_inputs_data['input_show_validation'] = 0;
 		}
 
 		//Save to DB
-		foreach ($saved_inputs_data as $paremeter_name => $saved_value) {
-			if (array_key_exists($paremeter_name, $new_inputs_data) AND $saved_inputs_data[$paremeter_name] != $new_inputs_data[$paremeter_name]) {
+		foreach ($saved_inputs_data as $paremeter_name => $saved_value)
+		{
+			if (array_key_exists($paremeter_name, $new_inputs_data) AND $saved_inputs_data[$paremeter_name] != $new_inputs_data[$paremeter_name])
+			{
 				$this->saveToDB($paremeter_name, $new_inputs_data[$paremeter_name], 'inputs');
 			}
 		}
+
 		return TRUE;
 	}
 
@@ -207,15 +243,7 @@ class assStackQuestionConfig
 	{
 		global $DIC;
 		$db = $DIC->database();
-		$db->replace('xqcas_configuration',
-			array(
-				'parameter_name' => array('text', $parameter_name)
-			),
-			array(
-				'value' => array('clob', $value),
-				'group_name' => array('text', $group_name),
-			)
-		);
+		$db->replace('xqcas_configuration', array('parameter_name' => array('text', $parameter_name)), array('value' => array('clob', $value), 'group_name' => array('text', $group_name),));
 	}
 
 	/*
@@ -230,6 +258,7 @@ class assStackQuestionConfig
 		$data = ilUtil::stripSlashesRecursive($_POST);
 		//Clean array
 		unset($data['cmd']);
+
 		return $data;
 	}
 
@@ -242,24 +271,25 @@ class assStackQuestionConfig
 	 */
 	public function setDefaultSettingsForConnection()
 	{
+		global $CFG;
 		//Default values for connection
-		$connection_default_values = array(
-			'platform_type' => 'unix',
-			'maxima_version' => '5.31.2',
-			'cas_connection_timeout' => '5',
-			'cas_result_caching' => 'db',
-			'maxima_command' => '',
-			'plot_command' => '',
-			'cas_debugging' => '0'
-		);
-		foreach ($connection_default_values as $paremeter_name => $value) {
+		$connection_default_values = array('platform_type' => 'unix', 'maxima_version' => '5.31.2', 'cas_connection_timeout' => '5', 'cas_result_caching' => 'db', 'maxima_command' => '', 'plot_command' => '', 'cas_debugging' => '0', 'cas_debugging' => '0', 'cas_maxima_libraries'=>'stats, distrib, descriptive, simplex');
+		foreach ($connection_default_values as $paremeter_name => $value)
+		{
 			$this->saveToDB($paremeter_name, $value, 'connection');
 		}
 
-		//Create new maximalocal file
+		//Force re-creation of maxima local file with new content from stack4.
 		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
 		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php');
-		stack_cas_configuration::create_maximalocal();
+
+		if (!file_exists($CFG->dataroot . '/stack/maximalocal.mac'))
+		{
+			stack_cas_configuration::create_maximalocal();
+		}else{
+			unlink($CFG->dataroot . '/stack/maximalocal.mac');
+			stack_cas_configuration::create_maximalocal();
+		}
 
 		return TRUE;
 	}
@@ -270,14 +300,12 @@ class assStackQuestionConfig
 	public function setDefaultSettingsForDisplay()
 	{
 		//Default values for display
-		$display_default_values = array(
-			'instant_validation' => '0',
-			'maths_filter' => 'mathjax',
-			'replace_dollars' => '1'
-		);
-		foreach ($display_default_values as $paremeter_name => $value) {
+		$display_default_values = array('instant_validation' => '0', 'maths_filter' => 'mathjax', 'replace_dollars' => '1');
+		foreach ($display_default_values as $paremeter_name => $value)
+		{
 			$this->saveToDB($paremeter_name, $value, 'display');
 		}
+
 		return TRUE;
 	}
 
@@ -287,20 +315,12 @@ class assStackQuestionConfig
 	public function setDefaultSettingsForOptions()
 	{
 		//Default values for options
-		$options_default_values = array(
-			'options_question_simplify' => '1',
-			'options_assume_positive' => '0',
-			'options_prt_correct' => $this->plugin_object->txt('default_prt_correct_message'),
-			'options_prt_partially_correct' => $this->plugin_object->txt('default_prt_partially_correct_message'),
-			'options_prt_incorrect' => $this->plugin_object->txt('default_prt_incorrect_message'),
-			'options_multiplication_sign' => 'dot',
-			'options_sqrt_sign' => '1',
-			'options_complex_numbers' => 'i',
-			'options_inverse_trigonometric' => 'cos-1'
-		);
-		foreach ($options_default_values as $paremeter_name => $value) {
+		$options_default_values = array('options_question_simplify' => '1', 'options_assume_positive' => '0', 'options_prt_correct' => $this->plugin_object->txt('default_prt_correct_message'), 'options_prt_partially_correct' => $this->plugin_object->txt('default_prt_partially_correct_message'), 'options_prt_incorrect' => $this->plugin_object->txt('default_prt_incorrect_message'), 'options_multiplication_sign' => 'dot', 'options_sqrt_sign' => '1', 'options_complex_numbers' => 'i', 'options_inverse_trigonometric' => 'cos-1');
+		foreach ($options_default_values as $paremeter_name => $value)
+		{
 			$this->saveToDB($paremeter_name, $value, 'options');
 		}
+
 		return TRUE;
 	}
 
@@ -310,22 +330,13 @@ class assStackQuestionConfig
 	public function setDefaultSettingsForInputs()
 	{
 		//Default values for inputs
-		$inputs_default_values = array(
-			'input_type' => 'algebraic',
-			'input_box_size' => '15',
-			'input_strict_syntax' => '1',
-			'input_insert_stars' => '0',
-			'input_forbidden_words' => '',
-			'input_forbid_float' => '1',
-			'input_require_lowest_terms' => '0',
-			'input_check_answer_type' => '0',
-			'input_must_verify' => '1',
-			'input_show_validation' => '1'
-		);
+		$inputs_default_values = array('input_type' => 'algebraic', 'input_box_size' => '15', 'input_strict_syntax' => '1', 'input_insert_stars' => '0', 'input_forbidden_words' => '', 'input_forbid_float' => '1', 'input_require_lowest_terms' => '0', 'input_check_answer_type' => '0', 'input_must_verify' => '1', 'input_show_validation' => '1');
 		//Is not the first time, replace current values by default values
-		foreach ($inputs_default_values as $paremeter_name => $value) {
+		foreach ($inputs_default_values as $paremeter_name => $value)
+		{
 			$this->saveToDB($paremeter_name, $value, 'inputs');
 		}
+
 		return TRUE;
 	}
 }

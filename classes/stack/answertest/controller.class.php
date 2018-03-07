@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,54 +14,62 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Answer test controller class.
- *
- * @copyright  2012 University of Birmingham
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-//fim:
+defined('MOODLE_INTERNAL') || die();
+
+
+// Answer test controller class.
+//
+// @copyright  2012 University of Birmingham
+// @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
+
 require_once(__DIR__ . '/anstest.class.php');
 require_once(__DIR__ . '/at_general_cas.class.php');
-//require_once(__DIR__ . '/../cas/connector.class.php');
-//require_once(__DIR__ . '/../cas/casstring.class.php');
-//require_once(__DIR__ . '/../cas/cassession.class.php');
+require_once(__DIR__ . '/../cas/connector.class.php');
+require_once(__DIR__ . '/../cas/casstring.class.php');
+require_once(__DIR__ . '/../cas/cassession.class.php');
 
 class stack_ans_test_controller {
     protected static $types = array(
-              'AlgEquiv'     => 'stackOptions_AnsTest_values_AlgEquiv',
-              'EqualComAss'  => 'stackOptions_AnsTest_values_EqualComAss',
-              'CasEqual'     => 'stackOptions_AnsTest_values_CasEqual',
-              'SameType'     => 'stackOptions_AnsTest_values_SameType',
-              'SubstEquiv'   => 'stackOptions_AnsTest_values_SubstEquiv',
-              'SysEquiv'     => 'stackOptions_AnsTest_values_SysEquiv',
-              'Expanded'     => 'stackOptions_AnsTest_values_Expanded',
-              'FacForm'      => 'stackOptions_AnsTest_values_FacForm',
-              'SingleFrac'   => 'stackOptions_AnsTest_values_SingleFrac',
-              'PartFrac'     => 'stackOptions_AnsTest_values_PartFrac',
-              'CompSquare'   => 'stackOptions_AnsTest_values_CompSquare',
-              'GT'           => 'stackOptions_AnsTest_values_GT',
-              'GTE'          => 'stackOptions_AnsTest_values_GTE',
-              'NumAbsolute'  => 'stackOptions_AnsTest_values_NumAbsolute',
-              'NumRelative'  => 'stackOptions_AnsTest_values_NumRelative',
-              'NumSigFigs'   => 'stackOptions_AnsTest_values_NumSigFigs',
-              'NumDecPlaces' => 'stackOptions_AnsTest_values_NumDecPlaces',
-              'LowestTerms'  => 'stackOptions_AnsTest_values_LowestTerms',
-              'Diff'         => 'stackOptions_AnsTest_values_Diff',
-              'Int'          => 'stackOptions_AnsTest_values_Int',
-              'String'       => 'stackOptions_AnsTest_values_String',
-              'StringSloppy' => 'stackOptions_AnsTest_values_StringSloppy',
-              'RegExp'       => 'stackOptions_AnsTest_values_RegExp',
+              'AlgEquiv'             => 'stackOptions_AnsTest_values_AlgEquiv',
+              'EqualComAss'          => 'stackOptions_AnsTest_values_EqualComAss',
+              'CasEqual'             => 'stackOptions_AnsTest_values_CasEqual',
+              'SameType'             => 'stackOptions_AnsTest_values_SameType',
+              'SubstEquiv'           => 'stackOptions_AnsTest_values_SubstEquiv',
+              'SysEquiv'             => 'stackOptions_AnsTest_values_SysEquiv',
+              'Expanded'             => 'stackOptions_AnsTest_values_Expanded',
+              'FacForm'              => 'stackOptions_AnsTest_values_FacForm',
+              'SingleFrac'           => 'stackOptions_AnsTest_values_SingleFrac',
+              'PartFrac'             => 'stackOptions_AnsTest_values_PartFrac',
+              'CompSquare'           => 'stackOptions_AnsTest_values_CompSquare',
+              'Equiv'                => 'stackOptions_AnsTest_values_Equiv',
+              'EquivFirst'           => 'stackOptions_AnsTest_values_EquivFirst',
+              'GT'                   => 'stackOptions_AnsTest_values_GT',
+              'GTE'                  => 'stackOptions_AnsTest_values_GTE',
+              'SigFigsStrict'        => 'stackOptions_AnsTest_values_SigFigsStrict',
+              'NumAbsolute'          => 'stackOptions_AnsTest_values_NumAbsolute',
+              'NumRelative'          => 'stackOptions_AnsTest_values_NumRelative',
+              'NumSigFigs'           => 'stackOptions_AnsTest_values_NumSigFigs',
+              'NumDecPlaces'         => 'stackOptions_AnsTest_values_NumDecPlaces',
+              'Units'                => 'stackOptions_AnsTest_values_UnitsSigFigs',
+              'UnitsStrict'          => 'stackOptions_AnsTest_values_UnitsStrictSigFigs',
+              'UnitsAbsolute'        => 'stackOptions_AnsTest_values_UnitsAbsolute',
+              'UnitsStrictAbsolute'  => 'stackOptions_AnsTest_values_UnitsStrictAbsolute',
+              'UnitsRelative'        => 'stackOptions_AnsTest_values_UnitsRelative',
+              'UnitsStrictRelative'  => 'stackOptions_AnsTest_values_UnitsStrictRelative',
+              'LowestTerms'          => 'stackOptions_AnsTest_values_LowestTerms',
+              'Diff'                 => 'stackOptions_AnsTest_values_Diff',
+              'Int'                  => 'stackOptions_AnsTest_values_Int',
+              'String'               => 'stackOptions_AnsTest_values_String',
+              'StringSloppy'         => 'stackOptions_AnsTest_values_StringSloppy',
+              'RegExp'               => 'stackOptions_AnsTest_values_RegExp',
               );
 
     /**
-     * The answertest object that the functions call
+     * The answertest object that the functions call.
      * @var string
      * @access private
      */
     private $at;
-
-    // Operations.
 
     /**
      *
@@ -81,11 +89,11 @@ class stack_ans_test_controller {
                 break;
 
             case 'EqualComAss':
-                $this->at = new stack_answertest_general_cas($sans, $tans, 'ATEqualComAss', false, $casoption, $options, 0);
+                $this->at = new stack_answertest_general_cas($sans, $tans, 'ATEqualComAss', false, $casoption, $options, false);
                 break;
 
             case 'CasEqual':
-                $this->at = new stack_answertest_general_cas($sans, $tans, 'ATCASEqual', false, $casoption, $options, true);
+                $this->at = new stack_answertest_general_cas($sans, $tans, 'ATCASEqual', false, $casoption, $options, false);
                 break;
 
             case 'SameType':
@@ -116,6 +124,23 @@ class stack_ans_test_controller {
             case 'CompSquare':
                 $this->at = new stack_answertest_general_cas($sans, $tans, 'ATCompSquare',
                                     true, $casoption, $options, true, false, true);
+                break;
+
+            case 'Equiv':
+                if (trim($casoption) == '' ) {
+                    // Note the *string* 'null' here is not mistake: this is passed to Maxima.
+                    $this->at = new stack_answertest_general_cas($sans, $tans, 'ATEquiv', true, 'null', $options);
+                } else {
+                    $this->at = new stack_answertest_general_cas($sans, $tans, 'ATEquiv', true, $casoption, $options);
+                }
+                break;
+
+            case 'EquivFirst':
+                if (trim($casoption) == '' ) {
+                    $this->at = new stack_answertest_general_cas($sans, $tans, 'ATEquivFirst', true, 'null', $options);
+                } else {
+                    $this->at = new stack_answertest_general_cas($sans, $tans, 'ATEquivFirst', true, $casoption, $options);
+                }
                 break;
 
             case 'String':
@@ -149,6 +174,11 @@ class stack_ans_test_controller {
                 $this->at = new stack_answertest_general_cas($sans, $tans, 'ATGTE', false, $casoption, $options);
                 break;
 
+            case 'SigFigsStrict':
+                require_once(__DIR__ . '/atnumsigfigs.class.php');
+                $this->at = new stack_anstest_atnumsigfigs($sans, $tans, $options, $casoption, 'ATSigFigsStrict', true);
+                break;
+
             case 'NumAbsolute':
                 if (trim($casoption) == '') {
                     $casoption = '0.05';
@@ -164,12 +194,43 @@ class stack_ans_test_controller {
                 break;
 
             case 'NumSigFigs':
-                $this->at = new stack_answertest_general_cas($sans, $tans, 'ATNumSigFigs', true, $casoption, $options, true, true);
+                require_once(__DIR__ . '/atnumsigfigs.class.php');
+                $this->at = new stack_anstest_atnumsigfigs($sans, $tans, $options, $casoption, 'ATNumSigFigs', true);
                 break;
 
             case 'NumDecPlaces':
                 require_once(__DIR__ . '/atdecplaces.class.php');
                 $this->at = new stack_anstest_atdecplaces($sans, $tans, $options, $casoption);
+                break;
+
+            case 'Units':
+                require_once(__DIR__ . '/atnumsigfigs.class.php');
+                $this->at = new stack_anstest_atnumsigfigs($sans, $tans, $options, $casoption, 'ATUnitsSigFigs', false);
+                break;
+
+            case 'UnitsStrict':
+                require_once(__DIR__ . '/atnumsigfigs.class.php');
+                $this->at = new stack_anstest_atnumsigfigs($sans, $tans, $options, $casoption, 'ATUnitsStrictSigFigs', false);
+                break;
+
+            case 'UnitsAbsolute':
+                $this->at = new stack_answertest_general_cas($sans, $tans, 'ATUnitsAbsolute',
+                                    true, $casoption, $options, false, true);
+                break;
+
+            case 'UnitsStrictAbsolute':
+                $this->at = new stack_answertest_general_cas($sans, $tans, 'ATUnitsStrictAbsolute',
+                                    true, $casoption, $options, false, true);
+                break;
+
+            case 'UnitsRelative':
+                $this->at = new stack_answertest_general_cas($sans, $tans, 'ATUnitsRelative',
+                                    true, $casoption, $options, false, true);
+                break;
+
+            case 'UnitsStrictRelative':
+                $this->at = new stack_answertest_general_cas($sans, $tans, 'ATUnitsStrictRelative',
+                                    true, $casoption, $options, false, true);
                 break;
 
             case 'LowestTerms':
@@ -285,6 +346,26 @@ class stack_ans_test_controller {
      */
     public function validate_atoptions($opt) {
         return $this->at->validate_atoptions($opt);
+    }
+
+    /**
+     * Pass back CAS debug information for testing.
+     *
+     * @return string
+     * @access public
+     */
+    public function get_debuginfo() {
+        return $this->at->get_debuginfo();
+    }
+
+    /**
+     * Returns an intelligible trace of an executed answer test.
+     *
+     * @return string
+     * @access public
+     */
+    public function get_trace() {
+        return $this->at->get_trace();
     }
 }
 

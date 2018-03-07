@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * Connection to Maxima for unix-like systems.
@@ -23,7 +24,6 @@
  */
 class stack_cas_connection_unix extends stack_cas_connection_base {
 
-    /* @see stack_cas_connection_base::guess_maxima_command() */
     protected function guess_maxima_command($path) {
         global $CFG;
         if (stack_connection_helper::get_platform() == 'unix-optimised') {
@@ -41,17 +41,21 @@ class stack_cas_connection_unix extends stack_cas_connection_base {
             return '/Applications/Maxima.app/Contents/Resources/maxima.sh';
         }
 
-        // Default guess on Linux.
-        return 'maxima';
+        // Default guess on Linux, making explicit use of the chosen version number.
+        $maximaversion = stack_connection_helper::get_maximaversion();
+        $maximacommand = 'maxima';
+        if ('default' != $maximaversion) {
+            $maximacommand = 'maxima --use-version='.$maximaversion;
+        }
+        return $maximacommand;
     }
 
-    /* @see stack_cas_connection_base::call_maxima() */
     protected function call_maxima($command) {
-
         $ret = false;
         $err = '';
         $cwd = null;
-        $env = array('why' => 'itworks');
+        $newpath = getenv('PATH');
+        $env = array('PATH' => $newpath);
 
         $descriptors = array(
             0 => array('pipe', 'r'),

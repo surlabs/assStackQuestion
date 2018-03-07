@@ -393,7 +393,7 @@ class assStackQuestionAuthoringGUI
 		$part = new ilMultipartFormPart($this->getPlugin()->txt('show_input') . ' ' . $input->getInputName());
 
 		$input_type = new ilSelectInputGUI($this->getPlugin()->txt('input_type'), $input->getInputName() . '_input_type');
-		$input_type->setOptions(array("algebraic" => $this->getPlugin()->txt('input_type_algebraic'), "boolean" => $this->getPlugin()->txt('input_type_boolean'), "matrix" => $this->getPlugin()->txt('input_type_matrix'), "singlechar" => $this->getPlugin()->txt('input_type_singlechar'), "textarea" => $this->getPlugin()->txt('input_type_textarea')));
+		$input_type->setOptions(array("algebraic" => $this->getPlugin()->txt('input_type_algebraic'), "boolean" => $this->getPlugin()->txt('input_type_boolean'), "matrix" => $this->getPlugin()->txt('input_type_matrix'), "singlechar" => $this->getPlugin()->txt('input_type_singlechar'), "textarea" => $this->getPlugin()->txt('input_type_textarea') , "checkbox" => $this->getPlugin()->txt('input_type_checkbox'), "dropdown" => $this->getPlugin()->txt('input_type_dropdown'), "equiv" => $this->getPlugin()->txt('input_type_equiv'), "notes" => $this->getPlugin()->txt('input_type_notes'), "radio" => $this->getPlugin()->txt('input_type_radio'), "units" => $this->getPlugin()->txt('input_type_units'), "string" => $this->getPlugin()->txt('input_type_string'), "numerical" => $this->getPlugin()->txt('input_type_numerical')));
 		$input_type->setInfo($this->getPlugin()->txt('input_type_info'));
 		$input_type->setRequired(TRUE);
 
@@ -844,10 +844,15 @@ class assStackQuestionAuthoringGUI
 		$node_pos_next_node = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_pos_next'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_pos_next');
 		$node_list = array(-1 => $this->getPlugin()->txt('end'));
 		//Get list of nodes
+		//Solve 22289
 		foreach ($prt->getPRTNodes() as $prt_node)
 		{
-			$node_list[$prt_node->getNodeName()] = $prt_node->getNodeName();
+			if ($prt_node->getNodeName() != $node->getNodeName())
+			{
+				$node_list[$prt_node->getNodeName()] = $prt_node->getNodeName();
+			}
 		}
+
 		$node_pos_next_node->setOptions($node_list);
 		$node_pos_next_node->setInfo($this->getPlugin()->txt('prt_node_pos_next_info'));
 
@@ -908,11 +913,15 @@ class assStackQuestionAuthoringGUI
 
 		$node_neg_next_node = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_neg_next'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_neg_next');
 		$node_list = array(-1 => $this->getPlugin()->txt('end'));
+		//Solve 22289
 		foreach ($prt->getPRTNodes() as $prt_node)
 		{
-			$node_list[$prt_node->getNodeName()] = $prt_node->getNodeName();
+			if ($prt_node->getNodeName() != $node->getNodeName())
+			{
+				$node_list[$prt_node->getNodeName()] = $prt_node->getNodeName();
+			}
 		}
-		unset($node_list[$node->getNodeName()]);
+
 		$node_neg_next_node->setOptions($node_list);
 		$node_neg_next_node->setInfo($this->getPlugin()->txt('prt_node_neg_next_info'));
 

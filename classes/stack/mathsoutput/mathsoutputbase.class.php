@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-
-require_once(__DIR__ . '/fact_sheets.class.php');
-
+//defined('MOODLE_INTERNAL') || die();
+//fim: #22 change access to class.
+require_once(dirname(__FILE__) . '/fact_sheets.class.php');
+//fim.
 
 /**
  * The base class for STACK maths output methods.
@@ -72,25 +73,28 @@ abstract class stack_maths_output {
         return $html;
     }
 
-	/**
-	 * Do the necessary processing on content that came from the user, for example
-	 * the question text or general feedback. The result of calling this method is
-	 * then passed to Moodle's {@link format_text()} function.
-	 * @param string $text the content to process.
-	 * @return string the content ready to pass to format_text.
-	 */
-	public function process_display_castext($text, $replacedollars) {
-		if ($replacedollars) {
-			$text = $this->replace_dollars($text);
-		}
-		// fim:
+    /**
+     * Do the necessary processing on content that came from the user, for example
+     * the question text or general feedback. The result of calling this method is
+     * then passed to Moodle's {@link format_text()} function.
+     * @param string $text the content to process.
+     * @param qtype_stack_renderer $renderer (options) the STACK renderer, if you have one.
+     * @return string the content ready to pass to format_text.
+     */
+    public function process_display_castext($text, $replacedollars, qtype_stack_renderer $renderer = null) {
+        if ($replacedollars) {
+            $text = $this->replace_dollars($text);
+        }
+		//fim: #5 Use ILIAS plotting system instead of Moodle
 		global $CFG;
 		$text = str_replace('!ploturl!',$CFG->dataurl . '/stack/plots/', $text);
 		//$text = str_replace('!ploturl!',
 		//        moodle_url::make_file_url('/question/type/stack/plot.php', '/'), $text);
-		// fim.
-		return $text;
-	}
+		//fim: #5
+
+        $text = stack_fact_sheets::display($text, $renderer);
+        return $text;
+    }
 
     /**
      * Replace dollar delimiters ($...$ and $$...$$) in text with the safer
@@ -99,18 +103,11 @@ abstract class stack_maths_output {
      * @param bool $markup surround the change with <ins></ins> tags.
      * @return string the text with delimiters replaced.
      */
-	public function replace_dollars($text, $markup = false)
-	{
-		//fim:
-		/*
-		 * Step 1 check current platform's LaTeX delimiters
-		 */
-		//Replace dollars but using mathjax settings in each platform.
-		$mathJaxSetting = new ilSetting("MathJax");
-		//By default [tex]
-		$start = '[tex]';
-		$end = '[/tex]';
+    public function replace_dollars($text, $markup = false) {
 
+    	$old_text = $text;
+    	//fim: #11 Use platform inline delimiters instead of default \(...\)
+		$mathJaxSetting = new ilSetting("MathJax");
 		switch ((int)$mathJaxSetting->setting['limiter'])
 		{
 			case 0:
@@ -129,44 +126,59 @@ abstract class stack_maths_output {
 				$end = '&lt;/span&gt;';
 				break;
 			default:
-
+				/*\(...\)*/
+				$start = '\(';
+				$end = '\)';
+				break;
 		}
 
-		/*
-		 * Step 2 Replace $$ from STACK and all other LaTeX delimiter to the current platform's delimiter.
-		 */
-		//Get all $$ to replace it
-		$text = preg_replace('~(?<!\\\\)\$\$(.*?)(?<!\\\\)\$\$~', $start . '$1' . $end, $text);
-		$text = preg_replace('~(?<!\\\\)\$(.*?)(?<!\\\\)\$~', $start . '$1' . $end, $text);
+        if ($markup) {
+            $displaystart = '<ins>\[</ins>';
+            $displayend   = '<ins>\]</ins>';
+            $inlinestart  = '<ins>'.$start.'</ins>';
+            $inlineend    = '<ins>'.$end.'</ins>';
+            $v4start      = '<ins>{@</ins>';
+            $v4end        = '<ins>@}</ins>';
+        } else {
+            $displaystart = '\[';
+            $displayend   = '\]';
+            $inlinestart  = '\(';
+            $inlineend    = '\)';
+            $v4start      = '{@';
+            $v4end        = '@}';
+        }
+        $text = preg_replace('~(?<!\\\\)\$\$(.*?)(?<!\\\\)\$\$~', $displaystart . '$1' . $displayend, $text);
+        $text = preg_replace('~(?<!\\\\)\$(.*?)(?<!\\\\)\$~', $inlinestart . '$1' . $inlineend, $text);
 
-		//Search for all /(/) and change it to the current limiter in Mathjaxsettings
-		$text = str_replace('\(', $start, $text);
-		$text = str_replace('\)', $end, $text);
+        $temp = stack_utils::all_substring_between($text, '@', '@', true);
+        $i = 0;
+        foreach ($temp as $cmd) {
+            $pos = strpos($text, '@', $i);
+            $post = false;
+            while (!$post) {
+                $post = strpos($text, '@', $pos + 1);
+                if (strpos($text, $cmd, $pos) > $post || trim(substr($text, $pos + 1, $post - $pos - 1)) != $cmd) {
+                    $pos = $post;
+                    $post = false;
+                } else {
+                    $post = $post + 1;
+                }
+            }
+            $front = $pos > 0 && $text[$pos - 1] == '{';
+            $back = $post < strlen($text) && $text[$post] == '}';
+            if (!($front && $back)) {
+                $text = substr($text, 0, $pos) . $v4start . trim($cmd) . $v4end . substr($text, $post);
+            }
+            $i = $pos + strlen($v4start);
+        }
 
-		//Search for all \[\] and change it to the current limiter in Mathjaxsettings
-		$text = str_replace('\[', $start, $text);
-		$text = str_replace('\]', $end, $text);
+		//fim: #20 Use ILIAS Insert LaTeX images and add alert if text has been changed
+		if($old_text != $text){
+        	global $DIC;
+        	$lng = $DIC->language();
+			ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_update_to_version_3_2"), TRUE);
 
-		//Search for all [tex] and change it to the current limiter in Mathjaxsettings
-		$text = str_replace('[tex]', $start, $text);
-		$text = str_replace('[/tex]', $end, $text);
-
-		//Search for all &lt;span class="math"&gt;...&lt;/span&gt; and change it to the current limiter in Mathjaxsettings
-		$text = preg_replace('/<span class="math">(.*?)<\/span>/', $start . '$1' . $end, $text);
-
-		//Search for all &lt;span class="latex"&gt;...&lt;/span&gt; and change it to the current limiter in Mathjaxsettings
-		$text = preg_replace('/<span class="latex">(.*?)<\/span>/', $start . '$1' . $end, $text);
-
-		// replace special characters to prevent problems with the ILIAS template system
-		// eg. if someone uses {1} as an answer, nothing will be shown without the replacement
-		$text = str_replace("{", "&#123;", $text);
-		$text = str_replace("}", "&#125;", $text);
-		$text = str_replace("\\", "&#92;", $text);
-
-
-		/*
-		 * Step 3 User ilMathJax::getInstance()->insertLatexImages to deliver the LaTeX code.
-		 */
+		}
 		include_once './Services/MathJax/classes/class.ilMathJax.php';
 		//ilMathJax::getInstance()->insertLatexImages cannot render \( delimiters so we change it to [tex]
 		if ($start == '\(')
@@ -177,5 +189,5 @@ abstract class stack_maths_output {
 			return ilMathJax::getInstance()->insertLatexImages($text, $start, $end);
 		}
 		//fim
-	}
+    }
 }

@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,6 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * Input for entering true/false using a select dropdown.
@@ -40,7 +42,11 @@ class stack_boolean_input extends stack_input {
         return '';
     }
 
-    public function render(stack_input_state $state, $fieldname, $readonly) {
+    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue) {
+
+        if ($this->errors) {
+            return $this->render_error($this->errors);
+        }
 
         $attributes = array();
         if ($readonly) {
@@ -63,7 +69,7 @@ class stack_boolean_input extends stack_input {
      */
     public static function get_parameters_defaults() {
         return array(
-                'mustVerify'     => false,
-                'hideFeedback'   => true);
+                'mustVerify'      => false,
+                'showValidation'  => 0);
     }
 }

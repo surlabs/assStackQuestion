@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * Input that accepts a single character.
@@ -23,14 +24,16 @@
  */
 class stack_singlechar_input extends stack_input {
 
-    public function render(stack_input_state $state, $fieldname, $readonly) {
+    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue) {
 
-		//fim
-		//added id field for validation purpose
+        if ($this->errors) {
+            return $this->render_error($this->errors);
+        }
+
         $attributes = array(
             'type'      => 'text',
             'name'      => $fieldname,
-			'id'      => $fieldname,
+            'id'        => $fieldname,
             'size'      => 1,
             'maxlength' => 1,
             'value'     => $this->contents_to_maxima($state->contents),
@@ -55,14 +58,13 @@ class stack_singlechar_input extends stack_input {
         $mform->setType($this->name, PARAM_RAW);
     }
 
-    /**RET
+    /**
      * Return the default values for the parameters.
      * @return array parameters` => default value.
      */
     public static function get_parameters_defaults() {
-		//fim hidefeedback set to false.
         return array(
-            'mustVerify'     => false,
-            'hideFeedback'   => false);
+            'mustVerify'      => false,
+            'showValidation'  => 0);
     }
 }

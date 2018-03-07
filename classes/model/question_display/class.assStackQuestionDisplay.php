@@ -145,20 +145,33 @@ class assStackQuestionDisplay
 		//Get student answer for this inputF
 		//In assStackQuestionDisplay the User response should be store with the "value" format for assStackQuestionUtils::_getUserResponse.
 		$student_answer = $this->getUserResponse($input_name, $in_test);
+		//Bug https://www.ilias.de/mantis/view.php?id=22129 about matrix syntax hint
+		if (!sizeof($student_answer) AND ($input->get_parameter('syntaxHint') != '') AND is_a($input, 'stack_matrix_input'))
+		{
+			$student_answer = assStackQuestionUtils::_changeUserResponseStyle(array($input_name => $input->get_parameter('syntaxHint')), $this->getQuestion()->getQuestionId(), array($input_name => $input), 'reduced_to_value');
+			$student_answer = $student_answer["xqcas_input_" . $input_name . "_value"];
+		}
 
 		//Create input state
-		$state = $this->getQuestion()->getInputState($input_name, $student_answer, $input->get_parameter('forbidWords', ''));
+		if ($in_test)
+		{
+			$state = $this->getQuestion()->getInputState($input_name, $student_answer[$input_name], $input->get_parameter('forbidWords', ''));
+
+		} else
+		{
+			$state = $this->getQuestion()->getInputState($input_name, $student_answer, $input->get_parameter('forbidWords', ''));
+		}
 		if ($render_display)
 		{
 			return $state->contentsdisplayed;
 		}
 		//Return renderised input
-		if (!is_a($input, 'stack_matrix_input'))
+		if (is_subclass_of($input, 'stack_dropdown_input'))
 		{
-			return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE);
+			return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE, $input->get_teacher_answer());
 		} else
 		{
-			return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE);
+			return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE, $input->get_teacher_answer());
 		}
 	}
 
@@ -171,7 +184,7 @@ class assStackQuestionDisplay
 	 */
 	private function replacementForValidationPlaceholders($input, $input_name)
 	{
-		if (!is_a($input, 'stack_boolean_input'))
+		if (!is_a($input, 'stack_boolean_input') AND !is_subclass_of($input, 'stack_dropdown_input'))
 		{
 			if ($input->requires_validation())
 			{
@@ -207,7 +220,7 @@ class assStackQuestionDisplay
 			$string .= '<div class="alert alert-warning" role="alert">';
 			//Generic feedback
 			$string .= $this->inline_feedback['prt'][$prt_name]['status']['message'];
-			$string .= '<br>';
+			//$string .= '<br>';
 			//Specific feedback
 			$string .= $this->inline_feedback['prt'][$prt_name]['feedback'];
 			$string .= $this->inline_feedback['prt'][$prt_name]['errors'];
@@ -252,26 +265,19 @@ class assStackQuestionDisplay
 			{
 				if ($in_test)
 				{
-					if (array_key_exists('xqcas_input_' . $selector . '_value', $this->user_response))
+					if (array_key_exists($selector, $this->user_response))
 					{
 						foreach ($this->getQuestion()->getInputs() as $input_name => $input)
 						{
 							if ($input_name == $selector)
 							{
-								if (is_a($input, 'stack_matrix_input'))
-								{
-									$user_answer[$selector] = $this->user_response['xqcas_input_' . $input_name . '_value'];
-								} else
-								{
-									$user_answer[$selector] = array($selector => $this->user_response['xqcas_input_' . $selector . '_value']);
-								}
+								$user_answer[$selector] = array($selector => $this->user_response[$selector]);
 							}
 						}
 					} else
 					{
 						return array($selector => '');
 					}
-
 					return $user_answer[$selector];
 				} else
 				{
@@ -291,13 +297,15 @@ class assStackQuestionDisplay
 									}
 								}
 								$user_answer[$selector] = $matrix_input;
+							} elseif (is_subclass_of($input, "stack_dropdown_input"))
+							{
+								$user_answer[$selector] = $this->user_response;
 							} else
 							{
 								$user_answer[$selector] = array($selector => $this->user_response[$selector]);
 							}
 						}
 					}
-
 					return $user_answer[$selector];
 				}
 			} else

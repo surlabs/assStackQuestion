@@ -203,12 +203,12 @@ class assStackQuestionDisplayGUI
 			{
 				//Step 1.1 Replace input fields
 				$display = $this->getDisplay('inputs', $input_name);
-				$input_text = str_replace("[[input:{$input_name}]]", $display['display'], $this->getDisplay('question_text'));
+				$input_text = str_replace("[[input:{$input_name}]]", "</br>".$display['display'], $this->getDisplay('question_text'));
 				$this->setDisplay($input_text, 'question_text');
 				//Step 1.2 Replace validation fields
 				if ($show_feedback AND strlen($display["display_rendered"]) > 1)
 				{
-					$validation_text = str_replace("[[validation:{$input_name}]]", "</br>" . $this->plugin->txt("interpreted_by_maxima_as_2") . "</br>" . $display['display_rendered'], $this->getDisplay('question_text'));
+					$validation_text = str_replace("[[validation:{$input_name}]]","</br>" . $this->plugin->txt("interpreted_by_maxima_as_2") . "</br>" . $display['display_rendered'], $this->getDisplay('question_text'));
 				} else
 				{
 					$validation_text = str_replace("[[validation:{$input_name}]]", $this->getDisplay('validation', $input_name), $this->getDisplay('question_text'));

@@ -28,6 +28,7 @@ $CFG->dataurl = ILIAS_HTTP_PATH . "/" . ILIAS_WEB_DIR . "/" . CLIENT_ID . "/xqca
 $GLOBALS['CFG'] =& $CFG;
 
 define('PARAM_RAW', 'raw');
+define('MOODLE_INTERNAL', '1');
 
 
 /**
@@ -165,6 +166,10 @@ class stack_exception extends assStackQuestionException
 {
 }
 
+class coding_exception extends assStackQuestionException
+{
+}
+
 
 function get_config($section = 'qtype_stack')
 {
@@ -262,8 +267,8 @@ function get_config($section = 'qtype_stack')
 	$configs->inputshowvalidation = $saved_config['input_show_validation'];
 
 	$configs->maximalocalfolder = ilUtil::getWebspaceDir('filesystem') . '/xqcas/stack';
-	$configs->stackmaximaversion = "2013060300";
-	$configs->version = "2013070900";
+	$configs->stackmaximaversion = "2017121800";
+	$configs->version = "2017121800";
 
 	return $configs;
 }
@@ -1071,6 +1076,7 @@ class html_writer
 		return $label;
 	}
 
+
 }
 
 /**
@@ -1095,3 +1101,4 @@ function s($var)
 	// 'UTF-8' argument. Both bring a speed-increase.
 	return preg_replace('/&amp;#(\d+|x[0-9a-f]+);/i', '&#$1;', htmlspecialchars($var, ENT_QUOTES, 'UTF-8'));
 }
+

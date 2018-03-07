@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,10 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/connector.interface.php');
 require_once(__DIR__ . '/connector.class.php');
 require_once(__DIR__ . '/connector.dbcache.class.php');
+require_once(__DIR__ . '/installhelper.class.php');
 
 
 /**
@@ -78,13 +80,14 @@ abstract class stack_connection_helper {
 
         switch (self::$config->casresultscache) {
             case 'db':
-				//fim: use the ilias database
-                global $DIC;
-                $db = $DIC->database();
+				//fim: #12 Use ILIAS DB instead of Moodle DB
+				global $DIC;
+				$db = $DIC->database();
 				$connection = new stack_cas_connection_db_cache($connection, $debuglog, $db);
 				//fim.
-				break;
-			case 'otherdb':
+                break;
+
+            case 'otherdb':
                 $connection = new stack_cas_connection_db_cache($connection, $debuglog, self::get_other_db());
                 break;
 
@@ -123,6 +126,14 @@ abstract class stack_connection_helper {
     public static function get_platform() {
         self::ensure_config_loaded();
         return self::$config->platform;
+    }
+
+    /**
+     * @return the configured version number.
+     */
+    public static function get_maximaversion() {
+        self::ensure_config_loaded();
+        return self::$config->maximaversion;
     }
 
     /**
@@ -200,7 +211,7 @@ abstract class stack_connection_helper {
     }
 
     /**
-     * Exectue a CAS command just so we can get the version number of the
+     * Execute a CAS command just so we can get the version number of the
      * remote libraries being used, then check that version against what it should be.
      * @return array with two elements, a string like healthchecksstackmaximaversionok
      * or healthchecksstackmaximanotupdated which can be used as the first argument to,
@@ -259,21 +270,11 @@ abstract class stack_connection_helper {
     }
 
     /**
-     * Really exectue a CAS command, regardless of the cache settings.
+     * Exectue a CAS command, without any caching.
      */
-    public static function stackmaxima_genuine_connect() {
+    private static function stackmaxima_nocache_call($command) {
         self::ensure_config_loaded();
 
-        // Put something non-trivial in the call.
-        $date = date("Y-m-d H:i:s");
-
-        $command = 'cab:block([],print("[TimeStamp= [ 0 ], Locals= [ 0=[ error= ["), ' .
-                'cte("CASresult",errcatch(diff(x^n,x))), print("1=[ error= ["), ' .
-                'cte("CASversion",errcatch(stackmaximaversion)), print("2=[ error= ["), ' .
-                'cte("CAStime",errcatch(CAStime:"'.$date.'")), print("] ]"), return(true));' .
-                "\n";
-
-        // Really make sure there is no cache.
         $configcache = self::$config->casresultscache;
         $casdebugging = self::$config->casdebugging;
         self::$config->casresultscache = 'none';
@@ -286,34 +287,154 @@ abstract class stack_connection_helper {
         self::$config->casdebugging = $casdebugging;
 
         $debug = $connection->get_debuginfo();
+        return array($results, $debug);
+    }
+
+    /**
+     * Really exectue a CAS command, regardless of the cache settings.
+     */
+    public static function stackmaxima_genuine_connect() {
+        self::ensure_config_loaded();
+
+        $maximaversion = self::get_maximaversion();
+
+        // Put something non-trivial in the call.
+        $date = date("Y-m-d H:i:s");
+
+        $command = 'cab:block([],print("[TimeStamp= [ 0 ], Locals= [ 0=[ error= ["), ' .
+                'cte("CASresult",errcatch(diff(x^n,x))), print("1=[ error= ["), ' .
+                'cte("STACKversion",errcatch(stackmaximaversion)), print("2=[ error= ["), ' .
+                'cte("MAXIMAversion",errcatch(MAXIMA_VERSION_STR)), print("3=[ error= ["), ' .
+                'cte("MAXIMAversionnum",errcatch(MAXIMA_VERSION_NUM)), print("4=[ error= ["), ' .
+                'cte("externalformat",errcatch(adjust_external_format())), print("5=[ error= ["), ' .
+                'cte("CAStime",errcatch(CAStime:"'.$date.'")), print("] ]"), return(true));' .
+                "\n";
+
+        // Really make sure there is no cache.
+        list($results, $debug) = self::stackmaxima_nocache_call($command);
 
         $success = true;
-        $message = '';
+        $message = array();
         if (empty($results)) {
-            $message = stack_string('stackCas_allFailed');
+            $message[] = stack_string('stackCas_allFailed');
             $success = false;
         } else {
+            $maximaversionum = 'unknown number';
+            foreach ($results as $result) {
+                if ('MAXIMAversionnum' === $result['key']) {
+                    $maximaversionum = $result['value'];
+                }
+            }
             foreach ($results as $result) {
                 if ('CASresult' === $result['key']) {
                     if ($result['value'] != 'n*x^(n-1)') {
+                        $message[] = stack_string('healthuncachedstack_CAS_calculation',
+                                array('expected' => "n*x^(n-1)", 'actual' => $result['value']));
                         $success = false;
                     }
                 } else if ('CAStime' === $result['key']) {
                     if ($result['value'] != '"'.$date.'"') {
                         $success = false;
                     }
-                } else if ('CASversion' !== $result['key']) {
-                    $success = false;
+                } else if ('MAXIMAversion' === $result['key']) {
+                    $maximaversionstr = $result['value'] . ' ('.$maximaversionum.')';
+                    if ('default' == $maximaversion) {
+                        $message[] = stack_string('healthuncachedstack_CAS_versionnotchecked',
+                                array('actual' => $maximaversionstr));
+                    } else if ($result['value'] != '"'.$maximaversion.'"') {
+                        $message[] = stack_string('healthuncachedstack_CAS_version',
+                                array('expected' => $maximaversion, 'actual' => $maximaversionstr));
+                        $success = false;
+                    }
                 }
             }
         }
 
-        if ($success) {
-            $message = stack_string('healthuncachedstack_CAS_ok');
-        } else {
-            $message .= stack_string('healthuncachedstack_CAS_not');
+        if (strstr($debug, 'failed to load')) {
+            $message[] = stack_string('settingmaximalibraries_failed');
+            $success = false;
         }
+
+        if ($success) {
+            $message[] = stack_string('healthuncachedstack_CAS_ok');
+        } else {
+            $message[] = stack_string('healthuncachedstack_CAS_not');
+        }
+
+        $message = implode(" ", $message);
 
         return array($message, $debug, $success);
     }
+
+    /*
+     * This function is in this class, rather than installhelper.class.php, to
+     * ensure the lowest level connection to the CAS, without caching.
+     */
+    public static function stackmaxima_auto_maxima_optimise($genuinedebug) {
+        global $CFG;
+        self::ensure_config_loaded();
+
+        $imagename = stack_utils::convert_slash_paths($CFG->dataroot . '/stack/maxima_opt_auto');
+
+        $lisp = '1';
+        // Try to guess the lisp version.
+        if (!(false === strpos($genuinedebug, 'GNU Common Lisp (GCL)'))) {
+            $lisp = 'GCL';
+        }
+        if (!(false === strpos($genuinedebug, 'Lisp SBCL'))) {
+            $lisp = 'SBCL';
+        }
+        if (!(false === strpos($genuinedebug, 'Lisp CLISP'))) {
+            $lisp = 'CLISP';
+        }
+
+        switch ($lisp) {
+            case 'GCL':
+                $maximacommand = ':lisp (si::save-system "'.$imagename.'")' . "\n";
+                $maximacommand .= 'quit();'."\n";
+                $commandline = stack_utils::convert_slash_paths($imagename . ' -eval \'(cl-user::run)\'');
+                break;
+
+            case 'SBCL':
+                $maximacommand = ':lisp (sb-ext:save-lisp-and-die "'.$imagename.'" :toplevel #\'run :executable t)' . "\n";
+                $commandline = stack_utils::convert_slash_paths($imagename);
+                break;
+
+            case 'CLISP':
+                $imagename .= '.mem';
+                $maximacommand = ':lisp (ext:saveinitmem "'.$imagename.'" :init-function #\'user::run)' . "\n";
+                $maximacommand .= 'quit();'."\n";
+                $lisprun = shell_exec('locate lisp.run');
+                if (trim($lisprun) == '') {
+                    $success = false;
+                    $message = stack_string('healthautomaxopt_nolisprun');
+                    return array($message, '', $success, '');
+                }
+                $lisprun = explode("\n", $lisprun);
+                $commandline = $lisprun[0].' -q -M '.stack_utils::convert_slash_paths($imagename);
+                break;
+
+            default:
+                $success = false;
+                $message = stack_string('healthautomaxopt_nolisp');
+                return array($message, '', $success, '');
+        }
+
+        // Really make sure there is no cache.
+        list($results, $debug) = self::stackmaxima_nocache_call($maximacommand);
+
+        // Question: should we at this stage try to use the optimised image we have created?
+        $success = true;
+
+        // Add the timeout command to the message.
+        $commandline = 'timeout --kill-after=10s 10s '.$commandline;
+        $message = stack_string('healthautomaxopt_ok', array('command' => $commandline));
+        if (!file_exists($imagename)) {
+            $success = false;
+            $message = stack_string('healthautomaxopt_notok');
+        }
+
+        return array($message, $debug, $success, $commandline);
+    }
+
 }

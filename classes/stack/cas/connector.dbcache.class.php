@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * Class which undertakes process control to connect to Maxima.
@@ -29,7 +30,6 @@ class stack_cas_connection_db_cache implements stack_cas_connection
 	/** @var stack_debug_log does the debugging. */
 	protected $debug;
 
-	/** @var moodle_database The database connection to use for the cache. */
 	protected $db;
 
 	/**
@@ -37,7 +37,7 @@ class stack_cas_connection_db_cache implements stack_cas_connection
 	 * @param stack_cas_connection $rawconnection the un-cached connection.
 	 * @param stack_debug_log $debuglog the debug log to use.
 	 */
-	// fim: use ilias database
+	//fim: #7 Use ILIAS DB instead of Moodle DB
 	public function __construct(stack_cas_connection $rawconnection, stack_debug_log $debuglog, $db = "")
 	{
 		global $DIC;
@@ -46,16 +46,18 @@ class stack_cas_connection_db_cache implements stack_cas_connection
 		$this->debug = $debuglog;
 		$this->db = $db;
 	}
+
 	// fim.
 
-	/* @see stack_cas_connection::compute() */
 	public function compute($command)
 	{
 		$cached = $this->get_cached_result($command);
 		if ($cached->result)
 		{
 			$this->debug->log('Maxima command', $command);
+			// @codingStandardsIgnoreStart
 			$this->debug->log('Unpacked result found in the DB cache', print_r($cached->result, true));
+			// @codingStandardsIgnoreEnd
 			if (!stack_connection_helper::check_stackmaxima_version($cached->result))
 			{
 				stack_connection_helper::warn_about_version_mismatch($this->debug);
@@ -67,10 +69,7 @@ class stack_cas_connection_db_cache implements stack_cas_connection
 		$this->debug->log('Maxima command not found in the cache. Using the raw connection.');
 		$result = $this->rawconnection->compute($command);
 		// Only add to the cache if we didn't timeout!
-		if (stack_connection_helper::did_cas_timeout($result))
-		{
-			// Do nothing.
-		} else
+		if (!stack_connection_helper::did_cas_timeout($result))
 		{
 			$this->add_to_cache($command, $result, $cached->key);
 		}
@@ -78,7 +77,6 @@ class stack_cas_connection_db_cache implements stack_cas_connection
 		return $result;
 	}
 
-	/* @see stack_cas_connection::get_debuginfo() */
 	public function get_debuginfo()
 	{
 		return $this->debug->get_log();
@@ -97,7 +95,7 @@ class stack_cas_connection_db_cache implements stack_cas_connection
 		$cached->key = $this->get_cache_key($command);
 
 		// Are there any cached records that might match?
-		//fim: use ilias database
+		////fim: #8 Use ILIAS DB instead of Moodle DB
 		$query = 'SELECT * FROM xqcas_cas_cache WHERE hash = "' . $cached->key . '" ORDER BY id';
 		$res = $this->db->query($query);
 		$data[] = $this->db->fetchObject($res);
@@ -120,7 +118,7 @@ class stack_cas_connection_db_cache implements stack_cas_connection
 
 		// If there was more than one record in the cache (due to a race condition)
 		// drop the duplicates.
-		//fim: use ilias database
+		////fim: #9 Use ILIAS DB instead of Moodle DB
 		if (sizeof($data) > 1)
 		{
 			unset($data[0]);
@@ -153,7 +151,7 @@ class stack_cas_connection_db_cache implements stack_cas_connection
 		$data->command = $command;
 		$data->result = json_encode($result);
 
-		//fim: use ilias database
+		//fim: #10 Use ILIAS DB instead of Moodle DB
 		$id = $this->db->nextId('xqcas_cas_cache');
 		$this->db->insert("xqcas_cas_cache", array("id" => array("integer", $id), "hash" => array("text", $key), "command" => array("clob", $data->command), "result" => array("clob", $data->result)));
 		//fim.

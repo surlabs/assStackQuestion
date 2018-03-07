@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/../cas/connector.interface.php');
 
@@ -55,46 +56,60 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
     /** @var string replacement strings in relation to $wwwroothasunderscores. */
     protected $wwwrootfixupreplace;
 
+    // @codingStandardsIgnoreStart
     /* @see stack_cas_connection::compute() */
+    // @codingStandardsIgnoreEnd
     public function compute($command) {
 
-        $context = "Platform: ". stack_connection_helper::get_platform() . "\n";
-        $context .= "Maxima shell command: ". $this->command . "\n";;
-        $context .= "Maxima initial command: ". $this->initcommand . "\n";
-        $context .= "Maxima timeout: ". $this->timeout;
-        $this->debug->log('Context used', $context);
+		$context = "Platform: ". stack_connection_helper::get_platform() . "\n";
+		$context .= "Maxima shell command: ". $this->command . "\n";;
+		$context .= "Maxima initial command: ". $this->initcommand . "\n";
+		$context .= "Maxima timeout: ". $this->timeout;
+		$this->debug->log('Context used', $context);
 
-        $this->debug->log('Maxima command', $command);
+		$this->debug->log('Maxima command', $command);
 
-        // fim: log maxima calls in the benchmark
-        global $ilBench;
-        if (is_object($ilBench))
-        {
-            $ilBench->startDbBench('MAXIMA '. $command);
-            $rawresult = $this->call_maxima($command);
-            $ilBench->stopDbBench();
-        }
-        else
-        {
-            $rawresult = $this->call_maxima($command);
-        }
-        // fim.
+		// fim: #31 log maxima calls in the benchmark
+		global $ilBench;
+		if (is_object($ilBench))
+		{
+			$ilBench->startDbBench('MAXIMA '. $command);
+			$rawresult = $this->call_maxima($command);
+			$ilBench->stopDbBench();
+		}
+		else
+		{
+			$rawresult = $this->call_maxima($command);
+		}
+		// fim.
 
-        $this->debug->log('CAS result', $rawresult);
+		$this->debug->log('CAS result', $rawresult);
 
-        $unpackedresult = $this->unpack_raw_result($rawresult);
-        $this->debug->log('Unpacked result as', print_r($unpackedresult, true));
+		$unpackedresult = $this->unpack_raw_result($rawresult);
+		$this->debug->log('Unpacked result as', print_r($unpackedresult, true));
 
-        if (!stack_connection_helper::check_stackmaxima_version($unpackedresult)) {
-            stack_connection_helper::warn_about_version_mismatch($this->debug);
-        }
+		if (!stack_connection_helper::check_stackmaxima_version($unpackedresult)) {
+			stack_connection_helper::warn_about_version_mismatch($this->debug);
+		}
 
-        return $unpackedresult;
+		return $unpackedresult;
     }
 
+    // @codingStandardsIgnoreStart
     /* @see stack_cas_connection::get_debuginfo() */
+    // @codingStandardsIgnoreEnd
     public function get_debuginfo() {
         return $this->debug->get_log();
+    }
+
+    /* On a Unix system list the versions of maxima available for use. */
+    public function get_maxima_available() {
+        if ('unix' != stack_connection_helper::get_platform()) {
+            return stack_string('healthunabletolistavail');
+        }
+        $this->command = 'maxima --list-avail';
+        $rawresult = $this->call_maxima('');
+        return $rawresult;
     }
 
     /**
@@ -157,7 +172,8 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
     protected function unpack_raw_result($rawresult) {
         $result = '';
         $errors = false;
-
+        // This adds sufficient closing brackets to make sure we have enough to match.
+        $rawresult .= ']]]]';
         if ('' == trim($rawresult)) {
             $this->debug->log('Warning, empty result!', 'unpack_raw_result: completely empty result was returned by the CAS.');
             return array();
@@ -172,7 +188,7 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
             $result = strstr($rawresult, '[TimeStamp'); // Remove everything before the timestamp.
         }
 
-        $result = trim(str_replace('#', '', $result));
+        $result = trim(str_replace("\n ", '', $result));
         $result = trim(str_replace("\n", '', $result));
 
         $unp = $this->unpack_helper($result);
@@ -214,7 +230,7 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
                 $local['error'] = '';
             }
             // If there are plots in the output.
-            $plot = isset($local['display']) ? substr_count($local['display'], '<img') : 0;
+            $plot = isset($local['display']) ? substr_count($local['display'], '!ploturl!') : 0;
             if ($plot > 0) {
                 // Plots always contain errors, so remove.
                 $local['error'] = '';
@@ -223,14 +239,19 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
                     '', $local['display']);
                 $local['display'] = str_replace('</math>', '', $local['display']);
 
+                // @codingStandardsIgnoreStart
                 // For latex mode, remove the mbox.
                 // This handles forms: \mbox{image} and (earlier?) \mbox{{} {image} {}}.
+                // @codingStandardsIgnoreEnd
                 $local['display'] = preg_replace("|\\\mbox{({})? (<html>.+</html>) ({})?}|", "$2", $local['display']);
 
                 if ($this->wwwroothasunderscores) {
                     $local['display'] = str_replace($this->wwwrootfixupfind,
                             $this->wwwrootfixupreplace, $local['display']);
                 }
+            }
+            foreach ($local as $key => $val) {
+                $local[$key] = trim(str_replace('!NEWLINE!', '', $val));
             }
         }
         return $locals;
@@ -241,10 +262,11 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
         // Take the raw string from the CAS, and unpack this into an array.
         $offset = 0;
         $rawresultfragmentlen = strlen($rawresultfragment);
-        $unparsed = '';
+        $unparsed = array();
         $errors = '';
 
-        if ($eqpos = strpos($rawresultfragment, '=', $offset)) {
+        $eqpos = strpos($rawresultfragment, '=', $offset);
+        if ($eqpos) {
             // Check there are ='s.
             do {
                 $gb = stack_utils::substring_between($rawresultfragment, '[', ']', $eqpos);
@@ -257,10 +279,9 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
                     $var = 'errors';
                     $errors['LOCVARNAME'] = "Couldn't get the name of the local variable.";
                 }
-
                 $unparsed[$var] = $val;
                 $offset = $gb[2];
-            } while (($eqpos = strpos($rawresultfragment, '=', $offset)) && ($offset < $rawresultfragmentlen));
+            } while (($offset >= 0) && ($offset < $rawresultfragmentlen) && ($eqpos = strpos($rawresultfragment, '=', $offset)));
 
         } else {
             $errors['PREPARSE'] = "There are no ='s in the raw output from the CAS!";
@@ -281,14 +302,30 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
      */
     protected function tidy_error($errstr) {
 
-        // This case arises when we use a numerical text for algebraic equivalence.
-        if (strpos($errstr, 'STACK: ignore previous error.') !== false) {
+        if ('' === trim($errstr)) {
             return '';
         }
 
-        if (strpos($errstr, '0 to a negative exponent') !== false) {
-            $errstr = stack_string('Maxima_DivisionZero');
+        $error = explode("!NEWLINE!", $errstr);
+        $errorclean = array();
+        foreach ($error as $err) {
+            // This case arises when we use a numerical text for algebraic equivalence.
+            if (strpos($err, 'STACK: ignore previous error.') !== false) {
+                $err = '';
+            }
+
+            if (strpos($err, '0 to a negative exponent') !== false) {
+                $err = stack_string('Maxima_DivisionZero');
+            }
+
+            if (strpos($err, 'args: argument must be a non-atomic expression;') !== false) {
+                $err = stack_string('Maxima_Args');
+            }
+
+            $errorclean[] = $err;
         }
-        return $errstr;
+
+        return trim(implode(" ", $errorclean));
     }
+
 }

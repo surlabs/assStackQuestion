@@ -359,14 +359,14 @@ class assStackQuestionFeedbackGUI
 			$string .= '<div class="alert alert-warning" role="alert">';
 			//Generic feedback
 			$string .= $prt['status']['message'];
-			$string .= '<br>';
+			//$string .= '<br>';
 			//Specific feedback
 			$string .= $prt['feedback'];
 			$string .= $prt['errors'];
 			$string .= '</div>';
 			$deco_question_text = $string;
 		} elseif ($mode == "user") {
-			$deco_question_text = $question_text . '</br>' . $specific_feedback;
+			$deco_question_text = $question_text;
 		}
 
 		return $deco_question_text;
@@ -385,7 +385,7 @@ class assStackQuestionFeedbackGUI
 		$string .= '<div class="alert alert-warning" role="alert">';
 		//Generic feedback
 		$string .= $prt['status']['message'];
-		$string .= '<br>';
+		//$string .= '<br>';
 		//Specific feedback
 		$string .= $prt['feedback'];
 		$string .= $prt['errors'];
@@ -395,27 +395,12 @@ class assStackQuestionFeedbackGUI
 
 	private function getFilledInputUser($value)
 	{
-		if (preg_match("/^matrix.*/", $value)) {
-		} else {
-			$size = strlen($value) + 10;
-			$input = "";
-			$input .= '<input type="text" size="' . $size . '" value="' . $value . '" readonly>';
-		}
-
 		return $value;
 	}
 
 	private function getFilledInputBest($model_answer_display, $model_answer)
 	{
-		if (strpos($model_answer_display, "begin{array}")) {
-			return $model_answer_display;
-
-		} else {
-			$size = strlen($model_answer) + 10;
-			$input = "";
-			$input .= '<input type="text" size="' . $size . '" value="' . $model_answer . '" readonly>';
-			return $input;
-		}
+		return $model_answer_display;
 	}
 
 	private function getQuestionHowToSolve($text)

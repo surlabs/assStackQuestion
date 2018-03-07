@@ -49,7 +49,7 @@ class assStackQuestionImport extends assQuestionImport
 		$this->object->setComment($item->getComment());
 		$this->object->setAuthor($item->getAuthor());
 		$this->object->setOwner($ilUser->getId());
-		$this->object->setQuestion($this->object->QTIMaterialToString($item->getQuestiontext()));
+		$this->object->setQuestion(assStackQuestionUtils::_casTextConverter($this->object->QTIMaterialToString($item->getQuestiontext()), $item->getTitle(), TRUE));
 		$this->object->setObjId($questionpool_id);
 		$this->object->setPoints((float)$item->getMetadataEntry("POINTS"));
 		$this->object->setEstimatedWorkingTime($duration["h"], $duration["m"], $duration["s"]);
@@ -60,10 +60,11 @@ class assStackQuestionImport extends assQuestionImport
 		/* @var assStackQuestionOptions $options */
 		$this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionOptions.php");
 		$options = unserialize(base64_decode($item->getMetadataEntry('options')));
-		$options->setSpecificFeedback($this->processNonAbstractedImageReferences($options->getSpecificFeedback(), $item->getIliasSourceNic()));
+		$options->setSpecificFeedback($this->processNonAbstractedImageReferences(assStackQuestionUtils::_casTextConverter($options->getSpecificFeedback(), $item->getTitle(), TRUE), $item->getIliasSourceNic()));
 		$options->setPRTCorrect($this->processNonAbstractedImageReferences($options->getPRTCorrect(), $item->getIliasSourceNic()));
 		$options->setPRTIncorrect($this->processNonAbstractedImageReferences($options->getPRTIncorrect(), $item->getIliasSourceNic()));
 		$options->setPRTPartiallyCorrect($this->processNonAbstractedImageReferences($options->getPRTPartiallyCorrect(), $item->getIliasSourceNic()));
+		$options->setQuestionNote($this->processNonAbstractedImageReferences(assStackQuestionUtils::_casTextConverter($options->getQuestionNote(), $item->getTitle(), TRUE), $item->getIliasSourceNic()));
 		$this->object->setOptions($options);
 
 		//Inputs
@@ -78,8 +79,8 @@ class assStackQuestionImport extends assQuestionImport
 		$prts = unserialize(base64_decode($item->getMetadataEntry('prts')));
 		foreach ($prts as $prt_name => $prt) {
 			foreach ($prt->getPRTNodes() as $node_name => $node) {
-				$node->setFalseFeedback($this->processNonAbstractedImageReferences($node->getFalseFeedback(), $item->getIliasSourceNic()));
-				$node->setTrueFeedback($this->processNonAbstractedImageReferences($node->getTrueFeedback(), $item->getIliasSourceNic()));
+				$node->setFalseFeedback($this->processNonAbstractedImageReferences(assStackQuestionUtils::_casTextConverter($node->getFalseFeedback(), $item->getTitle(), TRUE), $item->getIliasSourceNic()));
+				$node->setTrueFeedback($this->processNonAbstractedImageReferences(assStackQuestionUtils::_casTextConverter($node->getTrueFeedback(), $item->getTitle(), TRUE), $item->getIliasSourceNic()));
 			}
 		}
 		$this->object->setPotentialResponsesTrees($prts);
@@ -98,7 +99,7 @@ class assStackQuestionImport extends assQuestionImport
 		/* @var assStackQuestionExtraInfo $extra_info */
 		$this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionExtraInfo.php");
 		$extra_info = unserialize(base64_decode($item->getMetadataEntry('extra_info')));
-		$extra_info->setHowToSolve($this->processNonAbstractedImageReferences($extra_info->getHowToSolve(), $item->getIliasSourceNic()));
+		$extra_info->setHowToSolve($this->processNonAbstractedImageReferences(assStackQuestionUtils::_casTextConverter($extra_info->getHowToSolve(), $item->getTitle(), TRUE), $item->getIliasSourceNic()));
 		$this->object->setExtraInfo($extra_info);
 
 

@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * A basic text-field input.
@@ -23,17 +24,31 @@
  */
 class stack_algebraic_input extends stack_input {
 
-    public function render(stack_input_state $state, $fieldname, $readonly) {
-		//fim add id as attribute
+    protected $extraoptions = array(
+        'rationalized' => false
+    );
+
+    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue) {
+
+        if ($this->errors) {
+            return $this->render_error($this->errors);
+        }
+
+        $size = $this->parameters['boxWidth'] * 0.9 + 0.1;
         $attributes = array(
-            'type' => 'text',
-            'name' => $fieldname,
-            'id'   => $fieldname,
-            'size' => $this->parameters['boxWidth'],
+            'type'  => 'text',
+            'name'  => $fieldname,
+            'id'    => $fieldname,
+            'size'  => $this->parameters['boxWidth'] * 1.1,
+            'style' => 'width: '.$size.'em'
         );
 
         if ($this->is_blank_response($state->contents)) {
-            $attributes['value'] = $this->parameters['syntaxHint'];
+            $field = 'value';
+            if ($this->parameters['syntaxAttribute'] == '1') {
+                $field = 'placeholder';
+            }
+            $attributes[$field] = stack_utils::logic_nouns_sort($this->parameters['syntaxHint'], 'remove');
         } else {
             $attributes['value'] = $this->contents_to_maxima($state->contents);
         }
@@ -53,21 +68,24 @@ class stack_algebraic_input extends stack_input {
 
     /**
      * Return the default values for the parameters.
+     * Parameters are options a teacher might set.
      * @return array parameters` => default value.
      */
     public static function get_parameters_defaults() {
         return array(
-            'mustVerify'     => true,
-            'hideFeedback'   => false,
-            'boxWidth'       => 15,
-            'strictSyntax'   => false,
-            'insertStars'    => 0,
-            'syntaxHint'     => '',
-            'forbidWords'    => '',
-            'allowWords'     => '',
-            'forbidFloats'   => true,
-            'lowestTerms'    => true,
-            'sameType'       => true);
+            'mustVerify'         => true,
+            'showValidation'     => 1,
+            'boxWidth'           => 15,
+            'strictSyntax'       => false,
+            'insertStars'        => 0,
+            'syntaxHint'         => '',
+            'syntaxAttribute'    => 0,
+            'forbidWords'        => '',
+            'allowWords'         => '',
+            'forbidFloats'       => true,
+            'lowestTerms'        => true,
+            'sameType'           => true,
+            'options'            => '');
     }
 
     /**
@@ -88,7 +106,7 @@ class stack_algebraic_input extends stack_input {
      * @return string the teacher's answer, displayed to the student in the general feedback.
      */
     public function get_teacher_answer_display($value, $display) {
+        $value = stack_utils::logic_nouns_sort($value, 'remove');
         return stack_string('teacheranswershow', array('value' => '<code>'.$value.'</code>', 'display' => $display));
     }
-
 }

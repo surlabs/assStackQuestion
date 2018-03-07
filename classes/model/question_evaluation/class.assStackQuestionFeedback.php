@@ -114,52 +114,34 @@ class assStackQuestionFeedback
 			//Input is Ok, use input states
 			if (is_a($this->getQuestion()->getInputStates($input_name), 'stack_input_state'))
 			{
+				//PROBLEM WITH NOTES; AS THEY DONT HAVE PRT WE GOT STRANGER THINGS WHEN EVALUATION IS DONE :)
 				//Fill value
 				$user_responses[$input_name]['value'] = $this->getQuestion()->getInputStates($input_name)->__get('contentsmodified');
 				//Fill LaTeX display
-				$user_responses[$input_name]['display'] = assStackQuestionUtils::_getLatex(assStackQuestionUtils::_solveKeyBracketsBug($this->getQuestion()->getInputStates($input_name)->__get('contentsdisplayed')));
+				$user_responses[$input_name]['display'] = assStackQuestionUtils::_solveKeyBracketsBug($this->getQuestion()->getInputStates($input_name)->__get('contentsdisplayed'));
 				//Fill model answer
-				$user_responses[$input_name]['model_answer'] = $this->getModelAnswerForInput($input_name);
+				$user_responses[$input_name]['model_answer'] = "";
 				//Fill model answer display
-				$user_responses[$input_name]['model_answer_display'] = $this->getModelAnswerDisplay($input_name);
+				$user_responses[$input_name]['model_answer_display'] = $this->format_correct_response($input_name);
 
 			} else
 			{
+
 				//Input was not Ok, use getLatexText
 				//Fill value
 				$user_responses[$input_name]['value'] = $user_response_value;
 				//Fill LaTeX display
-				$user_responses[$input_name]['display'] = assStackQuestionUtils::_getLatex(assStackQuestionUtils::_solveKeyBracketsBug($user_response_value));
+				$user_responses[$input_name]['display'] = assStackQuestionUtils::_solveKeyBracketsBug($user_response_value);
 				//Fill model answer
-				$user_responses[$input_name]['model_answer'] = $this->getModelAnswerForInput($input_name);
+				$user_responses[$input_name]['model_answer'] = "";
 				//Fill model answer display
-				$user_responses[$input_name]['model_answer_display'] = assStackQuestionUtils::_getLatex($this->getModelAnswerDisplay($input_name));
+				$user_responses[$input_name]['model_answer_display'] = $this->format_correct_response($input_name);
 			}
 		}
 
 		return $user_responses;
 	}
 
-	/**
-	 * Gets the model answer for the current input
-	 * @param string $input_name
-	 * @return string
-	 */
-	private function getModelAnswerForInput($input_name)
-	{
-		//Get the session value with key the teacher answer
-		$teacher_answer = $this->getQuestion()->getSession()->get_value_key($input_name);
-
-		if ($teacher_answer)
-		{
-			//If session value with key the teacher answer is set, returns it.
-			return $teacher_answer;
-		} else
-		{
-			//If not, returns the session value with key the input name.
-			return assStackQuestionUtils::_getLatex($this->getQuestion()->getSession()->get_display_key($input_name));
-		}
-	}
 
 	/**
 	 * Gets the model answer for the current input
@@ -168,12 +150,11 @@ class assStackQuestionFeedback
 	 */
 	private function getModelAnswerDisplay($input_name)
 	{
-		//TODO MATRIX ERROR
-		$raw = $this->getQuestion()->getSession()->get_display_key($input_name);
-		$raw1 = str_replace('\left[', "", $raw);
-		$raw2 = str_replace('\right]', "", $raw1);
+		$input = $this->getQuestion()->getInputs($input_name);
 
-		return $raw2;
+		$state = $this->getQuestion()->getInputState($input_name, $this->getTeacherAnswer());
+
+		return $input->render($state, $input_name, true, $this->getQuestion()->getSession()->get_display_key($input_name));
 	}
 
 	/**
@@ -195,7 +176,6 @@ class assStackQuestionFeedback
 				$feedback .= '</br>';
 			}
 		}
-
 		return $feedback;
 	}
 
@@ -277,5 +257,52 @@ class assStackQuestionFeedback
 	public function getQuestion()
 	{
 		return $this->question;
+	}
+
+	private function getTeacherAnswer($selected_input = "")
+	{
+		$teacher_answer = array();
+		foreach ($this->getQuestion()->getInputs() as $input_name => $input)
+		{
+			$teacher_answer = array_merge($teacher_answer, $input->get_correct_response($this->getQuestion()->getSession()->get_value_key($input_name, true)));
+		}
+
+		if ($selected_input)
+		{
+			if (isset($teacher_answer[$selected_input]))
+			{
+				return $teacher_answer[$selected_input];
+			}
+		} else
+		{
+			return $teacher_answer;
+		}
+	}
+
+	/**
+	 * We need to make sure the inputs are displayed in the order in which they
+	 * occur in the question text. This is not necessarily the order in which they
+	 * are listed in the array $this->inputs.
+	 */
+	public function format_correct_response($input_name = "")
+	{
+		$feedback = '';
+
+		if ($input_name)
+		{
+			$input = $this->getQuestion()->getInputs($input_name);
+			$feedback = html_writer::tag('p', $input->get_teacher_answer_display($this->getQuestion()->getSession()->get_value_key($input_name, true), $this->getQuestion()->getSession()->get_display_key($input_name)));
+		} else
+		{
+			$inputs = stack_utils::extract_placeholders($this->getQuestion()->getQuestionTextInstantiated(), 'input');
+			foreach ($inputs as $name)
+			{
+				$input = $this->getQuestion()->getInputs($name);
+				$feedback .= html_writer::tag('p', $input->get_teacher_answer_display($this->getQuestion()->getSession()->get_value_key($name, true), $this->getQuestion()->getSession()->get_display_key($name)));
+			}
+		}
+
+		return assStackQuestionUtils::stack_output_castext($feedback);
+
 	}
 }

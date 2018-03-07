@@ -106,7 +106,6 @@ class assStackQuestionPreview
 		//Step #4: Prepare Question display data
 		$display_object = $this->getDisplayDataForPreview($feedback_data);
 
-
 		//Step 5: Return preview data
 		return $this->preparePreviewData($display_object, $feedback_data);
 	}
@@ -166,6 +165,7 @@ class assStackQuestionPreview
 		} else {
 			$preview_data['question_feedback'] = FALSE;
 		}
+
 		return $preview_data;
 	}
 
