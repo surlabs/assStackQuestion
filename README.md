@@ -83,14 +83,25 @@ input you can evaluate your answer (in self assessment mode) or move to the next
 Version History
 ===============
 
+* The stable version 3.0.x for **ILIAS 5.3** with new functionalities from STACK such a new input types is found in the Github branch **master-ilias53**
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
-* The stable version 3.0.x for **ILIAS 5.3** with new functionalities from STACK such a new input types is found in the Github branch **master-ilias53**
 
 Version 3.0.0 (2018-03-07) for ILIAS 5.3
 ----------------------------------------
-- This is a major version, with many important changes to the code. This version uses the STACK core classes from version 4.0, the sample questions have also be changed. Notice that during the update script of this version, all STACK questions of your platform will be translated to the new syntax for CAS text in STACK (use of {@..@} instead of @...@) This change is made automatically  but we recommend to check the questions before use it in tests. This translation is also done when importing questions from ILIAS or MoodleXML, but please, notice that this conversion is one way, you can import "old CASText behaviour" questions to a platform with STACK plugin version 3.0+ but if you import "new CASText behaviour" questions to a platform with a previous version of the plugin, your question will not be properly shown on that platform.
-- NEW FEATURES:
+This is a major update. It uses the core classes from STACK version 4.0, the sample questions have also be changed.
+All STACK questions of your platform will be translated to the new syntax for CAS text in STACK (use of {@..@} instead of @...@)
+This change is automatically done in the plugin update, but we recommend to check the questions before use it in tests.
+
+PLEASE BACKUP YOUR DATABASE before you run the update from an older version.
+Depending on the number of questions, the update takes some minutes,
+please set the PHP variable max_execution_time high enough.
+
+The translation is also done when importing questions from ILIAS or MoodleXML, but please notice that this conversion is one way.
+You can import "old CASText behaviour" questions to a platform with STACK plugin version 3.0+.
+But if you import "new CASText behaviour" questions to a platform with a previous version of the plugin, your question will not be properly shown on that platform.
+
+NEW FEATURES:
 - 8 new input types (We highly recommend to read the Documentation of all new input types that can be found here: https://stack2.maths.ed.ac.uk/demo/question/type/stack/doc/doc.php/Authoring/Inputs.md):
 	- Numerical input:
       This input type requires the student to type in a number of some kind. Any expression with a variable will be rejected as invalid.

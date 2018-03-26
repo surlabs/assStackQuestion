@@ -381,7 +381,7 @@ html_name#:#HTML
 auth_guide_name#:#STACK Authoring guide
 unix_optimised#:#Linux (Optimized)
 preview_no_answer#:#You must answer the question to get feedback.
-update_to_version_3#:#The update to version 3 of STACK for ILIAS includes changes in all current STACK questions of the platform to the new CASText syntax. Although those changes are made automatically, please, check the STACK questions already available on the platform in order to ensure it works properly.
+update_to_version_3#:#This update to the plugin version 3 with the STACK core 4 included changes in all existing STACK questions of the platform to the new CASText syntax. Although those changes are made automatically, please, check the STACK questions already available on the platform in order to ensure they work properly.
 update_to_version_3_2#:#Check the questions you imported because some changes were made in order to keep the questions in line to the new CASText syntax of this STACK question plugin version.
 input_type_checkbox#:#Checkbox
 input_type_dropdown#:#Drop down list

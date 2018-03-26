@@ -381,3 +381,15 @@ error_model_answer_missing#:#Die Musterlösung der folgenden Eingabe(n) fehlt:
 error_student_answer_missing#:#Die Studierendenantwort ("SAns") für den folgenden PRT / Knoten fehlt:
 error_teacher_answer_missing#:#Die Dozierendenantwort ("TAns) für den folgenden PRT / Knoten fehlt:
 preview_no_answer#:#Sie müssen die Frage beantworten, um Feedback zu erhalten.
+update_to_version_3#:#Während des Updates wurden alle STACK-Fragen auf die neue CASText-Syntax konvertiert. Bitte überprüfen Sie die vorhandenen Fragen,um sicher zu gehen, dass sie korrekt funktionieren.
+update_to_version_3_2#:#Bitte überprüfen Sie die importierten Fragen, da sie zur neuen CASText-Syntax in dieser Version des Plugins konvertiert wurden.
+input_type_checkbox#:#Kontrollkästchen
+input_type_dropdown#:#Drop-Down-Liste
+input_type_equiv#:#Gleichungen
+input_type_notes#:#Notizen
+input_type_radio#:#Radio-Auswahl
+input_type_units#:#Einheiten
+maxima_libraries#:#Maxima-Bibliotheken
+cas_maxima_libraries_info#:#Diese kommagetrennte Liste von Maxima-Bibliotheken wird autmatisch in Maxima geladen. Es können nur unterstützte Bibliotheken verwendet werden, siehe Dokumentation. Die Bibliotheken werden nicht automatisch geladen, wenn Sie ein Performance-optimiertes Maxima-Image verwenden.
+input_type_string#:#Zeichenkette
+input_type_numerical#:#Numerisch
