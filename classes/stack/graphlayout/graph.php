@@ -178,6 +178,10 @@ class stack_abstract_graph {
                     }
 
                     // Weighted mean based on the length of the two branches.
+					//fim: #33 Check there are no division by 0.
+					if(($rightchild->depth - $node->depth + $leftchild->depth - $node->depth)==0){
+						return;
+					}
                     $xpos = (($leftchild->x + 1) * ($rightchild->depth - $node->depth) +
                                 ($rightchild->x - 1) * ($leftchild->depth - $node->depth)) /
                             ($rightchild->depth - $node->depth + $leftchild->depth - $node->depth);

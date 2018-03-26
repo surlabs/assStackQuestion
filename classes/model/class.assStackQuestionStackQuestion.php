@@ -351,7 +351,9 @@ class assStackQuestionStackQuestion
 									$_SESSION['q_seed_for_preview_' . $this->getQuestionId() . ''] = $seed;
 								} else
 								{
-									$seed = $_SESSION['q_seed_for_preview_' . $this->getQuestionId() . ''] = $seeds[array_rand($seeds, 1)]->getSeed();
+									//choose seed
+									//$chosen_seed = $seeds[array_rand($seeds, 1)]  = $chosen_seed->getSeed();
+									$seed = $_SESSION['q_seed_for_preview_' . $this->getQuestionId() . ''];
 								}
 								//Send information message about random questions in previews.
 								if ($_GET['cmdClass'] != 'iltestoutputgui')
