@@ -106,6 +106,7 @@ class assStackQuestionPreview
 		//Step #4: Prepare Question display data
 		$display_object = $this->getDisplayDataForPreview($feedback_data);
 
+
 		//Step 5: Return preview data
 		return $this->preparePreviewData($display_object, $feedback_data);
 	}
@@ -172,8 +173,10 @@ class assStackQuestionPreview
 	private function getSeed()
 	{
 		if (isset($_POST['requires_evaluation'])) {
+
 			return $_SESSION['q_seed_for_preview_' . $this->getQuestion()->getId()];
 		} else {
+
 			return -1;
 		}
 	}
