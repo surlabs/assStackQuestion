@@ -611,7 +611,8 @@ class assStackQuestionUtils
 		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
 
 		//Do replacement
-		$new_text = ilUtil::secureString(stack_maths::replace_dollars($a_text));
+		//#22779 a_strip_html must be false
+		$new_text = ilUtil::secureString(stack_maths::replace_dollars($a_text), FALSE);
 
 		//STEP 4 Send back the fixed text
 		return $new_text;
