@@ -57,8 +57,10 @@ class stack_cas_configuration {
         $this->settings = get_config('qtype_stack');
         $this->date = date("F j, Y, g:i a");
 
+// fim: fix for #22797 - omit the moodle specific sub path
         $this->maximacodepath = stack_utils::convert_slash_paths(
-                $CFG->dirroot . '/question/type/stack/stack/maxima');
+                $CFG->dirroot . '/stack/maxima');
+// fim.
 
         $this->logpath = stack_utils::convert_slash_paths($CFG->dataroot . '/stack/logs');
 
