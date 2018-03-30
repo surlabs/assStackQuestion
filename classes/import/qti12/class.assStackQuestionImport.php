@@ -127,6 +127,8 @@ class assStackQuestionImport extends assQuestionImport
 				}
 				else
 				{
+					//#22754 not in use
+					//$importfile = $this->getQplImportArchivDirectory() . '/' . current(explode('?', $mob["uri"]));
 					$importfile = $this->getQplImportArchivDirectory() . '/' . $mob["uri"];
 				}
 

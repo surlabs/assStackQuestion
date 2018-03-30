@@ -203,7 +203,8 @@ class assStackQuestionDisplayGUI
 			{
 				//Step 1.1 Replace input fields
 				$display = $this->getDisplay('inputs', $input_name);
-				$input_text = str_replace("[[input:{$input_name}]]", "</br>".$display['display'], $this->getDisplay('question_text'));
+				//#22780 no <br> before input redering
+				$input_text = str_replace("[[input:{$input_name}]]", $display['display'], $this->getDisplay('question_text'));
 				$this->setDisplay($input_text, 'question_text');
 				//Step 1.2 Replace validation fields
 				if ($show_feedback AND strlen($display["display_rendered"]) > 1)
