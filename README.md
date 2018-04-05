@@ -83,7 +83,7 @@ input you can evaluate your answer (in self assessment mode) or move to the next
 Version History
 ===============
 
-* The stable version 2.4.x for **ILIAS 5.2** is found in the GitHub branch **master-ilias52**
+* The stable version 2.4.x for **ILIAS 5.2 to 5.3** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
 
 Version 2.5.2 (2018-04-05) for ILIAS 5.2
@@ -106,6 +106,11 @@ Deployed seeds in authoring interface has now a new look, more "ILIAS" style.
 - https://www.ilias.de/mantis/view.php?id=22289 about next node in authoring interface
 - https://www.ilias.de/mantis/view.php?id=22286 about german text mistake
 - https://www.ilias.de/mantis/view.php?id=22129 about matrix syntax hints
+
+Version 2.4.6 (2017-11-06) for ILIAS 5.2
+----------------------------------------
+- fixed https://www.ilias.de/mantis/view.php?id=21538 (Taxonomies missing)
+
 
 Version 2.4.5 (2017-11-03) for ILIAS 5.2
 ----------------------------------------
