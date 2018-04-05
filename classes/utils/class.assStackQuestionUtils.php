@@ -554,7 +554,7 @@ class assStackQuestionUtils
 				return ((int)$row['MAX(test_case)'] + 1);
 			} else
 			{
-				return FALSE;
+				return 1;
 			}
 		}
 	}
