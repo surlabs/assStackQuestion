@@ -123,13 +123,13 @@ class assStackQuestionImport extends assQuestionImport
 			{
 				if ($tst_id > 0)
 				{
-					$importfile = $this->getTstImportArchivDirectory() . '/' . $mob["uri"];
+					//#22754
+					$importfile = $this->getTstImportArchivDirectory() . '/' . current(explode('?', $mob["uri"]));
 				}
 				else
 				{
-					//#22754 not in use
-					//$importfile = $this->getQplImportArchivDirectory() . '/' . current(explode('?', $mob["uri"]));
-					$importfile = $this->getQplImportArchivDirectory() . '/' . $mob["uri"];
+					//#22754
+					$importfile = $this->getQplImportArchivDirectory() . '/' . current(explode('?', $mob["uri"]));
 				}
 
 				$GLOBALS['ilLog']->write(__METHOD__.': import mob from dir: '. $importfile);

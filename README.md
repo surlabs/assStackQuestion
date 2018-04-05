@@ -87,6 +87,13 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
 
+Version 3.0.3 (2018-04-05) for ILIAS 5.3
+----------------------------------------
+Some bugfix were made on this version:
+- https://www.ilias.de/mantis/view.php?id=22795 About Deployed seeds navigation
+- https://www.ilias.de/mantis/view.php?id=22782 About testcases
+
+
 Version 3.0.2 (2018-03-28) for ILIAS 5.3
 ----------------------------------------
 Some bugfix were made on this version:

@@ -1032,7 +1032,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Create GUI object
 		$this->plugin->includeClass('GUI/question_authoring/class.assStackQuestionDeployedSeedsGUI.php');
-		$deployed_seeds_gui = new assStackQuestionDeployedSeedsGUI($this->plugin, $this->object->getId());
+		$deployed_seeds_gui = new assStackQuestionDeployedSeedsGUI($this->plugin, $this->object->getId(), $this);
 
 		//Add MathJax (Ensure MathJax is loaded)
 		include_once "./Services/Administration/classes/class.ilSetting.php";
