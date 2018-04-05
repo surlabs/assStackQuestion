@@ -31,7 +31,9 @@ class assStackQuestionSeedsTableGUI extends ilTable2GUI
 		$this->ctrl = $DIC->ctrl();
 
 		$this->plugin = $a_parent_obj->getPlugin();
-		$this->deployed_seeds = $a_parent_obj->getDeployedSeeds();
+		//$this->deployed_seeds = $a_parent_obj->getDeployedSeeds();
+		$this->setId('assStackQuestionSeeds');
+		$this->setPrefix('assStackQuestionSeeds');
 
 		parent::__construct($a_parent_obj, $a_parent_cmd);
 		$this->setStyle('table', 'fullwidth');

@@ -39,12 +39,13 @@ class assStackQuestionDeployedSeedsGUI
 	 */
 	private $question_id;
 
+	private $parent_gui;
 	/**
 	 * Sets required data for deployed seeds management
 	 * @param $plugin ilassStackQuestionPlugin instance
 	 * @param $question_id int
 	 */
-	function __construct($plugin, $question_id)
+	function __construct($plugin, $question_id, $parent_gui)
 	{
 		//Set plugin and template objects
 		$this->setPlugin($plugin);
@@ -53,6 +54,7 @@ class assStackQuestionDeployedSeedsGUI
 
 		//Get deployed seeds for current question
 		$this->setDeployedSeeds(assStackQuestionDeployedSeed::_read($this->getQuestionId()));
+		$this->parent_gui = $parent_gui;
 	}
 
 	/**
@@ -62,7 +64,7 @@ class assStackQuestionDeployedSeedsGUI
 	public function showDeployedSeedsPanel()
 	{
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/GUI/tables/class.assStackQuestionSeedsTableGUI.php';
-		$seeds_table = new assStackQuestionSeedsTableGUI($this, "deployedSeedsManagement");
+		$seeds_table = new assStackQuestionSeedsTableGUI($this->parent_gui, "deployedSeedsManagement");
 		$this->getQuestionNotesForSeeds();
 		$seeds_table->prepareData($this->getDeployedSeeds());
 
