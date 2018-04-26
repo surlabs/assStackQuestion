@@ -184,7 +184,7 @@ class assStackQuestionDisplay
 	 */
 	private function replacementForValidationPlaceholders($input, $input_name)
 	{
-		if (!is_a($input, 'stack_boolean_input') AND !is_subclass_of($input, 'stack_dropdown_input'))
+		if (!is_a($input, 'stack_boolean_input') AND !is_subclass_of($input, 'stack_dropdown_input') AND !is_a($input, 'stack_dropdown_input'))
 		{
 			if ($input->requires_validation())
 			{

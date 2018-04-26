@@ -79,7 +79,9 @@ class stack_checkbox_input extends stack_dropdown_input {
             if ($readonly) {
                 $inputattributes['disabled'] = 'disabled';
             }
-            $radiobuttons[] = html_writer::empty_tag('input', $inputattributes) . html_writer::tag('label', $ansid);
+			//fim: #35 22945 add space between box and text
+            $radiobuttons[] = html_writer::empty_tag('input', $inputattributes) . " " . html_writer::tag('label', $ansid);
+            //fim
         }
 
         $result = '';

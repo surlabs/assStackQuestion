@@ -1258,11 +1258,11 @@ global $DIC;
 $db = $DIC->database();
 if ($db->tableExists('xqcas_configuration'))
 {
-	$db->insert("xqcas_configuration",
+	$db->replace("xqcas_configuration",
 		array(
 			'parameter_name' => array('text', 'cas_maxima_libraries'),
 			'value' => array('clob', ''),
 			'group_name' => array('text', 'connection')
-		));
+		), array());
 }
 ?>

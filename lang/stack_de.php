@@ -389,7 +389,7 @@ $string['stackCas_apostrophe']              = 'Apostroph-Zeichen sind in Rückme
 $string['stackCas_newline']                 = 'Zeilenvorschub-Zeichen sind in Rückmeldungen nicht erlaubt.';
 $string['stackCas_forbiddenChar']           = 'CAS Ausdrücke dürfen die folgenden Zeichen nicht enthalten: {$a->char}.';
 $string['stackCas_finalChar']               = '\'{$a->char}\' ist ein ungültiges Endzeichen in {$a->cmd}';
-$string['stackCas_MissingStars']            = 'Anscheinend fehlen "*" Zeichen. Vielleicht meinten sie {$a->cmd}.';
+$string['stackCas_MissingStars']            = 'Anscheinend fehlen "*" Zeichen. Vielleicht meinten Sie {$a->cmd}.';
 $string['stackCas_unknownFunction']         = 'Unbekannte Funktion: {$a->forbid}.';
 $string['stackCas_unsupportedKeyword']      = 'Nicht unterstütztes Schlüsselwort: {$a->forbid}.';
 $string['stackCas_forbiddenWord']           = 'Der Ausdruck {$a->forbid} ist verboten.';
@@ -417,33 +417,43 @@ $string['stackCas_invalidCommand']          = 'CAS Ausdrücke sind ungültig. ';
 $string['stackCas_CASErrorCaused']          = 'verursacht durch den folgenden Fehler:';
 
 $string['Maxima_DivisionZero']  = 'Division durch Null.';
-$string['Lowest_Terms']   = 'Ihre Antwort enthält Brüche, die nicht vollständig gekürzt sind. Bitte kürzen sie entsprechende Faktoren heraus und versuchen sie es nochmal.';
-$string['Illegal_floats'] = 'Ihre Antwort enthält Fließkommazahlen, welche in dieser Aufgabe nicht erlaubt sind. Bitte geben sie die Zahlen als Brüche ein. So sollten sie 1/3 und nicht 0.3333 (welche nur eine Annäherung darstellt) eingeben.';
+$string['Lowest_Terms']   = 'Ihre Antwort enthält Brüche, die nicht vollständig gekürzt sind. Bitte kürzen Sie entsprechende Faktoren heraus und versuchen Sie es nochmal.';
+$string['Illegal_floats'] = 'Ihre Antwort enthält Fließkommazahlen, welche in dieser Aufgabe nicht erlaubt sind. Bitte geben Sie die Zahlen als Brüche ein. So sollten Sie 1/3 und nicht 0.3333 (welche nur eine Annäherung darstellt) eingeben.';
 $string['qm_error'] = 'Ihre Antwort ist nicht vollständig. Bitte füllen Sie alle Lücken in der Matrix aus.';
 
 // Answer tests.
-$string['stackOptions_AnsTest_values_AlgEquiv']           =  "AlgEquiv";
-$string['stackOptions_AnsTest_values_EqualComAss']        =  "EqualComAss";
-$string['stackOptions_AnsTest_values_CasEqual']           =  "CasEqual";
-$string['stackOptions_AnsTest_values_SameType']           =  "SameType";
-$string['stackOptions_AnsTest_values_SubstEquiv']         =  "SubstEquiv";
-$string['stackOptions_AnsTest_values_SysEquiv']           =  "SysEquiv";
-$string['stackOptions_AnsTest_values_Expanded']           =  "Expanded";
-$string['stackOptions_AnsTest_values_FacForm']            =  "FacForm";
-$string['stackOptions_AnsTest_values_SingleFrac']         =  "SingleFrac";
-$string['stackOptions_AnsTest_values_PartFrac']           =  "PartFrac";
-$string['stackOptions_AnsTest_values_CompSquare']         =  "CompletedSquare";
-$string['stackOptions_AnsTest_values_NumRelative']        =  "NumRelative";
-$string['stackOptions_AnsTest_values_NumAbsolute']        =  "NumAbsolute";
-$string['stackOptions_AnsTest_values_NumSigFigs']         =  "NumSigFigs";
-$string['stackOptions_AnsTest_values_GT']                 =  "Num-GT";
-$string['stackOptions_AnsTest_values_GTE']                =  "Num-GTE";
-$string['stackOptions_AnsTest_values_LowestTerms']        =  "LowestTerms";
-$string['stackOptions_AnsTest_values_Diff']               =  "Diff";
-$string['stackOptions_AnsTest_values_Int']                =  "Int";
-$string['stackOptions_AnsTest_values_String']             =  "String";
-$string['stackOptions_AnsTest_values_StringSloppy']       =  "StringSloppy";
-$string['stackOptions_AnsTest_values_RegExp']             =  "RegExp";
+$string['stackOptions_AnsTest_values_AlgEquiv']            = "AlgEquiv";
+$string['stackOptions_AnsTest_values_EqualComAss']         = "EqualComAss";
+$string['stackOptions_AnsTest_values_CasEqual']            = "CasEqual";
+$string['stackOptions_AnsTest_values_SameType']            = "SameType";
+$string['stackOptions_AnsTest_values_SubstEquiv']          = "SubstEquiv";
+$string['stackOptions_AnsTest_values_SysEquiv']            = "SysEquiv";
+$string['stackOptions_AnsTest_values_Expanded']            = "Expanded";
+$string['stackOptions_AnsTest_values_FacForm']             = "FacForm";
+$string['stackOptions_AnsTest_values_SingleFrac']          = "SingleFrac";
+$string['stackOptions_AnsTest_values_PartFrac']            = "PartFrac";
+$string['stackOptions_AnsTest_values_CompSquare']          = "CompletedSquare";
+$string['stackOptions_AnsTest_values_Equiv']               = "EquivReasoning";
+$string['stackOptions_AnsTest_values_EquivFirst']      = "EquivFirst";
+$string['stackOptions_AnsTest_values_SigFigsStrict']       = "SigFigsStrict";
+$string['stackOptions_AnsTest_values_NumRelative']         = "NumRelative";
+$string['stackOptions_AnsTest_values_NumAbsolute']         = "NumAbsolute";
+$string['stackOptions_AnsTest_values_NumSigFigs']          = "NumSigFigs";
+$string['stackOptions_AnsTest_values_NumDecPlaces']        = "NumDecPlaces";
+$string['stackOptions_AnsTest_values_UnitsSigFigs']        = "UnitsSigFigs";
+$string['stackOptions_AnsTest_values_UnitsStrictSigFigs']  = "UnitsStrictSigFigs";
+$string['stackOptions_AnsTest_values_UnitsRelative']       = "UnitsRelative";
+$string['stackOptions_AnsTest_values_UnitsStrictRelative'] = "UnitsStrictRelative";
+$string['stackOptions_AnsTest_values_UnitsAbsolute']       = "UnitsAbsolute";
+$string['stackOptions_AnsTest_values_UnitsStrictAbsolute'] = "UnitsStrictAbsolute";
+$string['stackOptions_AnsTest_values_GT']                  = "Num-GT";
+$string['stackOptions_AnsTest_values_GTE']                 = "Num-GTE";
+$string['stackOptions_AnsTest_values_LowestTerms']         = "LowestTerms";
+$string['stackOptions_AnsTest_values_Diff']                = "Diff";
+$string['stackOptions_AnsTest_values_Int']                 = "Int";
+$string['stackOptions_AnsTest_values_String']              = "String";
+$string['stackOptions_AnsTest_values_StringSloppy']        = "StringSloppy";
+$string['stackOptions_AnsTest_values_RegExp']              = "RegExp";
 
 $string['AT_NOTIMPLEMENTED']        = 'Diese Antwortüberprüfung ist noch nicht implementiert. ';
 $string['TEST_FAILED']              = 'Die Antwortüberprüfung konnte nicht korrekt ausgeführt werden. Bitte kontaktieren sie ihren Kursleiter. ';
@@ -465,7 +475,7 @@ $string['ATInequality_strict']          = 'Ihre Ungleichung sollte nicht strikt/
 $string['ATInequality_backwards']       = 'Ihre Ungleichung ist falschherum. ';
 
 $string['ATLowestTerms_wrong']          = 'Sie müssen die Brüche in ihrer Antwort eliminieren. ';
-$string['ATLowestTerms_entries']        = 'Die folgenden Ausdrücke sind nicht vollständig gekürzt. {$a->m0} Bitte versuchen sie es noch einmal.  ';
+$string['ATLowestTerms_entries']        = 'Die folgenden Ausdrücke sind nicht vollständig gekürzt. {$a->m0} Bitte versuchen Sie es noch einmal.  ';
 
 
 $string['ATList_wronglen']          = 'Ihre Liste sollte {$a->m0} Elemente enthalten, sie hat aber {$a->m1}. ';
@@ -539,6 +549,8 @@ $string['ATSysEquiv_SA_system_overdetermined']  = 'Die roten Einträge unten sin
 
 $string['studentValidation_yourLastAnswer']  = 'Ihre letzte Antwort wurde folgendermaßen interpretiert:  {$a}';
 $string['studentValidation_invalidAnswer']   = 'Diese Antwort ist ungültig. ';
+$string['studentValidation_listofunits']        = 'Die Einheiten in deiner Antwort sind: {$a}';
+$string['studentValidation_notes']              = 'Diese Eingabe wird von STACK nicht automatisch ausgewertet. Sie können damit Arbeiten oder Kommentare für den Lehrer aufzeichnen.';
 $string['stackQuestion_noQuestionParts']        = 'Dieses Element hat keine Frageteile zum beantworten.';
 
 // Documentation strings.
@@ -607,7 +619,6 @@ $string['assumepositive'] = 'Positivitätsannahme';
 $string['assumepositive_help'] = 'Diese Option setzt Maxima\'s assume_pos Variable.';
 $string['assumepositive_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Options.md#Assume_Positive';
 $string['ATAlgEquiv_SA_not_equation'] = 'Ihre Anwort sollte eine Gleichung sein, ist es aber nicht.';
-$string['ATAlgEquiv_SA_not_expression'] = 'Ihre Antwort sollte ein Ausdruck und keine Gleichung/Ungleichung/Liste/Menge/Matrix sein.';
 $string['ATAlgEquiv_SA_not_inequality'] = 'Ihre Anwort sollte eine Ungleichung sein, ist es aber nicht.';
 $string['ATAlgEquiv_SA_not_list'] = 'Ihre Antwort sollte eine Liste sein, ist es aber nicht. Beachten Sie die Syntax: In einer Liste wird die Auflistung der Elemente (jeweils durch Kommata getrennt) mit geschweiften Klammern eingeschlossen.';
 $string['ATAlgEquiv_SA_not_matrix'] = 'Ihre Anwort sollte eine Matrix sein, ist es aber nicht.';
