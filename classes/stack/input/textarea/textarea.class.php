@@ -109,7 +109,8 @@ class stack_textarea_input extends stack_input {
      * @param string $in
      * @return string
      */
-    private function maxima_to_raw_input($in) {
+    //fim: #37 set this method to public to be used in validation
+    public function maxima_to_raw_input($in) {
         $values = stack_utils::list_to_array($in, false);
         return implode("\n", $values);
     }
@@ -169,10 +170,11 @@ class stack_textarea_input extends stack_input {
      * base class implementation, no default options are set.
      * @return array option => default value.
      */
+    //fim: #38 set showValidation default to 1, as the other input types.
     public static function get_parameters_defaults() {
         return array(
             'mustVerify'         => true,
-            'showValidation'     => 0,
+            'showValidation'     => 1,
             'boxWidth'           => 20,
             'strictSyntax'       => true,
             'insertStars'        => 0,

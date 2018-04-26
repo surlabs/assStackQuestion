@@ -136,15 +136,16 @@ class stack_equiv_input extends stack_input {
 
         // This class shows the validation next to the input box in a table, and disregards to the position of the
         // [[validation:name]] tag.
-        $rendervalidation = $this->render_validation($state, $fieldname);
-        $class = "stackinputfeedback";
-        if (!$rendervalidation) {
-            $class .= ' empty';
-        }
-        $rendervalidation = html_writer::tag('div', $rendervalidation, array('class' => $class, 'id' => $fieldname.'_val'));
+		//fim: #36 avoid duplicate validation display
+        //$rendervalidation = $this->render_validation($state, $fieldname);
+        //$class = "stackinputfeedback";
+        //if (!$rendervalidation) {
+        //    $class .= ' empty';
+        //}
+        //$rendervalidation = html_writer::tag('div', $rendervalidation, array('class' => $class, 'id' => $fieldname.'_val'));
 
         $output = html_writer::tag('td', html_writer::tag('textarea', htmlspecialchars($current), $attributes));
-        $output .= html_writer::tag('td', $rendervalidation);
+        //$output .= html_writer::tag('td', $rendervalidation);
         $output = html_writer::tag('tr', $output);
         $output = html_writer::tag('table', $output);
 

@@ -87,6 +87,18 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
 
+Version 3.0.4 (2018-04-26) for ILIAS 5.3
+----------------------------------------
+Some bugfix were made on this version:
+- https://www.ilias.de/mantis/view.php?id=22945 About space between checkboxes and radiobuttons and texts
+- https://www.ilias.de/mantis/view.php?id=22938 About problems installing the plugin in a fresh 5.3 client
+- https://www.ilias.de/mantis/view.php?id=22925 About answertests names in german missing
+- https://www.ilias.de/mantis/view.php?id=22912 About german text file
+- https://www.ilias.de/mantis/view.php?id=22946 About validation in equivalence inputs
+- https://www.ilias.de/mantis/view.php?id=22947 About syntax hint in equivalence inputs
+- https://www.ilias.de/mantis/view.php?id=22847 About validation in equivalence inputs
+- Some other minor changes.
+
 Version 3.0.3 (2018-04-05) for ILIAS 5.3
 ----------------------------------------
 Some bugfix were made on this version:
