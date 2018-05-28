@@ -433,7 +433,8 @@ class assStackQuestionAuthoringGUI
 		$input_must_verify = new ilCheckboxInputGUI($this->getPlugin()->txt('input_must_verify'), $input->getInputName() . '_input_must_verify');
 		$input_must_verify->setInfo($this->getPlugin()->txt("input_must_verify_info"));
 
-		$input_show_validation = new ilCheckboxInputGUI($this->getPlugin()->txt('input_show_validation'), $input->getInputName() . '_input_show_validation');
+		$input_show_validation = new ilSelectInputGUI($this->getPlugin()->txt('input_show_validation'), $input->getInputName() . '_input_show_validation');
+		$input_show_validation->setOptions(array(0 => $this->getPlugin()->txt('show_validation_no'), 1 => $this->getPlugin()->txt('show_validation_yes_with_vars'), 2 => $this->getPlugin()->txt('show_validation_yes_without_vars')));
 		$input_show_validation->setInfo($this->getPlugin()->txt("input_show_validation_info"));
 
 		$input_options = new ilTextInputGUI($this->getPlugin()->txt('input_options'), $input->getInputName() . '_input_options');
@@ -454,7 +455,7 @@ class assStackQuestionAuthoringGUI
 		$input_require_lowest_terms->setChecked($input->getRequireLowestTerms());
 		$input_check_answer_type->setChecked($input->getCheckAnswerType());
 		$input_must_verify->setChecked($input->getMustVerify());
-		$input_show_validation->setChecked($input->getShowValidation());
+		$input_show_validation->setValue($input->getShowValidation());
 		$input_options->setValue($input->getOptions());
 
 		//Add form properties

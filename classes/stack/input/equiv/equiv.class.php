@@ -103,11 +103,12 @@ class stack_equiv_input extends stack_input {
         }
 
         if ($this->is_blank_response($state->contents)) {
-            $current = $this->maxima_to_raw_input($this->parameters['syntaxHint']);
+        	//fim: #39 add first and last character to syntaxhint to solve #23016
+            $current = $this->maxima_to_raw_input("[".$this->parameters['syntaxHint']."]");
             $rows = array();
             // Put the first line of the value of the teacher's answer in the input.
             if (trim($this->parameters['syntaxHint']) == 'firstline') {
-                $values = stack_utils::list_to_array($tavalue, false);
+				$values = stack_utils::list_to_array($tavalue, false);
                 $current = stack_utils::logic_nouns_sort($values[0], 'remove');
             }
             // Remove % characters, e.g. %pi should be printed just as "pi".

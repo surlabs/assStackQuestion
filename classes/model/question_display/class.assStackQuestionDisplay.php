@@ -165,13 +165,16 @@ class assStackQuestionDisplay
 		{
 			return $state->contentsdisplayed;
 		}
+		//Get teacher answer value for equivalence reasoning input firstline problem #22847
+		$ta_value = $this->getQuestion()->getSession()->get_value_key($input->get_teacher_answer());
+
 		//Return renderised input
 		if (is_subclass_of($input, 'stack_dropdown_input'))
 		{
-			return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE, $input->get_teacher_answer());
+			return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE, $ta_value);
 		} else
 		{
-			return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE, $input->get_teacher_answer());
+			return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE, $ta_value);
 		}
 	}
 
@@ -186,7 +189,7 @@ class assStackQuestionDisplay
 	{
 		if (!is_a($input, 'stack_boolean_input') AND !is_subclass_of($input, 'stack_dropdown_input') AND !is_a($input, 'stack_dropdown_input'))
 		{
-			if ($input->requires_validation())
+			if ($input->get_parameter("showValidation"))
 			{
 				if ($this->getQuestion()->getInstantValidation())
 				{

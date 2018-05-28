@@ -42,7 +42,8 @@ class stack_textarea_input extends stack_input {
         );
 
         if ($this->is_blank_response($state->contents)) {
-            $current = $this->maxima_to_raw_input($this->parameters['syntaxHint']);
+			//fim: #39 add first and last character to syntaxhint to solve #23016
+            $current = $this->maxima_to_raw_input("[".$this->parameters['syntaxHint']."]");
         } else {
             $current = implode("\n", $state->contents);
         }
