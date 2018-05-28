@@ -288,7 +288,7 @@ class assStackQuestionInput
 			$input->setRequireLowestTerms((boolean)$row["require_lowest_terms"]);
 			$input->setCheckAnswerType((boolean)$row["check_answer_type"]);
 			$input->setMustVerify((boolean)$row["must_verify"]);
-			$input->setShowValidation((boolean)$row["show_validation"]);
+			$input->setShowValidation((int)$row["show_validation"]);
 			$input->setOptions($row["options"]);
 			$inputs[$row["name"]] = $input;
 		}

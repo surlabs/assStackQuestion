@@ -421,7 +421,7 @@ class assStackQuestionStackQuestion
 				{
 					$specific_parameters = array('mustVerify' => $input->getMustVerify(), //As seen in STACK hideFeedback var is the negation of ShowValidation.
 						//'hideFeedback' => !$input->getShowValidation()
-					 'boxWidth' => $input->getBoxSize(), 'strictSyntax' => $input->getStrictSyntax(), 'insertStars' => $input->getInsertStars(), 'syntaxHint' => $input->getSyntaxHint(), 'forbidWords' => $input->getForbidWords(), 'allowWords' => $input->getAllowWords(), 'forbidFloats' => $input->getForbidFloat(), 'lowestTerms' => $input->getRequireLowestTerms(), 'sameType' => $input->getCheckAnswerType(), 'options' => $input->getOptions());
+					 'boxWidth' => $input->getBoxSize(), 'strictSyntax' => $input->getStrictSyntax(), 'insertStars' => $input->getInsertStars(), 'syntaxHint' => $input->getSyntaxHint(), 'forbidWords' => $input->getForbidWords(), 'allowWords' => $input->getAllowWords(), 'forbidFloats' => $input->getForbidFloat(), 'lowestTerms' => $input->getRequireLowestTerms(), 'sameType' => $input->getCheckAnswerType(), 'options' => $input->getOptions(), 'showValidation' => $input->getShowValidation());
 				} else
 				{
 					$specific_parameters = array();
