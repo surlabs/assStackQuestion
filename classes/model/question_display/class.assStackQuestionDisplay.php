@@ -60,6 +60,7 @@ class assStackQuestionDisplay
 	private $inline_feedback;
 
 
+
 	/**
 	 * Sets all information needed for question display,
 	 * Be aware of $question, here is not an assStackQuestion but an assStackQuestionStackQuestion object
