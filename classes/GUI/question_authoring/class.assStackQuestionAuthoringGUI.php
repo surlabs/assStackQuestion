@@ -495,7 +495,7 @@ class assStackQuestionAuthoringGUI
 			$graphical_column->addFormProperty($this->getGraphicalPart($prt));
 		} catch (assStackQuestionException $exception)
 		{
-			ilUtil::sendFailure($exception->getMessage(), TRUE);
+			$this->question_gui->object->setErrors($exception->getMessage());
 		}
 		$prt_columns_container->addPart($graphical_column, 3);
 
@@ -600,7 +600,7 @@ class assStackQuestionAuthoringGUI
 			$svg = stack_abstract_graph_svg_renderer::render($graph, $prt->getPRTName() . 'graphsvg');
 		} catch (stack_exception $e)
 		{
-			ilUtil::sendFailure($e->getMessage(), TRUE);
+			$this->question_gui->object->setErrors($e->getMessage());
 		}
 
 		//TODO Create new class to avoid deprecated custom property
@@ -966,16 +966,17 @@ class assStackQuestionAuthoringGUI
 		// If exists error messages stored in session
 		$session_error_message = "";
 		$session_info_message = "";
-		if (sizeof($_SESSION["stack_authoring_errors"]))
+
+		if (sizeof($_SESSION["stack_authoring_errors"][$this->getQuestionGUI()->object->getId()]))
 		{
-			foreach ($_SESSION["stack_authoring_errors"] as $session_error)
+			foreach ($_SESSION["stack_authoring_errors"][$this->getQuestionGUI()->object->getId()] as $session_error)
 			{
 				$session_error_message .= $session_error . "</br>";
 			}
 		}
 
 		//Clean session errors
-		$_SESSION["stack_authoring_errors"] = array();
+		$_SESSION["stack_authoring_errors"][$this->getQuestionGUI()->object->getId()] = array();
 
 		//Add </br> if there are ilias validation message between it and session error message
 		if ($session_error_message != "")

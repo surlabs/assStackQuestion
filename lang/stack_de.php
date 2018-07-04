@@ -531,6 +531,20 @@ $string['ATInt_generic']            = 'Die formale Ableitung ihrer Antwort sollt
 $string['ATDiff_error_list']        = 'Die Antwortüberprüfung ist fehlgeschlagen. Bitte konktaktieren sie ihren Systemadministrator.';
 $string['ATDiff_int']               = 'Vermutlich haben sie stattdessen integriert!';
 
+$string['ATUnits_SA_not_expression']      = 'Ihre Antwort muss eine Nummer zusammen mit Einheiten sein. Verwenden Sie keine Mengen, Listen, Gleichungen oder Matrizen.` ';
+$string['ATUnits_SA_no_units']            = 'Ihre Antwort muss Einheiten enthalten. ';
+$string['ATUnits_SA_excess_units']        = 'Ihre Antwort beinhaltet benutzte Einheiten (oder Variablen), was aber nicht sein sollte. ';
+$string['ATUnits_SA_only_units']          = 'Ihre Antwort muss eine Nummer zusammen mit Einheiten sein. Ihre Antwort beinhaltet jedoch nur Einheiten. ';
+$string['ATUnits_SA_bad_units']           = 'Ihre Antwort muss Einheiten beinhalten und Sie müssen Multiplikation verwenden, um den Einheiten einen Wert beizumessen, z.B. <code>3.2*m/s</code>';
+$string['ATUnits_SA_errorbounds_invalid'] = 'Ihre Antwort enthält Fehlergrenzen. Geben Sie in diesem Fall keine Fehlergrenzen an, sondern verwenden Sie nur die Menge und die Einheiten. ';
+$string['ATUnits_incompatible_units']     = 'Ihre Einheiten sind mit denen des Lehrers nicht kompatibel. ';
+$string['ATUnits_compatible_units']       = 'Ihre Einheiten unterscheiden sich von denen des Lehrers, aber sie sind mit diesen kompatibel. Numerische Werte werden zum Vergleich in SI-Basiseinheiten konvertiert. ';
+$string['ATUnits_correct_numerical']      = 'Bitte überprüfen Sie Ihre Einheiten sorgfältig. ';
+
+$string['ATNumDecPlaces_OptNotInt']    = 'Für ATNumDecPlaces muss die Testoption eine positive Ganzzahl sein, tatsächlich wurde "{$a->opt}" empfangen. ';
+$string['ATNumDecPlaces_NoDP']         = 'Ihre Antwort muss eine Dezimalzahl sein, einschließlich eines Dezimalpunkts. ';
+$string['ATNumDecPlaces_Wrong_DPs']    = 'Ihre Antwort wurde auf die falsche Anzahl von Dezimalstellen gegeben.';
+
 $string['ATNumSigFigs_error_list']        = 'Die Antwortüberprüfung ist fehlgeschlagen. Bitte konktaktieren sie ihren Systemadministrator.';
 $string['ATNumSigFigs_NotDecimal']  = 'Ihre Antwort sollte eine Dezimalzahl sein; ist sie aber nicht! ';
 $string['ATNumSigFigs_Inaccurate']  = 'Die Genauigkeit ihrer Antwort ist nicht korrekt. Entweder haben sie das Endergebnis oder einen Zwischenwert falsch gerundet.';

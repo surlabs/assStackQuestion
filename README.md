@@ -98,6 +98,17 @@ PLEASE BACKUP YOUR DATABASE before you run the update from an older version. Dep
 The translation is also done when importing questions from ILIAS or MoodleXML, but please notice that this conversion is one way.You can import "old CASText behaviour" questions to a platform with STACK plugin version 3.0+.
 But if you import "new CASText behaviour" questions to a platform with a previous version of the plugin, your question will not be properly shown on that platform.
 
+Version 3.0.6 (2018-06-25) for ILIAS 5.3
+----------------------------------------
+Some index has been created in the DB, in order to improve performance.
+Some code changes were made in order to allow STACK questions run in Learning modules through PCPluginQuestion plugin.
+Some bugfix were made on this version:
+- https://www.ilias.de/mantis/view.php?id=23135 About showing validation in dropdown, checkbox and radiobutton inputs
+- https://www.ilias.de/mantis/view.php?id=22900 About showing validation after question has been evaluated
+- https://www.ilias.de/mantis/view.php?id=22655 About error messages shown in wrong places.
+- https://www.ilias.de/mantis/view.php?id=22954 About missing german text in units questions.
+- https://www.ilias.de/mantis/view.php?id=23237 About problem when updating to 3.0 with prt feedback.
+
 Version 3.0.5 (2018-05-28) for ILIAS 5.3
 ----------------------------------------
 Some bugfix were made on this version:
