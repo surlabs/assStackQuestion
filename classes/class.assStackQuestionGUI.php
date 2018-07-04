@@ -15,7 +15,7 @@ require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/as
  * @author Jesus Copado <jesus.copado@ili.fau.de>
  * @version    $Id: 2.3$$
  * @ingroup    ModulesTestQuestionPool
- * @ilCtrl_isCalledBy assStackQuestionGUI: ilObjQuestionPoolGUI, ilObjTestGUI
+ * @ilCtrl_isCalledBy assStackQuestionGUI: ilObjQuestionPoolGUI, ilObjTestGUI, ilQuestionEditGUI, ilTestExpressPageObjectGUI
  * @ilCtrl_Calls assStackQuestionGUI: ilFormPropertyDispatchGUI
  *
  */
@@ -282,7 +282,7 @@ class assStackQuestionGUI extends assQuestionGUI
 				$new_input->save();
 				$this->object->setInputs($input, $input_name);
 
-				$this->object->setErrors(array("new_input" => $this->object->getPlugin()->txt("new_input_info_message")));
+				//$this->object->setErrors(array("new_input" => $this->object->getPlugin()->txt("new_input_info_message")));
 			}
 		}
 
@@ -322,7 +322,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		if (preg_match('/\s/', $_POST['prt_new_prt_name']))
 		{
-			ilUtil::sendFailure($this->object->getPlugin()->txt('error_not_valid_prt_name'), TRUE);
+			$this->question_gui->object->setErrors($this->object->getPlugin()->txt('error_not_valid_prt_name'));
 
 			return FALSE;
 		}
@@ -641,18 +641,20 @@ class assStackQuestionGUI extends assQuestionGUI
 										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
 									} else
 									{
-										if($just_show){
-											$input_replacement = "</br>".$input_answer["display"];
+										if ($just_show)
+										{
+											$input_replacement = "</br>" . $input_answer["display"];
 											$question_text = str_replace("[[validation:" . $input_name . "]]", "", $question_text);
 
-										}else{
+										} else
+										{
 											$input_replacement = $input_answer["value"];
 											$question_text = str_replace("[[validation:" . $input_name . "]]", $this->object->getStackQuestion()->getInputs($input_name)->render_validation($this->object->getStackQuestion()->getInputState($input_name, $input_replacement), $input_name), $question_text);
 										}
 									}
 
-								$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
-								break;
+									$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
+									break;
 								case "matrix":
 									//Select replace depending on mode if $best_solution is TRUE, best solution when FALSE user solution.
 									if ($best_solution)
@@ -660,7 +662,7 @@ class assStackQuestionGUI extends assQuestionGUI
 										$input_replacement = $input_answer["model_answer_display"];
 									} else
 									{
-										$input_replacement = "</br>".$input_answer["display"];
+										$input_replacement = "</br>" . $input_answer["display"];
 									}
 									$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
 									break;
@@ -671,7 +673,7 @@ class assStackQuestionGUI extends assQuestionGUI
 										$input_replacement = $input_answer["model_answer_display"];
 									} else
 									{
-										$input_replacement = "</br>".$input_answer["value"];
+										$input_replacement = "</br>" . $input_answer["value"];
 									}
 									$size = $input->getBoxSize();
 									$input_text = "";
@@ -686,7 +688,7 @@ class assStackQuestionGUI extends assQuestionGUI
 										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
 									} else
 									{
-										$input_replacement = "</br>".$input_answer["value"];
+										$input_replacement = "</br>" . $input_answer["value"];
 										if ($show_feedback)
 										{
 											$validation_replacement = $input_answer["display"];
@@ -734,6 +736,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			{
 				$question_text .= $solutions["general_feedback"];
 			}
+
 			//Return the question text with LaTeX problems solved.
 			return assStackQuestionUtils::_getLatex($question_text);
 		} else
@@ -940,6 +943,12 @@ class assStackQuestionGUI extends assQuestionGUI
 	{
 		global $DIC;
 
+		if ($this->object->getSelfAssessmentEditingMode())
+		{
+			$this->getLearningModuleTabs();
+		}
+
+		//QP
 		$tabs = $DIC->tabs();
 
 		//Set all parameters required
@@ -978,6 +987,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Returns Deployed seeds form
 		$this->tpl->setVariable("QUESTION_DATA", $authoring_gui->showAuthoringPanel());
+
 	}
 
 
@@ -1025,6 +1035,11 @@ class assStackQuestionGUI extends assQuestionGUI
 	{
 		global $DIC;
 		$tabs = $DIC->tabs();
+
+		if ($this->object->getSelfAssessmentEditingMode())
+		{
+			$this->getLearningModuleTabs();
+		}
 		//Set all parameters required
 		$tabs->activateTab('edit_properties');
 		$tabs->activateSubTab('deployed_seeds_management');
@@ -1063,7 +1078,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$deployed_seed = new assStackQuestionDeployedSeed('', $question_id, $seed);
 		if (!$deployed_seed->save())
 		{
-			ilUtil::sendFailure($this->plugin->txt('dsm_not_allowed_seed'));
+			$this->question_gui->object->setErrors($this->plugin->txt('dsm_not_allowed_seed'));
 		}
 
 		$this->deployedSeedsManagement();
@@ -1111,6 +1126,10 @@ class assStackQuestionGUI extends assQuestionGUI
 	{
 		global $DIC;
 		$tabs = $DIC->tabs();
+		if ($this->object->getSelfAssessmentEditingMode())
+		{
+			$this->getLearningModuleTabs();
+		}
 		//Set all parameters required
 		$tabs->activateTab('edit_properties');
 		$tabs->activateSubTab('scoring_management');
@@ -1139,7 +1158,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			$new_question_points = (float)ilUtil::stripSlashes($_POST['new_scoring']);
 		} else
 		{
-			ilUtil::sendFailure($this->plugin->txt('sco_invalid_value'));
+			$this->question_gui->object->setErrors($this->plugin->txt('sco_invalid_value'));
 		}
 		//Show scoring panel with comparison
 		$this->scoringManagementPanel($new_question_points);
@@ -1158,7 +1177,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			$this->object->saveQuestionDataToDb($this->object->getId());
 		} else
 		{
-			ilUtil::sendFailure($this->plugin->txt('sco_invalid_value'));
+			$this->question_gui->object->setErrors($this->plugin->txt('sco_invalid_value'));
 		}
 		//Show scoring panel
 		$this->scoringManagementPanel();
@@ -1175,6 +1194,10 @@ class assStackQuestionGUI extends assQuestionGUI
 	{
 		global $DIC;
 		$tabs = $DIC->tabs();
+		if ($this->object->getSelfAssessmentEditingMode())
+		{
+			$this->getLearningModuleTabs();
+		}
 
 		//Set all parameters required
 		$tabs->activateTab('edit_properties');
@@ -1496,6 +1519,10 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		$lng = $DIC->language();
 		$tabs = $DIC->tabs();
+		if ($this->object->getSelfAssessmentEditingMode())
+		{
+			$this->getLearningModuleTabs();
+		}
 		//Set all parameters required
 		$tabs->activateTab('edit_properties');
 		$tabs->activateSubTab('import_from_moodle');
@@ -1536,7 +1563,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			$xml_file = $_FILES["questions_xml"]["tmp_name"];
 		} else
 		{
-			ilUtil::sendFailure($this->plugin->txt('error_import_question_in_test'));
+			$this->question_gui->object->setErrors($this->plugin->txt('error_import_question_in_test'));
 
 			return;
 		}
@@ -1544,7 +1571,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		//CHECK FOR NOT ALLOW IMPROT QUESTIONS DIRECTLY IN TESTS
 		if (isset($_GET['calling_test']))
 		{
-			ilUtil::sendFailure($this->plugin->txt('error_import_question_in_test'));
+			$this->question_gui->object->setErrors($this->plugin->txt('error_import_question_in_test'));
 
 			return;
 		} else
@@ -1640,11 +1667,11 @@ class assStackQuestionGUI extends assQuestionGUI
 				$xml = $export_to_moodle->toMoodleXML();
 			} else
 			{
-				throw new stack_exception($lng->txt('qpl_qst_xqcas_error_exporting_to_moodle_mode'));
+				throw new Exception($lng->txt('qpl_qst_xqcas_error_exporting_to_moodle_mode'));
 			}
 		} else
 		{
-			throw new stack_exception($lng->txt('qpl_qst_xqcas_error_exporting_to_moodle_question_id'));
+			throw new Exception($lng->txt('qpl_qst_xqcas_error_exporting_to_moodle_question_id'));
 		}
 	}
 
@@ -1675,9 +1702,6 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function getErrors()
 	{
-		//Clean session errors
-		$_SESSION["stack_authoring_errors"] = array();
-
 		$isComplete = TRUE;
 
 		//Check all inputs have a model answer
@@ -1753,6 +1777,55 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function setPlugin($plugin)
 	{
 		$this->plugin = $plugin;
+	}
+
+	public function getLearningModuleTabs()
+	{
+		global $DIC;
+		$tabs = $DIC->tabs();
+
+		$this->ctrl->setParameterByClass("ilAssQuestionPageGUI", "q_id", $_GET["q_id"]);
+		include_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
+		$this->plugin->includeClass('class.ilAssStackQuestionFeedback.php');
+
+		$q_type = $this->object->getQuestionType();
+
+		if (strlen($q_type))
+		{
+			$classname = $q_type . "GUI";
+			$this->ctrl->setParameterByClass(strtolower($classname), "sel_question_types", $q_type);
+			$this->ctrl->setParameterByClass(strtolower($classname), "q_id", $this->object->getId());
+		}
+
+		$force_active = false;
+		$url = "";
+
+		if ($classname)
+		{
+			$url = $this->ctrl->getLinkTargetByClass($classname, "editQuestion");
+		}
+		$commands = $_POST["cmd"];
+		if (is_array($commands))
+		{
+			foreach ($commands as $key => $value)
+			{
+				if (preg_match("/^suggestrange_.*/", $key, $matches))
+				{
+					$force_active = true;
+				}
+			}
+		}
+		// edit question properties
+		$tabs->addTarget("edit_properties", $url, array("editQuestion", "save", "cancel", "addSuggestedSolution", "cancelExplorer", "linkChilds", "removeSuggestedSolution", "parseQuestion", "saveEdit", "suggestRange"), $classname, "", $force_active);
+
+		if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'deployedSeedsManagement', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle',)))
+		{
+			$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
+			$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
+			$tabs->addSubTab('deployed_seeds_management', $this->plugin->txt('dsm_deployed_seeds'), $this->ctrl->getLinkTargetByClass($classname, "deployedSeedsManagement"));
+			$tabs->addSubTab('unit_tests', $this->plugin->txt('ut_title'), $this->ctrl->getLinkTargetByClass($classname, "showUnitTests"));
+		}
+
 	}
 
 }

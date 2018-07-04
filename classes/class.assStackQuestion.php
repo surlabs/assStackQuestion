@@ -867,7 +867,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 				$lng = $DIC->language();
 				if ($this->options->getQuestionNote() == "" OR $this->options->getQuestionNote() == " ")
 				{
-					ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_error_no_question_note"), TRUE);
+					$this->setErrors($lng->txt("qpl_qst_xqcas_error_no_question_note"));
 				}
 			}
 			$this->options->save();
@@ -919,7 +919,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 					if (is_string($this->getStackQuestion()->getQuestionVariables()->get_errors()))
 					{
 						include_once "./Services/Utilities/classes/class.ilUtil.php";
-						ilUtil::sendFailure($this->getStackQuestion()->getQuestionVariables()->get_errors(), TRUE);
+						$this->setErrors($this->getStackQuestion()->getQuestionVariables()->get_errors());
 					}
 					$node->save();
 				}
@@ -1932,7 +1932,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 */
 	public function getErrors()
 	{
-		return $_SESSION["stack_authoring_errors"];
+		return $_SESSION["stack_authoring_errors"][$this->getId()];
 	}
 
 	/**
@@ -1940,7 +1940,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 */
 	public function setErrors($error)
 	{
-		$_SESSION["stack_authoring_errors"][] = $error;
+		$_SESSION["stack_authoring_errors"][$this->getId()][] = $error;
 	}
 
 

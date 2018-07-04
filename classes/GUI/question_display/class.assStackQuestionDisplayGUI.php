@@ -207,13 +207,20 @@ class assStackQuestionDisplayGUI
 				$input_text = str_replace("[[input:{$input_name}]]", $display['display'], $this->getDisplay('question_text'));
 				$this->setDisplay($input_text, 'question_text');
 				//Step 1.2 Replace validation fields
-				if ($show_feedback AND strlen($display["display_rendered"]) > 1)
+				if (strlen(trim($this->getDisplay('validation', $input_name))))
 				{
-					$validation_text = str_replace("[[validation:{$input_name}]]","</br>" . $this->plugin->txt("interpreted_by_maxima_as_2") . "</br>" . $display['display_rendered'], $this->getDisplay('question_text'));
+					if ($show_feedback AND strlen($display["display_rendered"]) > 1)
+					{
+						$validation_text = str_replace("[[validation:{$input_name}]]", "</br>" . $this->plugin->txt("interpreted_by_maxima_as_2") . "</br>" . $display['display_rendered'], $this->getDisplay('question_text'));
+					} else
+					{
+						$validation_text = str_replace("[[validation:{$input_name}]]", $this->getDisplay('validation', $input_name), $this->getDisplay('question_text'));
+					}
 				} else
 				{
-					$validation_text = str_replace("[[validation:{$input_name}]]", $this->getDisplay('validation', $input_name), $this->getDisplay('question_text'));
+					$validation_text = str_replace("[[validation:{$input_name}]]", "", $this->getDisplay('question_text'));
 				}
+
 				$this->setDisplay($validation_text, 'question_text');
 			}
 		}

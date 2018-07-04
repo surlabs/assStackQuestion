@@ -60,6 +60,7 @@ class assStackQuestionDisplay
 	private $inline_feedback;
 
 
+
 	/**
 	 * Sets all information needed for question display,
 	 * Be aware of $question, here is not an assStackQuestion but an assStackQuestionStackQuestion object
@@ -117,7 +118,13 @@ class assStackQuestionDisplay
 			$display_data['inputs'][$input_name]['display'] = $this->replacementForInputPlaceholders($input, $input_name, $in_test, FALSE);
 			$display_data['inputs'][$input_name]['display_rendered'] = $this->replacementForInputPlaceholders($input, $input_name, $in_test, TRUE);
 			//Step 1.2: Replacement for validation placeholders
-			$display_data['validation'][$input_name] = $this->replacementForValidationPlaceholders($input, $input_name);
+			if ((int)$this->getQuestion()->getInputs($input_name)->get_parameter("showValidation"))
+			{
+				$display_data['validation'][$input_name] = $this->replacementForValidationPlaceholders($input, $input_name);
+			} else
+			{
+				$display_data['validation'][$input_name] = "";
+			}
 			//Step 1.3 set matrix info
 			if (is_a($input, "stack_matrix_input"))
 			{
@@ -281,6 +288,7 @@ class assStackQuestionDisplay
 					{
 						return array($selector => '');
 					}
+
 					return $user_answer[$selector];
 				} else
 				{
@@ -309,6 +317,7 @@ class assStackQuestionDisplay
 							}
 						}
 					}
+
 					return $user_answer[$selector];
 				}
 			} else
