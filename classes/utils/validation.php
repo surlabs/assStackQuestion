@@ -50,12 +50,9 @@ function checkUserResponse($question_id, $input_name, $user_response)
 	$stack_options = $stack_question->getOptions();
 	$teacher_answer = $stack_input->get_teacher_answer();
 
-	if (is_a($stack_input, "stack_equiv_input"))
+	if (is_a($stack_input, "stack_equiv_input") OR is_a($stack_input, "stack_textarea_input"))
 	{
 		$stack_response = $stack_input->maxima_to_response_array("[" . $user_response . "]");
-	} elseif (is_a($stack_input, "stack_textarea_input"))
-	{
-		$stack_response = array($input_name => $stack_input->maxima_to_raw_input("[" . $user_response . "]"));
 	} elseif (is_a($stack_input, "stack_matrix_input"))
 	{
 
@@ -65,11 +62,7 @@ function checkUserResponse($question_id, $input_name, $user_response)
 
 		$state = $stack_question->getInputState($input_name, $array, $forbiddenwords);
 
-		$result = array(
-			'input' => $user_response,
-			'status' => $state->status,
-			'message' => $input->render_validation($state, $input_name),
-		);
+		$result = array('input' => $user_response, 'status' => $state->status, 'message' => $input->render_validation($state, $input_name),);
 
 		return $result['message'];
 	} else

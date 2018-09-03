@@ -268,7 +268,7 @@ class assStackQuestionFeedbackGUI
 		if ($graphical_output AND $_GET['cmd'] != 'outUserListOfAnswerPasses') {
 			//Status message
 			if (is_array($prt['status'])) {
-				//$this->getTemplate()->setVariable('FEEDBACK_STATUS_MESSAGE', $this->getPlugin()->txt('message_feedback_status_part'));
+
 				$this->getTemplate()->setVariable('FEEDBACK_STATUS', $prt['status']['message']);
 			}
 			$this->getTemplate()->setVariable('FEEDBACK_STATUS_COLOUR', $this->getColor($prt['status']['value']));
@@ -330,14 +330,14 @@ class assStackQuestionFeedbackGUI
 	{
 		$question_text = $this->getFeedback('question_text');
 		$specific_feedback = $this->specific_feedback;
-		$question_text = preg_replace('/\[\[validation:(.*?)\]\]/', "", $question_text);
+		//$question_text = preg_replace('/\[\[validation:(.*?)\]\]/', "", $question_text);
 		if (is_array($this->getFeedback('prt'))) {
 			foreach ($this->getFeedback('prt') as $prt_name => $prt) {
 				if(is_array($prt['response'])){
 					foreach ($prt['response'] as $input_name => $input) {
 						if ($input['model_answer'] != "" AND $mode == "correct") {
-							$question_text = str_replace("[[input:" . $input_name . "]]", $this->getFilledInputBest($input['model_answer_display'], $input['model_answer']), $question_text);
-							$question_text = str_replace("[[feedback:" . $prt_name . "]]", NULL, $question_text);
+							$question_text = str_replace("[[input:" . $input_name . "]]", $input['model_answer'], $question_text);
+							$question_text = str_replace("[[validation:" . $input_name . "]]", $input['model_answer_display'], $question_text);
 						} elseif ($input['model_answer'] != "" AND $mode == "user") {
 							$question_text = str_replace("[[input:" . $input_name . "]]", $this->getFilledInputUser($input['display']), $question_text);
 							$question_text = str_replace("[[feedback:" . $prt_name . "]]", $this->replacementForPRTPlaceholders($prt, $prt_name, $input), $question_text);
@@ -353,6 +353,7 @@ class assStackQuestionFeedbackGUI
 				}
 			}
 		}
+
 		if ($mode == "correct") {
 			$string = "";
 			//feedback
@@ -398,10 +399,6 @@ class assStackQuestionFeedbackGUI
 		return $value;
 	}
 
-	private function getFilledInputBest($model_answer_display, $model_answer)
-	{
-		return $model_answer_display;
-	}
 
 	private function getQuestionHowToSolve($text)
 	{

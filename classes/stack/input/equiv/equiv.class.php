@@ -498,19 +498,27 @@ class stack_equiv_input extends stack_input {
         if ($this->get_parameter('showValidation', 1) == 0 && self::INVALID != $state->status) {
             return '';
         }
-        $feedback = stack_maths::process_lang_string($state->contentsdisplayed);
+
+		$feedback = "";
+		$user_answer = $this->contents_to_maxima($state->contents);
+
+		$rows = sizeof(explode(",", $user_answer));
+		$student_answer_value =$this->maxima_to_raw_input($user_answer);
+		$textarea_html = '<textarea rows="' .
+			$rows . '" id="xqcas_' . $fieldname.'_postvalidation" disabled="disabled">'.$student_answer_value.'</textarea>';
+
+		$feedback .= html_writer::tag('p', "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $textarea_html . "</td><td class='xqcas_validation'>" . stack_string('studentValidation_yourLastAnswer', stack_maths::process_lang_string($state->contentsdisplayed)) . "</td></tr></table>");
 
         if ($this->requires_validation() && '' !== $state->contents) {
-            $feedback .= html_writer::empty_tag('input', array('type' => 'hidden',
-                    'name' => $fieldname . '_val', 'value' => $this->contents_to_maxima($state->contents)));
+			$feedback .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => $fieldname . '_val', 'value' => $this->contents_to_maxima($state->contents)));
         }
 
         if (self::INVALID == $state->status) {
-            $feedback .= html_writer::tag('p', stack_string('studentValidation_invalidAnswer'));
+			$feedback .= html_writer::tag('p', "<table class='xqcas_validation_status'><tr><td class='xqcas_validation_status'>".stack_string('studentValidation_invalidAnswer'). "</td></tr></table>");
         }
 
         if ($this->get_parameter('showValidation', 1) == 1 && !($state->lvars === '' or $state->lvars === '[]')) {
-            $feedback .= html_writer::tag('p', stack_string('studentValidation_listofvariables', $state->lvars));
+			$feedback .= "<table class='xqcas_validation_variables'><tr><td class='xqcas_validation_variables'>".$this->tag_listofvariables($state->lvars). "</td></tr></table>";
         }
 
         return $feedback;

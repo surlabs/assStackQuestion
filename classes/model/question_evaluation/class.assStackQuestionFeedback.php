@@ -120,22 +120,23 @@ class assStackQuestionFeedback
 				//Fill LaTeX display
 				$user_responses[$input_name]['display'] = assStackQuestionUtils::_solveKeyBracketsBug($this->getQuestion()->getInputStates($input_name)->__get('contentsdisplayed'));
 				//Fill model answer
-				$user_responses[$input_name]['model_answer'] = "";
+				$correct_response = $this->getCorrectResponsePlaceholders($input_name);
+				$user_responses[$input_name]['model_answer'] = $correct_response["value"];
 				//Fill model answer display
-				$user_responses[$input_name]['model_answer_display'] = $this->format_correct_response($input_name);
+				$user_responses[$input_name]['model_answer_display'] = $correct_response["display"];
 
 			} else
 			{
-
 				//Input was not Ok, use getLatexText
 				//Fill value
 				$user_responses[$input_name]['value'] = $user_response_value;
 				//Fill LaTeX display
 				$user_responses[$input_name]['display'] = assStackQuestionUtils::_solveKeyBracketsBug($user_response_value);
 				//Fill model answer
-				$user_responses[$input_name]['model_answer'] = "";
+				$correct_response = $this->getCorrectResponsePlaceholders($input_name);
+				$user_responses[$input_name]['model_answer'] = $correct_response["value"];
 				//Fill model answer display
-				$user_responses[$input_name]['model_answer_display'] = $this->format_correct_response($input_name);
+				$user_responses[$input_name]['model_answer_display'] = $correct_response["display"];
 			}
 		}
 
@@ -176,6 +177,7 @@ class assStackQuestionFeedback
 				$feedback .= '</br>';
 			}
 		}
+
 		return $feedback;
 	}
 
@@ -290,19 +292,178 @@ class assStackQuestionFeedback
 
 		if ($input_name)
 		{
-			$input = $this->getQuestion()->getInputs($input_name);
-			$feedback = html_writer::tag('p', $input->get_teacher_answer_display($this->getQuestion()->getSession()->get_value_key($input_name, true), $this->getQuestion()->getSession()->get_display_key($input_name)));
+			$feedback = stack_string('studentValidation_yourLastAnswer', '\( ' . $this->getQuestion()->getSession()->get_display_key($input_name) . ' \)');
 		} else
 		{
 			$inputs = stack_utils::extract_placeholders($this->getQuestion()->getQuestionTextInstantiated(), 'input');
 			foreach ($inputs as $name)
 			{
-				$input = $this->getQuestion()->getInputs($name);
-				$feedback .= html_writer::tag('p', $input->get_teacher_answer_display($this->getQuestion()->getSession()->get_value_key($name, true), $this->getQuestion()->getSession()->get_display_key($name)));
+				$feedback .= stack_string('studentValidation_yourLastAnswer', '\( ' . $this->getQuestion()->getSession()->get_display_key($name) . ' \)');
 			}
 		}
 
 		return assStackQuestionUtils::stack_output_castext($feedback);
 
 	}
+
+	public function getCorrectResponsePlaceholders($input_name = "")
+	{
+		if ($input_name)
+		{
+			$input = $this->getQuestion()->getInputs($input_name);
+			$input_state = $this->getQuestion()->getInputStates($input_name);
+			$correct_answer = $input->get_correct_response($this->getQuestion()->getSession()->get_value_key($input_name, true));
+			$input_size = $input->get_parameter("boxWidth");
+
+			if (is_a($input, "stack_algebraic_input") OR is_a($input, "stack_numerical_input") OR is_a($input, "stack_singlechar_input") OR is_a($input, "stack_boolean_input") OR is_a($input, "stack_units_input"))
+			{
+				if ($input_size == NULL)
+				{
+					$input_size = strlen($correct_answer[$input_name]) + 2;
+				}
+				$input_html = '<input type="text" style="width:' .
+					$input_size . 'em" id="xqcas_' .
+					$this->getQuestion()->getQuestionId() . '_'.$input_name.'_postvalidation" value="'.
+					$correct_answer[$input_name].'" disabled="disabled">';
+
+				$result = array();
+				$result["value"] = $input_html;
+				$result["display"] = "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $input_html . "</td><td class='xqcas_validation'>" . $this->format_correct_response($input_name) . "</td></tr></table>";
+
+				return $result;
+			}
+			if (is_a($input, "stack_matrix_input"))
+			{
+				$matrix_input_correct_answer = $input->get_correct_response($this->getQuestion()->getSession()->get_value_key($input_name, true));
+				$matrix_input_rows = (int)$input->height;
+				$matrix_input_columns = (int)$input->width;
+
+				$correct_matrix = "<table>";
+				for ($i = 0; $i < $matrix_input_rows; $i++)
+				{
+					$correct_matrix .= "<tr>";
+					for ($j = 0; $j < $matrix_input_columns; $j++)
+					{
+						$correct_matrix .= "<td>";
+						$correct_filled_input = new ilTextInputGUI("xqcas_" . $this->getQuestion()->getQuestionId() . "_" . $input_name . $i . "_" . $j . "_correct_", "xqcas_" . $this->getQuestion()->getQuestionId() . "_" . $input_name . $i . "_" . $j . "_correct_");
+						$correct_filled_input->setValue($matrix_input_correct_answer[$input_name . "_sub_" . $i . "_" . $j]);
+						$correct_filled_input->setDisabled(TRUE);
+						$correct_filled_input->setInlineStyle("width: " . $input_size . "em");
+						$correct_matrix .= $correct_filled_input->render();
+						$correct_matrix .= "</td>";
+					}
+					$correct_matrix .= "</tr>";
+				}
+				$correct_matrix .= "</table>";
+
+				$result = array();
+				$result["value"] = $correct_matrix;
+				$result["display"] = "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $correct_matrix . "</td><td class='xqcas_validation'>" . $this->format_correct_response($input_name) . "</td></tr></table>";
+
+				return $result;
+			}
+			if (is_a($input, "stack_checkbox_input"))
+			{
+				$options = $input->get_choices();
+				//Clean in case of not choosing any active
+				if ($options[""])
+				{
+					unset($options[""]);
+				}
+				$number_of_options = sizeof($options);
+				$html = "";
+				if ($number_of_options)
+				{
+					for ($i = 0; $i < $number_of_options; $i++)
+					{
+						if (array_key_exists($input_name . "_" . ($i+1), $correct_answer))
+						{
+							$html .= '<input type="checkbox" name="" value="" disabled="disabled" checked="checked">'." ".assStackQuestionUtils::_getLatex($options[($i + 1)]).'<br>';
+						} else
+						{
+							$html .= '<input type="checkbox" name="" value="" disabled="disabled">'." ".assStackQuestionUtils::_getLatex($options[($i + 1)]).'<br>';
+						}
+					}
+				}
+
+				$result = array();
+				$result["value"] = $html;
+				$result["display"] = "";
+
+				return $result;
+			}
+			if (is_a($input, "stack_radio_input"))
+			{
+				$options = $input->get_choices();
+				//Clean in case of not choosing any active
+				if ($options[""])
+				{
+					unset($options[""]);
+				}
+				$number_of_options = sizeof($options);
+				$html = "";
+				if ($number_of_options)
+				{
+					for ($i = 0; $i < $number_of_options; $i++)
+					{
+						if ($i + 1 == $correct_answer[$input_name])
+						{
+							$html .= '<input type="radio" name="" value="" disabled="disabled" checked="checked">'." ".assStackQuestionUtils::_getLatex($options[($i + 1)]).'<br>';
+						}else{
+							$html .= '<input type="radio" name="" value="" disabled="disabled">'." ".assStackQuestionUtils::_getLatex($options[($i + 1)]).'<br>';
+						}
+					}
+				}
+
+				$result = array();
+				$result["value"] = $html;
+				$result["display"] = "";
+
+				return $result;
+			}
+			if (is_a($input, "stack_dropdown_input"))
+			{
+				$html = "<select>";
+				$html .='<option value="'.$correct_answer[$input_name . "_val"].'">'.$correct_answer[$input_name . "_val"].'</option>';
+				$html .="</select>";
+
+				$result["value"] = $html;
+				$result["display"] = "";
+
+				return $result;
+			}
+
+			if (is_a($input, "stack_equiv_input") or is_a($input, "stack_textarea_input"))
+			{
+				$rows = sizeof(explode(",", $correct_answer[$input_name . "_val"]));
+				if(is_array($correct_answer[$input_name])){
+					$student_answer_value = $correct_answer[$input_name][$input_name."_val"];
+				}elseif(is_string($correct_answer[$input_name])){
+					$student_answer_value = $correct_answer[$input_name];
+				}
+
+				$textarea_html = '<textarea rows="' .
+					$rows . '" id="xqcas_' .
+					$this->getQuestion()->getQuestionId() . '_'.$input_name.'_postvalidation" disabled="disabled">'.$student_answer_value.'</textarea>';
+
+				$result = array();
+				$result["value"] = $textarea_html;
+				$result["display"] = "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $textarea_html . "</td><td class='xqcas_validation'>" . $this->format_correct_response($input_name) . "</td></tr></table>";
+
+				return $result;
+			}
+			if (is_a($input, "stack_notes_input"))
+			{
+				$string = "";
+				$string .= '<div class="alert alert-warning" role="alert">';
+				$string .= $this->getPlugin()->txt("notes_best_solution_message");
+				$string .= '</div>';
+				$result["value"] = $string;
+				$result["display"] = "";
+
+				return $result;
+			}
+		}
+	}
+
 }

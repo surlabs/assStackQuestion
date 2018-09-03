@@ -52,6 +52,7 @@ class stack_notes_input extends stack_input {
         foreach ($rows as $row) {
             $boxwidth = max($boxwidth, strlen($row) + 5);
         }
+		$boxwidth = 75;
         $attributes['cols'] = $boxwidth;
 
         if ($readonly) {

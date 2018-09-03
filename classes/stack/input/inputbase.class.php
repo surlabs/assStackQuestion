@@ -825,7 +825,8 @@ abstract class stack_input
 			$valid = false;
 		} else
 		{
-			$display = '\[ ' . $answer->get_display() . ' \]';
+			//fim: #40 Change [/ to (/ to get validation inline
+			$display = '\( ' . $answer->get_display() . ' \)';
 		}
 
 		// Guard clause at this point.
@@ -1004,7 +1005,48 @@ abstract class stack_input
 			return '';
 		}
 		$feedback = '';
-		$feedback .= html_writer::tag('p', stack_string('studentValidation_yourLastAnswer', $state->contentsdisplayed));
+
+		//fim: 42 Change validation display for each input type and other feedback required
+		if (is_a($this, "stack_algebraic_input") OR is_a($this, "stack_numerical_input") OR is_a($this, "stack_singlechar_input") OR is_a($this, "stack_boolean_input") OR is_a($this, "stack_units_input"))
+		{
+			$user_answer = $this->contents_to_maxima($state->contents);
+			$input_size = (int)$this->get_parameter("boxWidth");
+			$input = new ilTextInputGUI("xqcas_" . $fieldname . "_validate", "xqcas_" . $fieldname . "_validate");
+			$input->setValue($user_answer);
+			$input->setDisabled(TRUE);
+
+			if ($input_size == NULL)
+			{
+				$input_size = strlen($user_answer) + 2;
+			}
+			$input->setInlineStyle("width: " . $input_size . "em");
+			$feedback .= html_writer::tag('p', "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $input->render() . "</td><td class='xqcas_validation'>" . stack_string('studentValidation_yourLastAnswer', $state->contentsdisplayed) . "</td></tr></table>");
+		}
+		if (is_a($this, "stack_matrix_input"))
+		{
+			$user_answer = $state->contents;
+			$matrix_input_rows = (int)$this->height;
+			$matrix_input_columns = (int)$this->width;
+
+			$user_matrix = "<table>";
+			for ($i = 0; $i < $matrix_input_rows; $i++)
+			{
+				$user_matrix .= "<tr>";
+				for ($j = 0; $j < $matrix_input_columns; $j++)
+				{
+					$user_matrix .= "<td>";
+					$input = new ilTextInputGUI("xqcas_" . $fieldname . $i . "_" . $j . "_validate", "xqcas_" . $fieldname . $i . "_" . $j . "_validate");
+					$input->setValue($user_answer[$i][$j]);
+					$input->setDisabled(TRUE);
+					$input->setInlineStyle("width: " . $this->get_parameter("boxWidth") . "em");
+					$user_matrix .= $input->render();
+					$user_matrix .= "</td>";
+				}
+				$user_matrix .= "</tr>";
+			}
+			$user_matrix .= "</table>";
+			$feedback .= html_writer::tag('p', "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $user_matrix . "</td><td class='xqcas_validation'>" . stack_string('studentValidation_yourLastAnswer', $state->contentsdisplayed) . "</td></tr></table>");
+		}
 
 		if ($this->requires_validation() && '' !== $state->contents)
 		{
@@ -1013,17 +1055,17 @@ abstract class stack_input
 
 		if (self::INVALID == $state->status)
 		{
-			$feedback .= html_writer::tag('p', stack_string('studentValidation_invalidAnswer'));
+			$feedback .= html_writer::tag('p', "<table class='xqcas_validation_status'><tr><td class='xqcas_validation_status'>".stack_string('studentValidation_invalidAnswer'). "</td></tr></table>");
 		}
 
 		if ($state->errors)
 		{
-			$feedback .= html_writer::tag('p', $state->errors, array('class' => 'stack_errors'));
+			$feedback .= html_writer::tag('p', "<table class='xqcas_validation_errors'><tr><td class='xqcas_validation_errors'>".$state->errors. "</td></tr></table>", array('class' => 'stack_errors'));
 		}
 
 		if ($this->get_parameter('showValidation', 1) == 1 && !($state->lvars === '' or $state->lvars === '[]'))
 		{
-			$feedback .= $this->tag_listofvariables($state->lvars);
+			$feedback .= "<table class='xqcas_validation_variables'><tr><td class='xqcas_validation_variables'>".$this->tag_listofvariables($state->lvars). "</td></tr></table>";
 		}
 
 		return $feedback;
