@@ -340,8 +340,8 @@ $string['ddl_nocorrectanswersupplied'] = 'The teacher did not indicate at least 
 $string['ddl_duplicates'] = 'Duplicate values have been found when generating the input options. ';
 $string['ddl_badanswer'] = 'The model answer field for this input is malformed: <code>{$a}</code>. ';
 $string['ddl_unknown'] = 'STACK received <code>{$a}</code> but this is not listed by the teacher as an option. ';
-
-$string['teacheranswershow']      = 'A correct answer is \( {$a->display} \), which can be typed in as follows: {$a->value}';
+//fim: #43 Best solution answer change
+$string['teacheranswershow'] = '{$a->value} interpreted as: \\({$a->display}\\)';
 $string['teacheranswershow_disp'] = 'A correct answer is {$a->display} .';
 $string['teacheranswershownotes'] = 'A correct answer is not provided for this input.';
 
@@ -834,7 +834,8 @@ $string['equiv_MISSINGVAR']              = 'Missing assignments';
 $string['equiv_ASSUMEPOSVARS']           = 'Assume +ve vars';
 $string['equiv_ASSUMEPOSREALVARS']       = 'Assume +ve real vars';
 
-$string['studentValidation_yourLastAnswer']     = 'Your last answer was interpreted as follows: {$a}';
+//fim: #41 Validation message change
+$string['studentValidation_yourLastAnswer']     = ' interpreted as: {$a}';
 $string['studentValidation_listofvariables']    = 'The variables found in your answer were: {$a}';
 $string['studentValidation_listofunits']        = 'The units found in your answer were: {$a}';
 $string['studentValidation_invalidAnswer']      = 'This answer is invalid. ';

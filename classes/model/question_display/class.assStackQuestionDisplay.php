@@ -60,7 +60,6 @@ class assStackQuestionDisplay
 	private $inline_feedback;
 
 
-
 	/**
 	 * Sets all information needed for question display,
 	 * Be aware of $question, here is not an assStackQuestion but an assStackQuestionStackQuestion object
@@ -117,6 +116,7 @@ class assStackQuestionDisplay
 			//Step 1.1: Replacement for input placeholders
 			$display_data['inputs'][$input_name]['display'] = $this->replacementForInputPlaceholders($input, $input_name, $in_test, FALSE);
 			$display_data['inputs'][$input_name]['display_rendered'] = $this->replacementForInputPlaceholders($input, $input_name, $in_test, TRUE);
+			$display_data['inputs'][$input_name]['validation'] = $this->replacementForValidationInput($input, $input_name, $in_test, TRUE);
 			//Step 1.2: Replacement for validation placeholders
 			if ((int)$this->getQuestion()->getInputs($input_name)->get_parameter("showValidation"))
 			{
@@ -426,6 +426,115 @@ class assStackQuestionDisplay
 		} else
 		{
 			$this->inline_feedback = $inline_feedback;
+		}
+	}
+
+	public function replacementForValidationInput($input, $input_name, $in_test, $render_display = FALSE)
+	{
+		//Get student answer for this inputF
+		//In assStackQuestionDisplay the User response should be store with the "value" format for assStackQuestionUtils::_getUserResponse.
+		$student_answer = $this->getUserResponse($input_name, $in_test);
+		//Bug https://www.ilias.de/mantis/view.php?id=22129 about matrix syntax hint
+		if (!sizeof($student_answer) AND ($input->get_parameter('syntaxHint') != '') AND is_a($input, 'stack_matrix_input'))
+		{
+			$student_answer = assStackQuestionUtils::_changeUserResponseStyle(array($input_name => $input->get_parameter('syntaxHint')), $this->getQuestion()->getQuestionId(), array($input_name => $input), 'reduced_to_value');
+			$student_answer = $student_answer["xqcas_input_" . $input_name . "_value"];
+		}
+
+		$input_state = $this->getQuestion()->getInputStates($input_name);
+		$input_size = (string)$input->get_parameter("boxWidth");
+
+		if (is_a($input, "stack_algebraic_input") OR is_a($input, "stack_numerical_input") OR is_a($input, "stack_singlechar_input") OR is_a($input, "stack_boolean_input") OR is_a($input, "stack_units_input"))
+		{
+			if ($input_size == NULL)
+			{
+				if(is_string($student_answer[$input_name])){
+					$input_size = strlen($student_answer[$input_name]) + 2;
+				}else{
+					$input_size = 20;
+				}
+			}
+			if(is_array($student_answer[$input_name])){
+				$student_answer_value = $student_answer[$input_name][$input_name."_val"];
+			}elseif(is_string($student_answer[$input_name])){
+				$student_answer_value = $student_answer[$input_name];
+			}
+
+			$input_html = '<input type="text" style="width:' .
+				$input_size . 'em" id="xqcas_' .
+				$this->getQuestion()->getQuestionId() . '_'.$input_name.'_postvalidation" value="'.$student_answer_value
+				.'" disabled="disabled">';
+			$validation_message = stack_string('studentValidation_yourLastAnswer', $input_state->contentsdisplayed);
+
+			return "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $input_html . "</td><td class='xqcas_validation'>" . $validation_message . "</td></tr></table>";
+		}
+		if (is_a($input, "stack_matrix_input"))
+		{
+			$matrix_input_rows = (int)$input->height;
+			$matrix_input_columns = (int)$input->width;
+
+			$user_matrix = "<table>";
+			for ($i = 0; $i < $matrix_input_rows; $i++)
+			{
+				$user_matrix .= "<tr>";
+				for ($j = 0; $j < $matrix_input_columns; $j++)
+				{
+					$user_matrix .= "<td>";
+					$user_filled_input = new ilTextInputGUI("xqcas_" . $this->getQuestion()->getQuestionId() . "_" . $input_name . $i . "_" . $j . "_postvalidation", "xqcas_" . $this->getQuestion()->getQuestionId() . "_" . $input_name . $i . "_" . $j . "_postvalidation");
+					$user_filled_input->setValue($student_answer[$input_name . "_sub_" . $i . "_" . $j]);
+					$user_filled_input->setDisabled(TRUE);
+					$user_filled_input->setInlineStyle("width: " . $input_size . "em");
+					$user_matrix .= $user_filled_input->render();
+					$user_matrix .= "</td>";
+				}
+				$user_matrix .= "</tr>";
+			}
+			$user_matrix .= "</table>";
+
+			$validation_message = stack_string('studentValidation_yourLastAnswer', $input_state->contentsdisplayed);
+
+			return "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $user_matrix . "</td><td class='xqcas_validation'>" . $validation_message . "</td></tr></table>";
+		}
+		if (is_a($input, "stack_checkbox_input"))
+		{
+			return "";
+		}
+		if (is_a($input, "stack_radio_input"))
+		{
+			return "";
+		}
+		if (is_a($input, "stack_dropdown_input"))
+		{
+			return "";
+		}
+		if (is_a($input, "stack_equiv_input") or is_a($input, "stack_textarea_input"))
+		{
+			$rows = sizeof($input_state->contents);
+
+			if(is_array($student_answer[$input_name])){
+				$student_answer_value = $student_answer[$input_name][$input_name."_val"];
+			}elseif(is_string($student_answer[$input_name])){
+				$student_answer_value = $student_answer[$input_name];
+			}
+
+			$textarea_html = '<textarea rows="' .
+				$rows . '" id="xqcas_' .
+				$this->getQuestion()->getQuestionId() . '_'.$input_name.'_postvalidation" disabled="disabled">'.$student_answer_value.'</textarea>';
+
+			$validation_message = stack_string('studentValidation_yourLastAnswer', $input_state->contentsdisplayed);
+			return "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $textarea_html . "</td><td class='xqcas_validation'>" . $validation_message . "</td></tr></table>";
+
+		}
+		if (is_a($input, "stack_notes_input"))
+		{
+			$string = "";
+			$string .= '<div class="alert alert-warning" role="alert">';
+			$string .= $this->getPlugin()->txt("notes_best_solution_message");
+			$string .= '</div>';
+			$result["value"] = $string;
+			$result["display"] = "";
+
+			return $result;
 		}
 	}
 

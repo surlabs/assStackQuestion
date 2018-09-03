@@ -396,3 +396,4 @@ input_type_numerical#:#Numerisch
 show_validation_no#:#Nein
 show_validation_yes_with_vars#:#Ja, mit Variablenliste
 show_validation_yes_without_vars#:#Ja, ohne Variablenliste
+notes_best_solution_message#:#Notizen haben keine bestmögliche Lösung

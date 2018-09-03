@@ -1,0 +1,30 @@
+table.xqcas_validation {
+    background-color: white;
+}
+
+th.xqcas_validation, td.xqcas_validation{
+    padding: 1em;
+    vertical-align:middle;
+    horiz-align: left;
+}
+table.xqcas_validation_status{
+    background-color: white;
+}
+th.xqcas_validation_status, td.xqcas_validation_status{
+    padding: 0.1em;
+    vertical-align:middle;
+}
+table.xqcas_validation_errors{
+    background-color: white;
+}
+th.xqcas_validation_errors, td.xqcas_validation_errors{
+    padding: 0.1em;
+    vertical-align:middle;
+}
+table.xqcas_validation_variables{
+    background-color: white;
+}
+th.xqcas_validation_variables, td.xqcas_validation_variables{
+    padding: 0.1em;
+    vertical-align:middle;
+}

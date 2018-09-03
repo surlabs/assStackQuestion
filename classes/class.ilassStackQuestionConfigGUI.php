@@ -402,6 +402,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		//Options Standard feedback for incorrect answer
 		$options_prt_incorrect = new ilTextAreaInputGUI($this->plugin_object->txt('options_prt_incorrect'), 'options_prt_incorrect');
+		$this->setRTESupport($options_prt_incorrect);
 		$options_prt_incorrect->setValue($options_data['options_prt_incorrect']);
 		$form->addItem($options_prt_incorrect);
 
@@ -667,5 +668,60 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showDefaultInputsSettings();
+	}
+	/**
+	 * Set the STACK specific rich text editing support in textarea fields
+	 * This uses an own module instead of "assessment" to determine the allowed tags
+	 */
+	public function setRTESupport(ilTextAreaInputGUI $field)
+	{
+		if (empty($this->rte_tags))
+		{
+			$this->initRTESupport();
+		}
+		$field->setUseRte(true);
+		$field->setRteTags($this->rte_tags);
+		$field->addPlugin("latex");
+		$field->addButton("latex");
+		$field->addButton("pastelatex");
+		$field->setRTESupport($this->plugin_object->getId(), "qpl", $this->rte_module);
+	}
+
+	/**
+	 * Get a list of allowed RTE tags
+	 * This is used for ilUtil::stripSpashes() when saving the RTE fields
+	 *
+	 * @return string    allowed html tags, e.g. "<em><strong>..."
+	 */
+	public function getRTETags()
+	{
+		if (empty($this->rte_tags))
+		{
+			$this->initRTESupport();
+		}
+
+		return '<' . implode('><', $this->rte_tags) . '>';
+	}
+
+	/**
+	 * Init the STACK specific rich text editing support
+	 * The allowed html tags are stored in an own settings module instead of "assessment"
+	 * This enabled an independent tag set from the editor settings in ILIAS administration
+	 * Text area fields will be initialized with SetRTESupport using this module
+	 */
+	public function initRTESupport()
+	{
+		include_once "./Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php";
+		$this->rte_tags = ilObjAdvancedEditing::_getUsedHTMLTags($this->rte_module);
+
+		$this->required_tags = array("a", "blockquote", "br", "cite", "code", "div", "em", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "img", "li", "ol", "p", "pre", "span", "strike", "strong", "sub", "sup", "table", "caption", "thead", "th", "td", "tr", "u", "ul", "i", "b", "gap");
+
+		if (serialize($this->rte_tags) != serialize(($this->required_tags)))
+		{
+
+			$this->rte_tags = $this->required_tags;
+			//TODO change this uncomment
+			//ilObjAdvancedEditing::_setUsedHTMLTags($this->rte_tags, $this->rte_module);
+		}
 	}
 }

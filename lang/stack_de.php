@@ -561,7 +561,8 @@ $string['ATSysEquiv_SA_extra_variables']        = 'Ihre Antwort enthält zuviele
 $string['ATSysEquiv_SA_system_underdetermined'] = 'Die Gleichungen in ihrem System scheinen korrekt zu sein, allerdings fehlen noch weitere.';
 $string['ATSysEquiv_SA_system_overdetermined']  = 'Die roten Einträge unten sind die Korrekten. {$a->m0} ';
 
-$string['studentValidation_yourLastAnswer']  = 'Ihre letzte Antwort wurde folgendermaßen interpretiert:  {$a}';
+//fim: #41 Validation message change
+$string['studentValidation_yourLastAnswer']  = ' wurde wie folgt interpretiert:  {$a}';
 $string['studentValidation_invalidAnswer']   = 'Diese Antwort ist ungültig. ';
 $string['studentValidation_listofunits']        = 'Die Einheiten in deiner Antwort sind: {$a}';
 $string['studentValidation_notes']              = 'Diese Eingabe wird von STACK nicht automatisch ausgewertet. Sie können damit Arbeiten oder Kommentare für den Lehrer aufzeichnen.';
@@ -1055,7 +1056,6 @@ $string['strlengtherror'] = 'Diese Zeichenkette darf nicht mehr als 255 Zeichen 
 $string['studentanswer'] = 'Studierendeneingabe';
 $string['studentValidation_invalidAnswer'] = 'Diese Antwort ist ungültig.';
 $string['studentValidation_listofvariables'] = 'Die folgenden Variablen wurden gefunden: {$a}';
-$string['studentValidation_yourLastAnswer'] = 'Ihre letzte Antwort wurde folgendermaßen interpretiert: {$a}';
 $string['Subst'] = 'Ihre Antwort wäre richtig, wenn man die folgende Variablensubstitution vornimmt. {$a->m0}';
 $string['switchtovariant'] = 'Wechsle zu beliebiger Variante';
 $string['syntaxhint'] = 'Syntax-Hinweis';
@@ -1067,8 +1067,9 @@ $string['tansinvalid'] = 'TAns ist ungültig: {$a}';
 $string['tans_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Answer_tests.md';
 $string['tansrequired'] = 'TAns darf nicht leer sein.';
 $string['teacheranswer'] = 'Musterlösung';
-$string['teacheranswershow'] = 'Eine richtige Antwort ist \\( {$a->display} \\). Sie kann so eingegeben werden: {$a->value}';
-$string['teacheranswershow_disp'] = 'Eine richtige Antwort ist {$a->display} .';
+//fim: #43 Best solution answer change
+$string['teacheranswershow'] = '{$a->value} wurde wie folgt interpretiert: \\({$a->display}\\)';
+$string['teacheranswershow_disp'] = 'wurde wie folgt interpretiert {$a->display} .';
 $string['teachersanswer'] = 'Musterlösung';
 $string['teachersanswer_help'] = 'Der Dozent muss eine Musterlösung für jedes Eingabefeld angeben. Dies muss eine gültige Maxima-Zeichenkette sein. Sie kann Variablen aus dem Aufgabentext enthalten.';
 $string['teachersanswer_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Inputs.md#model_answer';

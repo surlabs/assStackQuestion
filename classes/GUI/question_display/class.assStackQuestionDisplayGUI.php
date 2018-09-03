@@ -163,10 +163,10 @@ class assStackQuestionDisplayGUI
 	{
 		if (isset($input['matrix_h']))
 		{
-			return '<div id="validation_xqcas_roll_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div><div id="validation_xqcas_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div><div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input['matrix_w'] . '</div><div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden">' . $input['matrix_h'] . '</div>';
+			return '<div id="validation_xqcas_roll_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div><div id="validation_xqcas_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div><div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input['matrix_w'] . '</div><div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden";>' . $input['matrix_h'] . '</div>';
 		} else
 		{
-			return '<div id="validation_xqcas_roll_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div><div class="xqcas_input_validation"><div id="validation_xqcas_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div></div>';
+			return '<div id="validation_xqcas_roll_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div><div class="xqcas_input_validation"><div id="validation_xqcas_' . $this->getDisplay('question_id') . '_' . $input_name . '" style="background-color:white"></div></div>';
 		}
 	}
 
@@ -211,7 +211,7 @@ class assStackQuestionDisplayGUI
 				{
 					if ($show_feedback AND strlen($display["display_rendered"]) > 1)
 					{
-						$validation_text = str_replace("[[validation:{$input_name}]]", "</br>" . $this->plugin->txt("interpreted_by_maxima_as_2") . "</br>" . $display['display_rendered'], $this->getDisplay('question_text'));
+						$validation_text = str_replace("[[validation:{$input_name}]]", html_writer::tag('p', $display["validation"]), $this->getDisplay('question_text'));
 					} else
 					{
 						$validation_text = str_replace("[[validation:{$input_name}]]", $this->getDisplay('validation', $input_name), $this->getDisplay('question_text'));

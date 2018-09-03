@@ -61,8 +61,8 @@ class assStackQuestionGUI extends assQuestionGUI
 		{
 
 			$this->rte_tags = $this->required_tags;
-			//TODO change this uncomment
-			//ilObjAdvancedEditing::_setUsedHTMLTags($this->rte_tags, $this->rte_module);
+			$obj_advance = new ilObjAdvancedEditing();
+			$obj_advance->setUsedHTMLTags($this->rte_tags, $this->rte_module);
 		}
 	}
 
@@ -638,8 +638,8 @@ class assStackQuestionGUI extends assQuestionGUI
 									{
 										$input_replacement = $input_answer["model_answer"];
 										$validation_replacement = $input_answer["model_answer_display"];
-										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
-									} else
+										$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
+										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);									} else
 									{
 										if ($just_show)
 										{
@@ -659,7 +659,10 @@ class assStackQuestionGUI extends assQuestionGUI
 									//Select replace depending on mode if $best_solution is TRUE, best solution when FALSE user solution.
 									if ($best_solution)
 									{
-										$input_replacement = $input_answer["model_answer_display"];
+										$input_replacement = $input_answer["model_answer"];
+										$validation_replacement = $input_answer["model_answer_display"];
+										$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
+										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
 									} else
 									{
 										$input_replacement = "</br>" . $input_answer["display"];
@@ -670,8 +673,10 @@ class assStackQuestionGUI extends assQuestionGUI
 								case "equiv";
 									if ($best_solution)
 									{
-										$input_replacement = $input_answer["model_answer_display"];
-									} else
+										$input_replacement = $input_answer["model_answer"];
+										$validation_replacement = $input_answer["model_answer_display"];
+										$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
+										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);									} else
 									{
 										$input_replacement = "</br>" . $input_answer["value"];
 									}
@@ -685,6 +690,7 @@ class assStackQuestionGUI extends assQuestionGUI
 									{
 										$input_replacement = $input_answer["model_answer"];
 										$validation_replacement = $input_answer["model_answer_display"];
+										$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
 										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
 									} else
 									{

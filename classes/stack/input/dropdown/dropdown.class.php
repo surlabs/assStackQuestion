@@ -325,7 +325,8 @@ class stack_dropdown_input extends stack_input {
 
     /* This function always returns an array where the key is the key in the ddlvalues.
      */
-    protected function get_choices() {
+    //fim: #43 function public to represent best solution from feedback class
+    public function get_choices() {
         if (empty($this->ddlvalues)) {
             return array();
         }
