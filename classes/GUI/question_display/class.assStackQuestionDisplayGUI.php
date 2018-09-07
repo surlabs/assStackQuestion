@@ -166,7 +166,7 @@ class assStackQuestionDisplayGUI
 			return '<div id="validation_xqcas_roll_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div><div id="validation_xqcas_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div><div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input['matrix_w'] . '</div><div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden";>' . $input['matrix_h'] . '</div>';
 		} else
 		{
-			return '<div id="validation_xqcas_roll_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div><div class="xqcas_input_validation"><div id="validation_xqcas_' . $this->getDisplay('question_id') . '_' . $input_name . '" style="background-color:white"></div></div>';
+			return '<div id="validation_xqcas_roll_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div><div class="xqcas_input_validation"><div id="validation_xqcas_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div></div>';
 		}
 	}
 
