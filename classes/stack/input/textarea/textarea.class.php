@@ -239,19 +239,14 @@ class stack_textarea_input extends stack_input {
         if ($this->get_parameter('showValidation', 1) == 0 && self::INVALID != $state->status) {
             return '';
         }
-        $feedback  = '';
 
-		$user_answer = $this->contents_to_maxima($state->contents);
+		$feedback = "";
+		$textarea_html = "";
+		foreach ($state->contents as $key => $val) {
+			$textarea_html .= '<code>'.$val.'</code></br>';
+		}
 
-		$textarea = new ilTextAreaInputGUI("", "xqcas_" . $fieldname . "_validate");
-		$rows = sizeof(explode(",", $user_answer));
-		$textarea->setValue($this->maxima_to_raw_input($user_answer));
-		$textarea->setDisabled(TRUE);
-		$textarea->setRows($rows);
-
-		$form = new ilPropertyFormGUI();
-		$form->addItem($textarea);
-		$feedback .= html_writer::tag('p', "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $form->getHTML() . "</td><td class='xqcas_validation'>" . stack_string('studentValidation_yourLastAnswer', $state->contentsdisplayed) . "</td></tr></table>");
+		$feedback .= html_writer::tag('p', "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $textarea_html. "</td><td class='xqcas_validation'>"  . stack_string('studentValidation_yourLastAnswer', $state->contentsdisplayed) . "</td></tr>");
 
 		if ($this->requires_validation() && '' !== $state->contents)
 		{
@@ -260,13 +255,15 @@ class stack_textarea_input extends stack_input {
 
 		if (self::INVALID == $state->status)
 		{
-			$feedback .= html_writer::tag('p', "<table class='xqcas_validation_status'><tr><td class='xqcas_validation_status'>".stack_string('studentValidation_invalidAnswer'). "</td></tr></table>");
+			$feedback .= html_writer::tag('p', "<tr><td class='xqcas_validation_status'>".stack_string('studentValidation_invalidAnswer'). "</td></tr>");
 		}
 
 		if ($this->get_parameter('showValidation', 1) == 1 && !($state->lvars === '' or $state->lvars === '[]'))
 		{
-			$feedback .= "<table class='xqcas_validation_variables'><tr><td class='xqcas_validation_variables'>".$this->tag_listofvariables($state->lvars). "</td></tr></table>";
+			$feedback .= "<tr><td class='xqcas_validation_variables'>".$this->tag_listofvariables($state->lvars). "</td></tr>";
 		}
+		$feedback .="</table>";
+
 		return $feedback;
     }
 }

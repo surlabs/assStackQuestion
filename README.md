@@ -98,6 +98,10 @@ PLEASE BACKUP YOUR DATABASE before you run the update from an older version. Dep
 The translation is also done when importing questions from ILIAS or MoodleXML, but please notice that this conversion is one way.You can import "old CASText behaviour" questions to a platform with STACK plugin version 3.0+.
 But if you import "new CASText behaviour" questions to a platform with a previous version of the plugin, your question will not be properly shown on that platform.
 
+Version 3.0.8 (2018-09-07) for ILIAS 5.3
+----------------------------------------
+Inputs representation in validation and best solution now takes the minimal size as possible, depending on user  or teacher input, and it´s displayed as code text, instead of repeating the input again
+
 Version 3.0.7 (2018-09-03) for ILIAS 5.3
 ----------------------------------------
 Some important changes has been made to question view, either in preview, test mode or printview, the main goal of this changes is to fulfill the needs of SIG Mathe+ILIAS in terms of going back to previous 5.2 style of inputs presentation
