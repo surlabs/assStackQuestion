@@ -117,6 +117,16 @@ class assStackQuestionDisplay
 			$display_data['inputs'][$input_name]['display'] = $this->replacementForInputPlaceholders($input, $input_name, $in_test, FALSE);
 			$display_data['inputs'][$input_name]['display_rendered'] = $this->replacementForInputPlaceholders($input, $input_name, $in_test, TRUE);
 			$display_data['inputs'][$input_name]['validation'] = $this->replacementForValidationInput($input, $input_name, $in_test, TRUE);
+			if(is_a($input,"stack_equiv_input") OR is_a($input,"stack_textarea_input")){
+				$display_data['inputs'][$input_name]['text_area'] = TRUE;
+			}else{
+				$display_data['inputs'][$input_name]['text_area'] = FALSE;
+			}
+			if(is_a($input,"stack_radio_input") OR is_a($input,"stack_dropdown_input") OR is_a($input,"stack_checkbox_input") OR is_a($input,"stack_notes_input")){
+				$display_data['inputs'][$input_name]['show_validation'] = 0;
+			}else{
+					$display_data['inputs'][$input_name]['show_validation'] = $input->get_parameter("showValidation");
+			}
 			//Step 1.2: Replacement for validation placeholders
 			if ((int)$this->getQuestion()->getInputs($input_name)->get_parameter("showValidation"))
 			{

@@ -32,3 +32,6 @@ table.xqcas_matrix_validation, td.xqcas_matrix_validation{
     background-color: #f9f2f4;
     border: 3px solid white;
 }
+td.stack_textarea{
+    padding: 1em;
+}

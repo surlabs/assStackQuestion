@@ -694,10 +694,14 @@ class assStackQuestionGUI extends assQuestionGUI
 										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
 									} else
 									{
-										$input_replacement = "</br>" . $input_answer["value"];
+										$input_replacement = $input_answer["value"];
 										if ($show_feedback)
 										{
-											$validation_replacement = $input_answer["display"];
+											if(strlen($input_answer["display"])){
+												$validation_replacement = stack_string('studentValidation_yourLastAnswer',$input_answer["display"]);
+											}else{
+												$validation_replacement = $input_answer["display"];
+											}
 											$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
 										}
 									}

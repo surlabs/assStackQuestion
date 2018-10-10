@@ -140,7 +140,7 @@ class assStackQuestionDisplayGUI
 				} elseif ($this->getDisplay('validation', $input_name) == 'button')
 				{
 					//Button Validation
-					$validation = $this->validationButton($input_name) . $this->validationDisplayDivision($input_name, $input);
+					$validation = $this->validationDisplayDivision($input_name, $input);
 					$this->setDisplay($validation, 'validation', $input_name);
 				} elseif ($this->getDisplay('validation', $input_name) == 'hidden')
 				{
@@ -177,18 +177,7 @@ class assStackQuestionDisplayGUI
 	 */
 	private function validationButton($input_name)
 	{
-		global $DIC;
-
-		$lng = $DIC->language();
-
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
-		$this->getPlugin()->includeClass('utils/FormProperties/class.ilButtonFormPropertyGUI.php');
-
-		$input_button = new ilButtonFormProperty($lng->txt('validate'), 'xqcas_' . $this->getDisplay('question_id') . '_' . $input_name);
-		$input_button->setCommand('xqcas_' . $this->getDisplay('question_id') . '_' . $input_name);
-
-
-		return $input_button->render();
+		return "<button style=\"height:2.2em;\" class=\"btn btn-default\" name=\"cmd[xqcas_" . $this->getDisplay('question_id') . '_' . $input_name . "]\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></button>";
 	}
 
 	/**
@@ -204,7 +193,22 @@ class assStackQuestionDisplayGUI
 				//Step 1.1 Replace input fields
 				$display = $this->getDisplay('inputs', $input_name);
 				//#22780 no <br> before input redering
-				$input_text = str_replace("[[input:{$input_name}]]", $display['display'], $this->getDisplay('question_text'));
+				//Bootstrap div for align input and validation button
+				if($input["text_area"]==TRUE){
+					if($input["show_validation"]>0){
+						$text = "<table><tr><td>".$display['display']."</td><td class='stack_textarea'>".$this->validationButton($input_name)."</td></tr></table>";
+					}else{
+						$text = "<span>".$display['display']."</span>";
+					}
+				}else{
+					if($input["show_validation"]>0){
+						$text = "<span>".$display['display']." ".$this->validationButton($input_name)."</span>";
+					}else{
+						$text = "<span>".$display['display']."</span>";
+					}
+				}
+
+				$input_text = str_replace("[[input:{$input_name}]]", $text, $this->getDisplay('question_text'));
 				$this->setDisplay($input_text, 'question_text');
 				//Step 1.2 Replace validation fields
 				if (strlen(trim($this->getDisplay('validation', $input_name))))
