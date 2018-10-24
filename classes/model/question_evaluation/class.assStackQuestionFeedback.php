@@ -111,6 +111,7 @@ class assStackQuestionFeedback
 		//Fill user_response per each input evaluated by current PRT
 		foreach ($inputs_evaluated as $input_name => $user_response_value)
 		{
+
 			//Input is Ok, use input states
 			if (is_a($this->getQuestion()->getInputStates($input_name), 'stack_input_state'))
 			{
@@ -314,7 +315,29 @@ class assStackQuestionFeedback
 			$input_state = $this->getQuestion()->getInputStates($input_name);
 			$correct_answer = $input->get_correct_response($this->getQuestion()->getSession()->get_value_key($input_name, true));
 
-			if (is_a($input, "stack_algebraic_input") OR is_a($input, "stack_numerical_input") OR is_a($input, "stack_singlechar_input") OR is_a($input, "stack_boolean_input") OR is_a($input, "stack_units_input"))
+			if (is_a($input, "stack_string_input"))
+			{
+				$correct_answer = $this->getQuestion()->getSession()->get_value_key($input->get_teacher_answer());
+				$input_size = strlen($correct_answer) * 1.1;
+				$input_html_display = '<input type="text" size="' . $input_size . '" id="xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '_postvalidation" value=' . $correct_answer . ' disabled="disabled">';
+				$result = array();
+				$result["value"] = $input_html_display;
+				$result["display"] = "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . '<code>' . $correct_answer . '</code>' . $this->format_correct_response($input_name) . "</td></tr></table>";
+
+				return $result;
+			}
+			if (is_a($input, "stack_algebraic_input"))
+			{
+				$correct_answer = $this->getQuestion()->getSession()->get_value_key($input->get_teacher_answer());
+				$input_size = strlen($correct_answer) * 1.1;
+				$input_html_display = '<input type="text" size="' . $input_size . '" id="xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '_postvalidation" value="' . $correct_answer . '" disabled="disabled">';
+				$result = array();
+				$result["value"] = $input_html_display;
+				$result["display"] = "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . '<code>' . $correct_answer . '</code>' . $this->format_correct_response($input_name) . "</td></tr></table>";
+
+				return $result;
+			}
+			if (is_a($input, "stack_numerical_input") OR is_a($input, "stack_singlechar_input") OR is_a($input, "stack_boolean_input") OR is_a($input, "stack_units_input"))
 			{
 				$input_size = strlen($correct_answer[$input_name]);
 				$input_html_display = '<input type="text" style="width:' . $input_size . 'em" id="xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '_postvalidation" value="' . $correct_answer[$input_name] . '" disabled="disabled">';
@@ -337,18 +360,15 @@ class assStackQuestionFeedback
 				for ($i = 0; $i < $matrix_input_rows; $i++)
 				{
 					$correct_matrix .= "<tr>";
-					$correct_matrix_display .="<tr>";
+					$correct_matrix_display .= "<tr>";
 					for ($j = 0; $j < $matrix_input_columns; $j++)
 					{
 						$correct_matrix .= "<td class='xqcas_matrix_validation'>";
-						$correct_matrix .= '<code>'.$matrix_input_correct_answer[$input_name . "_sub_" . $i . "_" . $j].'</code>';
+						$correct_matrix .= '<code>' . $matrix_input_correct_answer[$input_name . "_sub_" . $i . "_" . $j] . '</code>';
 						$correct_matrix .= "</td>";
-						$correct_matrix_display .="<td>";
-						$correct_matrix_display .= '<input type="text" style="width:' .
-							$input_size = $input->get_parameter("boxWidth"). 'em" id="xqcas_' .
-							$this->getQuestion()->getQuestionId() . '_'.$input_name.'_postvalidation" value="'.
-							$matrix_input_correct_answer[$input_name . "_sub_" . $i . "_" . $j].'" disabled="disabled">';
-						$correct_matrix_display .="<input";
+						$correct_matrix_display .= "<td>";
+						$correct_matrix_display .= '<input type="text" style="width:' . $input_size = $input->get_parameter("boxWidth") . 'em" id="xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '_postvalidation" value="' . $matrix_input_correct_answer[$input_name . "_sub_" . $i . "_" . $j] . '" disabled="disabled">';
+						$correct_matrix_display .= "<input";
 						$correct_matrix_display .= "</td>";
 					}
 					$correct_matrix .= "</tr>";

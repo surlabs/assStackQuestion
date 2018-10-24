@@ -265,7 +265,15 @@ class assStackQuestionStackFactory
 		}
 
 		$all_parameters_used = stack_input_factory::get_parameters_used();
-		$parameters_used_by_input_type = $all_parameters_used[$parameters['type']];
+
+		//string is algebraic
+		if ($parameters['type'] == "string")
+		{
+			$parameters_used_by_input_type = $all_parameters_used["algebraic"];
+		} else
+		{
+			$parameters_used_by_input_type = $all_parameters_used[$parameters['type']];
+		}
 
 		//Create a new array with all parameters used by input type
 		$used_parameters = array();

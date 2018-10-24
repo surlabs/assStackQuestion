@@ -117,15 +117,19 @@ class assStackQuestionDisplay
 			$display_data['inputs'][$input_name]['display'] = $this->replacementForInputPlaceholders($input, $input_name, $in_test, FALSE);
 			$display_data['inputs'][$input_name]['display_rendered'] = $this->replacementForInputPlaceholders($input, $input_name, $in_test, TRUE);
 			$display_data['inputs'][$input_name]['validation'] = $this->replacementForValidationInput($input, $input_name, $in_test, TRUE);
-			if(is_a($input,"stack_equiv_input") OR is_a($input,"stack_textarea_input")){
+			if (is_a($input, "stack_equiv_input") OR is_a($input, "stack_textarea_input"))
+			{
 				$display_data['inputs'][$input_name]['text_area'] = TRUE;
-			}else{
+			} else
+			{
 				$display_data['inputs'][$input_name]['text_area'] = FALSE;
 			}
-			if(is_a($input,"stack_radio_input") OR is_a($input,"stack_dropdown_input") OR is_a($input,"stack_checkbox_input") OR is_a($input,"stack_notes_input")){
+			if (is_a($input, "stack_radio_input") OR is_a($input, "stack_dropdown_input") OR is_a($input, "stack_checkbox_input") OR is_a($input, "stack_notes_input"))
+			{
 				$display_data['inputs'][$input_name]['show_validation'] = 0;
-			}else{
-					$display_data['inputs'][$input_name]['show_validation'] = $input->get_parameter("showValidation");
+			} else
+			{
+				$display_data['inputs'][$input_name]['show_validation'] = $input->get_parameter("showValidation");
 			}
 			//Step 1.2: Replacement for validation placeholders
 			if ((int)$this->getQuestion()->getInputs($input_name)->get_parameter("showValidation"))
@@ -180,18 +184,39 @@ class assStackQuestionDisplay
 		}
 		if ($render_display)
 		{
+			//Solve problem with string input type
+			if (is_array($student_answer))
+			{
+				if ($student_answer[$input_name] == NULL)
+				{
+					return "";
+				}
+			}
+
 			return $state->contentsdisplayed;
 		}
 		//Get teacher answer value for equivalence reasoning input firstline problem #22847
 		$ta_value = $this->getQuestion()->getSession()->get_value_key($input->get_teacher_answer());
 
 		//Return renderised input
-		if (is_subclass_of($input, 'stack_dropdown_input'))
+		if (get_class($input) == 'stack_algebraic_input')
 		{
-			return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE, $ta_value);
+			$input_info = new stdClass();
+			$input_info->input = $input;
+			$input_info->name = $input_name;
+			$input_info->state = $state;
+			$input_info->teacher_answer = $ta_value;
+
+			return $input_info;
 		} else
 		{
-			return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE, $ta_value);
+			if (is_subclass_of($input, 'stack_dropdown_input'))
+			{
+				return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE, $ta_value);
+			} else
+			{
+				return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE, $ta_value);
+			}
 		}
 	}
 
@@ -464,7 +489,8 @@ class assStackQuestionDisplay
 				$student_answer_value = $student_answer[$input_name];
 			}
 
-			$input_html = '<code>'.$student_answer_value.'</code>';
+			$input_html = '<code>' . $student_answer_value . '</code>';
+
 			$validation_message = stack_string('studentValidation_yourLastAnswer', $input_state->contentsdisplayed);
 
 			return "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $input_html . $validation_message . "</td></tr></table>";
@@ -481,7 +507,7 @@ class assStackQuestionDisplay
 				for ($j = 0; $j < $matrix_input_columns; $j++)
 				{
 					$user_matrix .= "<td class='xqcas_matrix_validation'>";
-					$user_filled_input='<code>'.$student_answer[$input_name . "_sub_" . $i . "_" . $j].'</code>';
+					$user_filled_input = '<code>' . $student_answer[$input_name . "_sub_" . $i . "_" . $j] . '</code>';
 					$user_matrix .= $user_filled_input;
 					$user_matrix .= "</td>";
 				}
@@ -491,7 +517,7 @@ class assStackQuestionDisplay
 
 			$validation_message = stack_string('studentValidation_yourLastAnswer', $input_state->contentsdisplayed);
 
-			return "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $user_matrix .  $validation_message . "</td></tr></table>";
+			return "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $user_matrix . $validation_message . "</td></tr></table>";
 		}
 		if (is_a($input, "stack_checkbox_input"))
 		{
@@ -509,20 +535,23 @@ class assStackQuestionDisplay
 		{
 			$feedback = "";
 			$textarea_html = "";
-			foreach ($input_state->contents as $key => $val) {
-				$textarea_html .= '<code>'.$val.'</code></br>';
+			foreach ($input_state->contents as $key => $val)
+			{
+				$textarea_html .= '<code>' . $val . '</code></br>';
 			}
 
 			$feedback .= html_writer::tag('p', "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $textarea_html . "</td><td class='xqcas_validation'>" . stack_string('studentValidation_yourLastAnswer', $input_state->contentsdisplayed) . "</td></tr>");
 
-			if ($input::INVALID == $input_state->status) {
-				$feedback .= html_writer::tag('p', "<tr><td class='xqcas_validation_status'>".stack_string('studentValidation_invalidAnswer'). "</td></tr>");
+			if ($input::INVALID == $input_state->status)
+			{
+				$feedback .= html_writer::tag('p', "<tr><td class='xqcas_validation_status'>" . stack_string('studentValidation_invalidAnswer') . "</td></tr>");
 			}
 
-			if (!($input_state->lvars === '' or $input_state->lvars === '[]')) {
-				$feedback .= "<tr><td class='xqcas_validation_variables'>".$input->tag_listofvariables($input_state->lvars). "</td></tr>";
+			if (!($input_state->lvars === '' or $input_state->lvars === '[]'))
+			{
+				$feedback .= "<tr><td class='xqcas_validation_variables'>" . $input->tag_listofvariables($input_state->lvars) . "</td></tr>";
 			}
-			$feedback.="</table>";
+			$feedback .= "</table>";
 
 			return "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $feedback . "</td></tr></table>";
 
