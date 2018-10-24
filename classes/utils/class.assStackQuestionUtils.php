@@ -149,7 +149,7 @@ class assStackQuestionUtils
 		if(sizeof($previous_response)){
 			foreach ($previous_response["prt"] as $prt_name => $prt_info)
 			{
-				if(sizeof($prt_info)){
+				if(sizeof($prt_info["response"])){
 					foreach ($prt_info["response"] as $input_name => $input_info)
 					{
 						$user_response_from_db[$input_name] = $input_info["value"];

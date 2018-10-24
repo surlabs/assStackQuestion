@@ -140,7 +140,7 @@ class assStackQuestionDisplayGUI
 				} elseif ($this->getDisplay('validation', $input_name) == 'button')
 				{
 					//Button Validation
-					$validation = $this->validationButton($input_name) . $this->validationDisplayDivision($input_name, $input);
+					$validation = $this->validationDisplayDivision($input_name, $input);
 					$this->setDisplay($validation, 'validation', $input_name);
 				} elseif ($this->getDisplay('validation', $input_name) == 'hidden')
 				{
@@ -177,18 +177,7 @@ class assStackQuestionDisplayGUI
 	 */
 	private function validationButton($input_name)
 	{
-		global $DIC;
-
-		$lng = $DIC->language();
-
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
-		$this->getPlugin()->includeClass('utils/FormProperties/class.ilButtonFormPropertyGUI.php');
-
-		$input_button = new ilButtonFormProperty($lng->txt('validate'), 'xqcas_' . $this->getDisplay('question_id') . '_' . $input_name);
-		$input_button->setCommand('xqcas_' . $this->getDisplay('question_id') . '_' . $input_name);
-
-
-		return $input_button->render();
+		return "<button style=\"height:2.2em;\" class=\"\" name=\"cmd[xqcas_" . $this->getDisplay('question_id') . '_' . $input_name . "]\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></button>";
 	}
 
 	/**
@@ -203,8 +192,37 @@ class assStackQuestionDisplayGUI
 			{
 				//Step 1.1 Replace input fields
 				$display = $this->getDisplay('inputs', $input_name);
-				//#22780 no <br> before input redering
-				$input_text = str_replace("[[input:{$input_name}]]", $display['display'], $this->getDisplay('question_text'));
+				//Check is is not string, then it's algebraic input.
+				if (!is_string($display["display"]))
+				{
+					//Manage algebraic input rendering in this page
+					$text = $this->renderAlgebraicInput($display["display"]);
+				} else
+				{
+					//#22780 no <br> before input redering
+					//Bootstrap div for align input and validation button
+					if ($input["text_area"] == TRUE)
+					{
+						if ($input["show_validation"] > 0 AND !assStackQuestionUtils::_useInstantValidation())
+						{
+							$text = "<table><tr><td>" . $display['display'] . "</td><td class='stack_textarea'>" . $this->validationButton($input_name) . "</td></tr></table>";
+						} else
+						{
+							$text = "<span>" . $display['display'] . "</span>";
+						}
+					} else
+					{
+						if ($input["show_validation"] > 0 AND !assStackQuestionUtils::_useInstantValidation())
+						{
+							$text = "<span>" . $display['display'] . " " . $this->validationButton($input_name) . "</span>";
+						} else
+						{
+							$text = "<span>" . $display['display'] . "</span>";
+						}
+					}
+				}
+
+				$input_text = str_replace("[[input:{$input_name}]]", $text, $this->getDisplay('question_text'));
 				$this->setDisplay($input_text, 'question_text');
 				//Step 1.2 Replace validation fields
 				if (strlen(trim($this->getDisplay('validation', $input_name))))
@@ -334,5 +352,38 @@ class assStackQuestionDisplayGUI
 		return $this->template;
 	}
 
+	/**
+	 * @param stdClass $input_info
+	 * @return string The algebraic input rendered
+	 */
+	public function renderAlgebraicInput(stdClass $input_info)
+	{
+		//Input template
+		$input_tpl = $this->getPlugin()->getTemplate("tpl.il_as_qpl_xqcas_algebraic_input.html");
+		//Set input name
+		$input_tpl->setVariable('INPUT_NAME', 'xqcas_' . $this->getDisplay('question_id') . '_' . $input_info->name);
+		//Set input syntax hint
+		$input_tpl->setVariable('SYNTAX_HINT', $input_info->input->get_parameter('syntaxHint'));
+		//Set size
+		$input_tpl->setVariable('INPUT_SIZE', $input_info->input->get_parameter('boxWidth') * 1.1);
+		//Set input value
+		$input_state = $input_info->state;
+		$input_value = $input_info->input->contents_to_maxima($input_state->contents);
+		$input_tpl->setVariable('INPUT_VALUE', $input_value);
 
+		//Add validation button if needed
+		if ($input_info->input->get_parameter('showValidation') AND !assStackQuestionUtils::_useInstantValidation())
+		{
+			//Validation Button tpl
+			$validation_tpl = $this->getPlugin()->getTemplate("tpl.il_as_qpl_xqcas_validation_button.html");
+			//Set validation button id
+			$validation_tpl->setVariable('BUTTON_NAME', 'cmd[xqcas_' . $this->getDisplay('question_id') . '_' . $input_info->name . ']');
+			$input_tpl->setVariable('VALIDATION_BUTTON', $validation_tpl->get());
+		} else
+		{
+			$input_tpl->setVariable('VALIDATION_BUTTON', '');
+		}
+
+		return $input_tpl->get();
+	}
 }

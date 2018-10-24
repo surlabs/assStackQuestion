@@ -18,8 +18,7 @@ il.assStackQuestion = new function () {
 	 * @type object
 	 * @private
 	 */
-	var config = {
-	};
+	var config = {};
 
 	/**
 	 * Texts to be dynamically rendered
@@ -40,8 +39,7 @@ il.assStackQuestion = new function () {
 	this.init = function (a_config, a_texts) {
 		config = a_config;
 		texts = a_texts;
-		$('tr#xqcas_question_display input[type="submit"]').click(self.validate);
-		//$('tr#xqcas_question_display textarea[rows="5"]').click(self.validate);
+		$('tr#xqcas_question_display button, tr#xqcas_question_display span.input-group-addon,tr#xqcas_question_display span.glyphicon.glyphicon-ok').click(self.validate);
 	};
 
 
@@ -49,7 +47,15 @@ il.assStackQuestion = new function () {
 	 * Send the current panel state per ajax
 	 */
 	this.validate = function (event) {
-		var name = event.target.name;
+		var name = "";
+		if (event.target.name === undefined) {
+			name = event.target.getAttribute('name');
+			if (name === null) {
+				alert(5);
+			}
+		} else {
+			name = event.target.name;
+		}
 		name = name.replace(/cmd\[xqcas_/, '', name);
 		name = name.replace(/\]/, '', name);
 		var i = name.indexOf('_');
@@ -105,6 +111,4 @@ il.assStackQuestion = new function () {
 
 		return false;
 	}
-
-
 };
