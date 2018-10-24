@@ -240,7 +240,8 @@ class stack_matrix_input extends stack_input {
         }
 
         // Build the html table to contain these values.
-        $xhtml = '<table class="matrixtable" id="' . $fieldname . '_container" style="display:inline; vertical-align: middle;" ' .
+		//fim: #41 add inline block style
+        $xhtml = '<table class="matrixtable" id="' . $fieldname . '_container" style="display:inline-block; vertical-align: middle;"  ' .
                 'border="0" cellpadding="1" cellspacing="0"><tbody>';
         for ($i = 0; $i < $this->height; $i++) {
             $xhtml .= '<tr>';
