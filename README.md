@@ -98,6 +98,14 @@ PLEASE BACKUP YOUR DATABASE before you run the update from an older version. Dep
 The translation is also done when importing questions from ILIAS or MoodleXML, but please notice that this conversion is one way.You can import "old CASText behaviour" questions to a platform with STACK plugin version 3.0+.
 But if you import "new CASText behaviour" questions to a platform with a previous version of the plugin, your question will not be properly shown on that platform.
 
+
+Version 3.0.11 (2018-11-xx) for ILIAS 5.3
+----------------------------------------
+- Solved problems to establish default values for options, inputs and PRT, now all already present default values works properly.
+- Added the following default values to plugin configuration: Options: Matrix Parenthesis, Inputs: Syntax hint, Forbidden word, allowed words, show validation (as dropdown) and extra options for inputs, PRT: Simplification, First node of predefined PRT: Answertest, test options, quiet feedback, and mode, score, penalty and answernote for both positive and negative branch.
+- Added TinyMCE editor for default feedback in configuration/options.
+- Some text changes has been made in the german language. 
+
 Version 3.0.10 (2018-10-24) for ILIAS 5.3
 ----------------------------------------
 Validation button is now directly attached to the input for algebraic inputs, instead of having an space between them.

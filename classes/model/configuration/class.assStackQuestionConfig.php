@@ -235,6 +235,77 @@ class assStackQuestionConfig
 	}
 
 	/**
+	 * Saves new default inputs settings to the DB
+	 */
+	public function saveDefaultPRTsSettings()
+	{
+		//Old settings
+		$saved_prts_data = self::_getStoredSettings('prts');
+		//New settings
+		$new_prts_data = $this->getAdminInput();
+
+		//Checkboxes workaround
+		if (!array_key_exists('prt_simplify', $new_prts_data))
+		{
+			$new_prts_data['prt_simplify'] = 1;
+		}
+		if (!array_key_exists('prt_node_answer_test', $new_prts_data))
+		{
+			$new_prts_data['prt_node_answer_test'] = 'AlgEquiv';
+		}
+		if (!array_key_exists('prt_node_options', $new_prts_data))
+		{
+			$new_prts_data['prt_node_options'] = '';
+		}
+		if (!array_key_exists('prt_node_quiet', $new_prts_data))
+		{
+			$new_prts_data['prt_node_quiet'] = '1';
+		}
+		if (!array_key_exists('prt_pos_mod', $new_prts_data))
+		{
+			$new_prts_data['prt_pos_mod'] = '+';
+		}
+		if (!array_key_exists('prt_pos_score', $new_prts_data))
+		{
+			$new_prts_data['prt_pos_score'] = '1';
+		}
+		if (!array_key_exists('prt_pos_penalty', $new_prts_data))
+		{
+			$new_prts_data['prt_pos_penalty'] = '0';
+		}
+		if (!array_key_exists('prt_pos_answernote', $new_prts_data))
+		{
+			$new_prts_data['prt_pos_answernote'] = 'prt1-0-T';
+		}if (!array_key_exists('prt_neg_mod', $new_prts_data))
+		{
+			$new_prts_data['prt_neg_mod'] = '+';
+		}
+		if (!array_key_exists('prt_neg_score', $new_prts_data))
+		{
+			$new_prts_data['prt_neg_score'] = '0';
+		}
+		if (!array_key_exists('prt_neg_penalty', $new_prts_data))
+		{
+			$new_prts_data['prt_neg_penalty'] = '0';
+		}
+		if (!array_key_exists('prt_neg_answernote', $new_prts_data))
+		{
+			$new_prts_data['prt_neg_answernote'] = 'prt1-0-F';
+		}
+
+		//Save to DB
+		foreach ($saved_prts_data as $paremeter_name => $saved_value)
+		{
+			if (array_key_exists($paremeter_name, $new_prts_data) AND $saved_prts_data[$paremeter_name] != $new_prts_data[$paremeter_name])
+			{
+				$this->saveToDB($paremeter_name, $new_prts_data[$paremeter_name], 'prts');
+			}
+		}
+
+		return TRUE;
+	}
+
+	/**
 	 * @param $parameter_name //Is the of the parameter to modify (this is the Primary Key in DB)
 	 * @param $value //Is the value of the parameter
 	 * @param $group_name //Is the selector for different categories of data
@@ -315,7 +386,7 @@ class assStackQuestionConfig
 	public function setDefaultSettingsForOptions()
 	{
 		//Default values for options
-		$options_default_values = array('options_question_simplify' => '1', 'options_assume_positive' => '0', 'options_prt_correct' => $this->plugin_object->txt('default_prt_correct_message'), 'options_prt_partially_correct' => $this->plugin_object->txt('default_prt_partially_correct_message'), 'options_prt_incorrect' => $this->plugin_object->txt('default_prt_incorrect_message'), 'options_multiplication_sign' => 'dot', 'options_sqrt_sign' => '1', 'options_complex_numbers' => 'i', 'options_inverse_trigonometric' => 'cos-1');
+		$options_default_values = array('options_question_simplify' => '1', 'options_assume_positive' => '0', 'options_prt_correct' => $this->plugin_object->txt('default_prt_correct_message'), 'options_prt_partially_correct' => $this->plugin_object->txt('default_prt_partially_correct_message'), 'options_prt_incorrect' => $this->plugin_object->txt('default_prt_incorrect_message'), 'options_multiplication_sign' => 'dot', 'options_sqrt_sign' => '1', 'options_complex_numbers' => 'i', 'options_inverse_trigonometric' => 'cos-1', 'options_matrix_parents' => '[');
 		foreach ($options_default_values as $paremeter_name => $value)
 		{
 			$this->saveToDB($paremeter_name, $value, 'options');
@@ -330,11 +401,27 @@ class assStackQuestionConfig
 	public function setDefaultSettingsForInputs()
 	{
 		//Default values for inputs
-		$inputs_default_values = array('input_type' => 'algebraic', 'input_box_size' => '15', 'input_strict_syntax' => '1', 'input_insert_stars' => '0', 'input_forbidden_words' => '', 'input_forbid_float' => '1', 'input_require_lowest_terms' => '0', 'input_check_answer_type' => '0', 'input_must_verify' => '1', 'input_show_validation' => '1');
+		$inputs_default_values = array('input_type' => 'algebraic', 'input_box_size' => '15', 'input_strict_syntax' => '1', 'input_insert_stars' => '0', 'input_forbidden_words' => '', 'input_forbid_float' => '1', 'input_require_lowest_terms' => '0', 'input_check_answer_type' => '0', 'input_must_verify' => '1', 'input_show_validation' => '1', 'input_syntax_hint' => '', 'input_allow_words' => '', 'input_extra_options' => '');
 		//Is not the first time, replace current values by default values
 		foreach ($inputs_default_values as $paremeter_name => $value)
 		{
 			$this->saveToDB($paremeter_name, $value, 'inputs');
+		}
+
+		return TRUE;
+	}
+
+	/**
+	 * Sets default prts configuration to default values.
+	 */
+	public function setDefaultSettingsForPRTs()
+	{
+		//Default values for prts
+		$prts_default_values = array('prt_simplify' => '1', 'prt_node_answer_test' => 'AlgEquiv', 'prt_node_options' => '', 'prt_node_quiet' => '1', 'prt_pos_mod' => '=', 'prt_pos_score' => '1', 'prt_pos_penalty' => '0', 'prt_pos_answernote' => 'prt1-0-T', 'prt_neg_mod' => '=', 'prt_neg_score' => '0', 'prt_neg_penalty' => '0', 'prt_neg_answernote' => 'prt1-0-F');
+		//Is not the first time, replace current values by default values
+		foreach ($prts_default_values as $paremeter_name => $value)
+		{
+			$this->saveToDB($paremeter_name, $value, 'prts');
 		}
 
 		return TRUE;

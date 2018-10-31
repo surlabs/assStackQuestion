@@ -249,7 +249,7 @@ prt_feedback_variables#:#Feedback variables
 prt_feedback_variables_info#:#The feedback variables enable you to manipulate any of the inputs, together with the question variables, prior to traversing the tree. Variables defined here may be used anywhere else in this tree.
 node_positive_part#:#When true...
 node_negative_part#:#When false...
-prt_node_pos_mod#:#Mod
+prt_node_pos_mod#:#Mode when True
 prt_node_pos_mod_info#:#How the score is adjusted. = means set the score to a particular values, +/- means add or subtract the given score from the current total.
 prt_node_pos_score#:#Positive score
 prt_node_pos_score_info#:#Score when answer test is true
@@ -261,7 +261,7 @@ prt_node_pos_answernote#:#Answernote
 prt_node_pos_answernote_info#:#This is a tag which is key for reporting purposes.  It is designed to record the unique path through the tree, and the outcome of each answer test.  This is automatically generated, but can be changed to something meaningful.
 prt_node_pos_specific_feedback#:#Specific feedback
 prt_node_pos_specific_feedback_info#:#This is CASText which may depend on any of the question variables, input elements or the feedback variables. This is evaluated and displayed to the student if they pass down this branch.
-prt_node_neg_mod#:#Mod
+prt_node_neg_mod#:#Mode when False
 prt_node_neg_mod_info#:#How the score is adjusted. = means set the score to a particular values, +/- means add or subtract the given score from the current total.
 prt_node_neg_score#:#Negative Score
 prt_node_neg_score_info#:#Score when answer test is false
@@ -397,3 +397,6 @@ show_validation_no#:#No
 show_validation_yes_with_vars#:#Yes, with variable list
 show_validation_yes_without_vars#:#Yes, without variable list
 notes_best_solution_message#:#Notes inputs have no best solution
+show_default_prts_settings#:#Default values for Potential response Trees and First nodes
+default_prts_settings#:#Default values for Potential response Trees
+config_default_prts_message#:#The default settings for PRT have been changed successfully.
