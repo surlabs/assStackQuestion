@@ -400,3 +400,23 @@ notes_best_solution_message#:#Notes inputs have no best solution
 show_default_prts_settings#:#Default values for Potential response Trees and First nodes
 default_prts_settings#:#Default values for Potential response Trees
 config_default_prts_message#:#The default settings for PRT have been changed successfully.
+prt_node_pos_feedback_class#:#Feedback Style if True
+prt_node_pos_feedback_class_info#:#Choose the feedback style if this node's answertest is true, feedback style can be managed in plugin configuration.
+prt_node_neg_feedback_class#:#Feedback Style if False
+prt_node_neg_feedback_class_info#:#Choose the feedback style if this node's answertest is false, feedback style can be managed in plugin configuration.
+feedback_styles_settings#:#Feedback Styles Settings
+feedback_node_right#:#Right Answer
+feedback_node_right_info#:#Feedback style for right answers
+feedback_node_wrong#:#Wrong Answer
+feedback_node_wrong_info#:#Feedback style for wrong answers
+feedback_solution_hint#:#Solution Hint
+feedback_solution_hint_info#:#Feedback style for solution hints
+feedback_extra_info#:#Extra Information
+feedback_extra_info_info#:#Feedback style used for extra information
+feedback_plot_feedback#:#Plot
+feedback_plot_feedback_info#:#Feedback style used for plots
+config_feedback_styles_changed_message#:#The default settings for Feedback Styles have been changed successfully.
+feedback_extra_1#:#Partially correct
+feedback_extra_1_info#:#Feedback style for partially correct answers
+options_stepwise_feedback#:#Stepwise Feedback
+options_stepwise_feedback_info#:#Allow students to evaluate each PRT separately without reload the page

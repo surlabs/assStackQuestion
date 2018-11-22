@@ -256,6 +256,36 @@ class assStackQuestionDisplayGUI
 				$question_text = str_replace("[[feedback:{$prt_name}]]", $display['display'], $this->getDisplay('question_text'));
 				$this->setDisplay($question_text, 'question_text');
 
+				//UzK:
+				require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
+				global $tpl;
+				$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
+				if(strpos($display['display'], "xqcas_feedback_class_2")){
+					$class = $config_options["feedback_node_right"];
+					$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/".$class));
+				}
+				if(strpos($display['display'], "xqcas_feedback_class_3")){
+					$class = $config_options["feedback_node_wrong"];
+					$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/".$class));
+				}
+				if(strpos($display['display'], "xqcas_feedback_class_4")){
+					$class = $config_options["feedback_solution_hint"];
+					$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/".$class));
+				}
+				if(strpos($display['display'], "xqcas_feedback_class_5")){
+					$class = $config_options["feedback_extra_info"];
+					$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/".$class));
+				}
+				if(strpos($display['display'], "xqcas_feedback_class_6")){
+					$class = $config_options["feedback_plot_feedback"];
+					$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/".$class));
+				}
+				if(strpos($display['display'], "xqcas_feedback_class_7")){
+					$class = $config_options["feedback_extra_1"];
+					$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/".$class));
+				}
+
+				//UzK.
 				$question_specific_feedback = str_replace("[[feedback:{$prt_name}]]", $display['display'], $this->getDisplay('question_specific_feedback'));
 				$this->setDisplay($question_specific_feedback, 'question_specific_feedback');
 

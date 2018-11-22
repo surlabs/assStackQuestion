@@ -85,7 +85,12 @@ class assStackQuestionFeedback
 		//fill points data
 		$prt_feedback['points'] = $prt_data['points'];
 		//fill errors data
-		$prt_feedback['errors'] = $prt_data['state']->__get('errors');
+		//UzK:
+		if (strlen($prt_feedback['errors']))
+		{
+			$prt_feedback['errors'] = "<div class='xqcas_feedback_class_4'>" . $prt_data['state']->__get('errors') . "</div>";
+		}
+		//UzK.
 		//fill feedback message data
 		$prt_feedback['feedback'] = $this->fillFeedback($prt_data['state']);
 		//fill status and status message
@@ -174,8 +179,39 @@ class assStackQuestionFeedback
 		{
 			foreach ($prt_state->__get('feedback') as $feedback_obj)
 			{
-				$feedback .= $prt_state->substitue_variables_in_feedback($feedback_obj->feedback);
-				$feedback .= '</br>';
+				//UzK:
+				switch ($feedback_obj->format)
+				{
+					case NULL:
+						//$feedback .= '<div class="xqcas_feedback_class_4"><p>' . $prt_state->substitue_variables_in_feedback($feedback_obj->feedback);
+						//$feedback .= '</p></div>';
+						break;
+					case "2":
+						$feedback .= '<div class="xqcas_feedback_class_2"><p>' . $prt_state->substitue_variables_in_feedback($feedback_obj->feedback);
+						$feedback .= '</p></div>';
+						break;
+					case "3":
+						$feedback .= '<div class="xqcas_feedback_class_3"><p>' . $prt_state->substitue_variables_in_feedback($feedback_obj->feedback);
+						$feedback .= '</p></div>';
+						break;
+					case "4":
+						$feedback .= '<div class="xqcas_feedback_class_4"><p>' . $prt_state->substitue_variables_in_feedback($feedback_obj->feedback);
+						$feedback .= '</p></div>';
+						break;
+					case "5":
+						$feedback .= '<div class="xqcas_feedback_class_5"><p>' . $prt_state->substitue_variables_in_feedback($feedback_obj->feedback);
+						$feedback .= '</p></div>';
+						break;
+					case "6":
+						$feedback .= '<div class="xqcas_feedback_class_6"><p>' . $prt_state->substitue_variables_in_feedback($feedback_obj->feedback);
+						$feedback .= '</p></div>';
+						break;
+					case "7":
+						$feedback .= '<div class="xqcas_feedback_class_7"><p>' . $prt_state->substitue_variables_in_feedback($feedback_obj->feedback);
+						$feedback .= '</p></div>';
+						break;
+				}
+				//UzK.
 			}
 		}
 
@@ -192,23 +228,25 @@ class assStackQuestionFeedback
 		//Prepare status structure
 		$status = array();
 
+		//UzK:
 		if ((float)$prt_state->__get('score') * (float)$prt_state->__get('weight') == (float)$prt_state->__get('weight'))
 		{
 			//CORRECT
 			$status['value'] = 1;
-			$status['message'] = $this->getQuestion()->getPRTCorrectInstantiated();
+			$status['message'] = '<div class="xqcas_feedback_class_2">' . $this->getQuestion()->getPRTCorrectInstantiated() . '</div>';
 		} elseif ((float)$prt_state->__get('score') > 0.0 AND (float)$prt_state->__get('score') < (float)$prt_state->__get('weight'))
 		{
 			//PARTIALLY CORRECT
 			$status['value'] = 0;
-			$status['message'] = $this->getQuestion()->getPRTPartiallyCorrectInstantiated();
+			$status['message'] = '<div class="xqcas_feedback_class_7">' . $this->getQuestion()->getPRTPartiallyCorrectInstantiated() . '</div>';
 		} else
 		{
 			//INCORRECT
 			$status['value'] = -1;
-			$status['message'] = $this->getQuestion()->getPRTIncorrectInstantiated();
+			$status['message'] = '<div class="xqcas_feedback_class_3">' . $this->getQuestion()->getPRTIncorrectInstantiated() . '</div>';
 		}
 
+		//UzK.
 		return $status;
 	}
 

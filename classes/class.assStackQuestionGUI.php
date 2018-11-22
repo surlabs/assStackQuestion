@@ -28,6 +28,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function __construct($id = -1)
 	{
+		exit;
 		parent::__construct();
 
 		//Set plugin object
@@ -639,7 +640,8 @@ class assStackQuestionGUI extends assQuestionGUI
 										$input_replacement = $input_answer["model_answer"];
 										$validation_replacement = $input_answer["model_answer_display"];
 										$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
-										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);									} else
+										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
+									} else
 									{
 										if ($just_show)
 										{
@@ -676,7 +678,8 @@ class assStackQuestionGUI extends assQuestionGUI
 										$input_replacement = $input_answer["model_answer"];
 										$validation_replacement = $input_answer["model_answer_display"];
 										$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
-										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);									} else
+										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
+									} else
 									{
 										$input_replacement = "</br>" . $input_answer["value"];
 									}
@@ -697,9 +700,11 @@ class assStackQuestionGUI extends assQuestionGUI
 										$input_replacement = $input_answer["value"];
 										if ($show_feedback)
 										{
-											if(strlen($input_answer["display"])){
-												$validation_replacement = stack_string('studentValidation_yourLastAnswer',$input_answer["display"]);
-											}else{
+											if (strlen($input_answer["display"]))
+											{
+												$validation_replacement = stack_string('studentValidation_yourLastAnswer', $input_answer["display"]);
+											} else
+											{
 												$validation_replacement = $input_answer["display"];
 											}
 											$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
@@ -805,15 +810,77 @@ class assStackQuestionGUI extends assQuestionGUI
 				{
 					$string = "";
 					//feedback
-					$string .= '<div class="alert alert-warning" role="alert">';
-					//Generic feedback
-					$string .= $solutions["prt"][$prt_name]['status']['message'];
+					//UzK:
+					if (strlen(trim($solutions["prt"][$prt_name]['status']['message'])))
+					{
+						//Generic feedback
+						switch ($solutions["prt"][$prt_name]['status']['value'])
+						{
+							case "1":
+								$string .= $solutions["prt"][$prt_name]['status']['message'];
+								break;
+							case "0":
+								$string .= $solutions["prt"][$prt_name]['status']['message'];
+								break;
+							case "-1":
+								$string .= $solutions["prt"][$prt_name]['status']['message'];
+								break;
+						}
+
+					}
+
 					//$string .= '<br>';
 					//Specific feedback
 					$string .= $solutions["prt"][$prt_name]["feedback"];
-					$string .= $solutions["prt"][$prt_name]["errors"];
-					$string .= '</div>';
+					if (strlen(trim($solutions["prt"][$prt_name]["errors"])))
+					{
+						if (strpos($solutions["prt"][$prt_name]["errors"], "xqcas_feedback_class_4") < 0)
+						{
+							$string .= '<div class="xqcas_feedback_class_4">';
+							$string .= $solutions["prt"][$prt_name]["errors"];
+							$string .= '</div>';
+						} else
+						{
+							$string .= $solutions["prt"][$prt_name]["errors"];
+						}
+					}
 
+					//Add css
+					require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
+					global $tpl;
+					$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
+					if (strpos($string, "xqcas_feedback_class_2"))
+					{
+						$class = $config_options["feedback_node_right"];
+						$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/" . $class));
+					}
+					if (strpos($string, "xqcas_feedback_class_3"))
+					{
+						$class = $config_options["feedback_node_wrong"];
+						$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/" . $class));
+					}
+					if (strpos($string, "xqcas_feedback_class_4"))
+					{
+						$class = $config_options["feedback_solution_hint"];
+						$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/" . $class));
+					}
+					if (strpos($string, "xqcas_feedback_class_5"))
+					{
+						$class = $config_options["feedback_extra_info"];
+						$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/" . $class));
+					}
+					if (strpos($string, "xqcas_feedback_class_6"))
+					{
+						$class = $config_options["feedback_plot_feedback"];
+						$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/" . $class));
+					}
+					if (strpos($string, "xqcas_feedback_class_7"))
+					{
+						$class = $config_options["feedback_extra_1"];
+						$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/" . $class));
+					}
+
+					//UzK.
 					$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", $string, $specific_feedback);
 				} else
 				{

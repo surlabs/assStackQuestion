@@ -262,14 +262,18 @@ class assStackQuestionDisplay
 		if (sizeof($this->getInlineFeedback()))
 		{
 			//feedback
-			$string .= '<div class="alert alert-warning" role="alert">';
-			//Generic feedback
-			$string .= $this->inline_feedback['prt'][$prt_name]['status']['message'];
+			//UzK:
+			if (strlen($this->inline_feedback['prt'][$prt_name]['status']['message']))
+			{
+				//Generic feedback
+				$string .= $this->inline_feedback['prt'][$prt_name]['status']['message'];
+			}
+			//UzK.
 			//$string .= '<br>';
 			//Specific feedback
 			$string .= $this->inline_feedback['prt'][$prt_name]['feedback'];
 			$string .= $this->inline_feedback['prt'][$prt_name]['errors'];
-			$string .= '</div>';
+
 		}
 
 		return $string;
