@@ -71,9 +71,9 @@ span.val-button-below > span.input-group {
     display: inline-block!important;
     vertical-align: top;
 }
-span.val-button-below > input {
+span.val-button-below input {
     display: block!important;
 }
-span.val-button-hidden > input {
+span.val-button-hidden span.input-group-addon {
     display: none!important;
 }
