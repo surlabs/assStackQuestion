@@ -367,6 +367,10 @@ class assStackQuestionFeedback
 			if (is_a($input, "stack_algebraic_input"))
 			{
 				$correct_answer = $this->getQuestion()->getSession()->get_value_key($input->get_teacher_answer());
+				if (!$correct_answer)
+				{
+					$correct_answer = $input->get_teacher_answer();
+				}
 				$input_size = strlen($correct_answer) * 1.1;
 				$input_html_display = '<input type="text" size="' . $input_size . '" id="xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '_postvalidation" value="' . $correct_answer . '" disabled="disabled">';
 				$result = array();
