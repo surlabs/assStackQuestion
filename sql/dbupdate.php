@@ -710,3 +710,31 @@ if (!$db->indexExistsByFields('xqcas_deployed_seeds', array('question_id', 'seed
 	$db->addIndex('xqcas_deployed_seeds', array('question_id', 'seed'), 'i6', FALSE);
 }
 ?>
+<#35>
+<?php
+global $DIC;
+$db = $DIC->database();
+//Default Option for Matrix Parenthesis
+if ($db->tableExists('xqcas_configuration'))
+{
+    //Options
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "options_matrix_parents"), 'value' => array('clob', '['), 'group_name' => array('text', 'options')));
+	//Inputs
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "input_syntax_hint"), 'value' => array('clob', ''), 'group_name' => array('text', 'inputs')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "input_allow_words"), 'value' => array('clob', ''), 'group_name' => array('text', 'inputs')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "input_extra_options"), 'value' => array('clob', ''), 'group_name' => array('text', 'inputs')));
+	//PRTs
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_simplify"), 'value' => array('clob', '1'), 'group_name' => array('text', 'prts')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_node_answer_test"), 'value' => array('clob', 'AlgEquiv'), 'group_name' => array('text', 'prts')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_node_options"), 'value' => array('clob', ''), 'group_name' => array('text', 'prts')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_node_quiet"), 'value' => array('clob', '1'), 'group_name' => array('text', 'prts')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_pos_mod"), 'value' => array('clob', '+'), 'group_name' => array('text', 'prts')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_pos_score"), 'value' => array('clob', '1'), 'group_name' => array('text', 'prts')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_pos_penalty"), 'value' => array('clob', '0'), 'group_name' => array('text', 'prts')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_pos_answernote"), 'value' => array('clob', 'prt1-0-T'), 'group_name' => array('text', 'prts')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_neg_mod"), 'value' => array('clob', '+'), 'group_name' => array('text', 'prts')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_neg_score"), 'value' => array('clob', '0'), 'group_name' => array('text', 'prts')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_neg_penalty"), 'value' => array('clob', '0'), 'group_name' => array('text', 'prts')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_neg_answernote"), 'value' => array('clob', 'prt1-0-F'), 'group_name' => array('text', 'prts')));
+}
+?>

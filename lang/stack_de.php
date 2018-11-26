@@ -693,7 +693,7 @@ $string['ATSingleFrac_ret_exp'] = 'Ihre Antwort ist nicht algebraisch äquivalen
 $string['ATSingleFrac_true'] = '';
 $string['ATSingleFrac_var'] = 'Verwenden Sie in Ihrer Antwort die Variablen aus der Aufgabenstellung!';
 $string['ATSysEquiv_SA_extra_variables'] = 'Ihre Antwort enthält zu viele Variablen!';
-$string['ATSysEquiv_SA_missing_variables'] = 'In ihre Antwort fehlen eine oder mehrere Variablen!';
+$string['ATSysEquiv_SA_missing_variables'] = 'In ihrer Antwort fehlen eine oder mehrere Variablen!';
 $string['ATSysEquiv_SA_not_eq_list'] = 'Ihre Antwort sollte eine Liste von Gleichungen sein; ist sie aber nicht!';
 $string['ATSysEquiv_SA_not_list'] = 'Ihre Antwort sollte eine Liste sein; ist sie aber nicht!';
 $string['ATSysEquiv_SA_not_poly_eq_list'] = 'Eine oder mehrere Gleichungen sind keine Polynomgleichungen!';
@@ -1135,3 +1135,5 @@ $string['healthuncachedstack_CAS_version'] = 'Expected Maxima version : "{$a->ex
 $string['healthuncachedstack_CAS_versionnotchecked'] = 'You have chosen the "default" version of Maxima, so no Maxima version checking is being done.  Your raw connection is actually using version {$a->actual}.';
 $string['healthuncachedstack_CAS_calculation'] = 'Expected CAS calculation : {$a->expected}.  Actual CAS calculation: {$a->actual}.';
 
+//Solve thttps://mantis.ilias.de/view.php?id=24003
+$string['stackCas_unencpsulated_comma'] = 'In dem eingegebenen Ausdruck erscheint ein Komma an ungewöhnlicher Stelle. Kommas werden zur Trennung von Elementen in Listen, Mengen usw. verwendet. Bitte verwenden Sie in Dezimalzahlen anstelle eines Kommas einen Dezimalpunkt.';

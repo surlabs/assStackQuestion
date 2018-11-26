@@ -109,7 +109,7 @@ input_strict_syntax#:#Strikte Syntax
 input_strict_syntax_info#:#Strikte Maxima-Syntax bei der Eingabe erfordern. Andernfalls gibt es mehr Varianten zur Interpretation fehlender Sterne (*), einschließlich Funktionsanwendung und wissenschaftlicher Notation.
 input_insert_stars#:#Sterne einfügen
 input_insert_stars_info#:#Wenn aktiviert, werden automatisch Sterne (*) in Muster eingefügt, die durch die strikte Syntax identifiziert wurden. Andernfalls wird eine Fehlermeldung angezeigt.
-input_forbidden_words#:#Verbotene Worte
+input_forbidden_words#:#Verbotene Wörter
 input_forbidden_words_info#:#Kommagetrennte Liste von Zeichenketten, die in einer Teilnehmer-Antwort nicht erlaubt sind.
 input_forbid_float#:#Gleitkomma verbieten
 input_forbid_float_info#:#Jede Gleitkommazahl in einer Teilnehmer-Antwort wird als inkorrekt abgewiesen.
@@ -249,7 +249,7 @@ prt_feedback_variables#:#Feedback-Variablen
 prt_feedback_variables_info#:#Die Feedback-Variablen erlauben es die Eingabe zusammen mit den Aufgabenvariablen zu manipulieren, bevor der Rückmeldebaum durchlaufen wird. Variablen, die hier definiert werden, können überall im Rückmeldebaum benutzt werden.
 node_positive_part#:#Knoten wenn WAHR
 node_negative_part#:#Knoten wenn FALSCH
-prt_node_pos_mod#:#Mod
+prt_node_pos_mod#:#Mod wenn wahr
 prt_node_pos_mod_info#:#Wie die Bepunktung angepasst wird. "=" setzt die Punkte auf einen bestimmten Wert. "+/-" addieren oder subtrahieren Punkte von der aktuellen Summe.
 prt_node_pos_score#:#Punkte wenn wahr
 prt_node_pos_score_info#:#Bewertung wenn der Antworttest "wahr" ergibt.
@@ -261,7 +261,7 @@ prt_node_pos_answernote#:#Antworthinweis wenn wahr
 prt_node_pos_answernote_info#:#Dieses Feld dient zur Berichterstattung. Es bestimmt den eindeutigen Pfad durch den Baum und das Ergebnis jeder Antwort. Es wird automatisch erzeugt, kann aber auch manuell zu etwas Sinnvollem geändert werden.
 prt_node_pos_specific_feedback#:#Feedback wenn wahr
 prt_node_pos_specific_feedback_info#:#Dieser CAS-Text kann die Aufgabenvariablen, die Eingabeelemente oder andere Feedbackvariablen verwenden. Er wird ausgewertet und angezeigt, sobald ein Studierender diesen Zweig erreicht.
-prt_node_neg_mod#:#Mod
+prt_node_neg_mod#:#Mod wenn falsch
 prt_node_neg_mod_info#:#Wie die Bepunktung angepasst wird. "=" setzt die Punkte auf einen bestimmten Wert. "+/-" addieren oder subtrahieren Punkte von der aktuellen Summe.
 prt_node_neg_score#:#Punkte wenn falsch
 prt_node_neg_score_info#:#Bewertung wenn der Antworttest "falsch" ergibt.
@@ -279,14 +279,14 @@ show_options#:#Zeige Fragenoptionen
 show_input#:#Zeige Eingabe
 prt_name#:#Rückmeldebaum Name
 prt_name_info#:#Normalerweise werden die Rückmeldebäume mit prt1, prt2, ... benannt.
-prt_settings#:#Zeigen
+prt_settings#:#Einstellungen
 prt_graph#:#Grafische Anzeige
 prt_settings_and_nodes#:#Einstellungen
 prt_nodes#:#Knoten
 enable_disable_info#:#Info-Meldungen aktivieren/deaktivieren
 end#:#Ende
 input_syntax_hint#:#Syntax-Hinweis
-input_allow_words#:#Wörter zulassen
+input_allow_words#:#Zugelassene Wörter
 input_options#:#Zusätzliche Optionen
 input_syntax_hint_info#:#Der Syntaxhinweis erscheint, wenn das Antwortfeld von Studierenden leer gelassen wird.
 input_allow_words_info#:#Standardmäßig sind in der Antwort keine Funktionen oder Variablennamen mit mehr als zwei Zeichen Länge zugelassen. Dies ist eine kommagetrennte Liste der erlaubten Ausnahmen.
@@ -397,3 +397,6 @@ show_validation_no#:#Nein
 show_validation_yes_with_vars#:#Ja, mit Variablenliste
 show_validation_yes_without_vars#:#Ja, ohne Variablenliste
 notes_best_solution_message#:#Notizen haben keine bestmögliche Lösung
+show_default_prts_settings#:#Vorgabewerte für Rückmeldebäume-Einstellungen
+default_prts_settings#:#Standard-Einstellungen für Rückmeldebäume und Knoten
+config_default_prts_message#:#Die Einstellungen für Rückmeldebäume wurden erfolgreich geändert.

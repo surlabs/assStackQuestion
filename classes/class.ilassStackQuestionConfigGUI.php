@@ -32,17 +32,21 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		// control flow
 		$ctrl = $DIC->ctrl();
 		$cmd = $ctrl->getCmd($this, "configure");
-		switch ($cmd) {
+		switch ($cmd)
+		{
 			case 'showOtherSettings':
 			case 'showDisplaySettings':
 			case 'showDefaultOptionsSettings':
 			case 'showDefaultInputsSettings':
+			case 'showDefaultPRTsSettings':
 			case 'saveDisplaySettings':
 			case 'saveDefaultInputsSettings':
 			case 'saveDefaultOptionsSettings':
+			case 'saveDefaultPRTsSettings':
 			case 'setDefaultSettingsForDisplay':
 			case 'setDefaultSettingsForInputs':
 			case 'setDefaultSettingsForOptions':
+			case 'setDefaultSettingsForPRTs':
 				$this->initTabs('others');
 				$this->$cmd();
 				break;
@@ -62,13 +66,15 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		global $DIC;
 		$ctrl = $DIC->ctrl();
 		$tabs = $DIC->tabs();
-		switch ($a_mode) {
+		switch ($a_mode)
+		{
 			case 'others':
 				$tabs->addTab("show_connection_settings", $this->plugin_object->txt('show_connection_settings'), $ctrl->getLinkTarget($this, 'showConnectionSettings'));
 				$tabs->addTab("show_other_settings", $this->plugin_object->txt('show_other_settings'), $ctrl->getLinkTarget($this, 'showOtherSettings'));
 				$tabs->addSubTab('show_display_settings', $this->plugin_object->txt('show_display_settings'), $ctrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showDisplaySettings'));
 				$tabs->addSubTab('show_default_options_settings', $this->plugin_object->txt('show_default_options_settings'), $ctrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showDefaultOptionsSettings'));
 				$tabs->addSubTab('show_default_inputs_settings', $this->plugin_object->txt('show_default_inputs_settings'), $ctrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showDefaultInputsSettings'));
+				$tabs->addSubTab('show_default_prts_settings', $this->plugin_object->txt('show_default_prts_settings'), $ctrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showDefaultPRTsSettings'));
 				$tabs->addTab("show_healthcheck", $this->plugin_object->txt('show_healthcheck'), $ctrl->getLinkTarget($this, 'showHealthcheck'));
 				break;
 			default:
@@ -145,6 +151,17 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$tpl->setContent($form->getHTML());
 	}
 
+	public function showDefaultPRTsSettings()
+	{
+		global $DIC, $tpl;
+		$tabs = $DIC->tabs();
+		$tabs->setTabActive('show_other_settings');
+		$tabs->setSubTabActive('show_default_prts_settings');
+
+		$form = $this->getDefaultPRTSettingsForm();
+		$tpl->setContent($form->getHTML());
+	}
+
 	/**
 	 * Show the healthcheck screen
 	 * @param string $a_mode 'reduced', 'extended' or empty
@@ -175,29 +192,29 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$clear_cache_button->setName("clearCache");
 		$toolbar->addButtonInstance($clear_cache_button);
 
-		if ($a_mode != "") {
+		if ($a_mode != "")
+		{
 			//Create Healthcheck
 			$this->plugin_object->includeClass("model/configuration/class.assStackQuestionHealthcheck.php");
 			$healthcheck_object = new assStackQuestionHealthcheck($this->plugin_object);
 
 			try
-            {
-                $healthcheck_data = $healthcheck_object->doHealthcheck();
-            }
-            catch (Exception $e)
-            {
-                ilUtil::sendFailure($e->getMessage());
-                $healthcheck_data = false;
-            }
+			{
+				$healthcheck_data = $healthcheck_object->doHealthcheck();
+			} catch (Exception $e)
+			{
+				ilUtil::sendFailure($e->getMessage());
+				$healthcheck_data = false;
+			}
 
-            if ($healthcheck_data)
-            {
-                //Show healthcheck
-                $this->plugin_object->includeClass("GUI/configuration/class.assStackQuestionHealthcheckGUI.php");
-                $healthcheck_gui_object = new assStackQuestionHealthcheckGUI($this->plugin_object, $healthcheck_data);
-                $healthcheck_gui = $healthcheck_gui_object->showHealthcheck($a_mode);
-                $result_html = $healthcheck_gui->get();
-            }
+			if ($healthcheck_data)
+			{
+				//Show healthcheck
+				$this->plugin_object->includeClass("GUI/configuration/class.assStackQuestionHealthcheckGUI.php");
+				$healthcheck_gui_object = new assStackQuestionHealthcheckGUI($this->plugin_object, $healthcheck_data);
+				$healthcheck_gui = $healthcheck_gui_object->showHealthcheck($a_mode);
+				$result_html = $healthcheck_gui->get();
+			}
 		}
 
 		$tpl->setContent($toolbar->getHTML() . $result_html);
@@ -230,12 +247,8 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		//IF MANUAL SELECTION ACTIVATED UNCOMMENT THIS
 		$platform_type = new ilSelectInputGUI($this->plugin_object->txt('platform_type'), 'platform_type');
-		$platform_type->setOptions(array(
-			"win" => $this->plugin_object->txt('windows'),
-			"unix" => $this->plugin_object->txt('unix'),
-			//"unix-optimised" => $this->plugin_object->txt('unix_optimised'),
-			"server" => $this->plugin_object->txt('server')
-		));
+		$platform_type->setOptions(array("win" => $this->plugin_object->txt('windows'), "unix" => $this->plugin_object->txt('unix'), //"unix-optimised" => $this->plugin_object->txt('unix_optimised'),
+			"server" => $this->plugin_object->txt('server')));
 		$platform_type->setInfo($this->plugin_object->txt('platform_type_info'));
 		$platform_type->setValue($connection_data['platform_type']);
 		$form->addItem($platform_type);
@@ -243,15 +256,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		//Maxima version
 		$maxima_version = new ilSelectInputGUI($this->plugin_object->txt('maxima_version'), 'maxima_version');
-		$maxima_version->setOptions(array('5.23.2' => '5.23.2', '5.25.1' => '5.25.1', '5.26.0' => '5.26.0',
-			'5.27.0' => '5.27.0', '5.28.0' => '5.28.0', '5.30.0' => '5.30.0',
-			'5.31.1' => '5.31.1', '5.31.2' => '5.31.2', '5.31.3' => '5.31.3',
-			'5.32.0' => '5.32.0', '5.32.1' => '5.32.1', '5.33.0' => '5.33.0',
-			'5.34.0' => '5.34.0', '5.34.1' => '5.34.1', '5.35.1' => '5.35.1',
-			'5.35.1.2' => '5.35.1.2', '5.36.0' => '5.36.0', '5.36.1' => '5.36.1',
-			'5.37.3' => '5.37.3', '5.38.0' => '5.38.0', '5.38.1' => '5.38.1',
-			'5.39.0' => '5.39.0', '5.40.0' => '5.40.0', '5.41.0' => '5.41.0',
-			'default' => 'default'));
+		$maxima_version->setOptions(array('5.23.2' => '5.23.2', '5.25.1' => '5.25.1', '5.26.0' => '5.26.0', '5.27.0' => '5.27.0', '5.28.0' => '5.28.0', '5.30.0' => '5.30.0', '5.31.1' => '5.31.1', '5.31.2' => '5.31.2', '5.31.3' => '5.31.3', '5.32.0' => '5.32.0', '5.32.1' => '5.32.1', '5.33.0' => '5.33.0', '5.34.0' => '5.34.0', '5.34.1' => '5.34.1', '5.35.1' => '5.35.1', '5.35.1.2' => '5.35.1.2', '5.36.0' => '5.36.0', '5.36.1' => '5.36.1', '5.37.3' => '5.37.3', '5.38.0' => '5.38.0', '5.38.1' => '5.38.1', '5.39.0' => '5.39.0', '5.40.0' => '5.40.0', '5.41.0' => '5.41.0', 'default' => 'default'));
 		$maxima_version->setInfo($this->plugin_object->txt('maxima_version_info'));
 		$maxima_version->setValue($connection_data['maxima_version']);
 		$form->addItem($maxima_version);
@@ -278,7 +283,8 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$cas_result_caching->setValue('db');
 		$form->addItem($cas_result_caching);
 
-		if ($connection_data['platform_type'] == 'win' OR $connection_data['platform_type'] == 'server') {
+		if ($connection_data['platform_type'] == 'win' OR $connection_data['platform_type'] == 'server')
+		{
 
 			//Maxima command
 			$maxima_command = new ilTextInputGUI($this->plugin_object->txt('maxima_command'), 'maxima_command');
@@ -332,11 +338,13 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$connection_data = assStackQuestionConfig::_getStoredSettings('connection');
 
 		//Instant validation
-		if ($connection_data['platform_type'] == 'server') {
+		if ($connection_data['platform_type'] == 'server')
+		{
 			$instant_validation = new ilCheckboxInputGUI($this->plugin_object->txt('instant_validation'), 'instant_validation');
 			$instant_validation->setInfo($this->plugin_object->txt("instant_validation_info"));
 			$instant_validation->setChecked($display_data['instant_validation']);
-		} else {
+		} else
+		{
 			$instant_validation = new ilCheckboxInputGUI($this->plugin_object->txt('instant_validation'), 'instant_validation');
 			$instant_validation->setInfo($this->plugin_object->txt("instant_validation_info"));
 			$instant_validation->setChecked(FALSE);
@@ -346,9 +354,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		//Maths filter
 		$maths_filter = new ilSelectInputGUI($this->plugin_object->txt('maths_filter'), 'maths_filter');
-		$maths_filter->setOptions(array(
-			"mathjax" => "MathJax"
-		));
+		$maths_filter->setOptions(array("mathjax" => "MathJax"));
 		$maths_filter->setInfo($this->plugin_object->txt('maths_filter_info'));
 		$maths_filter->setValue($display_data['maths_filter']);
 		$form->addItem($maths_filter);
@@ -392,11 +398,13 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		//Options Standard feedback for correct answer
 		$options_prt_correct = new ilTextAreaInputGUI($this->plugin_object->txt('options_prt_correct'), 'options_prt_correct');
+		$this->setRTESupport($options_prt_correct);
 		$options_prt_correct->setValue($options_data['options_prt_correct']);
 		$form->addItem($options_prt_correct);
 
 		//Options Standard feedback for partially correct answer
 		$options_prt_partially_correct = new ilTextAreaInputGUI($this->plugin_object->txt('options_prt_partially_correct'), 'options_prt_partially_correct');
+		$this->setRTESupport($options_prt_partially_correct);
 		$options_prt_partially_correct->setValue($options_data['options_prt_partially_correct']);
 		$form->addItem($options_prt_partially_correct);
 
@@ -408,11 +416,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		//Options multiplication sign
 		$options_multiplication_sign = new ilSelectInputGUI($this->plugin_object->txt('options_multiplication_sign'), 'options_multiplication_sign');
-		$options_multiplication_sign->setOptions(array(
-			"dot" => $this->plugin_object->txt('options_mult_sign_dot'),
-			"cross" => $this->plugin_object->txt('options_mult_sign_cross'),
-			"none" => $this->plugin_object->txt('options_mult_sign_none')
-		));
+		$options_multiplication_sign->setOptions(array("dot" => $this->plugin_object->txt('options_mult_sign_dot'), "cross" => $this->plugin_object->txt('options_mult_sign_cross'), "none" => $this->plugin_object->txt('options_mult_sign_none')));
 		$options_multiplication_sign->setInfo($this->plugin_object->txt('options_multiplication_sign'));
 		$options_multiplication_sign->setValue($options_data['options_multiplication_sign']);
 		$form->addItem($options_multiplication_sign);
@@ -425,29 +429,26 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		//Options Complex numbers
 		$options_complex_numbers = new ilSelectInputGUI($this->plugin_object->txt('options_complex_numbers'), 'options_complex_numbers');
-		$options_complex_numbers->setOptions(array(
-			"i" => $this->plugin_object->txt('options_complex_numbers_i'),
-			"j" => $this->plugin_object->txt('options_complex_numbers_j'),
-			"symi" => $this->plugin_object->txt('options_complex_numbers_symi'),
-			"symj" => $this->plugin_object->txt('options_complex_numbers_symj')
-		));
+		$options_complex_numbers->setOptions(array("i" => $this->plugin_object->txt('options_complex_numbers_i'), "j" => $this->plugin_object->txt('options_complex_numbers_j'), "symi" => $this->plugin_object->txt('options_complex_numbers_symi'), "symj" => $this->plugin_object->txt('options_complex_numbers_symj')));
 		$options_complex_numbers->setInfo($this->plugin_object->txt('options_complex_numbers_info'));
 		$options_complex_numbers->setValue($options_data['options_complex_numbers']);
 		$form->addItem($options_complex_numbers);
 
 		//Options inverse trigonometric
 		$options_inverse_trigonometric = new ilSelectInputGUI($this->plugin_object->txt('options_inverse_trigonometric'), 'options_inverse_trigonometric');
-		$options_inverse_trigonometric->setOptions(array(
-			"cos-1" => $this->plugin_object->txt('options_inverse_trigonometric_cos'),
-			"acos" => $this->plugin_object->txt('options_inverse_trigonometric_acos'),
-			"arccos" => $this->plugin_object->txt('options_inverse_trigonometric_arccos')
-		));
+		$options_inverse_trigonometric->setOptions(array("cos-1" => $this->plugin_object->txt('options_inverse_trigonometric_cos'), "acos" => $this->plugin_object->txt('options_inverse_trigonometric_acos'), "arccos" => $this->plugin_object->txt('options_inverse_trigonometric_arccos')));
 		$options_inverse_trigonometric->setInfo($this->plugin_object->txt('options_inverse_trigonometric_info'));
 		$options_inverse_trigonometric->setValue($options_data['options_inverse_trigonometric']);
 		$form->addItem($options_inverse_trigonometric);
 
-		$form->setTitle($this->plugin_object->txt('default_options_settings'));
+		//Options Matrix Parents
+		$options_matrix_parents = new ilSelectInputGUI($this->plugin_object->txt('options_matrix_parens'), 'options_matrix_parents');
+		$options_matrix_parents->setOptions(array("[" => "[", "(" => "(", "" => "", "{" => "{", "|" => "|"));
+		$options_matrix_parents->setInfo($this->plugin_object->txt('options_matrix_parens_info'));
+		$options_matrix_parents->setValue($options_data['options_matrix_parents']);
+		$form->addItem($options_matrix_parents);
 
+		$form->setTitle($this->plugin_object->txt('default_options_settings'));
 		$form->addCommandButton("saveDefaultOptionsSettings", $this->plugin_object->txt("save"));
 		$form->addCommandButton("showDefaultOptionsSettings", $this->plugin_object->txt("cancel"));
 		$form->addCommandButton("setDefaultSettingsForOptions", $this->plugin_object->txt("default_settings"));
@@ -497,12 +498,6 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$input_insert_stars->setChecked($inputs_data['input_insert_stars']);
 		$form->addItem($input_insert_stars);
 
-		//Input forbidden words
-		$input_forbidden_words = new ilTextInputGUI($this->plugin_object->txt('input_forbidden_words'), 'input_forbidden_words');
-		$input_forbidden_words->setInfo($this->plugin_object->txt('input_forbidden_words_info'));
-		$input_forbidden_words->setValue($inputs_data['input_forbidden_words']);
-		$form->addItem($input_forbidden_words);
-
 		//Input forbid float
 		$input_forbid_float = new ilCheckboxInputGUI($this->plugin_object->txt('input_forbid_float'), 'input_forbid_float');
 		$input_forbid_float->setInfo($this->plugin_object->txt("input_forbid_float_info"));
@@ -527,16 +522,151 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$input_must_verify->setChecked($inputs_data['input_must_verify']);
 		$form->addItem($input_must_verify);
 
-		//Input Show validation
-		$input_show_validation = new ilCheckboxInputGUI($this->plugin_object->txt('input_show_validation'), 'input_show_validation');
+		//Input show validation
+		$input_show_validation = new ilSelectInputGUI($this->plugin_object->txt('input_show_validation'), 'input_show_validation');
+		$input_show_validation->setOptions(array(0 => $this->plugin_object->txt('show_validation_no'), 1 => $this->plugin_object->txt('show_validation_yes_with_vars'), 2 => $this->plugin_object->txt('show_validation_yes_without_vars')));
 		$input_show_validation->setInfo($this->plugin_object->txt("input_show_validation_info"));
-		$input_show_validation->setChecked($inputs_data['input_show_validation']);
+		$input_show_validation->setValue($inputs_data['input_show_validation']);
 		$form->addItem($input_show_validation);
+
+		//Input syntax hint
+		$input_syntax_hint = new ilTextInputGUI($this->plugin_object->txt('input_syntax_hint'), 'input_syntax_hint');
+		$input_syntax_hint->setInfo($this->plugin_object->txt('input_syntax_hint_info'));
+		$input_syntax_hint->setValue($inputs_data['input_syntax_hint']);
+		$form->addItem($input_syntax_hint);
+
+		//Input forbidden words
+		$input_forbidden_words = new ilTextInputGUI($this->plugin_object->txt('input_forbidden_words'), 'input_forbidden_words');
+		$input_forbidden_words->setInfo($this->plugin_object->txt('input_forbidden_words_info'));
+		$input_forbidden_words->setValue($inputs_data['input_forbidden_words']);
+		$form->addItem($input_forbidden_words);
+
+		//Input Allow words
+		$input_allow_words = new ilTextInputGUI($this->plugin_object->txt('input_allow_words'), 'input_allow_words');
+		$input_allow_words->setInfo($this->plugin_object->txt('input_allow_words_info'));
+		$input_allow_words->setValue($inputs_data['input_allow_words']);
+		$form->addItem($input_allow_words);
+
+		//Input extra options
+		$input_extra_options = new ilTextInputGUI($this->plugin_object->txt('input_options'), 'input_extra_options');
+		$input_extra_options->setInfo($this->plugin_object->txt('input_options_info'));
+		$input_extra_options->setValue($inputs_data['input_extra_options']);
+		$form->addItem($input_extra_options);
 
 		$form->setTitle($this->plugin_object->txt('default_input_settings'));
 		$form->addCommandButton("saveDefaultInputsSettings", $this->plugin_object->txt("save"));
 		$form->addCommandButton("showDefaultInputsSettings", $this->plugin_object->txt("cancel"));
 		$form->addCommandButton("setDefaultSettingsForInputs", $this->plugin_object->txt("default_settings"));
+
+		return $form;
+	}
+
+	public function getDefaultPRTSettingsForm()
+	{
+		global $DIC;
+		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
+		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+		$form = new ilPropertyFormGUI();
+		$ctrl = $DIC->ctrl();
+		$form->setFormAction($ctrl->getFormAction($this));
+
+		//Values from DB
+		$prts_data = assStackQuestionConfig::_getStoredSettings('prts');
+
+		//General settings
+		//Simplify
+		$lng = $DIC->language();
+		$prt_simplify = new ilSelectInputGUI($this->plugin_object->txt('prt_simplify'), 'prt_simplify');
+		$prt_simplify->setOptions(array(TRUE => $lng->txt('yes'), FALSE => $lng->txt('no'),));
+		$prt_simplify->setInfo($this->plugin_object->txt('prt_simplify_info'));
+		$prt_simplify->setValue($prts_data['prt_simplify']);
+		$form->addItem($prt_simplify);
+
+		//First node
+		//Answer test
+		$answer_test = new ilSelectInputGUI($this->plugin_object->txt('prt_node_answer_test'), 'prt_node_answer_test');
+		// Prepare answer test types.
+		$this->plugin_object->includeClass('stack/answertest/controller.class.php');
+		$answertests = stack_ans_test_controller::get_available_ans_tests();
+		$answertestchoices = array();
+
+		foreach ($answertests as $test => $string)
+		{
+			$answertestchoices[$test] = stack_string($string);
+		}
+		$answer_test->setOptions($answertestchoices);
+		$answer_test->setInfo($this->plugin_object->txt('prt_node_answer_test_info'));
+		$answer_test->setValue($prts_data['prt_node_answer_test']);
+		$form->addItem($answer_test);
+
+		//Test-Options
+		$node_options = new ilTextInputGUI($this->plugin_object->txt('prt_node_options'), 'prt_node_options');
+		$node_options_info_text = $this->plugin_object->txt('prt_node_options_info');
+		$node_options->setInfo($node_options_info_text);
+		$node_options->setValue($prts_data['prt_node_options']);
+		$form->addItem($node_options);
+
+		//Quiet
+		$node_quiet = new ilSelectInputGUI($this->plugin_object->txt('prt_node_quiet'), 'prt_node_quiet');
+		$node_quiet->setOptions(array(TRUE => $lng->txt('yes'), FALSE => $lng->txt('no'),));
+		$node_quiet->setInfo($this->plugin_object->txt('prt_node_quiet_info'));
+		$node_quiet->setValue($prts_data['prt_node_quiet']);
+		$form->addItem($node_quiet);
+
+		//Mode when Positive
+		$node_pos_mode = new ilSelectInputGUI($this->plugin_object->txt('prt_node_pos_mod'), 'prt_pos_mod');
+		$node_pos_mode->setOptions(array("=" => "=", "+" => "+", "-" => "-"));
+		$node_pos_mode->setInfo($this->plugin_object->txt('prt_node_pos_mod_info'));
+		$node_pos_mode->setValue($prts_data['prt_pos_mod']);
+		$form->addItem($node_pos_mode);
+
+		//Positive score
+		$node_pos_score = new ilTextInputGUI($this->plugin_object->txt('prt_node_pos_score'), 'prt_pos_score');
+		$node_pos_score->setInfo($this->plugin_object->txt('prt_node_pos_score_info'));
+		$node_pos_score->setValue($prts_data['prt_pos_score']);
+		$form->addItem($node_pos_score);
+
+		//Positive penalty
+		$node_pos_penalty = new ilTextInputGUI($this->plugin_object->txt('prt_node_pos_penalty'), 'prt_pos_penalty');
+		$node_pos_penalty->setInfo($this->plugin_object->txt('prt_node_pos_penalty_info'));
+		$node_pos_penalty->setValue($prts_data['prt_pos_penalty']);
+		$form->addItem($node_pos_penalty);
+
+		//Positive answer note
+		$node_pos_answernote = new ilTextInputGUI($this->plugin_object->txt('prt_node_pos_answernote'), 'prt_pos_answernote');
+		$node_pos_answernote->setInfo($this->plugin_object->txt('prt_node_pos_answernote_info'));
+		$node_pos_answernote->setValue($prts_data['prt_pos_answernote']);
+		$form->addItem($node_pos_answernote);
+
+		//Mode when Negative
+		$node_neg_mode = new ilSelectInputGUI($this->plugin_object->txt('prt_node_neg_mod'), 'prt_neg_mod');
+		$node_neg_mode->setOptions(array("=" => "=", "+" => "+", "-" => "-"));
+		$node_neg_mode->setInfo($this->plugin_object->txt('prt_node_neg_mod_info'));
+		$node_neg_mode->setValue($prts_data['prt_neg_mod']);
+		$form->addItem($node_neg_mode);
+
+		//Negative score
+		$node_neg_score = new ilTextInputGUI($this->plugin_object->txt('prt_node_neg_score'), 'prt_neg_score');
+		$node_neg_score->setInfo($this->plugin_object->txt('prt_node_neg_score_info'));
+		$node_neg_score->setValue($prts_data['prt_neg_score']);
+		$form->addItem($node_neg_score);
+
+		//Negative penalty
+		$node_neg_penalty = new ilTextInputGUI($this->plugin_object->txt('prt_node_neg_penalty'), 'prt_neg_penalty');
+		$node_neg_penalty->setInfo($this->plugin_object->txt('prt_node_neg_penalty_info'));
+		$node_neg_penalty->setValue($prts_data['prt_neg_penalty']);
+		$form->addItem($node_neg_penalty);
+
+		//Negative answer note
+		$node_neg_answernote = new ilTextInputGUI($this->plugin_object->txt('prt_node_neg_answernote'), 'prt_neg_answernote');
+		$node_neg_answernote->setInfo($this->plugin_object->txt('prt_node_neg_answernote_info'));
+		$node_neg_answernote->setValue($prts_data['prt_neg_answernote']);
+		$form->addItem($node_neg_answernote);
+
+		$form->setTitle($this->plugin_object->txt('default_prts_settings'));
+		$form->addCommandButton("saveDefaultPRTsSettings", $this->plugin_object->txt("save"));
+		$form->addCommandButton("showDefaultPRTsSettings", $this->plugin_object->txt("cancel"));
+		$form->addCommandButton("setDefaultSettingsForPRTs", $this->plugin_object->txt("default_settings"));
 
 		return $form;
 	}
@@ -559,7 +689,8 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$healthcheck_object = new assStackQuestionHealthcheck($this->plugin_object);
 		$cache_is_clear = $healthcheck_object->clearCache();
 
-		if ($cache_is_clear) {
+		if ($cache_is_clear)
+		{
 			ilUtil::sendSuccess($this->plugin_object->txt('cache_successfully_deleted'));
 		}
 
@@ -573,28 +704,31 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 	public function saveConnectionSettings()
 	{
-	    try
-        {
-            $ok = $this->config->saveConnectionSettings();
-            if ($ok) {
-                ilUtil::sendSuccess($this->plugin_object->txt('config_connection_changed_message'));
-            } else {
-                ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
-            }
-        }
-        catch (Exception $exception )
-        {
-            ilUtil::sendFailure($exception->getMessage());
-        }
+		try
+		{
+			$ok = $this->config->saveConnectionSettings();
+			if ($ok)
+			{
+				ilUtil::sendSuccess($this->plugin_object->txt('config_connection_changed_message'));
+			} else
+			{
+				ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
+			}
+		} catch (Exception $exception)
+		{
+			ilUtil::sendFailure($exception->getMessage());
+		}
 		$this->showConnectionSettings();
 	}
 
 	public function saveDisplaySettings()
 	{
 		$ok = $this->config->saveDisplaySettings();
-		if ($ok) {
+		if ($ok)
+		{
 			ilUtil::sendSuccess($this->plugin_object->txt('config_display_changed_message'));
-		} else {
+		} else
+		{
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showDisplaySettings();
@@ -603,9 +737,11 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function saveDefaultOptionsSettings()
 	{
 		$ok = $this->config->saveDefaultOptionsSettings();
-		if ($ok) {
+		if ($ok)
+		{
 			ilUtil::sendSuccess($this->plugin_object->txt('config_options_changed_message'));
-		} else {
+		} else
+		{
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showDefaultOptionsSettings();
@@ -614,12 +750,27 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function saveDefaultInputsSettings()
 	{
 		$ok = $this->config->saveDefaultInputsSettings();
-		if ($ok) {
+		if ($ok)
+		{
 			ilUtil::sendSuccess($this->plugin_object->txt('config_inputs_changed_message'));
-		} else {
+		} else
+		{
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showDefaultInputsSettings();
+	}
+
+	public function saveDefaultPRTsSettings()
+	{
+		$ok = $this->config->saveDefaultPRTsSettings();
+		if ($ok)
+		{
+			ilUtil::sendSuccess($this->plugin_object->txt('config_prts_changed_message'));
+		} else
+		{
+			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
+		}
+		$this->showDefaultPRTsSettings();
 	}
 
 	/*
@@ -629,9 +780,11 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function setDefaultSettingsForConnection()
 	{
 		$ok = $this->config->setDefaultSettingsForConnection();
-		if ($ok) {
+		if ($ok)
+		{
 			ilUtil::sendSuccess($this->plugin_object->txt('config_default_connection_message'));
-		} else {
+		} else
+		{
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showConnectionSettings();
@@ -640,9 +793,11 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function setDefaultSettingsForDisplay()
 	{
 		$ok = $this->config->setDefaultSettingsForDisplay();
-		if ($ok) {
+		if ($ok)
+		{
 			ilUtil::sendSuccess($this->plugin_object->txt('config_default_display_message'));
-		} else {
+		} else
+		{
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showDisplaySettings();
@@ -651,9 +806,11 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function setDefaultSettingsForOptions()
 	{
 		$ok = $this->config->setDefaultSettingsForOptions();
-		if ($ok) {
+		if ($ok)
+		{
 			ilUtil::sendSuccess($this->plugin_object->txt('config_default_options_message'));
-		} else {
+		} else
+		{
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showDefaultOptionsSettings();
@@ -664,11 +821,25 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$ok = $this->config->setDefaultSettingsForInputs();
 		if ($ok) {
 			ilUtil::sendSuccess($this->plugin_object->txt('config_default_inputs_message'));
-		} else {
+		} else
+		{
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showDefaultInputsSettings();
 	}
+
+	public function setDefaultSettingsForPRTs()
+	{
+		$ok = $this->config->setDefaultSettingsForPRTs();
+		if ($ok) {
+			ilUtil::sendSuccess($this->plugin_object->txt('config_default_prts_message'));
+		} else
+		{
+			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
+		}
+		$this->showDefaultPRTsSettings();
+	}
+
 	/**
 	 * Set the STACK specific rich text editing support in textarea fields
 	 * This uses an own module instead of "assessment" to determine the allowed tags

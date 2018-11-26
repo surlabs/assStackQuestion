@@ -65,3 +65,15 @@ td.stack_textarea {
     /*Icon*/
     top:0.25em;
 }
+
+/*Workaround for hidden button but validation shown*/
+span.val-button-below > span.input-group {
+    display: inline-block!important;
+    vertical-align: top;
+}
+span.val-button-below input {
+    display: block!important;
+}
+span.val-button-hidden span.input-group-addon {
+    display: none!important;
+}

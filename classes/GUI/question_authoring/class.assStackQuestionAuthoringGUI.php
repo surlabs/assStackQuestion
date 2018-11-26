@@ -120,6 +120,8 @@ class assStackQuestionAuthoringGUI
 			$this->new_question = TRUE;
 			$this->getQuestionGUI()->object->setQuestion("[[input:ans1]] [[validation:ans1]]");
 			$this->getQuestionGUI()->object->setPoints("1");
+			require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
+			$this->default = assStackQuestionConfig::_getStoredSettings("all");
 		}
 
 		//Add question title when blank
@@ -304,7 +306,6 @@ class assStackQuestionAuthoringGUI
 		$options_assume_positive = new ilCheckboxInputGUI($this->getPlugin()->txt('options_assume_positive'), 'options_assume_positive');
 		$options_assume_positive->setInfo($this->getPlugin()->txt('options_assume_positive_info'));
 
-
 		//Options Standard feedback for correct answer
 		$options_prt_correct = new ilTextAreaInputGUI($this->getPlugin()->txt('options_prt_correct'), 'options_prt_correct');
 		$this->getQuestionGUI()->setRTESupport($options_prt_correct);
@@ -315,12 +316,10 @@ class assStackQuestionAuthoringGUI
 		$this->getQuestionGUI()->setRTESupport($options_prt_partially_correct);
 		$options_prt_partially_correct->setInfo($this->addInfoTooltip("html"));
 
-
 		//Options Standard feedback for incorrect answer
 		$options_prt_incorrect = new ilTextAreaInputGUI($this->getPlugin()->txt('options_prt_incorrect'), 'options_prt_incorrect');
 		$this->getQuestionGUI()->setRTESupport($options_prt_incorrect);
 		$options_prt_incorrect->setInfo($this->addInfoTooltip("html"));
-
 
 		//Options multiplication sign
 		$options_multiplication_sign = new ilSelectInputGUI($this->getPlugin()->txt('options_multiplication_sign'), 'options_multiplication_sign');
@@ -342,7 +341,7 @@ class assStackQuestionAuthoringGUI
 		$options_inverse_trigonometric->setInfo($this->getPlugin()->txt('options_inverse_trigonometric_info'));
 
 		//Matrix Parens
-		$options_matrix_parens = new ilSelectInputGUI($this->getPlugin()->txt('options_matrix_parens'), 'options_matrix_parens');
+		$options_matrix_parens = new ilSelectInputGUI($this->getPlugin()->txt('options_matrix_parens'), 'options_matrix_parents');
 		$options_matrix_parens->setInfo($this->getPlugin()->txt('options_matrix_parens_info'));
 		$options_matrix_parens->setOptions(array("[" => "[", "(" => "(", "" => "", "{" => "{", "|" => "|"));
 
@@ -354,17 +353,33 @@ class assStackQuestionAuthoringGUI
 
 		$this->getQuestionGUI()->setRTESupport($how_to_solve);
 
-		//Set value if exists
-		$options_question_simplify->setChecked($options->getQuestionSimplify());
-		$options_assume_positive->setChecked((int)$options->getAssumePositive());
-		$options_prt_correct->setValue($options->getPRTCorrect());
-		$options_prt_partially_correct->setValue($options->getPRTPartiallyCorrect());
-		$options_prt_incorrect->setValue($options->getPRTIncorrect());
-		$options_multiplication_sign->setValue($options->getMultiplicationSign());
-		$options_sqrt_sign->setChecked($options->getSqrtSign());
-		$options_complex_numbers->setValue($options->getComplexNumbers());
-		$options_inverse_trigonometric->setValue($options->getInverseTrig());
-		$options_matrix_parens->setValue($options->getMatrixParens());
+		//Set value if exists if not default values
+		if ($this->new_question)
+		{
+			$options_question_simplify->setChecked((int)$this->default["options_question_simplify"]);
+			$options_assume_positive->setChecked((int)$this->default["options_assume_positive"]);
+			$options_prt_correct->setValue($this->default["options_prt_correct"]);
+			$options_prt_partially_correct->setValue($this->default["options_prt_partially_correct"]);
+			$options_prt_incorrect->setValue($this->default["options_prt_incorrect"]);
+			$options_multiplication_sign->setValue($this->default["options_multiplication_sign"]);
+			$options_sqrt_sign->setChecked((int)$this->default["options_sqrt_sign"]);
+			$options_complex_numbers->setValue($this->default["options_complex_numbers"]);
+			$options_inverse_trigonometric->setValue($this->default["options_inverse_trigonometric"]);
+			$options_matrix_parens->setValue($this->default["options_matrix_parents"]);
+		} else
+		{
+			$options_question_simplify->setChecked($options->getQuestionSimplify());
+			$options_assume_positive->setChecked((int)$options->getAssumePositive());
+			$options_prt_correct->setValue($options->getPRTCorrect());
+			$options_prt_partially_correct->setValue($options->getPRTPartiallyCorrect());
+			$options_prt_incorrect->setValue($options->getPRTIncorrect());
+			$options_multiplication_sign->setValue($options->getMultiplicationSign());
+			$options_sqrt_sign->setChecked($options->getSqrtSign());
+			$options_complex_numbers->setValue($options->getComplexNumbers());
+			$options_inverse_trigonometric->setValue($options->getInverseTrig());
+			$options_matrix_parens->setValue($options->getMatrixParens());
+		}
+
 		$how_to_solve->setValue($extra_info->getHowToSolve());
 
 		//Add to form
@@ -393,7 +408,7 @@ class assStackQuestionAuthoringGUI
 		$part = new ilMultipartFormPart($this->getPlugin()->txt('show_input') . ' ' . $input->getInputName());
 
 		$input_type = new ilSelectInputGUI($this->getPlugin()->txt('input_type'), $input->getInputName() . '_input_type');
-		$input_type->setOptions(array("algebraic" => $this->getPlugin()->txt('input_type_algebraic'), "boolean" => $this->getPlugin()->txt('input_type_boolean'), "matrix" => $this->getPlugin()->txt('input_type_matrix'), "singlechar" => $this->getPlugin()->txt('input_type_singlechar'), "textarea" => $this->getPlugin()->txt('input_type_textarea') , "checkbox" => $this->getPlugin()->txt('input_type_checkbox'), "dropdown" => $this->getPlugin()->txt('input_type_dropdown'), "equiv" => $this->getPlugin()->txt('input_type_equiv'), "notes" => $this->getPlugin()->txt('input_type_notes'), "radio" => $this->getPlugin()->txt('input_type_radio'), "units" => $this->getPlugin()->txt('input_type_units'), "string" => $this->getPlugin()->txt('input_type_string'), "numerical" => $this->getPlugin()->txt('input_type_numerical')));
+		$input_type->setOptions(array("algebraic" => $this->getPlugin()->txt('input_type_algebraic'), "boolean" => $this->getPlugin()->txt('input_type_boolean'), "matrix" => $this->getPlugin()->txt('input_type_matrix'), "singlechar" => $this->getPlugin()->txt('input_type_singlechar'), "textarea" => $this->getPlugin()->txt('input_type_textarea'), "checkbox" => $this->getPlugin()->txt('input_type_checkbox'), "dropdown" => $this->getPlugin()->txt('input_type_dropdown'), "equiv" => $this->getPlugin()->txt('input_type_equiv'), "notes" => $this->getPlugin()->txt('input_type_notes'), "radio" => $this->getPlugin()->txt('input_type_radio'), "units" => $this->getPlugin()->txt('input_type_units'), "string" => $this->getPlugin()->txt('input_type_string'), "numerical" => $this->getPlugin()->txt('input_type_numerical')));
 		$input_type->setInfo($this->getPlugin()->txt('input_type_info'));
 		$input_type->setRequired(TRUE);
 
@@ -442,21 +457,40 @@ class assStackQuestionAuthoringGUI
 		$input_options_info_text .= $this->addInfoTooltip("cas_expression");
 		$input_options->setInfo($input_options_info_text);
 
-		//Set Value
-		$input_type->setValue($input->getInputType());
-		$input_model_answer->setValue($input->getTeacherAnswer());
-		$input_box_size->setValue($input->getBoxSize());
-		$input_strict_syntax->setChecked($input->getStrictSyntax());
-		$input_insert_stars->setChecked($input->getInsertStars());
-		$input_syntax_hint->setValue($input->getSyntaxHint());
-		$input_forbidden_words->setValue($input->getForbidWords());
-		$input_allow_words->setValue($input->getAllowWords());
-		$input_forbid_float->setChecked($input->getForbidFloat());
-		$input_require_lowest_terms->setChecked($input->getRequireLowestTerms());
-		$input_check_answer_type->setChecked($input->getCheckAnswerType());
-		$input_must_verify->setChecked($input->getMustVerify());
-		$input_show_validation->setValue($input->getShowValidation());
-		$input_options->setValue($input->getOptions());
+		//Set value if exists if not default values
+		if ($this->new_question)
+		{
+			$input_type->setValue($this->default["input_type"]);
+			//$input_model_answer->setValue($this->default[""]);
+			$input_box_size->setValue($this->default["input_box_size"]);
+			$input_strict_syntax->setChecked((int)$this->default["input_strict_syntax"]);
+			$input_insert_stars->setChecked((int)$this->default["input_insert_stars"]);
+			$input_syntax_hint->setValue($this->default["input_syntax_hint"]);
+			$input_forbidden_words->setValue($this->default["input_forbidden_words"]);
+			$input_allow_words->setValue($this->default["input_allow_words"]);
+			$input_forbid_float->setChecked((int)$this->default["input_forbid_float"]);
+			$input_require_lowest_terms->setChecked((int)$this->default["input_require_lowest_terms"]);
+			$input_check_answer_type->setChecked((int)$this->default["input_check_answer_type"]);
+			$input_must_verify->setChecked((int)$this->default["input_must_verify"]);
+			$input_show_validation->setValue((int)$this->default["input_show_validation"]);
+			$input_options->setValue($this->default["input_extra_options"]);
+		} else
+		{
+			$input_type->setValue($input->getInputType());
+			$input_model_answer->setValue($input->getTeacherAnswer());
+			$input_box_size->setValue($input->getBoxSize());
+			$input_strict_syntax->setChecked($input->getStrictSyntax());
+			$input_insert_stars->setChecked($input->getInsertStars());
+			$input_syntax_hint->setValue($input->getSyntaxHint());
+			$input_forbidden_words->setValue($input->getForbidWords());
+			$input_allow_words->setValue($input->getAllowWords());
+			$input_forbid_float->setChecked($input->getForbidFloat());
+			$input_require_lowest_terms->setChecked($input->getRequireLowestTerms());
+			$input_check_answer_type->setChecked($input->getCheckAnswerType());
+			$input_must_verify->setChecked($input->getMustVerify());
+			$input_show_validation->setValue($input->getShowValidation());
+			$input_options->setValue($input->getOptions());
+		}
 
 		//Add form properties
 		$part->addFormProperty($input_type);
@@ -644,7 +678,14 @@ class assStackQuestionAuthoringGUI
 
 		//Set value of parts in case there are parts.
 		$prt_value->setValue($prt->getPRTValue());
-		$prt_simplify->setValue($prt->getAutoSimplify());
+		//Set value if exists if not default values
+		if ($this->new_question)
+		{
+			$prt_simplify->setValue($this->default["prt_simplify"]);
+		} else
+		{
+			$prt_simplify->setValue($prt->getAutoSimplify());
+		}
 		$prt_feedback_variables->setValue($prt->getPRTFeedbackVariables());
 
 		//Add properties to form
@@ -768,36 +809,48 @@ class assStackQuestionAuthoringGUI
 		}
 		$answer_test->setOptions($answertestchoices);
 		$answer_test->setInfo($this->getPlugin()->txt('prt_node_answer_test_info'));
-		$answer_test->setValue($node->getAnswerTest());
-		$common_node_part->addFormProperty($answer_test);
 
 		$node_student_answer = new ilTextInputGUI($this->getPlugin()->txt('prt_node_student_answer'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_student_answer');
 		$node_student_answer_info_text = $this->getPlugin()->txt('prt_node_student_answer_info') . "</br>";
 		$node_student_answer_info_text .= $this->addInfoTooltip("cas_expression");
 		$node_student_answer->setInfo($node_student_answer_info_text);
-		$node_student_answer->setValue($node->getStudentAnswer() == " " ? '' : $node->getStudentAnswer());
 		$node_student_answer->setRequired(TRUE);
-		$common_node_part->addFormProperty($node_student_answer);
 
 		$node_teacher_answer = new ilTextInputGUI($this->getPlugin()->txt('prt_node_teacher_answer'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_teacher_answer');
 		$node_teacher_answer_info_text = $this->getPlugin()->txt('prt_node_teacher_answer_info') . "</br>";
 		$node_teacher_answer_info_text .= $this->addInfoTooltip("cas_expression");
 		$node_teacher_answer->setInfo($node_teacher_answer_info_text);
-		$node_teacher_answer->setValue($node->getTeacherAnswer() == " " ? '' : $node->getTeacherAnswer());
 		$node_teacher_answer->setRequired(TRUE);
-		$common_node_part->addFormProperty($node_teacher_answer);
 
 		$node_options = new ilTextInputGUI($this->getPlugin()->txt('prt_node_options'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_options');
 		$node_options_info_text = $this->getPlugin()->txt('prt_node_options_info') . "</br>";
 		$node_options_info_text .= $this->addInfoTooltip("cas_expression");
 		$node_options->setInfo($node_options_info_text);
-		$node_options->setValue($node->getTestOptions());
-		$common_node_part->addFormProperty($node_options);
 
 		$node_quiet = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_quiet'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_quiet');
 		$node_quiet->setOptions(array(TRUE => $lng->txt('yes'), FALSE => $lng->txt('no'),));
 		$node_quiet->setInfo($this->getPlugin()->txt('prt_node_quiet_info'));
-		$node_quiet->setValue($node->getQuiet());
+
+		if ($this->new_question)
+		{
+			$answer_test->setValue($this->default["prt_node_answer_test"]);
+			//$node_student_answer->setValue($this->default[""]);
+			//$node_teacher_answer->setValue($this->default[""]);
+			$node_options->setValue($this->default["prt_node_options"]);
+			$node_quiet->setValue($this->default["prt_node_quiet"]);
+		} else
+		{
+			$answer_test->setValue($node->getAnswerTest());
+			$node_student_answer->setValue($node->getStudentAnswer() == " " ? '' : $node->getStudentAnswer());
+			$node_teacher_answer->setValue($node->getTeacherAnswer() == " " ? '' : $node->getTeacherAnswer());
+			$node_options->setValue($node->getTestOptions());
+			$node_quiet->setValue($node->getQuiet());
+		}
+
+		$common_node_part->addFormProperty($answer_test);
+		$common_node_part->addFormProperty($node_student_answer);
+		$common_node_part->addFormProperty($node_teacher_answer);
+		$common_node_part->addFormProperty($node_options);
 		$common_node_part->addFormProperty($node_quiet);
 
 		if ($prt->getPRTName() != 'new_prt' AND $node->getNodeName() != $prt->getPRTName() . '_new_node')
@@ -867,13 +920,25 @@ class assStackQuestionAuthoringGUI
 
 		$this->getQuestionGUI()->setRTESupport($node_pos_specific_feedback);
 
-		//Set value
-		$node_pos_mode->setValue($node->getTrueScoreMode());
-		$node_pos_score->setValue($node->getTrueScore());
-		$node_pos_penalty->setValue($node->getTruePenalty());
-		$node_pos_next_node->setValue($node->getTrueNextNode());
-		$node_pos_answernote->setValue($node->getTrueAnswerNote());
-		$node_pos_specific_feedback->setValue($node->getTrueFeedback());
+		//Set value if exists if not default values
+		if ($this->new_question)
+		{
+			$node_pos_mode->setValue($this->default["prt_pos_mod"]);
+			$node_pos_score->setValue($this->default["prt_pos_score"]);
+			$node_pos_penalty->setValue($this->default["prt_pos_penalty"]);
+			//$node_pos_next_node->setValue($this->default[""]);
+			$node_pos_answernote->setValue($this->default["prt_pos_answernote"]);
+			//$node_pos_specific_feedback->setValue($this->default[""]);
+		} else
+		{
+			$node_pos_mode->setValue($node->getTrueScoreMode());
+			$node_pos_score->setValue($node->getTrueScore());
+			$node_pos_penalty->setValue($node->getTruePenalty());
+			$node_pos_next_node->setValue($node->getTrueNextNode());
+			$node_pos_answernote->setValue($node->getTrueAnswerNote());
+			$node_pos_specific_feedback->setValue($node->getTrueFeedback());
+		}
+
 
 		//Add part to form
 		$positive_part->addFormProperty($node_pos_mode);
@@ -936,13 +1001,24 @@ class assStackQuestionAuthoringGUI
 
 		$this->getQuestionGUI()->setRTESupport($node_neg_specific_feedback);
 
-		//Set value
-		$node_neg_mode->setValue($node->getFalseScoreMode());
-		$node_neg_score->setValue($node->getFalseScore());
-		$node_neg_penalty->setValue($node->getFalsePenalty());
-		$node_neg_next_node->setValue($node->getFalseNextNode());
-		$node_neg_answernote->setValue($node->getFalseAnswerNote());
-		$node_neg_specific_feedback->setValue($node->getFalseFeedback());
+		//Set value if exists if not default values
+		if ($this->new_question)
+		{
+			$node_neg_mode->setValue($this->default["prt_neg_mod"]);
+			$node_neg_score->setValue($this->default["prt_neg_score"]);
+			$node_neg_penalty->setValue($this->default["prt_neg_penalty"]);
+			//$node_neg_next_node->setValue($this->default[""]);
+			$node_neg_answernote->setValue($this->default["prt_neg_answernote"]);
+			//$node_neg_specific_feedback->setValue($this->default[""]);
+		} else
+		{
+			$node_neg_mode->setValue($node->getFalseScoreMode());
+			$node_neg_score->setValue($node->getFalseScore());
+			$node_neg_penalty->setValue($node->getFalsePenalty());
+			$node_neg_next_node->setValue($node->getFalseNextNode());
+			$node_neg_answernote->setValue($node->getFalseAnswerNote());
+			$node_neg_specific_feedback->setValue($node->getFalseFeedback());
+		}
 
 		//Add properties to form
 		$negative_part->addFormProperty($node_neg_mode);
