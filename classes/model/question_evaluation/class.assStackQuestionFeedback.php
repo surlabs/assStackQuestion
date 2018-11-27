@@ -398,7 +398,8 @@ class assStackQuestionFeedback
 				$matrix_input_columns = (int)$input->width;
 
 				$correct_matrix = "<table class='xqcas_matrix_validation' style='display:inline'>";
-				$correct_matrix_display = "<table>";
+				//Solve https://mantis.ilias.de/view.php?id=23837
+				$correct_matrix_display = "<table class='xqcas_matrix_validation' style='display:inline'>";
 				for ($i = 0; $i < $matrix_input_rows; $i++)
 				{
 					$correct_matrix .= "<tr>";
