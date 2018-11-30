@@ -102,6 +102,9 @@ Version 3.0.12 (2018-11-30) for ILIAS 5.3
 ----------------------------------------
 - Solved some problems with best solution display when question variables are used in model answer in algebraic inputs.
 - Solved some problems with Matrix display in best solution
+The following bug reports were fixed:
+- https://mantis.ilias.de/view.php?id=23977
+- https://mantis.ilias.de/view.php?id=23895 about syntax hints
 
 Version 3.0.11 (2018-11-26) for ILIAS 5.3
 ----------------------------------------

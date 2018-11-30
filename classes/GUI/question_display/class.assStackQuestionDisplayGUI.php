@@ -362,14 +362,21 @@ class assStackQuestionDisplayGUI
 		$input_tpl = $this->getPlugin()->getTemplate("tpl.il_as_qpl_xqcas_algebraic_input.html");
 		//Set input name
 		$input_tpl->setVariable('INPUT_NAME', 'xqcas_' . $this->getDisplay('question_id') . '_' . $input_info->name);
-		//Set input syntax hint
-		$input_tpl->setVariable('SYNTAX_HINT', $input_info->input->get_parameter('syntaxHint'));
 		//Set size
 		$input_tpl->setVariable('INPUT_SIZE', $input_info->input->get_parameter('boxWidth') * 1.1);
 		//Set input value
 		$input_state = $input_info->state;
 		$input_value = $input_info->input->contents_to_maxima($input_state->contents);
-		$input_tpl->setVariable('INPUT_VALUE', $input_value);
+
+		if (!strlen($input_value) AND strlen($input_info->input->get_parameter('syntaxHint')))
+		{
+			//Use syntax hint
+			$input_tpl->setVariable('INPUT_VALUE', $input_info->input->get_parameter('syntaxHint'));
+		} else
+		{
+			//Use value
+			$input_tpl->setVariable('INPUT_VALUE', $input_value);
+		}
 
 		//Add validation button if needed
 		if ($input_info->input->get_parameter('showValidation') AND !assStackQuestionUtils::_useInstantValidation())
