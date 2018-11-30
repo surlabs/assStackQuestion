@@ -91,7 +91,7 @@ class assStackQuestionDisplay
 	 * This method is called from assStackQuestionGUI or assStackQuestionPreview to get the question Display.
 	 * @return array STACK Questiontion display data
 	 */
-	public function getQuestionDisplayData($in_test = FALSE)
+	public function getQuestionDisplayData($in_test = FALSE, $stepwise_feedback = FALSE)
 	{
 		$display_data = array();
 
@@ -149,8 +149,16 @@ class assStackQuestionDisplay
 		//Step 2: Get the replacement per each Feedback placeholder
 		foreach ($this->getQuestion()->getPRTs() as $prt_name => $prt)
 		{
+			//UzK:
 			//Step 1.1: Replacement for input placeholders
-			$display_data['prts'][$prt_name]['display'] = $this->replacementForPRTPlaceholders($prt, $prt_name, $in_test);
+			if ($stepwise_feedback)
+			{
+				$display_data['prts'][$prt_name]['display'] = $this->replacementForStepwisePlaceholders($prt, $prt_name, $in_test);
+			} else
+			{
+				$display_data['prts'][$prt_name]['display'] = $this->replacementForPRTPlaceholders($prt, $prt_name, $in_test);
+			}
+			//UzK.
 		}
 
 		return $display_data;
@@ -573,5 +581,19 @@ class assStackQuestionDisplay
 		}
 	}
 
+	//UzK:
+	public function replacementForStepwisePlaceholders($prt, $prt_name, $in_test)
+	{
+		$string = "";
+
+		global $DIC;
+		$lng = $DIC->language();
+		$string .= '<button type="button" class="btn btn-default" name="cmd[xqcas_step_' . $this->getQuestion()->getQuestionId() . '_' . $prt_name . ']">' . $lng->txt("check") . '</button>';
+		$string .= '<div id="validation_xqcas_roll_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div><div class="xqcas_input_validation"><div id="validation_xqcas_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div></div>';
+		$string .= '</br>' . $this->replacementForPRTPlaceholders($prt, $prt_name, $in_test);
+
+		return $string;
+	}
+	//UzK.
 
 }

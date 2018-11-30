@@ -481,7 +481,9 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		$value_format_user_response = assStackQuestionUtils::_getUserResponse($this->object->getId(), $this->object->getStackQuestion()->getInputs(), $feedback_data);
 		$question_display_object = new assStackQuestionDisplay($this->plugin, $this->object->getStackQuestion(), $value_format_user_response, $feedback_data);
-		$question_display_data = $question_display_object->getQuestionDisplayData(TRUE);
+		//UzK:
+		$question_display_data = $question_display_object->getQuestionDisplayData(TRUE, $this->object->getOptions()->getStepwiseFeedback());
+		//UzK.
 
 		//Get question display GUI
 		$question_display_gui_object = new assStackQuestionDisplayGUI($this->plugin, $question_display_data);

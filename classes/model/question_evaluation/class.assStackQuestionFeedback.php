@@ -214,7 +214,6 @@ class assStackQuestionFeedback
 				//UzK.
 			}
 		}
-
 		return $feedback;
 	}
 

@@ -135,7 +135,7 @@ class assStackQuestionDisplayGUI
 				if ($this->getDisplay('validation', $input_name) == 'instant')
 				{
 					//Instant validation
-					$validation = $this->validationDisplayDivision($input_name, $input);
+					$validation = $this-> validationDisplayDivision($input_name, $input);
 					$this->setDisplay($validation, 'validation', $input_name);
 				} elseif ($this->getDisplay('validation', $input_name) == 'button')
 				{
