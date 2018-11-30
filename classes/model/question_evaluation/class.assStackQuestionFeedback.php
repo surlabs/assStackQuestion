@@ -317,9 +317,16 @@ class assStackQuestionFeedback
 
 			if (is_a($input, "stack_string_input"))
 			{
-				$correct_answer = $this->getQuestion()->getSession()->get_value_key($input->get_teacher_answer());
+				$correct_answer_array = $input->get_correct_response($this->getQuestion()->getSession()->get_value_key($input_name, true));
+				$correct_answer = $correct_answer_array[$input_name];
+				if (!$correct_answer)
+				{
+					$correct_answer = $input->get_teacher_answer();
+				}
+
 				$input_size = strlen($correct_answer) * 1.1;
-				$input_html_display = '<input type="text" size="' . $input_size . '" id="xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '_postvalidation" value=' . $correct_answer . ' disabled="disabled">';
+				//Notice this is different to other due to quotes wrapping value
+				$input_html_display = '<input type="text" size="' . $input_size . '" id="xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '_postvalidation" value="' . $correct_answer . '" disabled="disabled">';
 				$result = array();
 				$result["value"] = $input_html_display;
 				$result["display"] = "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . '<code>' . $correct_answer . '</code>' . $this->format_correct_response($input_name) . "</td></tr></table>";
@@ -328,7 +335,8 @@ class assStackQuestionFeedback
 			}
 			if (is_a($input, "stack_algebraic_input"))
 			{
-				$correct_answer = $this->getQuestion()->getSession()->get_value_key($input->get_teacher_answer());
+				$correct_answer_array = $input->get_correct_response($this->getQuestion()->getSession()->get_value_key($input_name, true));
+				$correct_answer = $correct_answer_array[$input_name];
 				if (!$correct_answer)
 				{
 					$correct_answer = $input->get_teacher_answer();
