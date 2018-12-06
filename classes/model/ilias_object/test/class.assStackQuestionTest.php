@@ -196,10 +196,10 @@ class assStackQuestionTest
 	{
 		//This method should be called when the assStackQuestionTest obj is created.
 		//This attributes cannot be null or void in any case.
-		if ($this->getQuestionId() == NULL OR $this->getQuestionId() == "") {
+		if ($this->getQuestionId() === NULL OR $this->getQuestionId() === "") {
 			return false;
 		}
-		if ($this->getTestCase() == NULL OR $this->getTestCase() == "") {
+		if ($this->getTestCase() === NULL OR $this->getTestCase() === "") {
 			return false;
 		}
 		//Arrays filled in:

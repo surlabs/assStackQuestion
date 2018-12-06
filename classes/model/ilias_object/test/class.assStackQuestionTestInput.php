@@ -167,21 +167,21 @@ class assStackQuestionTestInput
 	{
 		//This method should be called when the assStackQuestionTestInput obj is created.
 		//This attributes cannot be null or void in any case.
-		if ($this->getQuestionId() == NULL OR $this->getQuestionId() == "") {
+		if ($this->getQuestionId() === NULL OR $this->getQuestionId() === "") {
 			return false;
 		}
-		if ($this->getTestCase() == NULL OR $this->getTestCase() == "") {
+		if ($this->getTestCase() === NULL OR $this->getTestCase() === "") {
 			return false;
 		}
 		//Other Not Null variables:
-		if ($this->getTestInputName() == NULL OR $this->getTestInputName() == "") {
+		if ($this->getTestInputName() === NULL OR $this->getTestInputName() === "") {
 			if ($solve_problems) {
 				$this->setTestInputName("");
 			} else {
 				return false;
 			}
 		}
-		if ($this->getTestInputValue() == NULL OR $this->getTestInputValue() == "") {
+		if ($this->getTestInputValue() === NULL OR $this->getTestInputValue() === "") {
 			if ($solve_problems) {
 				$this->setTestInputValue("");
 			} else {

@@ -195,13 +195,13 @@ class assStackQuestionTestExpected
 	{
 		//This method should be called when the assStackQuestionTestExpected obj is created.
 		//This attributes cannot be null or void in any case.
-		if ($this->getQuestionId() == NULL OR $this->getQuestionId() == "") {
+		if ($this->getQuestionId() === NULL OR $this->getQuestionId() === "") {
 			return false;
 		}
-		if ($this->getTestCase() == NULL OR $this->getTestCase() == "") {
+		if ($this->getTestCase() === NULL OR $this->getTestCase() === "") {
 			return false;
 		}
-		if ($this->getTestPRTName() == NULL OR $this->getTestPRTName() == "") {
+		if ($this->getTestPRTName() === NULL OR $this->getTestPRTName() === "") {
 			return false;
 		}
 		//Other Not Null variables:
