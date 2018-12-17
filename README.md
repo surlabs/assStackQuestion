@@ -98,6 +98,15 @@ PLEASE BACKUP YOUR DATABASE before you run the update from an older version. Dep
 The translation is also done when importing questions from ILIAS or MoodleXML, but please notice that this conversion is one way.You can import "old CASText behaviour" questions to a platform with STACK plugin version 3.0+.
 But if you import "new CASText behaviour" questions to a platform with a previous version of the plugin, your question will not be properly shown on that platform.
 
+Version 3.0.13 (2018-12-17) for ILIAS 5.3 - UzK Branch (Beta)
+----------------------------------------
+This version has been made for the University of Cologne to support specific features, the following features has been implemented:
+- Feedback styles for PRT feedback: Now PRT authoring interface has a new field to decide the style of the feedback, and some different styles has been added in the plugin configuration.
+- Stepwise feedback: A new option has been added to question options, if activated and the feedback placeholder is included in the question text, a new button appears in the question to evaluate that PRT. (This feature is not active in this beta version for Matrix, Textarea and Equivalence input types)
+Known issues:
+- Linebreaks after the input dissapear after clicking the stepwise evaluation button.
+- Error message when input has not valid entries is not properly displayed
+
 Version 3.0.12 (2018-11-30) for ILIAS 5.3
 ----------------------------------------
 - Solved some problems with best solution display when question variables are used in model answer in algebraic inputs.

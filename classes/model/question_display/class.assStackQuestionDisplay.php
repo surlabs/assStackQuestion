@@ -589,7 +589,7 @@ class assStackQuestionDisplay
 		global $DIC;
 		$lng = $DIC->language();
 		$string .= '<button type="button" class="btn btn-default" name="cmd[xqcas_step_' . $this->getQuestion()->getQuestionId() . '_' . $prt_name . ']">' . $lng->txt("check") . '</button>';
-		$string .= '<div id="validation_xqcas_roll_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div><div class="xqcas_input_validation"><div id="validation_xqcas_' . $this->getDisplay('question_id') . '_' . $input_name . '"></div></div>';
+		$string .= '<div id="stepwise_feedback_xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $prt_name . '">';
 		$string .= '</br>' . $this->replacementForPRTPlaceholders($prt, $prt_name, $in_test);
 
 		return $string;

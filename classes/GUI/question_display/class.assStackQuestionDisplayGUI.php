@@ -115,6 +115,15 @@ class assStackQuestionDisplayGUI
 
 					$tpl->addJavascript('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
 					$tpl->addOnLoadCode('il.assStackQuestion.init(' . json_encode($this->jsconfig) . ',' . json_encode($this->jstexts) . ')');
+
+					//UzK:
+					$this->jsstep = new stdClass();
+					$this->jsstep->step_feedback_url = ILIAS_HTTP_PATH . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/StepwiseFeedback.php";
+
+					$tpl->addJavascript('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/StepwiseFeedback.js');
+					$tpl->addOnLoadCode('il.assStackQuestionStepwise.init_stepwise(' . json_encode($this->jsstep) . ',' . json_encode($this->jstexts) . ')');
+
+					//UzK.
 					continue;
 				}
 			}
@@ -260,30 +269,30 @@ class assStackQuestionDisplayGUI
 				require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
 				global $tpl;
 				$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
-				if(strpos($display['display'], "xqcas_feedback_class_2")){
+				//if(strpos($display['display'], "xqcas_feedback_class_2")){
 					$class = $config_options["feedback_node_right"];
 					$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/".$class));
-				}
-				if(strpos($display['display'], "xqcas_feedback_class_3")){
+				//}
+				//if(strpos($display['display'], "xqcas_feedback_class_3")){
 					$class = $config_options["feedback_node_wrong"];
 					$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/".$class));
-				}
-				if(strpos($display['display'], "xqcas_feedback_class_4")){
+				//}
+				//if(strpos($display['display'], "xqcas_feedback_class_4")){
 					$class = $config_options["feedback_solution_hint"];
 					$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/".$class));
-				}
-				if(strpos($display['display'], "xqcas_feedback_class_5")){
+				//}
+				//if(strpos($display['display'], "xqcas_feedback_class_5")){
 					$class = $config_options["feedback_extra_info"];
 					$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/".$class));
-				}
-				if(strpos($display['display'], "xqcas_feedback_class_6")){
+				//}
+				//if(strpos($display['display'], "xqcas_feedback_class_6")){
 					$class = $config_options["feedback_plot_feedback"];
 					$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/".$class));
-				}
-				if(strpos($display['display'], "xqcas_feedback_class_7")){
+				//}
+				//if(strpos($display['display'], "xqcas_feedback_class_7")){
 					$class = $config_options["feedback_extra_1"];
 					$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/".$class));
-				}
+				//}
 
 				//UzK.
 				$question_specific_feedback = str_replace("[[feedback:{$prt_name}]]", $display['display'], $this->getDisplay('question_specific_feedback'));
