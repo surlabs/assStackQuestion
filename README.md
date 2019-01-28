@@ -98,6 +98,11 @@ PLEASE BACKUP YOUR DATABASE before you run the update from an older version. Dep
 The translation is also done when importing questions from ILIAS or MoodleXML, but please notice that this conversion is one way.You can import "old CASText behaviour" questions to a platform with STACK plugin version 3.0+.
 But if you import "new CASText behaviour" questions to a platform with a previous version of the plugin, your question will not be properly shown on that platform.
 
+Version 3.0.14 (2011-01-28) for ILIAS 5.3
+----------------------------------------
+The following bugs were fixed:
+- https://mantis.ilias.de/view.php?id=24273
+
 Version 3.0.12 (2018-11-30) for ILIAS 5.3
 ----------------------------------------
 - Solved some problems with best solution display when question variables are used in model answer in algebraic inputs.

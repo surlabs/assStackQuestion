@@ -616,6 +616,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		{
 			$question_text = $solutions["question_text"];
 
+
 			//Get Model answer from solutions and replace placeholders
 			if (isset($solutions["prt"]))
 			{
@@ -665,7 +666,7 @@ class assStackQuestionGUI extends assQuestionGUI
 										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
 									} else
 									{
-										$input_replacement = "</br>" . $input_answer["display"];
+										$input_replacement = $input_answer["display"];
 									}
 									$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
 									break;
