@@ -738,38 +738,3 @@ if ($db->tableExists('xqcas_configuration'))
 	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_neg_answernote"), 'value' => array('clob', 'prt1-0-F'), 'group_name' => array('text', 'prts')));
 }
 ?>
-<#36>
-<?php
-//UzK:
-//This step is used only in the UzK branch
-global $DIC;
-$db = $DIC->database();
-//Default Option for feedback styles
-if ($db->tableExists('xqcas_configuration'))
-{
-	//Predefined Feedback styles from Köln
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_node_right"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_node_wrong"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_solution_hint"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_extra_info"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_plot_feedback"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
-
-	//Extra feedback styles
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_extra_1"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_extra_2"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_extra_3"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_extra_4"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_extra_5"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
-}
-
-//Add stepwise feedback
-$stepwise_feedback = array('type' => 'text', 'length' => 8, "default" => "0");
-if ($db->tableExists('xqcas_options'))
-{
-	if (!$db->tableColumnExists("xqcas_options", "stepwise_feedback"))
-	{
-		$db->addTableColumn("xqcas_options", "stepwise_feedback", $stepwise_feedback);
-	}
-}
-//UzK.
-?>

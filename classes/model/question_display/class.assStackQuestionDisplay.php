@@ -91,7 +91,7 @@ class assStackQuestionDisplay
 	 * This method is called from assStackQuestionGUI or assStackQuestionPreview to get the question Display.
 	 * @return array STACK Questiontion display data
 	 */
-	public function getQuestionDisplayData($in_test = FALSE, $stepwise_feedback = FALSE)
+	public function getQuestionDisplayData($in_test = FALSE)
 	{
 		$display_data = array();
 
@@ -149,16 +149,8 @@ class assStackQuestionDisplay
 		//Step 2: Get the replacement per each Feedback placeholder
 		foreach ($this->getQuestion()->getPRTs() as $prt_name => $prt)
 		{
-			//UzK:
 			//Step 1.1: Replacement for input placeholders
-			if ($stepwise_feedback)
-			{
-				$display_data['prts'][$prt_name]['display'] = $this->replacementForStepwisePlaceholders($prt, $prt_name, $in_test);
-			} else
-			{
-				$display_data['prts'][$prt_name]['display'] = $this->replacementForPRTPlaceholders($prt, $prt_name, $in_test);
-			}
-			//UzK.
+			$display_data['prts'][$prt_name]['display'] = $this->replacementForPRTPlaceholders($prt, $prt_name, $in_test);
 		}
 
 		return $display_data;
@@ -270,20 +262,15 @@ class assStackQuestionDisplay
 		if (sizeof($this->getInlineFeedback()))
 		{
 			//feedback
-			//UzK:
-			if (strlen($this->inline_feedback['prt'][$prt_name]['status']['message']))
-			{
-				//Generic feedback
-				$string .= $this->inline_feedback['prt'][$prt_name]['status']['message'];
-			}
-			//UzK.
+			$string .= '<div class="alert alert-warning" role="alert">';
+			//Generic feedback
+			$string .= $this->inline_feedback['prt'][$prt_name]['status']['message'];
 			//$string .= '<br>';
 			//Specific feedback
 			$string .= $this->inline_feedback['prt'][$prt_name]['feedback'];
 			$string .= $this->inline_feedback['prt'][$prt_name]['errors'];
-
+			$string .= '</div>';
 		}
-
 		return $string;
 	}
 
@@ -581,19 +568,5 @@ class assStackQuestionDisplay
 		}
 	}
 
-	//UzK:
-	public function replacementForStepwisePlaceholders($prt, $prt_name, $in_test)
-	{
-		$string = "";
-
-		global $DIC;
-		$lng = $DIC->language();
-		$string .= '<button type="button" class="btn btn-default" name="cmd[xqcas_step_' . $this->getQuestion()->getQuestionId() . '_' . $prt_name . ']">' . $lng->txt("check") . '</button>';
-		$string .= '<div id="stepwise_feedback_xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $prt_name . '">';
-		$string .= '</br>' . $this->replacementForPRTPlaceholders($prt, $prt_name, $in_test);
-
-		return $string;
-	}
-	//UzK.
 
 }

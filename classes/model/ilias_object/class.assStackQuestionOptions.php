@@ -38,9 +38,6 @@ class assStackQuestionOptions
 	private $variants_selection_seeds;
 	//STACK 3.3
 	private $matrix_parens;
-	//UzK:
-	private $stepwise_feedback;
-	//UzK.
 
 	function __construct($options_id, $question_id)
 	{
@@ -264,24 +261,6 @@ class assStackQuestionOptions
 		return $this->matrix_parens;
 	}
 
-	//UzK:
-	/**
-	 * @return mixed
-	 */
-	public function getStepwiseFeedback()
-	{
-		return $this->stepwise_feedback;
-	}
-
-	/**
-	 * @param mixed $stepwise_feedback
-	 */
-	public function setStepwiseFeedback($stepwise_feedback)
-	{
-		$this->stepwise_feedback = $stepwise_feedback;
-	}
-	//UzK.
-
 	/*
 	 * CRUD OPERATIONS
 	 */
@@ -328,10 +307,7 @@ class assStackQuestionOptions
 			"complex_no" => array("text", $this->getComplexNumbers() == NULL ? "i" : $this->getComplexNumbers()),
 			"inverse_trig" => array("text", $this->getInverseTrig()),
 			"variants_selection_seed" => array("text", $this->getVariantsSelectionSeeds()),
-			"matrix_parens" => array("text", $this->getMatrixParens()),
-			//UzK:
-			"stepwise_feedback" => array("text", $this->getStepwiseFeedback() == NULL ? "0": $this->getStepwiseFeedback())
-			//UzK.
+			"matrix_parens" => array("text", $this->getMatrixParens())
 		));
 		return true;
 	}
@@ -374,9 +350,6 @@ class assStackQuestionOptions
 			$options->setInverseTrig($row->inverse_trig);
 			$options->setVariantsSelectionSeeds($row->variants_selection_seed);
 			$options->setMatrixParens($row->matrix_parens);
-			//UzK:
-			$options->setStepwiseFeedback($row->stepwise_feedback);
-			//UzK.
 			return $options;
 		} else {
 			return false;
@@ -411,10 +384,7 @@ class assStackQuestionOptions
 				"complex_no" => array("text", $this->getComplexNumbers() == NULL ? "i" : $this->getComplexNumbers()),
 				"inverse_trig" => array("text", $this->getInverseTrig()),
 				"variants_selection_seed" => array("text", $this->getVariantsSelectionSeeds()),
-				"matrix_parens" => array("text", $this->getMatrixParens() === NULL ? "[" : $this->getMatrixParens()),
-				//UzK:
-				"stepwise_feedback" => array("text", $this->getStepwiseFeedback() == NULL ? "0": $this->getStepwiseFeedback())
-				//UzK.
+				"matrix_parens" => array("text", $this->getMatrixParens() === NULL ? "[" : $this->getMatrixParens())
 			)
 		);
 
@@ -497,9 +467,6 @@ class assStackQuestionOptions
 		$this->setMatrixParens(ilUtil::stripSlashes($_POST['options_matrix_parens']));
 		$this->setAssumePositive(ilUtil::stripSlashes($_POST['options_assume_positive']));
 		$this->setQuestionNote(ilUtil::stripSlashes($_POST['options_question_note']));
-		//UzK:
-		$this->setStepwiseFeedback(ilUtil::stripSlashes($_POST['options_stepwise_feedback']));
-		//UzK.
 	}
 
 	/**

@@ -47,11 +47,6 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 			case 'setDefaultSettingsForInputs':
 			case 'setDefaultSettingsForOptions':
 			case 'setDefaultSettingsForPRTs':
-				//UzK:
-			case 'showFeedbackStylesSettings':
-			case 'saveFeedbackStylesSettings':
-			case 'setFeedbackStylesSettings':
-				//UzK.
 				$this->initTabs('others');
 				$this->$cmd();
 				break;
@@ -80,9 +75,6 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 				$tabs->addSubTab('show_default_options_settings', $this->plugin_object->txt('show_default_options_settings'), $ctrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showDefaultOptionsSettings'));
 				$tabs->addSubTab('show_default_inputs_settings', $this->plugin_object->txt('show_default_inputs_settings'), $ctrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showDefaultInputsSettings'));
 				$tabs->addSubTab('show_default_prts_settings', $this->plugin_object->txt('show_default_prts_settings'), $ctrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showDefaultPRTsSettings'));
-				//UzK:
-				$tabs->addSubTab('show_feedback_styles_settings', $this->plugin_object->txt('feedback_styles_settings'), $ctrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showFeedbackStylesSettings'));
-				//Uzk.
 				$tabs->addTab("show_healthcheck", $this->plugin_object->txt('show_healthcheck'), $ctrl->getLinkTarget($this, 'showHealthcheck'));
 				break;
 			default:
@@ -170,18 +162,6 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$tpl->setContent($form->getHTML());
 	}
 
-	//UzK:
-	public function showFeedbackStylesSettings()
-	{
-		global $DIC, $tpl;
-		$tabs = $DIC->tabs();
-		$tabs->setTabActive('show_other_settings');
-		$tabs->setSubTabActive('show_feedback_styles_settings');
-
-		$form = $this->getFeedbackStylesSettingsForm();
-		$tpl->setContent($form->getHTML());
-	}
-	//UzK.
 
 	/**
 	 * Show the healthcheck screen
@@ -686,86 +666,6 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		return $form;
 	}
 
-	//UzK:
-	public function getFeedbackStylesSettingsForm()
-	{
-		global $DIC;
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
-		$form = new ilPropertyFormGUI();
-		$ctrl = $DIC->ctrl();
-		$form->setFormAction($ctrl->getFormAction($this));
-
-		//Values from DB
-		$feedback_data = assStackQuestionConfig::_getStoredSettings('feedback');
-
-		//Get all CSS class in feedback styles folder
-		$css_classes = array();
-		foreach (scandir('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/css/feedback_styles') as $ind => $value)
-		{
-			$filename = './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/css/feedback_styles/' . $value;
-			if (file_exists($filename) AND strpos($value, ".css"))
-			{
-				$css_classes[$value] = $value;
-			}
-		}
-
-		/*
-		 * AS WE ARE USING THE TRUE/FALSE FEEDBACK FORMAT FIELD OF THE DATABASE
-		 * WHICH IS NOT USED AT THE MOMENT, AND IS ALWAYS 0 OR 1. WE HAVE TO
-		 * DEFINE VALUES FOR EACH OF THE FEEDBACK STYLES, BEGINNING BY 2, TO DISTINGUISH
-		 * QUESTION WHICH USES THIS STYLES AND THOSE WHICH NOT.
-		 */
-
-		//Feedback style for right responses ---> 2
-		$right_responses = new ilSelectInputGUI($this->plugin_object->txt('feedback_node_right'), 'feedback_node_right');
-		$right_responses->setOptions($css_classes);
-		$right_responses->setInfo($this->plugin_object->txt('feedback_node_right_info'));
-		$right_responses->setValue($feedback_data['feedback_node_right']);
-		$form->addItem($right_responses);
-
-		//Feedback style for wrong responses ---> 3
-		$wrong_responses = new ilSelectInputGUI($this->plugin_object->txt('feedback_node_wrong'), 'feedback_node_wrong');
-		$wrong_responses->setOptions($css_classes);
-		$wrong_responses->setInfo($this->plugin_object->txt('feedback_node_wrong_info'));
-		$wrong_responses->setValue($feedback_data['feedback_node_wrong']);
-		$form->addItem($wrong_responses);
-
-		//Feedback style for solution hint ---> 4
-		$solution_hint = new ilSelectInputGUI($this->plugin_object->txt('feedback_solution_hint'), 'feedback_solution_hint');
-		$solution_hint->setOptions($css_classes);
-		$solution_hint->setInfo($this->plugin_object->txt('feedback_solution_hint_info'));
-		$solution_hint->setValue($feedback_data['feedback_solution_hint']);
-		$form->addItem($solution_hint);
-
-		//Feedback style for Extra Information ---> 5
-		$extra_info = new ilSelectInputGUI($this->plugin_object->txt('feedback_extra_info'), 'feedback_extra_info');
-		$extra_info->setOptions($css_classes);
-		$extra_info->setInfo($this->plugin_object->txt('feedback_extra_info_info'));
-		$extra_info->setValue($feedback_data['feedback_extra_info']);
-		$form->addItem($extra_info);
-
-		//Feedback style for Plot ---> 6
-		$plot_feedback = new ilSelectInputGUI($this->plugin_object->txt('feedback_plot_feedback'), 'feedback_plot_feedback');
-		$plot_feedback->setOptions($css_classes);
-		$plot_feedback->setInfo($this->plugin_object->txt('feedback_plot_feedback_info'));
-		$plot_feedback->setValue($feedback_data['feedback_plot_feedback']);
-		$form->addItem($plot_feedback);
-
-		//Feedback style for partial ---> 7
-		$partial_feedback = new ilSelectInputGUI($this->plugin_object->txt('feedback_extra_1'), 'feedback_extra_1');
-		$partial_feedback->setOptions($css_classes);
-		$partial_feedback->setInfo($this->plugin_object->txt('feedback_partial_feedback_info'));
-		$partial_feedback->setValue($feedback_data['feedback_extra_1']);
-		$form->addItem($partial_feedback);
-
-		$form->setTitle($this->plugin_object->txt('feedback_styles_settings'));
-		$form->addCommandButton("saveFeedbackStylesSettings", $this->plugin_object->txt("save"));
-		$form->addCommandButton("showFeedbackStylesSettings", $this->plugin_object->txt("cancel"));
-
-		return $form;
-	}
-
-	//UzK.
 
 	public function healthcheckReduced()
 	{
@@ -869,20 +769,6 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$this->showDefaultPRTsSettings();
 	}
 
-	//UzK:
-	public function saveFeedbackStylesSettings()
-	{
-		$ok = $this->config->saveFeedbackStyleSettings();
-		if ($ok)
-		{
-			ilUtil::sendSuccess($this->plugin_object->txt('config_feedback_styles_changed_message'));
-		} else
-		{
-			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
-		}
-		$this->showFeedbackStylesSettings();
-	}
-	//Uzk.
 
 	/*
 	 * SET DEFAULT VALUES METHODS

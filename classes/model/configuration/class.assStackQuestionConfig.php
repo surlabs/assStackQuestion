@@ -307,32 +307,6 @@ class assStackQuestionConfig
 		return TRUE;
 	}
 
-	//UzK:
-	public function saveFeedbackStyleSettings()
-	{
-		//Old settings
-		$saved_feedback_data = self::_getStoredSettings('feedback');
-		//New settings
-		$new_feedback_data = $this->getAdminInput();
-
-		//Checkboxes workaround
-		if (!array_key_exists('prt_simplify', $new_feedback_data))
-		{
-			$new_feedback_data['prt_simplify'] = 1;
-		}
-		//Save to DB
-		foreach ($saved_feedback_data as $paremeter_name => $saved_value)
-		{
-			if (array_key_exists($paremeter_name, $new_feedback_data) AND $saved_feedback_data[$paremeter_name] != $new_feedback_data[$paremeter_name])
-			{
-				$this->saveToDB($paremeter_name, $new_feedback_data[$paremeter_name], 'feedback');
-			}
-		}
-
-		return TRUE;
-	}
-	//UzK.
-
 	/**
 	 * @param $parameter_name //Is the of the parameter to modify (this is the Primary Key in DB)
 	 * @param $value //Is the value of the parameter

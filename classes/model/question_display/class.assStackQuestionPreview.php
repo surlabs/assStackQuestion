@@ -124,9 +124,7 @@ class assStackQuestionPreview
 
 		$this->getPlugin()->includeClass("model/question_display/class.assStackQuestionDisplay.php");
 		$question_display_object = new assStackQuestionDisplay($this->getPlugin(), $this->getQuestion()->getStackQuestion(), $this->getUserResponse(), $feedback_data);
-		//UzK:
-		return $question_display_object->getQuestionDisplayData("", $this->getQuestion()->getOptions()->getStepwiseFeedback());
-		//UzK.
+		return $question_display_object->getQuestionDisplayData("");
 	}
 
 	/**

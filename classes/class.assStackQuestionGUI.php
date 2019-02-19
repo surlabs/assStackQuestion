@@ -470,29 +470,21 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->plugin->includeClass("GUI/question_display/class.assStackQuestionFeedbackGUI.php");
 		$question_feedback_object = new assStackQuestionFeedbackGUI($this->plugin, $solutions);
 		$feedback_data = $question_feedback_object->getFeedback();
-
 		//Include display classes
 		$this->plugin->includeClass("model/question_display/class.assStackQuestionDisplay.php");
 		$this->plugin->includeClass("GUI/question_display/class.assStackQuestionDisplayGUI.php");
-
 		//Get question display data
 		$tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_display.css'));
-
 		$value_format_user_response = assStackQuestionUtils::_getUserResponse($this->object->getId(), $this->object->getStackQuestion()->getInputs(), $feedback_data);
 		$question_display_object = new assStackQuestionDisplay($this->plugin, $this->object->getStackQuestion(), $value_format_user_response, $feedback_data);
-		//UzK:
-		$question_display_data = $question_display_object->getQuestionDisplayData(TRUE, $this->object->getOptions()->getStepwiseFeedback());
-		//UzK.
-
+		$question_display_data = $question_display_object->getQuestionDisplayData(TRUE);
 		//Get question display GUI
 		$question_display_gui_object = new assStackQuestionDisplayGUI($this->plugin, $question_display_data);
 		$question_display_gui = $question_display_gui_object->getQuestionDisplayGUI($show_specific_inline_feedback);
 		//fill question container with HTML from assStackQuestionDisplay
 		$container_tpl = $this->plugin->getTemplate("tpl.il_as_qpl_xqcas_question_container.html");
 		$container_tpl->setVariable('QUESTION', $question_display_gui->get());
-
 		$question_output = $container_tpl->get();
-
 		return $question_output;
 	}
 
@@ -773,7 +765,6 @@ class assStackQuestionGUI extends assQuestionGUI
 		//Check for PASS
 		if ($active_id)
 		{
-
 			require_once './Modules/Test/classes/class.ilObjTest.php';
 			if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
 			{
@@ -783,7 +774,6 @@ class assStackQuestionGUI extends assQuestionGUI
 				}
 			}
 		}
-
 		//Is preview or Test
 		if (is_array($this->preview_mode))
 		{
@@ -799,11 +789,8 @@ class assStackQuestionGUI extends assQuestionGUI
 				$solutions =& $this->object->getSolutionValues($active_id, $pass);
 			}
 		}
-
 		$specific_feedback = $this->object->getOptions()->getSpecificFeedback();
-
 		//Search for feedback placeholders in specific feedback text.
-
 		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt)
 		{
 			if (preg_match("[[feedback:" . $prt_name . "]]", $specific_feedback))
@@ -812,77 +799,14 @@ class assStackQuestionGUI extends assQuestionGUI
 				{
 					$string = "";
 					//feedback
-					//UzK:
-					if (strlen(trim($solutions["prt"][$prt_name]['status']['message'])))
-					{
-						//Generic feedback
-						switch ($solutions["prt"][$prt_name]['status']['value'])
-						{
-							case "1":
-								$string .= $solutions["prt"][$prt_name]['status']['message'];
-								break;
-							case "0":
-								$string .= $solutions["prt"][$prt_name]['status']['message'];
-								break;
-							case "-1":
-								$string .= $solutions["prt"][$prt_name]['status']['message'];
-								break;
-						}
-
-					}
-
+					$string .= '<div class="alert alert-warning" role="alert">';
+					//Generic feedback
+					$string .= $solutions["prt"][$prt_name]['status']['message'];
 					//$string .= '<br>';
 					//Specific feedback
 					$string .= $solutions["prt"][$prt_name]["feedback"];
-					if (strlen(trim($solutions["prt"][$prt_name]["errors"])))
-					{
-						if (strpos($solutions["prt"][$prt_name]["errors"], "xqcas_feedback_class_4") < 0)
-						{
-							$string .= '<div class="xqcas_feedback_class_4">';
-							$string .= $solutions["prt"][$prt_name]["errors"];
-							$string .= '</div>';
-						} else
-						{
-							$string .= $solutions["prt"][$prt_name]["errors"];
-						}
-					}
-
-					//Add css
-					require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
-					global $tpl;
-					$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
-					//if (strpos($string, "xqcas_feedback_class_2"))
-					//{
-						$class = $config_options["feedback_node_right"];
-						$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/" . $class));
-					//}
-					//if (strpos($string, "xqcas_feedback_class_3"))
-					//{
-						$class = $config_options["feedback_node_wrong"];
-						$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/" . $class));
-					//}
-					//if (strpos($string, "xqcas_feedback_class_4"))
-					//{
-						$class = $config_options["feedback_solution_hint"];
-						$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/" . $class));
-					//}
-					//if (strpos($string, "xqcas_feedback_class_5"))
-					//{
-						$class = $config_options["feedback_extra_info"];
-						$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/" . $class));
-					//}
-					//if (strpos($string, "xqcas_feedback_class_6"))
-					//{
-						$class = $config_options["feedback_plot_feedback"];
-						$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/" . $class));
-					//}
-					//if (strpos($string, "xqcas_feedback_class_7"))
-					//{
-						$class = $config_options["feedback_extra_1"];
-						$tpl->addCss($this->getPlugin()->getStyleSheetLocation("css/feedback_styles/" . $class));
-					//}
-
-					//UzK.
+					$string .= $solutions["prt"][$prt_name]["errors"];
+					$string .= '</div>';
 					$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", $string, $specific_feedback);
 				} else
 				{
@@ -890,7 +814,6 @@ class assStackQuestionGUI extends assQuestionGUI
 				}
 			}
 		}
-
 		//Return the question text with LaTeX problems solved.
 		return assStackQuestionUtils::_getLatex($specific_feedback);
 	}
