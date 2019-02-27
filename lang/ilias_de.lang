@@ -400,3 +400,11 @@ notes_best_solution_message#:#Notizen haben keine bestmögliche Lösung
 show_default_prts_settings#:#Vorgabewerte für Rückmeldebäume-Einstellungen
 default_prts_settings#:#Standard-Einstellungen für Rückmeldebäume und Knoten
 config_default_prts_message#:#Die Einstellungen für Rückmeldebäume wurden erfolgreich geändert.
+copy_node#:#Knoten kopieren
+paste_node#:#Knoten einfügen
+copy_prt#:# Rückmeldebaum kopieren
+paste_prt#:#Rückmeldebaum einfügen
+prt_copied_to_clipboard#:#Rückmeldebaum in die Zwischenablage kopiert
+node_copied_to_clipboard#:#Knoten in die Zwischenablage kopiert
+node_paste#:#In dieser Frage wurde ein Knoten eingefügt
+prt_paste#:#In dieser Frage wurde ein Rückmeldebaum eingefügt

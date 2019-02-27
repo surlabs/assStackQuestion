@@ -138,6 +138,9 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function deletionManagement()
 	{
+		global $DIC;
+		$lng = $DIC->language();
+
 		if (is_array($_POST['cmd']['save']))
 		{
 			foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt)
@@ -178,6 +181,92 @@ class assStackQuestionGUI extends assQuestionGUI
 
 						return TRUE;
 					}
+
+					//Copy Node
+					if (isset($_POST['cmd']['save']['copy_prt_' . $prt_name . '_node_' . $node->getNodeName()]))
+					{
+						//Do node copy here
+						$_SESSION['copy_node'] = $this->object->getId() . "_" . $prt_name . "_" . $node->getNodeName();
+						ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_node_copied_to_clipboard"), TRUE);
+
+						return TRUE;
+					}
+
+					//Paste Node
+					if (isset($_POST['cmd']['save']['paste_node_in_' . $prt_name]))
+					{
+						//Do node paste here
+						$raw_data = explode("_", $_SESSION['copy_node']);
+						$paste_question_id = $raw_data[0];
+						$paste_prt_name = $raw_data[1];
+						$paste_node_name = $raw_data[2];
+
+						$paste_prt_node_list = assStackQuestionPRTNode::_read($paste_question_id, $paste_prt_name);
+						$paste_node = $paste_prt_node_list[$paste_node_name];
+
+						//Change values
+						if (is_a($paste_node, "assStackQuestionPRTNode"))
+						{
+							$paste_node->setNodeId("");
+							$paste_node->setQuestionId($this->object->getId());
+							$paste_node->setPRTName($prt_name);
+							$paste_node->setNodeName((string)$prt->getLastNodeName() + 1);
+							$paste_node->setTrueNextNode("");
+							$paste_node->setFalseNextNode("");
+
+							$paste_node->save();
+
+							unset($_SESSION['copy_node']);
+							ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_node_paste"), TRUE);
+						}
+
+					}
+				}
+
+				//PRT COpy
+
+				if (isset($_POST['cmd']['save']['copy_prt_' . $prt_name]))
+				{
+					//Do node copy here
+					$_SESSION['copy_prt'] = $this->object->getId() . "_" . $prt_name;
+					ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_prt_copied_to_clipboard"), TRUE);
+
+
+					return TRUE;
+				}
+
+				//Paste Node
+				if (isset($_POST['cmd']['save']['paste_prt']))
+				{
+					$raw_data = explode("_", $_SESSION['copy_prt']);
+					$paste_question_id = $raw_data[0];
+					$paste_prt_name = $raw_data[1];
+
+					$generated_prt_name = "prt" . rand(0, 1000);
+					$paste_prt_list = assStackQuestionPRT::_read($paste_question_id);
+					$paste_prt = $paste_prt_list[$paste_prt_name];
+
+					if (is_a($paste_prt, 'assStackQuestionPRT'))
+					{
+						$paste_prt->setPRTId("");
+						$paste_prt->setQuestionId($this->object->getId());
+						$paste_prt->setPRTName($generated_prt_name);
+						$paste_prt->save();
+
+						foreach ($paste_prt->getPRTNodes() as $prt_node)
+						{
+							if (is_a($prt_node, 'assStackQuestionPRTNode'))
+							{
+								$prt_node->setNodeId("");
+								$prt_node->setQuestionId($this->object->getId());
+								$prt_node->setPRTName($generated_prt_name);
+								$prt_node->save();
+							}
+						}
+					}
+					unset($_SESSION['copy_prt']);
+					ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_prt_paste"), TRUE);
+
 				}
 			}
 		}
@@ -485,6 +574,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$container_tpl = $this->plugin->getTemplate("tpl.il_as_qpl_xqcas_question_container.html");
 		$container_tpl->setVariable('QUESTION', $question_display_gui->get());
 		$question_output = $container_tpl->get();
+
 		return $question_output;
 	}
 
@@ -814,6 +904,7 @@ class assStackQuestionGUI extends assQuestionGUI
 				}
 			}
 		}
+
 		//Return the question text with LaTeX problems solved.
 		return assStackQuestionUtils::_getLatex($specific_feedback);
 	}

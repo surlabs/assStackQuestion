@@ -420,3 +420,11 @@ feedback_extra_1#:#Partially correct
 feedback_extra_1_info#:#Feedback style for partially correct answers
 options_stepwise_feedback#:#Stepwise Feedback
 options_stepwise_feedback_info#:#Allow students to evaluate each PRT separately without reload the page
+copy_node#:#Copy Node
+paste_node#:#Paste Node
+copy_prt#:#Copy Potential Response Tree
+paste_prt#:#Paste Potential Response Tree
+prt_copied_to_clipboard#:#Potential Response Tree copied to Clipboard
+node_copied_to_clipboard#:#Node copied to Clipboard
+node_paste#:#A Node has been pasted in this question
+prt_paste#:#A PRT has been pasted in this question
