@@ -162,6 +162,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$tpl->setContent($form->getHTML());
 	}
 
+
 	/**
 	 * Show the healthcheck screen
 	 * @param string $a_mode 'reduced', 'extended' or empty
@@ -469,13 +470,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		//Input type
 		$input_type = new ilSelectInputGUI($this->plugin_object->txt('input_type'), 'input_type');
-		$input_type->setOptions(array(
-			"algebraic" => $this->plugin_object->txt('input_type_algebraic'),
-			"boolean" => $this->plugin_object->txt('input_type_boolean'),
-			"matrix" => $this->plugin_object->txt('input_type_matrix'),
-			"singlechar" => $this->plugin_object->txt('input_type_singlechar'),
-			"textarea" => $this->plugin_object->txt('input_type_textarea')
-		));
+		$input_type->setOptions(array("algebraic" => $this->plugin_object->txt('input_type_algebraic'), "boolean" => $this->plugin_object->txt('input_type_boolean'), "matrix" => $this->plugin_object->txt('input_type_matrix'), "singlechar" => $this->plugin_object->txt('input_type_singlechar'), "textarea" => $this->plugin_object->txt('input_type_textarea')));
 		$input_type->setInfo($this->plugin_object->txt('input_type_info'));
 		$input_type->setValue($inputs_data['input_type']);
 		$form->addItem($input_type);
@@ -671,6 +666,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		return $form;
 	}
 
+
 	public function healthcheckReduced()
 	{
 		$this->showHealthcheck("reduced");
@@ -773,6 +769,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$this->showDefaultPRTsSettings();
 	}
 
+
 	/*
 	 * SET DEFAULT VALUES METHODS
 	 */
@@ -819,7 +816,8 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function setDefaultSettingsForInputs()
 	{
 		$ok = $this->config->setDefaultSettingsForInputs();
-		if ($ok) {
+		if ($ok)
+		{
 			ilUtil::sendSuccess($this->plugin_object->txt('config_default_inputs_message'));
 		} else
 		{
@@ -831,7 +829,8 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function setDefaultSettingsForPRTs()
 	{
 		$ok = $this->config->setDefaultSettingsForPRTs();
-		if ($ok) {
+		if ($ok)
+		{
 			ilUtil::sendSuccess($this->plugin_object->txt('config_default_prts_message'));
 		} else
 		{

@@ -271,7 +271,6 @@ class assStackQuestionDisplay
 			$string .= $this->inline_feedback['prt'][$prt_name]['errors'];
 			$string .= '</div>';
 		}
-
 		return $string;
 	}
 

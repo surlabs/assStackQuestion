@@ -261,8 +261,6 @@ class assStackQuestionOptions
 		return $this->matrix_parens;
 	}
 
-
-
 	/*
 	 * CRUD OPERATIONS
 	 */

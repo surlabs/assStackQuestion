@@ -341,7 +341,7 @@ class assStackQuestionAuthoringGUI
 		$options_inverse_trigonometric->setInfo($this->getPlugin()->txt('options_inverse_trigonometric_info'));
 
 		//Matrix Parens
-		$options_matrix_parens = new ilSelectInputGUI($this->getPlugin()->txt('options_matrix_parens'), 'options_matrix_parents');
+		$options_matrix_parens = new ilSelectInputGUI($this->getPlugin()->txt('options_matrix_parens'), 'options_matrix_parens');
 		$options_matrix_parens->setInfo($this->getPlugin()->txt('options_matrix_parens_info'));
 		$options_matrix_parens->setOptions(array("[" => "[", "(" => "(", "" => "", "{" => "{", "|" => "|"));
 
@@ -365,7 +365,7 @@ class assStackQuestionAuthoringGUI
 			$options_sqrt_sign->setChecked((int)$this->default["options_sqrt_sign"]);
 			$options_complex_numbers->setValue($this->default["options_complex_numbers"]);
 			$options_inverse_trigonometric->setValue($this->default["options_inverse_trigonometric"]);
-			$options_matrix_parens->setValue($this->default["options_matrix_parents"]);
+			$options_matrix_parens->setValue($this->default["options_matrix_parens"]);
 		} else
 		{
 			$options_question_simplify->setChecked($options->getQuestionSimplify());
@@ -568,6 +568,31 @@ class assStackQuestionAuthoringGUI
 		$prt_first_node->setOptions($node_list);
 		$prt_first_node->setValue($prt->getFirstNodeName());
 		$settings_column->addFormProperty($prt_first_node);
+
+		//Paste node
+		if (isset($_SESSION["copy_node"]))
+		{
+			$paste_node = new ilButtonFormProperty($this->getPlugin()->txt('paste_node'), 'paste_node_in_' . $prt->getPRTName());
+			$paste_node->setAction('paste_node_in_' . $prt->getPRTName());
+			$paste_node->setCommand('save');
+			$settings_column->addFormProperty($paste_node);
+		}
+		//Paste prt
+		if (isset($_SESSION["copy_prt"]))
+		{
+			$paste_prt = new ilButtonFormProperty($this->getPlugin()->txt('paste_prt'), 'paste_prt');
+			$paste_prt->setAction('paste_prt');
+			$paste_prt->setCommand('save');
+			$settings_column->addFormProperty($paste_prt);
+		} else
+		{
+			//Copy prt#
+			$copy_prt = new ilButtonFormProperty($this->getPlugin()->txt('copy_prt'), 'copy_prt_' . $prt->getPRTName());
+			$copy_prt->setAction('copy_prt_' . $prt->getPRTName());
+			$copy_prt->setCommand('save');
+			$settings_column->addFormProperty($copy_prt);
+		}
+
 
 		$settings_column->addFormProperty($this->getSettingsPart($prt, 12));
 		//Add node pos neg part
@@ -859,6 +884,12 @@ class assStackQuestionAuthoringGUI
 			$delete_node->setAction('delete_prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName());
 			$delete_node->setCommand('save');
 			$common_node_part->addFormProperty($delete_node);
+
+			//Copy node
+			$copy_node = new ilButtonFormProperty($this->getPlugin()->txt('copy_node'), 'copy_prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName());
+			$copy_node->setAction('copy_prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName());
+			$copy_node->setCommand('save');
+			$common_node_part->addFormProperty($copy_node);
 		} else
 		{
 			$creation_node_info = new ilNonEditableValueGUI($this->getPlugin()->txt('node_creation_hint'));
@@ -917,6 +948,7 @@ class assStackQuestionAuthoringGUI
 		$node_pos_specific_feedback_info_text = $this->getPlugin()->txt('prt_node_pos_specific_feedback_info') . "</br>";
 		$node_pos_specific_feedback_info_text .= $this->addInfoTooltip("cas_text");
 		$node_pos_specific_feedback->setInfo($node_pos_specific_feedback_info_text);
+
 
 		$this->getQuestionGUI()->setRTESupport($node_pos_specific_feedback);
 
@@ -998,6 +1030,7 @@ class assStackQuestionAuthoringGUI
 		$node_neg_specific_feedback_info_text = $this->getPlugin()->txt('prt_node_neg_specific_feedback_info') . "</br>";
 		$node_neg_specific_feedback_info_text .= $this->addInfoTooltip("cas_text");
 		$node_neg_specific_feedback->setInfo($node_neg_specific_feedback_info_text);
+
 
 		$this->getQuestionGUI()->setRTESupport($node_neg_specific_feedback);
 
@@ -1160,6 +1193,5 @@ class assStackQuestionAuthoringGUI
 	{
 		return $this->template;
 	}
-
 
 }

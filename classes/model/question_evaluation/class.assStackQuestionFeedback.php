@@ -79,7 +79,6 @@ class assStackQuestionFeedback
 	{
 		//PRT Feedback structure creation
 		$prt_feedback = array();
-
 		//fill user response data
 		$prt_feedback['response'] = $this->fillUserResponses($prt_data['inputs_evaluated']);
 		//fill points data
@@ -92,7 +91,6 @@ class assStackQuestionFeedback
 		$prt_feedback['status'] = $this->fillStatus($prt_data['state']);
 		//fill answernote
 		$prt_feedback['answernote'] = $this->fillAnswerNote($prt_data['state']);
-
 		return $prt_feedback;
 	}
 
@@ -168,7 +166,6 @@ class assStackQuestionFeedback
 	{
 		//Prepare feedback message
 		$feedback = '';
-
 		//For each feedback obj add a line the the message with the feedback.
 		if ($prt_state->__get('feedback'))
 		{
@@ -178,7 +175,6 @@ class assStackQuestionFeedback
 				$feedback .= '</br>';
 			}
 		}
-
 		return $feedback;
 	}
 
@@ -191,7 +187,6 @@ class assStackQuestionFeedback
 	{
 		//Prepare status structure
 		$status = array();
-
 		if ((float)$prt_state->__get('score') * (float)$prt_state->__get('weight') == (float)$prt_state->__get('weight'))
 		{
 			//CORRECT
@@ -208,7 +203,6 @@ class assStackQuestionFeedback
 			$status['value'] = -1;
 			$status['message'] = $this->getQuestion()->getPRTIncorrectInstantiated();
 		}
-
 		return $status;
 	}
 

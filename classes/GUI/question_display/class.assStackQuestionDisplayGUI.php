@@ -115,6 +115,7 @@ class assStackQuestionDisplayGUI
 
 					$tpl->addJavascript('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
 					$tpl->addOnLoadCode('il.assStackQuestion.init(' . json_encode($this->jsconfig) . ',' . json_encode($this->jstexts) . ')');
+
 					continue;
 				}
 			}
@@ -135,7 +136,7 @@ class assStackQuestionDisplayGUI
 				if ($this->getDisplay('validation', $input_name) == 'instant')
 				{
 					//Instant validation
-					$validation = $this->validationDisplayDivision($input_name, $input);
+					$validation = $this-> validationDisplayDivision($input_name, $input);
 					$this->setDisplay($validation, 'validation', $input_name);
 				} elseif ($this->getDisplay('validation', $input_name) == 'button')
 				{
@@ -255,16 +256,13 @@ class assStackQuestionDisplayGUI
 				}
 				$question_text = str_replace("[[feedback:{$prt_name}]]", $display['display'], $this->getDisplay('question_text'));
 				$this->setDisplay($question_text, 'question_text');
-
 				$question_specific_feedback = str_replace("[[feedback:{$prt_name}]]", $display['display'], $this->getDisplay('question_specific_feedback'));
 				$this->setDisplay($question_specific_feedback, 'question_specific_feedback');
-
 			}
 		} else
 		{
 			$question_text = preg_replace('/\[\[feedback:(.*?)\]\]/', "", $this->getDisplay('question_text'));
 			$this->setDisplay($question_text, 'question_text');
-
 			$question_specific_feedback = preg_replace('/\[\[feedback:(.*?)\]\]/', "", $this->getDisplay('question_specific_feedback'));
 			$this->setDisplay($question_specific_feedback, 'question_specific_feedback');
 		}

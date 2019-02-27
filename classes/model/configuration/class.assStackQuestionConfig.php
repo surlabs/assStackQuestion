@@ -106,7 +106,8 @@ class assStackQuestionConfig
 		if (!file_exists($CFG->dataroot . '/stack/maximalocal.mac'))
 		{
 			stack_cas_configuration::create_maximalocal();
-		}else{
+		} else
+		{
 			unlink($CFG->dataroot . '/stack/maximalocal.mac');
 			stack_cas_configuration::create_maximalocal();
 		}
@@ -276,7 +277,8 @@ class assStackQuestionConfig
 		if (!array_key_exists('prt_pos_answernote', $new_prts_data))
 		{
 			$new_prts_data['prt_pos_answernote'] = 'prt1-0-T';
-		}if (!array_key_exists('prt_neg_mod', $new_prts_data))
+		}
+		if (!array_key_exists('prt_neg_mod', $new_prts_data))
 		{
 			$new_prts_data['prt_neg_mod'] = '+';
 		}
@@ -344,7 +346,7 @@ class assStackQuestionConfig
 	{
 		global $CFG;
 		//Default values for connection
-		$connection_default_values = array('platform_type' => 'unix', 'maxima_version' => '5.31.2', 'cas_connection_timeout' => '5', 'cas_result_caching' => 'db', 'maxima_command' => '', 'plot_command' => '', 'cas_debugging' => '0', 'cas_debugging' => '0', 'cas_maxima_libraries'=>'stats, distrib, descriptive, simplex');
+		$connection_default_values = array('platform_type' => 'unix', 'maxima_version' => '5.31.2', 'cas_connection_timeout' => '5', 'cas_result_caching' => 'db', 'maxima_command' => '', 'plot_command' => '', 'cas_debugging' => '0', 'cas_debugging' => '0', 'cas_maxima_libraries' => 'stats, distrib, descriptive, simplex');
 		foreach ($connection_default_values as $paremeter_name => $value)
 		{
 			$this->saveToDB($paremeter_name, $value, 'connection');
@@ -357,7 +359,8 @@ class assStackQuestionConfig
 		if (!file_exists($CFG->dataroot . '/stack/maximalocal.mac'))
 		{
 			stack_cas_configuration::create_maximalocal();
-		}else{
+		} else
+		{
 			unlink($CFG->dataroot . '/stack/maximalocal.mac');
 			stack_cas_configuration::create_maximalocal();
 		}
