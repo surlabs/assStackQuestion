@@ -91,6 +91,7 @@ class assStackQuestionFeedback
 		$prt_feedback['status'] = $this->fillStatus($prt_data['state']);
 		//fill answernote
 		$prt_feedback['answernote'] = $this->fillAnswerNote($prt_data['state']);
+
 		return $prt_feedback;
 	}
 
@@ -175,6 +176,7 @@ class assStackQuestionFeedback
 				$feedback .= '</br>';
 			}
 		}
+
 		return $feedback;
 	}
 
@@ -203,6 +205,7 @@ class assStackQuestionFeedback
 			$status['value'] = -1;
 			$status['message'] = $this->getQuestion()->getPRTIncorrectInstantiated();
 		}
+
 		return $status;
 	}
 
@@ -331,9 +334,9 @@ class assStackQuestionFeedback
 			{
 				$correct_answer_array = $input->get_correct_response($this->getQuestion()->getSession()->get_value_key($input_name, true));
 				$correct_answer = $correct_answer_array[$input_name];
-				if (!$correct_answer)
+				if (strlen($correct_answer))
 				{
-					$correct_answer = $input->get_teacher_answer();
+					$correct_answer = $this->getQuestion()->getSession()->get_value_key($input->get_teacher_answer());
 				}
 				$input_size = strlen($correct_answer) * 1.1;
 				$input_html_display = '<input type="text" size="' . $input_size . '" id="xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '_postvalidation" value="' . $correct_answer . '" disabled="disabled">';
