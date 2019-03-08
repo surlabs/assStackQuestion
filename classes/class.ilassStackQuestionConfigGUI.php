@@ -108,6 +108,21 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$tpl->setContent($form->getHTML());
 	}
 
+	public function showServerList()
+    {
+        global $DIC, $tpl;
+        $tabs = $DIC->tabs();
+        $tabs->setTabActive('show_server_list');
+
+
+
+        $form = $this->getServerSettingsForm();
+        $tpl->setContent($form->getHTML());
+    }
+
+
+
+
 	public function showOtherSettings()
 	{
 		global $DIC;

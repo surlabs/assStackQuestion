@@ -308,11 +308,14 @@ class assStackQuestionConfig
 	}
 
 	/**
+     * Save a configuration setting to the database
+     * (needs to be public for assStackQuestionServer::saveServers)
+     *
 	 * @param $parameter_name //Is the of the parameter to modify (this is the Primary Key in DB)
 	 * @param $value //Is the value of the parameter
 	 * @param $group_name //Is the selector for different categories of data
 	 */
-	private function saveToDB($parameter_name, $value, $group_name)
+	public function saveToDB($parameter_name, $value, $group_name)
 	{
 		global $DIC;
 		$db = $DIC->database();
