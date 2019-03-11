@@ -1,6 +1,6 @@
 <?php
 
-require_once ('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
+require_once (__DIR__ . '/class.assStackQuestionConfig.php');
 /**
  * STACK Question server
  *
@@ -37,7 +37,8 @@ class assStackQuestionServer
      */
     public static function loadServers()
     {
-        if (!isset(self::$servers)) {
+        if (!isset(self::$servers))
+        {
             $config = assStackQuestionConfig::_getStoredSettings('connection');
             self::readServersFromConfig($config);
         }
@@ -71,6 +72,42 @@ class assStackQuestionServer
         }
     }
 
+
+    /**
+     * Get the list of all servers, indexed by server_id
+     * @return assStackQuestionServer[]
+     */
+    public static function getServers()
+    {
+        self::loadServers();
+        return self::$servers;
+    }
+
+    /**
+     * Get the list of defined purposes
+     * @return string[]
+     */
+    public static function getPurposes()
+    {
+        return [self::PURPOSE_ANY, self::PURPOSE_EDIT, self::PURPOSE_RUN];
+    }
+
+
+    /**
+     * Get the properties as an array
+     * @return array
+     */
+    public function getAsArray()
+    {
+        return [
+            'server_id' => $this->server_id,
+            'active' => $this->active,
+            'purpose' => $this->purpose,
+            'address' => $this->address
+        ];
+    }
+
+
     /**
      *  Get a server by id
      *  @param int $server_id
@@ -84,7 +121,6 @@ class assStackQuestionServer
             $server = self::getDefaultServer();
             $server->server_id = $server_id;
         }
-
         return $server;
     }
 
@@ -135,9 +171,6 @@ class assStackQuestionServer
     }
 
 
-
-
-
     /**
      * @return int
      */
@@ -167,7 +200,7 @@ class assStackQuestionServer
      */
     public function setPurpose($purpose)
     {
-        $this->purpose = $purpose;
+        $this->purpose = (string) $purpose;
     }
 
     /**
@@ -183,7 +216,7 @@ class assStackQuestionServer
      */
     public function setAddress($address)
     {
-        $this->address = $address;
+        $this->address = (string) $address;
     }
 
     /**
@@ -199,7 +232,7 @@ class assStackQuestionServer
      */
     public function setActive($active)
     {
-        $this->active = $active;
+        $this->active = (bool) $active;
     }
 
 

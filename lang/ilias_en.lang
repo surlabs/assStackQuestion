@@ -429,8 +429,15 @@ node_copied_to_clipboard#:#Node copied to Clipboard
 node_paste#:#A Node has been pasted in this question
 prt_paste#:#A PRT has been pasted in this question
 srv_purpose#:#Purpose
+srv_purpose_info#:#Choose 'Test Run" if you want to exclusively reserve a maxima server for the time time-critical calls during a test, e.g. to support online exams. In such acase you should provide a second server for all other calls ('Authoring/Scoring').
 srv_purpose_run#:#Test Run
 srv_purpose_edit#:#Authoring/Scoring
 srv_purpose_any#:#Any
 srv_address#:#Server Address
-
+srv_address_info#:#Provide the full URL of the maximapool server, including the port, e.g. 'http://localhost:8080/MaximaPool/MaximaPool'
+srv_active_info#:#Check if the server can be used for maxima calls.
+basic_connection_settings#:#Grundeinstellungen
+server_configuration#:#Server-Konfiguration
+add_server#:#Add Server
+edit_server#:#Edit Server
+delete_server#:#Delete Server

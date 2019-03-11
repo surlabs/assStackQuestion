@@ -17,9 +17,12 @@ require_once("./Services/Component/classes/class.ilPluginConfigGUI.php");
 class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 {
 
+    /** @var ilassStackQuestionPlugin */
+    protected $plugin_object = null;
+
 	/**
 	 *
-	 * @param type $cmd
+	 * @param string $cmd
 	 */
 	public function performCommand($cmd)
 	{
@@ -34,6 +37,15 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$cmd = $ctrl->getCmd($this, "configure");
 		switch ($cmd)
 		{
+		    case 'configure';
+            case 'showConnectionSettings':
+            case 'showServerList':
+            case 'saveConnectionSettings':
+            case 'saveServerSettings':
+                $this->initTabs('show_connection_settings');
+                $this->$cmd();
+                break;
+
 			case 'showOtherSettings':
 			case 'showDisplaySettings':
 			case 'showDefaultOptionsSettings':
@@ -47,40 +59,49 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 			case 'setDefaultSettingsForInputs':
 			case 'setDefaultSettingsForOptions':
 			case 'setDefaultSettingsForPRTs':
-				$this->initTabs('others');
+				$this->initTabs('show_other_settings');
 				$this->$cmd();
 				break;
 
 			default:
-				$this->initTabs();
+				$this->initTabs('show_healthcheck');
 				$this->$cmd();
 				break;
 		}
 	}
 
 	/**
-	 * @param string $a_mode
+     * Init the tabs
+	 * @param string $a_active  id of the active tab (activates it an adds its sub tabs)
 	 */
-	public function initTabs($a_mode = "")
+	public function initTabs($a_active = "")
 	{
 		global $DIC;
 		$ctrl = $DIC->ctrl();
 		$tabs = $DIC->tabs();
-		switch ($a_mode)
+
+        $tabs->addTab("show_connection_settings", $this->plugin_object->txt('show_connection_settings'), $ctrl->getLinkTarget($this, 'showConnectionSettings'));
+        $tabs->addTab("show_other_settings", $this->plugin_object->txt('show_other_settings'), $ctrl->getLinkTarget($this, 'showOtherSettings'));
+        $tabs->addTab("show_healthcheck", $this->plugin_object->txt('show_healthcheck'), $ctrl->getLinkTarget($this, 'showHealthcheck'));
+
+        $tabs->activateTab($a_active);
+
+        switch ($a_active)
 		{
-			case 'others':
-				$tabs->addTab("show_connection_settings", $this->plugin_object->txt('show_connection_settings'), $ctrl->getLinkTarget($this, 'showConnectionSettings'));
-				$tabs->addTab("show_other_settings", $this->plugin_object->txt('show_other_settings'), $ctrl->getLinkTarget($this, 'showOtherSettings'));
+            case 'show_connection_settings':
+                $config = assStackQuestionConfig::_getStoredSettings('connection');
+                $tabs->addSubTab('basic_connection_settings', $this->plugin_object->txt('basic_connection_settings'), $ctrl->getLinkTarget($this, 'showConnectionSettings'));
+                if ($config['platform_type'] == 'server')
+                {
+                    $tabs->addSubTab('server_configuration', $this->plugin_object->txt('server_configuration'), $ctrl->getLinkTarget($this, 'showServerList'));
+                }
+                break;
+
+			case 'show_other_settings':
 				$tabs->addSubTab('show_display_settings', $this->plugin_object->txt('show_display_settings'), $ctrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showDisplaySettings'));
 				$tabs->addSubTab('show_default_options_settings', $this->plugin_object->txt('show_default_options_settings'), $ctrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showDefaultOptionsSettings'));
 				$tabs->addSubTab('show_default_inputs_settings', $this->plugin_object->txt('show_default_inputs_settings'), $ctrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showDefaultInputsSettings'));
 				$tabs->addSubTab('show_default_prts_settings', $this->plugin_object->txt('show_default_prts_settings'), $ctrl->getLinkTargetByClass('ilassStackQuestionConfigGUI', 'showDefaultPRTsSettings'));
-				$tabs->addTab("show_healthcheck", $this->plugin_object->txt('show_healthcheck'), $ctrl->getLinkTarget($this, 'showHealthcheck'));
-				break;
-			default:
-				$tabs->addTab("show_connection_settings", $this->plugin_object->txt('show_connection_settings'), $ctrl->getLinkTarget($this, 'showConnectionSettings'));
-				$tabs->addTab("show_other_settings", $this->plugin_object->txt('show_other_settings'), $ctrl->getLinkTarget($this, 'showOtherSettings'));
-				$tabs->addTab("show_healthcheck", $this->plugin_object->txt('show_healthcheck'), $ctrl->getLinkTarget($this, 'showHealthcheck'));
 				break;
 		}
 	}
@@ -100,9 +121,9 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 	public function showConnectionSettings()
 	{
-		global $DIC, $tpl;
-		$tabs = $DIC->tabs();
-		$tabs->setTabActive('show_connection_settings');
+        global $DIC, $tpl;
+        $tabs = $DIC->tabs();
+        $tabs->activateSubTab('basic_connection_settings');
 
 		$form = $this->getConnectionSettingsForm();
 		$tpl->setContent($form->getHTML());
@@ -112,23 +133,29 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
     {
         global $DIC, $tpl;
         $tabs = $DIC->tabs();
-        $tabs->setTabActive('show_server_list');
+        $tabs->activateSubTab('server_configuration');
 
+        $this->plugin_object->includeClass('GUI/tables/class.assStackQuestionServerTableGUI.php');
+        $table = new assStackQuestionServerTableGUI($this, 'showServerList');
+        $tpl->setContent($table->getHTML());
+    }
 
+    public function addServer()
+    {
+        global $DIC, $tpl;
+        $tabs = $DIC->tabs();
+        $tabs->activateSubTab('server_configuration');
 
         $form = $this->getServerSettingsForm();
         $tpl->setContent($form->getHTML());
     }
 
 
-
-
 	public function showOtherSettings()
 	{
 		global $DIC;
 		$tabs = $DIC->tabs();
-		$tabs->setTabActive('show_other_settings');
-		$tabs->setSubTabActive('show_display_settings');
+		$tabs->activateSubTab('show_display_settings');
 
 		$this->showDisplaySettings();
 	}
@@ -137,8 +164,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	{
 		global $DIC, $tpl;
 		$tabs = $DIC->tabs();
-		$tabs->setTabActive('show_other_settings');
-		$tabs->setSubTabActive('show_display_settings');
+		$tabs->activateSubTab('show_display_settings');
 
 		$form = $this->getDisplaySettingsForm();
 		$tpl->setContent($form->getHTML());
@@ -148,8 +174,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	{
 		global $DIC, $tpl;
 		$tabs = $DIC->tabs();
-		$tabs->setTabActive('show_other_settings');
-		$tabs->setSubTabActive('show_default_options_settings');
+		$tabs->activateSubTab('show_default_options_settings');
 
 		$form = $this->getDefaultOptionsSettingsForm();
 		$tpl->setContent($form->getHTML());
@@ -159,8 +184,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	{
 		global $DIC, $tpl;
 		$tabs = $DIC->tabs();
-		$tabs->setTabActive('show_other_settings');
-		$tabs->setSubTabActive('show_default_inputs_settings');
+		$tabs->activateSubTab('show_default_inputs_settings');
 
 		$form = $this->getDefaultInputsSettingsForm();
 		$tpl->setContent($form->getHTML());
@@ -170,8 +194,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	{
 		global $DIC, $tpl;
 		$tabs = $DIC->tabs();
-		$tabs->setTabActive('show_other_settings');
-		$tabs->setSubTabActive('show_default_prts_settings');
+		$tabs->activateSubTab('show_default_prts_settings');
 
 		$form = $this->getDefaultPRTSettingsForm();
 		$tpl->setContent($form->getHTML());
@@ -185,8 +208,6 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function showHealthcheck($a_mode = "")
 	{
 		global $DIC, $tpl;
-		$tabs = $DIC->tabs();
-		$tabs->setTabActive('show_healthcheck');
 
 		require_once("./Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php");
 		$toolbar = new ilToolbarGUI();
@@ -681,6 +702,59 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		return $form;
 	}
 
+	public function getServerSettingsForm($a_server_id = null)
+    {
+        global $DIC;
+        $ctrl = $DIC->ctrl();
+        $lng = $DIC->language();
+
+        $this->plugin_object->includeClass("model/configuration/class.assStackQuestionConfig.php");
+
+        if (isset($a_server_id))
+        {
+            $server = assStackQuestionServer::getServerById($a_server_id);
+            $title = $this->plugin_object->txt('add_server');
+            $ctrl->setParameter($this, 'server_id', $a_server_id);
+        }
+        else
+        {
+            $server = assStackQuestionServer::getDefaultServer();
+            $title = $this->plugin_object->txt('edit_server');
+        }
+
+        $form = new ilPropertyFormGUI();
+        $form->setTitle($title);
+        $form->setFormAction($ctrl->getFormAction($this));
+
+        // purpose
+        $options = [];
+        foreach (assStackQuestionServer::getPurposes() as $purpose)
+        {
+            $options[$purpose] = $this->plugin_object->txt('srv_purpose_' . $purpose);
+        }
+        $purpose = new ilSelectInputGUI($this->plugin_object->txt('srv_purpose'), 'purpose');
+        $purpose->setInfo($this->plugin_object->txt('srv_purpose_info'));
+        $purpose->setRequired(true);
+        $purpose->setValue($server->getPurpose());
+        $form->addItem($purpose);
+
+        $address = new ilTextInputGUI($this->plugin_object->txt('srv_address'), 'address');
+        $address->setInfo($this->plugin_object->txt('srv_address_info'));
+        $address->setRequired(true);
+        $address->setValue($server->getAddress());
+        $form->addItem($address);
+
+        $active = new ilCheckboxInputGUI($this->plugin_object->txt('active'), 'active');
+        $active->setInfo($this->plugin_object->txt('srv_active_info'));
+        $active->setValue($server->isActive());
+        $form->addItem($active);
+
+        $form->addCommandButton('saveServerSettings', $lng->txt('save'));
+        $form->addCommandButton('showServerList', $lng->txt('cancel'));
+
+        return $form;
+    }
+
 
 	public function healthcheckReduced()
 	{
@@ -783,6 +857,35 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		}
 		$this->showDefaultPRTsSettings();
 	}
+
+	public function saverServerSettings()
+    {
+        global $DIC, $tpl;
+        $form = $this->getServerSettingsForm($_GET['server_id']);
+        if ($form->checkInput())
+        {
+            if (isset($_GET['server_id']))
+            {
+                $server = assStackQuestionServer::getServerById($_GET['server_id']);
+            }
+            else
+            {
+                $server = assStackQuestionServer::getDefaultServer();
+            }
+            $server->setPurpose($form->getInput('purpose'));
+            $server->setAddress($form->getInput('address'));
+            $server->setActive($form->getInput('active'));
+            $server->save();
+
+            ilUtil::sendSuccess($this->plugin_object->txt('config_server_saved_message'), true);
+            $DIC->ctrl()->redirect($this, 'showServerList');
+        }
+        else
+        {
+            $form->setValuesByPost();
+            $tpl->setContent($form->getHTML());
+        }
+    }
 
 
 	/*
