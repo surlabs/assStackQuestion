@@ -15,7 +15,7 @@ class assStackQuestionServer
     const PURPOSE_ANY = 'any';
 
 
-    /** @var self[] | null */
+    /** @var self[] | null  (indexed by server_id) */
     protected static $servers;
 
 
@@ -49,8 +49,31 @@ class assStackQuestionServer
      */
     public static function saveServers()
     {
+        self::loadServers();
+
+        $data = [];
+        foreach (self::$servers as $server)
+        {
+            // stored json array is not indexed by server_id
+            $data[] = $server->toArray();
+        }
+
         $configObj = new assStackQuestionConfig();
-        $configObj->saveToDB('maxima_servers', json_encode(self::$servers), 'connection');
+        $configObj->saveToDB('maxima_servers', json_encode($data), 'connection');
+    }
+
+    /**
+     * Delete servers with given ids
+     * @param int[]
+     */
+    public static function deleteServers($server_ids = [])
+    {
+        self::loadServers();
+        foreach ($server_ids as $server_id)
+        {
+            unset(self::$servers[$server_id]);
+        }
+        self::saveServers();
     }
 
     /**
@@ -63,12 +86,22 @@ class assStackQuestionServer
 
         if (isset($config['maxima_servers']))
         {
-            self::$servers = json_decode($config['maxima_servers']);
+            $servers = (array) json_decode($config['maxima_servers']);
+            foreach ($servers as $properties)
+            {
+                $server = new self;
+                $server->fromArray((array) $properties);
+                self::$servers[$server->getServerId()] = $server;
+            }
         }
         elseif (isset($config['maxima_command']) && substr($config['maxima_command'], 0, 4) == 'http')
         {
+            // migrate maxima command to server setting
             $server = self::getDefaultServer($config['maxima_command']);
-            self::$servers[$server->getServerId()] = $server;
+            $server->save();
+
+            $configObj = new assStackQuestionConfig();
+            $configObj->saveToDB('maxima_command', null, 'connection');
         }
     }
 
@@ -92,12 +125,11 @@ class assStackQuestionServer
         return [self::PURPOSE_ANY, self::PURPOSE_EDIT, self::PURPOSE_RUN];
     }
 
-
     /**
-     * Get the properties as an array
+     * Wrote the properties to an array
      * @return array
      */
-    public function getAsArray()
+    public function toArray()
     {
         return [
             'server_id' => $this->server_id,
@@ -107,6 +139,17 @@ class assStackQuestionServer
         ];
     }
 
+    /**
+     * Get the properties from an array
+     * @param array
+     */
+    public function fromArray($array)
+    {
+        $this->server_id = (int) $array['server_id'];
+        $this->active = (bool) $array['active'];
+        $this->purpose = (string) $array['purpose'];
+        $this->address = (string) $array['address'];
+    }
 
     /**
      *  Get a server by id
@@ -116,12 +159,20 @@ class assStackQuestionServer
     public static function getServerById($server_id)
     {
         self::loadServers();
-        if (!isset(self::$servers[$server_id]))
+
+        if (isset(self::$servers[$server_id]))
+        {
+            return self::$servers[$server_id];
+        }
+        else
         {
             $server = self::getDefaultServer();
-            $server->server_id = $server_id;
+            if (!empty($server_id))
+            {
+                $server->server_id = (int) $server_id;
+            }
+            return $server;
         }
-        return $server;
     }
 
 
@@ -133,7 +184,7 @@ class assStackQuestionServer
     public static function getDefaultServer($address = 'http://localhost:8080/MaximaPool/MaximaPool')
     {
         $server = new self;
-        $server->setServerId(1);
+        $server->setServerId(0);
         $server->setAddress($address);
         $server->setPurpose(self::PURPOSE_ANY);
         $server->setActive(true);

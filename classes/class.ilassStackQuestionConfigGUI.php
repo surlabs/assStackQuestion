@@ -39,9 +39,12 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		{
 		    case 'configure';
             case 'showConnectionSettings':
-            case 'showServerList':
             case 'saveConnectionSettings':
+            case 'showServerList':
+            case 'addServer':
+            case 'editServer':
             case 'saveServerSettings':
+            case 'confirmDeleteServers':
                 $this->initTabs('show_connection_settings');
                 $this->$cmd();
                 break;
@@ -132,8 +135,12 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function showServerList()
     {
         global $DIC, $tpl;
-        $tabs = $DIC->tabs();
-        $tabs->activateSubTab('server_configuration');
+        $DIC->tabs()->activateSubTab('server_configuration');
+
+        $button = ilLinkButton::getInstance();
+        $button->setCaption($this->plugin_object->txt('add_server'), false);
+        $button->setUrl($DIC->ctrl()->getLinkTarget($this, 'addServer'));
+        $DIC->toolbar()->addButtonInstance($button);
 
         $this->plugin_object->includeClass('GUI/tables/class.assStackQuestionServerTableGUI.php');
         $table = new assStackQuestionServerTableGUI($this, 'showServerList');
@@ -150,8 +157,116 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
         $tpl->setContent($form->getHTML());
     }
 
+    public function editServer()
+    {
+        global $DIC, $tpl;
+        $tabs = $DIC->tabs();
+        $tabs->activateSubTab('server_configuration');
 
-	public function showOtherSettings()
+        $form = $this->getServerSettingsForm($_GET['server_id']);
+        $tpl->setContent($form->getHTML());
+    }
+
+
+    public function activateServers()
+    {
+        $this->changeServerActivation(true);
+    }
+
+    public function deactivateServers()
+    {
+        $this->changeServerActivation(false);
+    }
+
+    protected function changeServerActivation($active)
+    {
+        global $DIC;
+
+        $this->plugin_object->includeClass("model/configuration/class.assStackQuestionServer.php");
+
+        if (isset($_POST['server_id']))
+        {
+            $server_ids = (array) $_POST['server_id'];
+        }
+        elseif (isset($_GET['server_id']))
+        {
+            $server_ids = (array) $_GET['server_id'];
+        }
+
+        if (empty($server_ids))
+        {
+            ilUtil::sendFailure($this->plugin_object->txt('no_server_selected'), true);
+        }
+        else
+        {
+            foreach ($server_ids as $server_id)
+            {
+                $server = assStackQuestionServer::getServerById($server_id);
+                $server->setActive($active);
+            }
+            assStackQuestionServer::saveServers();
+
+            if (count($server_ids) == 1)
+            {
+                ilUtil::sendSuccess($this->plugin_object->txt($active ? 'server_activated' : 'server_deactivated'), true);
+            }
+            else
+            {
+                ilUtil::sendSuccess($this->plugin_object->txt($active ? 'servers_activated' : 'servers_deactivated'), true);
+            }
+        }
+        $DIC->ctrl()->redirect($this, 'showServerList');
+    }
+
+    public function confirmDeleteServers()
+    {
+        global $DIC, $tpl;
+
+        $this->plugin_object->includeClass("model/configuration/class.assStackQuestionServer.php");
+
+        if (isset($_POST['server_id']))
+        {
+            $server_ids = (array) $_POST['server_id'];
+        }
+        elseif (isset($_GET['server_id']))
+        {
+            $server_ids = (array) $_GET['server_id'];
+        }
+
+        if (empty($server_ids))
+        {
+            ilUtil::sendFailure($this->plugin_object->txt('no_server_selected'), true);
+            $DIC->ctrl()->redirect($this, 'showServerList');
+        }
+
+        $gui = new ilConfirmationGUI();
+        $gui->setHeaderText($this->plugin_object->txt('confirm_delete_servers'));
+        $gui->setFormAction($DIC->ctrl()->getFormAction($this));
+        $gui->setConfirm($DIC->language()->txt('delete'), 'deleteServers');
+        $gui->setCancel($DIC->language()->txt('cancel'), 'showServerList');
+
+        foreach ($server_ids as $server_id)
+        {
+            $server = assStackQuestionServer::getServerById($server_id);
+            $gui->addItem('server_id[]', $server_id, $server->getAddress());
+        }
+        $tpl->setContent($gui->getHTML());
+    }
+
+    public function deleteServers()
+    {
+        global $DIC;
+        $this->plugin_object->includeClass("model/configuration/class.assStackQuestionServer.php");
+
+        $server_ids = (array) $_POST['server_id'];
+        assStackQuestionServer::deleteServers($server_ids);
+
+        ilUtil::sendSuccess($this->plugin_object->txt(count($server_ids) == 1 ? 'server_deleted' : 'servers_deleted'), true);
+        $DIC->ctrl()->redirect($this, 'showServerList');
+    }
+
+
+    public function showOtherSettings()
 	{
 		global $DIC;
 		$tabs = $DIC->tabs();
@@ -320,16 +435,26 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$cas_result_caching->setValue('db');
 		$form->addItem($cas_result_caching);
 
-		if ($connection_data['platform_type'] == 'win' OR $connection_data['platform_type'] == 'server')
-		{
+		if ($connection_data['platform_type'] == 'win') {
 
-			//Maxima command
-			$maxima_command = new ilTextInputGUI($this->plugin_object->txt('maxima_command'), 'maxima_command');
-			$maxima_command->setInfo($this->plugin_object->txt('maxima_command_info'));
-			$maxima_command->setValue($connection_data['maxima_command']);
-			$form->addItem($maxima_command);
+            //Maxima command
+            $maxima_command = new ilTextInputGUI($this->plugin_object->txt('maxima_command'), 'maxima_command');
+            $maxima_command->setInfo($this->plugin_object->txt('maxima_command_info'));
+            $maxima_command->setValue($connection_data['maxima_command']);
+            $form->addItem($maxima_command);
+        }
+        elseif ($connection_data['platform_type'] == 'server')
+        {
+            $link = $DIC->ctrl()->getLinkTarget($this,'showServerList');
+            $maxima_command = new ilNonEditableValueGUI($this->plugin_object->txt('maxima_command'), '');
+            $maxima_command->setValue($this->plugin_object->txt('maxima_command_server'));
+            $maxima_command->setInfo(sprintf($this->plugin_object->txt('maxima_command_server_info'), $link));
+            $form->addItem($maxima_command);
+        }
 
-			//Plot command
+        if ($connection_data['platform_type'] == 'win' OR $connection_data['platform_type'] == 'server')
+        {
+            //Plot command
 			$plot_command = new ilTextInputGUI($this->plugin_object->txt('plot_command'), 'plot_command');
 			$plot_command->setInfo($this->plugin_object->txt('plot_command_info'));
 			$plot_command->setValue($connection_data['plot_command']);
@@ -708,18 +833,18 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
         $ctrl = $DIC->ctrl();
         $lng = $DIC->language();
 
-        $this->plugin_object->includeClass("model/configuration/class.assStackQuestionConfig.php");
+        $this->plugin_object->includeClass("model/configuration/class.assStackQuestionServer.php");
 
-        if (isset($a_server_id))
+        if (isset($a_server_id) && $a_server_id > 0)
         {
             $server = assStackQuestionServer::getServerById($a_server_id);
-            $title = $this->plugin_object->txt('add_server');
+            $title = $this->plugin_object->txt('edit_server');
             $ctrl->setParameter($this, 'server_id', $a_server_id);
         }
         else
         {
             $server = assStackQuestionServer::getDefaultServer();
-            $title = $this->plugin_object->txt('edit_server');
+            $title = $this->plugin_object->txt('add_server');
         }
 
         $form = new ilPropertyFormGUI();
@@ -735,6 +860,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
         $purpose = new ilSelectInputGUI($this->plugin_object->txt('srv_purpose'), 'purpose');
         $purpose->setInfo($this->plugin_object->txt('srv_purpose_info'));
         $purpose->setRequired(true);
+        $purpose->setOptions($options);
         $purpose->setValue($server->getPurpose());
         $form->addItem($purpose);
 
@@ -744,9 +870,9 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
         $address->setValue($server->getAddress());
         $form->addItem($address);
 
-        $active = new ilCheckboxInputGUI($this->plugin_object->txt('active'), 'active');
+        $active = new ilCheckboxInputGUI($lng->txt('active'), 'active');
         $active->setInfo($this->plugin_object->txt('srv_active_info'));
-        $active->setValue($server->isActive());
+        $active->setChecked($server->isActive());
         $form->addItem($active);
 
         $form->addCommandButton('saveServerSettings', $lng->txt('save'));
@@ -858,7 +984,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$this->showDefaultPRTsSettings();
 	}
 
-	public function saverServerSettings()
+	public function saveServerSettings()
     {
         global $DIC, $tpl;
         $form = $this->getServerSettingsForm($_GET['server_id']);
@@ -877,7 +1003,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
             $server->setActive($form->getInput('active'));
             $server->save();
 
-            ilUtil::sendSuccess($this->plugin_object->txt('config_server_saved_message'), true);
+            ilUtil::sendSuccess($this->plugin_object->txt('server_saved'), true);
             $DIC->ctrl()->redirect($this, 'showServerList');
         }
         else
