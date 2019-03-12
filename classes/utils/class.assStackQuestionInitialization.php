@@ -191,10 +191,19 @@ function get_config($section = 'qtype_stack')
 	//Caching
 	$configs->casresultscache = $saved_config['cas_result_caching'];
 	//Maxima command - If blank: maxima
-	if (!$saved_config['maxima_command'] OR $saved_config['platform_type'] == 'unix')
-	{
-		$configs->maximacommand = "maxima";
-	} else
+    if ($saved_config['platform_type'] == 'server')
+    {
+        // prevent a second database query
+        assStackQuestionConfig::_readServers($saved_config);
+
+        // dynamically get the server address for the current request
+        $configs->maximacommand = assStackQuestionConfig::_getServerAddress();
+    }
+	elseif (!$saved_config['maxima_command'] OR $saved_config['platform_type'] == 'unix')
+    {
+        $configs->maximacommand = "maxima";
+    }
+	else
 	{
 		$configs->maximacommand = $saved_config['maxima_command'];
 	}

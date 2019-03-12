@@ -15,6 +15,12 @@
  */
 class assStackQuestionConfig
 {
+    /** @var assStackQuestionServer */
+    protected static $server;
+
+    /** @var array */
+    protected $settings;
+
 
 	public function __construct($plugin_object = "")
 	{
@@ -24,6 +30,21 @@ class assStackQuestionConfig
 	/*
 	 * GET SETTINGS FROM DATABASE
 	 */
+
+
+    /**
+     * Get a configuration setting
+     * @param $name
+     * @return mixed
+     */
+    public function get($name)
+    {
+        if (!isset($this->settings))
+        {
+            $this->settings = self::_getStoredSettings('all');
+        }
+        return $this->settings[$name];
+    }
 
 	/**
 	 * This class can be called from anywhere to get configuration
@@ -50,6 +71,48 @@ class assStackQuestionConfig
 
 		return $settings;
 	}
+
+
+    /**
+     * Read the server configuration from a configuration array
+     * @param $config
+     */
+	public static function _readServers($config)
+    {
+        require_once (__DIR__ . '/class.assStackQuestionServer.php');
+        assStackQuestionServer::readServersFromConfig($config);
+    }
+
+
+    /**
+     * Get the maxima server address for the current request
+     * The chosen server is cached for the request
+     *
+     * @return string
+     */
+    public static function _getServerAddress()
+    {
+        require_once (__DIR__ . '/class.assStackQuestionServer.php');
+
+        if (isset(self::$server))
+        {
+            return self::$server->getAddress();
+        }
+
+        if (!empty($_REQUEST['server_id']))
+        {
+            self::$server = assStackQuestionServer::getServerById($_REQUEST['server_id']);
+            return self::$server->getAddress();
+
+        }
+
+        $purpose = assStackQuestionServer::PURPOSE_ANY;
+
+
+        self::$server = assStackQuestionServer::getServerForPurpose($purpose);
+        return self::$server->getAddress();
+    }
+
 
 	/*
 	 * SAVE SETTINGS TO DATABASE
