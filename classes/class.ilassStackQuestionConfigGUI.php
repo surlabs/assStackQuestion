@@ -46,6 +46,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
             case 'showServerList':
             case 'addServer':
             case 'editServer':
+            case 'saveConnectionSettings':
             case 'saveServerSettings':
             case 'confirmDeleteServers':
                 $this->initTabs('show_connection_settings');
