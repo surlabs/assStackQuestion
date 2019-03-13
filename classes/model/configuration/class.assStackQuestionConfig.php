@@ -106,7 +106,25 @@ class assStackQuestionConfig
 
         }
 
-        $purpose = assStackQuestionServer::PURPOSE_ANY;
+        switch (strtolower($_GET['cmdClass']))
+        {
+            case 'iltestplayerfixedquestionsetgui':
+            case 'iltestplayerrandomquestionsetgui':
+            case 'iltestplayerdynamicquestionsetgui':
+                $purpose = assStackQuestionServer::PURPOSE_RUN;
+                break;
+
+            default:
+                switch (basename($_SERVER['SCRIPT_FILENAME']))
+                {
+                    case 'validation.php':
+                    case 'instant_validiation.php':
+                        $purpose= assStackQuestionServer::PURPOSE_RUN;
+                        break;
+                    default:
+                        $purpose = assStackQuestionServer::PURPOSE_EDIT;
+                }
+        }
 
 
         self::$server = assStackQuestionServer::getServerForPurpose($purpose);

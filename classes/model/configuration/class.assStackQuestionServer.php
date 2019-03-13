@@ -294,7 +294,7 @@ class assStackQuestionServer
      */
     public function isAvailable($purpose)
     {
-        if ($this->purpose == $purpose || $this->purpose == self::PURPOSE_ANY || $purpose = self::PURPOSE_ANY)
+        if ($this->purpose == $purpose || $this->purpose == self::PURPOSE_ANY || $purpose == self::PURPOSE_ANY)
         {
             return $this->isActive();
         }
