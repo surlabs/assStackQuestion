@@ -53,7 +53,7 @@ class assStackQuestionHealthcheckGUI
 	}
 
 
-	public function showHealthCheck($a_mode = 'reduced')
+	public function showHealthCheck()
 	{
 		$connection_status_template = $this->getPlugin()->getTemplate('tpl.il_as_qpl_xqcas_healthcheck.html');
 

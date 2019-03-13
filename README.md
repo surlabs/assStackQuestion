@@ -104,8 +104,13 @@ The following bug reports were fixed:
 - https://mantis.ilias.de/view.php?id=24998
 
 
-Version 3.0.16 (2019-12-27) for ILIAS 5.3
-----------------------------------------
+Version 3.0.17 (2019-03-13) for ILIAS 5.3
+-----------------------------------------
+- Configuration of multiple MaximaPool servers for different purposes (Authoring, Test Run)
+
+
+Version 3.0.16 (2019-02-27) for ILIAS 5.3
+-----------------------------------------
 - Added a new feature Copy of Nodes and PRT: In question Authoring now exists the option to copy nodes and PRT, when clicking on copying Node or PRT, the chosen element is stored in the session, then, the user should go to the question or PRT the user wants to paste te node/prt and click on paste. A new PRT or a new node will be created with the values of the copied one. Please notice that when a node is copied to a PRT, the fields next node when true/false are not copied and should be edited by hand.
 The following bug reports were fixed:
 - https://mantis.ilias.de/view.php?id=24835 about matrix brackets

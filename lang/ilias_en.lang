@@ -428,3 +428,27 @@ prt_copied_to_clipboard#:#Potential Response Tree copied to Clipboard
 node_copied_to_clipboard#:#Node copied to Clipboard
 node_paste#:#A Node has been pasted in this question
 prt_paste#:#A PRT has been pasted in this question
+srv_purpose#:#Purpose
+srv_purpose_info#:#Choose 'Test Run' to exclusivly reserve a maxima server for the time time-critical calls during a test, e.g. to support online exams. Then provide a second server for all other calls ('Authoring/Scoring').
+srv_purpose_run#:#Test Run
+srv_purpose_edit#:#Authoring/Scoring
+srv_purpose_any#:#Any
+srv_address#:#Server Address
+srv_address_info#:#Provide the full URL of the maximapool server, including the port, e.g. 'http://localhost:8080/MaximaPool/MaximaPool'
+srv_active_info#:#The server can be used for maxima calls.
+basic_connection_settings#:#Basic Settings
+server_configuration#:#Server Configuration
+add_server#:#Add Server
+edit_server#:#Edit Server
+delete_server#:#Delete Server
+maxima_command_server#:#Server Call
+maxima_command_server_info#:#Configure the available MaximaPool servers on the sub tab <a href="%s">Server Configuration</a>
+server_saved#:#The server settings are saved.
+server_activated#:#The server is activated.
+servers_activated#:#The servers are activated.
+server_deactivated#:#The server is deactivated.
+servers_deactivated#:#The servers are deactivated.
+no_server_selected#:#Please select a server.
+confirm_delete_servers#:#Delete the following server(s)?
+server_deleted#:#The server is deleted.
+servers_deleted#:#The servers are deleted.
