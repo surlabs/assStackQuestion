@@ -334,6 +334,8 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		$toolbar = new ilToolbarGUI();
 		$ctrl = $DIC->ctrl();
+
+		$ctrl->saveParameter($this, 'server_id');
 		$toolbar->setFormAction($ctrl->getFormAction($this));
 
 		$healthcheck_reduced_button = ilSubmitButton::getInstance();

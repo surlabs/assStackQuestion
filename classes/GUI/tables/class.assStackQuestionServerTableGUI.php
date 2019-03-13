@@ -85,6 +85,7 @@ class assStackQuestionServerTableGUI extends ilTable2GUI
         $list->setId('xqcas_server_actions');
         $list->setListTitle($this->lng->txt('actions'));
 
+        $list->addItem($this->lng->txt('edit'), '', $this->ctrl->getLinkTarget($this->parent_obj, 'editServer'));
         $list->addItem($this->plugin->txt('show_healthcheck'), '', $this->ctrl->getLinkTarget($this->parent_obj, 'runHealthcheck'));
         $list->addItem($this->lng->txt('activate'), '', $this->ctrl->getLinkTarget($this->parent_obj, 'activateServers'));
         $list->addItem($this->lng->txt('deactivate'), '', $this->ctrl->getLinkTarget($this->parent_obj, 'deactivateServers'));

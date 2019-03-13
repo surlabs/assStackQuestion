@@ -75,6 +75,7 @@ class assStackQuestionConfig
 
     /**
      * Read the server configuration from a configuration array
+     * This avoids a second reading
      * @param $config
      */
 	public static function _readServers($config)

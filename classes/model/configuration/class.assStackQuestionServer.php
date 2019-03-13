@@ -1,4 +1,8 @@
 <?php
+/**
+ * Copyright (c) 2019 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
+ * GPLv2, see LICENSE
+ */
 
 require_once (__DIR__ . '/class.assStackQuestionConfig.php');
 /**
@@ -96,10 +100,11 @@ class assStackQuestionServer
         }
         elseif (isset($config['maxima_command']) && substr($config['maxima_command'], 0, 4) == 'http')
         {
-            // migrate maxima command to server setting
+            // migrate maxima command to a server setting and store it
             $server = self::getDefaultServer($config['maxima_command']);
             $server->save();
 
+            // delete the server url from the maxima command
             $configObj = new assStackQuestionConfig();
             $configObj->saveToDB('maxima_command', null, 'connection');
         }
