@@ -408,3 +408,27 @@ prt_copied_to_clipboard#:#Rückmeldebaum in die Zwischenablage kopiert
 node_copied_to_clipboard#:#Knoten in die Zwischenablage kopiert
 node_paste#:#In dieser Frage wurde ein Knoten eingefügt
 prt_paste#:#In dieser Frage wurde ein Rückmeldebaum eingefügt
+srv_purpose#:#Verwendung
+srv_purpose_info#:#Wählen Sie "Testdurchlauf" um einen Maxima-Server exklusiv für zeitkritische Anfragen währen eines Tests zu reservieren, z.B. für E-Klausuren. Stellen Sie dann einen zweiten Server für alle anderen Anfragen bereit ("Erstellung/Bewertung").
+srv_purpose_run#:#Testdurchlauf
+srv_purpose_edit#:#Erstellung/Bewertung
+srv_purpose_any#:#Beliebig
+srv_address#:#Server-Adresse
+srv_address_info#:#Geben Sie die komplette URL des Maxima-Server inklusive Port an, z.B. "http://localhost:8080/MaximaPool/MaximaPool"
+srv_active_info#:#Der Server kann für Maxima-Aufrufe verwendet werden
+basic_connection_settings#:#Grundeinstellungen
+server_configuration#:#Server-Konfiguration
+add_server#:#Server hinzufügen
+edit_server#:#Server bearbeiten
+delete_server#:#Server löschen
+maxima_command_server#:#Server-Aufruf
+maxima_command_server_info#:#Konfigurieren Sie die verfügbaren Server auf dem Tab <a href="%s">Server-Konfiguration</a>
+server_saved#:#Die Server-Einstellungen wurden gespeichert.
+server_activated#:#Der Server wurde aktiviert.
+servers_activated#:#Die Server wurden aktiviert.
+server_deactivated#:#Der Server wurde deaktiviert.
+servers_deactivated#:#Die Server wurden deaktiviert.
+no_server_selected#:#Bitte wählen Sie einen Server aus.
+confirm_delete_servers#:#Möchten Sie den/die folgenden Server löschen?
+server_deleted#:#Der Server wurde gelöscht.
+servers_deleted#:#Die Server wurden gelöscht.
