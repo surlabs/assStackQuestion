@@ -103,11 +103,9 @@ Version 3.0.20 (2019-04-03) for ILIAS 5.3
 The following bug reports were fixed:
 - https://mantis.ilias.de/view.php?id=24998
 
-
 Version 3.0.17 (2019-03-13) for ILIAS 5.3
 -----------------------------------------
 - Configuration of multiple MaximaPool servers for different purposes (Authoring, Test Run)
-
 
 Version 3.0.16 (2019-02-27) for ILIAS 5.3
 -----------------------------------------
