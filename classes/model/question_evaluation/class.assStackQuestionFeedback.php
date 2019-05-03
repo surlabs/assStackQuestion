@@ -334,7 +334,7 @@ class assStackQuestionFeedback
 			{
 				$correct_answer_array = $input->get_correct_response($this->getQuestion()->getSession()->get_value_key($input_name, true));
 				$correct_answer = $correct_answer_array[$input_name];
-				if (strlen($correct_answer))
+				if (!strlen($correct_answer))
 				{
 					$correct_answer = $this->getQuestion()->getSession()->get_value_key($input->get_teacher_answer());
 				}
