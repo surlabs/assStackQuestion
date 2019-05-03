@@ -430,7 +430,15 @@ class assStackQuestionStackQuestion
 				{
 					return $input_name;
 				}
-				$input_parameters = array('type' => $input->getInputType(), 'name' => $input_name, 'teacheranswer' => $input->getTeacherAnswer(), 'options' => $this->getOptions(), 'parameters' => $specific_parameters);
+				//26640 is teacher answer is a variable should be converted before setting it
+				$all_session_keys = $this->getSession()->get_all_keys();
+				$teacher_answer = $input->getTeacherAnswer();
+				foreach($all_session_keys as $key){
+					if($input->getTeacherAnswer() == $key){
+						$teacher_answer = $this->getSession()->get_value_key($key);
+					}
+				}
+				$input_parameters = array('type' => $input->getInputType(), 'name' => $input_name, 'teacheranswer' => $teacher_answer, 'options' => $this->getOptions(), 'parameters' => $specific_parameters);
 				$stack_inputs[$input_name] = $this->getStackFactory()->get("input_object", $input_parameters);
 
 			}

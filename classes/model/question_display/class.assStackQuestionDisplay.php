@@ -506,7 +506,7 @@ class assStackQuestionDisplay
 				for ($j = 0; $j < $matrix_input_columns; $j++)
 				{
 					$user_matrix .= "<td class='xqcas_matrix_validation'>";
-					$user_filled_input = '<code>' . $student_answer[$input_name . "_sub_" . $i . "_" . $j] . '</code>';
+					$user_filled_input = '<code>' . $student_answer[$input_name][$input_name . "_sub_" . $i . "_" . $j] . '</code>';
 					$user_matrix .= $user_filled_input;
 					$user_matrix .= "</td>";
 				}
