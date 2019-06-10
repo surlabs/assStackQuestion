@@ -452,3 +452,5 @@ no_server_selected#:#Please select a server.
 confirm_delete_servers#:#Delete the following server(s)?
 server_deleted#:#The server is deleted.
 servers_deleted#:#The servers are deleted.
+deletion_error_connected_node#:#You cannot delete this node as is connected to a PRT, please change the PRT structure to disconnect the node before delete it.
+import_in_test_error#:#Import STACK questions from MoodleXML is not allowed in tests, please import it into a question pool before including it into a test.

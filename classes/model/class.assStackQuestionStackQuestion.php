@@ -469,10 +469,7 @@ class assStackQuestionStackQuestion
 				$response[$name] = $teacher_answer_casstring;
 			}
 		}
-		$session = $this->getSession();
-		$session->add_vars($response);
-		$session->instantiate();
-		$this->setSession($session);
+		$this->getSession()->add_vars($response);
 	}
 
 	/**

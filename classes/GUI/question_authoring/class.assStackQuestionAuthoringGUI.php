@@ -949,6 +949,9 @@ class assStackQuestionAuthoringGUI
 		$node_pos_specific_feedback_info_text .= $this->addInfoTooltip("cas_text");
 		$node_pos_specific_feedback->setInfo($node_pos_specific_feedback_info_text);
 
+		$node_pos_feedback_class = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_pos_feedback_class'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_pos_feedback_class');
+		$node_pos_feedback_class->setOptions($this->getFeedbackOptions());
+		$node_pos_feedback_class->setInfo($this->getPlugin()->txt('prt_node_pos_feedback_class_info'));
 
 		$this->getQuestionGUI()->setRTESupport($node_pos_specific_feedback);
 
@@ -961,6 +964,7 @@ class assStackQuestionAuthoringGUI
 			//$node_pos_next_node->setValue($this->default[""]);
 			$node_pos_answernote->setValue($this->default["prt_pos_answernote"]);
 			//$node_pos_specific_feedback->setValue($this->default[""]);
+			$node_pos_feedback_class->setValue(1);
 		} else
 		{
 			$node_pos_mode->setValue($node->getTrueScoreMode());
@@ -969,6 +973,7 @@ class assStackQuestionAuthoringGUI
 			$node_pos_next_node->setValue($node->getTrueNextNode());
 			$node_pos_answernote->setValue($node->getTrueAnswerNote());
 			$node_pos_specific_feedback->setValue($node->getTrueFeedback());
+			$node_pos_feedback_class->setValue($node->getTrueFeedbackFormat());
 		}
 
 
@@ -982,6 +987,7 @@ class assStackQuestionAuthoringGUI
 		}
 		$positive_part->addFormProperty($node_pos_answernote);
 		$positive_part->addFormProperty($node_pos_specific_feedback);
+		$positive_part->addFormProperty($node_pos_feedback_class);
 
 		return $positive_part;
 	}
@@ -1031,6 +1037,9 @@ class assStackQuestionAuthoringGUI
 		$node_neg_specific_feedback_info_text .= $this->addInfoTooltip("cas_text");
 		$node_neg_specific_feedback->setInfo($node_neg_specific_feedback_info_text);
 
+		$node_neg_feedback_class = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_neg_feedback_class'), 'prt_' . $prt->getPRTName() . '_node_' . $node->getNodeName() . '_neg_feedback_class');
+		$node_neg_feedback_class->setOptions($this->getFeedbackOptions());
+		$node_neg_feedback_class->setInfo($this->getPlugin()->txt('prt_node_neg_feedback_class_info'));
 
 		$this->getQuestionGUI()->setRTESupport($node_neg_specific_feedback);
 
@@ -1043,6 +1052,7 @@ class assStackQuestionAuthoringGUI
 			//$node_neg_next_node->setValue($this->default[""]);
 			$node_neg_answernote->setValue($this->default["prt_neg_answernote"]);
 			//$node_neg_specific_feedback->setValue($this->default[""]);
+			$node_neg_feedback_class->setValue(1);
 		} else
 		{
 			$node_neg_mode->setValue($node->getFalseScoreMode());
@@ -1051,6 +1061,7 @@ class assStackQuestionAuthoringGUI
 			$node_neg_next_node->setValue($node->getFalseNextNode());
 			$node_neg_answernote->setValue($node->getFalseAnswerNote());
 			$node_neg_specific_feedback->setValue($node->getFalseFeedback());
+			$node_neg_feedback_class->setValue($node->getFalseFeedbackFormat());
 		}
 
 		//Add properties to form
@@ -1063,6 +1074,8 @@ class assStackQuestionAuthoringGUI
 		}
 		$negative_part->addFormProperty($node_neg_answernote);
 		$negative_part->addFormProperty($node_neg_specific_feedback);
+		$negative_part->addFormProperty($node_neg_feedback_class);
+
 
 		return $negative_part;
 	}
@@ -1194,4 +1207,53 @@ class assStackQuestionAuthoringGUI
 		return $this->template;
 	}
 
+	public function getFeedbackOptions()
+	{
+		global $DIC;
+		$lng = $DIC->language();
+		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
+		$options = array();
+
+		//Add default option
+		$options[1] = $lng->txt("default");
+
+		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
+		foreach ($config_options as $option => $css_class)
+		{
+			if ($css_class != "")
+			{
+				/*
+		 		* AS WE ARE USING THE TRUE/FALSE FEEDBACK FORMAT FIELD OF THE DATABASE
+		 		* WHICH IS NOT USED AT THE MOMENT, AND IS ALWAYS 0 OR 1. WE HAVE TO
+		 		* DEFINE VALUES FOR EACH OF THE FEEDBACK STYLES, BEGINNING BY 2, TO DISTINGUISH
+		 		* QUESTION WHICH USES THIS STYLES AND THOSE WHICH NOT.
+		 		*/
+
+				switch ($option)
+				{
+					case "feedback_node_right":
+						$options[2] = $this->getPlugin()->txt($option);
+						break;
+					case "feedback_node_wrong":
+						$options[3] = $this->getPlugin()->txt($option);
+						break;
+					case "feedback_solution_hint":
+						$options[4] = $this->getPlugin()->txt($option);
+						break;
+					case "feedback_extra_info":
+						$options[5] = $this->getPlugin()->txt($option);
+						break;
+					case "feedback_plot_feedback":
+						$options[6] = $this->getPlugin()->txt($option);
+						break;
+					case "feedback_extra_1":
+						$options[7] = $this->getPlugin()->txt($option);
+						break;
+					default:
+				}
+			}
+		}
+
+		return $options;
+	}
 }

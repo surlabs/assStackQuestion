@@ -442,6 +442,7 @@ class assStackQuestionPRTNode
 		$this->setTrueNextNode(ilUtil::stripSlashes($_POST[$prefix . '_pos_next']));
 		$this->setTrueAnswerNote(ilUtil::stripSlashes($_POST[$prefix . '_pos_answernote'] == NULL ? "" : $_POST[$prefix . '_pos_answernote']));
 		$this->setTrueFeedback(ilUtil::stripSlashes($_POST[$prefix . '_pos_specific_feedback'] == NULL ? "" : $_POST[$prefix . '_pos_specific_feedback'], true, $a_rte_tags));
+		$this->setTrueFeedbackFormat(ilUtil::stripSlashes($_POST[$prefix . '_pos_feedback_class']));
 
 		$this->setFalseScore(ilUtil::stripSlashes($_POST[$prefix . '_neg_score']) == NULL ? 0 : ilUtil::stripSlashes($_POST[$prefix . '_neg_score']));
 		$this->setFalseScoreMode(ilUtil::stripSlashes($_POST[$prefix . '_neg_mod']));
@@ -449,6 +450,7 @@ class assStackQuestionPRTNode
 		$this->setFalseNextNode(ilUtil::stripSlashes($_POST[$prefix . '_neg_next']));
 		$this->setFalseAnswerNote(ilUtil::stripSlashes($_POST[$prefix . '_neg_answernote'] == NULL ? "" : $_POST[$prefix . '_neg_answernote']));
 		$this->setFalseFeedback(ilUtil::stripSlashes($_POST[$prefix . '_neg_specific_feedback'] == NULL ? "" : $_POST[$prefix . '_neg_specific_feedback'], true, $a_rte_tags));
+		$this->setFalseFeedbackFormat(ilUtil::stripSlashes($_POST[$prefix . '_neg_feedback_class']));
 
 
 		if ($new_prt_name) {

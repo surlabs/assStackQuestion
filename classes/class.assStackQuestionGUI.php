@@ -482,6 +482,14 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_preview.css'));
 		$tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_display.css'));
 
+		//Include content Styles
+		$style_ids = assStackQuestionUtils::_getContentStylesAvailable();
+		require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
+		foreach ($style_ids as $id)
+		{
+			$tpl->addCss(ilObjStyleSheet::getContentStylePath((int)$id));
+		}
+
 		$questionoutput = $question_preview_gui->get();
 		//Returns output (with page if needed)
 		if (!$show_question_only)
@@ -504,6 +512,9 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function getTestOutput($active_id, $pass = NULL, $is_question_postponed = FALSE, $user_post_solutions = FALSE, $show_specific_inline_feedback)
 	{
+		$this->active_id = $active_id;
+		$this->pass = $pass;
+
 		$solutions = NULL;
 		// get the solution of the user for the active pass or from the last pass if allowed
 		if ($active_id)
@@ -564,6 +575,15 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->plugin->includeClass("GUI/question_display/class.assStackQuestionDisplayGUI.php");
 		//Get question display data
 		$tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_display.css'));
+
+		//Include content Styles
+		$style_ids = assStackQuestionUtils::_getContentStylesAvailable();
+		require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
+		foreach ($style_ids as $id)
+		{
+			$tpl->addCss(ilObjStyleSheet::getContentStylePath((int)$id));
+		}
+
 		$value_format_user_response = assStackQuestionUtils::_getUserResponse($this->object->getId(), $this->object->getStackQuestion()->getInputs(), $feedback_data);
 		$question_display_object = new assStackQuestionDisplay($this->plugin, $this->object->getStackQuestion(), $value_format_user_response, $feedback_data);
 		$question_display_data = $question_display_object->getQuestionDisplayData(TRUE);
@@ -595,6 +615,8 @@ class assStackQuestionGUI extends assQuestionGUI
 	function getSolutionOutput($active_id, $pass = NULL, $graphicalOutput = FALSE, $result_output = FALSE, $show_question_only = TRUE, $show_feedback = TRUE, $show_correct_solution = FALSE, $show_manual_scoring = FALSE, $show_question_text = TRUE)
 	{
 		$solution_template = new ilTemplate("tpl.il_as_tst_solution_output.html", TRUE, TRUE, "Modules/TestQuestionPool");
+		$this->active_id = $active_id;
+		$this->pass = $pass;
 		//Check for PASS
 		if ($active_id)
 		{
@@ -629,15 +651,15 @@ class assStackQuestionGUI extends assQuestionGUI
 		{
 			//User Solution
 			//Returns user solution HTML
-			$solution_output = $this->getQuestionOutput($solutions, FALSE, $show_feedback, TRUE);
+			$solution_output = $this->getQuestionOutput($solutions, true, $show_feedback, TRUE);
 			//2.3.12 add feedback to solution
-			$solution_output .= $this->getSpecificFeedbackOutput($active_id, $pass);
+			$solution_output .= $this->getSpecificFeedbackOutput($solutions);
 
 		} else
 		{
 			//Correct solution
 			//Returns best solution HTML.
-			$solution_output = $this->getQuestionOutput($solutions, TRUE, $show_feedback);
+			$solution_output = $this->getQuestionOutput($solutions, FALSE, $show_feedback);
 		}
 
 		$question_text = $this->object->getQuestion();
@@ -698,6 +720,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		if (isset($solutions["question_text"]) AND strlen($solutions["question_text"]))
 		{
 			$question_text = $solutions["question_text"];
+
 
 			//Get Model answer from solutions and replace placeholders
 			if (isset($solutions["prt"]))
@@ -763,7 +786,7 @@ class assStackQuestionGUI extends assQuestionGUI
 										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
 									} else
 									{
-										$input_replacement = "<textarea rows=\"4\" cols=\"50\">" . $input_answer["value"]. "</textarea>";
+										$input_replacement = "<textarea rows=\"4\" cols=\"50\">" . $input_answer["value"] . "</textarea>";
 									}
 									$size = $input->getBoxSize();
 									$input_text = "";
@@ -794,7 +817,6 @@ class assStackQuestionGUI extends assQuestionGUI
 									}
 									$size = strlen($input_replacement) + 5;
 									$input_html_display = '<input type="text" size="' . $size . '" value="' . $input_replacement . '" disabled="disabled">';
-
 									$question_text = str_replace("[[input:" . $input_name . "]]", $input_html_display, $question_text);
 									break;
 							}
@@ -843,14 +865,22 @@ class assStackQuestionGUI extends assQuestionGUI
 	}
 
 	/**
-	 * Return the specific feedback
-	 * @param int $active_id
-	 * @param int $pass
-	 * @return string
+	 * Returns the answer specific feedback for the question
+	 *
+	 * Please not that the solution array structure is STACK specific!
+	 *
+	 * @param array $userSolution ($userSolution[<key>] = <value>)
+	 * @return string HTML Code with the answer specific feedback
+	 * @see assStackQuestion::getSolutionValues()
 	 **/
-	public function getSpecificFeedbackOutput($active_id, $pass)
+	public function getSpecificFeedbackOutput($userSolution)
 	{
-		//Check for PASS
+		//We cannot use $userSolution, we need to get active id and pass to get the
+//Check for PASS
+
+		$active_id = $this->active_id;
+		$pass = $this->pass;
+
 		if ($active_id)
 		{
 			require_once './Modules/Test/classes/class.ilObjTest.php';
@@ -878,6 +908,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			}
 		}
 		$specific_feedback = $this->object->getOptions()->getSpecificFeedback();
+
 		//Search for feedback placeholders in specific feedback text.
 		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt)
 		{
@@ -890,11 +921,11 @@ class assStackQuestionGUI extends assQuestionGUI
 					$string .= '<div class="alert alert-warning" role="alert">';
 					//Generic feedback
 					$string .= $solutions["prt"][$prt_name]['status']['message'];
-					//$string .= '<br>';
+					$string .= '<br>';
 					//Specific feedback
 					$string .= $solutions["prt"][$prt_name]["feedback"];
 					$string .= $solutions["prt"][$prt_name]["errors"];
-					$string .= '</div>';
+					//$string .= '</div>';
 					$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", $string, $specific_feedback);
 				} else
 				{
@@ -1610,6 +1641,14 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		$lng = $DIC->language();
 		$tabs = $DIC->tabs();
+
+		//#25145
+		if (isset($_REQUEST["test_ref_id"]))
+		{
+			ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_import_in_test_error"), TRUE);
+			$DIC->ctrl()->redirect($this, 'editQuestion');
+		}
+
 		if ($this->object->getSelfAssessmentEditingMode())
 		{
 			$this->getLearningModuleTabs();

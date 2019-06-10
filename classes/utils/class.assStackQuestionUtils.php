@@ -146,10 +146,12 @@ class assStackQuestionUtils
 		$current_response = array();
 		$user_response_from_db = array();
 
-		if(sizeof($previous_response)){
+		if (sizeof($previous_response))
+		{
 			foreach ($previous_response["prt"] as $prt_name => $prt_info)
 			{
-				if(sizeof($prt_info["response"])){
+				if (sizeof($prt_info["response"]))
+				{
 					foreach ($prt_info["response"] as $input_name => $input_info)
 					{
 						$user_response_from_db[$input_name] = $input_info["value"];
@@ -179,7 +181,7 @@ class assStackQuestionUtils
 		return $user_response;
 	}
 
-	 /**
+	/**
 	 * @param $user_response
 	 * @param $question_id
 	 * @param $inputs
@@ -300,7 +302,7 @@ class assStackQuestionUtils
 				foreach ($inputs as $input_name => $input)
 				{
 					//If input is not matrix
-					if (is_subclass_of($input,"stack_dropdown_input"))
+					if (is_subclass_of($input, "stack_dropdown_input"))
 					{
 						$new_user_response_array['xqcas_input_' . $input_name . '_value'] = $input->maxima_to_response_array($user_response[$input_name]);
 					} elseif (!is_a($input, 'stack_matrix_input'))
@@ -639,6 +641,50 @@ class assStackQuestionUtils
 		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
 
 		return stack_maths::process_display_castext($castext);
+	}
+
+	/**
+	 * Returns the ID of each content styles available in the platform.
+	 */
+	public static function _getContentStylesAvailable()
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		$styles_id = array();
+		$query = "SELECT DISTINCT id FROM style_data WHERE active = '1'";
+		$result = $db->query($query);
+		while ($row = $db->fetchAssoc($result))
+		{
+			$styles_id[] = $row["id"];
+		}
+
+		return $styles_id;
+	}
+
+	/**
+	 * Returns a text with a format from the content style
+	 * @param $a_text
+	 * @param $a_format
+	 * @return string
+	 */
+	public static function _getFeedbackStyledText($a_text, $a_format)
+	{
+		//Get Styles assigned to Formats
+		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
+		require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
+
+		//Return text depending Format
+		switch ($a_format)
+		{
+			case "feedback_default":
+				//Use default style of the platform
+				return $a_text;
+			default:
+				//Use specific feedback style
+				$style_assigned = $config_options[$a_format];
+				return '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">' . $a_text . '</div>';
+		}
 	}
 
 }

@@ -1943,5 +1943,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		$_SESSION["stack_authoring_errors"][$this->getId()][] = $error;
 	}
 
-
+	/**
+	 * @param array $valuePairs
+	 * @return array $indexedValues
+	 */
+	public function fetchIndexedValuesFromValuePairs(array $valuePairs)
+	{
+		return $valuePairs;
+	}
 }

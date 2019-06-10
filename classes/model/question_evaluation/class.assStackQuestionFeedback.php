@@ -172,8 +172,27 @@ class assStackQuestionFeedback
 		{
 			foreach ($prt_state->__get('feedback') as $feedback_obj)
 			{
-				$feedback .= $prt_state->substitue_variables_in_feedback($feedback_obj->feedback);
-				$feedback .= '</br>';
+				switch ($feedback_obj->format)
+				{
+					case "2":
+						$feedback .= assStackQuestionUtils::_getFeedbackStyledText($prt_state->substitue_variables_in_feedback($feedback_obj->feedback), "feedback_node_right");
+						break;
+					case "3":
+						$feedback .= assStackQuestionUtils::_getFeedbackStyledText($prt_state->substitue_variables_in_feedback($feedback_obj->feedback), "feedback_node_wrong");
+						break;
+					case "4":
+						$feedback .= assStackQuestionUtils::_getFeedbackStyledText($prt_state->substitue_variables_in_feedback($feedback_obj->feedback), "feedback_solution_hint");
+						break;
+					case "5":
+						$feedback .= assStackQuestionUtils::_getFeedbackStyledText($prt_state->substitue_variables_in_feedback($feedback_obj->feedback), "feedback_extra_info");
+						break;
+					case "6":
+						$feedback .= assStackQuestionUtils::_getFeedbackStyledText($prt_state->substitue_variables_in_feedback($feedback_obj->feedback), "feedback_plot_feedback");
+						break;
+					default:
+						$feedback .= $prt_state->substitue_variables_in_feedback($feedback_obj->feedback);
+						break;
+				}
 			}
 		}
 

@@ -738,3 +738,25 @@ if ($db->tableExists('xqcas_configuration'))
 	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_neg_answernote"), 'value' => array('clob', 'prt1-0-F'), 'group_name' => array('text', 'prts')));
 }
 ?>
+<#36>
+<?php
+//UzK only step
+?>
+<#37>
+<?php
+global $DIC;
+$db = $DIC->database();
+//Create feedback styles
+if ($db->tableExists('xqcas_configuration'))
+{
+    //Feedback style 1 will be used as default, in case feedback_default is chosen, the value in true/false_feedback_format will be 1, and no specific style will be used, but platform style
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_default"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+	//Specific feedback formats.
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_node_right"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_node_wrong"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_node_partially"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_solution_hint"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_extra_info"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_plot_feedback"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+}
+?>

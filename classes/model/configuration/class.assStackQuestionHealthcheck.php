@@ -80,13 +80,14 @@ class assStackQuestionHealthcheck
 		//texdisplaystyle
 		$this->setMaximaConnectionStatus(html_writer::tag('p', stack_string('texdisplaystyle')), 'texdisplaystyle');
 		//healthchecksampledisplaytex
-		$this->setMaximaConnectionStatus(html_writer::tag('p', stack_string('healthchecksampledisplaytex')), 'healthchecksampledisplaytex');
+		$this->setMaximaConnectionStatus(html_writer::tag('p', assStackQuestionUtils::_solveKeyBracketsBug(stack_string('healthchecksampledisplaytex'))), 'healthchecksampledisplaytex');
 		//texinlinestyle
 		$this->setMaximaConnectionStatus(html_writer::tag('p', stack_string('texinlinestyle')), 'texinlinestyle');
 		//healthchecksampleinlinetex
 		$this->setMaximaConnectionStatus(html_writer::tag('p', assStackQuestionUtils::_solveKeyBracketsBug(stack_string('healthchecksampleinlinetex'))), 'healthchecksampleinlinetex');
 		//healthchecklatexmathjax
 		$this->setMaximaConnectionStatus(html_writer::tag('p', stack_string('healthchecklatexmathjax')), 'healthchecklatexmathjax');
+
 
 		//Maxima configuration file
 		// Try to list available versions of Maxima (linux only, without the DB).
