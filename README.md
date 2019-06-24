@@ -88,6 +88,7 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
 
-Version 3.1.0 (2019-06-10) for ILIAS 5.4
+Version 3.1.1 (2019-06-24) for ILIAS 5.4
 ----------------------------------------
-This version includes the changes needed to run STACK questions in ILIAS 5.4, together with the new feedback styles for node feedback, that can be managed through plugin configuration and Layout and Styles / Content styles. To select an specific feedback style you should create a new paragraph style class with a name starting with "STACK".
+This version includes the changes needed to run STACK questions in ILIAS 5.4.
+* A new feature has been included: Feedback Styles, that can be managed through plugin configuration and Layout and Styles / Content styles. You can use your own content style for STACK feedback, In plugin configuration there is a new tab under General Settings / Feedback Styles Settings where settings for this new feature can be found.
