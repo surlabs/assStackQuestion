@@ -202,6 +202,7 @@ class assStackQuestionMoodleXMLExport
 							$a_xml_writer->xmlElement("truepenalty", NULL, $node->getTruePenalty());
 							$a_xml_writer->xmlElement("truenextnode", NULL, $node->getTrueNextNode());
 							$a_xml_writer->xmlElement("trueanswernote", NULL, $node->getTrueAnswerNote());
+							$a_xml_writer->xmlElement("truefeedbackformat", NULL, $node->getTrueFeedbackFormat());
 
 							$a_xml_writer->xmlStartTag("truefeedback", array("format" => "html"));
 							$media = $this->getRTEMedia($node->getTrueFeedback());
@@ -214,6 +215,8 @@ class assStackQuestionMoodleXMLExport
 							$a_xml_writer->xmlElement("falsepenalty", NULL, $node->getFalsePenalty());
 							$a_xml_writer->xmlElement("falsenextnode", NULL, $node->getFalseNextNode());
 							$a_xml_writer->xmlElement("falseanswernote", NULL, $node->getFalseAnswerNote());
+							$a_xml_writer->xmlElement("falsefeedbackformat", NULL, $node->getFalseFeedbackFormat());
+
 
 							$a_xml_writer->xmlStartTag("falsefeedback", array("format" => "html"));
 							$media = $this->getRTEMedia($node->getFalseFeedback());

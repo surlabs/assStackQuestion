@@ -652,7 +652,7 @@ class assStackQuestionUtils
 		$db = $DIC->database();
 
 		$styles_id = array();
-		$query = "SELECT DISTINCT id FROM style_data WHERE active = '1'";
+		$query = "SELECT id FROM style_data WHERE active = '1'";
 		$result = $db->query($query);
 		while ($row = $db->fetchAssoc($result))
 		{
@@ -678,12 +678,34 @@ class assStackQuestionUtils
 		switch ($a_format)
 		{
 			case "feedback_default":
-				//Use default style of the platform
-				return $a_text;
+				if ($config_options["feedback_default"] == "0")
+				{
+					return '<div class="alert alert-warning" role="alert">' . $a_text . '</div>';
+				} else
+				{
+					$style_assigned = $config_options[$a_format];
+
+					return '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">' . $a_text . '</div>';
+				}
 			default:
 				//Use specific feedback style
 				$style_assigned = $config_options[$a_format];
+
 				return '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">' . $a_text . '</div>';
+		}
+	}
+
+	public static function _getActiveContentStyleId()
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		$styles_id = array();
+		$query = "SELECT value FROM xqcas_configuration WHERE parameter_name = 'feedback_stylesheet_id'";
+		$result = $db->query($query);
+		while ($row = $db->fetchAssoc($result))
+		{
+			return $row["value"];
 		}
 	}
 

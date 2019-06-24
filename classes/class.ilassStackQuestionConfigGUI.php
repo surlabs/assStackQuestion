@@ -925,14 +925,31 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		//Get all Styles available
 		$styles_array = array();
-		$styles_array["default"] = $lng->txt("default");
+		$styles_array["0"] = $lng->txt("default");
 
-		$query = "SELECT style_id, characteristic FROM style_char WHERE type = 'text_block'";
-		$result = $db->query($query);
-		while ($row = $db->fetchAssoc($result))
+		$stylesheet_active = $feedback_data["feedback_stylesheet_id"];
+
+		//Available standard styles
+		require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
+		$available_styles = ilObjStyleSheet::_getStandardStyles();
+		$available_styles[""] = $lng->txt("default");
+
+		//Feedback Stylesheet selection
+		$header = new ilFormSectionHeaderGUI();
+		$header->setTitle($this->plugin_object->txt("feedback_stylesheet_id"));
+		$form->addItem($header);
+
+		$feedback_stylesheet_id = new ilSelectInputGUI($this->plugin_object->txt('feedback_stylesheet_id'), 'feedback_stylesheet_id');
+		$feedback_stylesheet_id->setOptions($available_styles);
+		$feedback_stylesheet_id->setInfo($this->plugin_object->txt('feedback_stylesheet_id_info'));
+		$feedback_stylesheet_id->setValue($feedback_data['feedback_stylesheet_id']);
+		$form->addItem($feedback_stylesheet_id);
+
+		if (strlen($stylesheet_active))
 		{
-			$style_name = $row["characteristic"];
-			if (preg_match("#^STACK(.*)$#i", $style_name))
+			$query = "SELECT style_id, characteristic FROM style_char WHERE type = 'text_block' AND style_id = '" . $stylesheet_active . "' ";
+			$result = $db->query($query);
+			while ($row = $db->fetchAssoc($result))
 			{
 				$styles_array[$row["characteristic"]] = $row["characteristic"];
 			}
@@ -944,6 +961,23 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		 * DEFINE VALUES FOR EACH OF THE FEEDBACK STYLES, BEGINNING BY 2, TO DISTINGUISH
 		 * QUESTION WHICH USES THIS STYLES AND THOSE WHICH NOT.
 		 */
+
+		//General Feedback Style
+		$header = new ilFormSectionHeaderGUI();
+		$header->setTitle($this->plugin_object->txt("feedback_default"));
+		$form->addItem($header);
+
+		//Feedback DEFAULT style ---> 1
+		$feedback_default = new ilSelectInputGUI($this->plugin_object->txt('feedback_default'), 'feedback_default');
+		$feedback_default->setOptions($styles_array);
+		$feedback_default->setInfo($this->plugin_object->txt('feedback_default_info'));
+		$feedback_default->setValue($feedback_data['feedback_default']);
+		$form->addItem($feedback_default);
+
+		//Nodes feedback
+		$header = new ilFormSectionHeaderGUI();
+		$header->setTitle($this->plugin_object->txt("nodes_feedback"));
+		$form->addItem($header);
 
 		//Feedback style for right responses ---> 2
 		$right_responses = new ilSelectInputGUI($this->plugin_object->txt('feedback_node_right'), 'feedback_node_right');
@@ -980,7 +1014,6 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$plot_feedback->setValue($feedback_data['feedback_plot_feedback']);
 		$form->addItem($plot_feedback);
 
-		$form->setTitle($this->plugin_object->txt('feedback_styles_settings'));
 		$form->addCommandButton("saveFeedbackStylesSettings", $this->plugin_object->txt("save"));
 		$form->addCommandButton("showFeedbackStylesSettings", $this->plugin_object->txt("cancel"));
 

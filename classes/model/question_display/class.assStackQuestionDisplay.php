@@ -262,7 +262,6 @@ class assStackQuestionDisplay
 		if (sizeof($this->getInlineFeedback()))
 		{
 			//feedback
-			$string .= '<div class="alert alert-warning" role="alert">';
 			//feedback
 			if (strlen($this->inline_feedback['prt'][$prt_name]['status']['message']))
 			{
@@ -272,10 +271,9 @@ class assStackQuestionDisplay
 			//Specific feedback
 			$string .= $this->inline_feedback['prt'][$prt_name]['feedback'];
 			$string .= $this->inline_feedback['prt'][$prt_name]['errors'];
-			$string .= '</div>';
 		}
 
-		return $string;
+		return assStackQuestionUtils::_getFeedbackStyledText($string, "feedback_default");
 	}
 
 	/*
@@ -561,10 +559,7 @@ class assStackQuestionDisplay
 		}
 		if (is_a($input, "stack_notes_input"))
 		{
-			$string = "";
-			$string .= '<div class="alert alert-warning" role="alert">';
-			$string .= $this->getPlugin()->txt("notes_best_solution_message");
-			$string .= '</div>';
+			$string = assStackQuestionUtils::_getFeedbackStyledText($this->getPlugin()->txt("notes_best_solution_message"), "feedback_default");
 			$result["value"] = $string;
 			$result["display"] = "";
 

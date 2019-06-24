@@ -760,3 +760,14 @@ if ($db->tableExists('xqcas_configuration'))
 	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_plot_feedback"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
 }
 ?>
+<#38>
+<?php
+global $DIC;
+$db = $DIC->database();
+//Create feedback styles
+if ($db->tableExists('xqcas_configuration'))
+{
+    //We have to store the id of the content style we want to use for stack feedback styles
+	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_stylesheet_id"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+}
+?>

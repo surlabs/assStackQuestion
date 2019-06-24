@@ -400,6 +400,25 @@ notes_best_solution_message#:#Notizen haben keine bestmögliche Lösung
 show_default_prts_settings#:#Vorgabewerte für Rückmeldebäume-Einstellungen
 default_prts_settings#:#Standard-Einstellungen für Rückmeldebäume und Knoten
 config_default_prts_message#:#Die Einstellungen für Rückmeldebäume wurden erfolgreich geändert.
+prt_node_pos_feedback_class#:#Feedback-Style, wenn wahr
+prt_node_pos_feedback_class_info#:#Wählen Sie den Feedback-Style, wenn der Answertest dieses Knotens wahr ist.
+prt_node_neg_feedback_class#:#Feedback-Style, wenn falsch
+prt_node_neg_feedback_class_info#:#Wählen Sie den Feedback-Style, wenn der Answertest dieses Knotens falsch ist.
+feedback_styles_settings#:#Feedback-Style Einstellungen
+feedback_styles_settings#:#Feedback-Style Einstellungen
+feedback_node_right#:#Richtig
+feedback_node_right_info#:#Feedback-Style für richtige Antworten
+feedback_node_wrong#:#Falsch
+feedback_node_wrong_info#:#Feedback-Style für falsche Antworten
+feedback_solution_hint#:#Hinweis
+feedback_solution_hint_info#:#Feedback-Style für Lösungshinweise
+feedback_extra_info#:#Info
+feedback_extra_info_info#:#Feedback-Style für zusätzliche Informationen
+feedback_plot_feedback#:#Diagramm
+feedback_plot_feedback_info#:#Für Diagramme benutzter Feedback-Style
+config_feedback_styles_changed_message#:#Die Standardeinstellungen für Feedback-Style wurden erfolgreich geändert.
+feedback_extra_1#:#Teilweise korrekt
+feedback_extra_1_info#:#Feedback-Style für teilweise korrekte Antworten
 copy_node#:#Knoten kopieren
 paste_node#:#Knoten einfügen
 copy_prt#:# Rückmeldebaum kopieren
@@ -434,3 +453,8 @@ server_deleted#:#Der Server wurde gelöscht.
 servers_deleted#:#Die Server wurden gelöscht.
 deletion_error_connected_node#:#You cannot delete this node as is connected to a PRT, please change the PRT structure to disconnect the node before delete it.
 import_in_test_error#:#Import STACK questions from MoodleXML is not allowed in tests, please import it into a question pool before including it into a test.
+feedback_stylesheet_id#:#Content-Style
+feedback_stylesheet_id_info#:#Wählen Sie den Content-Style, der für das STACK Feedback verwendet wird. Es können nur aktive Content-Style ausgewählt werden. Wenn kein Inhaltsstil ausgewählt ist, wird der Standard-Feedback-Style verwendet. Bitte beachten Sie, dass bei einer Änderung des Inhaltsstils alle Werte in diesem Formular auf Standard zurückgesetzt werden.
+feedback_default#:#Allgemeiner Feedback-Style
+feedback_default_info#:#Wählen Sie den Feedback-Style für Feedback-Nachrichten in STACK-Fragen. Die meisten Feedback-Nachrichten, die Sie von diesem Fragetyp erhalten, haben diesen Stil, aber nicht das Feedback der möglichen Antwort-Knotenbäume.
+nodes_feedback#:#Feedback von Knoten

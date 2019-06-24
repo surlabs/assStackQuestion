@@ -482,12 +482,12 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_preview.css'));
 		$tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_display.css'));
 
-		//Include content Styles
-		$style_ids = assStackQuestionUtils::_getContentStylesAvailable();
-		require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
-		foreach ($style_ids as $id)
+		//Include content Style
+		$style_id = assStackQuestionUtils::_getActiveContentStyleId();
+		if (strlen($style_id))
 		{
-			$tpl->addCss(ilObjStyleSheet::getContentStylePath((int)$id));
+			require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
+			$tpl->addCss(ilObjStyleSheet::getContentStylePath((int)$style_id));
 		}
 
 		$questionoutput = $question_preview_gui->get();
@@ -576,12 +576,12 @@ class assStackQuestionGUI extends assQuestionGUI
 		//Get question display data
 		$tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_display.css'));
 
-		//Include content Styles
-		$style_ids = assStackQuestionUtils::_getContentStylesAvailable();
-		require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
-		foreach ($style_ids as $id)
+		//Include content Style
+		$style_id = assStackQuestionUtils::_getActiveContentStyleId();
+		if (strlen($style_id))
 		{
-			$tpl->addCss(ilObjStyleSheet::getContentStylePath((int)$id));
+			require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
+			$tpl->addCss(ilObjStyleSheet::getContentStylePath((int)$style_id));
 		}
 
 		$value_format_user_response = assStackQuestionUtils::_getUserResponse($this->object->getId(), $this->object->getStackQuestion()->getInputs(), $feedback_data);
@@ -651,7 +651,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		{
 			//User Solution
 			//Returns user solution HTML
-			$solution_output = $this->getQuestionOutput($solutions, true, $show_feedback, TRUE);
+			$solution_output = $this->getQuestionOutput($solutions, FALSE, $show_feedback, TRUE);
 			//2.3.12 add feedback to solution
 			$solution_output .= $this->getSpecificFeedbackOutput($solutions);
 
@@ -659,7 +659,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		{
 			//Correct solution
 			//Returns best solution HTML.
-			$solution_output = $this->getQuestionOutput($solutions, FALSE, $show_feedback);
+			$solution_output = $this->getQuestionOutput($solutions, TRUE, $show_feedback);
 		}
 
 		$question_text = $this->object->getQuestion();
@@ -826,17 +826,12 @@ class assStackQuestionGUI extends assQuestionGUI
 							if ($show_feedback)
 							{
 								$string = "";
-								//feedback
-								$string .= '<div class="alert alert-warning" role="alert">';
 								//Generic feedback
 								$string .= $prt["status"]["message"];
-								//$string .= '<br>';
 								//Specific feedback
 								$string .= $prt["feedback"];
 								$string .= $prt["errors"];
-								$string .= '</div>';
-
-								$question_text = str_replace("[[feedback:" . $prt_name . "]]", $string, $question_text);
+								$question_text = str_replace("[[feedback:" . $prt_name . "]]", assStackQuestionUtils::_getFeedbackStyledText($string, "feedback_default"), $question_text);
 							}
 						}
 					}
@@ -918,15 +913,13 @@ class assStackQuestionGUI extends assQuestionGUI
 				{
 					$string = "";
 					//feedback
-					$string .= '<div class="alert alert-warning" role="alert">';
 					//Generic feedback
 					$string .= $solutions["prt"][$prt_name]['status']['message'];
-					$string .= '<br>';
 					//Specific feedback
 					$string .= $solutions["prt"][$prt_name]["feedback"];
 					$string .= $solutions["prt"][$prt_name]["errors"];
-					//$string .= '</div>';
-					$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", $string, $specific_feedback);
+
+					$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", assStackQuestionUtils::_getFeedbackStyledText($string, "feedback_default"), $specific_feedback);
 				} else
 				{
 					$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", $this->object->getPlugin()->txt("preview_no_answer"), $specific_feedback);

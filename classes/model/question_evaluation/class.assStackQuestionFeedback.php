@@ -190,7 +190,7 @@ class assStackQuestionFeedback
 						$feedback .= assStackQuestionUtils::_getFeedbackStyledText($prt_state->substitue_variables_in_feedback($feedback_obj->feedback), "feedback_plot_feedback");
 						break;
 					default:
-						$feedback .= $prt_state->substitue_variables_in_feedback($feedback_obj->feedback);
+						$feedback .= assStackQuestionUtils::_getFeedbackStyledText($prt_state->substitue_variables_in_feedback($feedback_obj->feedback), "feedback_default");
 						break;
 				}
 			}
@@ -515,10 +515,7 @@ class assStackQuestionFeedback
 			}
 			if (is_a($input, "stack_notes_input"))
 			{
-				$string = "";
-				$string .= '<div class="alert alert-warning" role="alert">';
-				$string .= $this->getPlugin()->txt("notes_best_solution_message");
-				$string .= '</div>';
+				$string = assStackQuestionUtils::_getFeedbackStyledText($this->getPlugin()->txt("notes_best_solution_message"), "feedback_default");
 				$result["value"] = $string;
 				$result["display"] = "";
 

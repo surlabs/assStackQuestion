@@ -390,15 +390,12 @@ class assStackQuestionFeedbackGUI
 		{
 			$string = "";
 			//feedback
-			$string .= '<div class="alert alert-warning" role="alert">';
 			//Generic feedback
 			$string .= $prt['status']['message'];
-			//$string .= '<br>';
 			//Specific feedback
 			$string .= $prt['feedback'];
 			$string .= $prt['errors'];
-			$string .= '</div>';
-			$deco_question_text = $string;
+			$deco_question_text = assStackQuestionUtils::_getFeedbackStyledText($string, "feedback_default");
 		} elseif ($mode == "user")
 		{
 			$deco_question_text = $question_text;
@@ -417,16 +414,16 @@ class assStackQuestionFeedbackGUI
 	{
 		$string = "";
 		//feedback
-		$string .= '<div class="alert alert-warning" role="alert">';
 		//Generic feedback
 		$string .= $prt['status']['message'];
 		//$string .= '<br>';
 		//Specific feedback
 		$string .= $prt['feedback'];
 		$string .= $prt['errors'];
-		$string .= '</div>';
 
-		return $string;
+		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
+
+		return assStackQuestionUtils::_getFeedbackStyledText($string, "feedback_default");
 	}
 
 	private function getFilledInputUser($value)
@@ -441,8 +438,7 @@ class assStackQuestionFeedbackGUI
 
 		if ($text)
 		{
-			$deco_how_to_solve = '<div class="alert alert-warning" role="alert">' . $text;
-			$deco_how_to_solve .= '</div>';
+			$deco_how_to_solve = assStackQuestionUtils::_getFeedbackStyledText($text,"feedback_default");
 		}
 
 		return $deco_how_to_solve;

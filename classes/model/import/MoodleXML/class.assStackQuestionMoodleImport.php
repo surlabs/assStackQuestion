@@ -575,7 +575,13 @@ class assStackQuestionMoodleImport
 			$new_node->setTrueScore(strip_tags($prt_node['truescore']));
 			$new_node->setTruePenalty(strip_tags($prt_node['truepenalty']));
 			$new_node->setTrueAnswerNote($prt_node['trueanswernote']);
-			$new_node->setTrueFeedbackFormat(1);
+			if (isset($prt_node['truefeedbackformat']))
+			{
+				$new_node->setTrueFeedbackFormat($prt_node['truefeedbackformat']);
+			} else
+			{
+				$new_node->setTrueFeedbackFormat(1);
+			}
 
 			$mapping = $this->getMediaObjectsFromXML($prt_node['truefeedback'][0]['file']);
 			$truefeedback = assStackQuestionUtils::_casTextConverter($this->replaceMediaObjectReferences($prt_node['truefeedback'][0]['text'], $mapping), $this->getQuestion()->getTitle(), TRUE);
@@ -586,7 +592,13 @@ class assStackQuestionMoodleImport
 			$new_node->setFalseScore(strip_tags($prt_node['falsescore']));
 			$new_node->setFalsePenalty(strip_tags($prt_node['falsepenalty']));
 			$new_node->setFalseAnswerNote($prt_node['falseanswernote']);
-			$new_node->setFalseFeedbackFormat(1);
+			if (isset($prt_node['falsefeedbackformat']))
+			{
+				$new_node->setFalseFeedbackFormat($prt_node['falsefeedbackformat']);
+			} else
+			{
+				$new_node->setFalseFeedbackFormat(1);
+			}
 
 			$mapping = $this->getMediaObjectsFromXML($prt_node['falsefeedback'][0]['file']);
 			$falsefeedback = assStackQuestionUtils::_casTextConverter($this->replaceMediaObjectReferences($prt_node['falsefeedback'][0]['text'], $mapping), $this->getQuestion()->getTitle(), TRUE);

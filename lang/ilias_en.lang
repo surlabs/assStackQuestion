@@ -401,25 +401,21 @@ show_default_prts_settings#:#Default values for Potential response Trees and Fir
 default_prts_settings#:#Default values for Potential response Trees
 config_default_prts_message#:#The default settings for PRT have been changed successfully.
 prt_node_pos_feedback_class#:#Feedback Style if True
-prt_node_pos_feedback_class_info#:#Choose the feedback style if this node's answertest is true, feedback style can be managed in plugin configuration.
+prt_node_pos_feedback_class_info#:#Choose the feedback style if this node's answertest is true
 prt_node_neg_feedback_class#:#Feedback Style if False
-prt_node_neg_feedback_class_info#:#Choose the feedback style if this node's answertest is false, feedback style can be managed in plugin configuration.
+prt_node_neg_feedback_class_info#:#Choose the feedback style if this node's answertest is false
 feedback_styles_settings#:#Feedback Styles Settings
-feedback_node_right#:#Right Answer
+feedback_node_right#:#Right
 feedback_node_right_info#:#Feedback style for right answers
-feedback_node_wrong#:#Wrong Answer
+feedback_node_wrong#:#Wrong
 feedback_node_wrong_info#:#Feedback style for wrong answers
-feedback_solution_hint#:#Solution Hint
+feedback_solution_hint#:#Hint
 feedback_solution_hint_info#:#Feedback style for solution hints
-feedback_extra_info#:#Extra Information
+feedback_extra_info#:#Info
 feedback_extra_info_info#:#Feedback style used for extra information
 feedback_plot_feedback#:#Plot
 feedback_plot_feedback_info#:#Feedback style used for plots
 config_feedback_styles_changed_message#:#The default settings for Feedback Styles have been changed successfully.
-feedback_extra_1#:#Partially correct
-feedback_extra_1_info#:#Feedback style for partially correct answers
-options_stepwise_feedback#:#Stepwise Feedback
-options_stepwise_feedback_info#:#Allow students to evaluate each PRT separately without reload the page
 copy_node#:#Copy Node
 paste_node#:#Paste Node
 copy_prt#:#Copy Potential Response Tree
@@ -454,3 +450,8 @@ server_deleted#:#The server is deleted.
 servers_deleted#:#The servers are deleted.
 deletion_error_connected_node#:#You cannot delete this node as is connected to a PRT, please change the PRT structure to disconnect the node before delete it.
 import_in_test_error#:#Import STACK questions from MoodleXML is not allowed in tests, please import it into a question pool before including it into a test.
+feedback_stylesheet_id#:#Content Style
+feedback_stylesheet_id_info#:#Select the Content Style used for STACK Feedback. Only active content styles can be selected. If no Content Style is chosen the default feedback style will be applied. Please notice, in case you change the Content Style, all values in this form will be set to default.
+feedback_default#:#General Feedback Style
+feedback_default_info#:#Select the feedback style for feedback messages in STACK Questions. Most of the feedback messages you will get from this question type will have this style, but not the Potential Response Tree Nodes feedback.
+nodes_feedback#:#Feedback from Nodes
