@@ -675,24 +675,31 @@ class assStackQuestionUtils
 		require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
 
 		//Return text depending Format
-		switch ($a_format)
+		if (strlen($a_text))
 		{
-			case "feedback_default":
-				if ($config_options["feedback_default"] == "0")
-				{
-					return '<div class="alert alert-warning" role="alert">' . $a_text . '</div>';
-				} else
-				{
+			switch ($a_format)
+			{
+				case "feedback_default":
+					if ($config_options["feedback_default"] == "0")
+					{
+						return '<div class="alert alert-warning" role="alert">' . $a_text . '</div>';
+					} else
+					{
+						$style_assigned = $config_options[$a_format];
+
+						return '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">' . $a_text . '</div>';
+					}
+				default:
+					//Use specific feedback style
 					$style_assigned = $config_options[$a_format];
 
 					return '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">' . $a_text . '</div>';
-				}
-			default:
-				//Use specific feedback style
-				$style_assigned = $config_options[$a_format];
-
-				return '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">' . $a_text . '</div>';
+			}
+		} else
+		{
+			return $a_text;
 		}
+
 	}
 
 	public static function _getActiveContentStyleId()
