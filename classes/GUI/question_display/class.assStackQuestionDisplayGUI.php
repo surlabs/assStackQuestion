@@ -254,9 +254,9 @@ class assStackQuestionDisplayGUI
 				{
 					$display = $this->getDisplay('prts', $prt_name);
 				}
-				$question_text = str_replace("[[feedback:{$prt_name}]]", $display['display'], $this->getDisplay('question_text'));
+				$question_text = str_replace("[[feedback:{$prt_name}]]", assStackQuestionUtils::_replaceFeedbackPlaceHolders($display['display']), $this->getDisplay('question_text'));
 				$this->setDisplay($question_text, 'question_text');
-				$question_specific_feedback = str_replace("[[feedback:{$prt_name}]]", $display['display'], $this->getDisplay('question_specific_feedback'));
+				$question_specific_feedback = str_replace("[[feedback:{$prt_name}]]", assStackQuestionUtils::_replaceFeedbackPlaceHolders($display['display']), $this->getDisplay('question_specific_feedback'));
 				$this->setDisplay($question_specific_feedback, 'question_specific_feedback');
 			}
 		} else

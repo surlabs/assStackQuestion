@@ -916,7 +916,7 @@ class assStackQuestionGUI extends assQuestionGUI
 					//Generic feedback
 					$string .= $solutions["prt"][$prt_name]['status']['message'];
 					//Specific feedback
-					$string .= $solutions["prt"][$prt_name]["feedback"];
+					$string .= assStackQuestionUtils::_replaceFeedbackPlaceHolders($solutions["prt"][$prt_name]["feedback"]);
 					$string .= $solutions["prt"][$prt_name]["errors"];
 
 					$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", assStackQuestionUtils::_getFeedbackStyledText($string, "feedback_default"), $specific_feedback);

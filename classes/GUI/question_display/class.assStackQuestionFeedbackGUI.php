@@ -412,13 +412,16 @@ class assStackQuestionFeedbackGUI
 	 */
 	private function replacementForPRTPlaceholders($prt, $prt_name, $input)
 	{
+		/*
+		 * THIS FUNCTION WORKS ONLY FOR TEST, FOR PREVIEW GO TO PREVIWEGUI
+		 */
 		$string = "";
 		//feedback
 		//Generic feedback
 		$string .= $prt['status']['message'];
 		//$string .= '<br>';
 		//Specific feedback
-		$string .= $prt['feedback'];
+		$string .= $this->replaceFeedbackPlaceHolders($prt['feedback']);
 		$string .= $prt['errors'];
 
 		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");

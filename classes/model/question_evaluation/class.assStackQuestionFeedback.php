@@ -91,7 +91,6 @@ class assStackQuestionFeedback
 		$prt_feedback['status'] = $this->fillStatus($prt_data['state']);
 		//fill answernote
 		$prt_feedback['answernote'] = $this->fillAnswerNote($prt_data['state']);
-
 		return $prt_feedback;
 	}
 
@@ -175,22 +174,22 @@ class assStackQuestionFeedback
 				switch ($feedback_obj->format)
 				{
 					case "2":
-						$feedback .= assStackQuestionUtils::_getFeedbackStyledText($prt_state->substitue_variables_in_feedback($feedback_obj->feedback), "feedback_node_right");
+						$feedback .= "[[feedback_node_right]]".$prt_state->substitue_variables_in_feedback($feedback_obj->feedback). "[[feedback_node_right_close]]";
 						break;
 					case "3":
-						$feedback .= assStackQuestionUtils::_getFeedbackStyledText($prt_state->substitue_variables_in_feedback($feedback_obj->feedback), "feedback_node_wrong");
+						$feedback .= "[[feedback_node_wrong]]".$prt_state->substitue_variables_in_feedback($feedback_obj->feedback). "[[feedback_node_wrong_close]]";
 						break;
 					case "4":
-						$feedback .= assStackQuestionUtils::_getFeedbackStyledText($prt_state->substitue_variables_in_feedback($feedback_obj->feedback), "feedback_solution_hint");
+						$feedback .= "[[feedback_solution_hint]]".$prt_state->substitue_variables_in_feedback($feedback_obj->feedback). "[[feedback_solution_hint_close]]";
 						break;
 					case "5":
-						$feedback .= assStackQuestionUtils::_getFeedbackStyledText($prt_state->substitue_variables_in_feedback($feedback_obj->feedback), "feedback_extra_info");
+						$feedback .= "[[feedback_extra_info]]".$prt_state->substitue_variables_in_feedback($feedback_obj->feedback). "[[feedback_extra_info_close]]";
 						break;
 					case "6":
-						$feedback .= assStackQuestionUtils::_getFeedbackStyledText($prt_state->substitue_variables_in_feedback($feedback_obj->feedback), "feedback_plot_feedback");
+						$feedback .= "[[feedback_plot_feedback]]".$prt_state->substitue_variables_in_feedback($feedback_obj->feedback). "[[feedback_plot_feedback_close]]";
 						break;
 					default:
-						$feedback .= assStackQuestionUtils::_getFeedbackStyledText($prt_state->substitue_variables_in_feedback($feedback_obj->feedback), "feedback_default");
+						$feedback .= $prt_state->substitue_variables_in_feedback($feedback_obj->feedback);
 						break;
 				}
 			}

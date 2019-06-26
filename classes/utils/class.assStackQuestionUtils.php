@@ -716,4 +716,39 @@ class assStackQuestionUtils
 		}
 	}
 
+	public static function _replaceFeedbackPlaceHolders($feedback){
+		//Get Styles assigned to Formats
+		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
+
+		$text = $feedback;
+		//Search for right feedback
+		$style_assigned = $config_options["feedback_node_right"];
+		$text = str_replace("[[feedback_node_right]]", '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">',$text);
+		$text = str_replace("[[feedback_node_right_close]]", '</div>',$text);
+
+		//Search for wrong feedback
+		$style_assigned = $config_options["feedback_node_wrong"];
+		$text = str_replace("[[feedback_node_wrong]]", '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">',$text);
+		$text = str_replace("[[feedback_node_wrong_close]]", '</div>',$text);
+
+		//Search for wrong feedback
+		$style_assigned = $config_options["feedback_solution_hint"];
+		$text = str_replace("[[feedback_solution_hint]]", '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">',$text);
+		$text = str_replace("[[feedback_solution_hint_close]]", '</div>',$text);
+
+		//Replace Extra info
+		$style_assigned = $config_options["feedback_extra_info"];
+		$text = str_replace("[[feedback_extra_info]]", '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">',$text);
+		$text = str_replace("[[feedback_extra_info_close]]", '</div>',$text);
+
+		//Replace Extra info
+		$style_assigned = $config_options["feedback_plot_feedback"];
+		$text = str_replace("[[feedback_plot_feedback]]", '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">',$text);
+		$text = str_replace("[[feedback_plot_feedback_close]]", '</div>',$text);
+
+		return $text;
+	}
+
+
+
 }
