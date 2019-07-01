@@ -92,3 +92,9 @@ Version 3.1.1 (2019-06-24) for ILIAS 5.4
 ----------------------------------------
 This version includes the changes needed to run STACK questions in ILIAS 5.4.
 * A new feature has been included: Feedback Styles, that can be managed through plugin configuration and Layout and Styles / Content styles. You can use your own content style for STACK feedback, In plugin configuration there is a new tab under General Settings / Feedback Styles Settings where settings for this new feature can be found.
+
+Version 3.1.2 (2019-07-01) for ILIAS 5.4
+----------------------------------------
+The following bugs have been solved:
+- https://mantis.ilias.de/view.php?id=25256 About validation of matrix inputs after checking results in preview mode.
+- https://mantis.ilias.de/view.php?id=25290 About default values for PRT and Nodes not working properly in non-new questions.

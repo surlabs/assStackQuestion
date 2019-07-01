@@ -113,6 +113,10 @@ class assStackQuestionAuthoringGUI
 		$this->getPlugin()->includeClass('utils/FormProperties/class.ilTabsFormPropertyGUI.php');
 		$this->getPlugin()->includeClass('utils/FormProperties/class.ilButtonFormPropertyGUI.php');
 
+		//https://mantis.ilias.de/view.php?id=25290
+		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
+		$this->default = assStackQuestionConfig::_getStoredSettings("all");
+
 		//Add general properties to form like question text, title, author...
 		//ADD predefined input and validation fields
 		if ($this->getQuestionGUI()->object->getQuestion() == "")
@@ -120,8 +124,6 @@ class assStackQuestionAuthoringGUI
 			$this->new_question = TRUE;
 			$this->getQuestionGUI()->object->setQuestion("[[input:ans1]] [[validation:ans1]]");
 			$this->getQuestionGUI()->object->setPoints("1");
-			require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
-			$this->default = assStackQuestionConfig::_getStoredSettings("all");
 		}
 
 		//Add question title when blank
@@ -268,9 +270,25 @@ class assStackQuestionAuthoringGUI
 		$new_prt = new assStackQuestionPRT(-1, $this->getQuestionGUI()->object->getId());
 		$new_prt->setPRTName('new_prt');
 		$new_prt->setPRTValue(1);
+		//https://mantis.ilias.de/view.php?id=25290
+		$new_prt->setAutoSimplify($this->default["prt_simplify"]);
 		$new_prt->checkPRT(TRUE);
 
+		//https://mantis.ilias.de/view.php?id=25290
 		$new_prt_node = new assStackQuestionPRTNode(-1, $this->getQuestionGUI()->object->getId(), 'new_prt', '0', -1, -1);
+		$new_prt_node->setAnswerTest($this->default["prt_node_answer_test"]);
+		$new_prt_node->setQuiet($this->default["prt_node_quiet"]);
+		$new_prt_node->setTestOptions($this->default["prt_node_options"]);
+
+		$new_prt_node->setTrueScoreMode($this->default["prt_pos_mod"]);
+		$new_prt_node->setFalseScoreMode($this->default["prt_neg_mod"]);
+
+		$new_prt_node->setTrueScore($this->default["prt_pos_score"]);
+		$new_prt_node->setFalseScore($this->default["prt_neg_score"]);
+
+		$new_prt_node->setTruePenalty($this->default["prt_pos_penalty"]);
+		$new_prt_node->setFalsePenalty($this->default["prt_neg_penalty"]);
+
 		$new_prt_node->checkPRTNode(TRUE);
 		$new_prt->setPRTNodes(array('0' => $new_prt_node));
 		$new_prt->setFirstNodeName($new_prt->getFirstNodeName(TRUE));
@@ -764,6 +782,20 @@ class assStackQuestionAuthoringGUI
 		if ($prt->getPRTName() != 'new_prt')
 		{
 			$new_prt_node = new assStackQuestionPRTNode(-1, $this->getQuestionGUI()->object->getId(), $prt->getPRTName(), $prt->getPRTName() . '_new_node', -1, -1);
+			//https://mantis.ilias.de/view.php?id=25290
+			$new_prt_node->setAnswerTest($this->default["prt_node_answer_test"]);
+			$new_prt_node->setQuiet($this->default["prt_node_quiet"]);
+			$new_prt_node->setTestOptions($this->default["prt_node_options"]);
+
+			$new_prt_node->setTrueScoreMode($this->default["prt_pos_mod"]);
+			$new_prt_node->setFalseScoreMode($this->default["prt_neg_mod"]);
+
+			$new_prt_node->setTrueScore($this->default["prt_pos_score"]);
+			$new_prt_node->setFalseScore($this->default["prt_neg_score"]);
+
+			$new_prt_node->setTruePenalty($this->default["prt_pos_penalty"]);
+			$new_prt_node->setFalsePenalty($this->default["prt_neg_penalty"]);
+
 			$new_prt_node->checkPRTNode(TRUE);
 			$new_node_part = $this->getNodePart($prt, $new_prt_node);
 			$new_node_part->setTitle($this->getPlugin()->txt('add_new_node'));

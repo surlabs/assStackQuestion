@@ -455,3 +455,4 @@ feedback_stylesheet_id_info#:#Select the Content Style used for STACK Feedback. 
 feedback_default#:#General Feedback Style
 feedback_default_info#:#Select the feedback style for feedback messages in STACK Questions. Most of the feedback messages you will get from this question type will have this style, but not the Potential Response Tree Nodes feedback.
 nodes_feedback#:#Feedback from Nodes
+config_prts_changed_message#:#Changes have been applied

@@ -458,3 +458,4 @@ feedback_stylesheet_id_info#:#Wählen Sie den Content-Style, der für das STACK 
 feedback_default#:#Allgemeiner Feedback-Style
 feedback_default_info#:#Wählen Sie den Feedback-Style für Feedback-Nachrichten in STACK-Fragen. Die meisten Feedback-Nachrichten, die Sie von diesem Fragetyp erhalten, haben diesen Stil, aber nicht das Feedback der möglichen Antwort-Knotenbäume.
 nodes_feedback#:#Feedback von Knoten
+config_prts_changed_message#:#Änderungen wurden übernommen

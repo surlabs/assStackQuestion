@@ -452,7 +452,8 @@ class assStackQuestionConfig
 	 */
 	public function getAdminInput()
 	{
-		$data = ilUtil::stripSlashesRecursive($_POST);
+		//https://mantis.ilias.de/view.php?id=25290
+		$data = ilUtil::stripSlashesRecursive($_POST, FALSE);
 		//Clean array
 		unset($data['cmd']);
 

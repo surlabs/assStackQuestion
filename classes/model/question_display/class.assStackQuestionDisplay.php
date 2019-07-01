@@ -187,9 +187,16 @@ class assStackQuestionDisplay
 			//Solve problem with string input type
 			if (is_array($student_answer))
 			{
-				if ($student_answer[$input_name] == NULL)
+				if (get_class($input) == 'stack_matrix_input')
 				{
-					return "";
+					//https://mantis.ilias.de/view.php?id=25256
+					return $state->contentsdisplayed;
+				} else
+				{
+					if ($student_answer[$input_name] == NULL)
+					{
+						return "";
+					}
 				}
 			}
 
@@ -508,7 +515,14 @@ class assStackQuestionDisplay
 				for ($j = 0; $j < $matrix_input_columns; $j++)
 				{
 					$user_matrix .= "<td class='xqcas_matrix_validation'>";
-					$user_filled_input = '<code>' . $student_answer[$input_name][$input_name . "_sub_" . $i . "_" . $j] . '</code>';
+					//https://mantis.ilias.de/view.php?id=25256
+					if ($in_test)
+					{
+						$user_filled_input = '<code>' . $student_answer[$input_name][$input_name . "_sub_" . $i . "_" . $j] . '</code>';
+					} else
+					{
+						$user_filled_input = '<code>' . $student_answer[$input_name . "_sub_" . $i . "_" . $j] . '</code>';
+					}
 					$user_matrix .= $user_filled_input;
 					$user_matrix .= "</td>";
 				}
