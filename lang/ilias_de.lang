@@ -454,8 +454,8 @@ servers_deleted#:#Die Server wurden gelöscht.
 deletion_error_connected_node#:#You cannot delete this node as is connected to a PRT, please change the PRT structure to disconnect the node before delete it.
 import_in_test_error#:#Import STACK questions from MoodleXML is not allowed in tests, please import it into a question pool before including it into a test.
 feedback_stylesheet_id#:#Content-Style
-feedback_stylesheet_id_info#:#Wählen Sie den Content-Style, der für das STACK Feedback verwendet wird. Es können nur aktive Content-Style ausgewählt werden. Wenn kein Inhaltsstil ausgewählt ist, wird der Standard-Feedback-Style verwendet. Bitte beachten Sie, dass bei einer Änderung des Inhaltsstils alle Werte in diesem Formular auf Standard zurückgesetzt werden.
+feedback_stylesheet_id_info#:#Wählen Sie den Content-Style, der für das STACK-Feedback verwendet wird. Es können nur aktive Content-Style ausgewählt werden. Wenn kein Inhaltsstil ausgewählt ist, wird der Standard-Feedback-Style verwendet. Bitte beachten Sie, dass bei einer Änderung des Inhaltsstils alle Werte in diesem Formular auf Standard zurückgesetzt werden.
 feedback_default#:#Allgemeiner Feedback-Style
-feedback_default_info#:#Wählen Sie den Feedback-Style für Feedback-Nachrichten in STACK-Fragen. Die meisten Feedback-Nachrichten, die Sie von diesem Fragetyp erhalten, haben diesen Stil, aber nicht das Feedback der möglichen Antwort-Knotenbäume.
+feedback_default_info#:#Wählen Sie den Feedback-Style für Feedback-Nachrichten in STACK-Fragen. Er wird für den Abschnitt einer Feedback-Nachricht von STACK verwendet. Innerhalb dieses Abschnitts sind die Feedbacks der Knoten eines Rückmeldebaums eingebettet, die zusätzlich mit eigenen Styles versehen werden können.
 nodes_feedback#:#Feedback von Knoten
 config_prts_changed_message#:#Änderungen wurden übernommen
