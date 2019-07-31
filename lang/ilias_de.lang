@@ -407,9 +407,9 @@ prt_node_neg_feedback_class_info#:#Wählen Sie den Feedback-Style, wenn der Answ
 feedback_styles_settings#:#Feedback-Style Einstellungen
 feedback_styles_settings#:#Feedback-Style Einstellungen
 feedback_node_right#:#Richtig
-feedback_node_right_info#:#Feedback-Style für richtige Antworten
+feedback_node_right_info#:#Feedback-Typ für richtige Antworten
 feedback_node_wrong#:#Falsch
-feedback_node_wrong_info#:#Feedback-Style für falsche Antworten
+feedback_node_wrong_info#:#Feedback-Typ für falsche Antworten
 feedback_solution_hint#:#Hinweis
 feedback_solution_hint_info#:#Feedback-Style für Lösungshinweise
 feedback_extra_info#:#Info

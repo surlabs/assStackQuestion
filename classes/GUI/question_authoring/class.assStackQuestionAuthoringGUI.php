@@ -1243,48 +1243,23 @@ class assStackQuestionAuthoringGUI
 	{
 		global $DIC;
 		$lng = $DIC->language();
-		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
 		$options = array();
 
 		//Add default option
+
+		/*
+		 * AS WE ARE USING THE TRUE/FALSE FEEDBACK FORMAT FIELD OF THE DATABASE
+		 * WHICH IS NOT USED AT THE MOMENT, AND IS ALWAYS 0 OR 1. WE HAVE TO
+		 * DEFINE VALUES FOR EACH OF THE FEEDBACK STYLES, BEGINNING BY 2, TO DISTINGUISH
+		 * QUESTION WHICH USES THIS STYLES AND THOSE WHICH NOT.
+		 */
+
 		$options[1] = $lng->txt("default");
-
-		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
-		foreach ($config_options as $option => $css_class)
-		{
-			if ($css_class != "")
-			{
-				/*
-		 		* AS WE ARE USING THE TRUE/FALSE FEEDBACK FORMAT FIELD OF THE DATABASE
-		 		* WHICH IS NOT USED AT THE MOMENT, AND IS ALWAYS 0 OR 1. WE HAVE TO
-		 		* DEFINE VALUES FOR EACH OF THE FEEDBACK STYLES, BEGINNING BY 2, TO DISTINGUISH
-		 		* QUESTION WHICH USES THIS STYLES AND THOSE WHICH NOT.
-		 		*/
-
-				switch ($option)
-				{
-					case "feedback_node_right":
-						$options[2] = $this->getPlugin()->txt($option);
-						break;
-					case "feedback_node_wrong":
-						$options[3] = $this->getPlugin()->txt($option);
-						break;
-					case "feedback_solution_hint":
-						$options[4] = $this->getPlugin()->txt($option);
-						break;
-					case "feedback_extra_info":
-						$options[5] = $this->getPlugin()->txt($option);
-						break;
-					case "feedback_plot_feedback":
-						$options[6] = $this->getPlugin()->txt($option);
-						break;
-					case "feedback_extra_1":
-						$options[7] = $this->getPlugin()->txt($option);
-						break;
-					default:
-				}
-			}
-		}
+		$options[2] = $this->getPlugin()->txt("feedback_node_right");
+		$options[3] = $this->getPlugin()->txt("feedback_node_wrong");
+		$options[4] = $this->getPlugin()->txt("feedback_solution_hint");
+		$options[5] = $this->getPlugin()->txt("feedback_extra_info");
+		$options[6] = $this->getPlugin()->txt("feedback_plot_feedback");
 
 		return $options;
 	}

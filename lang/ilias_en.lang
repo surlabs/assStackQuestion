@@ -400,9 +400,9 @@ notes_best_solution_message#:#Notes inputs have no best solution
 show_default_prts_settings#:#Default values for Potential response Trees and First nodes
 default_prts_settings#:#Default values for Potential response Trees
 config_default_prts_message#:#The default settings for PRT have been changed successfully.
-prt_node_pos_feedback_class#:#Feedback Style if True
+prt_node_pos_feedback_class#:#Feedback Type if True
 prt_node_pos_feedback_class_info#:#Choose the feedback style if this node's answertest is true
-prt_node_neg_feedback_class#:#Feedback Style if False
+prt_node_neg_feedback_class#:#Feedback Type if False
 prt_node_neg_feedback_class_info#:#Choose the feedback style if this node's answertest is false
 feedback_styles_settings#:#Feedback Styles Settings
 feedback_node_right#:#Right
