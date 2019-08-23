@@ -96,6 +96,13 @@ class assStackQuestionMoodleImport
 	{
 		$number_of_questions_created = 0;
 		//For each question in the array
+
+		//Check if is PHP 7.2 in case it is, data need some extra formatting
+		if (assStackQuestionUtils::_isPhP72())
+		{
+			$raw_data = $this->php72Format($raw_data['question']);
+		}
+
 		foreach ($raw_data['question'] as $data)
 		{
 			// start with a new list of media objects for each question
@@ -193,7 +200,7 @@ class assStackQuestionMoodleImport
 				$this->purgeMediaObjects();
 			}
 		}
-		if (sizeof($this->error_log))
+		if (!empty($this->error_log))
 		{
 			ilUtil::sendFailure(implode('</br>', $this->error_log));
 		}
@@ -286,7 +293,7 @@ class assStackQuestionMoodleImport
 	{
 		foreach ($xml_data as $array)
 		{
-			if (sizeof($array) > 1)
+			if (!empty($array))
 			{
 				return $array;
 			}
@@ -721,7 +728,7 @@ class assStackQuestionMoodleImport
 
 	/**
 	 * Create media objects from array converted file elements
-	 * @param    array $data [['_attributes' => ['name' => string, 'path' => string], '_content' => string], ...]
+	 * @param array $data [['_attributes' => ['name' => string, 'path' => string], '_content' => string], ...]
 	 * @return    array             filename => object_id
 	 */
 	private function getMediaObjectsFromXML($data = array())
@@ -747,8 +754,8 @@ class assStackQuestionMoodleImport
 
 	/**
 	 * Replace references to media objects in a text
-	 * @param    string    text from moodleXML with local references
-	 * @param    array    mapping of filenames to media object IDs
+	 * @param string    text from moodleXML with local references
+	 * @param array    mapping of filenames to media object IDs
 	 * @return    string    text with paths to media objects
 	 */
 	private function replaceMediaObjectReferences($text = "", $mapping = array())
@@ -886,7 +893,7 @@ class assStackQuestionMoodleImport
 		}
 
 		//Step 5: Check tests
-		if (sizeof($question->getTests()))
+		if (!empty($question->getTests()))
 		{
 			foreach ($question->getTests() as $test)
 			{
@@ -1004,4 +1011,631 @@ class assStackQuestionMoodleImport
 	{
 		return $this->rte_tags;
 	}
+
+	public function php72Format($raw_data)
+	{
+		$full_data = array();
+
+		foreach ($raw_data as $question_data)
+		{
+			$data = array();
+			//Check for not category
+			if (is_array($question_data['category']))
+			{
+				continue;
+			}
+
+			//Question Name
+			$data['name'][0]['text'] = $question_data['name'][0]['text'][0]["_content"];
+
+			//Question text
+			$data['questiontext'][0]['text'] = $question_data['questiontext'][0]['text'];
+
+			//General feedback
+			$data['generalfeedback'][0]['text'] = $question_data['generalfeedback'][0]['text'];
+
+			//default grade
+			$data['defaultgrade'] = $question_data['defaultgrade'][0]["_content"];
+
+			//penalty
+			$data['penalty'] = $question_data['penalty'][0]["_content"];
+
+			//hidden
+			if (isset($question_data['hidden'][0]["_content"]))
+			{
+				$data['hidden'] = $question_data['hidden'][0]["_content"];
+			} else
+			{
+				$data['hidden'] = "";
+			}
+
+			//stackversion
+			if (isset($question_data['stackversion'][0]["_content"]))
+			{
+				$data['stackversion'][0]['text'] = $question_data['stackversion'][0]['text'];
+			} else
+			{
+				$data['stackversion'][0]['text'] = "";
+			}
+
+			//questionvariables 2 versions to solve problems with question variables tarting with comments
+			if (isset($question_data['questionvariables'][0]['text'][0]['_content']))
+			{
+				$data['questionvariables'][0]['text'] = $question_data['questionvariables'][0]['text'][0]['_content'];
+			} elseif (isset($question_data['questionvariables'][0]['text']) AND is_string($question_data['questionvariables'][0]['text']))
+			{
+				$data['questionvariables'][0]['text'] = $question_data['questionvariables'][0]['text'];
+			} else
+			{
+				$data['questionvariables'][0]['text'] = "";
+			}
+
+			//specificfeedback:
+			if (isset($question_data['specificfeedback'][0]['text'][0]['_content']))
+			{
+				$data['specificfeedback'][0]['text'] = $question_data['specificfeedback'][0]['text'][0]['_content'];
+			} elseif (isset($question_data['specificfeedback'][0]['text']) AND is_string($question_data['specificfeedback'][0]['text']))
+			{
+				$data['specificfeedback'][0]['text'] = $question_data['specificfeedback'][0]['text'];
+			} else
+			{
+				$data['specificfeedback'][0]['text'] = "";
+			}
+
+			//questionnote
+			if (isset($question_data['questionnote'][0]['text'][0]['_content']))
+			{
+				$data['questionnote'][0]['text'] = $question_data['questionnote'][0]['text'][0]['_content'];
+			} elseif (isset($question_data['questionnote'][0]['text']) AND is_string($question_data['questionnote'][0]['text']))
+			{
+				$data['questionnote'][0]['text'] = $question_data['questionnote'][0]['text'];
+			}else
+			{
+				$data['questionnote'][0]['text'] = "";
+			}
+
+			//questionsimplify
+			if (isset($question_data['questionsimplify'][0]["_content"]))
+			{
+				$data['questionsimplify'] = $question_data['questionsimplify'][0]["_content"];
+			} else
+			{
+				$data['questionsimplify'] = "";
+			}
+
+			//assumepositive
+			if (isset($question_data['assumepositive'][0]["_content"]))
+			{
+				$data['assumepositive'] = $question_data['assumepositive'][0]["_content"];
+			} else
+			{
+				$data['assumepositive'] = "";
+			}
+
+			//assumereal
+			if (isset($question_data['assumereal'][0]["_content"]))
+			{
+				$data['assumereal'] = $question_data['assumereal'][0]["_content"];
+			} else
+			{
+				$data['assumereal'] = "";
+			}
+
+			//prtcorrect
+			if (isset($question_data['prtcorrect'][0]["_content"]))
+			{
+				$data['prtcorrect'][0]['text'] = $question_data['prtcorrect'][0]['text'];
+			} else
+			{
+				$data['prtcorrect'][0]['text'] = "";
+			}
+
+			//prtpartiallycorrect
+			if (isset($question_data['prtpartiallycorrect'][0]["_content"]))
+			{
+				$data['prtpartiallycorrect'][0]['text'] = $question_data['prtpartiallycorrect'][0]['text'];
+			} else
+			{
+				$data['prtpartiallycorrect'][0]['text'] = "";
+			}
+
+			//prtincorrect
+			if (isset($question_data['prtincorrect'][0]["_content"]))
+			{
+				$data['prtincorrect'][0]['text'] = $question_data['prtincorrect'][0]['text'];
+			} else
+			{
+				$data['prtincorrect'][0]['text'] = "";
+			}
+
+			//multiplicationsign
+			if (isset($question_data['multiplicationsign'][0]["_content"]))
+			{
+				$data['multiplicationsign'] = $question_data['multiplicationsign'][0]["_content"];
+			} else
+			{
+				$data['multiplicationsign'] = "";
+			}
+
+			//sqrtsign
+			if (isset($question_data['sqrtsign'][0]["_content"]))
+			{
+				$data['sqrtsign'] = $question_data['sqrtsign'][0]["_content"];
+			} else
+			{
+				$data['sqrtsign'] = "";
+			}
+
+			//complexno
+			if (isset($question_data['complexno'][0]["_content"]))
+			{
+				$data['complexno'] = $question_data['complexno'][0]["_content"];
+			} else
+			{
+				$data['complexno'] = "";
+			}
+
+			//inversetrig
+			if (isset($question_data['inversetrig'][0]["_content"]))
+			{
+				$data['inversetrig'] = $question_data['inversetrig'][0]["_content"];
+			} else
+			{
+				$data['inversetrig'] = "";
+			}
+
+			//matrixparens
+			if (isset($question_data['matrixparens'][0]["_content"]))
+			{
+				$data['matrixparens'] = $question_data['matrixparens'][0]["_content"];
+			} else
+			{
+				$data['matrixparens'] = "";
+			}
+
+			//variantsselectionseed
+			if (isset($question_data['variantsselectionseed']))
+			{
+				$data['variantsselectionseed'] = $question_data['variantsselectionseed'];
+			} else
+			{
+				$data['variantsselectionseed'] = "";
+			}
+
+			//Inputs
+			if (is_array($question_data['input']))
+			{
+				foreach ($question_data['input'] as $input_raw)
+				{
+					$input_data = array();
+
+					//name
+					if (isset($input_raw['name'][0]["_content"]))
+					{
+						$input_data['name'] = $input_raw['name'][0]["_content"];
+					} else
+					{
+						$input_data['name'] = "";
+					}
+
+					//type
+					if (isset($input_raw['type'][0]["_content"]))
+					{
+						$input_data['type'] = $input_raw['type'][0]["_content"];
+					} else
+					{
+						$input_data['type'] = "";
+					}
+
+					//tans
+					if (isset($input_raw['tans'][0]["_content"]))
+					{
+						$input_data['tans'] = $input_raw['tans'][0]["_content"];
+					} else
+					{
+						$input_data['tans'] = "";
+					}
+
+					//boxsize
+					if (isset($input_raw['boxsize'][0]["_content"]))
+					{
+						$input_data['boxsize'] = $input_raw['boxsize'][0]["_content"];
+					} else
+					{
+						$input_data['boxsize'] = "";
+					}
+
+					//strictsyntax
+					if (isset($input_raw['strictsyntax'][0]["_content"]))
+					{
+						$input_data['strictsyntax'] = $input_raw['strictsyntax'][0]["_content"];
+					} else
+					{
+						$input_data['strictsyntax'] = "";
+					}
+
+					//insertstars
+					if (isset($input_raw['insertstars'][0]["_content"]))
+					{
+						$input_data['insertstars'] = $input_raw['insertstars'][0]["_content"];
+					} else
+					{
+						$input_data['insertstars'] = "";
+					}
+
+					//syntaxhint
+					if (isset($input_raw['syntaxhint'][0]["_content"]))
+					{
+						$input_data['syntaxhint'] = $input_raw['syntaxhint'][0]["_content"];
+					} else
+					{
+						$input_data['syntaxhint'] = "";
+					}
+
+					//syntaxattribute
+					if (isset($input_raw['syntaxattribute'][0]["_content"]))
+					{
+						$input_data['syntaxattribute'] = $input_raw['syntaxattribute'][0]["_content"];
+					} else
+					{
+						$input_data['syntaxattribute'] = "";
+					}
+
+					//forbidwords
+					if (isset($input_raw['forbidwords'][0]["_content"]))
+					{
+						$input_data['forbidwords'] = $input_raw['forbidwords'][0]["_content"];
+					} else
+					{
+						$input_data['forbidwords'] = "";
+					}
+
+					//allowwords
+					if (isset($input_raw['allowwords'][0]["_content"]))
+					{
+						$input_data['allowwords'] = $input_raw['allowwords'][0]["_content"];
+					} else
+					{
+						$input_data['allowwords'] = "";
+					}
+
+					//forbidfloat
+					if (isset($input_raw['forbidfloat'][0]["_content"]))
+					{
+						$input_data['forbidfloat'] = $input_raw['forbidfloat'][0]["_content"];
+					} else
+					{
+						$input_data['forbidfloat'] = "";
+					}
+
+					//requirelowestterms
+					if (isset($input_raw['requirelowestterms'][0]["_content"]))
+					{
+						$input_data['requirelowestterms'] = $input_raw['requirelowestterms'][0]["_content"];
+					} else
+					{
+						$input_data['requirelowestterms'] = "";
+					}
+
+					//checkanswertype
+					if (isset($input_raw['checkanswertype'][0]["_content"]))
+					{
+						$input_data['checkanswertype'] = $input_raw['checkanswertype'][0]["_content"];
+					} else
+					{
+						$input_data['checkanswertype'] = "";
+					}
+
+					//mustverify
+					if (isset($input_raw['mustverify'][0]["_content"]))
+					{
+						$input_data['mustverify'] = $input_raw['mustverify'][0]["_content"];
+					} else
+					{
+						$input_data['mustverify'] = "";
+					}
+
+					//showvalidation
+					if (isset($input_raw['showvalidation'][0]["_content"]))
+					{
+						$input_data['showvalidation'] = $input_raw['showvalidation'][0]["_content"];
+					} else
+					{
+						$input_data['showvalidation'] = "";
+					}
+
+					//options
+					if (isset($input_raw['options'][0]["_content"]))
+					{
+						$input_data['options'] = $input_raw['options'][0]["_content"];
+					} else
+					{
+						$input_data['options'] = "";
+					}
+
+					//Add to question
+					$data['input'][] = $input_data;
+				}
+			}
+
+			//PRT
+			if (is_array($question_data['prt']))
+			{
+				foreach ($question_data['prt'] as $prt_raw)
+				{
+					$prt_data = array();
+
+					//name
+					if (isset($prt_raw['name'][0]["_content"]))
+					{
+						$prt_data['name'] = $prt_raw['name'][0]["_content"];
+					} else
+					{
+						$prt_data['name'] = "";
+					}
+
+					//value
+					if (isset($prt_raw['value'][0]["_content"]))
+					{
+						$prt_data['value'] = $prt_raw['value'][0]["_content"];
+					} else
+					{
+						$prt_data['value'] = "";
+					}
+
+					//autosimplify
+					if (isset($prt_raw['autosimplify'][0]["_content"]))
+					{
+						$prt_data['autosimplify'] = $prt_raw['autosimplify'][0]["_content"];
+					} else
+					{
+						$prt_data['autosimplify'] = "";
+					}
+
+					//feedbackvariables
+					if (isset($prt_raw['feedbackvariables'][0]["text"]))
+					{
+						$prt_data['feedbackvariables'][0]["text"] = $prt_raw['feedbackvariables'][0]["text"];
+					} else
+					{
+						$prt_data['feedbackvariables'][0]["text"] = "";
+					}
+
+					//Nodes
+					if (is_array($prt_raw['node']))
+					{
+						foreach ($prt_raw['node'] as $node_raw)
+						{
+							$node_data = array();
+
+							//name
+							if (isset($node_raw['name'][0]["_content"]))
+							{
+								$node_data['name'] = $node_raw['name'][0]["_content"];
+							} else
+							{
+								$node_data['name'] = "";
+							}
+
+							//answertest
+							if (isset($node_raw['answertest'][0]["_content"]))
+							{
+								$node_data['answertest'] = $node_raw['answertest'][0]["_content"];
+							} else
+							{
+								$node_data['answertest'] = "";
+							}
+
+							//sans
+							if (isset($node_raw['sans'][0]["_content"]))
+							{
+								$node_data['sans'] = $node_raw['sans'][0]["_content"];
+							} else
+							{
+								$node_data['sans'] = "";
+							}
+
+							//tans
+							if (isset($node_raw['tans'][0]["_content"]))
+							{
+								$node_data['tans'] = $node_raw['tans'][0]["_content"];
+							} else
+							{
+								$node_data['tans'] = "";
+							}
+
+							//testoptions
+							if (isset($node_raw['testoptions'][0]["_content"]))
+							{
+								$node_data['testoptions'] = $node_raw['testoptions'][0]["_content"];
+							} else
+							{
+								$node_data['testoptions'] = "";
+							}
+
+							//quiet
+							if (isset($node_raw['quiet'][0]["_content"]))
+							{
+								$node_data['quiet'] = $node_raw['quiet'][0]["_content"];
+							} else
+							{
+								$node_data['quiet'] = "";
+							}
+
+							//truescoremode
+							if (isset($node_raw['truescoremode'][0]["_content"]))
+							{
+								$node_data['truescoremode'] = $node_raw['truescoremode'][0]["_content"];
+							} else
+							{
+								$node_data['truescoremode'] = "";
+							}
+
+							//truescore
+							if (isset($node_raw['truescore'][0]["_content"]))
+							{
+								$node_data['truescore'] = $node_raw['truescore'][0]["_content"];
+							} else
+							{
+								$node_data['truescore'] = "";
+							}
+
+							//truepenalty
+							if (isset($node_raw['truepenalty'][0]["_content"]))
+							{
+								$node_data['truepenalty'] = $node_raw['truepenalty'][0]["_content"];
+							} else
+							{
+								$node_data['truepenalty'] = "";
+							}
+
+							//truenextnode
+							if (isset($node_raw['truenextnode'][0]["_content"]))
+							{
+								$node_data['truenextnode'] = $node_raw['truenextnode'][0]["_content"];
+							} else
+							{
+								$node_data['truenextnode'] = "";
+							}
+
+							//trueanswernote
+							if (isset($node_raw['trueanswernote'][0]["_content"]))
+							{
+								$node_data['trueanswernote'] = $node_raw['trueanswernote'][0]["_content"];
+							} else
+							{
+								$node_data['trueanswernote'] = "";
+							}
+
+							//truefeedback
+							if (isset($node_raw['truefeedback'][0]["text"][0]["_content"]))
+							{
+								$node_data['truefeedback'][0]["text"] = $node_raw['truefeedback'][0]["text"][0]["_content"];
+							} else
+							{
+								$node_data['truefeedback'][0]["text"] = "";
+							}
+
+							//falsescoremode
+							if (isset($node_raw['falsescoremode'][0]["_content"]))
+							{
+								$node_data['falsescoremode'] = $node_raw['falsescoremode'][0]["_content"];
+							} else
+							{
+								$node_data['falsescoremode'] = "";
+							}
+
+							//falsescore
+							if (isset($node_raw['falsescore'][0]["_content"]))
+							{
+								$node_data['falsescore'] = $node_raw['falsescore'][0]["_content"];
+							} else
+							{
+								$node_data['falsescore'] = "";
+							}
+
+							//falsepenalty
+							if (isset($node_raw['falsepenalty'][0]["_content"]))
+							{
+								$node_data['falsepenalty'] = $node_raw['falsepenalty'][0]["_content"];
+							} else
+							{
+								$node_data['falsepenalty'] = "";
+							}
+
+							//falsenextnode
+							if (isset($node_raw['falsenextnode'][0]["_content"]))
+							{
+								$node_data['falsenextnode'] = $node_raw['falsenextnode'][0]["_content"];
+							} else
+							{
+								$node_data['falsenextnode'] = "";
+							}
+
+							//falseanswernote
+							if (isset($node_raw['falseanswernote'][0]["_content"]))
+							{
+								$node_data['falseanswernote'] = $node_raw['falseanswernote'][0]["_content"];
+							} else
+							{
+								$node_data['falseanswernote'] = "";
+							}
+
+							//falsefeedback
+							if (isset($node_raw['falsefeedback'][0]["text"][0]["_content"]))
+							{
+								$node_data['falsefeedback'][0]["text"] = $node_raw['falsefeedback'][0]["text"][0]["_content"];
+							} else
+							{
+								$node_data['falsefeedback'][0]["text"] = "";
+							}
+
+							//Add to prt
+							$prt_data['node'][] = $node_data;
+						}
+					}
+
+					//Add to question
+					$data['prt'][] = $prt_data;
+
+					//qtest
+					if (is_array($question_data['qtest']))
+					{
+						foreach ($question_data['qtest'] as $qtest_raw)
+						{
+							$qtest_data = array();
+
+							//testcase
+							if (isset($qtest_raw['testcase'][0]["_content"]))
+							{
+								$qtest_data['testcase'] = $qtest_raw['testcase'][0]["_content"];
+							} else
+							{
+								$qtest_data['testcase'] = "";
+							}
+
+							//testinput
+							if (isset($qtest_raw['testinput'][0]['name'][0]["_content"]) AND isset($qtest_raw['testinput'][0]['value'][0]["_content"]))
+							{
+								$qtest_data['testinput'][0]['name'] = $qtest_raw['testinput'][0]['name'][0]["_content"];
+								$qtest_data['testinput'][0]['value'] = $qtest_raw['testinput'][0]['value'][0]["_content"];
+							} else
+							{
+								$qtest_data['testinput'][0]['name'] = "";
+								$qtest_data['testinput'][0]['value'] = "";
+							}
+
+							//expected
+							if (isset($qtest_raw['expected'][0]['name'][0]["_content"]) AND isset($qtest_raw['expected'][0]['expectedscore'][0]["_content"]) AND isset($qtest_raw['expected'][0]['expectedanswernote'][0]["_content"]))
+							{
+								$qtest_data['expected'][0]['name'] = $qtest_raw['expected'][0]['name'][0]["_content"];
+								$qtest_data['expected'][0]['expectedscore'] = $qtest_raw['expected'][0]['expectedscore'][0]["_content"];
+								$qtest_data['expected'][0]['expectedpenalty'] = $qtest_raw['expected'][0]['expectedpenalty'][0]["_content"];
+								$qtest_data['expected'][0]['expectedanswernote'] = $qtest_raw['expected'][0]['expectedanswernote'][0]["_content"];
+
+							} else
+							{
+								$qtest_data['expected'][0]['name'] = "";
+								$qtest_data['expected'][0]['expectedscore'] = "";
+								$qtest_data['expected'][0]['expectedpenalty'] = "";
+								$qtest_data['expected'][0]['expectedanswernote'] = "";
+							}
+
+
+							//Add to question
+							$data['qtest'][] = $qtest_data;
+						}
+					}
+
+				}
+			}
+
+			//Add to full data
+			$full_data['question'][] = $data;
+
+		}
+
+		return $full_data;
+	}
+
 }

@@ -154,11 +154,13 @@ class stack_checkbox_input extends stack_dropdown_input {
         }
 
 		$contents = array();
-        foreach ($this->ddlvalues as $key => $val) {
-            if (array_key_exists($this->name.'_'.$key, $response)) {
-                $contents[] = (int) $response[$this->name.'_'.$key];
-            }
-        }
+		if(is_array($this->ddlvalues)){
+			foreach ($this->ddlvalues as $key => $val) {
+				if (array_key_exists($this->name.'_'.$key, $response)) {
+					$contents[] = (int) $response[$this->name.'_'.$key];
+				}
+			}
+		}
 
 		return $contents;
     }

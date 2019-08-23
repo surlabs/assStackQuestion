@@ -1121,11 +1121,14 @@ class assStackQuestionAuthoringGUI
 		$session_error_message = "";
 		$session_info_message = "";
 
-		if (sizeof($_SESSION["stack_authoring_errors"][$this->getQuestionGUI()->object->getId()]))
+		if (isset($_SESSION["stack_authoring_errors"][$this->getQuestionGUI()->object->getId()]))
 		{
-			foreach ($_SESSION["stack_authoring_errors"][$this->getQuestionGUI()->object->getId()] as $session_error)
+			if (sizeof($_SESSION["stack_authoring_errors"][$this->getQuestionGUI()->object->getId()]))
 			{
-				$session_error_message .= $session_error . "</br>";
+				foreach ($_SESSION["stack_authoring_errors"][$this->getQuestionGUI()->object->getId()] as $session_error)
+				{
+					$session_error_message .= $session_error . "</br>";
+				}
 			}
 		}
 
