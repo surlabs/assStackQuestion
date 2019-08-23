@@ -266,7 +266,7 @@ class assStackQuestionDisplay
 	private function replacementForPRTPlaceholders($prt, $prt_name, $in_test)
 	{
 		$string = "";
-		if (sizeof($this->getInlineFeedback()))
+		if (!empty($this->getInlineFeedback()))
 		{
 			//feedback
 			//feedback

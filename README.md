@@ -103,3 +103,7 @@ Version 3.1.3 (2019-07-31) for ILIAS 5.4
 ----------------------------------------
 Some small changes has been made in language variables
 Now all feedback Types are always displayed in the authoring interface also if no content style has been chosen in the plugin configuration.
+
+Version 3.1.4 (2019-08-23) for ILIAS 5.4
+----------------------------------------
+This version includes support for PHP 7.2 in ILIAS 5.4 platform, during the process of update this plugin some ILIAS core bugs were found (e.g. importing question pools), those non-STACk related bugs can make the experience of using the plugin in a PHP 7.2 installation not smooth as intended, if you find any bugs in a PHP 7.2 platform, please report it in Mantis.

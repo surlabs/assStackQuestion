@@ -531,7 +531,7 @@ class stack_cas_session {
             }
 
             // Special handling for the conditionally evaluated strings.
-            if (count($cs->get_conditions()) > 0) {
+			if (!empty($cs->get_conditions())) {
                 $conditions = array();
                 foreach ($cs->get_conditions() as $cond) {
                     // No need to evaluate again if it is already evaluated.

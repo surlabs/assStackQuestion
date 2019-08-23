@@ -356,10 +356,10 @@ class stack_cas_text {
             return false;
         }
 
-        // Deal with castext without any CAS variables.
-        if (null !== $this->session && count($this->session->get_session()) > 0) {
-            $this->session->instantiate();
-        }
+		// Deal with castext without any CAS variables.
+		if (null !== $this->session && !empty($this->session->get_session())) {
+			$this->session->instantiate();
+		}
 
         // Handle blocks.
         $requiresrerun = false;

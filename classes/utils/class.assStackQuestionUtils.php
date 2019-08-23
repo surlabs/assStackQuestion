@@ -750,5 +750,17 @@ class assStackQuestionUtils
 	}
 
 
+	public static function _isPhP72()
+	{
+		$php_version = phpversion();
 
+		$version = substr($php_version, 0, 3);
+		if ($version < 7.2)
+		{
+			return FALSE;
+		} else
+		{
+			return TRUE;
+		}
+	}
 }
