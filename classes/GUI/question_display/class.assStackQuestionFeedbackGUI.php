@@ -51,7 +51,7 @@ class assStackQuestionFeedbackGUI
 		//Set feedback data
 		$this->setFeedback($feedback_data);
 
-		if (sizeof($this->getFeedback('prt')) > 1)
+		if (!empty($this->getFeedback('prt')))
 		{
 			$this->show_user_response = TRUE;
 		} else

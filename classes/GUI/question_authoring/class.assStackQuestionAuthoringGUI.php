@@ -229,7 +229,7 @@ class assStackQuestionAuthoringGUI
 		$inputs_section_header->setTitle($this->getPlugin()->txt('inputs'));
 		$this->getForm()->addItem($inputs_section_header);
 
-		if (sizeof($this->getQuestionGUI()->object->getInputs()))
+		if (!empty($this->getQuestionGUI()->object->getInputs()))
 		{
 			//In case of edition
 			foreach ($this->getQuestionGUI()->object->getInputs() as $input_name => $input)
@@ -256,7 +256,7 @@ class assStackQuestionAuthoringGUI
 	{
 		$prts = new ilTabsFormPropertyGUI($this->getPlugin()->txt('prts'), "question_prts", 12, FALSE);
 
-		if (sizeof($this->getQuestionGUI()->object->getPotentialResponsesTrees()))
+		if (!empty($this->getQuestionGUI()->object->getPotentialResponsesTrees()))
 		{
 			foreach ($this->getQuestionGUI()->object->getPotentialResponsesTrees() as $prt_name => $prt)
 			{
@@ -755,7 +755,7 @@ class assStackQuestionAuthoringGUI
 		$nodes = new ilTabsFormPropertyGUI($this->getPlugin()->txt('prt_nodes'), 'prt_' . $prt->getPRTName() . '_nodes', $container_width, FALSE);
 
 		$q_nodes = $prt->getPRTNodes();
-		if (sizeof($q_nodes))
+		if (!empty($q_nodes))
 		{
 			foreach ($q_nodes as $node)
 			{
@@ -768,7 +768,7 @@ class assStackQuestionAuthoringGUI
 			}
 		}
 		//Add tab per node in the current PRT
-		if (sizeof($q_nodes))
+		if (!empty($q_nodes))
 		{
 			foreach ($q_nodes as $node)
 			{
@@ -1123,7 +1123,7 @@ class assStackQuestionAuthoringGUI
 
 		if (isset($_SESSION["stack_authoring_errors"][$this->getQuestionGUI()->object->getId()]))
 		{
-			if (sizeof($_SESSION["stack_authoring_errors"][$this->getQuestionGUI()->object->getId()]))
+			if (!empty($_SESSION["stack_authoring_errors"][$this->getQuestionGUI()->object->getId()]))
 			{
 				foreach ($_SESSION["stack_authoring_errors"][$this->getQuestionGUI()->object->getId()] as $session_error)
 				{

@@ -277,25 +277,32 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function checkPRTForDeletion(assStackQuestionPRT $prt)
 	{
-		if (sizeof($this->object->getPotentialResponsesTrees()) < 2)
+		if (is_array($this->object->getPotentialResponsesTrees()))
 		{
-			$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_not_enought_prts'));
+			if (sizeof($this->object->getPotentialResponsesTrees()) < 2)
+			{
+				$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_not_enought_prts'));
 
-			return TRUE;
+				return TRUE;
+			}
 		}
+
 
 		return FALSE;
 	}
 
 	public function checkPRTNodeForDeletion(assStackQuestionPRT $prt, assStackQuestionPRTNode $node)
 	{
-
-		if (sizeof($prt->getPRTNodes()) < 2)
+		if (is_array($prt->getPRTNodes()))
 		{
-			$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_not_enought_prt_nodes'));
+			if (sizeof($prt->getPRTNodes()) < 2)
+			{
+				$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_not_enought_prt_nodes'));
 
-			return TRUE;
+				return TRUE;
+			}
 		}
+
 
 		if ((int)$prt->getFirstNodeName() == (int)$node->getNodeName())
 		{
@@ -343,11 +350,14 @@ class assStackQuestionGUI extends assQuestionGUI
 			} else
 			{
 				//If doesn' exist, check if must be deleted
-				if (sizeof($this->object->getInputs()) < 2)
+				if (is_array($this->object->getInputs()))
 				{
-					//If there are less than two inputs you cannot delete it
-					//Add placeholder to question text
-					$this->object->setQuestion($this->object->getQuestion() . " [[input:{$input_name}]]  [[validation:{$input_name}]]");
+					if (sizeof($this->object->getInputs()) < 2)
+					{
+						//If there are less than two inputs you cannot delete it
+						//Add placeholder to question text
+						$this->object->setQuestion($this->object->getQuestion() . " [[input:{$input_name}]]  [[validation:{$input_name}]]");
+					}
 				} else
 				{
 					//Delete input from object
@@ -934,11 +944,11 @@ class assStackQuestionGUI extends assQuestionGUI
 	/**
 	 * Returns the answer generic feedback depending on the results of the question
 	 *
-	 * @deprecated Use getGenericFeedbackOutput instead.
 	 * @param integer $active_id Active ID of the user
 	 * @param integer $pass Active pass
 	 * @return string HTML Code with the answer specific feedback
 	 * @access public
+	 * @deprecated Use getGenericFeedbackOutput instead.
 	 */
 	function getAnswerFeedbackOutput($active_id, $pass)
 	{

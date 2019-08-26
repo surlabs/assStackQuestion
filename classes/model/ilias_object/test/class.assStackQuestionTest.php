@@ -153,7 +153,7 @@ class assStackQuestionTest
 			//Reading test data
 			$test->setTestInputs(assStackQuestionTestInput::_read($question_id, $test->getTestCase()));
 			$test->setTestExpected(assStackQuestionTestExpected::_read($question_id, $test->getTestCase()));
-			$test->setNumberOfTests(sizeof($test->getTestInputs()));
+			$test->setNumberOfTests(!empty($test->getTestInputs()));
 			$tests[$test->getTestCase()] = $test;
 		}
 
@@ -203,7 +203,7 @@ class assStackQuestionTest
 			return false;
 		}
 		//Arrays filled in:
-		if (sizeof($this->getTestInputs()) AND sizeof($this->getTestExpected())) {
+		if (!empty($this->getTestInputs()) AND sizeof($this->getTestExpected())) {
 			return true;
 		}
 	}

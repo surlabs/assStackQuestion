@@ -98,7 +98,7 @@ class assStackQuestionDeployedSeedsGUI
 			$q_note = $deployed_seed->getQuestionNote();
 			$include = TRUE;
 
-			if (sizeof($valid_seeds))
+			if (!empty($valid_seeds))
 			{
 				foreach ($valid_seeds as $valid_seed)
 				{
