@@ -271,7 +271,7 @@ class assStackQuestionStackQuestion
 			global $DIC;
 
 			$lng = $DIC->language();
-			switch (sizeof($ilias_question->getDeployedSeeds()))
+			switch (!empty($ilias_question->getDeployedSeeds()))
 			{
 				//No deployed seeds for this question.
 				case 0:
@@ -442,7 +442,7 @@ class assStackQuestionStackQuestion
 				$stack_inputs[$input_name] = $this->getStackFactory()->get("input_object", $input_parameters);
 
 			}
-			if (sizeof($stack_inputs))
+			if (!empty($stack_inputs))
 			{
 				$this->setInputs($stack_inputs);
 			}

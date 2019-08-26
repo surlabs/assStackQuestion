@@ -119,7 +119,7 @@ class stack_cas_connection_db_cache implements stack_cas_connection
 		// If there was more than one record in the cache (due to a race condition)
 		// drop the duplicates.
 		////fim: #9 Use ILIAS DB instead of Moodle DB
-		if (sizeof($data) > 1)
+		if (!empty($data))
 		{
 			unset($data[0]);
 			foreach ($data as $record)

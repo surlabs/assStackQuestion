@@ -100,7 +100,7 @@ class assStackQuestionTestGUI
 		$toolbar->addButtonInstance($run_all_tests);
 		$toolbar->setFormAction($ctrl->getLinkTargetByClass("assSTACKQuestionGUI"));
 
-		if (sizeof($this->getTests()))
+		if (!empty($this->getTests()))
 		{
 			include_once './Services/Accordion/classes/class.ilAccordionGUI.php';
 			$unit_tests_accordion = new ilAccordionGUI();

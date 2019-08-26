@@ -879,7 +879,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		}
 
 		//INPUTS
-		if (sizeof($this->inputs))
+		if (!empty($this->inputs))
 		{
 			foreach ($this->inputs as $input)
 			{
@@ -897,7 +897,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		}
 
 		//POTENTIAL RESPONSE TREES
-		if (sizeof($this->potential_responses_trees))
+		if (!empty($this->potential_responses_trees))
 		{
 			foreach ($this->potential_responses_trees as $prt)
 			{
@@ -992,7 +992,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		}
 
 		//Inputs
-		if (sizeof($this->inputs))
+		if (!empty($this->inputs))
 		{
 			$inputs = assStackQuestionInput::_read($origQuestionId);
 
@@ -1025,7 +1025,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		}
 
 		//PRT
-		if (sizeof($this->potential_responses_trees))
+		if (!empty($this->potential_responses_trees))
 		{
 			$prts = assStackQuestionPRT::_read($origQuestionId);
 
@@ -1125,7 +1125,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		}
 
 		//Inputs
-		if (sizeof($this->inputs))
+		if (!empty($this->inputs))
 		{
 			foreach ($this->inputs as $key => $input)
 			{
@@ -1138,7 +1138,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		}
 
 		//PRT
-		if (sizeof($this->potential_responses_trees))
+		if (!empty($this->potential_responses_trees))
 		{
 
 			foreach ($this->potential_responses_trees as $prt_key => $prt)
@@ -1240,7 +1240,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 				//load inputs
 				$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionInput.php');
 				$this->setInputs(assStackQuestionInput::_read($question_id));
-				if (sizeof($this->getInputs()) == 0)
+				if (empty($this->getInputs()))
 				{
 					//Create options
 					$input = new assStackQuestionInput(-1, $question_id, "ans1", "algebraic", "");
@@ -1793,7 +1793,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		}
 
 		//Determine if seed already exists and return it;
-		if (sizeof($this->getPotentialResponsesTrees()))
+		if (!empty($this->getPotentialResponsesTrees()))
 		{
 			foreach ($this->getPotentialResponsesTrees() as $prt)
 			{
@@ -1819,7 +1819,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 
 			//get seed and save it to DB
 			$question_seed = $this->getStackQuestion()->getSeed();
-			if (sizeof($this->getPotentialResponsesTrees()))
+			if (!empty($this->getPotentialResponsesTrees()))
 			{
 				foreach ($this->getPotentialResponsesTrees() as $prt)
 				{
