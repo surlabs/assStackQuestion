@@ -111,3 +111,7 @@ This version includes support for PHP 7.2 in ILIAS 5.4 platform, during the proc
 Version 3.1.5 (2019-08-26) for ILIAS 5.4
 ----------------------------------------
 Some bugs in PHP 7.2 installations has been solved.
+
+Version 3.1.6 (2019-09-10) for ILIAS 5.4
+----------------------------------------
+Solved some bugs related to Copy of PRTs
