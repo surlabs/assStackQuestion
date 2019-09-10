@@ -248,7 +248,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 					if (is_a($paste_prt, 'assStackQuestionPRT'))
 					{
-						$paste_prt->setPRTId("");
+						$paste_prt->setPRTId(-1);
 						$paste_prt->setQuestionId($this->object->getId());
 						$paste_prt->setPRTName($generated_prt_name);
 						$paste_prt->save();
@@ -257,12 +257,17 @@ class assStackQuestionGUI extends assQuestionGUI
 						{
 							if (is_a($prt_node, 'assStackQuestionPRTNode'))
 							{
-								$prt_node->setNodeId("");
+								$prt_node->setNodeId(-1);
 								$prt_node->setQuestionId($this->object->getId());
 								$prt_node->setPRTName($generated_prt_name);
 								$prt_node->save();
 							}
 						}
+						//Solve #26077
+						//Include placeholder in specific feedback
+						$current_specific_feedback = $this->object->getOptions()->getSpecificFeedback();
+						$new_specific_feedback = "<p>" . $current_specific_feedback . "[[feedback:" . $generated_prt_name . "]]</p>";
+						$_POST["options_specific_feedback"] = $new_specific_feedback;
 					}
 					unset($_SESSION['copy_prt']);
 					ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_prt_paste"), TRUE);
