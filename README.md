@@ -115,3 +115,7 @@ Some bugs in PHP 7.2 installations has been solved.
 Version 3.1.6 (2019-09-10) for ILIAS 5.4
 ----------------------------------------
 Solved some bugs related to Copy of PRTs
+
+Bugs currently solved
+----------------------------------------
+Bug about deployed seeds creation: Now more than one seed per question can be created.
