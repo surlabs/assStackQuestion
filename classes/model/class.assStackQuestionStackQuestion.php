@@ -271,7 +271,7 @@ class assStackQuestionStackQuestion
 			global $DIC;
 
 			$lng = $DIC->language();
-			switch (!empty($ilias_question->getDeployedSeeds()))
+			switch (sizeof($ilias_question->getDeployedSeeds()))
 			{
 				//No deployed seeds for this question.
 				case 0:
