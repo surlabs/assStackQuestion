@@ -119,3 +119,4 @@ Solved some bugs related to Copy of PRTs
 Bugs currently solved
 ----------------------------------------
 Bug about deployed seeds creation: Now more than one seed per question can be created.
+https://mantis.ilias.de/view.php?id=26179 About crashing in test results
