@@ -670,6 +670,8 @@ class assStackQuestionUtils
 	 */
 	public static function _getFeedbackStyledText($a_text, $a_format)
 	{
+		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
+
 		//Get Styles assigned to Formats
 		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
 		require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
@@ -717,6 +719,8 @@ class assStackQuestionUtils
 	}
 
 	public static function _replaceFeedbackPlaceHolders($feedback){
+		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
+
 		//Get Styles assigned to Formats
 		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
 
