@@ -22,9 +22,11 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2012 The University of Birmingham
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_cas_connection_unix extends stack_cas_connection_base {
+class stack_cas_connection_unix extends stack_cas_connection_base
+{
 
-    protected function guess_maxima_command($path) {
+    protected function guess_maxima_command($path)
+    {
         global $CFG;
         if (stack_connection_helper::get_platform() == 'unix-optimised') {
             // We are trying to use a Lisp snapshot of Maxima with all the
@@ -45,23 +47,20 @@ class stack_cas_connection_unix extends stack_cas_connection_base {
         $maximaversion = stack_connection_helper::get_maximaversion();
         $maximacommand = 'maxima';
         if ('default' != $maximaversion) {
-            $maximacommand = 'maxima --use-version='.$maximaversion;
+            $maximacommand = 'maxima --use-version=' . $maximaversion;
         }
         return $maximacommand;
     }
 
-    protected function call_maxima($command) {
-        $ret = false;
-        $err = '';
-        $cwd = null;
-        $newpath = getenv('PATH');
-        $env = array('PATH' => $newpath);
+    protected function call_maxima($command)
+    {
+        $env = array('PATH' => getenv('PATH'));
 
         $descriptors = array(
             0 => array('pipe', 'r'),
             1 => array('pipe', 'w'),
-            2 => array('pipe', 'w'));
-        $casprocess = proc_open($this->command, $descriptors, $pipes, $cwd, $env);
+        );
+        $casprocess = proc_open($this->command . ' 2>&1', $descriptors, $pipes, null, $env);
 
         if (!is_resource($casprocess)) {
             throw new stack_exception('stack_cas_connection: could not open a CAS process');
@@ -71,12 +70,12 @@ class stack_cas_connection_unix extends stack_cas_connection_base {
             throw new stack_exception('stack_cas_connection: could not write to the CAS process.');
         }
         fwrite($pipes[0], $command);
-        fwrite($pipes[0], 'quit();'."\n\n");
+        fwrite($pipes[0], 'quit();' . "\n\n");
 
         $ret = '';
         // Read output from stdout.
         $starttime = microtime(true);
-        $continue   = true;
+        $continue = true;
 
         if (!stream_set_blocking($pipes[1], false)) {
             $this->debug->log('', 'Warning: could not stream_set_blocking to be FALSE on the CAS process.');
@@ -106,8 +105,12 @@ class stack_cas_connection_unix extends stack_cas_connection_base {
         if ($continue) {
             fclose($pipes[0]);
             fclose($pipes[1]);
+            $returnvalue = proc_close($casprocess);
+
+            $this->debug->log('CAS process return value: ' . $returnvalue);
+
             $this->debug->log('Timings', "Start: {$starttime}, End: {$now}, Taken = " .
-                    ($now - $starttime));
+                ($now - $starttime));
 
         } else {
             // Add sufficient closing ]'s to allow something to be un-parsed from the CAS.

@@ -22,13 +22,17 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2012 University of Birmingham
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_algebraic_input extends stack_input {
+class stack_algebraic_input extends stack_input
+{
 
     protected $extraoptions = array(
-        'rationalized' => false
+        'simp' => false,
+        'rationalized' => false,
+        'allowempty' => false
     );
 
-    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue) {
+    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue)
+    {
 
         if ($this->errors) {
             return $this->render_error($this->errors);
@@ -36,21 +40,28 @@ class stack_algebraic_input extends stack_input {
 
         $size = $this->parameters['boxWidth'] * 0.9 + 0.1;
         $attributes = array(
-            'type'  => 'text',
-            'name'  => $fieldname,
-            'id'    => $fieldname,
-            'size'  => $this->parameters['boxWidth'] * 1.1,
-            'style' => 'width: '.$size.'em'
+            'type' => 'text',
+            'name' => $fieldname,
+            'id' => $fieldname,
+            'size' => $this->parameters['boxWidth'] * 1.1,
+            'style' => 'width: ' . $size . 'em',
+            'autocapitalize' => 'none',
+            'spellcheck' => 'false',
+            'class' => 'algebraic',
         );
 
-        if ($this->is_blank_response($state->contents)) {
+        $value = $this->contents_to_maxima($state->contents);
+        if ($value == 'EMPTYANSWER') {
+            // Active empty choices don't result in a syntax hint again (with that option set).
+            $attributes['value'] = '';
+        } else if ($this->is_blank_response($state->contents)) {
             $field = 'value';
             if ($this->parameters['syntaxAttribute'] == '1') {
                 $field = 'placeholder';
             }
             $attributes[$field] = stack_utils::logic_nouns_sort($this->parameters['syntaxHint'], 'remove');
         } else {
-            $attributes['value'] = $this->contents_to_maxima($state->contents);
+            $attributes['value'] = $value;
         }
 
         if ($readonly) {
@@ -60,7 +71,8 @@ class stack_algebraic_input extends stack_input {
         return html_writer::empty_tag('input', $attributes);
     }
 
-    public function add_to_moodleform_testinput(MoodleQuickForm $mform) {
+    public function add_to_moodleform_testinput(MoodleQuickForm $mform)
+    {
         $mform->addElement('text', $this->name, $this->name, array('size' => $this->parameters['boxWidth']));
         $mform->setDefault($this->name, $this->parameters['syntaxHint']);
         $mform->setType($this->name, PARAM_RAW);
@@ -71,30 +83,32 @@ class stack_algebraic_input extends stack_input {
      * Parameters are options a teacher might set.
      * @return array parameters` => default value.
      */
-    public static function get_parameters_defaults() {
+    public static function get_parameters_defaults()
+    {
         return array(
-            'mustVerify'         => true,
-            'showValidation'     => 1,
-            'boxWidth'           => 15,
-            'strictSyntax'       => false,
-            'insertStars'        => 0,
-            'syntaxHint'         => '',
-            'syntaxAttribute'    => 0,
-            'forbidWords'        => '',
-            'allowWords'         => '',
-            'forbidFloats'       => true,
-            'lowestTerms'        => true,
-            'sameType'           => true,
-            'options'            => '');
+            'mustVerify' => true,
+            'showValidation' => 1,
+            'boxWidth' => 15,
+            'strictSyntax' => false,
+            'insertStars' => 0,
+            'syntaxHint' => '',
+            'syntaxAttribute' => 0,
+            'forbidWords' => '',
+            'allowWords' => '',
+            'forbidFloats' => true,
+            'lowestTerms' => true,
+            'sameType' => true,
+            'options' => '');
     }
 
     /**
      * Each actual extension of this base class must decide what parameter values are valid
      * @return array of parameters names.
      */
-    public function internal_validate_parameter($parameter, $value) {
+    public function internal_validate_parameter($parameter, $value)
+    {
         $valid = true;
-        switch($parameter) {
+        switch ($parameter) {
             case 'boxWidth':
                 $valid = is_int($value) && $value > 0;
                 break;
@@ -105,8 +119,12 @@ class stack_algebraic_input extends stack_input {
     /**
      * @return string the teacher's answer, displayed to the student in the general feedback.
      */
-    public function get_teacher_answer_display($value, $display) {
+    public function get_teacher_answer_display($value, $display)
+    {
         $value = stack_utils::logic_nouns_sort($value, 'remove');
-        return stack_string('teacheranswershow', array('value' => '<code>'.$value.'</code>', 'display' => $display));
+        if (trim($value) == 'EMPTYANSWER') {
+            return stack_string('teacheranswerempty');
+        }
+        return stack_string('teacheranswershow', array('value' => '<code>' . $value . '</code>', 'display' => $display));
     }
 }

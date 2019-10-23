@@ -14,20 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Define blocks allow one to (re)define variables in the middle of castext.
- * They are meant for writing out for-blocks but no one says that you could not use them.
- *
- * @copyright  2013 Aalto University
- * @copyright  2012 University of Birmingham
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+defined('MOODLE_INTERNAL') || die();
+
+// Define blocks allow one to (re)define variables in the middle of castext.
+// They are meant for writing out for-blocks but no one says that you could not use them.
+//
+// @copyright  2013 Aalto University
+// @copyright  2012 University of Birmingham
+// @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
+
 require_once(__DIR__ . '/../casstring.class.php');
 require_once("block.interface.php");
 
-class stack_cas_castext_define extends stack_cas_castext_block {
+class stack_cas_castext_define extends stack_cas_castext_block
+{
 
-    public function extract_attributes(&$tobeevaluatedcassession, $conditionstack = null) {
+    public function extract_attributes(&$tobeevaluatedcassession, $conditionstack = null)
+    {
         $css = array();
 
         foreach ($this->get_node()->get_parameters() as $key => $value) {
@@ -40,19 +43,23 @@ class stack_cas_castext_define extends stack_cas_castext_block {
         }
     }
 
-    public function content_evaluation_context($conditionstack = array()) {
+    public function content_evaluation_context($conditionstack = array())
+    {
         return $conditionstack;
     }
 
-    public function process_content($evaluatedcassession, $conditionstack = null) {
+    public function process_content($evaluatedcassession, $conditionstack = null)
+    {
         return false;
     }
 
-    public function clear() {
+    public function clear()
+    {
         $this->get_node()->destroy_node();
     }
 
-    public function validate_extract_attributes() {
+    public function validate_extract_attributes()
+    {
         $r = array();
         foreach ($this->get_node()->get_parameters() as $key => $value) {
             $cs = new stack_cas_casstring("$key:$value");
@@ -60,6 +67,4 @@ class stack_cas_castext_define extends stack_cas_castext_block {
         }
         return $r;
     }
-
-
 }

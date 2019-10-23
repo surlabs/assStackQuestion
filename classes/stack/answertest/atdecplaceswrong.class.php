@@ -22,7 +22,7 @@ defined('MOODLE_INTERNAL') || die();
 // @copyright  2012 University of Birmingham
 // @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 //
-class stack_anstest_atdecplaces extends stack_anstest
+class stack_anstest_atdecplaceswrong extends stack_anstest
 {
 
     public function do_test()
@@ -36,8 +36,8 @@ class stack_anstest_atdecplaces extends stack_anstest
         if (!is_int($atestops) or $atestops <= 0) {
             $this->aterror = 'TEST_FAILED';
             $this->atfeedback = stack_string('TEST_FAILED', array('errors' => ''));
-            $this->atfeedback .= stack_string('ATNumDecPlaces_OptNotInt', array('opt' => $this->atoption));
-            $this->atansnote = 'ATNumDecPlaces_STACKERROR_Option.';
+            $this->atfeedback .= stack_string('ATNumDecPlacesWrong_OptNotInt', array('opt' => $this->atoption));
+            $this->atansnote = 'ATNumDecPlacesWrong_STACKERROR_Option.';
             $this->atmark = 0;
             $this->atvalid = false;
             return null;
@@ -50,31 +50,20 @@ class stack_anstest_atdecplaces extends stack_anstest
                 $this->aterror = 'TEST_FAILED';
                 $this->atfeedback = stack_string('TEST_FAILED', array('errors' => ''));
                 $this->atfeedback .= stack_string('AT_InvalidOptions', array('errors' => $cs->get_errors()));
-                $this->atansnote = 'ATNumDecPlaces_STACKERROR_Option.';
+                $this->atansnote = 'ATNumDecPlacesWrong_STACKERROR_Option.';
                 $this->atmark = 0;
                 $this->atvalid = false;
                 return null;
             }
         }
 
-        // Check that the first expression is a floating point number,
-        // with the right number of decimal places.
-        $r = stack_utils::decimal_digits($this->sanskey);
-        if ($atestops != $r['decimalplaces']) {
-            $this->atfeedback .= stack_string('ATNumDecPlaces_Wrong_DPs');
-            $anotes[] = 'ATNumDecPlaces_Wrong_DPs';
-            $this->atmark = 0;
-        } else {
-            $anotes[] = 'ATNumDecPlaces_Correct';
-        }
-
         // Check that the two numbers evaluate to the same value.
         $cascommands = array();
+        $cascommands[] = "caschat0:{$this->sanskey}";
+        $cascommands[] = "caschat1:remove_displaydp({$this->tanskey})";
         $cascommands[] = "caschat2:ev({$this->atoption},simp)";
-        $cascommands[] = "caschat0:ev(float(round(10^caschat2*{$this->sanskey})/10^caschat2),simp)";
-        $cascommands[] = "caschat1:ev(float(round(10^caschat2*remove_displaydp({$this->tanskey}))/10^caschat2),simp)";
-        $cascommands[] = "caschat3:ev(second(ATAlgEquiv(caschat0,caschat1)),simp)";
-        $cascommands[] = "caschat4:floatnump({$this->sanskey})";
+        $cascommands[] = "caschat3:numberp({$this->sanskey})";
+        $cascommands[] = "caschat4:numberp(remove_displaydp({$this->tanskey}))";
 
         $cts = array();
         foreach ($cascommands as $com) {
@@ -88,7 +77,7 @@ class stack_anstest_atdecplaces extends stack_anstest
         if ('' != $session->get_errors_key('caschat0')) {
             $this->aterror = 'TEST_FAILED';
             $this->atfeedback = stack_string('TEST_FAILED', array('errors' => $session->get_errors_key('caschat0')));
-            $anotes[] = 'ATNumDecPlaces_STACKERROR_SAns';
+            $anotes[] = 'ATNumDecPlacesWrong_STACKERROR_SAns';
             $this->atansnote = implode('. ', $anotes) . '.';
             $this->atmark = 0;
             $this->atvalid = false;
@@ -98,7 +87,7 @@ class stack_anstest_atdecplaces extends stack_anstest
         if ('' != $session->get_errors_key('caschat1')) {
             $this->aterror = 'TEST_FAILED';
             $this->atfeedback = stack_string('TEST_FAILED', array('errors' => $session->get_errors_key('caschat1')));
-            $anotes[] = 'ATNumDecPlaces_STACKERROR_TAns';
+            $anotes[] = 'ATNumDecPlacesWrong_STACKERROR_TAns';
             $this->atansnote = implode('. ', $anotes) . '.';
             $this->atmark = 0;
             $this->atvalid = false;
@@ -109,26 +98,77 @@ class stack_anstest_atdecplaces extends stack_anstest
             $this->aterror = 'TEST_FAILED';
             $this->atfeedback = stack_string('TEST_FAILED', array('errors' => ''));
             $this->atfeedback .= stack_string('AT_InvalidOptions', array('errors' => $session->get_errors_key('caschat2')));
-            $anotes[] = 'ATNumDecPlaces_STACKERROR_Options.';
+            $anotes[] = 'ATNumDecPlacesWrong_STACKERROR_Options';
             $this->atansnote = implode('. ', $anotes) . '.';
             $this->atmark = 0;
             $this->atvalid = false;
             return null;
         }
 
-        if ($session->get_value_key('caschat3') == 'true') {
-            // Note, we only want the mark to *stay* at 1.
-            $this->atmark *= 1;
-            $anotes[] = 'ATNumDecPlaces_Equiv';
-        } else {
+        if ('' != $session->get_errors_key('caschat3')) {
+            $this->aterror = 'TEST_FAILED';
+            $this->atfeedback .= stack_string('TEST_FAILED', array('errors' => $session->get_errors_key('caschat3')));
+            $anotes[] = 'ATNumDecPlacesWrong_ERR_sansnum';
+            $this->atansnote = implode('. ', $anotes) . '.';
             $this->atmark = 0;
-            $anotes[] = 'ATNumDecPlaces_Not_equiv';
+            $this->atvalid = false;
+            return null;
         }
 
-        if ($session->get_value_key('caschat4') == 'false') {
+        if ('' != $session->get_errors_key('caschat4')) {
+            $this->aterror = 'TEST_FAILED';
+            $this->atfeedback .= stack_string('TEST_FAILED', array('errors' => $session->get_errors_key('caschat3')));
+            $anotes[] = 'ATNumDecPlacesWrong_ERR_tansnum';
+            $this->atansnote = implode('. ', $anotes) . '.';
             $this->atmark = 0;
-            $this->atfeedback = stack_string('ATNumDecPlaces_NoDP');
-            $anotes = array('ATNumDecPlaces_NoDP');
+            $this->atvalid = false;
+            return null;
+        }
+
+        // These should not throw an error. The test just returns false.
+        if ('false' === $session->get_value_key('caschat3')) {
+            $anotes[] = 'ATNumDecPlacesWrong_Sans_Not_Num';
+            $this->atansnote = implode('. ', $anotes) . '.';
+            $this->atmark = 0;
+            $this->atvalid = false;
+            return null;
+        }
+
+        if ('false' === $session->get_value_key('caschat4')) {
+            $anotes[] = 'ATNumDecPlacesWrong_Tans_Not_Num';
+            $this->atansnote = implode('. ', $anotes) . '.';
+            $this->atmark = 0;
+            $this->atvalid = false;
+            return null;
+        }
+
+        $ndps = $session->get_value_key('caschat2');
+        // We use the raw values here to preserve DPs.
+        $sa = $this->sanskey;
+        $ta = $this->tanskey;
+
+        // Ignore the decimal point by eliminating it.
+        $sa = str_replace('.', '', $sa);
+        $ta = str_replace('.', '', $ta);
+
+        // Remove any leading zeros.
+        $sa = substr($sa, strcspn($sa, '123456789'));
+        $ta = substr($ta, strcspn($ta, '123456789'));
+
+        // Add sufficient trailing zeros.
+        // This condones any lack of trailing zeros (for this test).
+        $sa .= str_repeat('0', (int)$ndps);
+        $ta .= str_repeat('0', (int)$ndps);
+
+        $sa = substr($sa, 0, (int)$ndps);
+        $ta = substr($ta, 0, (int)$ndps);
+        if ($sa == $ta) {
+            // Note, we only want the mark to *stay* at 1.
+            $this->atmark = 1;
+            $anotes[] = 'ATNumDecPlacesWrong_Correct';
+        } else {
+            $this->atmark = 0;
+            $anotes[] = 'ATNumDecPlacesWrong_Wrong';
         }
 
         $this->atansnote = implode('. ', $anotes) . '.';
@@ -150,7 +190,7 @@ class stack_anstest_atdecplaces extends stack_anstest
 
     protected function get_casfunction()
     {
-        return 'ATDecimalPlaces';
+        return 'ATDecimalPlacesWrong';
     }
 
     /**
@@ -163,7 +203,7 @@ class stack_anstest_atdecplaces extends stack_anstest
     {
         $atestops = (int)$opt;
         if (!is_int($atestops) or $atestops <= 0) {
-            return array(false, stack_string('ATNumDecPlaces_OptNotInt', array('opt' => $opt)));
+            return array(false, stack_string('ATNumDecPlacesWrong_OptNotInt', array('opt' => $opt)));
         }
         return array(true, '');
     }

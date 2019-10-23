@@ -24,7 +24,13 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/questiontestresult.php');
 require_once(__DIR__ . '/potentialresponsetree.class.php');
 
-class stack_question_test {
+class stack_question_test
+{
+    /**
+     * @var int|null test-case number, if this is a real test stored in the database, else null.
+     */
+    public $testcase;
+
     /**
      * @var array input name => value to be entered.
      */
@@ -33,14 +39,17 @@ class stack_question_test {
     /**
      * @var array prt name => stack_potentialresponse_tree_state object
      */
-    public $expectedresults;
+    public $expectedresults = array();
 
     /**
      * Constructor
      * @param array $inputs input name => value to enter.
+     * @param int $testcase test-case number, if this is a real test stored in the database.
      */
-    public function __construct($inputs) {
+    public function __construct($inputs, $testcase = null)
+    {
         $this->inputs = $inputs;
+        $this->testcase = $testcase;
     }
 
     /**
@@ -49,7 +58,8 @@ class stack_question_test {
      * @param stack_potentialresponse_tree_state $expectedresult the expected result
      *      for this PRT. Only the mark, penalty and answernote fields are used.
      */
-    public function add_expected_result($prtname, stack_potentialresponse_tree_state $expectedresult) {
+    public function add_expected_result($prtname, stack_potentialresponse_tree_state $expectedresult)
+    {
         $this->expectedresults[$prtname] = $expectedresult;
     }
 
@@ -60,7 +70,8 @@ class stack_question_test {
      * @param int $seed the random seed to use.
      * @return stack_question_test_result the test results.
      */
-    public function test_question(question_usage_by_activity $quba, qtype_stack_question $question, $seed) {
+    public function test_question(question_usage_by_activity $quba, qtype_stack_question $question, $seed)
+    {
 
         $slot = $quba->add_question($question, $question->defaultmark);
         $quba->start_question($slot, $seed);
@@ -74,18 +85,23 @@ class stack_question_test {
             // The _val below is a hack.  Not all inputnames exist explicitly in
             // the response, but the _val does. Some inputs, e.g. matrices have
             // many entries in the response so none match $response[$inputname].
+            // Of course, a teacher may have left a test case blank in which case the input isn't there either.
+            $inputresponse = '';
             if (array_key_exists($inputname, $response)) {
                 $inputresponse = $response[$inputname];
-            } else {
-                $inputresponse = $response[$inputname.'_val'];
+            } else if (array_key_exists($inputname . '_val', $response)) {
+                $inputresponse = $response[$inputname . '_val'];
             }
             $results->set_input_state($inputname, $inputresponse,
-                    $inputstate->contentsdisplayed, $inputstate->status, $inputstate->errors);
+                $inputstate->contentsdisplayed, $inputstate->status, $inputstate->errors);
         }
-
         foreach ($this->expectedresults as $prtname => $expectedresult) {
             $result = $question->get_prt_result($prtname, $response, false);
             $results->set_prt_result($prtname, $result);
+        }
+
+        if ($this->testcase) {
+            $this->save_result($question, $results);
         }
 
         return $results;
@@ -97,7 +113,8 @@ class stack_question_test {
      * @param qtype_stack_question $question the question - with $question->session initialised.
      * @return array the respones to send to $quba->process_action.
      */
-    public static function compute_response(qtype_stack_question $question, $inputs) {
+    public static function compute_response(qtype_stack_question $question, $inputs)
+    {
         // If the question has simp:false, then the local options should reflect this.
         // In this case, test constructors (question authors) will need to explicitly simplify their test case constructions.
         $localoptions = clone $question->options;
@@ -134,7 +151,9 @@ class stack_question_test {
                 $computedinput = $inputs[$name];
             }
             if (array_key_exists($name, $question->inputs)) {
-                $response = array_merge($response, $question->inputs[$name]->maxima_to_response_array($computedinput));
+                // Remove things like apostrophies in test case inputs so we don't create an invalid student input.
+                $value = stack_utils::logic_nouns_sort($computedinput, 'remove');
+                $response = array_merge($response, $question->inputs[$name]->maxima_to_response_array($value));
             }
         }
         return $response;
@@ -144,7 +163,38 @@ class stack_question_test {
      * @param string $inputname the name of one of the inputs.
      * @return string the value to be entered into that input.
      */
-    public function get_input($inputname) {
+    public function get_input($inputname)
+    {
         return $this->inputs[$inputname];
+    }
+
+    /**
+     * Store the outcome of running a test in qtype_stack_qtest_results.
+     *
+     * @param qtype_stack_question $question the question being tested.
+     * @param stack_question_test_result $result the test result.
+     */
+    protected function save_result(qtype_stack_question $question,
+                                   stack_question_test_result $result)
+    {
+        global $DB;
+
+        $existingresult = $DB->get_record('qtype_stack_qtest_results',
+            array('questionid' => $question->id, 'testcase' => $this->testcase, 'seed' => $question->seed),
+            '*', IGNORE_MISSING);
+
+        if ($existingresult) {
+            $existingresult->result = (int)$result->passed();
+            $existingresult->timerun = time();
+            $DB->update_record('qtype_stack_qtest_results', $existingresult);
+        } else {
+            $DB->insert_record('qtype_stack_qtest_results', array(
+                'questionid' => $question->id,
+                'testcase' => $this->testcase,
+                'seed' => $question->seed,
+                'result' => $result->passed(),
+                'timerun' => time(),
+            ));
+        }
     }
 }

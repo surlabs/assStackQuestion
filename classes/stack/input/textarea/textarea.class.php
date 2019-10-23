@@ -26,9 +26,15 @@ require_once(__DIR__ . '/../../utils.class.php');
  * @copyright  2012 University of Birmingham
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_textarea_input extends stack_input {
+class stack_textarea_input extends stack_input
+{
 
-    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue) {
+    protected $extraoptions = array(
+        'simp' => false
+    );
+
+    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue)
+    {
         // Note that at the moment, $this->boxHeight and $this->boxWidth are only
         // used as minimums. If the current input is bigger, the box is expanded.
 
@@ -38,12 +44,16 @@ class stack_textarea_input extends stack_input {
 
         $attributes = array(
             'name' => $fieldname,
-            'id'   => $fieldname,
+            'id' => $fieldname,
+            'autocapitalize' => 'none',
+            'spellcheck' => 'false',
+            'class' => 'maxima-list',
         );
 
         if ($this->is_blank_response($state->contents)) {
-			//fim: #39 add first and last character to syntaxhint to solve #23016
-            $current = $this->maxima_to_raw_input("[".$this->parameters['syntaxHint']."]");
+            //fau: #24 add first and last character to syntaxhint to solve #23016
+            $current = $this->maxima_to_raw_input("[" . $this->parameters['syntaxHint'] . "]");
+            //fau.
         } else {
             $current = implode("\n", $state->contents);
         }
@@ -62,10 +72,12 @@ class stack_textarea_input extends stack_input {
             $attributes['readonly'] = 'readonly';
         }
 
-        return html_writer::tag('textarea', htmlspecialchars($current), $attributes);
+        return html_writer::tag('textarea', htmlspecialchars($current), $attributes) .
+            html_writer::tag('div', "", array('class' => 'clearfix'));
     }
 
-    public function add_to_moodleform_testinput(MoodleQuickForm $mform) {
+    public function add_to_moodleform_testinput(MoodleQuickForm $mform)
+    {
         $mform->addElement('text', $this->name, $this->name, array('size' => $this->parameters['boxWidth']));
         $mform->setDefault($this->name, $this->parameters['syntaxHint']);
         $mform->setType($this->name, PARAM_RAW);
@@ -78,7 +90,8 @@ class stack_textarea_input extends stack_input {
      * @param array|string $in
      * @return string
      */
-    protected function response_to_contents($response) {
+    protected function response_to_contents($response)
+    {
         $contents = array();
         if (array_key_exists($this->name, $response)) {
             $sans = $response[$this->name];
@@ -100,23 +113,26 @@ class stack_textarea_input extends stack_input {
      * @param array|string $in
      * @return string
      */
-    public function contents_to_maxima($contents) {
-        return '['.implode(',', $contents).']';
+    public function contents_to_maxima($contents)
+    {
+        return '[' . implode(',', $contents) . ']';
     }
 
+    //fau: #25 set this method to public to be used in validation
     /**
      * Transforms a Maxima list into raw input.
      *
      * @param string $in
      * @return string
      */
-    //fim: #37 set this method to public to be used in validation
-    public function maxima_to_raw_input($in) {
+    public function maxima_to_raw_input($in)
+    {
         $values = stack_utils::list_to_array($in, false);
         return implode("\n", $values);
     }
 
-    protected function ajax_to_response_array($in) {
+    protected function ajax_to_response_array($in)
+    {
         $in = explode('<br>', $in);
         $in = implode("\n", $in);
         return array($this->name => $in);
@@ -129,7 +145,8 @@ class stack_textarea_input extends stack_input {
      * @param string $in
      * @return string
      */
-    public function maxima_to_response_array($in) {
+    public function maxima_to_response_array($in)
+    {
         $response[$this->name] = $this->maxima_to_raw_input($in);
         if ($this->requires_validation()) {
             $response[$this->name . '_val'] = $in;
@@ -140,22 +157,23 @@ class stack_textarea_input extends stack_input {
     /**
      * This function constructs the display variable for validation.
      *
-     * @param stack_casstring $answer, the complete answer.
+     * @param stack_casstring $answer , the complete answer.
      * @return string any error messages describing validation failures. An empty
      *      string if the input is valid - at least according to this test.
      */
-    protected function validation_display($answer, $lvars, $caslines, $additionalvars, $valid, $errors) {
+    protected function validation_display($answer, $lvars, $caslines, $additionalvars, $valid, $errors)
+    {
 
         $display = '<center><table style="vertical-align: middle;" ' .
-                   'border="0" cellpadding="4" cellspacing="0"><tbody>';
+            'border="0" cellpadding="4" cellspacing="0"><tbody>';
         foreach ($caslines as $index => $cs) {
             $display .= '<tr>';
-            if ('' != $cs->get_errors()  || '' == $cs->get_value()) {
+            if ('' != $cs->get_errors() || '' == $cs->get_value()) {
                 $valid = false;
                 $errors[$index] = ' ' . stack_maxima_translate($cs->get_errors());
                 $cds = stack_utils::logic_nouns_sort($cs->get_raw_casstring(), 'remove');
-                $display .= '<td>'. stack_maxima_format_casstring($cds). '</td>';
-                $display .= '<td>'. stack_maxima_translate($errors[$index]). '</td></tr>';
+                $display .= '<td>' . stack_maxima_format_casstring($cds) . '</td>';
+                $display .= '<td>' . stack_maxima_translate($errors[$index]) . '</td></tr>';
             } else {
                 $display .= '<td>\(\displaystyle ' . $cs->get_display() . ' \)</td>';
             }
@@ -166,35 +184,39 @@ class stack_textarea_input extends stack_input {
         return array($valid, $errors, $display);
     }
 
+    //fau: #26 set showValidation default to 1, as the other input types.
     /**
      * Return the default values for the options. Using this is optional, in this
      * base class implementation, no default options are set.
      * @return array option => default value.
      */
-    //fim: #38 set showValidation default to 1, as the other input types.
-    public static function get_parameters_defaults() {
+    public static function get_parameters_defaults()
+    {
         return array(
-            'mustVerify'         => true,
-            'showValidation'     => 1,
-            'boxWidth'           => 20,
-            'strictSyntax'       => true,
-            'insertStars'        => 0,
-            'syntaxHint'         => '',
-            'syntaxAttribute'    => 0,
-            'forbidWords'        => '',
-            'allowWords'         => '',
-            'forbidFloats'       => true,
-            'lowestTerms'        => true,
-            'sameType'           => true);
+            'mustVerify' => true,
+            'showValidation' => 1,
+            'boxWidth' => 20,
+            'strictSyntax' => true,
+            'insertStars' => 0,
+            'syntaxHint' => '',
+            'syntaxAttribute' => 0,
+            'forbidWords' => '',
+            'allowWords' => '',
+            'forbidFloats' => true,
+            'lowestTerms' => true,
+            'sameType' => true,
+            'options' => ''
+        );
     }
 
     /**
      * Each actual extension of this base class must decide what parameter values are valid.
      * @return array of parameters names.
      */
-    public function internal_validate_parameter($parameter, $value) {
+    public function internal_validate_parameter($parameter, $value)
+    {
         $valid = true;
-        switch($parameter) {
+        switch ($parameter) {
             case 'boxWidth':
                 $valid = is_int($value) && $value > 0;
                 break;
@@ -209,16 +231,17 @@ class stack_textarea_input extends stack_input {
     /**
      * @return string the teacher's answer, displayed to the student in the general feedback.
      */
-    public function get_teacher_answer_display($value, $display) {
+    public function get_teacher_answer_display($value, $display)
+    {
         $values = stack_utils::list_to_array($value, false);
         foreach ($values as $key => $val) {
-            if (trim($val) !== '' ) {
+            if (trim($val) !== '') {
                 $val = stack_utils::logic_nouns_sort($val, 'remove');
             }
-            $val = '<code>'.$this->stackeq_to_equals($val).'</code>';
+            $val = '<code>' . $this->stackeq_to_equals($val) . '</code>';
             $values[$key] = $val;
         }
-        $value = "<br/>".implode("<br/>", $values);
+        $value = "<br/>" . implode("<br/>", $values);
 
         return stack_string('teacheranswershow', array('value' => $value, 'display' => $display));
     }
@@ -231,7 +254,8 @@ class stack_textarea_input extends stack_input {
      * @param string $fieldname the field name to use in the HTML for this input.
      * @return string HTML for the validation results for this input.
      */
-    public function render_validation(stack_input_state $state, $fieldname) {
+    public function render_validation(stack_input_state $state, $fieldname)
+    {
         if (self::BLANK == $state->status) {
             return '';
         }
@@ -239,31 +263,21 @@ class stack_textarea_input extends stack_input {
         if ($this->get_parameter('showValidation', 1) == 0 && self::INVALID != $state->status) {
             return '';
         }
+        $feedback = '';
+        $feedback .= html_writer::tag('p', stack_string('studentValidation_yourLastAnswer', $state->contentsdisplayed));
 
-		$feedback = "";
-		$textarea_html = "";
-		foreach ($state->contents as $key => $val) {
-			$textarea_html .= '<code>'.$val.'</code></br>';
-		}
+        if ($this->requires_validation() && '' !== $state->contents) {
+            $feedback .= html_writer::empty_tag('input', array('type' => 'hidden',
+                'name' => $fieldname . '_val', 'value' => $this->contents_to_maxima($state->contents)));
+        }
 
-		$feedback .= html_writer::tag('p', "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $textarea_html. "</td><td class='xqcas_validation'>"  . stack_string('studentValidation_yourLastAnswer', $state->contentsdisplayed) . "</td></tr>");
+        if (self::INVALID == $state->status) {
+            $feedback .= html_writer::tag('p', stack_string('studentValidation_invalidAnswer'));
+        }
 
-		if ($this->requires_validation() && '' !== $state->contents)
-		{
-			$feedback .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => $fieldname . '_val', 'value' => $this->contents_to_maxima($state->contents)));
-		}
-
-		if (self::INVALID == $state->status)
-		{
-			$feedback .= html_writer::tag('p', "<tr><td class='xqcas_validation_status'>".stack_string('studentValidation_invalidAnswer'). "</td></tr>");
-		}
-
-		if ($this->get_parameter('showValidation', 1) == 1 && !($state->lvars === '' or $state->lvars === '[]'))
-		{
-			$feedback .= "<tr><td class='xqcas_validation_variables'>".$this->tag_listofvariables($state->lvars). "</td></tr>";
-		}
-		$feedback .="</table>";
-
-		return $feedback;
+        if ($this->get_parameter('showValidation', 1) == 1 && !($state->lvars === '' or $state->lvars === '[]')) {
+            $feedback .= html_writer::tag('p', stack_string('studentValidation_listofvariables', $state->lvars));
+        }
+        return $feedback;
     }
 }

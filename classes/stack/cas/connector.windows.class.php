@@ -22,12 +22,14 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2012 The University of Birmingham
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_cas_connection_windows extends stack_cas_connection_base {
+class stack_cas_connection_windows extends stack_cas_connection_base
+{
 
-    protected function guess_maxima_command($path) {
+    protected function guess_maxima_command($path)
+    {
         if ('default' == stack_connection_helper::get_maximaversion()) {
-            throw new stack_exception("stack_cas_connection: maxima cannot be set to default on Windows platform. ".
-                    "Please choose an explicit version via the administration settings page.");
+            throw new stack_exception("stack_cas_connection: maxima cannot be set to default on Windows platform. " .
+                "Please choose an explicit version via the administration settings page.");
         }
         $cmd = $path . '/maxima.bat';
         if (!is_readable($cmd)) {
@@ -36,7 +38,8 @@ class stack_cas_connection_windows extends stack_cas_connection_base {
         return $cmd;
     }
 
-    protected function call_maxima($command) {
+    protected function call_maxima($command)
+    {
         set_time_limit(0); // Note, some users may not want this!
         $ret = false;
 
@@ -45,7 +48,7 @@ class stack_cas_connection_windows extends stack_cas_connection_base {
             1 => array('pipe', 'w'),
             2 => array('file', $this->logs . "cas_errors.txt", 'a'));
 
-        $cmd = '"'.$this->command.'"';
+        $cmd = '"' . $this->command . '"';
         $this->debug->log('Command line', $cmd);
 
         $casprocess = proc_open($cmd, $descriptors, $pipes);
@@ -54,7 +57,7 @@ class stack_cas_connection_windows extends stack_cas_connection_base {
         }
 
         if (!fwrite($pipes[0], $this->initcommand)) {
-            return(false);
+            return (false);
         }
         fwrite($pipes[0], $command);
         fwrite($pipes[0], 'quit();\n\n');

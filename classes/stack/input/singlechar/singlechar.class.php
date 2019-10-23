@@ -22,21 +22,25 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2012 University of Birmingham
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_singlechar_input extends stack_input {
+class stack_singlechar_input extends stack_input
+{
 
-    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue) {
+    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue)
+    {
 
         if ($this->errors) {
             return $this->render_error($this->errors);
         }
 
         $attributes = array(
-            'type'      => 'text',
-            'name'      => $fieldname,
-            'id'        => $fieldname,
-            'size'      => 1,
+            'type' => 'text',
+            'name' => $fieldname,
+            'id' => $fieldname,
+            'size' => 1,
             'maxlength' => 1,
-            'value'     => $this->contents_to_maxima($state->contents),
+            'value' => $this->contents_to_maxima($state->contents),
+            'autocapitalize' => 'none',
+            'spellcheck' => 'false',
         );
 
         if ($readonly) {
@@ -46,14 +50,16 @@ class stack_singlechar_input extends stack_input {
         return html_writer::empty_tag('input', $attributes);
     }
 
-    protected function extra_validation($contents) {
+    protected function extra_validation($contents)
+    {
         if (strlen($contents[0]) > 1) {
             return stack_string('singlechargotmorethanone');
         }
         return '';
     }
 
-    public function add_to_moodleform_testinput(MoodleQuickForm $mform) {
+    public function add_to_moodleform_testinput(MoodleQuickForm $mform)
+    {
         $mform->addElement('text', $this->name, $this->name);
         $mform->setType($this->name, PARAM_RAW);
     }
@@ -62,9 +68,10 @@ class stack_singlechar_input extends stack_input {
      * Return the default values for the parameters.
      * @return array parameters` => default value.
      */
-    public static function get_parameters_defaults() {
+    public static function get_parameters_defaults()
+    {
         return array(
-            'mustVerify'      => false,
-            'showValidation'  => 0);
+            'mustVerify' => false,
+            'showValidation' => 0);
     }
 }

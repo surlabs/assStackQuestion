@@ -14,41 +14,48 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Escape block allows one to output character sequences that would otherwise
- * cause CASText to do something.
- *
- * @copyright  2017 Aalto University
- * @copyright  2012 University of Birmingham
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+defined('MOODLE_INTERNAL') || die();
+
+// Escape block allows one to output character sequences that would otherwise cause CASText to do something.
+//
+// @copyright  2017 Aalto University
+// @copyright  2012 University of Birmingham
+// @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
+
 require_once(__DIR__ . '/../casstring.class.php');
 require_once("block.interface.php");
 
-class stack_cas_castext_escape extends stack_cas_castext_block {
+class stack_cas_castext_escape extends stack_cas_castext_block
+{
 
-    public function extract_attributes(&$tobeevaluatedcassession, $conditionstack = null) {
+    public function extract_attributes(&$tobeevaluatedcassession, $conditionstack = null)
+    {
         // Nothing is done.
     }
 
-    public function content_evaluation_context($conditionstack = array()) {
+    public function content_evaluation_context($conditionstack = array())
+    {
         return $conditionstack;
     }
 
-    public function process_content($evaluatedcassession, $conditionstack = null) {
+    public function process_content($evaluatedcassession, $conditionstack = null)
+    {
         return false;
     }
 
-    public function clear() {
+    public function clear()
+    {
         $value = $this->get_node()->get_parameter("value", "");
         $this->get_node()->convert_to_text($value);
     }
 
-    public function validate_extract_attributes() {
+    public function validate_extract_attributes()
+    {
         return array();
     }
 
-    public function validate(&$errors='') {
+    public function validate(&$errors = '')
+    {
         $valid = true;
         if (!$this->get_node()->parameter_exists('value')) {
             $valid = false;

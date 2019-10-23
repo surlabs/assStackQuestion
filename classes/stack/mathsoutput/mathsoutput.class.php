@@ -14,15 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-//defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die();
 
 // Public API for other parts of STACK to call in order to process equations.
 
-//fim: 21 change the way to call this classes in order to ensure it also works for ILIAS and comment line 17 MOODLE INTERNAL variable.
-
+//fau: #32 change the way to call this classes in order to ensure it also works for ILIAS
 require_once(dirname(__DIR__) . '/mathsoutput/mathsoutputbase.class.php');
 require_once(dirname(__DIR__) . '/utils.class.php');
-//fim
+//fau.
 
 /**
  * Public API to the maths rendering system.
@@ -30,7 +29,8 @@ require_once(dirname(__DIR__) . '/utils.class.php');
  * @copyright  2012 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_maths {
+class stack_maths
+{
     /** @var array output name => instance. */
     protected static $outputs = array();
 
@@ -41,7 +41,8 @@ class stack_maths {
      * @param string $string the language string, as loaded by get_string.
      * @return string the string, with equations rendered to HTML.
      */
-    public static function process_lang_string($string) {
+    public static function process_lang_string($string)
+    {
         return self::get_output()->process_lang_string($string);
     }
 
@@ -53,9 +54,10 @@ class stack_maths {
      * @param qtype_stack_renderer $renderer (options) the STACK renderer, if you have one.
      * @return string the content ready to pass to format_text.
      */
-    public static function process_display_castext($text, qtype_stack_renderer $renderer = null) {
+    public static function process_display_castext($text, qtype_stack_renderer $renderer = null)
+    {
         return self::get_output()->process_display_castext($text,
-                stack_utils::get_config()->replacedollars, $renderer);
+            stack_utils::get_config()->replacedollars, $renderer);
     }
 
     /**
@@ -64,7 +66,8 @@ class stack_maths {
      * @param string $docs content of the documentation file.
      * @return string the documentation content ready to pass to Markdown.
      */
-    public static function pre_process_docs_page($docs) {
+    public static function pre_process_docs_page($docs)
+    {
         return self::get_output()->pre_process_docs_page($docs);
     }
 
@@ -74,7 +77,8 @@ class stack_maths {
      * @param string $html rendered version of the documentation page.
      * @return string rendered version of the documentation page with equations inserted.
      */
-    public static function post_process_docs_page($html) {
+    public static function post_process_docs_page($html)
+    {
         return self::get_output()->post_process_docs_page($html);
     }
 
@@ -85,14 +89,16 @@ class stack_maths {
      * @param bool $markup surround the change with <ins></ins> tags.
      * @return string the text with delimiters replaced.
      */
-    public static function replace_dollars($text, $markup = false) {
+    public static function replace_dollars($text, $markup = false)
+    {
         return self::get_output()->replace_dollars($text, $markup);
     }
 
     /**
      * @return string the name of the currently configured output method.
      */
-    public static function configured_output_name() {
+    public static function configured_output_name()
+    {
         return stack_string('settingmathsdisplay_' . stack_utils::get_config()->mathsdisplay);
     }
 
@@ -100,8 +106,10 @@ class stack_maths {
      * @return stack_maths_output the output method that has been set in the
      *      configuration options.
      */
-    protected static function get_output() {
-        if ('' == trim(stack_utils::get_config()->mathsdisplay)) {
+    protected static function get_output()
+    {
+        if (!(property_exists(stack_utils::get_config(), 'mathsdisplay'))
+            || '' == trim(stack_utils::get_config()->mathsdisplay)) {
             return self::get_output_instance('mathjax');
         }
         return self::get_output_instance(stack_utils::get_config()->mathsdisplay);
@@ -111,7 +119,8 @@ class stack_maths {
      * @param string $type the output method name.
      * @return stack_maths_output instance of the output class for this method.
      */
-    protected static function get_output_instance($method) {
+    protected static function get_output_instance($method)
+    {
         if (!array_key_exists($method, self::$outputs)) {
             $class = self::class_for_type($method);
             self::$outputs[$method] = new $class();
@@ -124,11 +133,12 @@ class stack_maths {
      * @param string $type the output method name.
      * @return string the corresponding class name.
      */
-    protected static function class_for_type($type) {
-    	//fim: #23 comment unused global variable and change access to classes.
+    protected static function class_for_type($type)
+    {
+        //fau: #33 comment unused global variable and change access to classes.
         //global $CFG;
-		$file = dirname(__FILE__) . "/mathsoutput{$type}.class.php";
-		//fim.
+        $file = dirname(__FILE__) . "/mathsoutput{$type}.class.php";
+        //fau.
         $class = "stack_maths_output_{$type}";
 
         if (!is_readable($file)) {
@@ -138,7 +148,7 @@ class stack_maths {
 
         if (!class_exists($class)) {
             throw new stack_exception('stack_maths: output method ' . $type .
-                    ' does not define the expected class ' . $class);
+                ' does not define the expected class ' . $class);
         }
         return $class;
     }

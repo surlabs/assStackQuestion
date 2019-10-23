@@ -22,7 +22,8 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2012 University of Birmingham
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_anstest {
+class stack_anstest
+{
 
 
     /**
@@ -84,10 +85,11 @@ class stack_anstest {
     /**
      * Constructor
      *
-     * @param  string $sanskey
-     * @param  string $tanskey
+     * @param string $sanskey
+     * @param string $tanskey
      */
-    public function __construct($sans, $tans, $options = null, $atoption = null) {
+    public function __construct($sans, $tans, $options = null, $atoption = null)
+    {
         $this->sanskey = $sans;
         $this->tanskey = $tans;
 
@@ -96,7 +98,7 @@ class stack_anstest {
         }
 
         if ($options != null) {
-            $this->options  = clone $options;
+            $this->options = clone $options;
         } else {
             $this->options = null;
         }
@@ -109,7 +111,8 @@ class stack_anstest {
      *
      * @return bool
      */
-    public function do_test() {
+    public function do_test()
+    {
         return null;
     }
 
@@ -118,7 +121,8 @@ class stack_anstest {
      *
      * @return string
      */
-    public function get_at_errors() {
+    public function get_at_errors()
+    {
         return $this->aterror;
     }
 
@@ -127,7 +131,8 @@ class stack_anstest {
      *
      * @return float
      */
-    public function get_at_mark() {
+    public function get_at_mark()
+    {
         return $this->atmark;
     }
 
@@ -136,7 +141,8 @@ class stack_anstest {
      *
      * @return bool
      */
-    public function get_at_valid() {
+    public function get_at_valid()
+    {
         return $this->atvalid;
     }
 
@@ -145,7 +151,8 @@ class stack_anstest {
      *
      * @return string
      */
-    public function get_at_answernote() {
+    public function get_at_answernote()
+    {
         return $this->atansnote;
     }
 
@@ -154,7 +161,8 @@ class stack_anstest {
      *
      * @return string
      */
-    public function get_at_feedback() {
+    public function get_at_feedback()
+    {
         return $this->atfeedback;
     }
 
@@ -163,7 +171,8 @@ class stack_anstest {
      *
      * @return bool
      */
-    public function process_atoptions() {
+    public function process_atoptions()
+    {
         return false;
     }
 
@@ -173,7 +182,8 @@ class stack_anstest {
      * @return bool
      * @access public
      */
-    public function required_atoptions() {
+    public function required_atoptions()
+    {
         return false;
     }
 
@@ -183,7 +193,8 @@ class stack_anstest {
      * @return string
      * @access public
      */
-    public function get_debuginfo() {
+    public function get_debuginfo()
+    {
         return $this->debuginfo;
     }
 
@@ -193,7 +204,8 @@ class stack_anstest {
      * @return string
      * @access public
      */
-    protected function get_casfunction() {
+    protected function get_casfunction()
+    {
         return $this->casfunction;
     }
 
@@ -203,15 +215,20 @@ class stack_anstest {
      * @return string
      * @access public
      */
-    public function get_trace() {
+    public function get_trace($includeresult)
+    {
 
-        $ta   = $this->tanskey;
+        $ta = $this->tanskey;
         $atopt = $this->atoption;
         $traceline = $this->get_casfunction() . '(' . $this->sanskey . ', ' . $ta . ')';
         if ('' != trim($atopt)) {
-            $traceline = $this->get_casfunction() . '(' . $this->sanskey . ', ' . $ta . ', '. trim($atopt) .')';
+            $traceline = $this->get_casfunction() . '(' . $this->sanskey . ', ' . $ta . ', ' . trim($atopt) . ')';
         }
-        $traceline .= ' = ['.$this->atmark. ', "' . $this->atansnote .'"];';
+        if ($includeresult) {
+            $traceline .= ' = [' . $this->atmark . ', "' . $this->atansnote . '"];';
+        } else {
+            $traceline = trim($traceline) . ';';
+        }
 
         return $traceline;
     }

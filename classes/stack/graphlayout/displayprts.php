@@ -38,8 +38,7 @@ $PAGE->set_url('/prt.php');
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title('PRT structures used');
 
-$nodes = $DB->get_recordset('qtype_stack_prt_nodes', array(), 'questionid, prtname, nodename',
-        'questionid, prtname, nodename, truenextnode, falsenextnode');
+$nodes = $DB->get_recordset('qtype_stack_prt_nodes', array(), 'questionid, prtname, nodename', 'questionid, prtname, nodename, truenextnode, falsenextnode');
 $trees = array();
 foreach ($nodes as $node) {
     $questions = $DB->get_records('question', array('id' => $node->questionid), '', 'name');
@@ -47,7 +46,7 @@ foreach ($nodes as $node) {
     foreach ($questions as $q) {
         $qnames[] = $q->name;
     }
-    $trees[implode(', ', $qnames).' ('.$node->questionid . ') ' . $node->prtname][$node->nodename]
+    $trees[implode(', ', $qnames) . ' (' . $node->questionid . ') ' . $node->prtname][$node->nodename]
         = array($node->truenextnode, $node->falsenextnode);
 }
 $nodes->close();
@@ -90,7 +89,7 @@ foreach ($frequency as $key => $count) {
     reset($uniquetree);
     echo $OUTPUT->heading('Tree used ' . $count . ' times');
     if ($count < 10) {
-        echo '<p>'.implode('<br .>', $qnamesused[$key]).'</p>';
+        echo '<p>' . implode('<br .>', $qnamesused[$key]) . '</p>';
     }
     try {
         $tree->layout();

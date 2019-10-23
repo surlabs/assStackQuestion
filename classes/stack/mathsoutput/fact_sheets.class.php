@@ -14,9 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-//fim: #25 avoid MOODLE_INTERNAL
-//defined('MOODLE_INTERNAL') || die();
-//fim.
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * The fact sheets class for STACK.
@@ -32,14 +30,14 @@ abstract class stack_fact_sheets {
      * E.g. greek_alphabet_name and greek_alphabet_fact
      */
     protected static $factsheets = array('greek_alphabet', 'alg_inequalities',
-                    'alg_indices', 'alg_logarithms', 'alg_quadratic_formula',
-                    'alg_partial_fractions', 'trig_degrees_radians', 'trig_standard_values',
-                    'trig_standard_identities', 'hyp_functions', 'hyp_identities',
-                    'hyp_inverse_functions', 'calc_diff_standard_derivatives',
-                    'calc_diff_linearity_rule', 'calc_product_rule', 'calc_quotient_rule',
-                    'calc_chain_rule', 'calc_rules', 'calc_int_standard_integrals',
-                    'calc_int_linearity_rule', 'calc_int_methods_substitution',
-                    'calc_int_methods_parts');
+        'alg_indices', 'alg_logarithms', 'alg_quadratic_formula',
+        'alg_partial_fractions', 'trig_degrees_radians', 'trig_standard_values',
+        'trig_standard_identities', 'hyp_functions', 'hyp_identities',
+        'hyp_inverse_functions', 'calc_diff_standard_derivatives',
+        'calc_diff_linearity_rule', 'calc_product_rule', 'calc_quotient_rule',
+        'calc_chain_rule', 'calc_rules', 'calc_int_standard_integrals',
+        'calc_int_linearity_rule', 'calc_int_methods_substitution',
+        'calc_int_methods_parts');
 
     /**
      * Check each facts tag actually corresponds to a valid fact sheet.
@@ -95,8 +93,8 @@ abstract class stack_fact_sheets {
             }
 
             $text = str_replace('[[facts:' . $tag . ']]',
-                    $renderer->fact_sheet(stack_string($tag . '_name'), stack_string($tag . '_fact')),
-                    $text);
+                $renderer->fact_sheet(stack_string($tag . '_name'), stack_string($tag . '_fact')),
+                $text);
         }
 
         return $text;

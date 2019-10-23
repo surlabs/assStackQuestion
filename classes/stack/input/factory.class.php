@@ -25,7 +25,8 @@ require_once(__DIR__ . '/inputbase.class.php');
 // @copyright  2012 University of Birmingham.
 // @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
-class stack_input_factory {
+class stack_input_factory
+{
     /**
      * @var array type name => array of parameter names used. Used to cache the
      *      results of {@link get_parameters_defaults()}.
@@ -45,9 +46,10 @@ class stack_input_factory {
      * @param array $param some sort of options.
      * @return stack_input the requested input.
      */
-    public static function make($type, $name, $teacheranswer, $options = null, $parameters = null) {
+    public static function make($type, $name, $teacheranswer, $options = null, $parameters = null, $runtime = true)
+    {
         $class = self::class_for_type($type);
-        return new $class($name, $teacheranswer, $options, $parameters);
+        return new $class($name, $teacheranswer, $options, $parameters, $runtime);
     }
 
     /**
@@ -55,7 +57,8 @@ class stack_input_factory {
      * @param string $type input type name.
      * @return string corresponding class name.
      */
-    protected static function class_for_type($type) {
+    protected static function class_for_type($type)
+    {
         $typelc = strtolower($type);
         $file = __DIR__ . "/{$typelc}/{$typelc}.class.php";
         $class = "stack_{$typelc}_input";
@@ -67,17 +70,19 @@ class stack_input_factory {
 
         if (!class_exists($class)) {
             throw new stack_exception('stack_input_factory: input type ' . $type .
-                    ' does not define the expected class ' . $class);
+                ' does not define the expected class ' . $class);
         }
         return $class;
     }
 
+    //fau: #28 Refactoring of this method which uses several moodle methods
+
     /**
      * @return array of available type names.
-	 //fim: #15 Refactoring of this method which uses several moodle methods
      */
-    public static function get_available_types() {
-    	/*
+    public static function get_available_types()
+    {
+        /*
         $ignored = array('CVS', '_vti_cnf', 'tests', 'yui', 'phpunit');
         $types = array();
 
@@ -115,16 +120,20 @@ class stack_input_factory {
 
             // Yay! finally we have confirmed we have a valid input plugin!
             $types[$inputname] = $class;
-        }*/
+        }
 
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
-		return assStackQuestionUtils::_getAvailableTypes();
+        return $types;*/
+        require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+        return assStackQuestionUtils::_getAvailableTypes();
+
+        //fau.
     }
 
     /**
      * @return array input type internal name => display name.
      */
-    public static function get_available_type_choices() {
+    public static function get_available_type_choices()
+    {
         $types = self::get_available_types();
         $choices = array();
         foreach ($types as $type => $notused) {
@@ -139,7 +148,8 @@ class stack_input_factory {
      * use in authoring interface.
      * @return array $typename => array of names of options used.
      */
-    public static function get_parameters_used() {
+    public static function get_parameters_used()
+    {
 
         $used = array();
         foreach (self::get_parameters_defaults() as $type => $defaults) {
@@ -150,11 +160,42 @@ class stack_input_factory {
     }
 
     /**
+     * Return array of the options used by each type of input, for
+     * use in authoring interface, with the fromform mapping.
+     * @return array $typename => array of names of options used.
+     */
+    public static function get_parameters_fromform_mapping($type)
+    {
+        $parametermapping = array(
+            'sameType' => 'checkanswertype',
+            'mustVerify' => 'mustverify',
+            'showValidation' => 'showvalidation',
+            'boxWidth' => 'boxsize',
+            'strictSyntax' => 'strictsyntax',
+            'syntaxAttribute' => 'syntaxattribute',
+            'insertStars' => 'insertstars',
+            'syntaxHint' => 'syntaxhint',
+            'forbidWords' => 'forbidwords',
+            'allowWords' => 'allowwords',
+            'forbidFloats' => 'forbidfloat',
+            'lowestTerms' => 'requirelowestterms',
+            'options' => 'options');
+
+        $used = self::get_parameters_defaults();
+        $mapping = array();
+        foreach ($used[$type] as $param => $defaults) {
+            $mapping[$param] = $parametermapping[$param];
+        }
+        return $mapping;
+    }
+
+    /**
      * Return array of the default option values for each type of input,
      * for use in authoring interface.
      * @return array $typename => array of option names => default.
      */
-    public static function get_parameters_defaults() {
+    public static function get_parameters_defaults()
+    {
         if (!is_null(self::$parametersdefaults)) {
             return self::$parametersdefaults;
         }
@@ -163,5 +204,18 @@ class stack_input_factory {
             self::$parametersdefaults[$type] = $class::get_parameters_defaults();
         }
         return self::$parametersdefaults;
+    }
+
+    /**
+     * Convert a raw value as received from a fromform value into a correct datatype.
+     */
+    public static function convert_parameter_fromform($key, $value)
+    {
+        $booleanparamaters = array('strictSyntax' => true, 'mustVerify' => true, 'sameType' => true,
+            'forbidFloats' => true, 'lowestTerms' => true);
+        if (array_key_exists($key, $booleanparamaters)) {
+            $value = (bool)$value;
+        }
+        return $value;
     }
 }

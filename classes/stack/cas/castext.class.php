@@ -23,10 +23,11 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/cassession.class.php');
 require_once(__DIR__ . '/casstring.class.php');
-require_once(__DIR__ . '/castext/castextparser.class.php');
+require_once(__DIR__ . '/castext/autogen/castextparser.class.php');
 require_once(__DIR__ . '/castext/block.factory.php');
 
-class stack_cas_text {
+class stack_cas_text
+{
 
     /** @var string Exactly the cas_text entered. */
     private $rawcastext;
@@ -74,16 +75,17 @@ class stack_cas_text {
     /** @var array holds block-handlers for various parse_tree nodes */
     private $blocks = array();
 
-    public function __construct($rawcastext, $session=null, $seed=null, $security='s', $syntax=true, $insertstars=0) {
+    public function __construct($rawcastext, $session = null, $seed = null, $security = 's', $syntax = true, $insertstars = 0)
+    {
 
         if (!is_string($rawcastext)) {
             throw new stack_exception('stack_cas_text: raw_castext must be a STRING.');
         } else {
-            $this->rawcastext   = $rawcastext;
+            $this->rawcastext = $rawcastext;
         }
 
         if (is_a($session, 'stack_cas_session') || null === $session) {
-            $this->session      = $session;
+            $this->session = $session;
         } else {
             throw new stack_exception('stack_cas_text constructor expects $session to be a stack_cas_session.');
         }
@@ -108,8 +110,8 @@ class stack_cas_text {
             throw new stack_exception('stack_cas_text: 6th argument, insertStars, must be an integer.');
         }
 
-        $this->security    = $security;
-        $this->syntax      = $syntax;
+        $this->security = $security;
+        $this->syntax = $syntax;
         $this->insertstars = $insertstars;
     }
 
@@ -119,7 +121,8 @@ class stack_cas_text {
      * @access public
      * @return bool
      */
-    private function validate() {
+    private function validate()
+    {
         $this->errors = array();
 
         // Remove any comments from the castext.
@@ -220,13 +223,14 @@ class stack_cas_text {
 
         if (array_key_exists('errors', $arrayform)) {
             $this->valid = false;
-            $this->errors[] = 'PARSE ERROR: '. $arrayform['errors'];
+            $this->errors[] = 'PARSE ERROR: ' . $arrayform['errors'];
         }
 
         return $this->valid;
     }
 
-    private function validation_recursion($node, $session) {
+    private function validation_recursion($node, $session)
+    {
         $valid = true;
         $types = castext_block_factory::get_available_types();
         switch ($node->type) {
@@ -241,7 +245,7 @@ class stack_cas_text {
                 $block = null;
                 if (array_key_exists($node->get_content(), $types)) {
                     $block = castext_block_factory::make($node->get_content(), $node, $session,
-                            $this->seed, $this->security, $this->syntax, $this->insertstars);
+                        $this->seed, $this->security, $this->syntax, $this->insertstars);
                 } else {
                     $this->errors[] = stack_string('stackBlock_unknownBlock') . " '" . $node->get_content() . "'";
                     $valid = false;
@@ -250,8 +254,8 @@ class stack_cas_text {
                     $valid = $block->validate($this->errors) && $valid;
                     $iter = $node->firstchild;
                     while ($iter !== null) {
-                         $valid = $this->validation_recursion($iter, $session) && $valid;
-                         $iter = $iter->nextsibling;
+                        $valid = $this->validation_recursion($iter, $session) && $valid;
+                        $iter = $iter->nextsibling;
                     }
                     // We could array_merge but the number of added terms is small in all cases.
                     foreach ($block->validate_extract_attributes() as $cs) {
@@ -269,7 +273,7 @@ class stack_cas_text {
                 break;
             case 'texcasblock':
                 $block = castext_block_factory::make('latex', $node, $session, $this->seed, $this->security, $this->syntax,
-                $this->insertstars);
+                    $this->insertstars);
                 $valid = $block->validate($this->errors) && $valid;
                 foreach ($block->validate_extract_attributes() as $cs) {
                     $this->rawsession[] = $cs;
@@ -279,7 +283,8 @@ class stack_cas_text {
         return $valid;
     }
 
-    private function first_pass_recursion(&$node, $conditionstack) {
+    private function first_pass_recursion(&$node, $conditionstack)
+    {
         $blockchildevaluation = false;
         $types = castext_block_factory::get_available_types();
         switch ($node->type) {
@@ -294,9 +299,9 @@ class stack_cas_text {
                 $block = null;
                 if (array_key_exists($node->get_content(), $types)) {
                     $block = castext_block_factory::make($node->get_content(), $node, $session, $this->seed,
-                            $this->security, $this->syntax, $this->insertstars);
+                        $this->security, $this->syntax, $this->insertstars);
                 } else {
-                    throw new stack_exception('stack_cas_text: UNKNOWN NODE '.$node->get_content());
+                    throw new stack_exception('stack_cas_text: UNKNOWN NODE ' . $node->get_content());
                 }
                 $block->extract_attributes($this->session, $conditionstack);
                 $this->blocks[] = $block;
@@ -316,13 +321,13 @@ class stack_cas_text {
                 break;
             case 'rawcasblock':
                 $block = castext_block_factory::make('raw', $node, $session, $this->seed, $this->security, $this->syntax,
-                        $this->insertstars);
+                    $this->insertstars);
                 $block->extract_attributes($this->session, $conditionstack);
                 $this->blocks[] = $block;
                 break;
             case 'texcasblock':
                 $block = castext_block_factory::make('latex', $node, $session, $this->seed, $this->security, $this->syntax,
-                        $this->insertstars);
+                    $this->insertstars);
                 $block->extract_attributes($this->session, $conditionstack);
                 $this->blocks[] = $block;
                 break;
@@ -332,7 +337,8 @@ class stack_cas_text {
     /**
      * This function actually evaluates the castext.
      */
-    private function instantiate() {
+    private function instantiate()
+    {
         // Initial pass.
         if (stack_cas_castext_castextparser::castext_parsing_required($this->trimmedcastext)) {
             if ($this->session == null) {
@@ -356,10 +362,11 @@ class stack_cas_text {
             return false;
         }
 
-		// Deal with castext without any CAS variables.
-		if (null !== $this->session && !empty($this->session->get_session())) {
-			$this->session->instantiate();
-		}
+        // Deal with castext without any CAS variables.
+        if (null !== $this->session && null !== $this->session->get_session()
+            && count($this->session->get_session()) > 0) {
+            $this->session->instantiate();
+        }
 
         // Handle blocks.
         $requiresrerun = false;
@@ -411,7 +418,8 @@ class stack_cas_text {
     /**
      * Tidy up LaTeX commands used in castext which are not interpreted by MathJax.
      */
-    private function latex_tidy() {
+    private function latex_tidy()
+    {
         // Need to create line breaks in sensible places.
         $this->castext = str_replace('\begin{itemize}', '<ol>', $this->castext);
         $this->castext = str_replace('\end{itemize}', '</ol>', $this->castext);
@@ -420,14 +428,16 @@ class stack_cas_text {
         $this->castext = str_replace('\item', '<li>', $this->castext);
     }
 
-    public function get_valid() {
+    public function get_valid()
+    {
         if (null === $this->valid) {
             $this->validate();
         }
         return $this->valid;
     }
 
-    public function get_errors($casdebug=false) {
+    public function get_errors($casdebug = false)
+    {
         if (null === $this->valid) {
             $this->validate();
         }
@@ -446,7 +456,7 @@ class stack_cas_text {
         }
 
         if ('' != trim($errmsg)) {
-            $errmsg = '<span class="error">'.stack_string("stackCas_failedValidation").'</span>'.$errmsg;
+            $errmsg = '<span class="error">' . stack_string("stackCas_failedValidation") . '</span>' . $errmsg;
         }
 
         if ($casdebug && null !== $this->session) {
@@ -456,7 +466,8 @@ class stack_cas_text {
         return $errmsg;
     }
 
-    public function get_all_raw_casstrings() {
+    public function get_all_raw_casstrings()
+    {
         if (null === $this->valid) {
             $this->validate();
         }
@@ -482,7 +493,8 @@ class stack_cas_text {
         return $raw;
     }
 
-    public function get_display_castext() {
+    public function get_display_castext()
+    {
         if (null === $this->valid) {
             $this->validate();
         }
@@ -494,7 +506,8 @@ class stack_cas_text {
         return $this->castext;
     }
 
-    public function get_session() {
+    public function get_session()
+    {
         if (null === $this->valid) {
             $this->validate();
         }
@@ -507,7 +520,8 @@ class stack_cas_text {
     }
 
     /* Simply passes the keywords through to session.*/
-    public function check_external_forbidden_words($keywords) {
+    public function check_external_forbidden_words($keywords)
+    {
         if (null === $this->valid) {
             $this->validate();
         }
@@ -524,7 +538,8 @@ class stack_cas_text {
         return $this->session->check_external_forbidden_words($keywords);
     }
 
-    public function get_debuginfo() {
+    public function get_debuginfo()
+    {
         if (null === $this->session) {
             return "Session is NULL. ";
         }

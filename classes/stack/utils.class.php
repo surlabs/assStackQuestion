@@ -14,9 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-//fim: #24 avoid MOODLE_INTERNAL
-//defined('MOODLE_INTERNAL') || die();
-//fim.
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * Various utility classes for Stack.
@@ -32,7 +30,8 @@
  * @copyright  2012 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-interface stack_debug_log {
+interface stack_debug_log
+{
 
     /**
      * @return string the contents of the log.
@@ -54,14 +53,16 @@ interface stack_debug_log {
  * @copyright  2012 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_debug_log_base implements stack_debug_log {
+class stack_debug_log_base implements stack_debug_log
+{
 
     protected $debuginfo = '';
 
     /**
      * @return string the contents of the log.
      */
-    public function get_log() {
+    public function get_log()
+    {
         return $this->debuginfo;
     }
 
@@ -70,7 +71,8 @@ class stack_debug_log_base implements stack_debug_log {
      * @param string $heading a heading to precede the acutal message.
      * @param string $message the debug message.
      */
-    public function log($heading = '', $message = '') {
+    public function log($heading = '', $message = '')
+    {
         if ($heading) {
             $this->debuginfo .= html_writer::tag('h3', $heading);
         }
@@ -87,12 +89,14 @@ class stack_debug_log_base implements stack_debug_log {
  * @copyright  2012 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_debug_log_null implements stack_debug_log {
+class stack_debug_log_null implements stack_debug_log
+{
 
     /**
      * @return string the contents of the log.
      */
-    public function get_log() {
+    public function get_log()
+    {
         return '';
     }
 
@@ -101,7 +105,8 @@ class stack_debug_log_null implements stack_debug_log {
      * @param string $heading a heading to precede the acutal message.
      * @param string $message the debug message.
      */
-    public function log($heading = '', $message = '') {
+    public function log($heading = '', $message = '')
+    {
         // Do nothing.
     }
 }
@@ -113,7 +118,8 @@ class stack_debug_log_null implements stack_debug_log {
  * @copyright  2012 University of Birmingham
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_utils {
+class stack_utils
+{
     /** @var object the STACK config data, so we only ever have to load it from the DB once. */
     protected static $config = null;
 
@@ -129,7 +135,8 @@ class stack_utils {
     /**
      * Static class. You cannot create instances.
      */
-    private function __construct() {
+    private function __construct()
+    {
         throw new stack_exception('stack_utils: you cannot create instances of this class.');
     }
 
@@ -138,7 +145,8 @@ class stack_utils {
      * @param bool $debugenabled Whether we actually want to keep a debug log.
      * @return stack_debug_log the log
      */
-    public static function make_debug_log($debugenabled = true) {
+    public static function make_debug_log($debugenabled = true)
+    {
         if ($debugenabled) {
             return new stack_debug_log_base();
         } else {
@@ -154,7 +162,8 @@ class stack_utils {
      * @param string $char the character to test.
      * @return bool whether there are an even number of $chars in $string.
      */
-    public static function check_matching_pairs($string, $char) {
+    public static function check_matching_pairs($string, $char)
+    {
         // Check the number of occurences are even.
         return (substr_count($string, $char) % 2) == 0;
     }
@@ -170,7 +179,8 @@ class stack_utils {
      * @return bool|string true if they match; 'left' if there are left delimiters
      *      missing; or 'right' if there are right delimiters missing.
      */
-    public static function check_bookends($string, $left, $right) {
+    public static function check_bookends($string, $left, $right)
+    {
         $leftcount = substr_count($string, $left);
         $rightcount = substr_count($string, $right);
 
@@ -192,7 +202,8 @@ class stack_utils {
      * @param string $rights the corresponding closing bracket characters. By default ')]}'.
      * @return boolean true if all brackets match and are nested properly.
      */
-    public static function check_nested_bookends($string, $lefts = '([{', $rights = ')]}') {
+    public static function check_nested_bookends($string, $lefts = '([{', $rights = ')]}')
+    {
         $openstack = array();
         $length = strlen($string);
         for ($i = 0; $i < $length; $i++) {
@@ -224,7 +235,8 @@ class stack_utils {
      *      If there is no match, ('', -1, -1) is returned. Well, acutally it is more
      *      complex than that. If you really care read the code.
      */
-    public static function substring_between($string, $left, $right, $start = 0) {
+    public static function substring_between($string, $left, $right, $start = 0)
+    {
 
         $start = strpos($string, $left, $start);
         if ($start === false) {
@@ -271,7 +283,8 @@ class stack_utils {
      * @param bool $skipempty whether to leave out any empty substrings.
      * @return array of matches without $left or $right pre/suffixes
      */
-    public static function all_substring_between($string, $left, $right = null, $skipempty = false) {
+    public static function all_substring_between($string, $left, $right = null, $skipempty = false)
+    {
         if ($right == null) {
             $right = $left;
         }
@@ -326,7 +339,8 @@ class stack_utils {
      * number of replacements.
      * @return string
      */
-    public static function replace_between($string, $left, $right, $replacements, $skipempty = false) {
+    public static function replace_between($string, $left, $right, $replacements, $skipempty = false)
+    {
         // Do error checking.
         $leftcount = substr_count($string, $left);
         $rightcount = substr_count($string, $right);
@@ -383,7 +397,8 @@ class stack_utils {
      * @param array (Optional) additional characters to convert to underscores.
      * @return string with characters replaced.
      */
-    public static function underscore($string, $toreplace = array()) {
+    public static function underscore($string, $toreplace = array())
+    {
         $toreplace[] = '-';
         $toreplace[] = ' ';
         return str_replace($toreplace, '_', $string);
@@ -395,7 +410,8 @@ class stack_utils {
      * @access public
      * @return string|null
      */
-    public static function convert_slash_paths($string) {
+    public static function convert_slash_paths($string)
+    {
         $in = trim($string);
         $length = strlen($in);
         $lastchar = $in[($length - 1)];
@@ -407,10 +423,10 @@ class stack_utils {
         if (!empty($patharray)) {
             $newpath = $patharray[0];
             for ($i = 1; $i < count($patharray); $i++) {
-                $newpath .= "/".$patharray[$i];
+                $newpath .= "/" . $patharray[$i];
             }
             if ($trailingslash == true) {
-                return $newpath.'/';
+                return $newpath . '/';
             } else {
                 return $newpath;
             }
@@ -426,11 +442,13 @@ class stack_utils {
      * @param string
      * @return string
      */
-    public static function delimit($text) {
+    public static function delimit($text)
+    {
         return preg_replace_callback('/@([^@]*)@/', array('stack_utils', 'delimit_callback'), $text);
     }
 
-    public static function delimit_callback($matches) {
+    public static function delimit_callback($matches)
+    {
         if (!empty($matches[1])) {
             return '\(@' . $matches[1] . '@\)';
         } else {
@@ -442,11 +460,12 @@ class stack_utils {
      * Returns the first position of an opening math delimiter in $text from the $offset.
      * Helper function for wrap_around().
      */
-    public static function math_start($text, $offset = 0) {
+    public static function math_start($text, $offset = 0)
+    {
         $delimiters = array('$', '$$', '\(', '\[');
         foreach (self::$mathdelimiters as $delim) {
-            $delimiters[] = '\begin{'.$delim.'}';
-            $delimiters[] = '\begin{'.$delim.'*}';
+            $delimiters[] = '\begin{' . $delim . '}';
+            $delimiters[] = '\begin{' . $delim . '*}';
         }
         $at = false; // Not yet found.
         foreach ($delimiters as $d) {
@@ -464,11 +483,12 @@ class stack_utils {
      * Returns the position of the character following a closing math delimiter in $text from the $offset.
      * Helper function for wrap_around().
      */
-    public static function math_length($text, $start) {
+    public static function math_length($text, $start)
+    {
         $delimiters = array('$', '$$', '\)', '\]');
         foreach (self::$mathdelimiters as $delim) {
-            $delimiters[] = '\end{'.$delim.'}';
-            $delimiters[] = '\end{'.$delim.'*}';
+            $delimiters[] = '\end{' . $delim . '}';
+            $delimiters[] = '\end{' . $delim . '*}';
         }
         $at = false;
         $ender = '';
@@ -501,14 +521,15 @@ class stack_utils {
      * @param string
      * @return string
      */
-    public static function wrap_around($text) {
+    public static function wrap_around($text)
+    {
         $mathstart = self::math_start($text);
         if ($mathstart !== false) { // We have some maths ahead.
             $pre = substr($text, 0, $mathstart); // Get previous text.
             $for = self::math_length($text, $mathstart);
             $maths = substr($text, $mathstart, $for);
             $rest = substr($text, $mathstart + $for);
-            return self::delimit($pre).$maths.self::wrap_around($rest);
+            return self::delimit($pre) . $maths . self::wrap_around($rest);
         } else { // No math sections left.
             return self::delimit($text);
         }
@@ -520,7 +541,8 @@ class stack_utils {
      * @return string out
      * @access public
      */
-    public static function trim_commands($string) {
+    public static function trim_commands($string)
+    {
         $in = trim($string);
         $length = strlen($in);
         $lastchar = $in[($length - 1)];
@@ -540,7 +562,8 @@ class stack_utils {
      * @access private
      * @return string
      */
-    public static function remove_comments($string) {
+    public static function remove_comments($string)
+    {
         if (strstr($string, '/*')) {
             $out = $string;
             preg_match_all('|/\*(.*)\*/|U', $out, $htmlmatch);
@@ -560,7 +583,8 @@ class stack_utils {
      * @access public
      * @return array
      */
-    public static function all_substring_strings($string) {
+    public static function all_substring_strings($string)
+    {
         $strings = array();
         $i = 0;
         $lastslash = false;
@@ -596,20 +620,20 @@ class stack_utils {
      * @access public
      * @return string
      */
-    public static function eliminate_strings($string) {
-        $cleared = $string;
+    public static function eliminate_strings($string)
+    {
+        $cleared = '';
         $i = 0;
         $lastslash = false;
         $instring = false;
-        $stringentry = -1;
+        $laststringexit = 0;
         while ($i < strlen($string)) {
             $c = $string[$i];
             $i++;
             if ($instring) {
                 if ($c == '"' && !$lastslash) {
                     $instring = false;
-                    $s = substr($string, $stringentry - 1, ($i - $stringentry + 1));
-                    $cleared = str_replace($s, '""', $cleared);
+                    $laststringexit = $i - 1;
                 } else if ($c == "\\") {
                     $lastslash = !$lastslash;
                 } else if ($lastslash) {
@@ -618,9 +642,10 @@ class stack_utils {
             } else if ($c == '"') {
                 $instring = true;
                 $lastslash = false;
-                $stringentry = $i;
+                $cleared .= substr($string, $laststringexit, $i - $laststringexit);
             }
         }
+        $cleared .= substr($string, $laststringexit);
         return $cleared;
     }
 
@@ -631,7 +656,8 @@ class stack_utils {
      * @return array out
      * @access public
      */
-    public static function cvs_to_array($string, $token = ',') {
+    public static function cvs_to_array($string, $token = ',')
+    {
         $exploded = explode($token, $string);
         // Remove any null entries.
         for ($i = 0; $i < count($exploded); $i++) {
@@ -649,7 +675,8 @@ class stack_utils {
      * @param $array the data to output.
      * @return string the output.
      */
-    public static function array_to_cvs($array) {
+    public static function array_to_cvs($array)
+    {
         if (!empty($array)) {
             $string = '';
             $i = 0;
@@ -680,13 +707,14 @@ class stack_utils {
      * Strict checking on nesting.
      * Helper for list_to_array_workhorse()
      */
-    private static function next_element($list) {
+    private static function next_element($list)
+    {
         if ($list == '') {
             return null;
         }
         // Delimited by next comma at same degree of nesting.
         $startdelimiter = "[({";
-        $enddelimiter   = "])}";
+        $enddelimiter = "])}";
         $nesting = array(0 => 0, 1 => 0, 2 => 0); // Stores nesting for delimiters above.
         for ($i = 0; $i < strlen($list); $i++) {
             $startchar = strpos($startdelimiter, $list[$i]); // Which start delimiter.
@@ -697,21 +725,22 @@ class stack_utils {
                 $nesting[$startchar]++;
             } else if ($endchar !== false) {
                 $nesting[$endchar]--;
-            } else if ($list[$i] == ',' && $nesting[0] == 0 && $nesting[1] == 0 &&$nesting[2] == 0) {
+            } else if ($list[$i] == ',' && $nesting[0] == 0 && $nesting[1] == 0 && $nesting[2] == 0) {
                 // Otherwise, return element if all nestings are zero.
                 return substr($list, 0, $i);
             }
         }
 
         // End of list reached.
-        if ($nesting[0] == 0 && $nesting[1] == 0 &&$nesting[2] == 0) {
+        if ($nesting[0] == 0 && $nesting[1] == 0 && $nesting[2] == 0) {
             return $list;
         } else {
             return null;
         }
     }
 
-    private static function list_to_array_workhorse($list, $rec = true) {
+    private static function list_to_array_workhorse($list, $rec = true)
+    {
         $array = array();
         $list = trim($list);
         $list = substr($list, 1, strlen($list) - 2); // Trims outermost [] only.
@@ -736,7 +765,8 @@ class stack_utils {
      * Converts a list structure into an array.
      * Handles nested lists, sets and functions with help from next_element().
      */
-    public static function list_to_array($string, $rec = true) {
+    public static function list_to_array($string, $rec = true)
+    {
         return self::list_to_array_workhorse($string, $rec);
     }
 
@@ -749,9 +779,10 @@ class stack_utils {
      * @param string $type the type of placeholder to extract. e.g. 'input'.
      * @return array of placeholdernames.
      */
-    public static function extract_placeholders($text, $type) {
+    public static function extract_placeholders($text, $type)
+    {
         preg_match_all('~\[\[' . $type . ':(' . self::VALID_NAME_REGEX . ')\]\]~',
-                $text, $matches);
+            $text, $matches);
         return $matches[1];
     }
 
@@ -764,11 +795,12 @@ class stack_utils {
      * @param string $type the type of placeholder to extract. e.g. 'input'.
      * @return array of placeholdernames.
      */
-    public static function extract_placeholders_sloppy($text, $type) {
+    public static function extract_placeholders_sloppy($text, $type)
+    {
         preg_match_all('~\[\[' . $type . ':(' . self::VALID_NAME_REGEX . ')\]\]~',
-                $text, $matches1);
+            $text, $matches1);
         preg_match_all('~\[\[\s*' . $type . '\s*:(\s*' . self::VALID_NAME_REGEX . ')\s*\]\]~',
-                $text, $matches2);
+            $text, $matches2);
 
         $ret = array();
         foreach ($matches2[1] as $key => $name) {
@@ -776,26 +808,29 @@ class stack_utils {
                 $ret[] = $matches2[0][$key];
             }
         }
-        return($ret);
+        return ($ret);
     }
 
     /**
      * @param string $name a potential name for part of a STACK question.
      * @return bool whether that name is allowed.
      */
-    public static function is_valid_name($name) {
+    public static function is_valid_name($name)
+    {
         return preg_match('~^' . self::VALID_NAME_REGEX . '$~', $name);
     }
 
     /** Get the stack configuration settings. */
-    public static function get_config() {
+    public static function get_config()
+    {
         if (is_null(self::$config)) {
             self::$config = get_config('qtype_stack');
         }
         return self::$config;
     }
 
-    public static function clear_config_cache() {
+    public static function clear_config_cache()
+    {
         self::$config = null;
     }
 
@@ -814,15 +849,16 @@ class stack_utils {
      *      oldname => newname that when performed in order, will not cause a
      *      name clash.
      */
-    public static function decompose_rename_operation(array $renamemap) {
+    public static function decompose_rename_operation(array $renamemap)
+    {
 
         $nontrivialmap = array();
         $usednames = array();
         foreach ($renamemap as $from => $to) {
-            $usednames[(string) $from] = 1;
-            $usednames[(string) $to] = 1;
-            if ((string) $from !== (string) $to) {
-                $nontrivialmap[(string) $from] = (string) $to;
+            $usednames[(string)$from] = 1;
+            $usednames[(string)$to] = 1;
+            if ((string)$from !== (string)$to) {
+                $nontrivialmap[(string)$from] = (string)$to;
             }
         }
 
@@ -889,7 +925,8 @@ class stack_utils {
      * @param string $suggestedname the form the name should take. Default 'temp1'.
      * @return string an unused name.
      */
-    protected static function get_next_unused_name($usednames, $suggestedname = 'temp1') {
+    protected static function get_next_unused_name($usednames, $suggestedname = 'temp1')
+    {
         while (array_key_exists($suggestedname, $usednames)) {
             $suggestedname++;
         }
@@ -900,7 +937,8 @@ class stack_utils {
      * Locale-aware version of PHP's asort function.
      * @param array $array The array to sort. Sorted in place.
      */
-    public static function sort_array(&$array) {
+    public static function sort_array(&$array)
+    {
         if (class_exists('core_collator')) {
             core_collator::asort($array);
         } else {
@@ -912,7 +950,8 @@ class stack_utils {
      * Locale-aware version of PHP's ksort function.
      * @param array $array The array to sort. Sorted in place.
      */
-    public static function sort_array_by_key(&$array) {
+    public static function sort_array_by_key(&$array)
+    {
         if (class_exists('core_collator')) {
             core_collator::ksort($array);
         } else {
@@ -926,17 +965,20 @@ class stack_utils {
      * @param a string
      * @return a string that contains ""-quotes around the content.
      */
-    public static function php_string_to_maxima_string($string) {
+    public static function php_string_to_maxima_string($string)
+    {
         $converted = str_replace("\\", "\\\\", $string);
         $converted = str_replace("\"", "\\\"", $converted);
         return '"' . $converted . '"';
     }
+
     /**
      * Converts a PHP string object containing a Maxima string as presented by the grind command to a PHP string object.
      * @param a string that contains ""-quotes around the content.
      * @return a string without those quotes.
      */
-    public static function maxima_string_to_php_string($string) {
+    public static function maxima_string_to_php_string($string)
+    {
         $converted = str_replace("\\\\", "\\", $string);
         $converted = str_replace("\\\"", '"', $converted);
         return substr($converted, 1, -1);
@@ -947,7 +989,8 @@ class stack_utils {
      * @param float $n
      * @param int $accuracy Stop when we get within this many decimal places of $n
      */
-    public static function rational_approximation($n, $accuracy) {
+    public static function rational_approximation($n, $accuracy)
+    {
         $accuracy = pow(10, -$accuracy);
 
         $i = floor($n);
@@ -999,7 +1042,8 @@ class stack_utils {
         return array($nint * $oden + $onum, $oden);
     }
 
-    public static function fix_to_continued_fraction($n, $accuracy) {
+    public static function fix_to_continued_fraction($n, $accuracy)
+    {
         $frac = self::rational_approximation($n, $accuracy);
         return $frac[0] / $frac[1];
     }
@@ -1008,7 +1052,8 @@ class stack_utils {
      * Establish bounds on the number of significant decimal digits in a number.
      * @param string $string Input string to unpack.
      */
-    public static function decimal_digits($string) {
+    public static function decimal_digits($string)
+    {
         $leadingzeros = 0;
         $indefinitezeros = 0;
         $trailingzeros = 0;
@@ -1017,7 +1062,14 @@ class stack_utils {
         $infrontofdecimaldeparator = true;
         $scientificnotation = false;
 
-        $string = str_split(trim($string));
+        $string = trim($string);
+        // Sometimes strings from Maxima have parentheses around them.
+        // This is hard to predict and is breaking things.  Strip them off here.
+        if (substr($string, 0, 1) == '(') {
+            $dels = self::substring_between($string, '(', ')');
+            $string = substr($dels[0], 1, -1);
+        }
+        $string = str_split($string);
 
         foreach ($string as $i => $c) {
             if (!$infrontofdecimaldeparator && ctype_digit($c)) {
@@ -1055,7 +1107,7 @@ class stack_utils {
         }
 
         $ret = array('lowerbound' => 0, 'upperbound' => 0,
-                'decimalplaces' => $decimalplaces, 'fltfmt' => '"~a"');
+            'decimalplaces' => $decimalplaces, 'fltfmt' => '"~a"');
 
         if ($meaningfulldigits == 0) {
             // This is the case when we have only zeros in the number.
@@ -1085,17 +1137,18 @@ class stack_utils {
      * Change fraction marks close to 1/3 or 2/3 to the values exact to 7 decimal places.
      *
      * Moodle rounds fractional marks close to 1/3 (0.33 <= x <= 0.34) or 2/3
-     * (0.66 <= x <= 0.67) to exactly 0.3333333 and 0.6666667, for example whe @author tjh238
+     * (0.66 <= x <= 0.67) to exactly 0.3333333 and 0.6666667, for example whe @param float $fraction a fractional mark between 0 and 1.
+     * @return float $fraction, except that values close to 1/3 or 2/3 are returned to 7 decimal places.
+     * @author tjh238
      * course is backed up and restored. Some of the fractional marks that STACK
      * uses are affected by this, and others are not. Thereofore, after a course
      * is backed up and restored, some question tests start failing.
      *
      * Therefore, this fucntion is used to match Moodle's logic.
      *
-     * @param float $fraction a fractional mark between 0 and 1.
-     * @return float $fraction, except that values close to 1/3 or 2/3 are returned to 7 decimal places.
      */
-    public static function fix_approximate_thirds($fraction) {
+    public static function fix_approximate_thirds($fraction)
+    {
         if ($fraction >= 0.33 && $fraction <= 0.34) {
             return 0.3333333;
         } else if ($fraction >= 0.66 && $fraction <= 0.67) {
@@ -1110,14 +1163,15 @@ class stack_utils {
      * variable name has been interpreted as a product of single letters.
      * @param unknown $rawcasstring
      */
-    public static function make_single_char_vars($rawcasstring, $options, $syntax, $stars, $allowwords) {
+    public static function make_single_char_vars($rawcasstring, $options, $syntax, $stars, $allowwords)
+    {
 
         // Guard clause:  if we have no letters then we just don't need to call the CAS.
         preg_match("/([A-Za-z].*)/", $rawcasstring, $output);
         if ($output == array()) {
             return $rawcasstring;
         }
-        $rawcasstring = stack_utils::logic_nouns_sort($rawcasstring, 'add');
+        $rawcasstring = self::logic_nouns_sort($rawcasstring, 'add');
         $cs = new stack_cas_casstring($rawcasstring);
         // We need to use the student here to allow a wider range of star patterns.
         $cs->get_valid('s', true, $stars, $allowwords);
@@ -1127,7 +1181,7 @@ class stack_utils {
             // We only need to worry about the difference between 's' and 't' validation here.
             // If we get past this clause we still validate as "t" below, so no need to list everything.
             $rejectnotes = array('trigexp' => true, 'trigparens' => true,
-                    'trigop' => true, 'triginv' => true);
+                'trigop' => true, 'triginv' => true);
             foreach ($cs->get_answernote('raw') as $note) {
                 if (array_key_exists($note, $rejectnotes)) {
                     return $rawcasstring;
@@ -1137,15 +1191,15 @@ class stack_utils {
 
         // Use the modified $casstring to get the most liberal interpretation.
         $casstring = $cs->get_casstring();
-        $lvars = new stack_cas_casstring('listofvars('.$casstring.')');
+        $lvars = new stack_cas_casstring('listofvars(' . $casstring . ')');
         $lvars->get_valid('t', $syntax, $stars, $allowwords);
-        $lops = new stack_cas_casstring('get_ops('.$casstring.')');
+        $lops = new stack_cas_casstring('get_ops(' . $casstring . ')');
         $lops->get_valid('t', $syntax, $stars, $allowwords);
         $session = new stack_cas_session(array($lvars, $lops), $options, 0);
         $session->instantiate();
         $session = $session->get_session();
-        $lvars  = $session[0];
-        $lops  = $session[1];
+        $lvars = $session[0];
+        $lops = $session[1];
         $errors = stack_maxima_translate($lvars->get_errors());
         // Only put in *s to the original expression.
         if ($stars != 5) {
@@ -1171,7 +1225,7 @@ class stack_utils {
             // For example, if we have "sin(in)" then we want "sin(i*n)" not "si*n(i*n)".
             // To avoid this we safely replace operands with !!STACKOP??!! first.
             foreach ($lops as $key => $op) {
-                $casstring = str_replace($op.'(', '!!STACKOP'.$key.'!!(', $casstring);
+                $casstring = str_replace($op . '(', '!!STACKOP' . $key . '!!(', $casstring);
             }
             foreach ($lvars as $var) {
                 if (strlen($var) > 1) {
@@ -1181,7 +1235,7 @@ class stack_utils {
                 }
             }
             foreach ($lops as $key => $op) {
-                $casstring = str_replace('!!STACKOP'.$key.'!!', $op, $casstring);
+                $casstring = str_replace('!!STACKOP' . $key . '!!', $op, $casstring);
             }
         }
         return $casstring;
@@ -1198,35 +1252,55 @@ class stack_utils {
      *
      * If the parameter is 'add' we put in noun versions, and if 'remove' we remove them.
      */
-    public static function logic_nouns_sort($str, $direction) {
+    public static function logic_nouns_sort($str, $direction)
+    {
 
         if ($direction != 'add' && $direction != 'remove') {
-            throw new stack_exception('logic_nouns_sort: direction must be "add" or "remove", but received: '. $direction);
+            throw new stack_exception('logic_nouns_sort: direction must be "add" or "remove", but received: ' . $direction);
         }
 
+        // Note, the spaces before these connectives are essential.
         $connectives = array(' and' => ' nounand', ' or' => ' nounor', ')and' => ') nounand', ')or' => ') nounor');
         // The last two patterns are fine in the reverse direction as these patterns will have gone.
-
-        foreach ($connectives as $key => $val) {
-            if ($direction === 'add') {
-                $str = str_replace($key, $val, $str);
-            } else {
-                $str = str_replace($val, $key, $str);
-            }
-        }
+        $regexnouns = array('int' => 'nounint', 'integrate' => 'nounint', 'diff' => 'noundiff', 'limit' => 'nounlimit');
 
         if ($direction === 'add') {
+            foreach ($connectives as $key => $val) {
+                $str = str_replace($key, $val, $str);
+            }
+            foreach ($regexnouns as $key => $val) {
+                $str = preg_replace('!(\b)(' . $key . '\\()!', $val . '(', $str);
+            }
             // Check if we are using equational reasoning.
             if (substr(trim($str), 0, 1) === "=") {
                 $trimmed = trim(substr(trim($str), 1));
-                if ( $trimmed !== '') {
+                if ($trimmed !== '') {
                     $str = 'stackeq(' . $trimmed . ')';
                 }
             }
+            // Safely wrap "let" statements.
+            $langlet = strtolower(stack_string('equiv_LET'));
+            if (strtolower(substr($str, 0, strlen($langlet))) === $langlet) {
+                $nv = explode('=', substr($str, strlen($langlet) + 1));
+                if (count($nv) === 2) {
+                    $str = 'stacklet(' . trim($nv[0]) . ',' . trim($nv[1]) . ')';
+                }
+            }
         } else {
+            foreach (array_merge($connectives, $regexnouns) as $key => $val) {
+                $str = str_replace($val, $key, $str);
+            }
             if (substr(trim($str), 0, 8) == 'stackeq(' && substr(trim($str), -1, 1) == ')') {
                 $str = '=' . substr(trim($str), 8, -1);
             }
+            if (substr(trim($str), 0, 9) == 'stacklet(' && substr(trim($str), -1, 1) == ')') {
+                $str = stack_string('equiv_LET') . ' ' . implode('=', explode(',', substr(trim($str), 9, -1)));
+            }
+            // Apostophies are not permitted in student's expressions.
+            $str = str_replace("'sum", "sum", $str);
+            $str = str_replace("'int", "int", $str);
+            $str = str_replace("'diff", "diff", $str);
+            $str = str_replace("'limit", "limit", $str);
         }
 
         return $str;
@@ -1236,13 +1310,14 @@ class stack_utils {
      * This function takes user input of the form "option:arg" and splits them up.
      * Used to sort out options to the inputs field.
      */
-    public static function parse_option($option) {
+    public static function parse_option($option)
+    {
         $arg = '';
         if (!(strpos($option, ':') === false)) {
             $ops = explode(':', $option);
             $option = $ops[0];
             $arg = trim($ops[1]);
         }
-        return(array($option, $arg));
+        return (array($option, $arg));
     }
 }

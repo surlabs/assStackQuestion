@@ -24,7 +24,8 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/potentialresponsenode.class.php');
 require_once(__DIR__ . '/potentialresponsetreestate.class.php');
 
-class stack_potentialresponse_tree {
+class stack_potentialresponse_tree
+{
 
     /** @var string Name of the PRT. */
     private $name;
@@ -47,9 +48,10 @@ class stack_potentialresponse_tree {
     /** @var array of stack_potentialresponse_node. */
     private $nodes;
 
-    public function __construct($name, $description, $simplify, $value, $feedbackvariables, $nodes, $firstnode) {
+    public function __construct($name, $description, $simplify, $value, $feedbackvariables, $nodes, $firstnode)
+    {
 
-        $this->name        = $name;
+        $this->name = $name;
         $this->description = $description;
 
         if (!is_bool($simplify)) {
@@ -64,7 +66,7 @@ class stack_potentialresponse_tree {
             $this->feedbackvariables = $feedbackvariables;
         } else {
             throw new stack_exception('stack_potentialresponse_tree: __construct: ' .
-                    'expects $feedbackvariables to be null or a stack_cas_session.');
+                'expects $feedbackvariables to be null or a stack_cas_session.');
         }
 
         if ($nodes === null) {
@@ -72,21 +74,21 @@ class stack_potentialresponse_tree {
         }
         if (!is_array($nodes)) {
             throw new stack_exception('stack_potentialresponse_tree: __construct: ' .
-                    'attempting to construct a potential response tree with potential ' .
-                    'responses which are not an array of stack_potentialresponse');
+                'attempting to construct a potential response tree with potential ' .
+                'responses which are not an array of stack_potentialresponse');
         }
         foreach ($nodes as $node) {
             if (!is_a($node, 'stack_potentialresponse_node')) {
                 throw new stack_exception ('stack_potentialresponse_tree: __construct: ' .
-                        'attempting to construct a potential response tree with potential ' .
-                        'responses which are not stack_potentialresponse');
+                    'attempting to construct a potential response tree with potential ' .
+                    'responses which are not stack_potentialresponse');
             }
         }
         $this->nodes = $nodes;
 
         if (!array_key_exists($firstnode, $this->nodes)) {
             throw new stack_exception ('stack_potentialresponse_tree: __construct: ' .
-                    'the specified first node does not exist in the tree.');
+                'the specified first node does not exist in the tree.');
         }
         $this->firstnode = $firstnode;
     }
@@ -102,7 +104,8 @@ class stack_potentialresponse_tree {
      * @param int $seed the random number seed.
      * @return stack_cas_session initialised with all the expressions this PRT will need.
      */
-    protected function create_cas_context_for_evaluation($questionvars, $options, $answers, $seed) {
+    protected function create_cas_context_for_evaluation($questionvars, $options, $answers, $seed)
+    {
 
         // Start with the question variables (note that order matters here).
         $cascontext = clone $questionvars;
@@ -162,11 +165,12 @@ class stack_potentialresponse_tree {
      * @param int $seed the random number seed.
      * @return stack_potentialresponse_tree_state the result.
      */
-    public function evaluate_response(stack_cas_session $questionvars, $options, $answers, $seed) {
+    public function evaluate_response(stack_cas_session $questionvars, $options, $answers, $seed)
+    {
 
         if (empty($this->nodes)) {
             throw new stack_exception('stack_potentialresponse_tree: evaluate_response ' .
-                    'attempting to traverse an empty tree. Something is wrong here.');
+                'attempting to traverse an empty tree. Something is wrong here.');
         }
 
         $localoptions = clone $options;
@@ -187,9 +191,9 @@ class stack_potentialresponse_tree {
 
             if (!array_key_exists($nodekey, $this->nodes)) {
                 throw new stack_exception('stack_potentialresponse_tree: ' .
-                        'evaluate_response: attempted to jump to a potential response ' .
-                        'which does not exist in this question.  This is a question ' .
-                        'authoring/validation problem.');
+                    'evaluate_response: attempted to jump to a potential response ' .
+                    'which does not exist in this question.  This is a question ' .
+                    'authoring/validation problem.');
             }
 
             if (array_key_exists($nodekey, $visitednodes)) {
@@ -241,7 +245,8 @@ class stack_potentialresponse_tree {
      * @return array filter list of variable names. Only those variable names
      * referred to be this PRT are returned.
      */
-    public function get_required_variables($variablenames) {
+    public function get_required_variables($variablenames)
+    {
 
         $rawcasstrings = array();
         if ($this->feedbackvariables !== null) {
@@ -269,7 +274,8 @@ class stack_potentialresponse_tree {
      * @param string $string a cas string.
      * @return bool whether the string refers to the variable.
      */
-    private function string_contains_variable($variable, $string) {
+    private function string_contains_variable($variable, $string)
+    {
         $regex = '~\b' . preg_quote(strtolower($variable), '~') . '\b~';
         return preg_match($regex, strtolower($string));
     }
@@ -278,7 +284,8 @@ class stack_potentialresponse_tree {
      * This lists all possible answer notes, used for question testing.
      * @return array string Of all the answer notes this tree might produce.
      */
-    public function get_all_answer_notes() {
+    public function get_all_answer_notes()
+    {
         $nodenotes = array();
         foreach ($this->nodes as $node) {
             $nodenotes = array_merge($nodenotes, $node->get_answer_notes());
@@ -294,7 +301,8 @@ class stack_potentialresponse_tree {
      * @return array with keys the same as $this->nodes, and values objects with
      *      fields falsenote, falsescore, truenote, truescore.
      */
-    public function get_nodes_summary() {
+    public function get_nodes_summary()
+    {
         $nodesummary = array();
         foreach ($this->nodes as $key => $node) {
             $nodesummary[$key] = $node->summarise_branches();
@@ -305,14 +313,44 @@ class stack_potentialresponse_tree {
     /**
      * @return string the name of this PRT.
      */
-    public function get_name() {
+    public function get_name()
+    {
         return $this->name;
     }
 
     /**
      * @return float the value of this PRT within the question.
      */
-    public function get_value() {
+    public function get_value()
+    {
         return $this->value;
+    }
+
+    /**
+     * @return string Representation of the PRT for Maxima offline use.
+     */
+    public function get_maxima_representation()
+    {
+        $prttrace = array();
+        $prttrace[] = "\n/* " . $this->name . " */";
+        $fv = $this->feedbackvariables;
+        if ($fv !== null) {
+            $prttrace[] = $fv->get_keyval_representation();
+        }
+        foreach ($this->nodes as $key => $node) {
+            $prttrace[] = $node->get_maxima_representation();
+        }
+        return implode("\n", $prttrace);
+    }
+
+    /**
+     * @return string Representation of the PRT for Maxima offline use.
+     */
+    public function get_feedbackvariables_keyvals()
+    {
+        if (null === $this->feedbackvariables) {
+            return '';
+        }
+        return $this->feedbackvariables->get_keyval_representation();
     }
 }

@@ -21,7 +21,8 @@ defined('MOODLE_INTERNAL') || die();
 // @copyright 2012 The Open University.
 // @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
-class stack_question_test_result {
+class stack_question_test_result
+{
     /**
      * @var stack_question_test the test case that this is the results for.
      */
@@ -42,26 +43,27 @@ class stack_question_test_result {
      */
     public $inputerrors;
 
-     /**
-      * @var array input name => the input statues. One of the stack_input::STATUS_... constants.
-      */
+    /**
+     * @var array input name => the input statues. One of the stack_input::STATUS_... constants.
+     */
     public $inputstatuses;
 
-     /**
-      * @var array prt name => stack_potentialresponse_tree_state object
-      */
+    /**
+     * @var array prt name => stack_potentialresponse_tree_state object
+     */
     public $actualresults;
 
-     /**
-      * @var array prt name => debuginfo
-      */
+    /**
+     * @var array prt name => debuginfo
+     */
     public $debuginfo;
 
     /**
      * Constructor
      * @param stack_question_test $testcase the testcase this is the results for.
      */
-    public function __construct(stack_question_test $testcase) {
+    public function __construct(stack_question_test $testcase)
+    {
         $this->testcase = $testcase;
     }
 
@@ -72,21 +74,24 @@ class stack_question_test_result {
      * @param string $displayvalue the displayed version of the value that was input.
      * @param string $status one of the stack_input::STATUS_... constants.
      */
-    public function set_input_state($inputname, $inputvalue, $displayvalue, $status, $error) {
-        $this->inputvalues[$inputname]    = $inputvalue;
+    public function set_input_state($inputname, $inputvalue, $displayvalue, $status, $error)
+    {
+        $this->inputvalues[$inputname] = $inputvalue;
         $this->inputdisplayed[$inputname] = $displayvalue;
-        $this->inputstatuses[$inputname]  = $status;
-        $this->inputerrors[$inputname]    = $error;
+        $this->inputstatuses[$inputname] = $status;
+        $this->inputerrors[$inputname] = $error;
     }
 
-    public function set_prt_result($prtname, stack_potentialresponse_tree_state $actualresult) {
+    public function set_prt_result($prtname, stack_potentialresponse_tree_state $actualresult)
+    {
         $this->actualresults[$prtname] = $actualresult;
     }
 
     /**
      * @return array input name => object with fields ->input, ->display and ->status.
      */
-    public function get_input_states() {
+    public function get_input_states()
+    {
         $states = array();
 
         foreach ($this->inputvalues as $inputname => $inputvalue) {
@@ -107,7 +112,8 @@ class stack_question_test_result {
      *      ->penalty, ->expectedpenalty, ->answernote, ->expectedanswernote,
      *      ->feedback and ->testoutcome.
      */
-    public function get_prt_states() {
+    public function get_prt_states()
+    {
         $states = array();
 
         foreach ($this->testcase->expectedresults as $prtname => $expectedresult) {
@@ -141,12 +147,12 @@ class stack_question_test_result {
             $state->testoutcome = true;
             $reason = array();
             if (is_null($state->expectedscore) != is_null($state->score) ||
-                    abs($state->expectedscore - $state->score) > 10E-6) {
+                abs($state->expectedscore - $state->score) > 10E-6) {
                 $state->testoutcome = false;
                 $reason[] = stack_string('score');
             }
             if (is_null($state->expectedpenalty) != is_null($state->penalty) ||
-                    abs($state->expectedpenalty - $state->penalty) > 10E-6) {
+                abs($state->expectedpenalty - $state->penalty) > 10E-6) {
                 $state->testoutcome = false;
                 $reason[] = stack_string('penalty');
             }
@@ -157,7 +163,7 @@ class stack_question_test_result {
             if (empty($reason)) {
                 $state->reason = '';
             } else {
-                $state->reason = ' ('.implode(', ', $reason).')';
+                $state->reason = ' (' . implode(', ', $reason) . ')';
             }
 
             $states[$prtname] = $state;
@@ -172,7 +178,8 @@ class stack_question_test_result {
      * @param array $actual the actual answer notes returend.
      * @return bool whether the answer notes match sufficiently.
      */
-    protected function test_answer_note($expected, $actual) {
+    protected function test_answer_note($expected, $actual)
+    {
         $lastactual = array_pop($actual);
         if ('NULL' == $expected) {
             return '' == trim($lastactual);
@@ -183,7 +190,8 @@ class stack_question_test_result {
     /**
      * @return bool whether the test passed successfully.
      */
-    public function passed() {
+    public function passed()
+    {
         foreach ($this->get_prt_states() as $state) {
             if (!$state->testoutcome) {
                 return false;

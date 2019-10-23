@@ -23,7 +23,9 @@ defined('MOODLE_INTERNAL') || die();
 // @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
 require_once(__DIR__ . '/../dropdown/dropdown.class.php');
-class stack_radio_input extends stack_dropdown_input {
+
+class stack_radio_input extends stack_dropdown_input
+{
 
     protected $ddltype = 'radio';
 
@@ -32,7 +34,8 @@ class stack_radio_input extends stack_dropdown_input {
      */
     protected $ddldisplay = 'LaTeX';
 
-    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue) {
+    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue)
+    {
 
         if ($this->errors) {
             return $this->render_error($this->errors);
@@ -52,7 +55,10 @@ class stack_radio_input extends stack_dropdown_input {
                 'type' => 'radio',
                 'name' => $fieldname,
                 'value' => $key,
-                'id' => $fieldname.'_'.$key
+                'id' => $fieldname . '_' . $key
+            );
+            $labelattributes = array(
+                'for' => $fieldname . '_' . $key
             );
             if (array_key_exists($key, $selected)) {
                 $inputattributes['checked'] = 'checked';
@@ -60,9 +66,10 @@ class stack_radio_input extends stack_dropdown_input {
             if ($readonly) {
                 $inputattributes['disabled'] = 'disabled';
             }
-			//fim: #35 22945 add space between box and text
-            $radiobuttons[] = html_writer::empty_tag('input', $inputattributes) . " " . html_writer::tag('label', $ansid);
-            //fim.
+            //fau: #23 22945 add space between box and text
+            $radiobuttons[] = html_writer::empty_tag('input', $inputattributes) . " " .
+                html_writer::tag('label', $ansid, $labelattributes);
+            //fau.
             if ('' === $key) {
                 // This separates the "not answered" input from the others.
                 $radiobuttons[] = '<br />';
@@ -73,7 +80,7 @@ class stack_radio_input extends stack_dropdown_input {
 
         $result .= html_writer::start_tag('div', array('class' => 'answer'));
         foreach ($radiobuttons as $key => $radio) {
-            $result .= html_writer::tag('div', $radio);
+            $result .= html_writer::tag('div', $radio, array('class' => 'option'));
         }
         $result .= html_writer::end_tag('div');
 

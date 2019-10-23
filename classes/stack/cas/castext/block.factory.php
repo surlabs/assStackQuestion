@@ -13,17 +13,21 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
+
 defined('MOODLE_INTERNAL') || die();
+
 // Functions related to dealing with scientific units in STACK.
 //
 // @copyright  2017 Aalto University.
 // @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
-class castext_block_factory {
+class castext_block_factory
+{
     /**
      * Creates a block of a given type. Or null if non existing type.
      */
-    public static function make($type, &$node, &$session=null, $seed=null, $security='s', $syntax=true, $insertstars=0) {
+    public static function make($type, &$node, &$session = null, $seed = null, $security = 's', $syntax = true, $insertstars = 0)
+    {
         $class = self::class_for_type($type);
         if ($class === null) {
             return null;
@@ -36,8 +40,9 @@ class castext_block_factory {
      * @param string $type block type name.
      * @return string corresponding class name. Or NULL.
      */
-    protected static function class_for_type($type) {
-        $types = castext_block_factory::get_available_types();
+    protected static function class_for_type($type)
+    {
+        $types = self::get_available_types();
 
         if (array_key_exists($type, $types)) {
             return $types[$type];
@@ -48,7 +53,8 @@ class castext_block_factory {
     /**
      * @return array of available type names.
      */
-    public static function get_available_types() {
+    public static function get_available_types()
+    {
         static $types = array();
         if (count($types) > 0) {
             return $types;

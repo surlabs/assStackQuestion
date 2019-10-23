@@ -22,9 +22,11 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2012 University of Birmingham
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_anstest_atregexp extends stack_anstest {
+class stack_anstest_atregexp extends stack_anstest
+{
 
-    public function do_test() {
+    public function do_test()
+    {
         if ($this->atoption == null) {
             $this->aterror = 'TEST_FAILED';
             $this->atfeedback = stack_string('TEST_FAILED', array('errors' => ''));
@@ -37,7 +39,7 @@ class stack_anstest_atregexp extends stack_anstest {
             $this->atvalid = true;
             if (preg_match($this->atoption, $this->sanskey, $pattern)) {
                 $this->atmark = 1;
-                $this->atansnote = ' Pattern matched: '.$pattern[0].'.';
+                $this->atansnote = ' Pattern matched: ' . $pattern[0] . '.';
                 return true;
             } else {
                 $this->atmark = 0;
@@ -46,19 +48,23 @@ class stack_anstest_atregexp extends stack_anstest {
         }
     }
 
-    public function process_atoptions() {
+    public function process_atoptions()
+    {
         return false;
     }
 
-    public function required_atoptions() {
+    public function required_atoptions()
+    {
         return true;
     }
 
-    public function validate_atoptions($opt) {
+    public function validate_atoptions($opt)
+    {
         return array(true, '');
     }
 
-    protected function get_casfunction() {
+    protected function get_casfunction()
+    {
         return 'ATRegEx';
     }
 }

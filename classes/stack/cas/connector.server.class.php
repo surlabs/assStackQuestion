@@ -26,13 +26,16 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2014 Loughborough University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_cas_connection_server extends stack_cas_connection_base {
+class stack_cas_connection_server extends stack_cas_connection_base
+{
 
-    protected function guess_maxima_command($path) {
+    protected function guess_maxima_command($path)
+    {
         return 'http://localhost:8080/MaximaPool/MaximaPool';
     }
 
-    protected function call_maxima($command) {
+    protected function call_maxima($command)
+    {
         global $CFG;
         $err = '';
 
@@ -41,9 +44,9 @@ class stack_cas_connection_server extends stack_cas_connection_base {
         $request = curl_init($this->command);
 
         $postdata = 'input=' . urlencode($command) .
-                '&timeout=' . ($this->timeout * 1000) .
-                '&ploturlbase=!ploturl!' .
-                '&version=' . stack_connection_helper::get_required_stackmaxima_version();
+            '&timeout=' . ($this->timeout * 1000) .
+            '&ploturlbase=!ploturl!' .
+            '&version=' . stack_connection_helper::get_required_stackmaxima_version();
 
         curl_setopt($request, CURLOPT_POST, true);
         curl_setopt($request, CURLOPT_POSTFIELDS, $postdata);
@@ -60,7 +63,7 @@ class stack_cas_connection_server extends stack_cas_connection_base {
         // The servlet will return 416 if the evaluation hits the timelimit.
         if (curl_getinfo($request, CURLINFO_HTTP_CODE) != '200') {
             if (curl_getinfo($request, CURLINFO_HTTP_CODE) != '416') {
-                throw new Exception('stack_cas_connection: MaximaPool error: '.curl_getinfo($request, CURLINFO_HTTP_CODE));
+                throw new Exception('stack_cas_connection: MaximaPool error: ' . curl_getinfo($request, CURLINFO_HTTP_CODE));
             } else {
                 $timedout = true;
             }
@@ -109,7 +112,7 @@ class stack_cas_connection_server extends stack_cas_connection_base {
 
         $now = microtime(true);
 
-        $this->debug->log('Timings', "Start: {$starttime}, End: {$now}, Taken = ".($now - $starttime));
+        $this->debug->log('Timings', "Start: {$starttime}, End: {$now}, Taken = " . ($now - $starttime));
 
         // Add sufficient closing ]'s to allow something to be un-parsed from the CAS.
         // WARNING: the string 'The CAS timed out' is used by the cache to serach for a timout occurance.

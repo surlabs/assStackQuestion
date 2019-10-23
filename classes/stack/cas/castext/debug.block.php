@@ -13,27 +13,32 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
+
 defined('MOODLE_INTERNAL') || die();
 
-/**
- * @copyright  2017 Aalto University.
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
- */
+// The debug block does nothing but reads the data from the context and outputs details based on it.
+//
+// @copyright  2017 Aalto University.
+// @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
 require_once("block.interface.php");
 
-class stack_cas_castext_debug extends stack_cas_castext_block {
+class stack_cas_castext_debug extends stack_cas_castext_block
+{
 
-    public function extract_attributes(&$tobeevaluatedcassession, $conditionstack = null) {
+    public function extract_attributes(&$tobeevaluatedcassession, $conditionstack = null)
+    {
         // The debug block does nothing but reads the data from the context and outputs details based on it.
         return;
     }
 
-    public function content_evaluation_context($conditionstack = array()) {
+    public function content_evaluation_context($conditionstack = array())
+    {
         return $conditionstack;
     }
 
-    public function process_content($evaluatedcassession, $conditionstack = null) {
+    public function process_content($evaluatedcassession, $conditionstack = null)
+    {
         $output = "<h3>Debug output</h3>\n";
         $output .= "<h5>Compiled castext:</h5>\n";
         $output .= "<pre>";
@@ -70,7 +75,8 @@ class stack_cas_castext_debug extends stack_cas_castext_block {
         return false;
     }
 
-    public function validate_extract_attributes() {
+    public function validate_extract_attributes()
+    {
         return array();
     }
 }

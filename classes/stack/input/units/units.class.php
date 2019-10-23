@@ -30,13 +30,15 @@ class stack_units_input extends stack_input {
      * @var array
      */
     protected $extraoptions = array(
+        'simp' => false,
         'negpow' => false,
         // Require min/max number of decimal places?
         'mindp' => false,
         'maxdp' => false,
         // Require min/max number of significant figures?
         'minsf' => false,
-        'maxsf' => false
+        'maxsf' => false,
+        'allowempty' => false
     );
 
     /**
@@ -57,11 +59,17 @@ class stack_units_input extends stack_input {
             'name'  => $fieldname,
             'id'    => $fieldname,
             'size'  => $this->parameters['boxWidth'] * 1.1,
-            'style' => 'width: '.$size.'em'
+            'style' => 'width: '.$size.'em',
+            'autocapitalize' => 'none',
+            'spellcheck'     => 'false',
+            'class'     => 'algebraic-units',
         );
 
-        if ($this->is_blank_response($state->contents)) {
-            $attributes['value'] = $this->parameters['syntaxHint'];
+        if ($state->contents == 'EMPTYANSWER') {
+            // Active empty choices don't result in a syntax hint again (with that option set).
+            $attributes['value'] = '';
+        } else if ($this->is_blank_response($state->contents)) {
+            $attributes['value'] = stack_utils::logic_nouns_sort($this->parameters['syntaxHint'], 'remove');
         } else {
             $attributes['value'] = $this->contents_to_maxima($state->contents);
         }
@@ -109,7 +117,6 @@ class stack_units_input extends stack_input {
      * Get the value of one of the parameters.
      * @param string $parameter the parameter name
      * @param mixed $default the default to return if this parameter is not set.
-	 * fim: #26 get_parameter should be public
      */
     public function get_parameter($parameter, $default = null) {
         // We always want strict syntax for this input type.
@@ -141,13 +148,16 @@ class stack_units_input extends stack_input {
      * @return string the teacher's answer, displayed to the student in the general feedback.
      */
     public function get_teacher_answer_display($value, $display) {
+        if (trim($value) == 'EMPTYANSWER') {
+            return stack_string('teacheranswerempty');
+        }
         return stack_string('teacheranswershow', array('value' => '<code>'.$value.'</code>', 'display' => $display));
     }
 
+    //fau: #27 Set method to public
     /* Allows individual input types to change the way the list of variables is tagged.
      * Used by the units input type.
      */
-    //fim: #44 change to public
     public function tag_listofvariables($vars) {
         return html_writer::tag('p', stack_string('studentValidation_listofunits', $vars));
     }

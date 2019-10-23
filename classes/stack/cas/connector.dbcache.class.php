@@ -24,171 +24,171 @@ defined('MOODLE_INTERNAL') || die();
  */
 class stack_cas_connection_db_cache implements stack_cas_connection
 {
-	/** @var stack_cas_connection the un-cached connection to Maxima. */
-	protected $rawconnection;
+    /** @var stack_cas_connection the un-cached connection to Maxima. */
+    protected $rawconnection;
 
-	/** @var stack_debug_log does the debugging. */
-	protected $debug;
+    /** @var stack_debug_log does the debugging. */
+    protected $debug;
 
-	protected $db;
+    /** @var moodle_database The database connection to use for the cache. */
+    protected $db;
 
-	/**
-	 * Constructor.
-	 * @param stack_cas_connection $rawconnection the un-cached connection.
-	 * @param stack_debug_log $debuglog the debug log to use.
-	 */
-	//fim: #7 Use ILIAS DB instead of Moodle DB
-	public function __construct(stack_cas_connection $rawconnection, stack_debug_log $debuglog, $db = "")
-	{
-		global $DIC;
-		$db = $DIC->database();
-		$this->rawconnection = $rawconnection;
-		$this->debug = $debuglog;
-		$this->db = $db;
-	}
+    //fau: #3 Use ILIAS DB instead of Moodle DB
 
-	// fim.
+    /**
+     * Constructor.
+     * @param stack_cas_connection $rawconnection the un-cached connection.
+     * @param stack_debug_log $debuglog the debug log to use.
+     */
+    public function __construct(stack_cas_connection $rawconnection, stack_debug_log $debuglog, $db = "")
+    {
+        global $DIC;
+        $db = $DIC->database();
+        $this->rawconnection = $rawconnection;
+        $this->debug = $debuglog;
+        $this->db = $db;
+    }
 
-	public function compute($command)
-	{
-		$cached = $this->get_cached_result($command);
-		if ($cached->result)
-		{
-			$this->debug->log('Maxima command', $command);
-			// @codingStandardsIgnoreStart
-			$this->debug->log('Unpacked result found in the DB cache', print_r($cached->result, true));
-			// @codingStandardsIgnoreEnd
-			if (!stack_connection_helper::check_stackmaxima_version($cached->result))
-			{
-				stack_connection_helper::warn_about_version_mismatch($this->debug);
-				// We could consider automatically purging the cache here.
-			}
+    public function compute($command)
+    {
+        $cached = $this->get_cached_result($command);
+        if ($cached->result) {
+            $this->debug->log('Maxima command', $command);
+            // @codingStandardsIgnoreStart
+            $this->debug->log('Unpacked result found in the DB cache', print_r($cached->result, true));
+            // @codingStandardsIgnoreEnd
+            if (!stack_connection_helper::check_stackmaxima_version($cached->result)) {
+                stack_connection_helper::warn_about_version_mismatch($this->debug);
+                // We could consider automatically purging the cache here.
+            }
+            return $cached->result;
+        }
+        $this->debug->log('Maxima command not found in the cache. Using the raw connection.');
+        $result = $this->rawconnection->compute($command);
+        // Only add to the cache if we didn't timeout!
+        if (!stack_connection_helper::did_cas_timeout($result)) {
+            $this->add_to_cache($command, $result, $cached->key);
+        }
+        return $result;
+    }
 
-			return $cached->result;
-		}
-		$this->debug->log('Maxima command not found in the cache. Using the raw connection.');
-		$result = $this->rawconnection->compute($command);
-		// Only add to the cache if we didn't timeout!
-		if (!stack_connection_helper::did_cas_timeout($result))
-		{
-			$this->add_to_cache($command, $result, $cached->key);
-		}
+    public function get_debuginfo()
+    {
+        return $this->debug->get_log();
+    }
 
-		return $result;
-	}
+    /**
+     * Get the cached result, if known.
+     * @param string $command Maxima code to execute.
+     * @return object with two fields:
+     *      ->result, the cached result, if any, otherwise null, and
+     *      ->key, the hashed key used to index this result.
+     */
+    protected function get_cached_result($command)
+    {
+        $cached = new stdClass();
+        $cached->key = $this->get_cache_key($command);
 
-	public function get_debuginfo()
-	{
-		return $this->debug->get_log();
-	}
+        //fau: #4 Use ILIAS DB instead of Moodle DB
+        $query = 'SELECT * FROM xqcas_cas_cache WHERE hash = "' . $cached->key . '" ORDER BY id';
+        $res = $this->db->query($query);
+        $data[] = $this->db->fetchObject($res);
+        if ($data[0] == NULL) {
+            // Nothing relevant in the cache.
+            $cached->result = null;
 
-	/**
-	 * Get the cached result, if known.
-	 * @param string $command Maxima code to execute.
-	 * @return object with two fields:
-	 *      ->result, the cached result, if any, otherwise null, and
-	 *      ->key, the hashed key used to index this result.
-	 */
-	protected function get_cached_result($command)
-	{
-		$cached = new stdClass();
-		$cached->key = $this->get_cache_key($command);
+            return $cached;
+        }
+        // fau.
 
-		// Are there any cached records that might match?
-		////fim: #8 Use ILIAS DB instead of Moodle DB
-		$query = 'SELECT * FROM xqcas_cas_cache WHERE hash = "' . $cached->key . '" ORDER BY id';
-		$res = $this->db->query($query);
-		$data[] = $this->db->fetchObject($res);
-		if ($data[0] == NULL)
-		{
-			// Nothing relevant in the cache.
-			$cached->result = null;
+        // Get the data from the first record.
+        $record = reset($data);
+        if ($record->command != $command) {
+            throw new stack_exception('stack_cas_connection_db_cache: the command found at hash key ' .
+                $cached->key . ' did not match what was expected.');
+        }
+        $cached->result = json_decode($record->result, true);
 
-			return $cached;
-		}
-		// fim.
+        // If there was more than one record in the cache (due to a race condition)
+        // drop the duplicates.
+        //fau: #5 Use ILIAS DB instead of Moodle DB
+        if (!empty($data)) {
+            unset($data[0]);
+            foreach ($data as $record) {
+                $delete_query = 'DELETE FROM xqcas_cas_cache WHERE id = "' . $record->id . '"';
+                $res = $this->db->query($delete_query);
+            }
+        }
+        //fau.
 
-		// Get the data from the first record.
-		$record = reset($data);
-		if ($record->command != $command)
-		{
-			throw new stack_exception('stack_cas_connection_db_cache: the command found at hash key ' . $cached->key . ' did not match what was expected.');
-		}
-		$cached->result = json_decode($record->result, true);
+        return $cached;
+    }
 
-		// If there was more than one record in the cache (due to a race condition)
-		// drop the duplicates.
-		////fim: #9 Use ILIAS DB instead of Moodle DB
-		if (!empty($data))
-		{
-			unset($data[0]);
-			foreach ($data as $record)
-			{
-				$delete_query = 'DELETE FROM xqcas_cas_cache WHERE id = "' . $record->id . '"';
-				$res = $this->db->query($delete_query);
-			}
-		}
-		//fim.
+    /**
+     * Add a new result to the cache.
+     * @param string $command Maxima code to execute.
+     * @param array $result the result from Maxima for this command.
+     * @param string $key the key used to store this command, if already known.
+     */
+    protected function add_to_cache($command, $result, $key = null)
+    {
+        if (is_null($key)) {
+            $key = $this->get_cache_key($command);
+        }
 
-		return $cached;
-	}
+        $data = new stdClass();
+        $data->hash = $key;
+        $data->command = $command;
+        $data->result = json_encode($result);
 
-	/**
-	 * Add a new result to the cache.
-	 * @param string $command Maxima code to execute.
-	 * @param array $result the result from Maxima for this command.
-	 * @param string $key the key used to store this command, if already known.
-	 */
-	protected function add_to_cache($command, $result, $key = null)
-	{
-		if (is_null($key))
-		{
-			$key = $this->get_cache_key($command);
-		}
+        //fau: #6 Use ILIAS DB instead of Moodle DB
+        $id = $this->db->nextId('xqcas_cas_cache');
+        $this->db->insert("xqcas_cas_cache", array("id" => array("integer", $id), "hash" => array("text", $key), "command" => array("clob", $data->command), "result" => array("clob", $data->result)));
+        //fau.
+    }
 
-		$data = new stdClass();
-		$data->hash = $key;
-		$data->command = $command;
-		$data->result = json_encode($result);
+    /**
+     * @param string $command Maxima code to execute.
+     * @return string the key used to store this command.
+     */
+    protected function get_cache_key($command)
+    {
+        return sha1($command);
+    }
 
-		//fim: #10 Use ILIAS DB instead of Moodle DB
-		$id = $this->db->nextId('xqcas_cas_cache');
-		$this->db->insert("xqcas_cas_cache", array("id" => array("integer", $id), "hash" => array("text", $key), "command" => array("clob", $data->command), "result" => array("clob", $data->result)));
-		//fim.
-	}
+    /**
+     * Completely clear the cache.
+     * @param moodle_database $db the database connection to use to access the cache.
+     */
+    public static function clear_cache($db)
+    {
+        // Delete the cache records from the database.
+        $db->delete_records('qtype_stack_cas_cache');
 
-	/**
-	 * @param string $command Maxima code to execute.
-	 * @return string the key used to store this command.
-	 */
-	protected function get_cache_key($command)
-	{
-		return sha1($command);
-	}
+        // Also take this opportunity to empty the plots folder on disc.
+        $plots = glob(stack_cas_configuration::images_location() . '/*.{png,svg}', GLOB_BRACE);
+        $a = ['total' => count($plots), 'done' => 0];
+        $progressevery = (int)min(max(1, $a['total'] / 500), 100);
+        if ($a['total'] > 0) {
+            $pbar = new progress_bar('clearstackcache', 500, true);
+            foreach ($plots as $plot) {
+                unlink($plot);
 
-	/**
-	 * Completely clear the cache.
-	 * @param moodle_database $db the database connection to use to access the cache.
-	 */
-	public static function clear_cache($db)
-	{
-		// Delete the cache records from the database.
-		$db->delete_records('qtype_stack_cas_cache');
+                $a['done'] += 1;
+                if ($a['done'] % $progressevery == 0 || $a['done'] == $a['total']) {
+                    core_php_time_limit::raise(60);
+                    $pbar->update($a['done'], $a['total'], get_string('clearingcachefiles', 'qtype_stack', $a));
+                }
+            }
+        }
+    }
 
-		// Also take this opportunity to empty the plots folder on disc.
-		$plots = glob(stack_cas_configuration::images_location() . '/*.png');
-		foreach ($plots as $plot)
-		{
-			unlink($plot);
-		}
-	}
-
-	/**
-	 * @param moodle_database $db the database connection to use to access the cache.
-	 * @return int the number of entries in the cache.
-	 */
-	public static function entries_count($db)
-	{
-		return $db->count_records('qtype_stack_cas_cache');
-	}
+    /**
+     * @param moodle_database $db the database connection to use to access the cache.
+     * @return int the number of entries in the cache.
+     */
+    public static function entries_count($db)
+    {
+        return $db->count_records('qtype_stack_cas_cache');
+    }
 }

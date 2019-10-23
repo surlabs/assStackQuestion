@@ -22,17 +22,18 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2012 University of Birmingham
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_potentialresponse_tree_state {
+class stack_potentialresponse_tree_state
+{
 
     /**
      * @var string This holds errors needed for the user.
      */
-    public $_errors      = '';
+    public $_errors = '';
 
     /**
      * @var array of stack_prt_feedback_element.
      */
-    public $_feedback    = array();
+    public $_feedback = array();
 
     /**
      * @var array of answernote strings for the teacher.
@@ -47,17 +48,17 @@ class stack_potentialresponse_tree_state {
     /**
      * @var boolean Is this attempt valid?
      */
-    public $_valid       = true;
+    public $_valid = true;
 
     /**
      * @var float The raw score for this attempt.  Penalties are calculated later.
      */
-    public $_score       = 0;
+    public $_score = 0;
 
     /**
      * @var float Penalty attracted by this attempt.
      */
-    public $_penalty     = 0;
+    public $_penalty = 0;
 
     /**
      * @var float Weight of this PRT within the question.
@@ -86,18 +87,20 @@ class stack_potentialresponse_tree_state {
      * @param array $feedback the current contents of this input.
      */
     public function __construct($weight, $valid = true, $score = null, $penalty = null,
-            $errors = '', $answernotes = array(), $feedback = array(), $debuginfo = null) {
-        $this->_weight      = $weight;
-        $this->_valid       = $valid;
-        $this->_score       = $score;
-        $this->_penalty     = $penalty;
-        $this->_errors      = $errors;
+                                $errors = '', $answernotes = array(), $feedback = array(), $debuginfo = null)
+    {
+        $this->_weight = $weight;
+        $this->_valid = $valid;
+        $this->_score = $score;
+        $this->_penalty = $penalty;
+        $this->_errors = $errors;
         $this->_answernotes = $answernotes;
-        $this->_feedback    = $feedback;
-        $this->_debuginfo   = $debuginfo;
+        $this->_feedback = $feedback;
+        $this->_debuginfo = $debuginfo;
     }
 
-    public function __get($field) {
+    public function __get($field)
+    {
         switch ($field) {
             case 'weight':
                 return $this->_weight;
@@ -133,7 +136,8 @@ class stack_potentialresponse_tree_state {
      *      feedback variables, sans and tans for each node, etc.
      * @param int $seed the random seed used.
      */
-    public function set_cas_context(stack_cas_session $cascontext, $seed) {
+    public function set_cas_context(stack_cas_session $cascontext, $seed)
+    {
         $this->cascontext = $cascontext;
         $this->seed = $seed;
     }
@@ -142,7 +146,8 @@ class stack_potentialresponse_tree_state {
      * Add another answer note to the list.
      * @param string $note the new answer note.
      */
-    public function add_answernote($note) {
+    public function add_answernote($note)
+    {
         $this->_answernotes[] = $note;
     }
 
@@ -150,7 +155,8 @@ class stack_potentialresponse_tree_state {
      * Add more answer notes to the list.
      * @param array $notes the new answer notes.
      */
-    public function add_answernotes($notes) {
+    public function add_answernotes($notes)
+    {
         $this->_answernotes = array_merge($this->_answernotes, $notes);
     }
 
@@ -158,7 +164,8 @@ class stack_potentialresponse_tree_state {
      * Add another bit of feedback.
      * @param string $feedback the next bit of feedback.
      */
-    public function add_feedback($feedback, $format = null, $filearea = null, $nodeid = null) {
+    public function add_feedback($feedback, $format = null, $filearea = null, $nodeid = null)
+    {
         $this->_feedback[] = new stack_prt_feedback_element($feedback, $format, $filearea, $nodeid);
     }
 
@@ -166,7 +173,8 @@ class stack_potentialresponse_tree_state {
      * Get the bits of feedback.
      * @return array of stack_prt_feedback_element.
      */
-    public function get_feedback() {
+    public function get_feedback()
+    {
         return $this->_feedback;
     }
 
@@ -175,7 +183,8 @@ class stack_potentialresponse_tree_state {
      * @param string $feedback the concatenated feedback text.
      * @return string the feedback with question variables substituted.
      */
-    public function substitue_variables_in_feedback($feedback) {
+    public function substitue_variables_in_feedback($feedback)
+    {
         $feedbackct = new stack_cas_text($feedback, $this->cascontext, $this->seed, 't', false, 0);
         $result = $feedbackct->get_display_castext();
         $this->_errors = trim($this->_errors . ' ' . $feedbackct->get_errors());
@@ -186,7 +195,8 @@ class stack_potentialresponse_tree_state {
      * Add another answer trace to the list.
      * @param array $trace the line in the trace.
      */
-    public function add_trace($trace) {
+    public function add_trace($trace)
+    {
         $this->_trace[] = $trace;
     }
 }
@@ -195,7 +205,8 @@ class stack_potentialresponse_tree_state {
 /**
  * Small class to encapsulate all the data for the feedback from one PRT node.
  */
-class stack_prt_feedback_element {
+class stack_prt_feedback_element
+{
     /** @var string the feedback text. */
     public $feedback;
 
@@ -208,10 +219,11 @@ class stack_prt_feedback_element {
     /** @var int node id (used as the file area item id. */
     public $itemid;
 
-    public function __construct($feedback, $format, $filearea, $itemid) {
+    public function __construct($feedback, $format, $filearea, $itemid)
+    {
         $this->feedback = $feedback;
-        $this->format   = $format;
+        $this->format = $format;
         $this->filearea = $filearea;
-        $this->itemid   = $itemid;
+        $this->itemid = $itemid;
     }
 }

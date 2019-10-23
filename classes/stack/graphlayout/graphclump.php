@@ -34,7 +34,8 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright 2013 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_abstract_graph_node_clump {
+class stack_abstract_graph_node_clump
+{
     /** @var array stack_abstract_graph_node. */
     public $nodes = array();
 
@@ -49,7 +50,8 @@ class stack_abstract_graph_node_clump {
      * @param stack_abstract_graph_node $node the the node that is starting this clump.
      * @param int $x x-co-ordinate to place the node at.
      */
-    public function __construct(stack_abstract_graph_node $node, $x = 0) {
+    public function __construct(stack_abstract_graph_node $node, $x = 0)
+    {
         $this->add_node($node, $x, 0);
     }
 
@@ -63,7 +65,8 @@ class stack_abstract_graph_node_clump {
      * @param float $roughx the approximate x-co-ordinate to place the node at.
      * @param int $minspacing the minimum gap between this node and any other at the same depth.
      */
-    public function add_node(stack_abstract_graph_node $node, $roughx, $minspacing) {
+    public function add_node(stack_abstract_graph_node $node, $roughx, $minspacing)
+    {
         // First we adjust the x position to ensure:
         // 1. it is no too close ($minspacing) to another node at the same depth.
         // 2. the position is an integer.
@@ -114,7 +117,8 @@ class stack_abstract_graph_node_clump {
      * $return array of two float|null. The x-coordinates of the nearest nodes
      *      with node-x < $x and $x <= node-x, if such exist.
      */
-    protected function find_neighbour_positions($depth, $x) {
+    protected function find_neighbour_positions($depth, $x)
+    {
         $leftneighbour = null;
         $rightneighbour = null;
         foreach ($this->nodes as $othernode) {
@@ -146,7 +150,8 @@ class stack_abstract_graph_node_clump {
      * @param int $startdepth
      * @param int $shift
      */
-    protected function drive_wedge($x, $startdepth, $shift) {
+    protected function drive_wedge($x, $startdepth, $shift)
+    {
         $wedgenecessary = false;
         foreach ($this->nodes as $node) {
             if ($node->x == $x && $node->depth > $startdepth) {
@@ -175,7 +180,8 @@ class stack_abstract_graph_node_clump {
      * @param stack_abstract_graph_node $node
      * @return bool whether this clump contains the given node.
      */
-    public function contains(stack_abstract_graph_node $node) {
+    public function contains(stack_abstract_graph_node $node)
+    {
         return array_key_exists($node->name, $this->nodes);
     }
 
@@ -183,7 +189,8 @@ class stack_abstract_graph_node_clump {
      * Move a clump a certain distance in the x-direction.
      * @param float $dx
      */
-    public function shift($dx) {
+    public function shift($dx)
+    {
         foreach ($this->nodes as $node) {
             $node->x += $dx;
         }
@@ -200,7 +207,8 @@ class stack_abstract_graph_node_clump {
      * @param stack_abstract_graph_node_clump $otherclump
      * @param float $gap
      */
-    public function comput_offset(stack_abstract_graph_node_clump $otherclump, $gap) {
+    public function comput_offset(stack_abstract_graph_node_clump $otherclump, $gap)
+    {
         $requiredshifts = array();
         foreach ($this->rightedge as $depth => $right) {
             if (array_key_exists($depth, $otherclump->leftedge)) {
@@ -218,7 +226,8 @@ class stack_abstract_graph_node_clump {
      * Add all the nodes from the other clump to this clump.
      * @param stack_abstract_graph_node_clump $otherclump
      */
-    public function merge_in(stack_abstract_graph_node_clump $otherclump) {
+    public function merge_in(stack_abstract_graph_node_clump $otherclump)
+    {
         foreach ($otherclump->rightedge as $depth => $right) {
             if (array_key_exists($depth, $this->rightedge)) {
                 $this->rightedge[$depth] = max($this->rightedge[$depth], $otherclump->rightedge[$depth]);

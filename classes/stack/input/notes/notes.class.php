@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once(__DIR__ . '/../../utils.class.php');
 
 /**
@@ -23,9 +25,11 @@ require_once(__DIR__ . '/../../utils.class.php');
  * @copyright  2017 University of Edinburgh
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_notes_input extends stack_input {
+class stack_notes_input extends stack_input
+{
 
-    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue) {
+    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue)
+    {
 
         if ($this->errors) {
             return $this->render_error($this->errors);
@@ -35,7 +39,7 @@ class stack_notes_input extends stack_input {
         // used as minimums. If the current input is bigger, the box is expanded.
         $attributes = array(
             'name' => $fieldname,
-            'id'   => $fieldname,
+            'id' => $fieldname,
         );
 
         if ($this->is_blank_response($state->contents)) {
@@ -52,20 +56,21 @@ class stack_notes_input extends stack_input {
         foreach ($rows as $row) {
             $boxwidth = max($boxwidth, strlen($row) + 5);
         }
-		$boxwidth = 75;
         $attributes['cols'] = $boxwidth;
 
         if ($readonly) {
             $attributes['readonly'] = 'readonly';
         }
 
-        return html_writer::tag('textarea', htmlspecialchars($current), $attributes);
+        return html_writer::tag('textarea', htmlspecialchars($current), $attributes) .
+            html_writer::tag('div', "", array('class' => 'clearfix'));
     }
 
     /*
      * The notes class is ignored by Maxima and hence is never validated.
      */
-    public function requires_validation() {
+    public function requires_validation()
+    {
         return false;
     }
 
@@ -78,16 +83,18 @@ class stack_notes_input extends stack_input {
      * @param array $contents the content array of the student's input.
      * @return array of the validity, errors strings and modified contents.
      */
-    protected function validate_contents($contents, $forbiddenkeys, $localoptions) {
-        $errors   = array();
+    protected function validate_contents($contents, $forbiddenkeys, $localoptions)
+    {
+        $errors = null;
         $caslines = array();
-        $valid    = true;
+        $valid = true;
         $modifiedcontents[] = '';
 
         return array($valid, $errors, $modifiedcontents, $caslines);
     }
 
-    public function add_to_moodleform_testinput(MoodleQuickForm $mform) {
+    public function add_to_moodleform_testinput(MoodleQuickForm $mform)
+    {
         $mform->addElement('text', $this->name, $this->name, array('size' => $this->parameters['boxWidth']));
         $mform->setDefault($this->name, $this->parameters['syntaxHint']);
         $mform->setType($this->name, PARAM_RAW);
@@ -100,7 +107,8 @@ class stack_notes_input extends stack_input {
      * @param array|string $in
      * @return string
      */
-    public function contents_to_maxima($contents) {
+    public function contents_to_maxima($contents)
+    {
         return 'true';
     }
 
@@ -109,27 +117,29 @@ class stack_notes_input extends stack_input {
      * base class implementation, no default options are set.
      * @return array option => default value.
      */
-    public static function get_parameters_defaults() {
+    public static function get_parameters_defaults()
+    {
         return array(
-            'mustVerify'     => false,
-            'boxWidth'       => 50,
-            'strictSyntax'   => false,
-            'insertStars'    => 0,
-            'syntaxHint'     => '',
-            'forbidWords'    => '',
-            'allowWords'     => '',
-            'forbidFloats'   => true,
-            'lowestTerms'    => true,
-            'sameType'       => true);
+            'mustVerify' => false,
+            'boxWidth' => 50,
+            'strictSyntax' => false,
+            'insertStars' => 0,
+            'syntaxHint' => '',
+            'forbidWords' => '',
+            'allowWords' => '',
+            'forbidFloats' => true,
+            'lowestTerms' => true,
+            'sameType' => true);
     }
 
     /**
      * Each actual extension of this base class must decide what parameter values are valid.
      * @return array of parameters names.
      */
-    public function internal_validate_parameter($parameter, $value) {
+    public function internal_validate_parameter($parameter, $value)
+    {
         $valid = true;
-        switch($parameter) {
+        switch ($parameter) {
             case 'boxWidth':
                 $valid = is_int($value) && $value > 0;
                 break;
@@ -146,7 +156,8 @@ class stack_notes_input extends stack_input {
      * this input as part of a correct response to the question.
      * For the notes class this is always the boolean "true".
      */
-    public function get_teacher_answer() {
+    public function get_teacher_answer()
+    {
         return 'true';
     }
 
@@ -154,7 +165,8 @@ class stack_notes_input extends stack_input {
      * For the notes class, there is no teacher's answer.
      * @return string the teacher's answer, displayed to the student in the general feedback.
      */
-    public function get_teacher_answer_display($value, $display) {
+    public function get_teacher_answer_display($value, $display)
+    {
         return stack_string('teacheranswershownotes');
     }
 
@@ -164,7 +176,8 @@ class stack_notes_input extends stack_input {
      * @param string $fieldname the field name to use in the HTML for this input.
      * @return string HTML for the validation results for this input.
      */
-    public function render_validation(stack_input_state $state, $fieldname) {
+    public function render_validation(stack_input_state $state, $fieldname)
+    {
         if (self::BLANK == $state->status) {
             return '';
         }

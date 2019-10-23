@@ -32,7 +32,8 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright 2013 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_abstract_graph_node {
+class stack_abstract_graph_node
+{
     /** @var string indentifier for this node. */
     public $name;
 
@@ -75,16 +76,18 @@ class stack_abstract_graph_node {
      * @param string $rightlabel lable to display on the edge to the right child.
      * @param string $url if set, this node should be a link to that URL.
      */
-    public function __construct($name, $left, $right, $leftlabel = '', $rightlabel = '', $url = '') {
-        $this->name  = $name;
-        $this->left  = $left;
+    public function __construct($name, $left, $right, $leftlabel = '', $rightlabel = '', $url = '')
+    {
+        $this->name = $name;
+        $this->left = $left;
         $this->right = $right;
-        $this->leftlabel  = $leftlabel;
+        $this->leftlabel = $leftlabel;
         $this->rightlabel = $rightlabel;
         $this->url = $url;
     }
 
-    public function __toString() {
+    public function __toString()
+    {
         return '[' . $this->name . ' (' . $this->x . ', ' . $this->depth . '): -> ' . $this->left . ', -> ' . $this->right . ']';
     }
 }

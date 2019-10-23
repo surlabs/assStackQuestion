@@ -22,12 +22,14 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2012 University of Birmingham
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_boolean_input extends stack_input {
+class stack_boolean_input extends stack_input
+{
     const F = 'false';
     const T = 'true';
     const NA = '';
 
-    public static function get_choices() {
+    public static function get_choices()
+    {
         return array(
             self::F => stack_string('false'),
             self::T => stack_string('true'),
@@ -35,15 +37,24 @@ class stack_boolean_input extends stack_input {
         );
     }
 
-    protected function extra_validation($contents) {
-        if (!array_key_exists($contents[0], $this->get_choices())) {
+    protected $extraoptions = array(
+        'allowempty' => false
+    );
+
+    protected function extra_validation($contents)
+    {
+        $validation = $contents[0];
+        if ($validation === 'EMPTYANSWER') {
+            $validation = '';
+        }
+        if (!array_key_exists($validation, $this->get_choices())) {
             return stack_string('booleangotunrecognisedvalue');
         }
         return '';
     }
 
-    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue) {
-
+    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue)
+    {
         if ($this->errors) {
             return $this->render_error($this->errors);
         }
@@ -53,12 +64,17 @@ class stack_boolean_input extends stack_input {
             $attributes['disabled'] = 'disabled';
         }
 
+        $value = $this->contents_to_maxima($state->contents);
+        if ($value === 'EMPTYANSWER') {
+            $value = '';
+        }
         return html_writer::select(self::get_choices(), $fieldname,
-                $this->contents_to_maxima($state->contents), '', $attributes);
+            $value, '', $attributes);
     }
 
 
-    public function add_to_moodleform_testinput(MoodleQuickForm $mform) {
+    public function add_to_moodleform_testinput(MoodleQuickForm $mform)
+    {
         $mform->addElement('text', $this->name, $this->name);
         $mform->setType($this->name, PARAM_RAW);
     }
@@ -67,9 +83,12 @@ class stack_boolean_input extends stack_input {
      * Return the default values for the parameters.
      * @return array parameters` => default value.
      */
-    public static function get_parameters_defaults() {
+    public static function get_parameters_defaults()
+    {
         return array(
-                'mustVerify'      => false,
-                'showValidation'  => 0);
+            'mustVerify' => false,
+            'showValidation' => 0,
+            'options' => ''
+        );
     }
 }

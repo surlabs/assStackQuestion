@@ -13,7 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
+
 defined('MOODLE_INTERNAL') || die();
+
 // Comments blocks allow you to include comments in question text.
 // This could be achieved with an [[ if test='false' ]] etc. but having comments as logically
 // separate means we could extend the functionality to display them in the testing form etc.
@@ -22,17 +24,21 @@ defined('MOODLE_INTERNAL') || die();
 // @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 require_once("block.interface.php");
 
-class stack_cas_castext_comment extends stack_cas_castext_block {
+class stack_cas_castext_comment extends stack_cas_castext_block
+{
 
-    public function extract_attributes(&$tobeevaluatedcassession, $conditionstack = null) {
+    public function extract_attributes(&$tobeevaluatedcassession, $conditionstack = null)
+    {
         return;
     }
 
-    public function content_evaluation_context($conditionstack = array()) {
+    public function content_evaluation_context($conditionstack = array())
+    {
         return $conditionstack;
     }
 
-    public function process_content($evaluatedcassession, $conditionstack = null) {
+    public function process_content($evaluatedcassession, $conditionstack = null)
+    {
 
         // Just gets replaced by nothing.
         $this->get_node()->convert_to_text('');
@@ -40,7 +46,8 @@ class stack_cas_castext_comment extends stack_cas_castext_block {
         return false;
     }
 
-    public function validate_extract_attributes() {
+    public function validate_extract_attributes()
+    {
         return array();
     }
 }

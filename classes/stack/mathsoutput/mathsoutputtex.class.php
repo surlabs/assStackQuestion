@@ -27,16 +27,19 @@ require_once(__DIR__ . '/mathsoutputfilterbase.class.php');
  * @copyright  2012 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_maths_output_tex extends stack_maths_output_filter_base {
+class stack_maths_output_tex extends stack_maths_output_filter_base
+{
 
-    protected function initialise_delimiters() {
+    protected function initialise_delimiters()
+    {
         $this->displaystart = '\[\displaystyle ';
         $this->displayend = '\]';
         $this->inlinestart = '\[';
         $this->inlineend = '\]';
     }
 
-    protected function make_filter() {
+    protected function make_filter()
+    {
         return new filter_tex(context_system::instance(), array());
     }
 }
