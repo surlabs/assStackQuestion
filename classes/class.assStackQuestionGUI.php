@@ -938,7 +938,8 @@ class assStackQuestionGUI extends assQuestionGUI
 					$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", assStackQuestionUtils::_getFeedbackStyledText($string, "feedback_default"), $specific_feedback);
 				} else
 				{
-					$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", $this->object->getPlugin()->txt("preview_no_answer"), $specific_feedback);
+				    //allowempty do not show this message avoid previous message
+					$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", "", $specific_feedback);
 				}
 			}
 		}

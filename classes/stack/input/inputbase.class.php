@@ -662,6 +662,8 @@ abstract class stack_input
             $sessionvars[] = $answer;
         }
 
+        //fau: #43 Use the old code until getting an answer from chris
+        /* ASK CHRIS ABOUT stack_validate_listofvars
         // Generate an expression from which we extract the list of variables in the student's answer.
         // We do this from the *answer* once interprted, so stars are inserted if insertStars=2.
         $lvars = new stack_cas_casstring('stack_validate_listofvars(' . $this->name . ')');
@@ -672,6 +674,21 @@ abstract class stack_input
         }
         $additionalvars = array_merge($this->extra_option_variables(),
             $this->additional_session_variables($caslines, $teacheranswer));
+        $sessionvars = array_merge($sessionvars, $additionalvars);
+
+        $localoptions->set_option('simplify', false);
+        $session = new stack_cas_session($sessionvars, $localoptions, 0);
+        $session->instantiate();*/
+
+        // Generate an expression from which we extract the list of variables in the student's answer.
+        // We do this from the *answer* once interprted, so stars are inserted if insertStars=2.
+        $lvars = new stack_cas_casstring('ev(sort(listofvars(' . $this->name . ')),simp)');
+        $lvars->get_valid('t', $this->get_parameter('strictSyntax', true), $this->get_parameter('insertStars', 0), $this->get_parameter('allowWords', ''));
+        if ($lvars->get_valid() && $valid && $answer->get_valid())
+        {
+            $sessionvars[] = $lvars;
+        }
+        $additionalvars = $this->additional_session_variables($caslines, $teacheranswer);
         $sessionvars = array_merge($sessionvars, $additionalvars);
 
         $localoptions->set_option('simplify', false);
