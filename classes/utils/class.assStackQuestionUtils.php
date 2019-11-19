@@ -627,7 +627,7 @@ class assStackQuestionUtils
 		{
 			if ($format == "only_input_names")
 			{
-				$adapted_user_response[str_replace("xqcas_" . $question_id . "_", "", $input_name)] = $input_value;
+				$adapted_user_response[str_replace("xqcas_" . $question_id . "_", "", $input_name)] = ilUtil::stripScriptHTML($input_value);
 			}
 		}
 

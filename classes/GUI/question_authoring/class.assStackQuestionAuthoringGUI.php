@@ -275,7 +275,7 @@ class assStackQuestionAuthoringGUI
 		$new_prt->checkPRT(TRUE);
 
 		//https://mantis.ilias.de/view.php?id=25290
-		$new_prt_node = new assStackQuestionPRTNode(-1, $this->getQuestionGUI()->object->getId(), 'new_prt', '0', -1, -1);
+		$new_prt_node = new assStackQuestionPRTNode(-1, $this->getQuestionGUI()->object->getId(), 'new_prt', '1', -1, -1);
 		$new_prt_node->setAnswerTest($this->default["prt_node_answer_test"]);
 		$new_prt_node->setQuiet($this->default["prt_node_quiet"]);
 		$new_prt_node->setTestOptions($this->default["prt_node_options"]);

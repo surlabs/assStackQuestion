@@ -35,7 +35,11 @@ function checkUserResponse($question_id, $input_name, $user_response)
 	$active_id = $_GET['active_id'];
 	require_once "./Modules/Test/classes/class.ilObjTest.php";
 	$pass = ilObjTest::_getPass($active_id);
-	if (is_int($active_id) AND is_int($pass))
+
+	//Secure input
+    $user_response = ilutil::stripScriptHTML($user_response);
+
+    if (is_int($active_id) AND is_int($pass))
 	{
 		$stack_question = new assStackQuestionStackQuestion($active_id, $pass);
 		$stack_question->init($ilias_question, 8);
