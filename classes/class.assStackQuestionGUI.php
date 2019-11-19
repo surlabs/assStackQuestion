@@ -415,7 +415,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		{
 			//the prt name given is not used in this question
 			$new_prt = new assStackQuestionPRT(-1, $this->object->getId());
-			$new_prt_node = new assStackQuestionPRTNode(-1, $this->object->getId(), ilUtil::stripSlashes($_POST['prt_new_prt_name']), '0', -1, -1);
+			$new_prt_node = new assStackQuestionPRTNode(-1, $this->object->getId(), ilUtil::stripSlashes($_POST['prt_new_prt_name']), '1', -1, -1);
 			$new_prt->setPRTNodes(array('0' => $new_prt_node));
 			$new_prt->writePostData('new_prt', ilUtil::stripSlashes($_POST['prt_new_prt_name']), $this->getRTETags());
 
@@ -667,6 +667,12 @@ class assStackQuestionGUI extends assQuestionGUI
 		{
 			//User Solution
 			//Returns user solution HTML
+            //#25174
+            if(isset($_GET["cmd"])){
+                if($_GET["cmd"] == "outCorrectSolution"){
+                    $show_feedback = TRUE;
+                }
+            }
 			$solution_output = $this->getQuestionOutput($solutions, FALSE, $show_feedback, TRUE);
 			//2.3.12 add feedback to solution
 			$solution_output .= $this->getSpecificFeedbackOutput($solutions);
