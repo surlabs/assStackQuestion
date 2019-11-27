@@ -509,7 +509,9 @@ class assStackQuestionDisplay
 
 			$validation_message = stack_string('studentValidation_yourLastAnswer', $input_state->contentsdisplayed);
 
-			return "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $input_html . $validation_message . "</td></tr></table>";
+			#25225 add validation div wrapping
+            $validation_div = '<div id="validation_xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '">';
+			return $validation_div."<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $input_html . $validation_message . "</td></tr></table></div>";
 		}
 		if (is_a($input, "stack_matrix_input"))
 		{
@@ -539,8 +541,9 @@ class assStackQuestionDisplay
 			$user_matrix .= "</table>";
 
 			$validation_message = stack_string('studentValidation_yourLastAnswer', $input_state->contentsdisplayed);
-
-			return "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $user_matrix . $validation_message . "</td></tr></table>";
+            #25225 add validation div wrapping
+            $validation_div = '<div id="validation_xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '"></div><div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input->width . '</div><div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden";>' . $input->height . '</div>';
+			return $validation_div;
 		}
 		if (is_a($input, "stack_checkbox_input"))
 		{
@@ -576,7 +579,9 @@ class assStackQuestionDisplay
 			}
 			$feedback .= "</table>";
 
-			return "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $feedback . "</td></tr></table>";
+            #25225 add validation div wrapping
+            $validation_div = '<div id="validation_xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '">';
+            return $validation_div."<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $feedback . "</td></tr></table></div>";
 
 		}
 		if (is_a($input, "stack_notes_input"))

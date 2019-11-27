@@ -57,7 +57,8 @@ class stack_cas_castext_jsxgraph extends stack_cas_castext_block
 
     public function clear()
     {
-        global $PAGE, $CFG;
+        //global $PAGE, $CFG;
+        global $tpl;
         // Now is the time to replace the block with the div and the code.
         $code = "";
         $iter = $this->get_node()->firstchild;
@@ -109,8 +110,19 @@ class stack_cas_castext_jsxgraph extends stack_cas_castext_block
         // Empty tags seem to be an issue.
         $this->get_node()->convert_to_text(html_writer::tag('div', '', $attributes));
 
-        $PAGE->requires->js_amd_inline('require(["qtype_stack/jsxgraph","qtype_stack/jsxgraphcore-lazy","core/yui"], '
-            . 'function(stack_jxg, JXG, Y){Y.use("mathjax",function(){' . $code . '});});');
+
+        //fau: #44 $PAGE cannot be called from ILIAS
+        /*$PAGE->requires->js_amd_inline('require(["qtype_stack/jsxgraph","qtype_stack/jsxgraphcore-lazy","core/yui"], '
+            . 'function(stack_jxg, JXG, Y){Y.use("mathjax",function(){' . $code . '});});');*/
+
+        //Example of code
+        /*"use strict";try{if(document.getElementById("stack-jsxgraph-1")){var divid = 'stack-jsxgraph-1'; var ans2Ref=stack_jxg.find_input_id(divid,'ans2'); var ans1Ref=stack_jxg.find_input_id(divid,'ans1'); var board = JXG.JSXGraph.initBoard(divid, {boundingbox: [-4.5, 4.5, 4.5, -4.5], showNavigation:false, grid:true}); var s1 = board.create('slider',[[-4,4],[-1,4],[1,1,7]],{name: 'Area', snapWidth: 1, ticks: { drawLabels: true }}); stack_jxg.bind_slider(ans1Ref, s1); var p = board.create('point', [4, 3]); stack_jxg.bind_point(ans2Ref, p); var c = board.create('point',[0,0],{visible: false}); var circle = board.create('circle',[c,Math.sqrt(s1.Value()/Math.PI)], {frozen:true, fixed:true, method:'pointRadius'}); circle.setRadius(function() {return Math.sqrt(s1.Value()/Math.PI);}); board.update(); }} catch(err) {console.log("STACK JSXGraph error in \"stack-jsxgraph-1\", (note a slight varying offset in the error position due to possible input references):");console.log(err);}
+         */
+        //fau.
+
+        //Add jsxgraph javascript
+        //$tpl->addJavaScript('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/jsxgraph/src/jsxgraph.js');
+        //$tpl->addJavaScript('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/jsxgraph/src/jsxgraphcore-lazy.js');
 
         // Up the graph number to generate unique names.
         self::$countgraphs = self::$countgraphs + 1;

@@ -116,7 +116,12 @@ Version 3.1.6 (2019-09-10) for ILIAS 5.4
 ----------------------------------------
 Solved some bugs related to Copy of PRTs
 
-Bugs currently solved
+Version 3.2
 ----------------------------------------
-Bug about deployed seeds creation: Now more than one seed per question can be created.
-https://mantis.ilias.de/view.php?id=26179 About crashing in test results
+- New features:
+    - Support for JSXGraphs
+-  Bugs solved:
+    - Solved problem when importing from MoodleXML questions with specific feedback variables in a PHP 7.2 platform.
+    - Solved #23309 and #22729 about reestructuring a PRT. Now first node will be set as node 1 instead of 0. Previous questions with node 0 remains with node 0, so If you want to use a different node as root, you can copy and paste the Node 0, in the same prt and delete the old node 0.
+    - Solved #25174 about not showing feedback during test results if the feedback placeholder is on the question text.
+    
