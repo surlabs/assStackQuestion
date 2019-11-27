@@ -473,6 +473,20 @@ class assStackQuestionFeedback
 			}
 			if (is_a($input, "stack_dropdown_input"))
 			{
+                //#25318
+                $teacher_solution = $input->get_teacher_answer_display($input_state->contentsmodified, $input_state->contentsdisplayed);
+                if (is_string($teacher_solution)) {
+                    if (strlen($teacher_solution)) {
+                        $html = "<select>";
+                        $html .= '<option value="' . $correct_answer[$input_name . "_val"] . '">' . $teacher_solution . '</option>';
+                        $html .= "</select>";
+
+                        $result["value"] = $html;
+                        $result["display"] = "";
+
+                        return $result;
+                    }
+                }
 				$html = "<select>";
 				$html .= '<option value="' . $correct_answer[$input_name . "_val"] . '">' . $correct_answer[$input_name . "_val"] . '</option>';
 				$html .= "</select>";
