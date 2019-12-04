@@ -477,7 +477,9 @@ class stack_dropdown_input extends stack_input
         // Can we really ignore the $value and $display inputs here and rely on the internal state?
         //fau: #45 #25318 change this to do not return "a correct answer"
         //return stack_string('teacheranswershow_disp', array('display' => $this->teacheranswerdisplay));
-        return $this->teacheranswerdisplay;
+        $ta = str_replace('"', "", $this->teacheranswerdisplay);
+        $ta = str_replace("'", "", $ta);
+        return $ta;
         //fau.
     }
 

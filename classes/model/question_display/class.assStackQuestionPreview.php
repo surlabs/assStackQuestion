@@ -60,7 +60,7 @@ class assStackQuestionPreview
 		}
 
 		//Set grade of conversion to stack via the user response
-		if (assStackQuestionUtils::_isArrayEmpty($this->getUserResponse())) {
+		if (assStackQuestionUtils::_isArrayEmpty($this->getUserResponse(), $this->getQuestion()->getInputs())) {
 			//NO USER RESPONSE, MINIMUM CONVERSION
 			//Create STACK Question object if doesn't exists
 			if (!is_a($question->getStackQuestion(), 'assStackQuestionStackQuestion')) {
@@ -89,7 +89,7 @@ class assStackQuestionPreview
 	public function getQuestionPreviewData($test_mode = FALSE, $active_id = NULL, $pass = NULL)
 	{
 		//Step #1: Get evaluation form and evaluate question if needed.
-		if (!assStackQuestionUtils::_isArrayEmpty($this->getUserResponse())) {
+		if (!assStackQuestionUtils::_isArrayEmpty($this->getUserResponse(), $this->getQuestion()->getInputs())) {
 			$evaluated_question = $this->getEvaluationForPreview();
 		} else {
 			//Step #2: Prepare Question display data

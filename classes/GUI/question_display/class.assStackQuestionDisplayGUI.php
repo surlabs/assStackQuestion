@@ -334,6 +334,10 @@ class assStackQuestionDisplayGUI
             $input_tpl->setVariable('INPUT_VALUE', $input_info->input->get_parameter('syntaxHint'));
         } else {
             //Use value
+            //Replace EMPTYANSWER if that is the value
+            if ($input_value == "EMPTYANSWER") {
+                $input_value = "";
+            }
             $input_tpl->setVariable('INPUT_VALUE', $input_value);
         }
 
