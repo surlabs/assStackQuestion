@@ -473,7 +473,13 @@ class assStackQuestionMoodleImport
                 $new_prt->setPRTName($prt_name);
                 $new_prt->setPRTValue(strip_tags($prt['value']));
                 $new_prt->setAutoSimplify(strip_tags($prt['autosimplify']));
-                $new_prt->setPRTFeedbackVariables($prt['feedbackvariables']);
+                if (is_string($prt['feedbackvariables'])) {
+                    $new_prt->setPRTFeedbackVariables($prt['feedbackvariables']);
+                } elseif (is_string($prt['feedbackvariables'][0]["text"])) {
+                    $new_prt->setPRTFeedbackVariables($prt['feedbackvariables'][0]["text"]);
+                } else {
+                    $new_prt->setPRTFeedbackVariables("");
+                }
 
                 //Creation of Nodes
                 $prt_nodes = $this->getPRTNodesFromXML($prt['node'], $new_prt->getPRTName());
