@@ -456,3 +456,9 @@ feedback_default#:#General Feedback Style
 feedback_default_info#:#Select the feedback style for feedback messages in STACK questions. It is used for the section of a STACK feedback message. Within this section, the feedbacks of the nodes of a potential response tree are embedded, which can also be provided with their own styles.
 nodes_feedback#:#Feedback from Nodes
 config_prts_changed_message#:#Changes have been applied
+input_stars_no_stars#:#Don't insert stars
+input_stars_implied#:#Insert stars for implied multiplication only
+input_stars_singlechar#:#Insert stars assuming single-character variable names
+input_stars_spaces#:#Insert stars for spaces only
+input_stars_implied_spaces#:#Insert stars for implied multiplication and for spaces
+input_type_implied_spaces_single#:#Insert stars assuming single-character variables, implied and for spaces
