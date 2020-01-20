@@ -125,4 +125,9 @@ Version 3.1.7 (2019-11-27) for ILIAS 5.4
     - https://mantis.ilias.de/view.php?id=26179 About crashing in test results
     - Solved #25225 about validation after checking
     - Solved #25318 about dropdown best solution problem
+    
+Version 3.1.8 (2020-01-20) for ILIAS 5.4
+----------------------------------------
+Included new options for insert stars, now teachers have 6 different options, you can find more information here:
+- https://github.com/maths/moodle-qtype_stack/blob/master/doc/en/Authoring/Inputs.md#insert-stars--insert_stars 
 
