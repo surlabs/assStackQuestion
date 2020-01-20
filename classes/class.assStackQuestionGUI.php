@@ -456,15 +456,16 @@ class assStackQuestionGUI extends assQuestionGUI
         $this->preview_mode = $question_preview_data;
 
         //addCSS
-        $tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_feedback.css'));
-        $tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_preview.css'));
-        $tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_display.css'));
+        global $DIC;
+        $DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_feedback.css'));
+        $DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_preview.css'));
+        $DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_display.css'));
 
         //Include content Style
         $style_id = assStackQuestionUtils::_getActiveContentStyleId();
         if (strlen($style_id)) {
             require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
-            $tpl->addCss(ilObjStyleSheet::getContentStylePath((int)$style_id));
+            $DIC->globalScreen()->layout()->meta()->addCss(ilObjStyleSheet::getContentStylePath((int)$style_id));
         }
 
         $questionoutput = $question_preview_gui->get();
@@ -535,7 +536,7 @@ class assStackQuestionGUI extends assQuestionGUI
      */
     public function getTestQuestionOutput($solutions, $show_specific_inline_feedback)
     {
-        global $tpl;
+        global $tpl, $DIC;
         //Create feedback output from feedback class
         $this->plugin->includeClass("GUI/question_display/class.assStackQuestionFeedbackGUI.php");
         $question_feedback_object = new assStackQuestionFeedbackGUI($this->plugin, $solutions);
@@ -544,13 +545,12 @@ class assStackQuestionGUI extends assQuestionGUI
         $this->plugin->includeClass("model/question_display/class.assStackQuestionDisplay.php");
         $this->plugin->includeClass("GUI/question_display/class.assStackQuestionDisplayGUI.php");
         //Get question display data
-        $tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_display.css'));
-
+        $DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_display.css'));
         //Include content Style
         $style_id = assStackQuestionUtils::_getActiveContentStyleId();
         if (strlen($style_id)) {
             require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
-            $tpl->addCss(ilObjStyleSheet::getContentStylePath((int)$style_id));
+            $DIC->globalScreen()->layout()->meta()->addCss(ilObjStyleSheet::getContentStylePath((int)$style_id));
         }
 
         $value_format_user_response = assStackQuestionUtils::_getUserResponse($this->object->getId(), $this->object->getStackQuestion()->getInputs(), $feedback_data);
@@ -992,8 +992,8 @@ class assStackQuestionGUI extends assQuestionGUI
         $this->plugin->includeClass('GUI/question_authoring/class.assStackQuestionAuthoringGUI.php');
         $authoring_gui = new assStackQuestionAuthoringGUI($this->plugin, $this);
         //Add CSS
-        $this->tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_authoring.css'));
-        $this->tpl->addCss($this->plugin->getStyleSheetLocation('css/multipart_form.css'));
+        $DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_authoring.css'));
+        $DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/multipart_form.css'));
 
         //Javascript
 
@@ -1009,11 +1009,11 @@ class assStackQuestionGUI extends assQuestionGUI
             //first time must be shown
             $this->info_config->show = 1;
         }
-        $this->tpl->addJavascript('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/ilEnableDisableInfo.js');
-        $this->tpl->addOnLoadCode('il.EnableDisableInfo.initInfoMessages(' . json_encode($this->info_config) . ')');
+        $DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/ilEnableDisableInfo.js');
+        $DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.EnableDisableInfo.initInfoMessages(' . json_encode($this->info_config) . ')');
 
         //Reform authoring interface
-        $this->tpl->addJavascript('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/ilMultipartFormProperty.js');
+        $DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/ilMultipartFormProperty.js');
 
         //Returns Deployed seeds form
         $this->tpl->setVariable("QUESTION_DATA", $authoring_gui->showAuthoringPanel());
@@ -1077,10 +1077,10 @@ class assStackQuestionGUI extends assQuestionGUI
         //Add MathJax (Ensure MathJax is loaded)
         include_once "./Services/Administration/classes/class.ilSetting.php";
         $mathJaxSetting = new ilSetting("MathJax");
-        $this->tpl->addJavaScript($mathJaxSetting->get("path_to_mathjax"));
+        $DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
 
         //Add CSS
-        $this->tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_deployed_seeds_management.css'));
+        $DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_deployed_seeds_management.css'));
 
         //Returns Deployed seeds form
         $this->tpl->setVariable("QUESTION_DATA", $deployed_seeds_gui->showDeployedSeedsPanel());
@@ -1161,7 +1161,7 @@ class assStackQuestionGUI extends assQuestionGUI
         $scoring_gui = new assStackQuestionScoringGUI($this->plugin, $this->object->getId(), $this->object->getPoints());
 
         //Add CSS
-        $this->tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_scoring_management.css'));
+        $DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_scoring_management.css'));
 
         //Returns Deployed seeds form
         $this->tpl->setVariable("QUESTION_DATA", $scoring_gui->showScoringPanel($new_question_points));
@@ -1225,7 +1225,7 @@ class assStackQuestionGUI extends assQuestionGUI
         $unit_test_gui = new assStackQuestionTestGUI($this, $this->plugin);
 
         //Add CSS
-        $this->tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
+        $DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
 
         //Returns Deployed seeds form
         $this->tpl->setVariable("QUESTION_DATA", $unit_test_gui->showUnitTestsPanel());
@@ -1279,7 +1279,7 @@ class assStackQuestionGUI extends assQuestionGUI
         $unit_test_gui = new assStackQuestionTestGUI($this, $this->plugin, $unit_test_results);
 
         //Add CSS
-        $this->tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
+        $DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
 
         //Returns Deployed seeds form
         $this->tpl->setVariable("QUESTION_DATA", $unit_test_gui->showUnitTestsPanel(TRUE));
@@ -1321,7 +1321,7 @@ class assStackQuestionGUI extends assQuestionGUI
         $unit_test_gui = new assStackQuestionTestGUI($this, $this->plugin);
 
         //Add CSS
-        $this->tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
+        $DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
 
         //Returns Deployed seeds form
         $this->tpl->setVariable("QUESTION_DATA", $unit_test_gui->editTestcaseForm($testcase_name, $this->object->getInputs(), $this->object->getPotentialResponsesTrees()));
@@ -1401,7 +1401,7 @@ class assStackQuestionGUI extends assQuestionGUI
         $unit_test_gui = new assStackQuestionTestGUI($this, $this->plugin);
 
         //Add CSS
-        $this->tpl->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
+        $DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
 
         //Returns Deployed seeds form
         $testcase_name = assStackQuestionUtils::_getNewTestCaseNumber($this->object->getId());

@@ -41,7 +41,7 @@ class assStackQuestionFeedbackGUI
 	 */
 	function __construct(ilassStackQuestionPlugin $plugin, $feedback_data, $specific_feedback = "")
 	{
-
+	    global $DIC;
 		//Set plugin object
 		$this->setPlugin($plugin);
 
@@ -62,7 +62,7 @@ class assStackQuestionFeedbackGUI
 		//Add MathJax (Ensure MathJax is loaded)
 		include_once "./Services/Administration/classes/class.ilSetting.php";
 		$mathJaxSetting = new ilSetting("MathJax");
-		$this->getTemplate()->addJavaScript($mathJaxSetting->get("path_to_mathjax"));
+        $DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
 
 		if (is_string($specific_feedback))
 		{

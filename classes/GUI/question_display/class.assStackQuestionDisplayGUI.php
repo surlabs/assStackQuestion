@@ -40,18 +40,19 @@ class assStackQuestionDisplayGUI
      */
     function __construct(ilassStackQuestionPlugin $plugin, $display_data)
     {
+        global $DIC;
         //Set plugin object
         $this->setPlugin($plugin);
 
         //Set template for preview
         $this->setTemplate($this->getPlugin()->getTemplate('tpl.il_as_qpl_xqcas_question_display.html'));
         //Add CSS to the template
-        $this->getTemplate()->addCss($this->getPlugin()->getStyleSheetLocation('css/qpl_xqcas_question_display.css'));
+        $DIC->globalScreen()->layout()->meta()->addCss($this->getPlugin()->getStyleSheetLocation('css/qpl_xqcas_question_display.css'));
 
         //Add MathJax (Ensure MathJax is loaded)
         include_once "./Services/Administration/classes/class.ilSetting.php";
         $mathJaxSetting = new ilSetting("MathJax");
-        $this->getTemplate()->addJavaScript($mathJaxSetting->get("path_to_mathjax"));
+        $DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
 
         //Set preview data
         $this->setDisplay($display_data);
@@ -86,7 +87,7 @@ class assStackQuestionDisplayGUI
      */
     public function enableAjax()
     {
-        global $tpl;
+        global $tpl, $DIC;
 
         if (is_array($this->getDisplay('inputs'))) {
             foreach ($this->getDisplay('inputs') as $input_name => $input) {
@@ -98,8 +99,8 @@ class assStackQuestionDisplayGUI
                     $this->jstexts = new stdClass();
                     $this->jstexts->page = $this->getPlugin()->txt('page');
 
-                    $tpl->addJavascript('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/instant_validation.js');
-                    $tpl->addOnLoadCode('il.instant_validation.init(' . json_encode($this->jsconfig) . ',' . json_encode($this->jstexts) . ')');
+                    $DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/instant_validation.js');
+                    $DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.instant_validation.init(' . json_encode($this->jsconfig) . ',' . json_encode($this->jstexts) . ')');
                     continue;
                 } elseif ($this->getDisplay('validation', $input_name) == 'button') {
                     //Button Validation
@@ -109,8 +110,8 @@ class assStackQuestionDisplayGUI
                     $this->jstexts = new stdClass();
                     $this->jstexts->page = $this->getPlugin()->txt('page');
 
-                    $tpl->addJavascript('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
-                    $tpl->addOnLoadCode('il.assStackQuestion.init(' . json_encode($this->jsconfig) . ',' . json_encode($this->jstexts) . ')');
+                    $DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
+                    $DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($this->jsconfig) . ',' . json_encode($this->jstexts) . ')');
                     continue;
                 }
             }

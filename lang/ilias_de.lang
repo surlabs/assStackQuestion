@@ -459,3 +459,9 @@ feedback_default#:#Allgemeiner Feedback-Style
 feedback_default_info#:#Wählen Sie den Feedback-Style für Feedback-Nachrichten in STACK-Fragen. Er wird für den Abschnitt einer Feedback-Nachricht von STACK verwendet. Innerhalb dieses Abschnitts sind die Feedbacks der Knoten eines Rückmeldebaums eingebettet, die zusätzlich mit eigenen Styles versehen werden können.
 nodes_feedback#:#Feedback von Knoten
 config_prts_changed_message#:#Änderungen wurden übernommen
+input_stars_no_stars#:#Keine Sternchen einfügen
+input_stars_implied#:#Sternchen nur für implizierte Multiplikation einfügen
+input_stars_singlechar#:#Sternchen einfügen, indem von Variablennamen mit nur einem Zeichen ausgegangen wird
+input_stars_spaces#:#Sternchen nur für Leerzeichen einfügen
+input_stars_implied_spaces#:#Sternchen für implizierte Multiplikation und für Leerzeichen einfügen
+input_type_implied_spaces_single#:#Sternchen einfügen, indem von Variablennamen mit nur einem Zeichen ausgegangen wird, implizierte und für Leerzeichen

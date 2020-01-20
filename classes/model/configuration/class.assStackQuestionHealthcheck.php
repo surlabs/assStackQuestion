@@ -48,7 +48,7 @@ class assStackQuestionHealthcheck
 
 	public function doHealthcheck()
 	{
-		global $tpl;
+		global $tpl, $DIC;
 		//Include all classes needed
 		$this->getPlugin()->includeClass('utils/class.assStackQuestionInitialization.php');
 		$this->getPlugin()->includeClass('../exceptions/class.assStackQuestionException.php');
@@ -58,9 +58,9 @@ class assStackQuestionHealthcheck
 		//Add MathJax (Ensure MathJax is loaded)
 		include_once "./Services/Administration/classes/class.ilSetting.php";
 		$mathJaxSetting = new ilSetting("MathJax");
-		$tpl->addJavaScript($mathJaxSetting->get("path_to_mathjax"));
+        $DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
 		//Ad CSS to Templates
-		$tpl->addCss($this->getPlugin()->getStyleSheetLocation('css/qpl_xqcas_healthcheck.css'));
+        $DIC->globalScreen()->layout()->meta()->addCss($this->getPlugin()->getStyleSheetLocation('css/qpl_xqcas_healthcheck.css'));
 
 		return $this->getMaximaConnectionStatus();
 	}

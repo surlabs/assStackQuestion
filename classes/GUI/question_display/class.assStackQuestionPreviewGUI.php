@@ -49,12 +49,13 @@ class assStackQuestionPreviewGUI extends ilAssQuestionPreviewGUI
 		//Set template for preview
 		$this->setTemplate($this->getPlugin()->getTemplate('tpl.il_as_qpl_xqcas_question_preview.html'));
 		//Add CSS to the template
-		$this->getTemplate()->addCss($this->getPlugin()->getStyleSheetLocation('css/qpl_xqcas_question_preview.css'));
+        global $DIC;
+        $DIC->globalScreen()->layout()->meta()->addCss($this->getPlugin()->getStyleSheetLocation('css/qpl_xqcas_question_preview.css'));
 
 		//Add MathJax (Ensure MathJax is loaded)
 		include_once "./Services/Administration/classes/class.ilSetting.php";
 		$mathJaxSetting = new ilSetting("MathJax");
-		$this->getTemplate()->addJavaScript($mathJaxSetting->get("path_to_mathjax"));
+        $DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
 		//Set preview data
 		$this->setPreview($preview_data);
 	}

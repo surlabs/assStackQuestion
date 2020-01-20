@@ -40,14 +40,14 @@ class assStackQuestionHealthcheckGUI
 	 */
 	function __construct(ilassStackQuestionPlugin $plugin, $healthcheck_data)
 	{
-		global $tpl;
+		global $tpl, $DIC;
 		//Set plugin object
 		$this->setPlugin($plugin);
 
 		//Add MathJax (Ensure MathJax is loaded)
 		include_once "./Services/Administration/classes/class.ilSetting.php";
 		$mathJaxSetting = new ilSetting("MathJax");
-		$tpl->addJavaScript($mathJaxSetting->get("path_to_mathjax"));
+        $DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
 
 		$this->setHealthcheckData($healthcheck_data);
 	}

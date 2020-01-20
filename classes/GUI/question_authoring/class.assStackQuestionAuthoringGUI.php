@@ -442,8 +442,16 @@ class assStackQuestionAuthoringGUI
 		$input_strict_syntax = new ilCheckboxInputGUI($this->getPlugin()->txt('input_strict_syntax'), $input->getInputName() . '_input_strict_syntax');
 		$input_strict_syntax->setInfo($this->getPlugin()->txt("input_strict_syntax_info"));
 
-		$input_insert_stars = new ilCheckboxInputGUI($this->getPlugin()->txt('input_insert_stars'), $input->getInputName() . '_input_insert_stars');
-		$input_insert_stars->setInfo($this->getPlugin()->txt("input_insert_stars_info"));
+        $input_insert_stars = new ilSelectInputGUI($this->getPlugin()->txt('input_insert_stars'), $input->getInputName() . '_input_insert_stars');
+        $input_insert_stars->setOptions(array(
+            "0" => $this->getPlugin()->txt('input_stars_no_stars'),
+            "1" => $this->getPlugin()->txt('input_stars_implied'),
+            "2" => $this->getPlugin()->txt('input_stars_singlechar'),
+            "3" => $this->getPlugin()->txt('input_stars_spaces'),
+            "4" => $this->getPlugin()->txt('input_stars_implied_spaces'),
+            "5" => $this->getPlugin()->txt('input_type_implied_spaces_single')));
+
+        $input_insert_stars->setInfo($this->getPlugin()->txt("input_insert_stars_info"));
 
 		$input_syntax_hint = new ilTextInputGUI($this->getPlugin()->txt('input_syntax_hint'), $input->getInputName() . '_input_syntax_hint');
 		$input_syntax_hint->setInfo($this->getPlugin()->txt('input_syntax_hint_info'));
@@ -482,8 +490,8 @@ class assStackQuestionAuthoringGUI
 			//$input_model_answer->setValue($this->default[""]);
 			$input_box_size->setValue($this->default["input_box_size"]);
 			$input_strict_syntax->setChecked((int)$this->default["input_strict_syntax"]);
-			$input_insert_stars->setChecked((int)$this->default["input_insert_stars"]);
-			$input_syntax_hint->setValue($this->default["input_syntax_hint"]);
+            $input_insert_stars->setValue((int)$this->default["input_insert_stars"]);
+            $input_syntax_hint->setValue($this->default["input_syntax_hint"]);
 			$input_forbidden_words->setValue($this->default["input_forbidden_words"]);
 			$input_allow_words->setValue($this->default["input_allow_words"]);
 			$input_forbid_float->setChecked((int)$this->default["input_forbid_float"]);
@@ -498,7 +506,7 @@ class assStackQuestionAuthoringGUI
 			$input_model_answer->setValue($input->getTeacherAnswer());
 			$input_box_size->setValue($input->getBoxSize());
 			$input_strict_syntax->setChecked($input->getStrictSyntax());
-			$input_insert_stars->setChecked($input->getInsertStars());
+            $input_insert_stars->setValue($input->getInsertStars());
 			$input_syntax_hint->setValue($input->getSyntaxHint());
 			$input_forbidden_words->setValue($input->getForbidWords());
 			$input_allow_words->setValue($input->getAllowWords());

@@ -677,11 +677,19 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$input_strict_syntax->setChecked($inputs_data['input_strict_syntax']);
 		$form->addItem($input_strict_syntax);
 
-		//Input insert stars
-		$input_insert_stars = new ilCheckboxInputGUI($this->plugin_object->txt('input_insert_stars'), 'input_insert_stars');
-		$input_insert_stars->setInfo($this->plugin_object->txt("input_insert_stars_info"));
-		$input_insert_stars->setChecked($inputs_data['input_insert_stars']);
-		$form->addItem($input_insert_stars);
+        //Input insert stars
+        $input_insert_stars = new ilSelectInputGUI($this->plugin_object->txt('input_insert_stars'), 'input_insert_stars');
+        $input_insert_stars->setOptions(array(
+            "0" => $this->plugin_object->txt('input_stars_no_stars'),
+            "1" => $this->plugin_object->txt('input_stars_implied'),
+            "2" => $this->plugin_object->txt('input_stars_singlechar'),
+            "3" => $this->plugin_object->txt('input_stars_spaces'),
+            "4" => $this->plugin_object->txt('input_stars_implied_spaces'),
+            "5" => $this->plugin_object->txt('input_type_implied_spaces_single')));
+
+        $input_insert_stars->setInfo($this->plugin_object->txt("input_insert_stars_info"));
+        $input_insert_stars->setValue((int)$inputs_data['input_insert_stars']);
+        $form->addItem($input_insert_stars);
 
 		//Input forbid float
 		$input_forbid_float = new ilCheckboxInputGUI($this->plugin_object->txt('input_forbid_float'), 'input_forbid_float');
