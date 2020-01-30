@@ -450,7 +450,9 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		$tabs = $DIC->tabs();
 		//Get solutions if given
-		$solutions = is_object($this->getPreviewSession()) ? (array)$this->getPreviewSession()->getParticipantsSolution() : array();
+        if (is_object($this->getPreviewSession())) {
+            $solutions = (array)$this->getPreviewSession()->getParticipantsSolution();
+        }
 
 		//Include preview classes and set tab
 		$this->plugin->includeClass("model/question_display/class.assStackQuestionPreview.php");
@@ -484,11 +486,13 @@ class assStackQuestionGUI extends assQuestionGUI
 		//Get question preview data
 		$question_preview_object = new assStackQuestionPreview($this->plugin, $this->object, $seed, $solutions);
 		$question_preview_data = $question_preview_object->getQuestionPreviewData();
+#
+        $this->getPreviewSession()->setParticipantsSolution($question_preview_data);
+		//$this->object->setPoints($question_preview_data["question_display"]["reached_points"]);
 
 		//Get question preview GUI
 		$question_preview_gui_object = new assStackQuestionPreviewGUI($this->plugin, $question_preview_data);
 		$question_preview_gui = $question_preview_gui_object->getQuestionPreviewGUI();
-
 
 		//Set preview mode
 		$this->preview_mode = $question_preview_data;
@@ -513,7 +517,6 @@ class assStackQuestionGUI extends assQuestionGUI
 			// get page object output
 			$questionoutput = $this->getILIASPage($questionoutput);
 		}
-
 		return $questionoutput;
 	}
 

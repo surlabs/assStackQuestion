@@ -202,7 +202,7 @@ class stack_equiv_input extends stack_input {
      * @param string $in
      * @return string
      */
-    private function maxima_to_raw_input($in) {
+    public function maxima_to_raw_input($in) {
         $values = stack_utils::list_to_array($in, false);
         foreach ($values as $key => $val) {
             $values[$key] = $this->stackeq_to_equals($val);
