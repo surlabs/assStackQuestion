@@ -131,3 +131,6 @@ Version 3.1.8 (2020-01-20) for ILIAS 5.4
 Included new options for insert stars, now teachers have 6 different options, you can find more information here:
 - https://github.com/maths/moodle-qtype_stack/blob/master/doc/en/Authoring/Inputs.md#insert-stars--insert_stars 
 
+Version 3.1.9 (2020-01-30) for ILIAS 5.4
+----------------------------------------
+Solved a bug that prevented points to be properly calculated in preview mode when more than one PRT is present in a question.

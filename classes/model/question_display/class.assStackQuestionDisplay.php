@@ -142,6 +142,7 @@ class assStackQuestionDisplay
             $display_data['prts'][$prt_name]['display'] = $this->replacementForPRTPlaceholders($prt, $prt_name, $in_test);
         }
 
+        $display_data["reached_points"] = $this->getQuestion()->reached_points;
         return $display_data;
     }
 

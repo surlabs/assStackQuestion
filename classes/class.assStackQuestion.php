@@ -1690,12 +1690,20 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 
 	public function calculateReachedPointsForSolution($found_values)
 	{
+	    //SHOW POINTS IN PREVIEW
+	    if(empty($this->getStackQuestion()->getPRTResults())){
+	        if(isset($found_values["question_display"]["reached_points"])){
+	            if(is_float($found_values["question_display"]["reached_points"])){
+	                return $found_values["question_display"]["reached_points"];
+                }
+            }
+
+        }
 		$points = 0.0;
 		foreach ($this->getStackQuestion()->getPRTResults() as $prt_name => $results)
 		{
 			$points = $points + $results['points'];
 		}
-
 		return $points;
 	}
 
@@ -1951,4 +1959,15 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	{
 		return $valuePairs;
 	}
+
+    /**
+     * Calculate the points a user has reached in a preview session
+     * @param ilAssQuestionPreviewSession $previewSession
+     * @return float
+     */
+    public function calculateReachedPointsFromPreviewSession(ilAssQuestionPreviewSession $previewSession)
+    {
+        $solution = (array) $previewSession->getParticipantsSolution();
+        return $this->calculateReachedPointsForSolution($solution);
+    }
 }
