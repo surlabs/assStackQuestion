@@ -349,13 +349,15 @@ class assStackQuestionUtils
 	public static function _isArrayEmpty($array)
 	{
 		//If array is not empty returns it, otherwise return FALSE;
-		foreach ($array as $value)
-		{
-			if ($value != '' AND $value != '[]')
-			{
-				return FALSE;
-			}
-		}
+        if(is_array($array)){
+            foreach ($array as $value)
+            {
+                if ($value != '' AND $value != '[]')
+                {
+                    return FALSE;
+                }
+            }
+        }
 
 		return TRUE;
 	}
