@@ -486,9 +486,11 @@ class assStackQuestionGUI extends assQuestionGUI
 		//Get question preview data
 		$question_preview_object = new assStackQuestionPreview($this->plugin, $this->object, $seed, $solutions);
 		$question_preview_data = $question_preview_object->getQuestionPreviewData();
-#
-        $this->getPreviewSession()->setParticipantsSolution($question_preview_data);
-		//$this->object->setPoints($question_preview_data["question_display"]["reached_points"]);
+
+		if(is_a($this->getPreviewSession(),"ilAssQuestionPreviewSession")){
+            $this->getPreviewSession()->setParticipantsSolution($question_preview_data);
+            //$this->object->setPoints($question_preview_data["question_display"]["reached_points"]);
+        }
 
 		//Get question preview GUI
 		$question_preview_gui_object = new assStackQuestionPreviewGUI($this->plugin, $question_preview_data);
