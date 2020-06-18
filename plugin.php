@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
+ * Copyright (c) 2020 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
  * GPLv2, see LICENSE 
  */
 
@@ -9,11 +9,11 @@ $id = "xqcas";
  
 // code version; must be changed for all code changes
 
-$version = "3.1.8";
+$version = "3.2";
  
 // ilias min and max version; must always reflect the versions that should
 // run with the plugin
-$ilias_min_version = "5.4.0";
+$ilias_min_version = "6.0.0";
 $ilias_max_version = "6.0.999";
  
 // optional, but useful: Add one or more responsible persons and a contact email

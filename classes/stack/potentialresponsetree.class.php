@@ -156,86 +156,86 @@ class stack_potentialresponse_tree
         return $cascontext;
     }
 
-    /**
-     * This function actually traverses the tree and generates outcomes.
-     *
-     * @param stack_cas_session $questionvars the question varaibles.
-     * @param stack_options $options
-     * @param array $answers name => value the student response.
-     * @param int $seed the random number seed.
-     * @return stack_potentialresponse_tree_state the result.
-     */
-    public function evaluate_response(stack_cas_session $questionvars, $options, $answers, $seed)
-    {
+	/**
+	 * This function actually traverses the tree and generates outcomes.
+	 *
+	 * @param stack_cas_session $questionvars the question varaibles.
+	 * @param stack_options $options
+	 * @param array $answers name => value the student response.
+	 * @param int $seed the random number seed.
+	 * @return stack_potentialresponse_tree_state the result.
+	 */
+	public function evaluate_response(stack_cas_session $questionvars, $options, $answers, $seed) {
+		if (empty($this->nodes)) {
+			throw new stack_exception('stack_potentialresponse_tree: evaluate_response ' .
+				'attempting to traverse an empty tree. Something is wrong here.');
+		}
 
-        if (empty($this->nodes)) {
-            throw new stack_exception('stack_potentialresponse_tree: evaluate_response ' .
-                'attempting to traverse an empty tree. Something is wrong here.');
-        }
+		$localoptions = clone $options;
+		$localoptions->set_option('simplify', $this->simplify);
 
-        $localoptions = clone $options;
-        $localoptions->set_option('simplify', $this->simplify);
+		$cascontext = $this->create_cas_context_for_evaluation($questionvars, $localoptions, $answers, $seed);
 
-        $cascontext = $this->create_cas_context_for_evaluation($questionvars, $localoptions, $answers, $seed);
+		$results = new stack_potentialresponse_tree_state($this->value, true, 0, 0);
+		$fv = $this->feedbackvariables;
+		if ($fv !== null) {
+			$results->add_trace($fv->get_keyval_representation());
+		}
 
-        $results = new stack_potentialresponse_tree_state($this->value, true, 0, 0);
-        $fv = $this->feedbackvariables;
-        if ($fv !== null) {
-            $results->add_trace($fv->get_keyval_representation());
-        }
+		// Traverse the tree.
+		$nodekey = $this->firstnode;
+		$visitednodes = array();
+		while ($nodekey != -1) {
+			if (!array_key_exists($nodekey, $this->nodes)) {
+				throw new stack_exception('stack_potentialresponse_tree: ' .
+					'evaluate_response: attempted to jump to a potential response ' .
+					'which does not exist in this question.  This is a question ' .
+					'authoring/validation problem.');
+			}
 
-        // Traverse the tree.
-        $nodekey = $this->firstnode;
-        $visitednodes = array();
-        while ($nodekey != -1) {
+			if (array_key_exists($nodekey, $visitednodes)) {
+				$results->add_answernote('[PRT-CIRCULARITY]=' . $nodekey);
+				break;
+			}
 
-            if (!array_key_exists($nodekey, $this->nodes)) {
-                throw new stack_exception('stack_potentialresponse_tree: ' .
-                    'evaluate_response: attempted to jump to a potential response ' .
-                    'which does not exist in this question.  This is a question ' .
-                    'authoring/validation problem.');
-            }
+			$visitednodes[$nodekey] = true;
+			$nodekey = $this->nodes[$nodekey]->traverse($results, $nodekey, $cascontext, $answers, $localoptions);
 
-            if (array_key_exists($nodekey, $visitednodes)) {
-                $results->add_answernote('[PRT-CIRCULARITY]=' . $nodekey);
-                break;
-            }
+			if ($results->_errors) {
+				break;
+			}
+		}
 
-            $visitednodes[$nodekey] = true;
-            $nodekey = $this->nodes[$nodekey]->traverse($results, $nodekey, $cascontext, $answers, $localoptions);
 
-            if ($results->_errors) {
-                break;
-            }
-        }
+		// Make sure these are PHP numbers.
+		$results->_score = $results->_score + 0;
+		$results->_penalty = $results->_penalty + 0;
 
-        // Make sure these are PHP numbers.
-        $results->_score = $results->_score + 0;
-        $results->_penalty = $results->_penalty + 0;
+		// Restrict score to be between 0 and 1.
+		$results->_score = min(max($results->_score, 0), 1);
 
-        // Restrict score to be between 0 and 1.
-        $results->_score = min(max($results->_score, 0), 1);
+		// Take a continued fraction approximation of the score, within 5 decimal places of the original
+		// This will round numbers like 0.999999 to exactly 1, 0.33333 to 1/3, etc.
+		$results->_score = stack_utils::fix_to_continued_fraction($results->score, 5);
 
-        // Take a continued fraction approximation of the score, within 5 decimal places of the original
-        // This will round numbers like 0.999999 to exactly 1, 0.33333 to 1/3, etc.
-        $results->_score = stack_utils::fix_to_continued_fraction($results->score, 5);
+		// From a strictly logical point of view the 'score' and the 'penalty' are independent.
+		// Hence, this clause belongs in the question behaviour.
+		// From a practical point of view, it is confusing/off-putting when testing to see "score=1, penalty=0.1".
+		// Why does this correct attempt attract a penalty?  So, this is a unilateral decision:
+		// If the score is 1 there is never a penalty.
+		if ($results->_score == 1) {
+			$results->_penalty = 0;
+		}
 
-        // From a strictly logical point of view the 'score' and the 'penalty' are independent.
-        // Hence, this clause belongs in the question behaviour.
-        // From a practical point of view, it is confusing/off-putting when testing to see "score=1, penalty=0.1".
-        // Why does this correct attempt attract a penalty?  So, this is a unilateral decision:
-        // If the score is 1 there is never a penalty.
-        if ($results->_score == 1) {
-            $results->_penalty = 0;
-        }
+		if ($results->errors) {
+			$results->_score = null;
+			$results->_penalty = null;
+		}
 
-        if ($results->errors) {
-            $results->_score = null;
-            $results->_penalty = null;
-        }
-        $results->set_cas_context($cascontext, $seed);
-        return $results;
-    }
+		$results->set_cas_context($cascontext, $seed);
+
+		return $results;
+	}
 
     /**
      * Take an array of input names, or equivalently response varaibles, (for

@@ -1233,11 +1233,13 @@ class assStackQuestionMoodleImport
                     }
 
                     //feedbackvariables
-                    if (isset($prt_raw['feedbackvariables'][0]["_content"])) {
-                        $prt_data['feedbackvariables'][0]["text"] = $prt_raw['feedbackvariables'][0]["text"];
-                    } else {
-                        $prt_data['feedbackvariables'][0]["text"] = "";
-                    }
+					if (isset($prt_raw['feedbackvariables'][0]['text'][0]['_content'])) {
+						$prt_data['feedbackvariables'][0]['text'] = $prt_raw['feedbackvariables'][0]['text'][0]['_content'];
+					} elseif (isset($prt_raw['feedbackvariables'][0]['text']) AND is_string($prt_raw['feedbackvariables'][0]['text'])) {
+						$prt_data['feedbackvariables'][0]['text'] = $prt_raw['feedbackvariables'][0]['text'];
+					} else {
+						$prt_data['feedbackvariables'][0]['text'] = "";
+					}
 
                     //Nodes
                     if (is_array($prt_raw['node'])) {

@@ -474,7 +474,6 @@ class assStackQuestionGUI extends assQuestionGUI
             // get page object output
             $questionoutput = $this->getILIASPage($questionoutput);
         }
-
         return $questionoutput;
     }
 
@@ -523,7 +522,6 @@ class assStackQuestionGUI extends assQuestionGUI
         //Generate the question output and filling output template with question output and page output.
         $question_output = $this->getTestQuestionOutput($solutions, $show_specific_inline_feedback);
         $page_output = $this->outQuestionPage("", $is_question_postponed, $active_id, $question_output);
-
         return $page_output;
     }
 
@@ -563,7 +561,6 @@ class assStackQuestionGUI extends assQuestionGUI
         $container_tpl = $this->plugin->getTemplate("tpl.il_as_qpl_xqcas_question_container.html");
         $container_tpl->setVariable('QUESTION', $question_display_gui->get());
         $question_output = $container_tpl->get();
-
         return $question_output;
     }
 

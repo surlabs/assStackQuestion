@@ -1256,7 +1256,7 @@ class stack_utils
     {
 
         if ($direction != 'add' && $direction != 'remove') {
-            throw new stack_exception('logic_nouns_sort: direction must be "add" or "remove", but received: ' . $direction);
+            throw new stack_exception('logic_nouns_sort: direction must be "add" or "remove", but received: '. $direction);
         }
 
         // Note, the spaces before these connectives are essential.
@@ -1274,16 +1274,16 @@ class stack_utils
             // Check if we are using equational reasoning.
             if (substr(trim($str), 0, 1) === "=") {
                 $trimmed = trim(substr(trim($str), 1));
-                if ($trimmed !== '') {
+                if ( $trimmed !== '') {
                     $str = 'stackeq(' . $trimmed . ')';
                 }
             }
             // Safely wrap "let" statements.
             $langlet = strtolower(stack_string('equiv_LET'));
             if (strtolower(substr($str, 0, strlen($langlet))) === $langlet) {
-                $nv = explode('=', substr($str, strlen($langlet) + 1));
+                $nv = explode('=', substr($str, strlen($langlet)));
                 if (count($nv) === 2) {
-                    $str = 'stacklet(' . trim($nv[0]) . ',' . trim($nv[1]) . ')';
+                    $str = 'stacklet('.trim($nv[0]).','.trim($nv[1]).')';
                 }
             }
         } else {

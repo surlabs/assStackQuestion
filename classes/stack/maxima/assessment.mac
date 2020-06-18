@@ -2254,7 +2254,7 @@ ATEquivFirst(SA, SB, SO) := block([SAA, SAB, SOO, opts, ret, A, AnswerNote, Feed
 
     ret:ATEqualComAss(first(SA), first(SB)),
     if not(second(ret)) then
-         return([false, false, "ATEquivFirst_SA_wrong_start", StackAddFeedback("", "ATEquivFirst_SA_wrong_start", stack_disp(first(SB), "i"))]),
+         return([false, false, "ATEquivFirst_SA_wrong_start", StackAddFeedback("", "ATEquivFirst_SA_wrong_start", stack_disp(first(SA), "i"))]),
 
     /* Actually perform the test.  */
     A:stack_eval_equiv_arg(SA, true, true, false, false),

@@ -156,116 +156,115 @@ class stack_cas_session
         return $found;
     }
 
-    /* This is the function which actually sends the commands off to Maxima. */
-    public function instantiate()
-    {
-        if (null === $this->valid) {
-            $this->validate();
-        }
-        if (!$this->valid) {
-            return false;
-        }
-        // Lazy instantiation - only do this once...
-        // Empty session.  Nothing to do.
-        if ($this->instantiated || null === $this->session) {
-            return true;
-        }
+	/* This is the function which actually sends the commands off to Maxima. */
+	public function instantiate() {
+		if (null === $this->valid) {
+			$this->validate();
+		}
+		if (!$this->valid) {
+			return false;
+		}
+		// Lazy instantiation - only do this once...
+		// Empty session.  Nothing to do.
+		if ($this->instantiated || null === $this->session) {
+			return true;
+		}
 
-        $connection = stack_connection_helper::make();
-        $results = $connection->compute($this->construct_maxima_command());
-        $this->debuginfo = $connection->get_debuginfo();
-        // Now put the information back into the correct slots.
-        $session = $this->session;
-        $newsession = array();
-        $newerrors = '';
-        $allfail = true;
-        $i = 0;
+		$connection = stack_connection_helper::make();
+		$results = $connection->compute($this->construct_maxima_command());
+		$this->debuginfo = $connection->get_debuginfo();
+		// Now put the information back into the correct slots.
+		$session    = $this->session;
+		$newsession = array();
+		$newerrors  = '';
+		$allfail    = true;
+		$i          = 0;
 
-        // We loop over each entry in the session, not over the result.
-        // This way we can add an error for missing values.
-        foreach ($session as $cs) {
-            $gotvalue = false;
+		// We loop over each entry in the session, not over the result.
+		// This way we can add an error for missing values.
+		foreach ($session as $cs) {
+			$gotvalue = false;
 
-            if ('' == $cs->get_key()) {
-                $key = 'dumvar' . $i;
-            } else {
-                $key = $cs->get_key();
-            }
+			if ('' == $cs->get_key()) {
+				$key = 'dumvar'.$i;
+			} else {
+				$key = $cs->get_key();
+			}
 
-            if (array_key_exists($i, $results)) {
-                $allfail = false; // We at least got one result back from the CAS!
+			if (array_key_exists($i, $results)) {
+				$allfail = false; // We at least got one result back from the CAS!
 
-                $result = $results["$i"]; // GOCHA!  Results have string represenations of numbers, not int....
+				$result = $results["$i"]; // GOCHA!  Results have string represenations of numbers, not int....
 
-                if ('' != $result['error'] and false === strstr($result['error'], 'clipped')) {
-                    $cs->add_errors($result['error']);
-                    $cs->decode_maxima_errors($result['error']);
-                    $newerrors .= stack_maxima_format_casstring($cs->get_raw_casstring());
-                    $newerrors .= ' ' . stack_string("stackCas_CASErrorCaused") .
-                        ' ' . $result['error'] . ' ';
-                }
+				if ('' != $result['error'] and false === strstr($result['error'], 'clipped')) {
+					$cs->add_errors($result['error']);
+					$cs->decode_maxima_errors($result['error']);
+					$newerrors .= stack_maxima_format_casstring($cs->get_raw_casstring());
+					$newerrors .= ' '.stack_string("stackCas_CASErrorCaused") .
+						' ' . $result['error'] . ' ';
+				}
 
-                if (array_key_exists('value', $result)) {
-                    $val = str_replace('QMCHAR', '?', $result['value']);
-                    $cs->set_value($val);
-                    $gotvalue = true;
-                } else {
-                    $cs->add_errors(stack_string("stackCas_failedReturnOne"));
-                }
+				if (array_key_exists('value', $result)) {
+					$val = str_replace('QMCHAR', '?', $result['value']);
+					$cs->set_value($val);
+					$gotvalue = true;
+				} else {
+					$cs->add_errors(stack_string("stackCas_failedReturnOne"));
+				}
 
-                if (array_key_exists('display', $result)) {
-                    $disp = $result['display'];
-                    $disp = $this->translate_displayed_tex($disp);
-                    $cs->set_display($disp);
-                }
+				if (array_key_exists('display', $result)) {
+					$disp = $result['display'];
+					$disp = $this->translate_displayed_tex($disp);
+					$cs->set_display($disp);
+				}
 
-                if (array_key_exists('dispvalue', $result)) {
-                    $valfix = array('QMCHAR' => '?');
-                    // Need to add this in here also because strings may contain question mark characters.
-                    $val = $result['dispvalue'];
-                    foreach ($valfix as $key => $fix) {
-                        $val = str_replace($key, $fix, $val);
-                    }
-                    $val = str_replace('"!! ', '', $val);
-                    $val = str_replace(' !!"', '', $val);
-                    $cs->set_dispvalue(trim($val));
-                }
+				if (array_key_exists('dispvalue', $result)) {
+					$valfix = array('QMCHAR' => '?');
+					// Need to add this in here also because strings may contain question mark characters.
+					$val = $result['dispvalue'];
+					foreach ($valfix as $key => $fix) {
+						$val = str_replace($key, $fix, $val);
+					}
+					$val = str_replace('"!! ', '', $val);
+					$val = str_replace(' !!"', '', $val);
+					$cs->set_dispvalue(trim($val));
+				}
 
-                if (array_key_exists('valid', $result)) {
-                    $cs->set_valid($result['valid']);
-                }
+				if (array_key_exists('valid', $result)) {
+					$cs->set_valid($result['valid']);
+				}
 
-                if (array_key_exists('answernote', $result)) {
-                    $cs->set_answernote($result['answernote']);
-                }
+				if (array_key_exists('answernote', $result)) {
+					$cs->set_answernote($result['answernote']);
+				}
 
-                if (array_key_exists('feedback', $result)) {
-                    $feedback = $result['feedback'];
-                    $feedback = $this->translate_displayed_tex($feedback);
-                    $cs->set_feedback($feedback);
-                }
+				if (array_key_exists('feedback', $result)) {
+					$feedback = $result['feedback'];
+					$feedback = $this->translate_displayed_tex($feedback);
+					$cs->set_feedback($feedback);
+				}
 
-            } else if (!$gotvalue) {
-                $errstr = stack_string("stackCas_failedReturn") . ' ' . stack_maxima_format_casstring($cs->get_raw_casstring());
-                $cs->add_errors($errstr);
-                $cs->set_answernote('CASFailedReturn');
-                $newerrors .= $errstr;
-            }
+			} else if (!$gotvalue) {
+				$errstr = stack_string("stackCas_failedReturn").' '.stack_maxima_format_casstring($cs->get_raw_casstring());
+				$cs->add_errors($errstr);
+				$cs->set_answernote('CASFailedReturn');
+				$newerrors .= $errstr;
+			}
 
-            $newsession[] = $cs;
-            $i++;
-        }
-        $this->session = $newsession;
+			$newsession[] = $cs;
+			$i++;
+		}
+		$this->session = $newsession;
 
-        if ('' != $newerrors) {
-            $this->errors .= '<span class="error">' . stack_string('stackCas_CASError') . '</span>' . $newerrors;
-        }
-        if ($allfail) {
-            $this->errors = '<span class="error">' . stack_string('stackCas_allFailed') . '</span>';
-            $this->errors .= $this->get_debuginfo();
-        }
-        $this->instantiated = true;
-    }
+		if ('' != $newerrors) {
+			$this->errors .= '<span class="error">'.stack_string('stackCas_CASError').'</span>'.$newerrors;
+		}
+		if ($allfail) {
+			$this->errors = '<span class="error">'.stack_string('stackCas_allFailed').'</span>';
+			$this->errors .= $this->get_debuginfo();
+		}
+		$this->instantiated = true;
+	}
 
     /**
      * Some of the TeX contains language tags which we need to translate.

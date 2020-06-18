@@ -220,6 +220,7 @@ class assStackQuestionStackQuestion
 
 		//Step 6: Add correct answer as sesion value for all inputs
 		$this->addTeacherAnswersToSession($ilias_question);
+		$this->instantiateSession();
 		//Step 7: Calculate Session lenght;
 		$this->calculateSessionLenght();
 		//Step 8: Allow inputs to update themselves based on the model answers.
@@ -470,6 +471,7 @@ class assStackQuestionStackQuestion
 			}
 		}
 		$this->getSession()->add_vars($response);
+
 	}
 
 	/**
@@ -758,16 +760,14 @@ class assStackQuestionStackQuestion
 
 		foreach ($this->getPRTResults() as $prt_name => $prt_evaluation_data)
 		{
-
 			$prt_points = ((($prt_evaluation_data['state']->__get('score') /* - ($prt_evaluation_data['state']->__get('penalty')*/) * $prt_evaluation_data['state']->__get('weight')) * $this->getPoints()) / $max_weight;
 			$reached_points += $prt_points;
 			$this->setPRTResults($prt_points, $prt_name, 'points');
 			if ($test_mode == TRUE AND $active_id != NULL)
 			{
-				//$question->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name, $prt_points, $time, NULL, 0);
+				$question->saveWorkingDataValue($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name, $prt_points, $time, NULL, 0);
 			}
 		}
-
 		$this->reached_points = $reached_points;
 	}
 

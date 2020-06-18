@@ -555,8 +555,7 @@ abstract class stack_input
      * @param array $forbiddenkeys is an array of casstring keys which appears in the question variables.
      * @return stack_input_state represents the current state of the input.
      */
-    public function validate_student_response($response, $options, $teacheranswer, $forbiddenkeys, $ajaxinput = false)
-    {
+    public function validate_student_response($response, $options, $teacheranswer, $forbiddenkeys, $ajaxinput = false) {
         if (!is_a($options, 'stack_options')) {
             throw new stack_exception('stack_input: validate_student_response: options not of class stack_options');
         }
@@ -616,8 +615,8 @@ abstract class stack_input
             }
         }
         $interpretedanswer = $this->contents_to_maxima($modifiedcontents);
-        $lvarsdisp = '';
-        $note = '';
+        $lvarsdisp   = '';
+        $note        = '';
         $sessionvars = array();
 
         // Validate each line separately, where required and when there is something from the teacher to match up to.
@@ -640,7 +639,7 @@ abstract class stack_input
             }
 
             if (array_key_exists($index, $errors) && '' == $errors[$index]) {
-                $cs->set_cas_validation_casstring($this->name . $index,
+                $cs->set_cas_validation_casstring($this->name.$index,
                     $this->get_parameter('forbidFloats', false), $this->get_parameter('lowestTerms', false),
                     $ta, $ivalidationmethod, $this->get_parameter('allowWords', ''),
                     $this->get_extra_option('simp', false));
@@ -662,11 +661,9 @@ abstract class stack_input
             $sessionvars[] = $answer;
         }
 
-        //fau: #43 Use the old code until getting an answer from chris
-        /* ASK CHRIS ABOUT stack_validate_listofvars
         // Generate an expression from which we extract the list of variables in the student's answer.
         // We do this from the *answer* once interprted, so stars are inserted if insertStars=2.
-        $lvars = new stack_cas_casstring('stack_validate_listofvars(' . $this->name . ')');
+        $lvars = new stack_cas_casstring('stack_validate_listofvars('.$this->name.')');
         $lvars->get_valid('t', $this->get_parameter('strictSyntax', true),
             $this->get_parameter('insertStars', 0), $this->get_parameter('allowWords', ''));
         if ($lvars->get_valid() && $valid && $answer->get_valid()) {
@@ -674,21 +671,6 @@ abstract class stack_input
         }
         $additionalvars = array_merge($this->extra_option_variables(),
             $this->additional_session_variables($caslines, $teacheranswer));
-        $sessionvars = array_merge($sessionvars, $additionalvars);
-
-        $localoptions->set_option('simplify', false);
-        $session = new stack_cas_session($sessionvars, $localoptions, 0);
-        $session->instantiate();*/
-
-        // Generate an expression from which we extract the list of variables in the student's answer.
-        // We do this from the *answer* once interprted, so stars are inserted if insertStars=2.
-        $lvars = new stack_cas_casstring('ev(sort(listofvars(' . $this->name . ')),simp)');
-        $lvars->get_valid('t', $this->get_parameter('strictSyntax', true), $this->get_parameter('insertStars', 0), $this->get_parameter('allowWords', ''));
-        if ($lvars->get_valid() && $valid && $answer->get_valid())
-        {
-            $sessionvars[] = $lvars;
-        }
-        $additionalvars = $this->additional_session_variables($caslines, $teacheranswer);
         $sessionvars = array_merge($sessionvars, $additionalvars);
 
         $localoptions->set_option('simplify', false);
@@ -729,7 +711,7 @@ abstract class stack_input
 
         // The EMPTYANSWER is not sufficiently robust to determine if we have an empty answer, e.g. matrix inputs.
         if ($this->get_extra_option('allowempty') && $this->is_blank_response($contents)
-            && (array_key_exists($this->name, $response) || array_key_exists($this->name . '_sub_0_0', $response))) {
+            && (array_key_exists($this->name, $response) || array_key_exists($this->name.'_sub_0_0', $response))) {
             return new stack_input_state(self::SCORE, $contents, $interpretedanswer, '', array(), '', '');
         }
 

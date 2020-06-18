@@ -74,9 +74,7 @@ class assStackQuestionEvaluation
 			{
 				$this->getQuestion()->setPoints(0.0);
 			}
-
 			//Step 3: Returns evaluation data
-
 			return $this->getQuestion();
 		} else
 		{
@@ -126,7 +124,6 @@ class assStackQuestionEvaluation
 		{
 			$this->addPenalty();
 		}
-
 		//If everything was OK
 		return TRUE;
 	}
@@ -154,7 +151,6 @@ class assStackQuestionEvaluation
 		{
 			return FALSE;
 		}
-
 		//Step #4: Tests have been passed, return TRUE
 		return TRUE;
 	}
@@ -189,7 +185,6 @@ class assStackQuestionEvaluation
 				return FALSE;
 			}
 		}
-
 		//If everything correct, return TRUE to evaluate the PRT.
 		return TRUE;
 	}
@@ -234,6 +229,7 @@ class assStackQuestionEvaluation
 	 */
 	private function evaluatePotentialResponseTree($potentialresponse_tree_name, $accept_valid)
 	{
+
 		//Get all the pairs input_name => user_response needed to evaluate the current PRT
 		$prt_inputs = $this->getPotentialResponseTreeInputs($potentialresponse_tree_name, $accept_valid);
 
@@ -242,7 +238,6 @@ class assStackQuestionEvaluation
 
 		//Evaluates the current PRT
 		$potentialresponse_tree_state = $potentialresponse_tree->evaluate_response($this->getQuestion()->getSession(), $this->getQuestion()->getOptions(), $prt_inputs, $this->getQuestion()->getSeed());
-
 		//Check for penalty
 		if ((float)$potentialresponse_tree_state->__get('score') != 1.0)
 		{
@@ -258,6 +253,7 @@ class assStackQuestionEvaluation
 		$evaluation_data['inputs_evaluated'] = $prt_inputs;
 
 		$this->getQuestion()->setPRTResults($evaluation_data, $potentialresponse_tree->get_name());
+		$this->getQuestion()->calculatePoints();
 
 		return TRUE;
 	}

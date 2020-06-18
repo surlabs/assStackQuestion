@@ -132,12 +132,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			$pass = $this->getSolutionMaxPass($active_id);
 		}
 
-		//In case of check in test
-		if ($authorizedSolution == FALSE)
-		{
-			return $this->stack_question->reached_points;
-		}
-
 		// get all saved part solutions with points assigned
 		$result = $this->getCurrentSolutionResultSet($active_id, $pass, $authorizedSolution);
 
@@ -149,7 +143,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		{
 			$points[$row['value1']] = (float)$row['points'];
 		}
-
 		return array_sum($points);
 	}
 
@@ -188,14 +181,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		$saved = true;
 
 		$user_solution = $this->getSolutionSubmit();
-
 		//Calculate results for user_solution before save it
 		//Create evaluation object
 		$this->plugin->includeClass("model/question_evaluation/class.assStackQuestionEvaluation.php");
 		$evaluation_object = new assStackQuestionEvaluation($this->plugin, $this->getStackQuestion(), $user_solution);
 		//Evaluate question
 		$question_evaluation = $evaluation_object->evaluateQuestion();
-		$question_evaluation->calculatePoints();
 
 		//Get Feedback
 		$this->plugin->includeClass('model/question_evaluation/class.assStackQuestionFeedback.php');
@@ -204,7 +195,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 
 		//DB Operations
 		//$this->getProcessLocker()->requestUserSolutionUpdateLock();
-
 		//If ILIAS 5.1  or 5.0 using intermediate
 		if (method_exists($this, "getUserSolutionPreferingIntermediate"))
 		{
@@ -1691,6 +1681,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	public function calculateReachedPointsForSolution($found_values)
 	{
 		$points = 0.0;
+		var_dump($this->getStackQuestion()->getPRTResults());
 		foreach ($this->getStackQuestion()->getPRTResults() as $prt_name => $results)
 		{
 			$points = $points + $results['points'];
@@ -1739,10 +1730,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 */
 	public function getUserQuestionResult($active_id, $pass)
 	{
+
 		require_once './Modules/TestQuestionPool/classes/class.ilUserQuestionResult.php';
 
 		$result = new ilUserQuestionResult($this, $active_id, $pass);
-
 		$points = (float)$this->calculateReachedPoints($active_id, $pass);
 		$max_points = (float)$this->getMaximumPoints();
 		$result->setReachedPercentage(($points / $max_points) * 100);
@@ -1950,5 +1941,15 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	public function fetchIndexedValuesFromValuePairs(array $valuePairs)
 	{
 		return $valuePairs;
+	}
+
+	public function validateSolutionSubmit()
+	{
+		return true;
+	}
+
+	public function calculateReachedPointsFromPreviewSession(ilAssQuestionPreviewSession $previewSession)
+	{
+		return $this->getStackQuestion()->reached_points;
 	}
 }

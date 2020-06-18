@@ -166,7 +166,6 @@ class assStackQuestionPreview
 		} else {
 			$preview_data['question_feedback'] = FALSE;
 		}
-
 		return $preview_data;
 	}
 

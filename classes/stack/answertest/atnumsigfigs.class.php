@@ -22,34 +22,31 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2016 University of Edinburgh
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_anstest_atnumsigfigs extends stack_anstest
-{
+class stack_anstest_atnumsigfigs extends stack_anstest {
 
-    public function __construct($sans, $tans, $options, $atoption, $casfunction, $simp)
-    {
+    public function __construct($sans, $tans, $options, $atoption, $casfunction, $simp) {
         parent::__construct($sans, $tans, $options, $atoption);
 
         $this->casfunction = $casfunction;
-        $this->simp = (bool)$simp;
+        $this->simp        = (bool) $simp;
     }
 
-    public function do_test()
-    {
+    public function do_test() {
         if ('' == trim($this->sanskey)) {
-            $this->aterror = stack_string('TEST_FAILED', array('errors' => stack_string("AT_EmptySA")));
-            $this->atfeedback = stack_string('TEST_FAILED', array('errors' => stack_string("AT_EmptySA")));
-            $this->atansnote = $this->casfunction . 'TEST_FAILED:Empty SA.';
-            $this->atmark = 0;
-            $this->atvalid = false;
+            $this->aterror      = stack_string('TEST_FAILED', array('errors' => stack_string("AT_EmptySA")));
+            $this->atfeedback   = stack_string('TEST_FAILED', array('errors' => stack_string("AT_EmptySA")));
+            $this->atansnote    = $this->casfunction.'TEST_FAILED:Empty SA.';
+            $this->atmark       = 0;
+            $this->atvalid      = false;
             return null;
         }
 
         if ('' == trim($this->tanskey)) {
-            $this->aterror = stack_string('TEST_FAILED', array('errors' => stack_string("AT_EmptyTA")));
-            $this->atfeedback = stack_string('TEST_FAILED', array('errors' => stack_string("AT_EmptyTA")));
-            $this->atansnote = $this->casfunction . 'TEST_FAILED:Empty TA.';
-            $this->atmark = 0;
-            $this->atvalid = false;
+            $this->aterror      = stack_string('TEST_FAILED', array('errors' => stack_string("AT_EmptyTA")));
+            $this->atfeedback   = stack_string('TEST_FAILED', array('errors' => stack_string("AT_EmptyTA")));
+            $this->atansnote    = $this->casfunction.'TEST_FAILED:Empty TA.';
+            $this->atmark       = 0;
+            $this->atvalid      = false;
             return null;
         }
 
@@ -58,20 +55,20 @@ class stack_anstest_atnumsigfigs extends stack_anstest
         $requiredsigfigs = $atopt;
         $requiredaccuracy = $atopt;
         if (substr($atopt, 0, 1) == '[') {
-            $opts = substr(substr($atopt, 0, -1), 1);
+            $opts = substr(substr($atopt, 0 , -1), 1);
             $opts = explode(',', $opts);
             $requiredsigfigs = trim($opts[0]);
             $requiredaccuracy = trim($opts[1]);
         }
         $strictsigfigs = false;
         $condoneextrasigfigs = false;
-        $numaccuracy = true;
+        $numaccuracy   = true;
         if ('ATSigFigsStrict' == $this->casfunction) {
             $strictsigfigs = true;
-            $numaccuracy = false;
+            $numaccuracy   = false;
         }
         if ($requiredaccuracy == 0) {
-            $numaccuracy = false;
+            $numaccuracy   = false;
         }
         if ('ATNumSigFigs' == $this->casfunction && $requiredaccuracy == -1) {
             $condoneextrasigfigs = true;
@@ -81,24 +78,24 @@ class stack_anstest_atnumsigfigs extends stack_anstest
         }
 
         if (null == $atopt or '' == $atopt or 0 === $atopt or $requiredsigfigs <= 0
-            or $requiredaccuracy < 0 or !ctype_digit($requiredsigfigs) or !ctype_digit($requiredaccuracy)) {
-            $this->aterror = 'TEST_FAILED';
-            $this->atfeedback = stack_string('TEST_FAILED', array('errors' => stack_string("AT_MissingOptions")));
-            $this->atansnote = 'STACKERROR_OPTION.';
-            $this->atmark = 0;
-            $this->atvalid = false;
+                or $requiredaccuracy < 0 or !ctype_digit($requiredsigfigs) or !ctype_digit($requiredaccuracy)) {
+            $this->aterror      = 'TEST_FAILED';
+            $this->atfeedback   = stack_string('TEST_FAILED', array('errors' => stack_string("AT_MissingOptions")));
+            $this->atansnote    = 'STACKERROR_OPTION.';
+            $this->atmark       = 0;
+            $this->atvalid      = false;
             return null;
         } else {
             // Validate with teacher privileges, strict syntax & no automatically adding stars.
-            $ct = new stack_cas_casstring($this->atoption);
+            $ct  = new stack_cas_casstring($this->atoption);
 
             if (!$ct->get_valid('t', true, 1)) {
-                $this->aterror = 'TEST_FAILED';
-                $this->atfeedback = stack_string('TEST_FAILED', array('errors' => ''));
-                $this->atfeedback .= stack_string('AT_InvalidOptions', array('errors' => $ct->get_errors()));
-                $this->atansnote = 'STACKERROR_OPTION.';
-                $this->atmark = 0;
-                $this->atvalid = false;
+                $this->aterror      = 'TEST_FAILED';
+                $this->atfeedback   = stack_string('TEST_FAILED', array('errors' => ''));
+                $this->atfeedback  .= stack_string('AT_InvalidOptions', array('errors' => $ct->get_errors()));
+                $this->atansnote    = 'STACKERROR_OPTION.';
+                $this->atmark       = 0;
+                $this->atvalid      = false;
                 return null;
             }
         }
@@ -112,16 +109,16 @@ class stack_anstest_atnumsigfigs extends stack_anstest
             if ($r['lowerbound'] == $this->atoption) {
                 $this->atmark = 1;
             } else if ($r['lowerbound'] <= $this->atoption && $this->atoption <= $r['upperbound']) {
-                $this->atansnote = $this->casfunction . '_WithinRange. ';
+                $this->atansnote    = $this->casfunction.'_WithinRange. ';
             }
         } else if ($condoneextrasigfigs) {
             // Round the student's answer.
-            $this->sanskey = 'significantfigures(' . $this->sanskey . ',' . $requiredsigfigs . ')';
+            $this->sanskey = 'significantfigures('.$this->sanskey.','.$requiredsigfigs.')';
             if ($requiredsigfigs <= $r['lowerbound']) {
                 $withinrange = true;
                 $this->atmark = 1;
             } else {
-                $this->atansnote = $this->casfunction . '_WrongDigits. ';
+                $this->atansnote = $this->casfunction.'_WrongDigits. ';
                 // Note, we combine with feedback from the CAS, so we set up a situation which can be combined with
                 // other CAS-generated feedback here.
                 $this->atfeedback = "stack_trans('ATNumSigFigs_WrongDigits');";
@@ -133,11 +130,11 @@ class stack_anstest_atnumsigfigs extends stack_anstest
                 $withinrange = true;
                 $this->atmark = 1;
             } else if ($r['lowerbound'] <= $requiredsigfigs && $requiredsigfigs <= $r['upperbound']) {
-                $this->atansnote = $this->casfunction . '_WithinRange. ';
+                $this->atansnote = $this->casfunction.'_WithinRange. ';
                 $withinrange = true;
                 $this->atmark = 1;
             } else {
-                $this->atansnote = $this->casfunction . '_WrongDigits. ';
+                $this->atansnote = $this->casfunction.'_WrongDigits. ';
                 // Note, we combine with feedback from the CAS, so we set up a situation which can be combined with
                 // other CAS-generated feedback here.
                 $this->atfeedback = "stack_trans('ATNumSigFigs_WrongDigits');";
@@ -169,7 +166,7 @@ class stack_anstest_atnumsigfigs extends stack_anstest
 
         $cts = array();
         foreach ($cascommands as $com) {
-            $cs = new stack_cas_casstring($com);
+            $cs    = new stack_cas_casstring($com);
             $cs->get_valid('t', true, 0);
             $cts[] = $cs;
         }
@@ -179,29 +176,29 @@ class stack_anstest_atnumsigfigs extends stack_anstest
 
         $this->debuginfo = $session->get_debuginfo();
         if ('' != $session->get_errors_key('STACKSA')) {
-            $this->aterror = 'TEST_FAILED';
-            $this->atfeedback = stack_string('TEST_FAILED', array('errors' => $session->get_errors_key('STACKSA')));
-            $this->atansnote = $this->casfunction . '_STACKERROR_SAns.';
-            $this->atmark = 0;
-            $this->atvalid = false;
+            $this->aterror      = 'TEST_FAILED';
+            $this->atfeedback   = stack_string('TEST_FAILED', array('errors' => $session->get_errors_key('STACKSA')));
+            $this->atansnote    = $this->casfunction.'_STACKERROR_SAns.';
+            $this->atmark       = 0;
+            $this->atvalid      = false;
             return null;
         }
 
         if ('' != $session->get_errors_key('STACKTA')) {
-            $this->aterror = 'TEST_FAILED';
-            $this->atfeedback = stack_string('TEST_FAILED', array('errors' => $session->get_errors_key('STACKTA')));
-            $this->atansnote = $this->casfunction . '_STACKERROR_TAns.';
-            $this->atmark = 0;
-            $this->atvalid = false;
+            $this->aterror      = 'TEST_FAILED';
+            $this->atfeedback   = stack_string('TEST_FAILED', array('errors' => $session->get_errors_key('STACKTA')));
+            $this->atansnote    = $this->casfunction.'_STACKERROR_TAns.';
+            $this->atmark       = 0;
+            $this->atvalid      = false;
             return null;
         }
 
         if ('' != $session->get_errors_key('STACKOP')) {
-            $this->aterror = 'TEST_FAILED';
-            $this->atfeedback = stack_string('TEST_FAILED', array('errors' => $session->get_errors_key('STACKOP')));
-            $this->atansnote = $this->casfunction . '_STACKERROR_Opt.';
-            $this->atmark = 0;
-            $this->atvalid = false;
+            $this->aterror      = 'TEST_FAILED';
+            $this->atfeedback   = stack_string('TEST_FAILED', array('errors' => $session->get_errors_key('STACKOP')));
+            $this->atansnote    = $this->casfunction.'_STACKERROR_Opt.';
+            $this->atmark       = 0;
+            $this->atvalid      = false;
             return null;
         }
 
@@ -209,15 +206,15 @@ class stack_anstest_atnumsigfigs extends stack_anstest
         $result = $sessionvars[3];
 
         if ('' != $result->get_errors()) {
-            $this->aterror = 'TEST_FAILED';
+            $this->aterror      = 'TEST_FAILED';
             if ('' != trim($result->get_feedback())) {
                 $this->atfeedback .= $result->get_feedback();
             } else {
                 $this->atfeedback = stack_string('TEST_FAILED', array('errors' => $result->get_errors()));
             }
-            $this->atansnote = trim($result->get_answernote());
-            $this->atmark = 0;
-            $this->atvalid = false;
+            $this->atansnote    = trim($result->get_answernote());
+            $this->atmark       = 0;
+            $this->atvalid      = false;
             return null;
         }
 
@@ -228,13 +225,13 @@ class stack_anstest_atnumsigfigs extends stack_anstest
             $this->atmark = 0;
         }
 
-        $this->atvalid = $result->get_valid();
-        $this->atansnote .= trim($result->get_answernote());
+        $this->atvalid     = $result->get_valid();
+        $this->atansnote  .= trim($result->get_answernote());
         $this->atfeedback .= $result->get_feedback();
         $caserrormsgs = array('ATNumSigFigs_NotDecimal.', 'ATUnits_SA_not_expression.',
             'ATUnits_SA_no_units.', 'ATUnits_SA_only_units.');
         if (in_array(trim($result->get_answernote()), $caserrormsgs)) {
-            $this->atansnote = trim($result->get_answernote());
+            $this->atansnote  = trim($result->get_answernote());
             $this->atfeedback = $result->get_feedback();
             $this->atvalid = false;
         }
@@ -246,13 +243,11 @@ class stack_anstest_atnumsigfigs extends stack_anstest
         }
     }
 
-    public function process_atoptions()
-    {
+    public function process_atoptions() {
         return true;
     }
 
-    public function required_atoptions()
-    {
+    public function required_atoptions() {
         return true;
     }
 
@@ -262,8 +257,7 @@ class stack_anstest_atnumsigfigs extends stack_anstest
      * @return (bool, errors)
      * @access public
      */
-    public function validate_atoptions($opt)
-    {
+    public function validate_atoptions($opt) {
         return array(true, '');
     }
 }

@@ -573,7 +573,6 @@ class assStackQuestionUtils
                 $adapted_user_response[str_replace("xqcas_" . $question_id . "_", "", $input_name)] = ilUtil::stripScriptHTML($input_value);
             }
         }
-
         return $adapted_user_response;
     }
 

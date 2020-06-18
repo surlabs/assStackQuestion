@@ -22,8 +22,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2012 University of Birmingham
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_answertest_general_cas extends stack_anstest
-{
+class stack_answertest_general_cas extends stack_anstest {
 
     /**
      * $var bool Are options processed by the CAS.
@@ -42,13 +41,12 @@ class stack_answertest_general_cas extends stack_anstest
     private $simp;
 
     /**
-     * @param string $sans
-     * @param string $tans
-     * @param string $casoption
+     * @param  string $sans
+     * @param  string $tans
+     * @param  string $casoption
      */
     public function __construct($sans, $tans, $casfunction, $processcasoptions = false,
-                                $atoption = null, $options = null, $simp = false, $requiredoptions = false)
-    {
+            $atoption = null, $options = null, $simp = false, $requiredoptions = false) {
         parent::__construct($sans, $tans, $options, $atoption);
 
         if (!is_bool($processcasoptions)) {
@@ -59,11 +57,11 @@ class stack_answertest_general_cas extends stack_anstest
             throw new stack_exception('stack_answertest_general_cas: requiredoptions, must be Boolean.');
         }
 
-        $this->casfunction = $casfunction;
-        $this->atname = $casfunction;
+        $this->casfunction       = $casfunction;
+        $this->atname            = $casfunction;
         $this->processcasoptions = $processcasoptions;
-        $this->requiredoptions = $requiredoptions;
-        $this->simp = (bool)$simp;
+        $this->requiredoptions   = $requiredoptions;
+        $this->simp              = (bool) $simp;
     }
 
     /**
@@ -72,51 +70,49 @@ class stack_answertest_general_cas extends stack_anstest
      * @return bool
      * @access public
      */
-    public function do_test()
-    {
+    public function do_test() {
 
         if ('' == trim($this->sanskey)) {
-            $this->aterror = stack_string('TEST_FAILED', array('errors' => stack_string("AT_EmptySA")));
-            $this->atfeedback = stack_string('TEST_FAILED', array('errors' => stack_string("AT_EmptySA")));
-            $this->atansnote = $this->casfunction . 'TEST_FAILED:Empty SA.';
-            $this->atmark = 0;
-            $this->atvalid = false;
+            $this->aterror      = stack_string('TEST_FAILED', array('errors' => stack_string("AT_EmptySA")));
+            $this->atfeedback   = stack_string('TEST_FAILED', array('errors' => stack_string("AT_EmptySA")));
+            $this->atansnote    = $this->casfunction.'TEST_FAILED:Empty SA.';
+            $this->atmark       = 0;
+            $this->atvalid      = false;
             return null;
         }
 
         if ('' == trim($this->tanskey)) {
-            $this->aterror = stack_string('TEST_FAILED', array('errors' => stack_string("AT_EmptyTA")));
-            $this->atfeedback = stack_string('TEST_FAILED', array('errors' => stack_string("AT_EmptyTA")));
-            $this->atansnote = $this->casfunction . 'TEST_FAILED:Empty TA.';
-            $this->atmark = 0;
-            $this->atvalid = false;
+            $this->aterror      = stack_string('TEST_FAILED', array('errors' => stack_string("AT_EmptyTA")));
+            $this->atfeedback   = stack_string('TEST_FAILED', array('errors' => stack_string("AT_EmptyTA")));
+            $this->atansnote    = $this->casfunction.'TEST_FAILED:Empty TA.';
+            $this->atmark       = 0;
+            $this->atvalid      = false;
             return null;
         }
 
         if ($this->processcasoptions) {
             if (null == $this->atoption or '' == $this->atoption) {
-                $this->aterror = 'TEST_FAILED';
-                $this->atfeedback = stack_string('TEST_FAILED', array('errors' => stack_string("AT_MissingOptions")));
-                $this->atansnote = 'STACKERROR_OPTION.';
-                $this->atmark = 0;
-                $this->atvalid = false;
+                $this->aterror      = 'TEST_FAILED';
+                $this->atfeedback   = stack_string('TEST_FAILED', array('errors' => stack_string("AT_MissingOptions")));
+                $this->atansnote    = 'STACKERROR_OPTION.';
+                $this->atmark       = 0;
+                $this->atvalid      = false;
                 return null;
             } else {
                 // Validate with teacher privileges, strict syntax & no automatically adding stars.
-                $ct = new stack_cas_casstring($this->atoption);
+                $ct  = new stack_cas_casstring($this->atoption);
 
                 if (!$ct->get_valid('t', true, 1)) {
-                    $this->aterror = 'TEST_FAILED';
-                    $this->atfeedback = stack_string('TEST_FAILED', array('errors' => ''));
-                    $this->atfeedback .= stack_string('AT_InvalidOptions', array('errors' => $ct->get_errors()));
-                    $this->atansnote = 'STACKERROR_OPTION.';
-                    $this->atmark = 0;
-                    $this->atvalid = false;
+                    $this->aterror      = 'TEST_FAILED';
+                    $this->atfeedback   = stack_string('TEST_FAILED', array('errors' => ''));
+                    $this->atfeedback  .= stack_string('AT_InvalidOptions', array('errors' => $ct->get_errors()));
+                    $this->atansnote    = 'STACKERROR_OPTION.';
+                    $this->atmark       = 0;
+                    $this->atvalid      = false;
                     return null;
                 }
             }
         }
-
         // Sort out options.
         if (null === $this->options) {
             $this->options = new stack_options();
@@ -140,7 +136,7 @@ class stack_answertest_general_cas extends stack_anstest
         }
         $cascommands[] = "STACKSA:$sa";
         $cascommands[] = "STACKTA:$ta";
-        if (!$this->processcasoptions || trim($op) === '') {
+        if (!$this->processcasoptions || trim($op) === '' ) {
             $cascommands[] = "result:StackReturn({$this->casfunction}(STACKSA,STACKTA))";
         } else {
             $cascommands[] = "STACKOP:$op";
@@ -149,7 +145,7 @@ class stack_answertest_general_cas extends stack_anstest
 
         $cts = array();
         foreach ($cascommands as $com) {
-            $cs = new stack_cas_casstring($com);
+            $cs    = new stack_cas_casstring($com);
             $cs->get_valid('t', true, 0);
             $cts[] = $cs;
         }
@@ -158,83 +154,80 @@ class stack_answertest_general_cas extends stack_anstest
         $session->instantiate();
         $this->debuginfo = $session->get_debuginfo();
         if ('' != $session->get_errors_key('STACKSA')) {
-            $this->aterror = 'TEST_FAILED';
-            $this->atfeedback = stack_string('TEST_FAILED', array('errors' => $session->get_errors_key('STACKSA')));
-            $this->atansnote = $this->casfunction . '_STACKERROR_SAns.';
-            $this->atmark = 0;
-            $this->atvalid = false;
+            $this->aterror      = 'TEST_FAILED';
+            $this->atfeedback   = stack_string('TEST_FAILED', array('errors' => $session->get_errors_key('STACKSA')));
+            $this->atansnote    = $this->casfunction.'_STACKERROR_SAns.';
+            $this->atmark       = 0;
+            $this->atvalid      = false;
             return null;
         }
-
         if ('' != $session->get_errors_key('STACKTA')) {
-            $this->aterror = 'TEST_FAILED';
-            $this->atfeedback = stack_string('TEST_FAILED', array('errors' => $session->get_errors_key('STACKTA')));
-            $this->atansnote = $this->casfunction . '_STACKERROR_TAns.';
-            $this->atmark = 0;
-            $this->atvalid = false;
+            $this->aterror      = 'TEST_FAILED';
+            $this->atfeedback   = stack_string('TEST_FAILED', array('errors' => $session->get_errors_key('STACKTA')));
+            $this->atansnote    = $this->casfunction.'_STACKERROR_TAns.';
+            $this->atmark       = 0;
+            $this->atvalid      = false;
             return null;
         }
-
         if ($this->processcasoptions && trim($op) !== '') {
             if ('' != $session->get_errors_key('STACKOP')) {
-                $this->aterror = 'TEST_FAILED';
-                $this->atfeedback = stack_string('TEST_FAILED', array('errors' => $session->get_errors_key('STACKTA')));
-                $this->atansnote = $this->casfunction . '_STACKERROR_Opt.';
-                $this->atmark = 0;
-                $this->atvalid = false;
+                $this->aterror      = 'TEST_FAILED';
+                $this->atfeedback   = stack_string('TEST_FAILED', array('errors' => $session->get_errors_key('STACKTA')));
+                $this->atansnote    = $this->casfunction.'_STACKERROR_Opt.';
+                $this->atmark       = 0;
+                $this->atvalid      = false;
                 return null;
             }
         }
 
-        $sessionvars = $session->get_session();
-        if (!$this->processcasoptions || trim($op) === '') {
+
+		$sessionvars = $session->get_session();
+        if (!$this->processcasoptions || trim($op) === '' ) {
             $result = $sessionvars[3];
         } else {
             $result = $sessionvars[4];
         }
 
-        if ('' != $result->get_errors()) {
-            $this->aterror = 'TEST_FAILED';
+		if ('' != $result->get_errors()) {
+            $this->aterror      = 'TEST_FAILED';
             if ('' != trim($result->get_feedback())) {
                 $this->atfeedback = $result->get_feedback();
             } else {
                 $this->atfeedback = stack_string('TEST_FAILED', array('errors' => $result->get_errors()));
             }
-            $this->atansnote = trim($result->get_answernote());
-            $this->atmark = 0;
-            $this->atvalid = false;
+            $this->atansnote    = trim($result->get_answernote());
+            $this->atmark       = 0;
+            $this->atvalid      = false;
             return null;
         }
 
-        $this->atansnote = str_replace("\n", '', trim($result->get_answernote()));
-
+        $this->atansnote  = str_replace("\n", '', trim($result->get_answernote()));
         // Convert the Maxima string 'true' to PHP true.
-        if ('true' == $result->get_value()) {
+		//fau:changed to new maxima pool stack return
+		if (substr($result->get_value(),0,18) === "StackReturn([true," OR $result->get_value()=="true") {
             $this->atmark = 1;
         } else {
             $this->atmark = 0;
         }
         $this->atfeedback = $result->get_feedback();
-        $this->atvalid = $result->get_valid();
-        if ($this->atmark) {
+        $this->atvalid    = $result->get_valid();
+
+		if ($this->atmark) {
             return true;
         } else {
             return false;
         }
     }
 
-    public function process_atoptions()
-    {
+    public function process_atoptions() {
         return $this->processcasoptions;
     }
 
-    public function required_atoptions()
-    {
+    public function required_atoptions() {
         return $this->requiredoptions;
     }
 
-    public function get_debuginfo()
-    {
+    public function get_debuginfo() {
         return $this->debuginfo;
     }
 
@@ -244,8 +237,7 @@ class stack_answertest_general_cas extends stack_anstest
      * @return (bool, string)
      * @access public
      */
-    public function validate_atoptions($opt)
-    {
+    public function validate_atoptions($opt) {
         if ($this->processcasoptions) {
             $cs = new stack_cas_casstring($opt);
             return array($cs->get_valid('t'), $cs->get_errors());

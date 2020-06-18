@@ -661,24 +661,27 @@ $string['Bad_assignment']   = 'When listing the values of a variable you should 
 
 
 // Answer tests.
+
 $string['stackOptions_AnsTest_values_AlgEquiv']            = "AlgEquiv";
 $string['stackOptions_AnsTest_values_EqualComAss']         = "EqualComAss";
 $string['stackOptions_AnsTest_values_CasEqual']            = "CasEqual";
 $string['stackOptions_AnsTest_values_SameType']            = "SameType";
 $string['stackOptions_AnsTest_values_SubstEquiv']          = "SubstEquiv";
 $string['stackOptions_AnsTest_values_SysEquiv']            = "SysEquiv";
+$string['stackOptions_AnsTest_values_Sets']                = "Sets";
 $string['stackOptions_AnsTest_values_Expanded']            = "Expanded";
 $string['stackOptions_AnsTest_values_FacForm']             = "FacForm";
 $string['stackOptions_AnsTest_values_SingleFrac']          = "SingleFrac";
 $string['stackOptions_AnsTest_values_PartFrac']            = "PartFrac";
 $string['stackOptions_AnsTest_values_CompSquare']          = "CompletedSquare";
 $string['stackOptions_AnsTest_values_Equiv']               = "EquivReasoning";
-$string['stackOptions_AnsTest_values_EquivFirst']      = "EquivFirst";
+$string['stackOptions_AnsTest_values_EquivFirst']          = "EquivFirst";
 $string['stackOptions_AnsTest_values_SigFigsStrict']       = "SigFigsStrict";
 $string['stackOptions_AnsTest_values_NumRelative']         = "NumRelative";
 $string['stackOptions_AnsTest_values_NumAbsolute']         = "NumAbsolute";
 $string['stackOptions_AnsTest_values_NumSigFigs']          = "NumSigFigs";
 $string['stackOptions_AnsTest_values_NumDecPlaces']        = "NumDecPlaces";
+$string['stackOptions_AnsTest_values_NumDecPlacesWrong']   = "NumDecPlacesWrong";
 $string['stackOptions_AnsTest_values_UnitsSigFigs']        = "UnitsSigFigs";
 $string['stackOptions_AnsTest_values_UnitsStrictSigFigs']  = "UnitsStrictSigFigs";
 $string['stackOptions_AnsTest_values_UnitsRelative']       = "UnitsRelative";

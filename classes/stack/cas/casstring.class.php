@@ -579,87 +579,86 @@ class stack_cas_casstring
      *              2 - assume single letter variables only.
      * $allowwords enables specific function names (but never those from $globalforbid)
      */
-    public function validate($security = 's', $syntax = true, $insertstars = 0, $allowwords = '')
-    {
+	public function validate($security='s', $syntax=true, $insertstars=0, $allowwords='') {
 
-        if (!('s' === $security || 't' === $security)) {
-            throw new stack_exception('stack_cas_casstring: security level, must be "s" or "t" only.');
-        }
+		if (!('s' === $security || 't' === $security)) {
+			throw new stack_exception('stack_cas_casstring: security level, must be "s" or "t" only.');
+		}
 
-        if (!is_bool($syntax)) {
-            throw new stack_exception('stack_cas_casstring: syntax, must be Boolean.');
-        }
+		if (!is_bool($syntax)) {
+			throw new stack_exception('stack_cas_casstring: syntax, must be Boolean.');
+		}
 
-        if (!is_int($insertstars)) {
-            throw new stack_exception('stack_cas_casstring: insertstars, must be an integer.');
-        }
+		if (!is_int($insertstars)) {
+			throw new stack_exception('stack_cas_casstring: insertstars, must be an integer.');
+		}
 
-        $this->valid = true;
-        $this->casstring = $this->rawcasstring;
+		$this->valid     = true;
+		$this->casstring = $this->rawcasstring;
 
-        // CAS strings must be non-empty.
-        if (trim($this->casstring) == '') {
-            $this->answernote[] = 'empty';
-            $this->valid = false;
-            return false;
-        }
+		// CAS strings must be non-empty.
+		if (trim($this->casstring) == '') {
+			$this->answernote[] = 'empty';
+			$this->valid = false;
+			return false;
+		}
 
-        // Remove the contents of "strings".
-        $stringles = stack_utils::eliminate_strings($this->casstring);
+		// Remove the contents of "strings".
+		$stringles = stack_utils::eliminate_strings($this->casstring);
 
-        // From now on all checks ignore the contents of "strings" and most definitely do not modify them.
-        if (strpos($stringles, '"') !== false) {
-            $this->check_string_usage($stringles);
-        }
-        $this->check_constants($stringles);
+		// From now on all checks ignore the contents of "strings" and most definitely do not modify them.
+		if (strpos($stringles, '"') !== false) {
+			$this->check_string_usage($stringles);
+		}
+		$this->check_constants($stringles);
 
-        if ($this->units) {
-            $stringles = stack_cas_casstring_units::make_units_substitutions($stringles);
-        }
-        // We do this before checking security to provide helpful feedback to students.
-        if ($security == 's') {
-            $this->check_bad_trig($stringles);
-        }
+		if ($this->units) {
+			$stringles = stack_cas_casstring_units::make_units_substitutions($stringles);
+		}
+		// We do this before checking security to provide helpful feedback to students.
+		if ($security == 's') {
+			$this->check_bad_trig($stringles);
+		}
 
-        $this->check_characters($stringles, $security);
-        if (strpos($stringles, ',') !== false) {
-            $this->check_commas($stringles);
-        }
-        $this->check_operators($stringles, $security);
+		$this->check_characters($stringles, $security);
+		if (strpos($stringles, ',') !== false) {
+			$this->check_commas($stringles);
+		}
+		$this->check_operators($stringles, $security);
 
-        if (preg_match("/[\(\)\{\}\[\]]/", $stringles) == 1) {
-            $this->check_parentheses($stringles);
-        }
+		if (preg_match("/[\(\)\{\}\[\]]/", $stringles) == 1) {
+			$this->check_parentheses($stringles);
+		}
 
-        // This is a special check that also modifies the strings structure.
-        $stringles = $this->check_spaces($stringles, $security, $syntax, $insertstars);
+		// This is a special check that also modifies the strings structure.
+		$stringles = $this->check_spaces($stringles, $security, $syntax, $insertstars);
 
-        $this->check_security($stringles, $security, $allowwords);
+		$this->check_security($stringles, $security, $allowwords);
 
-        // We need to split keyvals off here before we check underscore characters.
-        $this->casstring = $stringles;
-        $this->key_val_split();
-        $stringles = $this->casstring;
-        $stringleskey = $this->key;
+		// We need to split keyvals off here before we check underscore characters.
+		$this->casstring = $stringles;
+		$this->key_val_split();
+		$stringles = $this->casstring;
+		$stringleskey = $this->key;
 
-        // This is a special check that also modifies the strings structure.
-        // Note this must be before check_stars and check_underscores, but after keyval split!
-        $stringles = $this->check_logs($stringles);
+		// This is a special check that also modifies the strings structure.
+		// Note this must be before check_stars and check_underscores, but after keyval split!
+		$stringles = $this->check_logs($stringles);
 
-        // This is a special check that also modifies the strings structure.
-        $stringles = $this->check_stars($stringles, $security, $syntax, $insertstars);
+		// This is a special check that also modifies the strings structure.
+		$stringles = $this->check_stars($stringles, $security, $syntax, $insertstars);
 
-        $this->check_underscores($stringles, $security);
+		$this->check_underscores($stringles, $security);
 
-        // Inject the strings back. Noting the possibility of strings in the key.
-        $injecttarget = $stringleskey . '|>key_val_split<|' . $stringles;
-        $injecttarget = $this->strings_replace($injecttarget);
-        $split = explode('|>key_val_split<|', $injecttarget, 2);
-        $this->casstring = $split[1];
-        $this->key = $split[0];
+		// Inject the strings back. Noting the possibility of strings in the key.
+		$injecttarget = $stringleskey . '|>key_val_split<|' . $stringles;
+		$injecttarget = $this->strings_replace($injecttarget);
+		$split = explode('|>key_val_split<|', $injecttarget, 2);
+		$this->casstring = $split[1];
+		$this->key = $split[0];
 
-        return $this->valid;
-    }
+		return $this->valid;
+	}
 
     private function check_string_usage($stringles)
     {
@@ -1574,7 +1573,7 @@ class stack_cas_casstring
             $this->validate();
         }
         if ($raw === 'implode') {
-            return trim(implode(' | ', $this->answernote));
+			return trim(implode(' | ', $this->answernote));
         }
         return $this->answernote;
     }
@@ -1642,17 +1641,17 @@ class stack_cas_casstring
         $fltfmt = stack_utils::decimal_digits($starredanswer);
         $fltfmt = $fltfmt['fltfmt'];
 
-        $this->casstring = 'stack_validate([' . $starredanswer . '], ' . $forbidfloats . ',' . $lowestterms . ',' . $tans . ')';
+        //Fau: Changes to stack_validate calls to delete forbidfloats, FINALLY NOT
+        $this->casstring = 'stack_validate([' . $starredanswer . '], ' . $forbidfloats . ', ' . $lowestterms . ',' . $tans . ')';
         if ($validationmethod == 'typeless') {
             // Note, we don't pass in the teacher's as this option is ignored by the typeless validation.
-            $this->casstring = 'stack_validate_typeless([' . $starredanswer . '], ' . $forbidfloats . ', ' . $lowestterms . ', false, false)';
+            $this->casstring = 'stack_validate_typeless([' . $starredanswer . '], ' . $forbidfloats .', '. $lowestterms . ', false, ' . $fltfmt . ')';
         }
         if ($validationmethod == 'numerical') {
-            $this->casstring = 'stack_validate_typeless([' . $starredanswer . '],
-                    ' . $forbidfloats . ', ' . $lowestterms . ', false, ' . $fltfmt . ')';
+            $this->casstring = 'stack_validate_typeless([' . $starredanswer . '],' . $forbidfloats .', '. $lowestterms . ', false, ' . $fltfmt . ')';
         }
         if ($validationmethod == 'equiv') {
-            $this->casstring = 'stack_validate_typeless([' . $starredanswer . '], ' . $forbidfloats . ', ' . $lowestterms . ', true, false)';
+            $this->casstring = 'stack_validate_typeless([' . $starredanswer . '], ' . $forbidfloats . ', ' . $lowestterms . ', Equiv,'. $fltfmt.')';
         }
         if ($validationmethod == 'units') {
             // Note, we don't pass in forbidfloats as this option is ignored by the units validation.

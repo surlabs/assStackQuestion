@@ -24,11 +24,9 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2012 University of Birmingham
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_anstest_stringsloppy extends stack_anstest
-{
+class stack_anstest_stringsloppy extends stack_anstest {
 
-    public function do_test()
-    {
+    public function do_test() {
         $sa = str_replace(' ', '', strtolower(trim($this->sanskey)));
         $sa = str_replace("\n", '', $sa);
         $sa = str_replace("\t", '', $sa);
@@ -46,18 +44,15 @@ class stack_anstest_stringsloppy extends stack_anstest
         }
     }
 
-    public function process_atoptions()
-    {
+    public function process_atoptions() {
         return false;
     }
 
-    public function validate_atoptions($opt)
-    {
+    public function validate_atoptions($opt) {
         return array(true, '');
     }
 
-    protected function get_casfunction()
-    {
+    protected function get_casfunction() {
         return 'ATStringSloppy';
     }
 }
