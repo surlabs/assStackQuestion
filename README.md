@@ -91,6 +91,8 @@ Version History
 
 Version 3.2.0 (2020-06-18) for ILIAS 6
 ----------------------------------------
+This version includes the STACK core 4.2.2, this STACK version requires a Maxima Version =>5.41, if your installation runs this plugin with a Maxima Pool, the Maxima Pool must include the stack core required files of STACK version 2019090200. 
+
 **IMPORTANT**
 
 **KNOWN ISSUES:**
