@@ -535,7 +535,8 @@ abstract class stack_input
     }
 
     /* Convert an expression starting with a stackeq to an equals sign. */
-    protected function stackeq_to_equals($val)
+	//fau: Set to public
+    public function stackeq_to_equals($val)
     {
         if (substr(trim($val), 0, 8) == 'stackeq(') {
             $val = '= ' . substr(trim($val), 8, -1);
@@ -1160,7 +1161,7 @@ abstract class stack_input
     public function contents_to_maxima($contents)
     {
         if (array_key_exists(0, $contents)) {
-            return $contents[0];
+            return $this->stackeq_to_equals($contents[0]);
         } else {
             return '';
         }

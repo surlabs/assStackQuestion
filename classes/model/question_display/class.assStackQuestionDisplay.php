@@ -563,7 +563,8 @@ class assStackQuestionDisplay
 			$textarea_html = "";
 			foreach ($input_state->contents as $key => $val)
 			{
-				$textarea_html .= '<code>' . $val . '</code></br>';
+				//fau: add stacktoeq
+				$textarea_html .= '<code>' . $input->stackeq_to_equals($val) . '</code></br>';
 			}
 
 			$feedback .= html_writer::tag('p', "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $textarea_html . "</td><td class='xqcas_validation'>" . stack_string('studentValidation_yourLastAnswer', $input_state->contentsdisplayed) . "</td></tr>");

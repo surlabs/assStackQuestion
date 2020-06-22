@@ -157,8 +157,9 @@ class stack_equiv_input extends stack_input
      */
     public function contents_to_maxima($contents)
     {
+    	//fau: Change to stackeq_to_equals
         foreach ($contents as $key => $val) {
-            $contents[$key] = $this->equals_to_stackeq($val);
+            $contents[$key] = $this->stackeq_to_equals($val);
         }
         return '[' . implode(',', $contents) . ']';
     }
