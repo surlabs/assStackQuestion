@@ -200,6 +200,7 @@ class stack_cas_session {
                 }
 
                 if (array_key_exists('value', $result)) {
+
                     $val = str_replace('QMCHAR', '?', $result['value']);
                     $cs->set_value($val);
                     $gotvalue = true;

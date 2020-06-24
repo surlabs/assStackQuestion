@@ -1137,3 +1137,4 @@ $string['healthuncachedstack_CAS_calculation'] = 'Expected CAS calculation : {$a
 
 //Solve thttps://mantis.ilias.de/view.php?id=24003
 $string['stackCas_unencpsulated_comma'] = 'In dem eingegebenen Ausdruck erscheint ein Komma an ungewöhnlicher Stelle. Kommas werden zur Trennung von Elementen in Listen, Mengen usw. verwendet. Bitte verwenden Sie in Dezimalzahlen anstelle eines Kommas einen Dezimalpunkt.';
+$string['Variable_function']   = 'Folgendes erscheint in Ihrem Ausdruck sowohl als Variable als auch als Funktion: {$ a-> m0}. Bitte klären Sie Ihre Eingabe. Fügen Sie entweder * -Symbole ein, um Funktionen zu entfernen, oder machen Sie alle Vorkommensfunktionen.';

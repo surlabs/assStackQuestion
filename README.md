@@ -134,3 +134,11 @@ Included new options for insert stars, now teachers have 6 different options, yo
 Version 3.1.9 (2020-01-30) for ILIAS 5.4
 ----------------------------------------
 Solved a bug that prevented points to be properly calculated in preview mode when more than one PRT is present in a question.
+
+Version 3.1.10 (2020-06-24) for ILIAS 5.4
+----------------------------------------
+The following bugs have been solved:
+- 25256 and 27830 and 22273 about Matrix validation.
+- 24199 about dropdown field dissapearing if answered but other prt related inputs are not answered.
+- 27560 about inputs not properly deleted.
+- 25256 about specific feedback not shown in test results.

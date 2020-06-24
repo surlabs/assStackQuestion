@@ -35,8 +35,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->plugin = ilPlugin::getPluginObject(IL_COMP_MODULE, "TestQuestionPool", "qst", "assStackQuestion");
 
 		$this->object = new assStackQuestion();
-		if ($id >= 0)
-		{
+		if ($id >= 0) {
 			$this->object->loadFromDb($id);
 		}
 
@@ -57,8 +56,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		$this->required_tags = array("a", "blockquote", "br", "cite", "code", "div", "em", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "img", "li", "ol", "p", "pre", "span", "strike", "strong", "sub", "sup", "table", "caption", "thead", "th", "td", "tr", "u", "ul", "i", "b", "gap");
 
-		if (serialize($this->rte_tags) != serialize(($this->required_tags)))
-		{
+		if (serialize($this->rte_tags) != serialize(($this->required_tags))) {
 
 			$this->rte_tags = $this->required_tags;
 			$obj_advance = new ilObjAdvancedEditing();
@@ -73,8 +71,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function setRTESupport(ilTextAreaInputGUI $field)
 	{
-		if (empty($this->rte_tags))
-		{
+		if (empty($this->rte_tags)) {
 			$this->initRTESupport();
 		}
 		$field->setUseRte(true);
@@ -93,8 +90,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function getRTETags()
 	{
-		if (empty($this->rte_tags))
-		{
+		if (empty($this->rte_tags)) {
 			$this->initRTESupport();
 		}
 
@@ -112,8 +108,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	{
 
 		$hasErrors = (!$always) ? $this->editQuestion(TRUE) : FALSE;
-		if (!$hasErrors)
-		{
+		if (!$hasErrors) {
 			$this->deletionManagement();
 			$this->writeQuestionGenericPostData();
 			$this->writeQuestionSpecificPostData();
@@ -141,14 +136,32 @@ class assStackQuestionGUI extends assQuestionGUI
 		global $DIC;
 		$lng = $DIC->language();
 
-		if (is_array($_POST['cmd']['save']))
-		{
-			foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt)
-			{
-				if (isset($_POST['cmd']['save']['delete_full_prt_' . $prt_name]))
-				{
-					if ($this->checkPRTForDeletion($prt))
-					{
+		//Input delete: #27560
+		$question_text = $_POST["question"];
+		preg_match_all('|\[\[input:(\w*)\]\]|U', $question_text, $matches);
+		$inputs_to_save = $matches[1];
+
+		foreach ($this->object->getInputs() as $input_name => $input) {
+			$delete_input = TRUE;
+			foreach ($inputs_to_save as $key => $input_to_save) {
+				if ($input_name == $input_to_save) {
+					$delete_input = FALSE;
+				}
+			}
+
+			if ($delete_input) {
+				$q_inputs = $this->object->getInputs();
+				unset($q_inputs[$input_name]);
+				$this->object->setInputs($q_inputs);
+				$input->delete();
+
+			}
+		}
+
+		if (is_array($_POST['cmd']['save'])) {
+			foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt) {
+				if (isset($_POST['cmd']['save']['delete_full_prt_' . $prt_name])) {
+					if ($this->checkPRTForDeletion($prt)) {
 						return FALSE;
 					}
 					$prt->delete();
@@ -157,20 +170,16 @@ class assStackQuestionGUI extends assQuestionGUI
 					$this->object->setPotentialResponsesTrees($ptrs);
 
 					//#18703 Should delete also nodes
-					foreach ($prt->getPRTNodes() as $node_name => $node)
-					{
+					foreach ($prt->getPRTNodes() as $node_name => $node) {
 						$node->delete();
 					}
 
 					return TRUE;
 				}
-				foreach ($prt->getPRTNodes() as $node_name => $node)
-				{
+				foreach ($prt->getPRTNodes() as $node_name => $node) {
 
-					if (isset($_POST['cmd']['save']['delete_prt_' . $prt_name . '_node_' . $node->getNodeName()]))
-					{
-						if ($this->checkPRTNodeForDeletion($prt, $node))
-						{
+					if (isset($_POST['cmd']['save']['delete_prt_' . $prt_name . '_node_' . $node->getNodeName()])) {
+						if ($this->checkPRTNodeForDeletion($prt, $node)) {
 							return FALSE;
 						}
 						$node->delete();
@@ -183,8 +192,7 @@ class assStackQuestionGUI extends assQuestionGUI
 					}
 
 					//Copy Node
-					if (isset($_POST['cmd']['save']['copy_prt_' . $prt_name . '_node_' . $node->getNodeName()]))
-					{
+					if (isset($_POST['cmd']['save']['copy_prt_' . $prt_name . '_node_' . $node->getNodeName()])) {
 						//Do node copy here
 						$_SESSION['copy_node'] = $this->object->getId() . "_" . $prt_name . "_" . $node->getNodeName();
 						ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_node_copied_to_clipboard"), TRUE);
@@ -193,8 +201,7 @@ class assStackQuestionGUI extends assQuestionGUI
 					}
 
 					//Paste Node
-					if (isset($_POST['cmd']['save']['paste_node_in_' . $prt_name]))
-					{
+					if (isset($_POST['cmd']['save']['paste_node_in_' . $prt_name])) {
 						//Do node paste here
 						$raw_data = explode("_", $_SESSION['copy_node']);
 						$paste_question_id = $raw_data[0];
@@ -205,8 +212,7 @@ class assStackQuestionGUI extends assQuestionGUI
 						$paste_node = $paste_prt_node_list[$paste_node_name];
 
 						//Change values
-						if (is_a($paste_node, "assStackQuestionPRTNode"))
-						{
+						if (is_a($paste_node, "assStackQuestionPRTNode")) {
 							$paste_node->setNodeId("");
 							$paste_node->setQuestionId($this->object->getId());
 							$paste_node->setPRTName($prt_name);
@@ -225,8 +231,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 				//PRT COpy
 
-				if (isset($_POST['cmd']['save']['copy_prt_' . $prt_name]))
-				{
+				if (isset($_POST['cmd']['save']['copy_prt_' . $prt_name])) {
 					//Do node copy here
 					$_SESSION['copy_prt'] = $this->object->getId() . "_" . $prt_name;
 					ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_prt_copied_to_clipboard"), TRUE);
@@ -236,8 +241,7 @@ class assStackQuestionGUI extends assQuestionGUI
 				}
 
 				//Paste Node
-				if (isset($_POST['cmd']['save']['paste_prt']))
-				{
+				if (isset($_POST['cmd']['save']['paste_prt'])) {
 					$raw_data = explode("_", $_SESSION['copy_prt']);
 					$paste_question_id = $raw_data[0];
 					$paste_prt_name = $raw_data[1];
@@ -246,17 +250,14 @@ class assStackQuestionGUI extends assQuestionGUI
 					$paste_prt_list = assStackQuestionPRT::_read($paste_question_id);
 					$paste_prt = $paste_prt_list[$paste_prt_name];
 
-					if (is_a($paste_prt, 'assStackQuestionPRT'))
-					{
+					if (is_a($paste_prt, 'assStackQuestionPRT')) {
 						$paste_prt->setPRTId(-1);
 						$paste_prt->setQuestionId($this->object->getId());
 						$paste_prt->setPRTName($generated_prt_name);
 						$paste_prt->save();
 
-						foreach ($paste_prt->getPRTNodes() as $prt_node)
-						{
-							if (is_a($prt_node, 'assStackQuestionPRTNode'))
-							{
+						foreach ($paste_prt->getPRTNodes() as $prt_node) {
+							if (is_a($prt_node, 'assStackQuestionPRTNode')) {
 								$prt_node->setNodeId(-1);
 								$prt_node->setQuestionId($this->object->getId());
 								$prt_node->setPRTName($generated_prt_name);
@@ -283,10 +284,8 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function checkPRTForDeletion(assStackQuestionPRT $prt)
 	{
-		if (is_array($this->object->getPotentialResponsesTrees()))
-		{
-			if (sizeof($this->object->getPotentialResponsesTrees()) < 2)
-			{
+		if (is_array($this->object->getPotentialResponsesTrees())) {
+			if (sizeof($this->object->getPotentialResponsesTrees()) < 2) {
 				$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_not_enought_prts'));
 
 				return TRUE;
@@ -299,10 +298,8 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function checkPRTNodeForDeletion(assStackQuestionPRT $prt, assStackQuestionPRTNode $node)
 	{
-		if (is_array($prt->getPRTNodes()))
-		{
-			if (sizeof($prt->getPRTNodes()) < 2)
-			{
+		if (is_array($prt->getPRTNodes())) {
+			if (sizeof($prt->getPRTNodes()) < 2) {
 				$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_not_enought_prt_nodes'));
 
 				return TRUE;
@@ -310,17 +307,14 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 
-		if ((int)$prt->getFirstNodeName() == (int)$node->getNodeName())
-		{
+		if ((int)$prt->getFirstNodeName() == (int)$node->getNodeName()) {
 			$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_first_node'));
 
 			return TRUE;
 		}
 
-		foreach ($prt->getPRTNodes() as $prt_node)
-		{
-			if ($prt_node->getTrueNextNode() == $node->getNodeName() OR $prt_node->getFalseNextNode() == $node->getNodeName())
-			{
+		foreach ($prt->getPRTNodes() as $prt_node) {
+			if ($prt_node->getTrueNextNode() == $node->getNodeName() or $prt_node->getFalseNextNode() == $node->getNodeName()) {
 				$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_connected_node'));
 
 				return TRUE;
@@ -344,28 +338,21 @@ class assStackQuestionGUI extends assQuestionGUI
 		$text_inputs = stack_utils::extract_placeholders($this->object->getQuestion(), 'input');
 
 		//Edition and Deletion of inputs
-		foreach ($this->object->getInputs() as $input_name => $input)
-		{
-			if (in_array($input_name, $text_inputs))
-			{
+		foreach ($this->object->getInputs() as $input_name => $input) {
+			if (in_array($input_name, $text_inputs)) {
 				//Check if there exists placeholder in text
-				if (isset($_POST[$input_name . '_input_type']))
-				{
+				if (isset($_POST[$input_name . '_input_type'])) {
 					$input->writePostData($input_name);
 				}
-			} else
-			{
+			} else {
 				//If doesn' exist, check if must be deleted
-				if (is_array($this->object->getInputs()))
-				{
-					if (sizeof($this->object->getInputs()) < 2)
-					{
+				if (is_array($this->object->getInputs())) {
+					if (sizeof($this->object->getInputs()) < 2) {
 						//If there are less than two inputs you cannot delete it
 						//Add placeholder to question text
 						$this->object->setQuestion($this->object->getQuestion() . " [[input:{$input_name}]]  [[validation:{$input_name}]]");
 					}
-				} else
-				{
+				} else {
 					//Delete input from object
 					$db_inputs = $this->object->getInputs();
 					unset($db_inputs[$input_name]);
@@ -376,10 +363,8 @@ class assStackQuestionGUI extends assQuestionGUI
 			}
 		}
 		//Addition of inputs
-		foreach ($text_inputs as $input_name)
-		{
-			if (is_null($this->object->getInputs($input_name)))
-			{
+		foreach ($text_inputs as $input_name) {
+			if (is_null($this->object->getInputs($input_name))) {
 				//Create new Input
 				$new_input = new assStackQuestionInput(-1, $this->object->getId(), $input_name, 'algebraic', "");
 				$new_input->getDefaultInput();
@@ -392,17 +377,13 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 		//PRT
-		if (is_array($this->object->getPotentialResponsesTrees()))
-		{
-			foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt)
-			{
-				if (isset($_POST['prt_' . $prt_name . '_value']))
-				{
+		if (is_array($this->object->getPotentialResponsesTrees())) {
+			foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt) {
+				if (isset($_POST['prt_' . $prt_name . '_value'])) {
 					$prt->writePostData($prt_name, "", $this->getRTETags());
 				}
 				//Add new node if info is filled in
-				if ($_POST['prt_' . $prt->getPRTName() . '_node_' . $prt->getPRTName() . '_new_node_student_answer'] != "" AND $_POST['prt_' . $prt->getPRTName() . '_node_' . $prt->getPRTName() . '_new_node_teacher_answer'] != "")
-				{
+				if ($_POST['prt_' . $prt->getPRTName() . '_node_' . $prt->getPRTName() . '_new_node_student_answer'] != "" and $_POST['prt_' . $prt->getPRTName() . '_node_' . $prt->getPRTName() . '_new_node_teacher_answer'] != "") {
 					$new_node = new assStackQuestionPRTNode(-1, $this->object->getId(), $prt->getPRTName(), $prt->getLastNodeName() + 1, $_POST['prt_' . $prt->getPRTName() . '_node_' . $prt->getPRTName() . '_new_node_pos_next'], $_POST['prt_' . $prt->getPRTName() . '_node_' . $prt->getPRTName() . '_new_node_neg_next']);
 					$new_node->writePostData($prt_name, $prt_name . '_new_node', "", $new_node->getNodeName(), $this->getRTETags());
 				}
@@ -411,8 +392,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Addition of PRT and Nodes
 		//New PRT (and node) if the new prt is filled
-		if (isset($_POST['prt_new_prt_name']) AND $_POST['prt_new_prt_name'] != 'new_prt' AND !preg_match('/\s/', $_POST['prt_new_prt_name']))
-		{
+		if (isset($_POST['prt_new_prt_name']) and $_POST['prt_new_prt_name'] != 'new_prt' and !preg_match('/\s/', $_POST['prt_new_prt_name'])) {
 			//the prt name given is not used in this question
 			$new_prt = new assStackQuestionPRT(-1, $this->object->getId());
 			$new_prt_node = new assStackQuestionPRTNode(-1, $this->object->getId(), ilUtil::stripSlashes($_POST['prt_new_prt_name']), '1', -1, -1);
@@ -425,8 +405,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			$this->object->getOptions()->setSpecificFeedback($specific_feedback);
 		}
 
-		if (preg_match('/\s/', $_POST['prt_new_prt_name']))
-		{
+		if (preg_match('/\s/', $_POST['prt_new_prt_name'])) {
 			$this->question_gui->object->setErrors($this->object->getPlugin()->txt('error_not_valid_prt_name'));
 
 			return FALSE;
@@ -450,35 +429,29 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		$tabs = $DIC->tabs();
 		//Get solutions if given
-        if (is_object($this->getPreviewSession())) {
-            $solutions = (array)$this->getPreviewSession()->getParticipantsSolution();
-        }
+		if (is_object($this->getPreviewSession())) {
+			$solutions = (array)$this->getPreviewSession()->getParticipantsSolution();
+		}
 
 		//Include preview classes and set tab
 		$this->plugin->includeClass("model/question_display/class.assStackQuestionPreview.php");
 		$this->plugin->includeClass("GUI/question_display/class.assStackQuestionPreviewGUI.php");
 
 		//Tab management
-		if ($_GET['cmd'] == 'edit')
-		{
+		if ($_GET['cmd'] == 'edit') {
 			$tabs->setTabActive('edit_page');
-		} elseif ($_GET['cmd'] == 'preview')
-		{
+		} elseif ($_GET['cmd'] == 'preview') {
 			$tabs->setTabActive('preview');
 		}
 
 		//Seed management
-		if (isset($_REQUEST['fixed_seed']))
-		{
+		if (isset($_REQUEST['fixed_seed'])) {
 			$seed = $_REQUEST['fixed_seed'];
 			$_SESSION['q_seed_for_preview_' . $this->object->getId() . ''] = $seed;
-		} else
-		{
-			if (isset($_SESSION['q_seed_for_preview_' . $this->object->getId() . '']))
-			{
+		} else {
+			if (isset($_SESSION['q_seed_for_preview_' . $this->object->getId() . ''])) {
 				$seed = $_SESSION['q_seed_for_preview_' . $this->object->getId() . ''];
-			} else
-			{
+			} else {
 				$seed = -1;
 			}
 		}
@@ -487,10 +460,10 @@ class assStackQuestionGUI extends assQuestionGUI
 		$question_preview_object = new assStackQuestionPreview($this->plugin, $this->object, $seed, $solutions);
 		$question_preview_data = $question_preview_object->getQuestionPreviewData();
 
-		if(is_a($this->getPreviewSession(),"ilAssQuestionPreviewSession")){
-            $this->getPreviewSession()->setParticipantsSolution($question_preview_data);
-            //$this->object->setPoints($question_preview_data["question_display"]["reached_points"]);
-        }
+		if (is_a($this->getPreviewSession(), "ilAssQuestionPreviewSession")) {
+			$this->getPreviewSession()->setParticipantsSolution($question_preview_data);
+			//$this->object->setPoints($question_preview_data["question_display"]["reached_points"]);
+		}
 
 		//Get question preview GUI
 		$question_preview_gui_object = new assStackQuestionPreviewGUI($this->plugin, $question_preview_data);
@@ -506,16 +479,14 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Include content Style
 		$style_id = assStackQuestionUtils::_getActiveContentStyleId();
-		if (strlen($style_id))
-		{
+		if (strlen($style_id)) {
 			require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
 			$tpl->addCss(ilObjStyleSheet::getContentStylePath((int)$style_id));
 		}
 
 		$questionoutput = $question_preview_gui->get();
 		//Returns output (with page if needed)
-		if (!$show_question_only)
-		{
+		if (!$show_question_only) {
 			// get page object output
 			$questionoutput = $this->getILIASPage($questionoutput);
 		}
@@ -538,30 +509,24 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		$solutions = NULL;
 		// get the solution of the user for the active pass or from the last pass if allowed
-		if ($active_id)
-		{
+		if ($active_id) {
 
 			require_once './Modules/Test/classes/class.ilObjTest.php';
-			if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
-			{
-				if (is_null($pass))
-				{
+			if (!ilObjTest::_getUsePreviousAnswers($active_id, true)) {
+				if (is_null($pass)) {
 					$pass = ilObjTest::_getPass($active_id);
 				}
 			}#
 
 			//If ILIAS 5.1  or 5.0 using intermediate
-			if (method_exists($this->object, "getUserSolutionPreferingIntermediate"))
-			{
+			if (method_exists($this->object, "getUserSolutionPreferingIntermediate")) {
 				$solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
-			} else
-			{
+			} else {
 				$solutions =& $this->object->getSolutionValues($active_id, $pass);
 			}
 		}
 		//Create STACK Question object if doesn't exists
-		if (!is_a($this->object->getStackQuestion(), 'assStackQuestionStackQuestion'))
-		{
+		if (!is_a($this->object->getStackQuestion(), 'assStackQuestionStackQuestion')) {
 			//Determine seed for current test run
 			$seed = $this->object->getQuestionSeedForCurrentTestRun($active_id, $pass);
 
@@ -599,8 +564,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Include content Style
 		$style_id = assStackQuestionUtils::_getActiveContentStyleId();
-		if (strlen($style_id))
-		{
+		if (strlen($style_id)) {
 			require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
 			$tpl->addCss(ilObjStyleSheet::getContentStylePath((int)$style_id));
 		}
@@ -639,59 +603,49 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->active_id = $active_id;
 		$this->pass = $pass;
 		//Check for PASS
-		if ($active_id)
-		{
+		if ($active_id) {
 
 			require_once './Modules/Test/classes/class.ilObjTest.php';
-			if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
-			{
-				if (is_null($pass))
-				{
+			if (!ilObjTest::_getUsePreviousAnswers($active_id, true)) {
+				if (is_null($pass)) {
 					$pass = ilObjTest::_getPass($active_id);
 				}
 			}
 		}
 
 		//Is preview or Test
-		if (is_array($this->preview_mode))
-		{
+		if (is_array($this->preview_mode)) {
 			$solutions = $this->preview_mode["question_feedback"];
-		} else
-		{
+		} else {
 			//If ILIAS 5.1  or 5.0 using intermediate
-			if (method_exists($this->object, "getUserSolutionPreferingIntermediate"))
-			{
+			if (method_exists($this->object, "getUserSolutionPreferingIntermediate")) {
 				$solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
-			} else
-			{
+			} else {
 				$solutions =& $this->object->getSolutionValues($active_id, $pass);
 			}
 		}
 
-		if (($active_id > 0) && (!$show_correct_solution))
-		{
+		if (($active_id > 0) && (!$show_correct_solution)) {
 			//User Solution
 			//Returns user solution HTML
-            //#25174
-            if(isset($_GET["cmd"])){
-                if($_GET["cmd"] == "outCorrectSolution"){
-                    $show_feedback = TRUE;
-                }
-            }
+			//#25174
+			if (isset($_GET["cmd"])) {
+				if ($_GET["cmd"] == "outCorrectSolution") {
+					$show_feedback = TRUE;
+				}
+			}
 			$solution_output = $this->getQuestionOutput($solutions, FALSE, $show_feedback, TRUE);
 			//2.3.12 add feedback to solution
 			$solution_output .= $this->getSpecificFeedbackOutput($solutions);
 
-		} else
-		{
+		} else {
 			//Correct solution
 			//Returns best solution HTML.
 			$solution_output = $this->getQuestionOutput($solutions, TRUE, $show_feedback);
 		}
 
 		$question_text = $this->object->getQuestion();
-		if ($show_question_text == true)
-		{
+		if ($show_question_text == true) {
 			$solution_template->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput($question_text, TRUE));
 		}
 
@@ -718,16 +672,14 @@ class assStackQuestionGUI extends assQuestionGUI
 		*/
 
 		//2.4.0 Print view on test, just show the questions
-		if ($active_id == "" AND $pass == "" AND $_REQUEST["cmd"] == "print")
-		{
+		if ($active_id == "" and $pass == "" and $_REQUEST["cmd"] == "print") {
 			return $this->getQuestionOutput($solutions, FALSE, $show_feedback);
 		}
 
 		$solution_template->setVariable("SOLUTION_OUTPUT", $solution_output);
 
 		$solution_output = $solution_template->get();
-		if (!$show_question_only)
-		{
+		if (!$show_question_only) {
 			// get page object output
 			$solution_output = $this->getILIASPage($solution_output);
 		}
@@ -744,44 +696,34 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function getQuestionOutput($solutions, $best_solution, $show_feedback, $just_show = FALSE)
 	{
-		if (isset($solutions["question_text"]) AND strlen($solutions["question_text"]))
-		{
+		if (isset($solutions["question_text"]) and strlen($solutions["question_text"])) {
 			$question_text = $solutions["question_text"];
 
 
 			//Get Model answer from solutions and replace placeholders
-			if (isset($solutions["prt"]))
-			{
-				foreach ($solutions["prt"] as $prt_name => $prt)
-				{
-					if (isset($prt["response"]))
-					{
-						foreach ($prt["response"] as $input_name => $input_answer)
-						{
+			if (isset($solutions["prt"])) {
+				foreach ($solutions["prt"] as $prt_name => $prt) {
+					if (isset($prt["response"])) {
+						foreach ($prt["response"] as $input_name => $input_answer) {
 							//Get input type for showing it properly
 							$input = $this->object->getInputs($input_name);
 
 							//Replace input depending on input type
-							switch ($input->getInputType())
-							{
+							switch ($input->getInputType()) {
 								case "dropdown":
 								case "checkbox":
 								case "radio":
-									if ($best_solution)
-									{
+									if ($best_solution) {
 										$input_replacement = $input_answer["model_answer"];
 										$validation_replacement = $input_answer["model_answer_display"];
 										$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
 										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
-									} else
-									{
-										if ($just_show)
-										{
+									} else {
+										if ($just_show) {
 											$input_replacement = "</br>" . $input_answer["display"];
 											$question_text = str_replace("[[validation:" . $input_name . "]]", "", $question_text);
 
-										} else
-										{
+										} else {
 											$input_replacement = $input_answer["value"];
 											$question_text = str_replace("[[validation:" . $input_name . "]]", $this->object->getStackQuestion()->getInputs($input_name)->render_validation($this->object->getStackQuestion()->getInputState($input_name, $input_replacement), $input_name), $question_text);
 										}
@@ -791,28 +733,24 @@ class assStackQuestionGUI extends assQuestionGUI
 									break;
 								case "matrix":
 									//Select replace depending on mode if $best_solution is TRUE, best solution when FALSE user solution.
-									if ($best_solution)
-									{
+									if ($best_solution) {
 										$input_replacement = $input_answer["model_answer"];
 										$validation_replacement = $input_answer["model_answer_display"];
 										$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
 										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
-									} else
-									{
+									} else {
 										$input_replacement = $input_answer["display"];
 									}
 									$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
 									break;
 								case "textarea";
 								case "equiv";
-									if ($best_solution)
-									{
+									if ($best_solution) {
 										$input_replacement = $input_answer["model_answer"];
 										$validation_replacement = $input_answer["model_answer_display"];
 										$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
 										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
-									} else
-									{
+									} else {
 										$input_replacement = "<textarea rows=\"4\" cols=\"50\">" . $input_answer["value"] . "</textarea>";
 									}
 									$size = $input->getBoxSize();
@@ -821,22 +759,17 @@ class assStackQuestionGUI extends assQuestionGUI
 									$question_text = str_replace("[[input:" . $input_name . "]]", $input_text, $question_text);
 									break;
 								default:
-									if ($best_solution)
-									{
+									if ($best_solution) {
 										$input_replacement = $input_answer["model_answer"];
 										$validation_replacement = $input_answer["model_answer_display"];
 										$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
 										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
-									} else
-									{
+									} else {
 										$input_replacement = $input_answer["value"];
-										if ($show_feedback)
-										{
-											if (strlen($input_answer["display"]))
-											{
+										if ($show_feedback) {
+											if (strlen($input_answer["display"])) {
 												$validation_replacement = stack_string('studentValidation_yourLastAnswer', $input_answer["display"]);
-											} else
-											{
+											} else {
 												$validation_replacement = $input_answer["display"];
 											}
 											$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
@@ -850,8 +783,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 
 							//Replace feedback placeholder if required
-							if ($show_feedback)
-							{
+							if ($show_feedback) {
 								$string = "";
 								//Generic feedback
 								$string .= $prt["status"]["message"];
@@ -868,20 +800,17 @@ class assStackQuestionGUI extends assQuestionGUI
 
 			//Delete other place holders
 			$question_text = preg_replace('/\[\[validation:(.*?)\]\]/', "", $question_text);
-			if (!$show_feedback)
-			{
+			if (!$show_feedback) {
 				$question_text = preg_replace('/\[\[feedback:(.*?)\]\]/', "", $question_text);
 			}
 
-			if ($best_solution)
-			{
+			if ($best_solution) {
 				$question_text .= $solutions["general_feedback"];
 			}
 
 			//Return the question text with LaTeX problems solved.
 			return assStackQuestionUtils::_getLatex($question_text);
-		} else
-		{
+		} else {
 			return "";
 		}
 	}
@@ -903,41 +832,31 @@ class assStackQuestionGUI extends assQuestionGUI
 		$active_id = $this->active_id;
 		$pass = $this->pass;
 
-		if ($active_id)
-		{
+		if ($active_id) {
 			require_once './Modules/Test/classes/class.ilObjTest.php';
-			if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
-			{
-				if (is_null($pass))
-				{
+			if (!ilObjTest::_getUsePreviousAnswers($active_id, true)) {
+				if (is_null($pass)) {
 					$pass = ilObjTest::_getPass($active_id);
 				}
 			}
 		}
 		//Is preview or Test
-		if (is_array($this->preview_mode))
-		{
+		if (is_array($this->preview_mode)) {
 			$solutions = $this->preview_mode["question_feedback"];
-		} else
-		{
+		} else {
 			//If ILIAS 5.1  or 5.0 using intermediate
-			if (method_exists($this->object, "getUserSolutionPreferingIntermediate"))
-			{
+			if (method_exists($this->object, "getUserSolutionPreferingIntermediate")) {
 				$solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
-			} else
-			{
+			} else {
 				$solutions =& $this->object->getSolutionValues($active_id, $pass);
 			}
 		}
 		$specific_feedback = $this->object->getOptions()->getSpecificFeedback();
 
 		//Search for feedback placeholders in specific feedback text.
-		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt)
-		{
-			if (preg_match("[[feedback:" . $prt_name . "]]", $specific_feedback))
-			{
-				if (isset($solutions["prt"][$prt_name]))
-				{
+		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt) {
+			if (preg_match("[[feedback:" . $prt_name . "]]", $specific_feedback)) {
+				if (isset($solutions["prt"][$prt_name])) {
 					$string = "";
 					//feedback
 					//Generic feedback
@@ -947,8 +866,7 @@ class assStackQuestionGUI extends assQuestionGUI
 					$string .= $solutions["prt"][$prt_name]["errors"];
 
 					$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", assStackQuestionUtils::_getFeedbackStyledText($string, "feedback_default"), $specific_feedback);
-				} else
-				{
+				} else {
 					$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", $this->object->getPlugin()->txt("preview_no_answer"), $specific_feedback);
 				}
 			}
@@ -993,17 +911,14 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		$q_type = $this->object->getQuestionType();
 
-		if (strlen($q_type))
-		{
+		if (strlen($q_type)) {
 			$classname = $q_type . "GUI";
 			$this->ctrl->setParameterByClass(strtolower($classname), "sel_question_types", $q_type);
 			$this->ctrl->setParameterByClass(strtolower($classname), "q_id", $_GET["q_id"]);
 		}
 
-		if ($_GET["q_id"])
-		{
-			if ($rbacsystem->checkAccess('write', $_GET["ref_id"]))
-			{
+		if ($_GET["q_id"]) {
+			if ($rbacsystem->checkAccess('write', $_GET["ref_id"])) {
 				// edit page
 				$tabs->addTarget("edit_page", $this->ctrl->getLinkTargetByClass("ilAssQuestionPageGUI", "edit"), array("edit", "insert", "exec_pg"), "", "", "");
 			}
@@ -1013,21 +928,16 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 		$force_active = false;
-		if ($rbacsystem->checkAccess('write', $_GET["ref_id"]))
-		{
+		if ($rbacsystem->checkAccess('write', $_GET["ref_id"])) {
 			$url = "";
 
-			if ($classname)
-			{
+			if ($classname) {
 				$url = $this->ctrl->getLinkTargetByClass($classname, "editQuestion");
 			}
 			$commands = $_POST["cmd"];
-			if (is_array($commands))
-			{
-				foreach ($commands as $key => $value)
-				{
-					if (preg_match("/^suggestrange_.*/", $key, $matches))
-					{
+			if (is_array($commands)) {
+				foreach ($commands as $key => $value) {
+					if (preg_match("/^suggestrange_.*/", $key, $matches)) {
 						$force_active = true;
 					}
 				}
@@ -1037,8 +947,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 			$this->addTab_QuestionFeedback($tabs);
 
-			if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'deployedSeedsManagement', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle',)))
-			{
+			if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'deployedSeedsManagement', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle',))) {
 				$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 				$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
 				$tabs->addSubTab('deployed_seeds_management', $this->plugin->txt('dsm_deployed_seeds'), $this->ctrl->getLinkTargetByClass($classname, "deployedSeedsManagement"));
@@ -1050,21 +959,17 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 		// Assessment of questions sub menu entry
-		if ($_GET["q_id"])
-		{
+		if ($_GET["q_id"]) {
 			$tabs->addTarget("statistics", $this->ctrl->getLinkTargetByClass($classname, "assessment"), array("assessment"), $classname, "");
 		}
 
-		if (($_GET["calling_test"] > 0) || ($_GET["test_ref_id"] > 0))
-		{
+		if (($_GET["calling_test"] > 0) || ($_GET["test_ref_id"] > 0)) {
 			$ref_id = $_GET["calling_test"];
-			if (strlen($ref_id) == 0)
-			{
+			if (strlen($ref_id) == 0) {
 				$ref_id = $_GET["test_ref_id"];
 			}
 			$tabs->setBackTarget($this->lng->txt("backtocallingtest"), "ilias.php?baseClass=ilObjTestGUI&cmd=questions&ref_id=$ref_id");
-		} else
-		{
+		} else {
 			$tabs->setBackTarget($this->lng->txt("qpl"), $this->ctrl->getLinkTargetByClass("ilobjquestionpoolgui", "questions"));
 		}
 
@@ -1085,8 +990,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	{
 		global $DIC;
 
-		if ($this->object->getSelfAssessmentEditingMode())
-		{
+		if ($this->object->getSelfAssessmentEditingMode()) {
 			$this->getLearningModuleTabs();
 		}
 
@@ -1113,11 +1017,9 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->info_config->ajax_url = $ctrl->getLinkTargetByClass("assstackquestiongui", "saveInfoState", "", TRUE);
 
 		//Set to user's session value
-		if (isset($_SESSION['stack_authoring_show']))
-		{
+		if (isset($_SESSION['stack_authoring_show'])) {
 			$this->info_config->show = (int)$_SESSION['stack_authoring_show'];
-		} else
-		{
+		} else {
 			//first time must be shown
 			$this->info_config->show = 1;
 		}
@@ -1152,17 +1054,13 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function enableDisableInfo()
 	{
-		if (isset($_SESSION['show_input_info_fields_in_form']))
-		{
-			if ($_SESSION['show_input_info_fields_in_form'] == TRUE)
-			{
+		if (isset($_SESSION['show_input_info_fields_in_form'])) {
+			if ($_SESSION['show_input_info_fields_in_form'] == TRUE) {
 				$_SESSION['show_input_info_fields_in_form'] = FALSE;
-			} else
-			{
+			} else {
 				$_SESSION['show_input_info_fields_in_form'] = TRUE;
 			}
-		} else
-		{
+		} else {
 			$_SESSION['show_input_info_fields_in_form'] = TRUE;
 		}
 
@@ -1178,8 +1076,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		global $DIC;
 		$tabs = $DIC->tabs();
 
-		if ($this->object->getSelfAssessmentEditingMode())
-		{
+		if ($this->object->getSelfAssessmentEditingMode()) {
 			$this->getLearningModuleTabs();
 		}
 		//Set all parameters required
@@ -1218,8 +1115,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		$this->plugin->includeClass('model/ilias_object/class.assStackQuestionDeployedSeed.php');
 		$deployed_seed = new assStackQuestionDeployedSeed('', $question_id, $seed);
-		if (!$deployed_seed->save())
-		{
+		if (!$deployed_seed->save()) {
 			$this->question_gui->object->setErrors($this->plugin->txt('dsm_not_allowed_seed'));
 		}
 
@@ -1241,10 +1137,8 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		$this->plugin->includeClass('model/ilias_object/class.assStackQuestionDeployedSeed.php');
 		$deployed_seeds = assStackQuestionDeployedSeed::_read($question_id);
-		foreach ($deployed_seeds as $deployed_seed)
-		{
-			if ($deployed_seed->getSeed() == $seed)
-			{
+		foreach ($deployed_seeds as $deployed_seed) {
+			if ($deployed_seed->getSeed() == $seed) {
 				$deployed_seed->delete();
 				ilUtil::sendSuccess($this->plugin->txt('dsm_deployed_seed_deleted'));
 				break;
@@ -1268,8 +1162,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	{
 		global $DIC;
 		$tabs = $DIC->tabs();
-		if ($this->object->getSelfAssessmentEditingMode())
-		{
+		if ($this->object->getSelfAssessmentEditingMode()) {
 			$this->getLearningModuleTabs();
 		}
 		//Set all parameters required
@@ -1295,11 +1188,9 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function showScoringComparison()
 	{
 		//Get new points value
-		if (isset($_POST['new_scoring']) AND (float)$_POST['new_scoring'] > 0.0)
-		{
+		if (isset($_POST['new_scoring']) and (float)$_POST['new_scoring'] > 0.0) {
 			$new_question_points = (float)ilUtil::stripSlashes($_POST['new_scoring']);
-		} else
-		{
+		} else {
 			$this->question_gui->object->setErrors($this->plugin->txt('sco_invalid_value'));
 		}
 		//Show scoring panel with comparison
@@ -1313,12 +1204,10 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function saveNewScoring()
 	{
 		//Get new points value and save it to the DB
-		if (isset($_POST['new_scoring']) AND (float)$_POST['new_scoring'] > 0.0)
-		{
+		if (isset($_POST['new_scoring']) and (float)$_POST['new_scoring'] > 0.0) {
 			$this->object->setPoints(ilUtil::stripSlashes($_POST['new_scoring']));
 			$this->object->saveQuestionDataToDb($this->object->getId());
-		} else
-		{
+		} else {
 			$this->question_gui->object->setErrors($this->plugin->txt('sco_invalid_value'));
 		}
 		//Show scoring panel
@@ -1336,8 +1225,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	{
 		global $DIC;
 		$tabs = $DIC->tabs();
-		if ($this->object->getSelfAssessmentEditingMode())
-		{
+		if ($this->object->getSelfAssessmentEditingMode()) {
 			$this->getLearningModuleTabs();
 		}
 
@@ -1376,25 +1264,20 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->getQuestionTemplate();
 
 		//get Post vars
-		if (isset($_POST['test_id']))
-		{
+		if (isset($_POST['test_id'])) {
 			$test_id = $_POST['test_id'];
 		}
-		if (isset($_POST['question_id']))
-		{
+		if (isset($_POST['question_id'])) {
 			$question_id = $_POST['question_id'];
 		}
-		if (isset($_POST['testcase_name']))
-		{
+		if (isset($_POST['testcase_name'])) {
 			$testcase_name = $_POST['testcase_name'];
-		} else
-		{
+		} else {
 			$testcase_name = FALSE;
 		}
 
 		//Create STACK Question object if doesn't exists
-		if (!is_a($this->object->getStackQuestion(), 'assStackQuestionStackQuestion'))
-		{
+		if (!is_a($this->object->getStackQuestion(), 'assStackQuestionStackQuestion')) {
 			$this->plugin->includeClass("model/class.assStackQuestionStackQuestion.php");
 			$this->object->setStackQuestion(new assStackQuestionStackQuestion());
 			$this->object->getStackQuestion()->init($this->object);
@@ -1431,19 +1314,15 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->getQuestionTemplate();
 
 		//get Post vars
-		if (isset($_POST['test_id']))
-		{
+		if (isset($_POST['test_id'])) {
 			$test_id = $_POST['test_id'];
 		}
-		if (isset($_POST['question_id']))
-		{
+		if (isset($_POST['question_id'])) {
 			$question_id = $_POST['question_id'];
 		}
-		if (isset($_POST['testcase_name']))
-		{
+		if (isset($_POST['testcase_name'])) {
 			$testcase_name = $_POST['testcase_name'];
-		} else
-		{
+		} else {
 			$testcase_name = FALSE;
 		}
 
@@ -1467,27 +1346,20 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function doEditTestcase()
 	{
-		if (isset($_POST['testcase_name']))
-		{
+		if (isset($_POST['testcase_name'])) {
 			$testcase_name = $_POST['testcase_name'];
 			$test = $this->object->getTests($testcase_name);
-		} else
-		{
+		} else {
 			$testcase_name = FALSE;
 		}
 
-		if (is_a($test, 'assStackQuestionTest'))
-		{
+		if (is_a($test, 'assStackQuestionTest')) {
 			//Creation of inputs
-			foreach ($this->object->getInputs() as $input_name => $q_input)
-			{
+			foreach ($this->object->getInputs() as $input_name => $q_input) {
 				$exists = FALSE;
-				foreach ($test->getTestInputs() as $input)
-				{
-					if ($input->getTestInputName() == $input_name)
-					{
-						if (isset($_REQUEST[$input->getTestInputName()]))
-						{
+				foreach ($test->getTestInputs() as $input) {
+					if ($input->getTestInputName() == $input_name) {
+						if (isset($_REQUEST[$input->getTestInputName()])) {
 							$input->setTestInputValue($_REQUEST[$input->getTestInputName()]);
 							$input->checkTestInput();
 							$input->save();
@@ -1497,8 +1369,7 @@ class assStackQuestionGUI extends assQuestionGUI
 				}
 
 				//Correct current mistakes
-				if (!$exists)
-				{
+				if (!$exists) {
 					$new_test_input = new assStackQuestionTestInput(-1, $this->object->getId(), $testcase_name);
 					$new_test_input->setTestInputName($input_name);
 					$new_test_input->setTestInputValue("");
@@ -1508,18 +1379,14 @@ class assStackQuestionGUI extends assQuestionGUI
 
 
 			//Creation of expected results
-			foreach ($test->getTestExpected() as $index => $prt)
-			{
-				if (isset($_REQUEST['score_' . $prt->getTestPRTName()]))
-				{
+			foreach ($test->getTestExpected() as $index => $prt) {
+				if (isset($_REQUEST['score_' . $prt->getTestPRTName()])) {
 					$prt->setExpectedScore(ilUtil::stripSlashes($_REQUEST['score_' . $prt->getTestPRTName()]));
 				}
-				if (isset($_REQUEST['penalty_' . $prt->getTestPRTName()]))
-				{
+				if (isset($_REQUEST['penalty_' . $prt->getTestPRTName()])) {
 					$prt->setExpectedPenalty(ilUtil::stripSlashes($_REQUEST['penalty_' . $prt->getTestPRTName()]));
 				}
-				if (isset($_REQUEST['answernote_' . $prt->getTestPRTName()]))
-				{
+				if (isset($_REQUEST['answernote_' . $prt->getTestPRTName()])) {
 					$prt->setExpectedAnswerNote(ilUtil::stripSlashes($_REQUEST['answernote_' . $prt->getTestPRTName()]));
 				}
 				$prt->checkTestExpected();
@@ -1565,16 +1432,13 @@ class assStackQuestionGUI extends assQuestionGUI
 		$new_test = new assStackQuestionTest(-1, $this->object->getId(), $testcase);
 
 		//Creation of inputs
-		foreach ($this->object->getInputs() as $input_name => $input)
-		{
+		foreach ($this->object->getInputs() as $input_name => $input) {
 			$new_test_input = new assStackQuestionTestInput(-1, $this->object->getId(), $testcase);
 			$new_test_input->setTestInputName($input_name);
 
-			if (isset($_REQUEST[$input_name]))
-			{
+			if (isset($_REQUEST[$input_name])) {
 				$new_test_input->setTestInputValue(ilUtil::stripSlashes($_REQUEST[$input_name]));
-			} else
-			{
+			} else {
 				$new_test_input->setTestInputValue("");
 			}
 
@@ -1583,32 +1447,25 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 		//Creation of expected results
-		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt)
-		{
+		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt) {
 			//Getting the PRT name
 			$new_test_expected = new assStackQuestionTestExpected(-1, $this->object->getId(), $testcase, $prt_name);
 
-			if (isset($_REQUEST['score_' . $prt_name]))
-			{
+			if (isset($_REQUEST['score_' . $prt_name])) {
 				$new_test_expected->setExpectedScore(ilUtil::stripSlashes($_REQUEST['score_' . $prt_name]));
-			} else
-			{
+			} else {
 				$new_test_expected->setExpectedScore("");
 			}
 
-			if (isset($_REQUEST['penalty_' . $prt_name]))
-			{
+			if (isset($_REQUEST['penalty_' . $prt_name])) {
 				$new_test_expected->setExpectedPenalty(ilUtil::stripSlashes($_REQUEST['penalty_' . $prt_name]));
-			} else
-			{
+			} else {
 				$new_test_expected->setExpectedPenalty("");
 			}
 
-			if (isset($_REQUEST['answernote_' . $prt_name]))
-			{
+			if (isset($_REQUEST['answernote_' . $prt_name])) {
 				$new_test_expected->setExpectedAnswerNote(ilUtil::stripSlashes($_REQUEST['answernote_' . $prt_name]));
-			} else
-			{
+			} else {
 				$new_test_expected->setExpectedAnswerNote("");
 			}
 			$new_test_expected->save();
@@ -1628,19 +1485,15 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function doDeleteTestcase()
 	{
 		//get Post vars
-		if (isset($_POST['test_id']))
-		{
+		if (isset($_POST['test_id'])) {
 			$test_id = $_POST['test_id'];
 		}
-		if (isset($_POST['question_id']))
-		{
+		if (isset($_POST['question_id'])) {
 			$question_id = $_POST['question_id'];
 		}
-		if (isset($_POST['testcase_name']))
-		{
+		if (isset($_POST['testcase_name'])) {
 			$testcase_name = $_POST['testcase_name'];
-		} else
-		{
+		} else {
 			$testcase_name = FALSE;
 		}
 
@@ -1663,14 +1516,12 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tabs = $DIC->tabs();
 
 		//#25145
-		if (isset($_REQUEST["test_ref_id"]))
-		{
+		if (isset($_REQUEST["test_ref_id"])) {
 			ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_import_in_test_error"), TRUE);
 			$DIC->ctrl()->redirect($this, 'editQuestion');
 		}
 
-		if ($this->object->getSelfAssessmentEditingMode())
-		{
+		if ($this->object->getSelfAssessmentEditingMode()) {
 			$this->getLearningModuleTabs();
 		}
 		//Set all parameters required
@@ -1708,24 +1559,20 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tabs->activateSubTab('import_from_moodle');
 
 		//Getting the xml file from $_FILES
-		if (file_exists($_FILES["questions_xml"]["tmp_name"]))
-		{
+		if (file_exists($_FILES["questions_xml"]["tmp_name"])) {
 			$xml_file = $_FILES["questions_xml"]["tmp_name"];
-		} else
-		{
+		} else {
 			$this->object->setErrors($this->plugin->txt('error_import_question_in_test'), true);
 
 			return;
 		}
 
 		//CHECK FOR NOT ALLOW IMPROT QUESTIONS DIRECTLY IN TESTS
-		if (isset($_GET['calling_test']))
-		{
+		if (isset($_GET['calling_test'])) {
 			$this->object->setErrors($this->plugin->txt('error_import_question_in_test'), true);
 
 			return;
-		} else
-		{
+		} else {
 			//Include import class and prepare object
 			$this->plugin->includeClass('model/import/MoodleXML/class.assStackQuestionMoodleImport.php');
 			$import = new assStackQuestionMoodleImport($this->plugin, (int)$_POST['first_question_id'], $this->object);
@@ -1752,22 +1599,18 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		$options = new ilRadioGroupInputGUI($lng->txt("qpl_qst_xqcas_all_from_pool"), "xqcas_all_from_pool");
 		$only_question = new ilRadioOption($lng->txt("qpl_qst_xqcas_export_only_this"), "xqcas_export_only_this", $lng->txt("qpl_qst_xqcas_export_only_this_info"));
-		if (isset($_GET['calling_test']))
-		{
+		if (isset($_GET['calling_test'])) {
 			$all_from_pool = new ilRadioOption($lng->txt("qpl_qst_xqcas_export_all_from_test"), "xqcas_export_all_from_test", $lng->txt("qpl_qst_xqcas_export_all_from_test_info"));
-		} else
-		{
+		} else {
 			$all_from_pool = new ilRadioOption($lng->txt("qpl_qst_xqcas_export_all_from_pool"), "xqcas_export_all_from_pool", $lng->txt("qpl_qst_xqcas_export_all_from_pool_info"));
 		}
 
 		$options->addOption($only_question);
 		$options->addOption($all_from_pool);
 
-		if (isset($_GET['calling_test']))
-		{
+		if (isset($_GET['calling_test'])) {
 			$options->setValue("xqcas_export_all_from_test");
-		} else
-		{
+		} else {
 			$options->setValue("xqcas_export_all_from_pool");
 		}
 
@@ -1796,31 +1639,25 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tabs->activateSubTab('export_to_moodle');
 
 		//Getting data from POST
-		if (isset($_POST['first_question_id']) AND isset($_POST['xqcas_all_from_pool']))
-		{
+		if (isset($_POST['first_question_id']) and isset($_POST['xqcas_all_from_pool'])) {
 			$id = $_POST['first_question_id'];
 			$mode = "";
-			if ($_POST['xqcas_all_from_pool'] == 'xqcas_export_all_from_pool')
-			{
+			if ($_POST['xqcas_all_from_pool'] == 'xqcas_export_all_from_pool') {
 				//Get all questions from a pool
 				$export_to_moodle = new assStackQuestionMoodleXMLExport($this->object->getAllQuestionsFromPool());
 				$xml = $export_to_moodle->toMoodleXML();
-			} elseif ($_POST['xqcas_all_from_pool'] == 'xqcas_export_only_this')
-			{
+			} elseif ($_POST['xqcas_all_from_pool'] == 'xqcas_export_only_this') {
 				//get current stack question info.
 				$export_to_moodle = new assStackQuestionMoodleXMLExport(array($id => $this->object));
 				$xml = $export_to_moodle->toMoodleXML();
-			} elseif ($_POST['xqcas_all_from_pool'] == 'xqcas_export_all_from_test')
-			{
+			} elseif ($_POST['xqcas_all_from_pool'] == 'xqcas_export_all_from_test') {
 				//get current stack question info.
 				$export_to_moodle = new assStackQuestionMoodleXMLExport($this->object->getAllQuestionsFromTest());
 				$xml = $export_to_moodle->toMoodleXML();
-			} else
-			{
+			} else {
 				throw new Exception($lng->txt('qpl_qst_xqcas_error_exporting_to_moodle_mode'));
 			}
-		} else
-		{
+		} else {
 			throw new Exception($lng->txt('qpl_qst_xqcas_error_exporting_to_moodle_question_id'));
 		}
 	}
@@ -1856,10 +1693,8 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Check all inputs have a model answer
 		$incomplete_model_answers = "";
-		foreach ($this->object->getInputs() as $input_name => $input)
-		{
-			if ($input->getTeacherAnswer() == "" OR $input->getTeacherAnswer() == " ")
-			{
+		foreach ($this->object->getInputs() as $input_name => $input) {
+			if ($input->getTeacherAnswer() == "" or $input->getTeacherAnswer() == " ") {
 				$isComplete = FALSE;
 				$incomplete_model_answers .= $input_name . ", ";
 			}
@@ -1868,12 +1703,9 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Check student answer is always filled in
 		$incomplete_student_answers = "";
-		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt)
-		{
-			foreach ($prt->getPRTNodes() as $node_name => $node)
-			{
-				if ($node->getStudentAnswer() == "" OR $node->getStudentAnswer() == " ")
-				{
+		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt) {
+			foreach ($prt->getPRTNodes() as $node_name => $node) {
+				if ($node->getStudentAnswer() == "" or $node->getStudentAnswer() == " ") {
 					$isComplete = FALSE;
 					$incomplete_student_answers .= $prt_name . " / " . $node_name . ", ";
 				}
@@ -1883,12 +1715,9 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Check teacher answer is always filled in
 		$incomplete_teacher_answers = "";
-		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt)
-		{
-			foreach ($prt->getPRTNodes() as $node_name => $node)
-			{
-				if ($node->getTeacherAnswer() == "" OR $node->getTeacherAnswer() == " ")
-				{
+		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt) {
+			foreach ($prt->getPRTNodes() as $node_name => $node) {
+				if ($node->getTeacherAnswer() == "" or $node->getTeacherAnswer() == " ") {
 					$isComplete = FALSE;
 					$incomplete_teacher_answers .= $prt_name . " / " . $node_name . ", ";
 				}
@@ -1896,18 +1725,14 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 		$incomplete_teacher_answers = substr($incomplete_teacher_answers, 0, -2);
 
-		if (!$isComplete AND $this->object->getTitle() != NULL)
-		{
-			if ($incomplete_model_answers != "")
-			{
+		if (!$isComplete and $this->object->getTitle() != NULL) {
+			if ($incomplete_model_answers != "") {
 				$this->object->setErrors($this->getPlugin()->txt("error_model_answer_missing") . " " . $incomplete_model_answers);
 			}
-			if ($incomplete_student_answers != "")
-			{
+			if ($incomplete_student_answers != "") {
 				$this->object->setErrors($this->getPlugin()->txt("error_student_answer_missing") . " " . $incomplete_student_answers);
 			}
-			if ($incomplete_teacher_answers != "")
-			{
+			if ($incomplete_teacher_answers != "") {
 				$this->object->setErrors($this->getPlugin()->txt("error_teacher_answer_missing") . " " . $incomplete_teacher_answers);
 			}
 		}
@@ -1940,8 +1765,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		$q_type = $this->object->getQuestionType();
 
-		if (strlen($q_type))
-		{
+		if (strlen($q_type)) {
 			$classname = $q_type . "GUI";
 			$this->ctrl->setParameterByClass(strtolower($classname), "sel_question_types", $q_type);
 			$this->ctrl->setParameterByClass(strtolower($classname), "q_id", $this->object->getId());
@@ -1950,17 +1774,13 @@ class assStackQuestionGUI extends assQuestionGUI
 		$force_active = false;
 		$url = "";
 
-		if ($classname)
-		{
+		if ($classname) {
 			$url = $this->ctrl->getLinkTargetByClass($classname, "editQuestion");
 		}
 		$commands = $_POST["cmd"];
-		if (is_array($commands))
-		{
-			foreach ($commands as $key => $value)
-			{
-				if (preg_match("/^suggestrange_.*/", $key, $matches))
-				{
+		if (is_array($commands)) {
+			foreach ($commands as $key => $value) {
+				if (preg_match("/^suggestrange_.*/", $key, $matches)) {
 					$force_active = true;
 				}
 			}
@@ -1968,8 +1788,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		// edit question properties
 		$tabs->addTarget("edit_properties", $url, array("editQuestion", "save", "cancel", "addSuggestedSolution", "cancelExplorer", "linkChilds", "removeSuggestedSolution", "parseQuestion", "saveEdit", "suggestRange"), $classname, "", $force_active);
 
-		if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'deployedSeedsManagement', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle',)))
-		{
+		if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'deployedSeedsManagement', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle',))) {
 			$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 			$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
 			$tabs->addSubTab('deployed_seeds_management', $this->plugin->txt('dsm_deployed_seeds'), $this->ctrl->getLinkTargetByClass($classname, "deployedSeedsManagement"));

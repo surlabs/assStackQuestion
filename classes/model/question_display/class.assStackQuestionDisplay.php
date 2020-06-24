@@ -210,8 +210,6 @@ class assStackQuestionDisplay
 
     /**
      * Replace validation placeholders by validation button.
-     * This is different thatn STACK because at the moment instant validtaion is not
-     * supported by STACK Questionestion plugin.
      * @param stack_input $input
      * @param string $input_name
      */
@@ -476,8 +474,10 @@ class assStackQuestionDisplay
 
             $validation_message = stack_string('studentValidation_yourLastAnswer', $input_state->contentsdisplayed);
 
-#25225 add validation div wrapping
+			#25225 add validation div wrapping
             $validation_div = '<div id="validation_xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '"></div><div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input->width . '</div><div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden";>' . $input->height . '</div>';
+            #27830
+            $validation_div .= $user_matrix. $validation_message;
             return $validation_div;
         }
         if (is_a($input, "stack_checkbox_input")) {

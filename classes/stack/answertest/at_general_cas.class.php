@@ -154,7 +154,8 @@ class stack_answertest_general_cas extends stack_anstest {
         $session = new stack_cas_session($cts, $this->options, 0);
         $session->instantiate();
         $this->debuginfo = $session->get_debuginfo();
-        if ('' != $session->get_errors_key('STACKSA')) {
+
+		if ('' != $session->get_errors_key('STACKSA')) {
             $this->aterror      = 'TEST_FAILED';
             $this->atfeedback   = stack_string('TEST_FAILED', array('errors' => $session->get_errors_key('STACKSA')));
             $this->atansnote    = $this->casfunction.'_STACKERROR_SAns.';
@@ -184,13 +185,14 @@ class stack_answertest_general_cas extends stack_anstest {
         }
 
         $sessionvars = $session->get_session();
-        if (!$this->processcasoptions || trim($op) === '' ) {
+
+		if (!$this->processcasoptions || trim($op) === '' ) {
             $result = $sessionvars[3];
         } else {
             $result = $sessionvars[4];
         }
 
-        if ('' != $result->get_errors()) {
+		if ('' != $result->get_errors()) {
             $this->aterror      = 'TEST_FAILED';
             if ('' != trim($result->get_feedback())) {
                 $this->atfeedback = $result->get_feedback();
