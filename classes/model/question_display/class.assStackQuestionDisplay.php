@@ -541,8 +541,11 @@ class assStackQuestionDisplay
 			$user_matrix .= "</table>";
 
 			$validation_message = stack_string('studentValidation_yourLastAnswer', $input_state->contentsdisplayed);
-            #25225 add validation div wrapping
-            $validation_div = '<div id="validation_xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '"></div><div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input->width . '</div><div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden";>' . $input->height . '</div>';
+
+			#25225 add validation div wrapping
+			$validation_div = '<div id="validation_xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '"></div><div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input->width . '</div><div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden";>' . $input->height . '</div>';
+			#27830
+			$validation_div .= $user_matrix. $validation_message;
 			return $validation_div;
 		}
 		if (is_a($input, "stack_checkbox_input"))

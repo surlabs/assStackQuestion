@@ -136,6 +136,28 @@ class assStackQuestionGUI extends assQuestionGUI
         global $DIC;
         $lng = $DIC->language();
 
+		//Input delete: #27560
+		$question_text = $_POST["question"];
+		preg_match_all('|\[\[input:(\w*)\]\]|U', $question_text, $matches);
+		$inputs_to_save = $matches[1];
+
+		foreach ($this->object->getInputs() as $input_name => $input) {
+			$delete_input = TRUE;
+			foreach ($inputs_to_save as $key => $input_to_save) {
+				if ($input_name == $input_to_save) {
+					$delete_input = FALSE;
+				}
+			}
+
+			if ($delete_input) {
+				$q_inputs = $this->object->getInputs();
+				unset($q_inputs[$input_name]);
+				$this->object->setInputs($q_inputs);
+				$input->delete();
+
+			}
+		}
+
         if (is_array($_POST['cmd']['save'])) {
             foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt) {
                 if (isset($_POST['cmd']['save']['delete_full_prt_' . $prt_name])) {

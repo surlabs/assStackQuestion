@@ -98,3 +98,12 @@ Version 3.2.1 (2020-06-22) for ILIAS 6
 The following known issues has been **solved**:
 - Textarea questions are not evaluated properly, this will be solved in a bugfix in a few days.
 - firstline extra option is not evaluated properly in equivalence reasoning questions.
+
+Version 3.2.2 (2020-06-25) for ILIAS 6
+----------------------------------------
+The following bugs have been solved:
+- 28533 for ILIAS6 only, Test import not working.
+- 25256 and 27830 and 24273 about Matrix validation.
+- 24199 about dropdown field dissapearing if answered but other prt related inputs are not answered.
+- 27560 about inputs not properly deleted.
+- 25256 about specific feedback not shown in test results.
