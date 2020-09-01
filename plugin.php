@@ -13,8 +13,8 @@ $version = "3.3";
  
 // ilias min and max version; must always reflect the versions that should
 // run with the plugin
-$ilias_min_version = "6.0.0";
-$ilias_max_version = "6.0.999";
+$ilias_min_version = "6.0";
+$ilias_max_version = "6.999";
  
 // optional, but useful: Add one or more responsible persons and a contact email
 $responsible = "Fred Neumann, Jesus Copado";
