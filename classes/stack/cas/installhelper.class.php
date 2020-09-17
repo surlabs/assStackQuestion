@@ -346,6 +346,11 @@ END;
             mkdir($CFG->dataroot . '/stack/tmp');
         }
         //fau.
+		self::get_instance()->copy_maxima_bat();
+
+		if (!file_put_contents(self::maximalocal_location(), self::generate_maximalocal_contents())) {
+			throw new stack_exception('Failed to write Maxima configuration file.');
+		}
     }
 
     /**
