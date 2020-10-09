@@ -120,8 +120,9 @@ class stack_bulk_tester
 
                 if ($questionproblems !== array()) {
                     echo $OUTPUT->heading($questionnamelink, 4);
-                    echo html_writer::tag('ul', implode($questionproblems, "\n"));
-
+                    // fau: fixPhp74Implode
+                    echo html_writer::tag('ul', implode("\n", $questionproblems));
+                    // fau.
                 }
 
                 $previewurl = new moodle_url($questiontestsurl, array('questionid' => $questionid));

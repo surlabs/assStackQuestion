@@ -178,9 +178,11 @@ class stack_cas_casstring_units
             $multiplier[] = $unit[1];
             $tex[] = self::maximalocal_units_tex($unit[2]);
         }
-        $maximalocal .= '    stack_unit_si_prefix_code:[' . implode($code, ', ') . "],\n";
-        $maximalocal .= '    stack_unit_si_prefix_multiplier:[' . implode($multiplier, ', ') . "],\n";
-        $maximalocal .= '    stack_unit_si_prefix_tex:[' . implode($tex, ', ') . "],\n";
+        // fau: fixPhp74Implode
+        $maximalocal .= '    stack_unit_si_prefix_code:[' . implode(', ', $code) . "],\n";
+        $maximalocal .= '    stack_unit_si_prefix_multiplier:[' . implode(', ', $multiplier) . "],\n";
+        $maximalocal .= '    stack_unit_si_prefix_tex:[' . implode(', ', $tex,) . "],\n";
+        // fau.
 
         $code = array();
         $conversions = array();
@@ -190,10 +192,11 @@ class stack_cas_casstring_units
             $conversions[] = $unit[1];
             $tex[] = self::maximalocal_units_tex($unit[2]);
         }
-
-        $maximalocal .= '    stack_unit_si_unit_code:[' . implode($code, ', ') . "],\n";
-        $maximalocal .= '    stack_unit_si_unit_conversions:[' . implode($conversions, ', ') . "],\n";
-        $maximalocal .= '    stack_unit_si_unit_tex:[' . implode($tex, ', ') . "],\n";
+        // fau: fixPhp74Implode
+        $maximalocal .= '    stack_unit_si_unit_code:[' . implode(', ', $code) . "],\n";
+        $maximalocal .= '    stack_unit_si_unit_conversions:[' . implode(', ', $conversions) . "],\n";
+        $maximalocal .= '    stack_unit_si_unit_tex:[' . implode(', ', $tex) . "],\n";
+        // fau.
 
         $code = array();
         $conversions = array();
@@ -204,9 +207,11 @@ class stack_cas_casstring_units
             $tex[] = self::maximalocal_units_tex($unit[2]);
         }
 
-        $maximalocal .= '    stack_unit_other_unit_code:[' . implode($code, ', ') . "],\n";
-        $maximalocal .= '    stack_unit_other_unit_conversions:[' . implode($conversions, ', ') . "],\n";
-        $maximalocal .= '    stack_unit_other_unit_tex:[' . implode($tex, ', ') . "],\n";
+        // fau: fixPhp74Implode
+        $maximalocal .= '    stack_unit_other_unit_code:[' . implode(', ', $code) . "],\n";
+        $maximalocal .= '    stack_unit_other_unit_conversions:[' . implode(', ', $conversions) . "],\n";
+        $maximalocal .= '    stack_unit_other_unit_tex:[' . implode(', ', $tex) . "],\n";
+        // fau.
 
         return $maximalocal;
     }
@@ -338,6 +343,8 @@ class stack_cas_casstring_units
 
         return (stack_string('stackCas_unknownUnitsCase',
             array('forbid' => stack_maxima_format_casstring($key),
-                'unit' => stack_maxima_format_casstring('[' . implode($invalid[strtolower($key)], ", ") . ']'))));
+                 // fau: fixPhp74Implode
+                'unit' => stack_maxima_format_casstring('[' . implode(", ", $invalid[strtolower($key)]) . ']'))));
+                // fau.
     }
 }

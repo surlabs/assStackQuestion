@@ -1106,7 +1106,9 @@ class stack_cas_casstring
 
         if (!$valid) {
             $this->valid = false;
-            $a = implode($found, ', ');
+            // fau: fixPhp74Implode
+            $a = implode(', ', $found);
+            // fau.
             $this->add_error(stack_string('stackCas_underscores', $a));
         }
     }
