@@ -181,7 +181,7 @@ class stack_cas_casstring_units
         // fau: fixPhp74Implode
         $maximalocal .= '    stack_unit_si_prefix_code:[' . implode(', ', $code) . "],\n";
         $maximalocal .= '    stack_unit_si_prefix_multiplier:[' . implode(', ', $multiplier) . "],\n";
-        $maximalocal .= '    stack_unit_si_prefix_tex:[' . implode(', ', $tex,) . "],\n";
+        $maximalocal .= '    stack_unit_si_prefix_tex:[' . implode(', ', $tex) . "],\n";
         // fau.
 
         $code = array();
