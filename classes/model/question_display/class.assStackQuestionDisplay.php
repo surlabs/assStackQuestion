@@ -207,7 +207,12 @@ class assStackQuestionDisplay
 			return $state->contentsdisplayed;
 		}
 		//Get teacher answer value for equivalence reasoning input firstline problem #22847
-		$ta_value = $this->getQuestion()->getSession()->get_value_key($input->get_teacher_answer());
+		//Modified to solve 25938 if else
+		if(is_a($input,"stack_equiv_input")){
+			$ta_value = $this->getQuestion()->getSession()->get_value_key("ta");
+		}else{
+			$ta_value = $this->getQuestion()->getSession()->get_value_key($input->get_teacher_answer());
+		}
 
 		//Return renderised input
 		if (get_class($input) == 'stack_algebraic_input')

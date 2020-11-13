@@ -743,9 +743,20 @@ class assStackQuestionGUI extends assQuestionGUI
                                         $question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
                                         $question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
                                     } else {
-                                        $input_replacement = $input_answer["display"];
-                                    }
-                                    $question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
+                                    	//#24273
+										//Create STACK Question object if doesn't exists
+										if (!is_a($this->object->getStackQuestion(), 'assStackQuestionStackQuestion')) {
+											$this->plugin->includeClass("model/class.assStackQuestionStackQuestion.php");
+											$this->object->setStackQuestion(new assStackQuestionStackQuestion());
+											$this->object->getStackQuestion()->init($this->object);
+										}
+										$stack_matrix = $this->object->getStackQuestion()->getInputs($input_name);
+										$stack_matrix_response = $stack_matrix->maxima_to_response_array($input_answer["value"]);
+										$matrix_state = $this->object->getStackQuestion()->getInputState($input_name,$stack_matrix_response);
+                                        $input_replacement = $stack_matrix->render($matrix_state,$input_name."_user_solution",TRUE,$stack_matrix_response);
+										$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
+										//#24273
+									}
                                     break;
                                 case "textarea";
                                 case "equiv";
