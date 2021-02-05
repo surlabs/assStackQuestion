@@ -310,10 +310,12 @@ class assStackQuestionUtils
             //Check emptyanswer
             if ($value == "") {
 			    $input = $inputs[$input_name];
-			    $options = $input->getOptions();
-			    if (strpos($options,"allowempty") !== FALSE){
-                    return FALSE;
-                }
+			    if(is_a($input,"assStackQuestionInput")){
+					$options = $input->getOptions();
+					if (strpos($options,"allowempty") !== FALSE){
+						return FALSE;
+					}
+			    }
             }
         }
 

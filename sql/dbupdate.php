@@ -718,24 +718,56 @@ $db = $DIC->database();
 if ($db->tableExists('xqcas_configuration'))
 {
     //Options
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "options_matrix_parents"), 'value' => array('clob', '['), 'group_name' => array('text', 'options')));
-	//Inputs
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "input_syntax_hint"), 'value' => array('clob', ''), 'group_name' => array('text', 'inputs')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "input_allow_words"), 'value' => array('clob', ''), 'group_name' => array('text', 'inputs')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "input_extra_options"), 'value' => array('clob', ''), 'group_name' => array('text', 'inputs')));
+    if (!$db->tableColumnExists("xqcas_configuration", "options_matrix_parents")) {
+        $db->insert("xqcas_configuration", array('parameter_name' => array('text', "options_matrix_parents"), 'value' => array('clob', '['), 'group_name' => array('text', 'options')));
+    }
+    //Inputs
+    if (!$db->tableColumnExists("xqcas_configuration", "input_syntax_hint")) {
+		$db->insert("xqcas_configuration", array('parameter_name' => array('text', "input_syntax_hint"), 'value' => array('clob', ''), 'group_name' => array('text', 'inputs')));
+	}
+    if (!$db->tableColumnExists("xqcas_configuration", "input_allow_words")) {
+		$db->insert("xqcas_configuration", array('parameter_name' => array('text', "input_allow_words"), 'value' => array('clob', ''), 'group_name' => array('text', 'inputs')));
+	}
+    if (!$db->tableColumnExists("xqcas_configuration", "input_extra_options")) {
+		$db->insert("xqcas_configuration", array('parameter_name' => array('text', "input_extra_options"), 'value' => array('clob', ''), 'group_name' => array('text', 'inputs')));
+	}
 	//PRTs
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_simplify"), 'value' => array('clob', '1'), 'group_name' => array('text', 'prts')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_node_answer_test"), 'value' => array('clob', 'AlgEquiv'), 'group_name' => array('text', 'prts')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_node_options"), 'value' => array('clob', ''), 'group_name' => array('text', 'prts')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_node_quiet"), 'value' => array('clob', '1'), 'group_name' => array('text', 'prts')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_pos_mod"), 'value' => array('clob', '+'), 'group_name' => array('text', 'prts')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_pos_score"), 'value' => array('clob', '1'), 'group_name' => array('text', 'prts')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_pos_penalty"), 'value' => array('clob', '0'), 'group_name' => array('text', 'prts')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_pos_answernote"), 'value' => array('clob', 'prt1-0-T'), 'group_name' => array('text', 'prts')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_neg_mod"), 'value' => array('clob', '+'), 'group_name' => array('text', 'prts')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_neg_score"), 'value' => array('clob', '0'), 'group_name' => array('text', 'prts')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_neg_penalty"), 'value' => array('clob', '0'), 'group_name' => array('text', 'prts')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_neg_answernote"), 'value' => array('clob', 'prt1-0-F'), 'group_name' => array('text', 'prts')));
+    if (!$db->tableColumnExists("xqcas_configuration", "prt_simplify")) {
+		$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_simplify"), 'value' => array('clob', '1'), 'group_name' => array('text', 'prts')));
+	}
+    if (!$db->tableColumnExists("xqcas_configuration", "prt_node_answer_test")) {
+		$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_node_answer_test"), 'value' => array('clob', 'AlgEquiv'), 'group_name' => array('text', 'prts')));
+	}
+    if (!$db->tableColumnExists("xqcas_configuration", "prt_node_options")) {
+		$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_node_options"), 'value' => array('clob', ''), 'group_name' => array('text', 'prts')));
+	}
+    if (!$db->tableColumnExists("xqcas_configuration", "prt_node_quiet")) {
+		$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_node_quiet"), 'value' => array('clob', '1'), 'group_name' => array('text', 'prts')));
+	}
+    if (!$db->tableColumnExists("xqcas_configuration", "prt_pos_mod")) {
+		$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_pos_mod"), 'value' => array('clob', '+'), 'group_name' => array('text', 'prts')));
+	}
+    if (!$db->tableColumnExists("xqcas_configuration", "prt_pos_score")) {
+		$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_pos_score"), 'value' => array('clob', '1'), 'group_name' => array('text', 'prts')));
+	}
+    if (!$db->tableColumnExists("xqcas_configuration", "prt_pos_penalty")) {
+		$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_pos_penalty"), 'value' => array('clob', '0'), 'group_name' => array('text', 'prts')));
+	}
+    if (!$db->tableColumnExists("xqcas_configuration", "prt_pos_answernote")) {
+		$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_pos_answernote"), 'value' => array('clob', 'prt1-0-T'), 'group_name' => array('text', 'prts')));
+	}
+    if (!$db->tableColumnExists("xqcas_configuration", "prt_neg_mod")) {
+		$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_neg_mod"), 'value' => array('clob', '+'), 'group_name' => array('text', 'prts')));
+	}
+    if (!$db->tableColumnExists("xqcas_configuration", "prt_neg_score")) {
+		$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_neg_score"), 'value' => array('clob', '0'), 'group_name' => array('text', 'prts')));
+	}
+    if (!$db->tableColumnExists("xqcas_configuration", "prt_neg_penalty")) {
+		$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_neg_penalty"), 'value' => array('clob', '0'), 'group_name' => array('text', 'prts')));
+	}
+    if (!$db->tableColumnExists("xqcas_configuration", "prt_neg_answernote")) {
+		$db->insert("xqcas_configuration", array('parameter_name' => array('text', "prt_neg_answernote"), 'value' => array('clob', 'prt1-0-F'), 'group_name' => array('text', 'prts')));
+	}
 }
 ?>
 <#36>
@@ -749,15 +781,29 @@ $db = $DIC->database();
 //Create feedback styles
 if ($db->tableExists('xqcas_configuration'))
 {
-    //Feedback style 1 will be used as default, in case feedback_default is chosen, the value in true/false_feedback_format will be 1, and no specific style will be used, but platform style
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_default"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+    if (!$db->tableColumnExists("xqcas_configuration", "feedback_default")) {
+        //Feedback style 1 will be used as default, in case feedback_default is chosen, the value in true/false_feedback_format will be 1, and no specific style will be used, but platform style
+        $db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_default"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+    }
 	//Specific feedback formats.
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_node_right"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_node_wrong"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_node_partially"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_solution_hint"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_extra_info"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_plot_feedback"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+    if (!$db->tableColumnExists("xqcas_configuration", "feedback_node_right")) {
+        $db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_node_right"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+    }
+    if (!$db->tableColumnExists("xqcas_configuration", "feedback_node_wrong")) {
+        $db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_node_wrong"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+    }
+    if (!$db->tableColumnExists("xqcas_configuration", "feedback_node_partially")) {
+        $db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_node_partially"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+    }
+    if (!$db->tableColumnExists("xqcas_configuration", "feedback_solution_hint")) {
+        $db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_solution_hint"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+    }
+    if (!$db->tableColumnExists("xqcas_configuration", "feedback_extra_info")) {
+        $db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_extra_info"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+    }
+    if (!$db->tableColumnExists("xqcas_configuration", "feedback_plot_feedback")) {
+        $db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_plot_feedback"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+    }
 }
 ?>
 <#38>
@@ -767,7 +813,9 @@ $db = $DIC->database();
 //Create feedback styles
 if ($db->tableExists('xqcas_configuration'))
 {
-    //We have to store the id of the content style we want to use for stack feedback styles
-	$db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_stylesheet_id"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+    if (!$db->tableColumnExists("xqcas_configuration", "feedback_stylesheet_id")) {
+        //We have to store the id of the content style we want to use for stack feedback styles
+        $db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_stylesheet_id"), 'value' => array('clob', ''), 'group_name' => array('text', 'feedback')));
+    }
 }
 ?>
