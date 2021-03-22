@@ -751,9 +751,9 @@ class assStackQuestionStackQuestion
 		$max_weight = 0.0;
 		$reached_points = 0.0;
 
-		foreach ($this->getPRTResults() as $prt_evaluation_data)
-		{
-			$max_weight += $prt_evaluation_data['state']->__get('weight');
+		//#29690
+		foreach($this->getPRTs() as $prt_raw){
+			$max_weight += (float)$prt_raw->get_value();
 		}
 
 		$time = time();

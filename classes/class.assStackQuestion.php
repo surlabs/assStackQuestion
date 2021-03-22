@@ -1681,7 +1681,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	public function calculateReachedPointsForSolution($found_values)
 	{
 		$points = 0.0;
-		var_dump($this->getStackQuestion()->getPRTResults());
 		foreach ($this->getStackQuestion()->getPRTResults() as $prt_name => $results)
 		{
 			$points = $points + $results['points'];
@@ -1730,7 +1729,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 */
 	public function getUserQuestionResult($active_id, $pass)
 	{
-
 		require_once './Modules/TestQuestionPool/classes/class.ilUserQuestionResult.php';
 
 		$result = new ilUserQuestionResult($this, $active_id, $pass);
