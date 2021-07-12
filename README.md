@@ -148,3 +148,8 @@ Version 3.1.11 (2020-11-13) for ILIAS 6
 The following bugs have been solved:
 - 25938 firstline option not appearing the first line of the teacher answer as hint in equivalence reasoning inputs.
 - 24273 In test results, user solutions for Matrix inputs now appears like the rest of the inputs and not as LaTeX entry.
+
+SCRIPT Version 3.1.12 (2021-07-12) for ILIAS 6
+----------------------------------------
+Use this version only for Testing purposes.
+Contact jesus.copado@fau.de if you have any question.
