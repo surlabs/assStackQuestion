@@ -196,6 +196,15 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		//Evaluate question
 		$question_evaluation = $evaluation_object->evaluateQuestion();
 		$question_evaluation->calculatePoints();
+		/*FAU-SCRIPT*/
+		$db->insert("xqcas_test_parameters", array(
+			"active_id" => array("integer", $active_id),
+			"pass" => array("integer", $pass),
+			"question_id" => array("integer", $this->getId()),
+			"tstamp" => array("integer", time()),
+			"value" => array("clob", "#E# " . $question_evaluation->getQuestionNoteInstantiated())
+		));
+		/*FAU-SCRIPT*/
 
 		//Get Feedback
 		$this->plugin->includeClass('model/question_evaluation/class.assStackQuestionFeedback.php');
