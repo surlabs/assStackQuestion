@@ -83,11 +83,18 @@ input you can evaluate your answer (in self assessment mode) or move to the next
 Version History
 ===============
 
+* The stable version 3.4.x for **ILIAS 7** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias7**
 * The stable version 3.2.x for **ILIAS 6** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias6**
 * The stable version 3.1.x for **ILIAS 5.4** with new feedback styles is found in the Github branch **master-ilias54**
 * The stable version 3.0.x for **ILIAS 5.3** with new functionalities from STACK such a new input types is found in the Github branch **master-ilias53**
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
+
+Version 3.4.0 (2021-09-13) for ILIAS 7 and ILIAS 6
+----------------------------------------
+This version includes the STACK core 4.2.2, this STACK version requires a Maxima Version =>5.41, if your installation runs this plugin with a Maxima Pool, the Maxima Pool must include the stack core required files of STACK version 2019090200.
+Please notice you can use this version with both ILIAS 6 and 7, but includes no new features and uses the old (2019) STACK Core Version.
+
 
 Version 3.2.0 (2020-06-18) for ILIAS 6
 ----------------------------------------
