@@ -843,3 +843,7 @@ if ($db->tableExists('xqcas_configuration'))
     }
 }
 ?>
+<#39>
+<?php
+//Script only step
+?>
