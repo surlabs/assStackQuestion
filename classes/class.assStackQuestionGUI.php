@@ -579,7 +579,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			"active_id" => array("integer", $active_id),
 			"pass" => array("integer", $pass),
 			"question_id" => array("integer", $this->object->getId()),
-			"tstamp" => array("integer", time()),
+			"tstamp" => array("integer", microtime()),
 			"value" => array("clob", "#S# " . $this->object->getStackQuestion()->getQuestionNoteInstantiated())
 		));
 		/*FAU-SCRIPT*/

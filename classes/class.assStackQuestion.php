@@ -201,7 +201,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			"active_id" => array("integer", $active_id),
 			"pass" => array("integer", $pass),
 			"question_id" => array("integer", $this->getId()),
-			"tstamp" => array("integer", time()),
+			"tstamp" => array("integer", microtime()),
 			"value" => array("clob", "#E# " . $question_evaluation->getQuestionNoteInstantiated())
 		));
 		/*FAU-SCRIPT*/
