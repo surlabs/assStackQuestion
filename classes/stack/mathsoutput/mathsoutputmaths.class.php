@@ -17,7 +17,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->libdir . '/filterlib.php');
+//fau: #40 Do not use filterlib from Moodle
+//require_once($CFG->libdir . '/filterlib.php');
+//fau.
 require_once(__DIR__ . '/mathsoutputfilterbase.class.php');
 
 
