@@ -90,6 +90,11 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
 
+Version 3.4.1 (2021-11-04) for ILIAS 7 and ILIAS 6
+----------------------------------------
+Composer Install error testing
+
+
 Version 3.4.0 (2021-09-13) for ILIAS 7 and ILIAS 6
 ----------------------------------------
 This version includes the STACK core 4.2.2, this STACK version requires a Maxima Version =>5.41, if your installation runs this plugin with a Maxima Pool, the Maxima Pool must include the stack core required files of STACK version 2019090200.
