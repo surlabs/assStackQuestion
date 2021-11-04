@@ -92,7 +92,7 @@ Version History
 
 Version 3.4.1 (2021-11-04) for ILIAS 7 and ILIAS 6
 ----------------------------------------
-Composer Install error testing
+Solves #31405 bug report.
 
 
 Version 3.4.0 (2021-09-13) for ILIAS 7 and ILIAS 6
