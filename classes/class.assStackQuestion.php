@@ -197,11 +197,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		$question_evaluation = $evaluation_object->evaluateQuestion();
 		$question_evaluation->calculatePoints();
 		/*FAU-SCRIPT*/
+		// current time in accuracy of milliseconds
+		$now = substr(microtime(true) * 1000, 0, 13);
 		$db->insert("xqcas_test_parameters", array(
 			"active_id" => array("integer", $active_id),
 			"pass" => array("integer", $pass),
 			"question_id" => array("integer", $this->getId()),
-			"tstamp" => array("integer", microtime()),
+			"tstamp" => array("integer", $now),
 			"value" => array("clob", "#E# " . $question_evaluation->getQuestionNoteInstantiated())
 		));
 		/*FAU-SCRIPT*/

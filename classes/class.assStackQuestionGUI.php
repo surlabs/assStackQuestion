@@ -574,12 +574,13 @@ class assStackQuestionGUI extends assQuestionGUI
 		$active_id = $_GET['active_id'];
 		include_once "./Modules/Test/classes/class.ilObjTest.php";
 		$pass = ilObjTest::_getPass($active_id);
-
+		// current time in accuracy of milliseconds
+		$now = substr(microtime(true) * 1000, 0, 13);
 		$db->insert("xqcas_test_parameters", array(
 			"active_id" => array("integer", $active_id),
 			"pass" => array("integer", $pass),
 			"question_id" => array("integer", $this->object->getId()),
-			"tstamp" => array("integer", microtime()),
+			"tstamp" => array("integer", $now),
 			"value" => array("clob", "#S# " . $this->object->getStackQuestion()->getQuestionNoteInstantiated())
 		));
 		/*FAU-SCRIPT*/
