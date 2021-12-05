@@ -21,7 +21,7 @@ include_once './Modules/TestQuestionPool/interfaces/interface.iQuestionCondition
  * @ingroup    ModulesTestQuestionPool
  *
  */
-class assStackQuestion extends assQuestion implements iQuestionCondition
+class assStackQuestion2 extends assQuestion implements iQuestionCondition
 {
 
 	/**

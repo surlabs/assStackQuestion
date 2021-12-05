@@ -319,7 +319,7 @@ class assStackQuestionOptions
 		include_once("./Services/RTE/classes/class.ilRTE.php");
 
 		//Options object to return in case there are options in DB for this $question_id
-		$options = new assStackQuestionOptions(-1, $question_id);
+		$options = new stack_options(array());
 
 		//Select query
 		$query = 'SELECT * FROM xqcas_options WHERE question_id = '

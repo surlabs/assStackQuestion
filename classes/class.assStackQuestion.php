@@ -17,7 +17,7 @@ include_once './Modules/TestQuestionPool/interfaces/interface.iQuestionCondition
  * @ingroup    ModulesTestQuestionPool
  *
  */
-class assStackQuestion2 extends assQuestion implements iQuestionCondition
+class assStackQuestion extends assQuestion implements iQuestionCondition
 {
 	/* ILIAS CORE ATTRIBUTES BEGIN */
 
@@ -221,17 +221,15 @@ class assStackQuestion2 extends assQuestion implements iQuestionCondition
 		parent::__construct($title, $comment, $author, $owner, $question);
 
 		// init the plugin object
-		if ($this->getPlugin() == null) {
-			require_once "./Services/Component/classes/class.ilPlugin.php";
-			try {
-				$this->setPlugin(ilPlugin::getPluginObject(IL_COMP_MODULE, "TestQuestionPool", "qst", "assStackQuestion"));
-			} catch (ilPluginException $e) {
-				ilUtil::sendFailure($e, true);
-			}
+		require_once "./Services/Component/classes/class.ilPlugin.php";
+		try {
+			$this->setPlugin(ilPlugin::getPluginObject(IL_COMP_MODULE, "TestQuestionPool", "qst", "assStackQuestion"));
+		} catch (ilPluginException $e) {
+			ilUtil::sendFailure($e, true);
 		}
 	}
 
-	//assQuestion methods
+	//assQuestion abstract methods
 
 	/**
 	 * @param int $active_id
@@ -480,6 +478,129 @@ class assStackQuestion2 extends assQuestion implements iQuestionCondition
 
 	//assQuestion
 
+	/**
+	 * LOAD THE
+	 * Gets all the data of an assStackQuestion from the DB
+	 *
+	 * @param integer $question_id A unique key which defines the question in the database
+	 */
+	public function loadFromDb($question_id)
+	{
+		//If no data stored
+		if ($this->getId() != $question_id) {
+			global $DIC;
+
+			$db = $DIC->database();
+			//load the basic question data
+			$result = $db->query("SELECT qpl_questions.* FROM qpl_questions WHERE question_id = " . $db->quote($question_id, 'integer'));
+
+			$data = $db->fetchAssoc($result);
+			$this->setId($question_id);
+			$this->setTitle($data["title"]);
+			$this->setComment($data["description"]);
+			$this->setSuggestedSolution($data["solution_hint"]);
+			$this->setOriginalId($data["original_id"]);
+			$this->setObjId($data["obj_fi"]);
+			$this->setAuthor($data["author"]);
+			$this->setOwner($data["owner"]);
+			$this->setPoints($data["points"]);
+
+			try {
+				$this->setLifecycle(ilAssQuestionLifecycle::getInstance($data['lifecycle']));
+			} catch (ilTestQuestionPoolInvalidArgumentException $e) {
+				$this->setLifecycle(ilAssQuestionLifecycle::getDraftInstance());
+			}
+
+			require_once("./Services/RTE/classes/class.ilRTE.php");
+			$this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data["question_text"], 1));
+			$this->setEstimatedWorkingTime(substr($data["working_time"], 0, 2), substr($data["working_time"], 3, 2), substr($data["working_time"], 6, 2));
+
+			//Load the specific assStackQuestion data from DB
+			$this->getPlugin()->includeClass('class.assStackQuestionDB.php');
+
+			if ($question_id) {
+
+				//load options
+				$options_from_db_array = assStackQuestionDB::_readOptions($question_id);
+
+				try {
+					$options = new stack_options($options_from_db_array['options']);
+					//SET OPTIONS
+					$this->options = $options;
+				} catch (stack_exception $e) {
+					ilUtil::sendFailure($e, true);
+					return false;
+				}
+
+				//load inputs
+				$inputs_from_db_array = assStackQuestionDB::_readInputs($question_id);
+
+				$required_parameters = stack_input_factory::get_parameters_used();
+
+				//load only those inputs appearing in the question text
+				foreach (stack_utils::extract_placeholders($this->getQuestion(), 'input') as $name) {
+					$input_data = $inputs_from_db_array['inputs'][$name];
+					$allparameters = array(
+						'boxWidth' => $input_data['box_size'],
+						'strictSyntax' => $input_data['strict_syntax'],
+						'insertStars' => $input_data['strict_syntax'],
+						'syntaxHint' => $input_data['syntax_hint'],
+						'syntaxAttribute' => '',
+						'forbidWords' => $input_data['forbid_words'],
+						'allowWords' => $input_data['allow_words'],
+						'forbidFloats' => $input_data['forbid_float'],
+						'lowestTerms' => $input_data['require_lowest_terms'],
+						'sameType' => $input_data['check_answer_type'],
+						'mustVerify' => $input_data['must_verify'],
+						'showValidation' => $input_data['show_validation'],
+						'options' => $input_data['options'],
+					);
+
+					$parameters = array();
+					foreach ($required_parameters[$input_data['type']] as $parameter_name) {
+						if ($parameter_name == 'inputType') {
+							continue;
+						}
+						$parameters[$parameter_name] = $allparameters[$parameter_name];
+					}
+					//SET INPUTS
+					$this->inputs[$name] = stack_input_factory::make($input_data['type'], $input_data['name'], $input_data['tans'], $this->options, $parameters);
+				}
+
+				//load PRTs and PRT nodes
+				$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionPRT.php');
+				$this->setPotentialResponsesTrees(assStackQuestionPRT::_read($question_id));
+
+				//load tests
+				$this->getPlugin()->includeClass('model/ilias_object/test/class.assStackQuestionTest.php');
+				$this->setTests(assStackQuestionTest::_read($question_id));
+
+				//load seeds
+				$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionDeployedSeed.php');
+				$this->setDeployedSeeds(assStackQuestionDeployedSeed::_read($question_id));
+
+				//load extra info
+				$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionExtraInfo.php');
+				$extra_info = assStackQuestionExtraInfo::_read($question_id);
+				$this->setInstantValidation(assStackQuestionUtils::_useInstantValidation());
+
+				// ERROR MESSAGE FOR QUESTION CREATED IN AN OLD VERSION.
+				if (is_array($extra_info)) {
+					$extra_info_obj = new assStackQuestionExtraInfo(-1, $this->getId());
+					$extra_info_obj->setHowToSolve(' ');
+					$extra_info_obj->save();
+				} else {
+					$this->setExtraInfo($extra_info);
+				}
+			}
+			//TODO ELSE LOAD STANDARD
+
+
+			// loads additional stuff like suggested solutions
+			parent::loadFromDb($question_id);
+		}
+	}
+
 
 	/* ILIAS OVERWRITTEN METHODS END */
 
@@ -538,6 +659,9 @@ class assStackQuestion2 extends assQuestion implements iQuestionCondition
 	 */
 	public function questionInitialisation(?int $variant)
 	{
+		//Initialize Options
+		$this->options = new stack_options();
+
 		// @codingStandardsIgnoreStart
 		// Work out the right seed to use.
 		if (is_null($this->seed)) {
@@ -588,7 +712,6 @@ class assStackQuestion2 extends assQuestion implements iQuestionCondition
 			if ($units) {
 				$session->add_statement(stack_ast_container_silent::make_from_teacher_source('stack_unit_si_declare(true)', 'automatic unit declaration'), false);
 			}
-
 			// Note that at this phase the security object has no "words".
 			// The student's answer may not contain any of the variable names with which
 			// the teacher has defined question variables. Otherwise when it is evaluated
@@ -1118,7 +1241,11 @@ class assStackQuestion2 extends assQuestion implements iQuestionCondition
 	 */
 	public function hasRandomVariants(): bool
 	{
-		return preg_match('~\brand~', $this->question_variables) || preg_match('~\bmultiselqn~', $this->question_variables);
+		if (isset($this->question_variables)) {
+			return preg_match('~\brand~', $this->question_variables) || preg_match('~\bmultiselqn~', $this->question_variables);
+		} else {
+			return false;
+		}
 	}
 
 	/**
