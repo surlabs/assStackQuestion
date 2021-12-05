@@ -1,6 +1,8 @@
-Copyright 2017 Institut fuer Lern-Innovation,Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3 or later, see LICENSE
+Copyright 2021 Institut fuer Lern-Innovation,Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3 or later, see LICENSE
 
-Includes a modified core part of STACK version 3.3
+Includes a modified version of the stack folder of the Moodle Plugin STACK version 4.3.9
+https://github.com/maths/moodle-qtype_stack/ created by Chris Sangwin.
+
 Copyright 2012 University of Birmingham
 licensed under GPLv3 or later, see classes/stack/COPYING.txt
 http://stack.bham.ac.uk
@@ -8,7 +10,7 @@ http://stack.bham.ac.uk
 ILIAS STACK Question Type Plugin.
 ================================
 
-- Author: Jesus Copado <jesus.copado@fim.uni-erlangen.de>, Fred Neumann <fred.neumann@fim.uni-erlangen.de>
+- Author: Jesus Copado <jesus.copado@fim.uni-erlangen.de>
 - Forum: http://www.ilias.de/docu/goto_docu_frm_3474_2766.html
 - Bug Reports: http://www.ilias.de/mantis (Choose project "ILIAS plugins" and filter by category "STACK Question Type")
 
@@ -18,6 +20,10 @@ See the original STACK documentation at http://stack.bham.ac.uk/moodle
 
 Additional Software Requirements
 --------------------------------
+
+* PHP (http://php.net)
+
+The minimum PHP Version required to run this plugin in 7.4
 
 * Maxima (http://maxima.sourceforge.net)
 
@@ -83,6 +89,7 @@ input you can evaluate your answer (in self assessment mode) or move to the next
 Version History
 ===============
 
+* The version 4.0.x for **ILIAS 7** with the STACK Core version 4.3.9 is currently under development and **should not be used** can be found in the Github branch **stack_for_ilias7**
 * The stable version 3.4.x for **ILIAS 7** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias7**
 * The stable version 3.2.x for **ILIAS 6** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias6**
 * The stable version 3.1.x for **ILIAS 5.4** with new feedback styles is found in the Github branch **master-ilias54**
@@ -90,43 +97,6 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
 
-Version 3.4.1 (2021-11-04) for ILIAS 7 and ILIAS 6
+Version 4.0.1 (2021-12-05) for ILIAS 7
 ----------------------------------------
-Solves #31405 bug report.
-
-
-Version 3.4.0 (2021-09-13) for ILIAS 7 and ILIAS 6
-----------------------------------------
-This version includes the STACK core 4.2.2, this STACK version requires a Maxima Version =>5.41, if your installation runs this plugin with a Maxima Pool, the Maxima Pool must include the stack core required files of STACK version 2019090200.
-Please notice you can use this version with both ILIAS 6 and 7, but includes no new features and uses the old (2019) STACK Core Version.
-
-
-Version 3.2.0 (2020-06-18) for ILIAS 6
-----------------------------------------
-This version includes the STACK core 4.2.2, this STACK version requires a Maxima Version =>5.41, if your installation runs this plugin with a Maxima Pool, the Maxima Pool must include the stack core required files of STACK version 2019090200. 
-
-Version 3.2.1 (2020-06-22) for ILIAS 6
-----------------------------------------
-The following known issues has been **solved**:
-- Textarea questions are not evaluated properly, this will be solved in a bugfix in a few days.
-- firstline extra option is not evaluated properly in equivalence reasoning questions.
-
-Version 3.2.2 (2020-06-25) for ILIAS 6
-----------------------------------------
-The following bugs have been solved:
-- 28533 for ILIAS6 only, Test import not working.
-- 25256 and 27830 and 24273 about Matrix validation.
-- 24199 about dropdown field dissapearing if answered but other prt related inputs are not answered.
-- 27560 about inputs not properly deleted.
-- 25256 about specific feedback not shown in test results.
-
-Version 3.3.2 (2020-11-13) for ILIAS 6
-----------------------------------------
-The following bugs have been solved:
-- 25938 firstline option not appearing the first line of the teacher answer as hint in equivalence reasoning inputs.
-- 24273 In test results, user solutions for Matrix inputs now appears like the rest of the inputs and not as LaTeX entry.
-
-Version 3.3.3 (2021-02-04) for ILIAS 6
-----------------------------------------
-The following bugs have been solved:
-- Solved Integrity Constraint Error while re-installing the plugin in ILIAS6.
+First Commit **THIS VERSION IS NOT READY FOR TESTING**
