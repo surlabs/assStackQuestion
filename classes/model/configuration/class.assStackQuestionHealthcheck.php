@@ -125,8 +125,10 @@ class assStackQuestionHealthcheck
 			$message = stack_string('healthcheckmaximabatinfo', $CFG->dataroot);
 			$this->setMaximaConnectionStatus(html_writer::tag('p', $message), 'healthcheckmaximabatinfo');
 		}
+
 		// Test an *uncached* call to the CAS.  I.e. a genuine call to the process.
 		$this->setMaximaConnectionStatus(html_writer::tag('p', stack_string('healthuncachedintro')), 'healthuncachedintro');
+
 		list($message, $genuinedebug, $result) = stack_connection_helper::stackmaxima_genuine_connect();
 		$this->setMaximaConnectionStatus($result, 'healthuncachedresult');
 		$this->setMaximaConnectionStatus(html_writer::tag('p', $message), 'healthuncachedmessage');

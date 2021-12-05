@@ -57,10 +57,10 @@ class assStackQuestionStackFactory
 		}
 	}
 
-	//stack_cas_session
+	//stack_cas_session2
 	public function getStackCasSessionDefault()
 	{
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/cassession.class.php';
+		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/cassession2.class.php';
 
 		$session = array();
 		//$options is an stack_options object. Default options given INCOMPLETE?
@@ -68,7 +68,7 @@ class assStackQuestionStackFactory
 		//$seed will be set as time() INCOMPLETE
 		$seed = null;
 
-		return new stack_cas_session($session, $options, $seed);
+		return new stack_cas_session2($session, $options, $seed);
 	}
 
 	public function getStackCasCasstringFromInput(assStackQuestionInput $input)
@@ -97,6 +97,10 @@ class assStackQuestionStackFactory
 	 */
 	public function getStackCasCasstringFromParameters($parameters)
 	{
+		// fau: avoid casstrings
+		return $this->getStackCasText($parameters);
+
+		/*
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/casstring.class.php';
 		$cas_casstring = new stack_cas_casstring($parameters["string"]);
 		$cas_casstring->set_key($parameters["key"]);
@@ -106,11 +110,16 @@ class assStackQuestionStackFactory
 		} else
 		{
 			return $cas_casstring;
-		}
+		}*/
 	}
 
 	public function getStackCasCasstringFromArray($parameters)
 	{
+		// fau: avoid casstrings
+
+		return $this->getStackCasText($parameters);
+
+		/*
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/casstring.class.php';
 		$cas_casstring = new stack_cas_casstring($parameters["string"]);
 		#Unknown function problem solution
@@ -123,7 +132,7 @@ class assStackQuestionStackFactory
 		} else
 		{
 			return $cas_casstring;
-		}
+		}*/
 	}
 
 	/**
@@ -142,7 +151,7 @@ class assStackQuestionStackFactory
 		global $DIC;
 
 		$lng = $DIC->language();
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/cassession.class.php';
+		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/cassession2.class.php';
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/keyval.class.php';
 		if (!isset($parameters['raw']) OR strlen($parameters['raw']) <= 0)
 		{
@@ -193,13 +202,13 @@ class assStackQuestionStackFactory
 		global $DIC;
 
 		$lng = $DIC->language();
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/cassession.class.php';
+		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/cassession2.class.php';
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/castext.class.php';
 		if (!isset($parameters['raw']) OR strlen($parameters['raw']) <= 0)
 		{
 			$parameters['raw'] = " ";
 		}
-		if (!isset($parameters['session']) OR !is_a($parameters['session'], 'stack_cas_session'))
+		if (!isset($parameters['session']) OR !is_a($parameters['session'], 'stack_cas_session2'))
 		{
 			$parameters['session'] = $this->getStackCasSessionDefault();
 		}

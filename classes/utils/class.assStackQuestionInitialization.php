@@ -276,8 +276,8 @@ function get_config($section = 'qtype_stack')
 	$configs->inputshowvalidation = $saved_config['input_show_validation'];
 
 	$configs->maximalocalfolder = ilUtil::getWebspaceDir('filesystem') . '/xqcas/stack';
-	$configs->stackmaximaversion = "2019090200";
-	$configs->version = "2019090200";
+	$configs->stackmaximaversion = "2020042000";
+	$configs->version = "2020042000";
 
 	return $configs;
 }

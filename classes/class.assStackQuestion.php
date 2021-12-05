@@ -124,8 +124,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			throw new ilTestException('return details not implemented for ' . __METHOD__);
 		}*/
 
+
 		global $DIC;
 		$db = $DIC->database();
+
 
 		if (is_null($pass))
 		{

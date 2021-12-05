@@ -65,7 +65,7 @@ class assStackQuestionStackQuestion
 	//Instantiated variables
 
 	/**
-	 * @var array stack_cas_session STACK specific: session of variables.
+	 * @var array stack_cas_session2 STACK specific: session of variables.
 	 */
 	private $session;
 
@@ -76,7 +76,7 @@ class assStackQuestionStackQuestion
 	private $session_length;
 
 	/**
-	 * @var array stack_cas_session STACK specific: session of variables.
+	 * @var array stack_cas_session2 STACK specific: session of variables.
 	 */
 	private $question_note_instantiated;
 
@@ -431,6 +431,7 @@ class assStackQuestionStackQuestion
 				{
 					return $input_name;
 				}
+				/* fau: TODO provisional $teacher_answer es $input->getTeacherAnswer();
 				//26640 is teacher answer is a variable should be converted before setting it
 				$all_session_keys = $this->getSession()->get_all_keys();
 				$teacher_answer = $input->getTeacherAnswer();
@@ -438,8 +439,8 @@ class assStackQuestionStackQuestion
 					if($input->getTeacherAnswer() == $key){
 						$teacher_answer = $this->getSession()->get_value_key($key);
 					}
-				}
-				$input_parameters = array('type' => $input->getInputType(), 'name' => $input_name, 'teacheranswer' => $teacher_answer, 'options' => $this->getOptions(), 'parameters' => $specific_parameters);
+				}*/
+				$input_parameters = array('type' => $input->getInputType(), 'name' => $input_name, 'teacheranswer' => $input->getTeacherAnswer(), 'options' => $this->getOptions(), 'parameters' => $specific_parameters);
 				$stack_inputs[$input_name] = $this->getStackFactory()->get("input_object", $input_parameters);
 
 			}
@@ -453,11 +454,13 @@ class assStackQuestionStackQuestion
 	}
 
 	/**
+	 * fau: TODO Comment this as it is casstring
 	 * Add the teacher answer to the session
 	 * @param assStackQuestion $question
 	 */
 	public function addTeacherAnswersToSession(assStackQuestion $question)
 	{
+		/*
 		$response = array();
 		foreach ($question->getInputs() as $name => $input)
 		{
@@ -470,7 +473,7 @@ class assStackQuestionStackQuestion
 				$response[$name] = $teacher_answer_casstring;
 			}
 		}
-		$this->getSession()->add_vars($response);
+		$this->getSession()->add_vars($response);*/
 
 	}
 
@@ -602,16 +605,18 @@ class assStackQuestionStackQuestion
 	}
 
 	/**
+	 *  TODO Comment this
 	 * Give all the input elements a chance to configure themselves given the
 	 * teacher's model answers.
 	 */
 	public function adaptInputs()
 	{
+		/*
 		foreach ($this->getInputs() as $name => $input)
 		{
 			$teacheranswer = $this->getSession()->get_value_key($name);
 			$input->adapt_to_model_answer($teacheranswer);
-		}
+		}*/
 	}
 
 	/**
@@ -622,7 +627,7 @@ class assStackQuestionStackQuestion
 	 */
 	public function getInputState($name, $response, $forbiddenkeys = '')
 	{
-		if (!is_a($this->getSession(), "stack_cas_session"))
+		if (!is_a($this->getSession(), "stack_cas_session2"))
 		{
 			$this->createSession();
 		}
@@ -810,9 +815,9 @@ class assStackQuestionStackQuestion
 	 * Add all the question variables to a give CAS session. This can be used to
 	 * initialise that session, so expressions can be evaluated in the context of
 	 * the question variables.
-	 * @param stack_cas_session $session the CAS session to add the question variables to.
+	 * @param stack_cas_session2 $session the CAS session to add the question variables to.
 	 */
-	public function addQuestionVarsToSession(stack_cas_session $session)
+	public function addQuestionVarsToSession(stack_cas_session2 $session)
 	{
 		$session->merge_session($this->session);
 	}
@@ -1324,7 +1329,7 @@ class assStackQuestionStackQuestion
 	/**
 	 * Helper method used by initialise_question_from_seed.
 	 * @param string $text a textual part of the question that is CAS text.
-	 * @param stack_cas_session $session the question's CAS session.
+	 * @param stack_cas_session2 $session the question's CAS session.
 	 * @return stack_cas_text the CAS text version of $text.
 	 */
 	protected function prepare_cas_text($text, $session) {
