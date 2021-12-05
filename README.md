@@ -1,3 +1,7 @@
+
+DEVELOPMENT BRANCH. DO NOT USE IT
+================================
+
 Copyright 2021 Institut fuer Lern-Innovation,Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3 or later, see LICENSE
 
 Includes a modified version of the stack folder of the Moodle Plugin STACK version 4.3.9
@@ -10,7 +14,7 @@ http://stack.bham.ac.uk
 ILIAS STACK Question Type Plugin.
 ================================
 
-- Author: Jesus Copado <jesus.copado@fim.uni-erlangen.de>
+- Author: Jesus Copado <jesus.copado@fau.de>
 - Forum: http://www.ilias.de/docu/goto_docu_frm_3474_2766.html
 - Bug Reports: http://www.ilias.de/mantis (Choose project "ILIAS plugins" and filter by category "STACK Question Type")
 
