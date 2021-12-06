@@ -30,6 +30,22 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 
 	/* ILIAS CORE ATTRIBUTES END */
 
+	/* ILIAS VERSION SPECIFIC ATTRIBUTES BEGIN */
+
+	//plugin attributes
+
+	/**
+	 * @var bool
+	 */
+	private bool $hidden;
+
+	/**
+	 * @var float
+	 */
+	private bool $penalty;
+
+	/* ILIAS VERSION SPECIFIC ATTRIBUTES END */
+
 	/* STACK CORE ATTRIBUTES BEGIN */
 
 	//question attributes
@@ -529,8 +545,23 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 					$this->options = $options;
 				} catch (stack_exception $e) {
 					ilUtil::sendFailure($e, true);
-					return false;
 				}
+
+				//load Data stored in options but not part of the session options
+				$this->question_variables = $options_from_db_array['ilias_options']['question_variables'];
+				$this->question_note = $options_from_db_array['ilias_options']['question_note'];
+
+				$this->specific_feedback = $options_from_db_array['ilias_options']['specific_feedback'];
+				$this->specific_feedback_format = $options_from_db_array['ilias_options']['specific_feedback_format'];
+
+				$this->prt_correct = $options_from_db_array['ilias_options']['prt_correct'];
+				$this->prt_correct_format = $options_from_db_array['ilias_options']['prt_correct_format'];
+				$this->prt_partially_correct = $options_from_db_array['ilias_options']['prt_partially_correct'];
+				$this->prt_partially_correct_format = $options_from_db_array['ilias_options']['prt_partially_correct_format'];
+				$this->prt_incorrect = $options_from_db_array['ilias_options']['prt_incorrect'];
+				$this->prt_incorrect_format = $options_from_db_array['ilias_options']['prt_incorrect_format'];
+
+				$this->variants_selection_seed = $options_from_db_array['ilias_options']['variants_selection_seed'];
 
 				//load inputs
 				$inputs_from_db_array = assStackQuestionDB::_readInputs($question_id);
@@ -568,33 +599,112 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 				}
 
 				//load PRTs and PRT nodes
-				$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionPRT.php');
-				$this->setPotentialResponsesTrees(assStackQuestionPRT::_read($question_id));
+				$prt_from_db_array = assStackQuestionDB::_readPRTs($question_id);
 
-				//load tests
-				$this->getPlugin()->includeClass('model/ilias_object/test/class.assStackQuestionTest.php');
-				$this->setTests(assStackQuestionTest::_read($question_id));
+				//Values
+				$total_value = 0;
+
+				//in ILIAS all attempts are graded
+				$grade_all = true;
+
+				foreach ($prt_from_db_array as $prt_name => $prt_data) {
+					$total_value += $prt_data['value'];
+				}
+
+				if ($prt_from_db_array && $grade_all && $total_value < 0.0000001) {
+					try {
+						throw new coding_exception('There is an error authoring your question. ' .
+							'The $totalvalue, the marks available for the question, must be positive in question ' .
+							$this->getTitle());
+					} catch (coding_exception $e) {
+						ilUtil::sendFailure($e, true);
+					}
+				}
+
+				//get PRT and PRT Nodes from DB
+
+				$this->getPlugin()->includeClass('utils/class.assStackQuestionUtils.php');
+				$prt_names = assStackQuestionUtils::_getPRTNamesFromQuestion($this->getQuestion(), $options_from_db_array['ilias_options']['specific_feedback'], $prt_from_db_array);
+
+				foreach ($prt_names as $prt_name) {
+
+					$prt_data = $prt_from_db_array[$prt_name];
+					$nodes = array();
+
+					foreach ($prt_data['nodes'] as $node_name => $node_data) {
+
+						$sans = stack_ast_container::make_from_teacher_source('PRSANS' . $node_name . ':' . $node_data['sans'], '', new stack_cas_security());
+						$tans = stack_ast_container::make_from_teacher_source('PRTANS' . $node_name . ':' . $node_data['tans'], '', new stack_cas_security());
+
+						//Penalties management, penalties are not an ILIAS Feature
+						if (is_null($node_data['false_penalty']) || $node_data['false_penalty'] === '') {
+							$false_penalty = 0;
+						} else {
+							$false_penalty = $node_data['false_penalty'];
+						}
+
+						if (is_null(($node_data['true_penalty']) || $node_data['true_penalty'] === '')) {
+							$true_penalty = 0;
+						} else {
+							$true_penalty = $node_data['true_penalty'];
+						}
+
+						try {
+							//Create Node and add it to the
+							$node = new stack_potentialresponse_node($sans, $tans, $node_data['answer_test'], $node_data['test_options'], (bool)$node_data['quiet'], '', (int)$node_name);
+
+							$node->add_branch(0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty, $node_data['false_next_node'], $node_data['false_feedback'], $node_data['false_feedback_format'], $node_data['false_answer_note']);
+							$node->add_branch(1, $node_data['true_score_mode'], $node_data['true_score'], $true_penalty, $node_data['true_next_node'], $node_data['true_feedback'], $node_data['true_feedback_format'], $node_data['true_answer_note']);
+
+							$nodes[$node_name] = $node;
+						} catch (stack_exception $e) {
+							ilUtil::sendFailure($e, true);
+						}
+					}
+
+					if ($prt_data['feedback_variables']) {
+						try {
+							$feedback_variables = new stack_cas_keyval($prt_data['feedback_variables']);
+							$feedback_variables = $feedback_variables->get_session();
+						} catch (stack_exception $e) {
+							ilUtil::sendFailure($e, true);
+						}
+					} else {
+						$feedback_variables = null;
+					}
+
+					$prt_value = $prt_data['value'] / $total_value;
+					try {
+						$this->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt_data['auto_simplify'], $prt_value, $feedback_variables, $nodes, (string)$prt_data['first_node_name'], 1);
+					} catch (stack_exception $e) {
+						ilUtil::sendFailure($e, true);
+					}
+				}
 
 				//load seeds
-				$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionDeployedSeed.php');
-				$this->setDeployedSeeds(assStackQuestionDeployedSeed::_read($question_id));
+				$deployed_seeds = assStackQuestionDB::_readDeployedVariants($question_id);
+
+				if (is_array($deployed_seeds)) {
+					$this->deployed_seeds = array_values($deployed_seeds);
+				} else {
+					$this->deployed_seeds = array();
+				}
 
 				//load extra info
-				$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionExtraInfo.php');
-				$extra_info = assStackQuestionExtraInfo::_read($question_id);
-				$this->setInstantValidation(assStackQuestionUtils::_useInstantValidation());
-
-				// ERROR MESSAGE FOR QUESTION CREATED IN AN OLD VERSION.
+				$extra_info = assStackQuestionDB::_readExtraInformation($question_id);
 				if (is_array($extra_info)) {
-					$extra_info_obj = new assStackQuestionExtraInfo(-1, $this->getId());
-					$extra_info_obj->setHowToSolve(' ');
-					$extra_info_obj->save();
+					$this->general_feedback = $extra_info['general_feedback'];
+					$this->penalty = (float)$extra_info['penalty'];
+					$this->hidden = (bool)$extra_info['hidden'];
 				} else {
-					$this->setExtraInfo($extra_info);
+					$this->general_feedback = '';
+					$this->penalty = 0.0;
+					$this->hidden = false;
 				}
+
+
 			}
 			//TODO ELSE LOAD STANDARD
-
 
 			// loads additional stuff like suggested solutions
 			parent::loadFromDb($question_id);
@@ -1568,6 +1678,38 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		} else {
 			$this->prt_results = $prt_results;
 		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isHidden(): bool
+	{
+		return $this->hidden;
+	}
+
+	/**
+	 * @param bool $hidden
+	 */
+	public function setHidden(bool $hidden): void
+	{
+		$this->hidden = $hidden;
+	}
+
+	/**
+	 * @return float
+	 */
+	public function getPenalty()
+	{
+		return $this->penalty;
+	}
+
+	/**
+	 * @param float $penalty
+	 */
+	public function setPenalty(float $penalty): void
+	{
+		$this->penalty = $penalty;
 	}
 
 	/* GETTERS AND SETTERS END */
