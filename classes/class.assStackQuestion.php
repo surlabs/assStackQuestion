@@ -1197,7 +1197,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 * @param array $response
 	 * @return array|mixed|string|string[]
 	 */
-	public function get_validation_error(array $response)
+	public function getValidationError(array $response)
 	{
 		if ($this->isAnyPartInvalid($response)) {
 			// There will already be a more specific validation error displayed.
@@ -1470,17 +1470,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 */
 	private function getCached(string $key)
 	{
-		//TODO
-		return null;
-
-		global $DIC;
-		$DB = $DIC->database();
-
 		// Do we have that particular thing in the cache?
 		if ($this->compiled_cache === null || !array_key_exists($key, $this->compiled_cache)) {
 			// If not do the compilation.
 			try {
-				$this->compiled_cache = assStackQuestion2::compile($this->question_variables, $this->inputs, $this->prts, $this->options);
+				$this->compiled_cache = assStackQuestion::compile($this->question_variables, $this->inputs, $this->prts, $this->options);
 				//TODO CREATE NEW QUESTION CACHE DB ENTRY
 			} catch (exception $e) {
 				// TODO: what exactly do we use here as the key
