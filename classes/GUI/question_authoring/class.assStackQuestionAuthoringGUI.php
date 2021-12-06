@@ -862,7 +862,7 @@ class assStackQuestionAuthoringGUI
 			$answer_test->setValue($node->get_test());
 			$node_student_answer->setValue($node->sans->get_evaluationform() == " " ? '' : $node->sans->get_evaluationform());
 			$node_teacher_answer->setValue($node->tans->get_evaluationform() == " " ? '' : $node->tans->get_evaluationform());
-			$node_options->setValue($node->get_test());
+			$node_options->setValue((string)$node->getAtoptions());
 			$node_quiet->setValue($node->isQuiet());
 		}
 

@@ -59,26 +59,8 @@ class assStackQuestionPreview
 			$seed = $this->getSeed();
 		}
 
-		//Set grade of conversion to stack via the user response
-		if (assStackQuestionUtils::_isArrayEmpty($this->getUserResponse(), $this->getQuestion()->getInputs())) {
-			//NO USER RESPONSE, MINIMUM CONVERSION
-			//Create STACK Question object if doesn't exists
-			if (!is_a($question->getStackQuestion(), 'assStackQuestionStackQuestion')) {
-				$this->getPlugin()->includeClass("model/class.assStackQuestionStackQuestion.php");
-				$this->getQuestion()->setStackQuestion(new assStackQuestionStackQuestion());
-				$this->getQuestion()->getStackQuestion()->init($this->getQuestion(), '', $seed);
-			}
-		} else {
-			//THERE WAS USER RESPONSE, EVALUATION REQUIRED#
-			//Create STACK Question object if doesn't exists
-			if (!is_a($question->getStackQuestion(), 'assStackQuestionStackQuestion')) {
-				$this->getPlugin()->includeClass("model/class.assStackQuestionStackQuestion.php");
-				$this->getQuestion()->setStackQuestion(new assStackQuestionStackQuestion());
-				//(v1.6+) Maintain the seed as the current one.
-				$this->getQuestion()->getStackQuestion()->init($this->getQuestion(), '', $seed);
-			}
-		}
-
+		//Initialise Question
+		$this->getQuestion()->questionInitialisation($seed);
 	}
 
 	/**
@@ -89,7 +71,7 @@ class assStackQuestionPreview
 	public function getQuestionPreviewData($test_mode = FALSE, $active_id = NULL, $pass = NULL)
 	{
 		//Step #1: Get evaluation form and evaluate question if needed.
-		if (!assStackQuestionUtils::_isArrayEmpty($this->getUserResponse(), $this->getQuestion()->getInputs())) {
+		if (!assStackQuestionUtils::_isArrayEmpty($this->getUserResponse(), $this->getQuestion()->inputs)) {
 			$evaluated_question = $this->getEvaluationForPreview();
 		} else {
 			//Step #2: Prepare Question display data
@@ -123,7 +105,7 @@ class assStackQuestionPreview
 		//$value_format_user_response = assStackQuestionUtils::_changeUserResponseStyle($this->getUserResponse(), $this->getQuestion()->getId(), $this->getQuestion()->getStackQuestion()->getInputs(), 'reduced_to_value');
 
 		$this->getPlugin()->includeClass("model/question_display/class.assStackQuestionDisplay.php");
-		$question_display_object = new assStackQuestionDisplay($this->getPlugin(), $this->getQuestion()->getStackQuestion(), $this->getUserResponse(), $feedback_data);
+		$question_display_object = new assStackQuestionDisplay($this->getPlugin(), $this->getQuestion(), $this->getUserResponse(), $feedback_data);
 		return $question_display_object->getQuestionDisplayData("");
 	}
 

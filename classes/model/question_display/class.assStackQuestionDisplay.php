@@ -27,7 +27,7 @@ class assStackQuestionDisplay
 
 	/**
 	 * STACK version of the question
-	 * @var assStackQuestionStackQuestion
+	 * @var assStackQuestion
 	 */
 	private $question;
 
@@ -64,10 +64,10 @@ class assStackQuestionDisplay
 	 * Sets all information needed for question display,
 	 * Be aware of $question, here is not an assStackQuestion but an assStackQuestionStackQuestion object
 	 * @param ilassStackQuestionPlugin $plugin
-	 * @param assStackQuestionStackQuestion $question
+	 * @param assStackQuestion $question
 	 * @param array OR boolean $user_response
 	 */
-	function __construct(ilassStackQuestionPlugin $plugin, assStackQuestionStackQuestion $question, $user_response = NULL, $inline_feedback = TRUE)
+	function __construct(ilassStackQuestionPlugin $plugin, assStackQuestion $question, $user_response = NULL, $inline_feedback = TRUE)
 	{
 		//Set plugin object
 		$this->setPlugin($plugin);
@@ -78,7 +78,7 @@ class assStackQuestionDisplay
 		$this->setUserResponse($user_response);
 		//Set specific data and variables for the display
 		//Set question text
-		$this->setQuestionText($question->getQuestionTextInstantiated());
+		$this->setQuestionText($question->question_text_instantiated);
 		//Set template for question display
 		$this->setTemplate($plugin->getTemplate("tpl.il_as_qpl_xqcas_question_display.html"));
 
@@ -95,60 +95,44 @@ class assStackQuestionDisplay
 	{
 		$display_data = array();
 
-		//Set Question text instantiated
-		if ($in_test)
-		{
-			$display_data['question_text'] = $this->getQuestionText();
-		} else
-		{
-			$display_data['question_text'] = $this->getQuestion()->getQuestionTextInstantiated();
-		}
+		$display_data['question_text'] = $this->getQuestion()->question_text_instantiated;
 
 		//Specific feedback
-		$display_data['question_specific_feedback'] = $this->getQuestion()->getSpecificFeedbackInstantiated();
+		$display_data['question_specific_feedback'] = $this->getQuestion()->specific_feedback_instantiated;
 
 		//Set question_id
-		$display_data['question_id'] = (string)$this->getQuestion()->getQuestionId();
+		$display_data['question_id'] = (string)$this->getQuestion()->getId();
 
 		//Step 1: Get the replacement per each placeholder.
-		foreach ($this->getQuestion()->getInputs() as $input_name => $input)
-		{
+		foreach ($this->getQuestion()->inputs as $input_name => $input) {
 			//Step 1.1: Replacement for input placeholders
 			$display_data['inputs'][$input_name]['display'] = $this->replacementForInputPlaceholders($input, $input_name, $in_test, FALSE);
 			$display_data['inputs'][$input_name]['display_rendered'] = $this->replacementForInputPlaceholders($input, $input_name, $in_test, TRUE);
 			$display_data['inputs'][$input_name]['validation'] = $this->replacementForValidationInput($input, $input_name, $in_test, TRUE);
-			if (is_a($input, "stack_equiv_input") OR is_a($input, "stack_textarea_input"))
-			{
+			if (is_a($input, "stack_equiv_input") or is_a($input, "stack_textarea_input")) {
 				$display_data['inputs'][$input_name]['text_area'] = TRUE;
-			} else
-			{
+			} else {
 				$display_data['inputs'][$input_name]['text_area'] = FALSE;
 			}
-			if (is_a($input, "stack_radio_input") OR is_a($input, "stack_dropdown_input") OR is_a($input, "stack_checkbox_input") OR is_a($input, "stack_notes_input"))
-			{
+			if (is_a($input, "stack_radio_input") or is_a($input, "stack_dropdown_input") or is_a($input, "stack_checkbox_input") or is_a($input, "stack_notes_input")) {
 				$display_data['inputs'][$input_name]['show_validation'] = 0;
-			} else
-			{
+			} else {
 				$display_data['inputs'][$input_name]['show_validation'] = $input->get_parameter("showValidation");
 			}
 			//Step 1.2: Replacement for validation placeholders
-			if ((int)$this->getQuestion()->getInputs($input_name)->get_parameter("showValidation"))
-			{
+			if ((int)$input->get_parameter("showValidation")) {
 				$display_data['validation'][$input_name] = $this->replacementForValidationPlaceholders($input, $input_name);
-			} else
-			{
+			} else {
 				$display_data['validation'][$input_name] = "";
 			}
 			//Step 1.3 set matrix info
-			if (is_a($input, "stack_matrix_input"))
-			{
+			if (is_a($input, "stack_matrix_input")) {
 				$display_data['inputs'][$input_name]['matrix_w'] = $input->width;
 				$display_data['inputs'][$input_name]['matrix_h'] = $input->height;
 			}
 		}
 		//Step 2: Get the replacement per each Feedback placeholder
-		foreach ($this->getQuestion()->getPRTs() as $prt_name => $prt)
-		{
+		foreach ($this->getQuestion()->prts as $prt_name => $prt) {
 			//Step 1.1: Replacement for input placeholders
 			$display_data['prts'][$prt_name]['display'] = $this->replacementForPRTPlaceholders($prt, $prt_name, $in_test);
 		}
@@ -167,38 +151,32 @@ class assStackQuestionDisplay
 		//In assStackQuestionDisplay the User response should be store with the "value" format for assStackQuestionUtils::_getUserResponse.
 		$student_answer = $this->getUserResponse($input_name, $in_test);
 		//Bug https://www.ilias.de/mantis/view.php?id=22129 about matrix syntax hint
-		if (is_array($student_answer))
-		{
-			if (!sizeof($student_answer) AND ($input->get_parameter('syntaxHint') != '') AND is_a($input, 'stack_matrix_input'))
-			{
+
+		if (is_array($student_answer)) {
+			if (!sizeof($student_answer) and ($input->get_parameter('syntaxHint') != '') and is_a($input, 'stack_matrix_input')) {
 				$student_answer = assStackQuestionUtils::_changeUserResponseStyle(array($input_name => $input->get_parameter('syntaxHint')), $this->getQuestion()->getQuestionId(), array($input_name => $input), 'reduced_to_value');
 				$student_answer = $student_answer["xqcas_input_" . $input_name . "_value"];
+			}
+			//Change NULL to '' for non answered student responses
+			foreach ($student_answer as $key => $answer) {
+				if ($answer === null) {
+					$student_answer[$key] = '';
+				}
 			}
 		}
 
 
 		//Create input state
-		if ($in_test)
-		{
-			$state = $this->getQuestion()->getInputState($input_name, $student_answer[$input_name], $input->get_parameter('forbidWords', ''));
+		$state = $this->getQuestion()->getInputState($input_name, $student_answer, $input->get_parameter('forbidWords', ''));
 
-		} else
-		{
-			$state = $this->getQuestion()->getInputState($input_name, $student_answer, $input->get_parameter('forbidWords', ''));
-		}
-		if ($render_display)
-		{
+		if ($render_display) {
 			//Solve problem with string input type
-			if (is_array($student_answer))
-			{
-				if (get_class($input) == 'stack_matrix_input')
-				{
+			if (is_array($student_answer)) {
+				if (get_class($input) == 'stack_matrix_input') {
 					//https://mantis.ilias.de/view.php?id=25256
 					return $state->contentsdisplayed;
-				} else
-				{
-					if ($student_answer[$input_name] == NULL)
-					{
+				} else {
+					if ($student_answer[$input_name] == NULL) {
 						return "";
 					}
 				}
@@ -206,17 +184,17 @@ class assStackQuestionDisplay
 
 			return $state->contentsdisplayed;
 		}
+
 		//Get teacher answer value for equivalence reasoning input firstline problem #22847
 		//Modified to solve 25938 if else
-		if(is_a($input,"stack_equiv_input")){
-			$ta_value = $this->getQuestion()->getSession()->get_value_key("ta");
-		}else{
-			$ta_value = $this->getQuestion()->getSession()->get_value_key($input->get_teacher_answer());
+		if (is_a($input, "stack_equiv_input")) {
+			$ta_value = $input->get_teacher_answer();
+		} else {
+			$ta_value = $input->get_teacher_answer();
 		}
 
 		//Return renderised input
-		if (get_class($input) == 'stack_algebraic_input')
-		{
+		if (get_class($input) == 'stack_algebraic_input') {
 			$input_info = new stdClass();
 			$input_info->input = $input;
 			$input_info->name = $input_name;
@@ -224,14 +202,11 @@ class assStackQuestionDisplay
 			$input_info->teacher_answer = $ta_value;
 
 			return $input_info;
-		} else
-		{
-			if (is_subclass_of($input, 'stack_dropdown_input'))
-			{
-				return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE, $ta_value);
-			} else
-			{
-				return $input->render($state, 'xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name, FALSE, $ta_value);
+		} else {
+			if (is_subclass_of($input, 'stack_dropdown_input')) {
+				return $input->render($state, 'xqcas_' . $this->getQuestion()->getId() . '_' . $input_name, FALSE, $ta_value);
+			} else {
+				return $input->render($state, 'xqcas_' . $this->getQuestion()->getId() . '_' . $input_name, FALSE, $ta_value);
 			}
 		}
 	}
@@ -245,23 +220,17 @@ class assStackQuestionDisplay
 	 */
 	private function replacementForValidationPlaceholders($input, $input_name)
 	{
-		if (!is_a($input, 'stack_boolean_input') AND !is_subclass_of($input, 'stack_dropdown_input') AND !is_a($input, 'stack_dropdown_input'))
-		{
-			if ($input->get_parameter("showValidation"))
-			{
-				if ($this->getQuestion()->getInstantValidation())
-				{
+		if (!is_a($input, 'stack_boolean_input') and !is_subclass_of($input, 'stack_dropdown_input') and !is_a($input, 'stack_dropdown_input')) {
+			if ($input->get_parameter("showValidation")) {
+				if (assStackQuestionUtils::_useInstantValidation()) {
 					return 'instant';
-				} else
-				{
+				} else {
 					return 'button';
 				}
-			} else
-			{
+			} else {
 				return 'hidden';
 			}
-		} else
-		{
+		} else {
 			return FALSE;
 		}
 	}
@@ -275,12 +244,10 @@ class assStackQuestionDisplay
 	private function replacementForPRTPlaceholders($prt, $prt_name, $in_test)
 	{
 		$string = "";
-		if (!empty($this->getInlineFeedback()))
-		{
+		if (!empty($this->getInlineFeedback())) {
 			//feedback
 			//feedback
-			if (strlen($this->inline_feedback['prt'][$prt_name]['status']['message']))
-			{
+			if (strlen($this->inline_feedback['prt'][$prt_name]['status']['message'])) {
 				//Generic feedback
 				$string .= $this->inline_feedback['prt'][$prt_name]['status']['message'];
 			}
@@ -305,7 +272,7 @@ class assStackQuestionDisplay
 	}
 
 	/**
-	 * @return assStackQuestionStackQuestion
+	 * @return assStackQuestion
 	 */
 	public function getQuestion()
 	{
@@ -321,50 +288,35 @@ class assStackQuestionDisplay
 		$user_answer = array();
 
 		//In assStackQuestionDisplay the User response should be stored with the "value" format for assStackQuestionUtils::_getUserResponse.
-		if ($selector)
-		{
-			if (is_array($this->user_response))
-			{
-				if ($in_test)
-				{
-					if (array_key_exists($selector, $this->user_response))
-					{
-						foreach ($this->getQuestion()->getInputs() as $input_name => $input)
-						{
-							if ($input_name == $selector)
-							{
+		if ($selector) {
+			if (is_array($this->user_response)) {
+				if ($in_test) {
+					if (array_key_exists($selector, $this->user_response)) {
+						foreach ($this->getQuestion()->inputs as $input_name => $input) {
+							if ($input_name == $selector) {
 								$user_answer[$selector] = array($selector => $this->user_response[$selector]);
 							}
 						}
-					} else
-					{
+					} else {
 						return array($selector => '');
 					}
 
 					return $user_answer[$selector];
-				} else
-				{
+				} else {
 					//preview mode
-					foreach ($this->getQuestion()->getInputs() as $input_name => $input)
-					{
-						if ($input_name == $selector)
-						{
-							if (is_a($input, 'stack_matrix_input'))
-							{
+					foreach ($this->getQuestion()->inputs as $input_name => $input) {
+						if ($input_name == $selector) {
+							if (is_a($input, 'stack_matrix_input')) {
 								$matrix_input = array();
-								foreach ($this->user_response as $sub_key => $response)
-								{
-									if (strpos($sub_key, $input_name . "_") !== FALSE)
-									{
+								foreach ($this->user_response as $sub_key => $response) {
+									if (strpos($sub_key, $input_name . "_") !== FALSE) {
 										$matrix_input[$sub_key] = $response;
 									}
 								}
 								$user_answer[$selector] = $matrix_input;
-							} elseif (is_subclass_of($input, "stack_dropdown_input"))
-							{
+							} elseif (is_subclass_of($input, "stack_dropdown_input")) {
 								$user_answer[$selector] = $this->user_response;
-							} else
-							{
+							} else {
 								$user_answer[$selector] = array($selector => $this->user_response[$selector]);
 							}
 						}
@@ -372,12 +324,10 @@ class assStackQuestionDisplay
 
 					return $user_answer[$selector];
 				}
-			} else
-			{
+			} else {
 				return array();
 			}
-		} else
-		{
+		} else {
 			return $this->user_response;
 		}
 	}
@@ -404,17 +354,13 @@ class assStackQuestionDisplay
 	 */
 	public function getInlineFeedback($selector1 = '', $selector2 = '', $selector3 = '')
 	{
-		if ($selector1 AND !$selector2)
-		{
+		if ($selector1 and !$selector2) {
 			return $this->inline_feedback[$selector1];
-		} elseif ($selector1 AND $selector2)
-		{
+		} elseif ($selector1 and $selector2) {
 			return $this->inline_feedback[$selector1][$selector2];
-		} elseif ($selector1 AND $selector2 AND $selector3)
-		{
+		} elseif ($selector1 and $selector2 and $selector3) {
 			return $this->inline_feedback[$selector1][$selector2][$selector3];
-		} else
-		{
+		} else {
 			return $this->inline_feedback;
 		}
 	}
@@ -428,9 +374,9 @@ class assStackQuestionDisplay
 	}
 
 	/**
-	 * @param assStackQuestionStackQuestion $question
+	 * @param assStackQuestion $question
 	 */
-	public function setQuestion(assStackQuestionStackQuestion $question)
+	public function setQuestion(assStackQuestion $question)
 	{
 		$this->question = $question;
 	}
@@ -442,11 +388,9 @@ class assStackQuestionDisplay
 	public function setUserResponse($user_response, $selector = '')
 	{
 		//In assStackQuestionDisplay the User response should be stored with the "value" format for assStackQuestionUtils::_getUserResponse.
-		if ($selector)
-		{
+		if ($selector) {
 			$this->user_response[$selector] = $user_response;
-		} else
-		{
+		} else {
 			$this->user_response = $user_response;
 		}
 	}
@@ -472,11 +416,9 @@ class assStackQuestionDisplay
 	 */
 	public function setInlineFeedback($inline_feedback, $selector = '')
 	{
-		if ($selector)
-		{
+		if ($selector) {
 			$this->inline_feedback[$selector] = $inline_feedback;
-		} else
-		{
+		} else {
 			$this->inline_feedback = $inline_feedback;
 		}
 	}
@@ -487,10 +429,8 @@ class assStackQuestionDisplay
 		//In assStackQuestionDisplay the User response should be store with the "value" format for assStackQuestionUtils::_getUserResponse.
 		$student_answer = $this->getUserResponse($input_name, $in_test);
 		//Bug https://www.ilias.de/mantis/view.php?id=22129 about matrix syntax hint
-		if (is_array($student_answer))
-		{
-			if (!sizeof($student_answer) AND ($input->get_parameter('syntaxHint') != '') AND is_a($input, 'stack_matrix_input'))
-			{
+		if (is_array($student_answer)) {
+			if (!sizeof($student_answer) and ($input->get_parameter('syntaxHint') != '') and is_a($input, 'stack_matrix_input')) {
 				$student_answer = assStackQuestionUtils::_changeUserResponseStyle(array($input_name => $input->get_parameter('syntaxHint')), $this->getQuestion()->getQuestionId(), array($input_name => $input), 'reduced_to_value');
 				$student_answer = $student_answer["xqcas_input_" . $input_name . "_value"];
 			}
@@ -500,13 +440,10 @@ class assStackQuestionDisplay
 		$input_state = $this->getQuestion()->getInputStates($input_name);
 		$input_size = (string)$input->get_parameter("boxWidth");
 
-		if (is_a($input, "stack_algebraic_input") OR is_a($input, "stack_numerical_input") OR is_a($input, "stack_singlechar_input") OR is_a($input, "stack_boolean_input") OR is_a($input, "stack_units_input"))
-		{
-			if (is_array($student_answer[$input_name]))
-			{
+		if (is_a($input, "stack_algebraic_input") or is_a($input, "stack_numerical_input") or is_a($input, "stack_singlechar_input") or is_a($input, "stack_boolean_input") or is_a($input, "stack_units_input")) {
+			if (is_array($student_answer[$input_name])) {
 				$student_answer_value = $student_answer[$input_name][$input_name . "_val"];
-			} elseif (is_string($student_answer[$input_name]))
-			{
+			} elseif (is_string($student_answer[$input_name])) {
 				$student_answer_value = $student_answer[$input_name];
 			}
 
@@ -515,27 +452,22 @@ class assStackQuestionDisplay
 			$validation_message = stack_string('studentValidation_yourLastAnswer', $input_state->contentsdisplayed);
 
 			#25225 add validation div wrapping
-            $validation_div = '<div id="validation_xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '">';
-			return $validation_div."<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $input_html . $validation_message . "</td></tr></table></div>";
+			$validation_div = '<div id="validation_xqcas_' . $this->getQuestion()->getId() . '_' . $input_name . '">';
+			return $validation_div . "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $input_html . $validation_message . "</td></tr></table></div>";
 		}
-		if (is_a($input, "stack_matrix_input"))
-		{
+		if (is_a($input, "stack_matrix_input")) {
 			$matrix_input_rows = (int)$input->height;
 			$matrix_input_columns = (int)$input->width;
 
 			$user_matrix = "<table class='xqcas_matrix_validation' style='display:inline'>";
-			for ($i = 0; $i < $matrix_input_rows; $i++)
-			{
+			for ($i = 0; $i < $matrix_input_rows; $i++) {
 				$user_matrix .= "<tr>";
-				for ($j = 0; $j < $matrix_input_columns; $j++)
-				{
+				for ($j = 0; $j < $matrix_input_columns; $j++) {
 					$user_matrix .= "<td class='xqcas_matrix_validation'>";
 					//https://mantis.ilias.de/view.php?id=25256
-					if ($in_test)
-					{
+					if ($in_test) {
 						$user_filled_input = '<code>' . $student_answer[$input_name][$input_name . "_sub_" . $i . "_" . $j] . '</code>';
-					} else
-					{
+					} else {
 						$user_filled_input = '<code>' . $student_answer[$input_name . "_sub_" . $i . "_" . $j] . '</code>';
 					}
 					$user_matrix .= $user_filled_input;
@@ -550,51 +482,43 @@ class assStackQuestionDisplay
 			#25225 add validation div wrapping
 			$validation_div = '<div id="validation_xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '"></div><div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input->width . '</div><div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden";>' . $input->height . '</div>';
 			#27830
-			$validation_div .= $user_matrix. $validation_message;
+			$validation_div .= $user_matrix . $validation_message;
 			return $validation_div;
 		}
-		if (is_a($input, "stack_checkbox_input"))
-		{
+		if (is_a($input, "stack_checkbox_input")) {
 			return "";
 		}
-		if (is_a($input, "stack_radio_input"))
-		{
+		if (is_a($input, "stack_radio_input")) {
 			return "";
 		}
-		if (is_a($input, "stack_dropdown_input"))
-		{
+		if (is_a($input, "stack_dropdown_input")) {
 			return "";
 		}
-		if (is_a($input, "stack_equiv_input") or is_a($input, "stack_textarea_input"))
-		{
+		if (is_a($input, "stack_equiv_input") or is_a($input, "stack_textarea_input")) {
 			$feedback = "";
 			$textarea_html = "";
-			foreach ($input_state->contents as $key => $val)
-			{
+			foreach ($input_state->contents as $key => $val) {
 				//fau: add stacktoeq
 				$textarea_html .= '<code>' . $input->stackeq_to_equals($val) . '</code></br>';
 			}
 
 			$feedback .= html_writer::tag('p', "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $textarea_html . "</td><td class='xqcas_validation'>" . stack_string('studentValidation_yourLastAnswer', $input_state->contentsdisplayed) . "</td></tr>");
 
-			if ($input::INVALID == $input_state->status)
-			{
+			if ($input::INVALID == $input_state->status) {
 				$feedback .= html_writer::tag('p', "<tr><td class='xqcas_validation_status'>" . stack_string('studentValidation_invalidAnswer') . "</td></tr>");
 			}
 
-			if (!($input_state->lvars === '' or $input_state->lvars === '[]'))
-			{
+			if (!($input_state->lvars === '' or $input_state->lvars === '[]')) {
 				$feedback .= "<tr><td class='xqcas_validation_variables'>" . $input->tag_listofvariables($input_state->lvars) . "</td></tr>";
 			}
 			$feedback .= "</table>";
 
-            #25225 add validation div wrapping
-            $validation_div = '<div id="validation_xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '">';
-            return $validation_div."<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $feedback . "</td></tr></table></div>";
+			#25225 add validation div wrapping
+			$validation_div = '<div id="validation_xqcas_' . $this->getQuestion()->getQuestionId() . '_' . $input_name . '">';
+			return $validation_div . "<table class='xqcas_validation'><tr><td class='xqcas_validation'>" . $feedback . "</td></tr></table></div>";
 
 		}
-		if (is_a($input, "stack_notes_input"))
-		{
+		if (is_a($input, "stack_notes_input")) {
 			$string = assStackQuestionUtils::_getFeedbackStyledText($this->getPlugin()->txt("notes_best_solution_message"), "feedback_default");
 			$result["value"] = $string;
 			$result["display"] = "";

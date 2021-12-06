@@ -243,6 +243,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		} catch (ilPluginException $e) {
 			ilUtil::sendFailure($e, true);
 		}
+
+		//Initialise some parameters
+		$this->tas = array();
+
 	}
 
 	//assQuestion abstract methods
@@ -874,8 +878,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			// 2. correct answer for all inputs.
 			foreach ($this->inputs as $name => $input) {
 				$cs = stack_ast_container::make_from_teacher_source($input->get_teacher_answer(), '', $this->getSecurity());
-				$this->setTas($cs, $name);
 				$session->add_statement($cs);
+				$this->setTas($cs, $name);
 			}
 
 			// 3. CAS bits inside the question text.
@@ -1124,13 +1128,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			//Get Teacher answer
 			if (array_key_exists($name, $this->getTas())) {
 				if ($this->getTas($name)->is_correctly_evaluated()) {
-					$teacher_answer = $this->getTas($name)->get_value();
+					$teacher_answer = $this->getTas($name);
 				}
 			}
 
 			//Validate student response
 			if (array_key_exists($name, $this->inputs)) {
-				$this->setInputStates($this->inputs[$name]->validate_student_response($response, $this->options, $teacher_answer, $this->security, $raw_input), $name);
+				$this->setInputStates($this->inputs[$name]->validate_student_response($response, $this->options, $teacher_answer, $this->security, false), $name);
 				return $this->getInputStates($name);
 			}
 
@@ -1553,7 +1557,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 * @param null|string $name
 	 * @return stack_ast_container[]|stack_ast_container
 	 */
-	public function getTas(string $name = null): array
+	public function getTas(string $name = null)
 	{
 		if ($name) {
 			return $this->tas[$name];
@@ -1567,7 +1571,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 * @param array|stack_ast_container $tas
 	 * @param null|string $name
 	 */
-	public function setTas(array $tas, string $name = null): void
+	public function setTas($tas, $name = null): void
 	{
 		if ($name) {
 			$this->tas[$name] = $tas;
