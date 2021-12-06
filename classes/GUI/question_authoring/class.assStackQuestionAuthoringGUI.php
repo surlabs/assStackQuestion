@@ -283,8 +283,9 @@ class assStackQuestionAuthoringGUI
 		$prts_section_header = new ilFormSectionHeaderGUI();
 		$prts_section_header->setTitle($this->getPlugin()->txt('prts'));
 		$this->getForm()->addItem($prts_section_header);
+*/
 
-		$this->getForm()->addItem($prts);*/
+		$this->getForm()->addItem($prts);
 	}
 
 	/**
@@ -555,7 +556,7 @@ class assStackQuestionAuthoringGUI
 		} else {
 			$prt_name_input->setValue($prt_name);
 		}
-		$settings_column->addFormProperty($prt_name);
+		$settings_column->addFormProperty($prt_name_input);
 
 		$prt_first_node = new ilSelectInputGUI($this->getPlugin()->txt('prt_first_node'), 'prt_' . $prt_name . '_first_node');
 		$node_list = array();

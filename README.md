@@ -101,6 +101,12 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
 
-Version 4.0.1 (2021-12-05) for ILIAS 7
+Version 4.x.x (UNDER DEVELOPMENT, DO NOT USE) for ILIAS 7
 ----------------------------------------
+- assStackQuestion becomes the "alter ego" of stack_question, the Moodle Plugin class. The old assStackQuestion is now named as assStackQuestion2 and it's going to be deleted.
+- assStackQuestion is now responsible for all STACK variables, previously managed by assStackQuestionStackQuestion, which it's going to be deleted.
+- assStackQuestionDB is now responsible for all DB Access methods, previously managed by the model/ilias_object classes. These classes are going to be deleted.
+- The Authoring interface (assStackQuestionAuthoringGUI) is now connected to the new question object, and it is ready to be tested.
+
+
 First Commit **THIS VERSION IS NOT READY FOR TESTING**
