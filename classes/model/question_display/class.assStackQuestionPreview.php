@@ -80,7 +80,6 @@ class assStackQuestionPreview
 		}
 
 		//Step #2: Calculate points
-		$evaluated_question->calculatePoints($test_mode, $active_id, $pass, $this->question);
 
 		//Step #3: Create feedback object
 		$feedback_data = $this->getFeedbackForPreview($evaluated_question);
@@ -120,7 +119,7 @@ class assStackQuestionPreview
 		//In assStackQuestionEvaluation the User response should be stored with the "reduced" format for assStackQuestionUtils::_getUserResponse.
 		//Evaluation process
 		$this->getPlugin()->includeClass("model/question_evaluation/class.assStackQuestionEvaluation.php");
-		$question_evaluation_object = new assStackQuestionEvaluation($this->getPlugin(), $this->getQuestion()->getStackQuestion(), $this->getUserResponse());
+		$question_evaluation_object = new assStackQuestionEvaluation($this->getPlugin(), $this->getQuestion(), $this->getUserResponse());
 		return $question_evaluation_object->evaluateQuestion();
 	}
 

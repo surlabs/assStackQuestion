@@ -31,34 +31,6 @@ define('PARAM_RAW', 'raw');
 define('MOODLE_INTERNAL', '1');
 
 
-/**
- * STRING MANAGEMENT
- */
-function stack_string($key, $a = null)
-{
-	require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php';
-	$user_language = getLanguage();
-	switch ($user_language)
-	{
-		case 'en':
-			static $string = array();
-			if (empty($string))
-			{
-				include './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/lang/stack_en.php';
-			}
-			break;
-		default:
-			static $string = array();
-			if (empty($string))
-			{
-				include './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/lang/stack_de.php';
-			}
-			break;
-	}
-
-	return getString($key, $string, $a);
-}
-
 function getLanguage()
 {
 	global $DIC;
@@ -101,11 +73,6 @@ function getString($identifier, $string, $a = null)
 	return $string;
 }
 
-function stack_maxima_format_casstring($str)
-{
-	return $str;
-}
-
 /**
  * Translates a string taken as output from Maxima.
  *
@@ -133,42 +100,9 @@ function stack_trans()
 		echo $return;
 	}
 }
-
-function stack_maxima_translate($rawfeedback)
-{
-
-	if (strpos($rawfeedback, 'stack_trans') === false)
-	{
-		return trim($rawfeedback);
-	} else
-	{
-		$rawfeedback = str_replace('[[', '', $rawfeedback);
-		$rawfeedback = str_replace(']]', '', $rawfeedback);
-		$rawfeedback = str_replace('\n', '', $rawfeedback);
-		$rawfeedback = str_replace('\\', '\\\\', $rawfeedback);
-		$rawfeedback = str_replace('!quot!', '"', $rawfeedback);
-
-		ob_start();
-		eval($rawfeedback);
-		$translated = ob_get_contents();
-		ob_end_clean();
-
-		return trim($translated);
-	}
-}
-
 /**
  * EXCEPTIONS
  */
-require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/exceptions/class.assStackQuestionException.php');
-
-class stack_exception extends assStackQuestionException
-{
-}
-
-class coding_exception extends assStackQuestionException
-{
-}
 
 
 function get_config($section = 'qtype_stack')

@@ -26,15 +26,15 @@ class assStackQuestionFeedback
 
     /**
      * The question already evaluated
-     * @var assStackQuestionStackQuestion
+     * @var assStackQuestion
      */
     private $question;
 
     /**
      * @param ilassStackQuestionPlugin $plugin
-     * @param assStackQuestionStackQuestion $question
+     * @param assStackQuestion $question
      */
-    function __construct(ilassStackQuestionPlugin $plugin, assStackQuestionStackQuestion $question)
+    function __construct(ilassStackQuestionPlugin $plugin, assStackQuestion $question)
     {
         //Set plugin object
         $this->setPlugin($plugin);
@@ -54,10 +54,10 @@ class assStackQuestionFeedback
         $question_feedback = array();
 
         //Fill global question vars
-        $question_feedback['question_text'] = $this->getQuestion()->getQuestionTextInstantiated();
-        $question_feedback['general_feedback'] = $this->getQuestion()->getGeneralFeedback();
+        $question_feedback['question_text'] = $this->getQuestion()->question_text_instantiated;
+        $question_feedback['general_feedback'] = $this->getQuestion()->general_feedback;
         $question_feedback['question_note'] = $this->getQuestion()->getQuestionNoteInstantiated();
-        $question_feedback['points'] = $this->getQuestion()->reached_points;
+        $question_feedback['points'] = $this->getQuestion()->getPoints();
 
         //Fill specific PRT vars
         foreach ($this->getQuestion()->getPRTResults() as $prt_name => $prt_data) {
@@ -203,15 +203,15 @@ class assStackQuestionFeedback
         if ((float)$prt_state->__get('score') * (float)$prt_state->__get('weight') == (float)$prt_state->__get('weight')) {
             //CORRECT
             $status['value'] = 1;
-            $status['message'] = $this->getQuestion()->getPRTCorrectInstantiated();
+            $status['message'] = $this->getQuestion()->prt_correct_instantiated;
         } elseif ((float)$prt_state->__get('score') > 0.0 AND (float)$prt_state->__get('score') < (float)$prt_state->__get('weight')) {
             //PARTIALLY CORRECT
             $status['value'] = 0;
-            $status['message'] = $this->getQuestion()->getPRTPartiallyCorrectInstantiated();
+            $status['message'] = $this->getQuestion()->prt_partially_correct_instantiated;
         } else {
             //INCORRECT
             $status['value'] = -1;
-            $status['message'] = $this->getQuestion()->getPRTIncorrectInstantiated();
+            $status['message'] = $this->getQuestion()->prt_incorrect;
         }
 
         return $status;
@@ -251,7 +251,7 @@ class assStackQuestionFeedback
     }
 
     /**
-     * @param \assStackQuestionStackQuestion $question
+     * @param \assStackQuestion $question
      */
     private function setQuestion($question)
     {
@@ -259,7 +259,7 @@ class assStackQuestionFeedback
     }
 
     /**
-     * @return \assStackQuestionStackQuestion
+     * @return \assStackQuestion
      */
     public function getQuestion()
     {
@@ -307,9 +307,9 @@ class assStackQuestionFeedback
     public function getCorrectResponsePlaceholders($input_name = "")
     {
         if ($input_name) {
-            $input = $this->getQuestion()->getInputs($input_name);
+            $input = $this->getQuestion()->inputs[$input_name];
             $input_state = $this->getQuestion()->getInputStates($input_name);
-            $correct_answer = $input->get_correct_response($this->getQuestion()->getSession()->get_value_key($input_name, true));
+            $correct_answer = $this->getQuestion()->getCorrectResponse();
 
             if (is_a($input, "stack_string_input")) {
                 $correct_answer_array = $input->get_correct_response($this->getQuestion()->getSession()->get_value_key($input_name, true));

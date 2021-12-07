@@ -27,7 +27,7 @@ class assStackQuestionEvaluation
 
 	/**
 	 * STACK version of the question
-	 * @var assStackQuestionStackQuestion
+	 * @var assStackQuestion
 	 */
 	private $question;
 
@@ -43,7 +43,7 @@ class assStackQuestionEvaluation
 	 * @param assStackQuestionStackQuestion $question
 	 * @param array|bool $user_response
 	 */
-	public function __construct(ilassStackQuestionPlugin $plugin, assStackQuestionStackQuestion $question, $user_response)
+	public function __construct(ilassStackQuestionPlugin $plugin, assStackQuestion $question, $user_response)
 	{
 		//Set plugin object
 		$this->setPlugin($plugin);
@@ -101,7 +101,7 @@ class assStackQuestionEvaluation
 	{
 		//This loop checks that each PRT has the whole information needed to be evaluated
 		//and evaluates it, filling an entry in the evaluation data array
-		foreach (array_keys($this->getQuestion()->getPRTs()) as $potentialresponse_tree_name)
+		foreach (array_keys($this->getQuestion()->prts) as $potentialresponse_tree_name)
 		{
 			if ($this->previousCheckingForEvaluation($potentialresponse_tree_name, TRUE, $forbiddenkeys))
 			{
@@ -146,8 +146,8 @@ class assStackQuestionEvaluation
 		}
 
 		//Step #3: Check if potential response tree has enought input to be evaluated.
-		$potentialresponse_tree = $this->getQuestion()->getPRTs($potentialresponse_tree_name);
-		if (!$this->hasNecessaryPotentialResponseTreeInputs($potentialresponse_tree, $accept_valid, $forbiddenkeys))
+		$potentialresponse_tree = $this->getQuestion()->prts[$potentialresponse_tree_name];
+		if (!$this->getQuestion()->hasNecessaryPrtInputs($potentialresponse_tree, $this->getUserResponse(), $accept_valid))
 		{
 			return FALSE;
 		}
@@ -234,10 +234,10 @@ class assStackQuestionEvaluation
 		$prt_inputs = $this->getPotentialResponseTreeInputs($potentialresponse_tree_name, $accept_valid);
 
 		//Get Potential response tree object
-		$potentialresponse_tree = $this->getQuestion()->getPRTs($potentialresponse_tree_name);
+		$potentialresponse_tree = $this->getQuestion()->prts[$potentialresponse_tree_name];
 
 		//Evaluates the current PRT
-		$potentialresponse_tree_state = $potentialresponse_tree->evaluate_response($this->getQuestion()->getSession(), $this->getQuestion()->getOptions(), $prt_inputs, $this->getQuestion()->getSeed());
+		$potentialresponse_tree_state = $potentialresponse_tree->evaluate_response($this->getQuestion()->getSession(), $this->getQuestion()->options, $prt_inputs, $this->getQuestion()->seed);
 		//Check for penalty
 		if ((float)$potentialresponse_tree_state->__get('score') != 1.0)
 		{
@@ -253,9 +253,8 @@ class assStackQuestionEvaluation
 		$evaluation_data['inputs_evaluated'] = $prt_inputs;
 
 		$this->getQuestion()->setPRTResults($evaluation_data, $potentialresponse_tree->get_name());
-		$this->getQuestion()->calculatePoints();
 
-		return TRUE;
+		return $potentialresponse_tree_state;
 	}
 
 	private function addPenalty()
@@ -280,13 +279,13 @@ class assStackQuestionEvaluation
 	private function getPotentialResponseTreeInputs($potentialresponse_tree_name, $accept_valid, $show_response = FALSE)
 	{
 		//PRT to be evaluated
-		$potentialresponse_tree = $this->getQuestion()->getPRTs($potentialresponse_tree_name);
+		$potentialresponse_tree = $this->getQuestion()->prts[$potentialresponse_tree_name];
 
 		//Array with all imputs evaluated by this PRT
 		$prt_inputs = array();
 
 		//Checking of inputs
-		foreach ($potentialresponse_tree->get_required_variables(array_keys($this->getQuestion()->getInputs())) as $input_name)
+		foreach ($potentialresponse_tree->get_required_variables(array_keys($this->getQuestion()->inputs)) as $input_name)
 		{
 			//In assStackQuestionEvaluation the User response should be store with the "reduced" format for assStackQuestionUtils::_getUserResponse.
 			$input_state = $this->getQuestion()->getInputStates($input_name);

@@ -715,6 +715,37 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		}
 	}
 
+	/**
+	 * Returns the user response given per $_POST
+	 * Used in Question Preview
+	 * @return array
+	 */
+	public function getSolutionSubmit(): array
+	{
+		//RETURN DATA FROM POST
+		$user_response_from_post = $_POST;
+		unset($user_response_from_post["formtimestamp"]);
+		unset($user_response_from_post["cmd"]);
+
+		return assStackQuestionUtils::_adaptUserResponseTo($user_response_from_post, $this->getId(), "only_input_names");
+	}
+
+	/**
+	 * Calculates the points reached for question Preview
+	 * @param null $participant_solution
+	 * @return float|mixed
+	 */
+	public function calculateReachedPointsForSolution($participant_solution = null)
+	{
+		$points = 0.0;
+		foreach ($this->getPRTResults() as $results)
+		{
+			$points = $points + $results['points'];
+		}
+
+		return $points;
+	}
+
 
 	/* ILIAS OVERWRITTEN METHODS END */
 
@@ -727,7 +758,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 * @param bool|null $accept_valid if this is true, then we will grade things even
 	 * if the corresponding inputs are only VALID, and not SCORE.
 	 */
-	protected function validateCache(array $response, bool $accept_valid = null)
+	public function validateCache(array $response, bool $accept_valid = null)
 	{
 		if (is_null($this->getLastResponse())) {
 			$this->setLastResponse($response);
@@ -1233,7 +1264,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 * @param bool $accept_valid if this is true, then we will grade things even if the corresponding inputs are only VALID, and not SCORE.
 	 * @return bool can this PRT be executed for that response.
 	 */
-	protected function hasNecessaryPrtInputs(stack_potentialresponse_tree $prt, array $response, bool $accept_valid): bool
+	public function hasNecessaryPrtInputs(stack_potentialresponse_tree $prt, array $response, bool $accept_valid): bool
 	{
 
 		// Some kind of time-time error in the question, so bail here.
@@ -1708,6 +1739,22 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	public function setPenalty(float $penalty): void
 	{
 		$this->penalty = $penalty;
+	}
+
+	/**
+	 * @return bool|stack_cas_session2|string
+	 */
+	public function getQuestionNoteInstantiated()
+	{
+		return $this->question_note_instantiated;
+	}
+
+	/**
+	 * @param bool|stack_cas_session2|string $question_note_instantiated
+	 */
+	public function setQuestionNoteInstantiated($question_note_instantiated): void
+	{
+		$this->question_note_instantiated = $question_note_instantiated;
 	}
 
 	/* GETTERS AND SETTERS END */
