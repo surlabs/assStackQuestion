@@ -108,6 +108,7 @@ Version 4.x.x (UNDER DEVELOPMENT, DO NOT USE) for ILIAS 7
 - assStackQuestionDB is now responsible for all DB Access methods, previously managed by the model/ilias_object classes. These classes are going to be deleted.
 - The Authoring interface (assStackQuestionAuthoringGUI) is now connected to the new question object, and it is ready to be tested.
 - The Question Preview in Question Pools is now connected to the new question object, and it is ready to be tested.
-
+- assStackQuestionGUI Has been reworked, to adapt it to the new object assStackQuestion.
+- assStackQuestionRender is now responsible for all the rendering before presenting the question to the user.
 
 First Commit **THIS VERSION IS NOT READY FOR TESTING**

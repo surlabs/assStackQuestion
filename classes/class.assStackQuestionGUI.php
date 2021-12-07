@@ -419,7 +419,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	/* METHODS TO REDESIGN END */
 
-	/* Javascript, Ajax, jQuery etc. METHODS BEGIN */
+	/* RTE, Javascript, Ajax, jQuery etc. METHODS BEGIN */
 
 	/**
 	 * Decides whether to show the information fields in the session
@@ -457,7 +457,48 @@ class assStackQuestionGUI extends assQuestionGUI
 		exit;
 	}
 
-	/* Javascript, Ajax, jQuery etc. METHODS END */
+	/**
+	 * Init the STACK specific rich text editing support
+	 * The allowed html tags are stored in an own settings module instead of "assessment"
+	 * This enabled an independent tag set from the editor settings in ILIAS administration
+	 * Text area fields will be initialized with SetRTESupport using this module
+	 */
+	public function initRTESupport()
+	{
+		include_once "./Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php";
+		$this->rte_tags = ilObjAdvancedEditing::_getUsedHTMLTags($this->rte_module);
+
+		$this->required_tags = array("a", "blockquote", "br", "cite", "code", "div", "em", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "img", "li", "ol", "p", "pre", "span", "strike", "strong", "sub", "sup", "table", "caption", "thead", "th", "td", "tr", "u", "ul", "i", "b", "gap");
+
+		if (serialize($this->rte_tags) != serialize(($this->required_tags))) {
+
+			$this->rte_tags = $this->required_tags;
+			$obj_advance = new ilObjAdvancedEditing();
+			$obj_advance->setUsedHTMLTags($this->rte_tags, $this->rte_module);
+		}
+	}
+
+
+	/**
+	 * Set the STACK specific rich text editing support in textarea fields
+	 * This uses an own module instead of "assessment" to determine the allowed tags
+	 */
+	public function setRTESupport(ilTextAreaInputGUI $field)
+	{
+		if (empty($this->rte_tags)) {
+			$this->initRTESupport();
+		}
+		$field->setUseRte(true);
+		$field->setRteTags($this->rte_tags);
+		$field->addPlugin("latex");
+		$field->addButton("latex");
+		$field->addButton("pastelatex");
+		$field->setRTESupport($this->object->getId(), "qpl", $this->rte_module);
+	}
+
+
+
+	/* RTE, Javascript, Ajax, jQuery etc. METHODS END */
 
 	/* TABS MANAGEMENT BEGIN */
 
@@ -1038,11 +1079,18 @@ class assStackQuestionGUI extends assQuestionGUI
 	}
 
 	/**
-	 * @return array
+	 * Get a list of allowed RTE tags
+	 * This is used for ilUtil::stripSpashes() when saving the RTE fields
+	 *
+	 * @return string    allowed html tags, e.g. "<em><strong>..."
 	 */
-	public function getRteTags(): array
+	public function getRTETags()
 	{
-		return $this->rte_tags;
+		if (empty($this->rte_tags)) {
+			$this->initRTESupport();
+		}
+
+		return '<' . implode('><', $this->rte_tags) . '>';
 	}
 
 	/**

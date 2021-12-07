@@ -90,7 +90,7 @@ class assStackQuestionRender
 			// Get the actual value of the teacher's answer at this point.
 			$ta_value = $question->getTeacherAnswerForInput($name);
 
-			$field_name = 'xqcas_' . $question->getId() . $name;
+			$field_name = 'xqcas_' . $question->getId() . '_' . $name;
 			$state = $question->getInputState($name, $response);
 
 			$question_text = str_replace("[[input:{$name}]]", $input->render($state, $field_name, false, $ta_value), $question_text);
@@ -139,7 +139,7 @@ class assStackQuestionRender
 	}
 
 	/**
-	 * Actually generate the display of the PRT feedback.,,+,
+	 * Generates the display of the PRT feedback
 	 * @param string $name
 	 * @param stack_potentialresponse_tree_state $result
 	 * @param $feedback_style
