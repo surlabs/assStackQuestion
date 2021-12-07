@@ -44,6 +44,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 */
 	private bool $penalty;
 
+	/**
+	 * @var array The user answer given in each input
+	 */
+	private array $user_response;
+
 	/* ILIAS VERSION SPECIFIC ATTRIBUTES END */
 
 	/* STACK CORE ATTRIBUTES BEGIN */
@@ -222,7 +227,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	/* STACK CORE ATTRIBUTES END */
 
 	/* ILIAS REQUIRED METHODS BEGIN */
-
 
 	/**
 	 * CONSTRUCTOR.
@@ -499,8 +503,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	//assQuestion
 
 	/**
-	 * LOAD THE
 	 * Gets all the data of an assStackQuestion from the DB
+	 * Called by assStackQuestionGUI Constructor
 	 *
 	 * @param integer $question_id A unique key which defines the question in the database
 	 */
@@ -740,7 +744,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		$points = 0.0;
 		foreach ($this->getPRTResults() as $results)
 		{
-			$points = $points + $results['points'];
+			//todo
 		}
 
 		return $points;
@@ -1145,7 +1149,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	public function getInputState(string $name, array $response, bool $raw_input = false)
 	{
 		try {
-
 			$this->validateCache($response);
 
 			if (array_key_exists($name, $this->getInputStates())) {
@@ -1686,7 +1689,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 * @param false|string $index
 	 * @return array|stack_potentialresponse_tree_state
 	 */
-	public function getPrtResults($index = false): array
+	public function getPrtResults($index = false)
 	{
 		if ($index) {
 			return $this->prt_results[$index];
@@ -1700,7 +1703,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 * @param array|stack_potentialresponse_tree_state $prt_results
 	 * @param false|string $index
 	 */
-	public function setPrtResults(array $prt_results, $index = false): void
+	public function setPrtResults($prt_results, $index = false): void
 	{
 		if ($index) {
 			$this->prt_results[$index] = $prt_results;
@@ -1755,6 +1758,34 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	public function setQuestionNoteInstantiated($question_note_instantiated): void
 	{
 		$this->question_note_instantiated = $question_note_instantiated;
+	}
+
+	/**
+	 * SPECIAL GETTER
+	 * @param false|string $input_name
+	 * @return array|string
+	 */
+	public function getUserResponse($input_name = false)
+	{
+		if ($input_name) {
+			return $this->user_response[$input_name];
+		} else {
+			return $this->user_response;
+		}
+	}
+
+	/**
+	 * SPECIAL SETTER
+	 * @param array $user_response
+	 * @param false|string $input_name
+	 */
+	public function setUserResponse(array $user_response, $input_name = false)
+	{
+		if ($input_name) {
+			$this->user_response[$input_name] = $user_response;
+		} else {
+			$this->user_response = $user_response;
+		}
 	}
 
 	/* GETTERS AND SETTERS END */

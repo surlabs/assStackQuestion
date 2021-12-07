@@ -1,19 +1,16 @@
 <?php
 
 /**
- * Copyright (c) 2016 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
+ * Copyright (c) 2021 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
  * GPLv2, see LICENSE
  */
-require_once "./Modules/TestQuestionPool/classes/class.assQuestionGUI.php";
-require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 
 
 /**
  * STACK Question GUI
  *
- * @author Fred Neumann <fred.neumann@ili.fau.de>
- * @author Jesus Copado <jesus.copado@ili.fau.de>
- * @version    $Id: 2.3$$
+ * @author Jesus Copado <jesus.copado@fau.de>
+ * @version    $Id: 4.0$$
  * @ingroup    ModulesTestQuestionPool
  * @ilCtrl_isCalledBy assStackQuestionGUI: ilObjQuestionPoolGUI, ilObjTestGUI, ilQuestionEditGUI, ilTestExpressPageObjectGUI
  * @ilCtrl_Calls assStackQuestionGUI: ilFormPropertyDispatchGUI
@@ -21,321 +18,166 @@ require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/as
  */
 class assStackQuestionGUI extends assQuestionGUI
 {
-	protected $rte_module = "xqcas";
-	protected $rte_tags = array();
+	/* ILIAS CORE ATTRIBUTES BEGIN */
 
-	private $plugin;
+	/* ILIAS CORE ATTRIBUTES END */
 
+	/* ILIAS VERSION SPECIFIC ATTRIBUTES BEGIN */
+
+	/**
+	 * @var ilassStackQuestionPlugin
+	 */
+	private ilassStackQuestionPlugin $plugin;
+
+	//RTE Support variables
+
+	/**
+	 *
+	 * @var string
+	 */
+	protected string $rte_module = "xqcas";
+
+	/**
+	 * @var array
+	 */
+	protected array $rte_tags = array();
+
+	/* ILIAS VERSION SPECIFIC ATTRIBUTES END */
+
+	/* ILIAS REQUIRED METHODS BEGIN */
+
+	/**
+	 * assStackQuestionGUI constructor.
+	 */
 	public function __construct($id = -1)
 	{
 		parent::__construct();
 
-		//Set plugin object
-		require_once "./Services/Component/classes/class.ilPlugin.php";
-		$this->plugin = ilPlugin::getPluginObject(IL_COMP_MODULE, "TestQuestionPool", "qst", "assStackQuestion");
+		//Initialize plugin object
+		require_once './Services/Component/classes/class.ilPlugin.php';
+		try {
+			$plugin = ilPlugin::getPluginObject(IL_COMP_MODULE, 'TestQuestionPool', 'qst', 'assStackQuestion');
+			if (!is_a($plugin, 'ilassStackQuestionPlugin')) {
+				ilUtil::sendFailure('Not ilassStackQuestionPlugin object', true);
+			} else {
+				$this->setPlugin($plugin);
+			}
+		} catch (ilPluginException $e) {
+			ilUtil::sendFailure($e, true);
+		}
 
+		//Initialize and loads the Stack question from DB
 		$this->object = new assStackQuestion();
 		if ($id >= 0) {
 			$this->object->loadFromDb($id);
 		}
 
-		//Initialization and load of stack wrapper classes
-		$this->plugin->includeClass('utils/class.assStackQuestionInitialization.php');
+		//Initialize some STACK required parameters
+		$this->getPlugin()->includeClass('utils/class.assStackQuestionInitialization.php');
+	}
+
+	public function getSpecificFeedbackOutput($userSolution)
+	{
+		// TODO: Implement getSpecificFeedbackOutput() method.
+		echo "getSpecificFeedbackOutput";
+	}
+
+	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true)
+	{
+		// TODO: Implement getSolutionOutput() method.
+		echo "getSolutionOutput";
 	}
 
 	/**
-	 * Init the STACK specific rich text editing support
-	 * The allowed html tags are stored in an own settings module instead of "assessment"
-	 * This enabled an independent tag set from the editor settings in ILIAS administration
-	 * Text area fields will be initialized with SetRTESupport using this module
+	 * @param bool $show_question_only
+	 * @param bool $show_inline_feedback
+	 * @return string HTML
 	 */
-	public function initRTESupport()
+	public function getPreview($show_question_only = false, $show_inline_feedback = false): string
 	{
-		include_once "./Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php";
-		$this->rte_tags = ilObjAdvancedEditing::_getUsedHTMLTags($this->rte_module);
+		global $DIC;
 
-		$this->required_tags = array("a", "blockquote", "br", "cite", "code", "div", "em", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "img", "li", "ol", "p", "pre", "span", "strike", "strong", "sub", "sup", "table", "caption", "thead", "th", "td", "tr", "u", "ul", "i", "b", "gap");
+		//User response from session
+		$this->object->setUserResponse(is_object($this->getPreviewSession()) ? (array)$this->getPreviewSession()->getParticipantsSolution() : array());
 
-		if (serialize($this->rte_tags) != serialize(($this->required_tags))) {
-
-			$this->rte_tags = $this->required_tags;
-			$obj_advance = new ilObjAdvancedEditing();
-			$obj_advance->setUsedHTMLTags($this->rte_tags, $this->rte_module);
-		}
-	}
-
-
-	/**
-	 * Set the STACK specific rich text editing support in textarea fields
-	 * This uses an own module instead of "assessment" to determine the allowed tags
-	 */
-	public function setRTESupport(ilTextAreaInputGUI $field)
-	{
-		if (empty($this->rte_tags)) {
-			$this->initRTESupport();
-		}
-		$field->setUseRte(true);
-		$field->setRteTags($this->rte_tags);
-		$field->addPlugin("latex");
-		$field->addButton("latex");
-		$field->addButton("pastelatex");
-		$field->setRTESupport($this->object->getId(), "qpl", $this->rte_module);
-	}
-
-	/**
-	 * Get a list of allowed RTE tags
-	 * This is used for ilUtil::stripSpashes() when saving the RTE fields
-	 *
-	 * @return string    allowed html tags, e.g. "<em><strong>..."
-	 */
-	public function getRTETags()
-	{
-		if (empty($this->rte_tags)) {
-			$this->initRTESupport();
+		//Variant management
+		if (isset($_REQUEST['fixed_seed'])) {
+			$variant = (int)$_REQUEST['fixed_seed'];
+			$_SESSION['q_seed_for_preview_' . $this->object->getId() . ''] = $variant;
+		} else {
+			if (isset($_SESSION['q_seed_for_preview_' . $this->object->getId() . ''])) {
+				$variant = (int)$_SESSION['q_seed_for_preview_' . $this->object->getId() . ''];
+			} else {
+				$variant = 1;
+			}
 		}
 
-		return '<' . implode('><', $this->rte_tags) . '>';
+		//Initialise the question
+		$this->object->questionInitialisation($variant);
+
+		//Render question Preview
+		$this->getPlugin()->includeClass('class.assStackQuestionRender.php');
+		$question_preview = assStackQuestionRender::_renderQuestionPreview($this->object, $show_inline_feedback);
+
+		//Tab management
+		$tabs = $DIC->tabs();
+		if ($_GET['cmd'] == 'edit') {
+			$tabs->activateTab('edit_page');
+		} elseif ($_GET['cmd'] == 'preview') {
+			$tabs->activateTab('preview');
+		}
+
+		//Returns output (with page if needed)
+		if (!$show_question_only) {
+			// get page object output
+			$question_preview = $this->getILIASPage($question_preview);
+		}
+
+		return $question_preview;
 	}
 
+	public function getTestOutput($active_id, $pass, $is_question_postponed, $user_post_solutions, $show_specific_inline_feedback)
+	{
+		echo "getTestOutput";
+
+		// TODO: Implement getTestOutput() method.
+	}
+
+	/* ILIAS REQUIRED METHODS END */
+
+	/* ILIAS OVERWRITTEN METHODS BEGIN */
 
 	/**
+	 * CALLED BEFORE EDITQUESTION()
 	 * Evaluates a posted edit form and writes the form data in the question object
 	 * (called frm generic commands in assQuestionGUI)
+	 * Converts the data from post into assStackQuestion ($this->object)
 	 *
 	 * @return integer    0: question can be saved / 1: form is not complete
 	 */
-	public function writePostData($always = FALSE)
+	public function writePostData($always = FALSE): int
 	{
 
-		$hasErrors = (!$always) ? $this->editQuestion(TRUE) : FALSE;
+		$hasErrors = !$always && $this->editQuestion(TRUE);
 		if (!$hasErrors) {
-			$this->deletionManagement();
+
+			$this->questionCheck();
+			//Parent
 			$this->writeQuestionGenericPostData();
 			$this->writeQuestionSpecificPostData();
 
-			// save the taxonomy assignments
-			// a checkInput() is needed on the taxonomy inputs
-			// otherwise a reset of taxonomy assignmentd will prodice an error
-			require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
-			$form = new ilPropertyFormGUI();
-			$this->populateTaxonomyFormSection($form);
-			$form->checkInput();
+			//Taxonomies
 			$this->saveTaxonomyAssignments();
-
-			//Get errors from authoring
-			$this->getErrors();
 
 			return 0;
 		}
-
 		return 1;
 	}
 
-	public function deletionManagement()
-	{
-		global $DIC;
-		$lng = $DIC->language();
-
-		//Input delete: #27560
-		$question_text = $_POST["question"];
-		preg_match_all('|\[\[input:(\w*)\]\]|U', $question_text, $matches);
-		$inputs_to_save = $matches[1];
-
-		foreach ($this->object->getInputs() as $input_name => $input) {
-			$delete_input = TRUE;
-			foreach ($inputs_to_save as $key => $input_to_save) {
-				if ($input_name == $input_to_save) {
-					$delete_input = FALSE;
-				}
-			}
-
-			if ($delete_input) {
-				$q_inputs = $this->object->getInputs();
-				unset($q_inputs[$input_name]);
-				$this->object->setInputs($q_inputs);
-				$input->delete();
-
-			}
-		}
-
-		if (is_array($_POST['cmd']['save'])) {
-			foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt) {
-				if (isset($_POST['cmd']['save']['delete_full_prt_' . $prt_name])) {
-					if ($this->checkPRTForDeletion($prt)) {
-						return FALSE;
-					}
-					$prt->delete();
-					$ptrs = $this->object->getPotentialResponsesTrees();
-					unset($ptrs[$prt_name]);
-					$this->object->setPotentialResponsesTrees($ptrs);
-
-					//#18703 Should delete also nodes
-					foreach ($prt->getPRTNodes() as $node_name => $node) {
-						$node->delete();
-					}
-
-					//#26140 should delete also the feedback placeholder.
-					//check question text
-					$question_text = $this->object->getQuestion();
-					$this->object->setQuestion(str_replace("[[feedback:" . $prt_name . "]]", "", $question_text));
-
-					$specific_feedback = $this->object->getOptions()->getSpecificFeedback();
-					$this->object->getOptions()->setSpecificFeedback(str_replace("[[feedback:" . $prt_name . "]]", "", $specific_feedback));
-
-					//Save it
-					$this->object->saveToDb();
-
-					return TRUE;
-				}
-				foreach ($prt->getPRTNodes() as $node_name => $node) {
-
-					if (isset($_POST['cmd']['save']['delete_prt_' . $prt_name . '_node_' . $node->getNodeName()])) {
-						if ($this->checkPRTNodeForDeletion($prt, $node)) {
-							return FALSE;
-						}
-						$node->delete();
-						$nodes = $prt->getPRTNodes();
-						unset($nodes[$node_name]);
-						$prt->setPRTNodes($nodes);
-						$this->object->setPotentialResponsesTrees($prt, $prt_name);
-
-						return TRUE;
-					}
-
-					//Copy Node
-					if (isset($_POST['cmd']['save']['copy_prt_' . $prt_name . '_node_' . $node->getNodeName()])) {
-						//Do node copy here
-						$_SESSION['copy_node'] = $this->object->getId() . "_" . $prt_name . "_" . $node->getNodeName();
-						ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_node_copied_to_clipboard"), TRUE);
-
-						return TRUE;
-					}
-
-					//Paste Node
-					if (isset($_POST['cmd']['save']['paste_node_in_' . $prt_name])) {
-						//Do node paste here
-						$raw_data = explode("_", $_SESSION['copy_node']);
-						$paste_question_id = $raw_data[0];
-						$paste_prt_name = $raw_data[1];
-						$paste_node_name = $raw_data[2];
-
-						$paste_prt_node_list = assStackQuestionPRTNode::_read($paste_question_id, $paste_prt_name);
-						$paste_node = $paste_prt_node_list[$paste_node_name];
-
-						//Change values
-						if (is_a($paste_node, "assStackQuestionPRTNode")) {
-							$paste_node->setNodeId("");
-							$paste_node->setQuestionId($this->object->getId());
-							$paste_node->setPRTName($prt_name);
-							$paste_node->setNodeName((string)$prt->getLastNodeName() + 1);
-							$paste_node->setTrueNextNode("");
-							$paste_node->setFalseNextNode("");
-
-							$paste_node->save();
-
-							unset($_SESSION['copy_node']);
-							ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_node_paste"), TRUE);
-						}
-
-					}
-				}
-
-				//PRT COpy
-
-				if (isset($_POST['cmd']['save']['copy_prt_' . $prt_name])) {
-					//Do node copy here
-					$_SESSION['copy_prt'] = $this->object->getId() . "_" . $prt_name;
-					ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_prt_copied_to_clipboard"), TRUE);
-
-
-					return TRUE;
-				}
-
-				//Paste Node
-				if (isset($_POST['cmd']['save']['paste_prt'])) {
-					$raw_data = explode("_", $_SESSION['copy_prt']);
-					$paste_question_id = $raw_data[0];
-					$paste_prt_name = $raw_data[1];
-
-					$generated_prt_name = "prt" . rand(0, 1000);
-					$paste_prt_list = assStackQuestionPRT::_read($paste_question_id);
-					$paste_prt = $paste_prt_list[$paste_prt_name];
-
-					if (is_a($paste_prt, 'assStackQuestionPRT')) {
-						$paste_prt->setPRTId(-1);
-						$paste_prt->setQuestionId($this->object->getId());
-						$paste_prt->setPRTName($generated_prt_name);
-						$paste_prt->save();
-
-						foreach ($paste_prt->getPRTNodes() as $prt_node) {
-							if (is_a($prt_node, 'assStackQuestionPRTNode')) {
-								$prt_node->setNodeId(-1);
-								$prt_node->setQuestionId($this->object->getId());
-								$prt_node->setPRTName($generated_prt_name);
-								$prt_node->save();
-							}
-						}
-
-						//Solve #26077
-						//Include placeholder in specific feedback
-						$current_specific_feedback = $this->object->getOptions()->getSpecificFeedback();
-						$new_specific_feedback = "<p>" . $current_specific_feedback . "[[feedback:" . $generated_prt_name . "]]</p>";
-						$_POST["options_specific_feedback"] = $new_specific_feedback;
-					}
-					unset($_SESSION['copy_prt']);
-					ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_prt_paste"), TRUE);
-
-				}
-			}
-		}
-
-		return TRUE;
-	}
-
-
-	public function checkPRTForDeletion(assStackQuestionPRT $prt)
-	{
-		if (is_array($this->object->getPotentialResponsesTrees())) {
-			if (sizeof($this->object->getPotentialResponsesTrees()) < 2) {
-				$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_not_enought_prts'));
-
-				return TRUE;
-			}
-		}
-
-
-		return FALSE;
-	}
-
-	public function checkPRTNodeForDeletion(assStackQuestionPRT $prt, assStackQuestionPRTNode $node)
-	{
-		if (is_array($prt->getPRTNodes())) {
-			if (sizeof($prt->getPRTNodes()) < 2) {
-				$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_not_enought_prt_nodes'));
-
-				return TRUE;
-			}
-		}
-
-
-		if ((int)$prt->getFirstNodeName() == (int)$node->getNodeName()) {
-			$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_first_node'));
-
-			return TRUE;
-		}
-
-		foreach ($prt->getPRTNodes() as $prt_node) {
-			if ($prt_node->getTrueNextNode() == $node->getNodeName() or $prt_node->getFalseNextNode() == $node->getNodeName()) {
-				$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_connected_node'));
-
-				return TRUE;
-			}
-		}
-
-		return FALSE;
-	}
-
-	public function writeQuestionSpecificPostData()
+	/**
+	 * Converts the data from post into assStackQuestion ($this->object)
+	 */
+	public function writeQuestionSpecificPostData(): void
 	{
 		//OPTIONS
 		$this->object->getOptions()->writePostData($this->getRTETags());
@@ -418,473 +260,20 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		if (preg_match('/\s/', $_POST['prt_new_prt_name'])) {
 			$this->question_gui->object->setErrors($this->object->getPlugin()->txt('error_not_valid_prt_name'));
-
-			return FALSE;
 		}
 
 	}
 
-	/*
-	 * DISPLAY METHODS
-	 */
-
 	/**
-	 * Show question preview for test and question pools
-	 * @param bool $show_question_only
-	 * @param bool $showInlineFeedback
-	 * @return string HTML Preview of the question in a question pool or in a test
-	 */
-	public function getPreview($show_question_only = FALSE, $showInlineFeedback = false)
-	{
-		global $DIC, $tpl;
-
-		$tabs = $DIC->tabs();
-		//Get solutions if given
-		$solutions = is_object($this->getPreviewSession()) ? (array)$this->getPreviewSession()->getParticipantsSolution() : array();
-
-		//Include preview classes and set tab
-		$this->plugin->includeClass("model/question_display/class.assStackQuestionPreview.php");
-		$this->plugin->includeClass("GUI/question_display/class.assStackQuestionPreviewGUI.php");
-
-		//Tab management
-		if ($_GET['cmd'] == 'edit') {
-			$tabs->setTabActive('edit_page');
-		} elseif ($_GET['cmd'] == 'preview') {
-			$tabs->setTabActive('preview');
-		}
-
-		//Seed management
-		if (isset($_REQUEST['fixed_seed'])) {
-			$seed = $_REQUEST['fixed_seed'];
-			$_SESSION['q_seed_for_preview_' . $this->object->getId() . ''] = $seed;
-		} else {
-			if (isset($_SESSION['q_seed_for_preview_' . $this->object->getId() . ''])) {
-				$seed = $_SESSION['q_seed_for_preview_' . $this->object->getId() . ''];
-			} else {
-				$seed = -1;
-			}
-		}
-
-		//Get question preview data
-		$question_preview_object = new assStackQuestionPreview($this->plugin, $this->object, $seed, $solutions);
-		$question_preview_data = $question_preview_object->getQuestionPreviewData();
-
-		//Get question preview GUI
-		$question_preview_gui_object = new assStackQuestionPreviewGUI($this->plugin, $question_preview_data);
-		$question_preview_gui = $question_preview_gui_object->getQuestionPreviewGUI();
-
-
-		//Set preview mode
-		$this->preview_mode = $question_preview_data;
-
-		//addCSS
-		global $DIC;
-		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_feedback.css'));
-		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_preview.css'));
-		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_display.css'));
-
-		//Include content Style
-		$style_id = assStackQuestionUtils::_getActiveContentStyleId();
-		if (strlen($style_id)) {
-			require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
-			$DIC->globalScreen()->layout()->meta()->addCss(ilObjStyleSheet::getContentStylePath((int)$style_id));
-		}
-
-		$questionoutput = $question_preview_gui->get();
-		//Returns output (with page if needed)
-		if (!$show_question_only) {
-			// get page object output
-			$questionoutput = $this->getILIASPage($questionoutput);
-		}
-		return $questionoutput;
-	}
-
-	/**
-	 * Get the HTML output of the question for a test
-	 * @param int $active_id
-	 * @param int $pass
-	 * @param bool $is_question_postponed
-	 * @param bool $user_post_solutions
-	 * @param $show_specific_inline_feedback
-	 * @return mixed|string
-	 */
-	public function getTestOutput($active_id, $pass = NULL, $is_question_postponed = FALSE, $user_post_solutions = FALSE, $show_specific_inline_feedback)
-	{
-		$this->active_id = $active_id;
-		$this->pass = $pass;
-
-		$solutions = NULL;
-		// get the solution of the user for the active pass or from the last pass if allowed
-		if ($active_id) {
-
-			require_once './Modules/Test/classes/class.ilObjTest.php';
-			if (!ilObjTest::_getUsePreviousAnswers($active_id, true)) {
-				if (is_null($pass)) {
-					$pass = ilObjTest::_getPass($active_id);
-				}
-			}#
-
-			//If ILIAS 5.1  or 5.0 using intermediate
-			if (method_exists($this->object, "getUserSolutionPreferingIntermediate")) {
-				$solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
-			} else {
-				$solutions =& $this->object->getSolutionValues($active_id, $pass);
-			}
-		}
-		//Create STACK Question object if doesn't exists
-		if (!is_a($this->object->getStackQuestion(), 'assStackQuestionStackQuestion')) {
-			//Determine seed for current test run
-			$seed = $this->object->getQuestionSeedForCurrentTestRun($active_id, $pass);
-
-			$this->plugin->includeClass("model/class.assStackQuestionStackQuestion.php");
-			$this->object->setStackQuestion(new assStackQuestionStackQuestion($active_id, $pass));
-			$this->object->getStackQuestion()->init($this->object, '', $seed);
-		}
-
-		//Generate the question output and filling output template with question output and page output.
-		$question_output = $this->getTestQuestionOutput($solutions, $show_specific_inline_feedback);
-		$page_output = $this->outQuestionPage("", $is_question_postponed, $active_id, $question_output);
-		return $page_output;
-	}
-
-	/**
-	 * Test view for STACK Questions
-	 * @param mixed $solutions
-	 * @param bool $show_specific_inline_feedback
-	 * @return mixed
-	 * @throws stack_exception
-	 */
-	public function getTestQuestionOutput($solutions, $show_specific_inline_feedback)
-	{
-		global $tpl, $DIC;
-		//Create feedback output from feedback class
-		$this->plugin->includeClass("GUI/question_display/class.assStackQuestionFeedbackGUI.php");
-		$question_feedback_object = new assStackQuestionFeedbackGUI($this->plugin, $solutions);
-		$feedback_data = $question_feedback_object->getFeedback();
-		//Include display classes
-		$this->plugin->includeClass("model/question_display/class.assStackQuestionDisplay.php");
-		$this->plugin->includeClass("GUI/question_display/class.assStackQuestionDisplayGUI.php");
-		//Get question display data
-		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_question_display.css'));
-		//Include content Style
-		$style_id = assStackQuestionUtils::_getActiveContentStyleId();
-		if (strlen($style_id)) {
-			require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
-			$DIC->globalScreen()->layout()->meta()->addCss(ilObjStyleSheet::getContentStylePath((int)$style_id));
-		}
-
-		$value_format_user_response = assStackQuestionUtils::_getUserResponse($this->object->getId(), $this->object->getStackQuestion()->getInputs(), $feedback_data);
-		$question_display_object = new assStackQuestionDisplay($this->plugin, $this->object->getStackQuestion(), $value_format_user_response, $feedback_data);
-		$question_display_data = $question_display_object->getQuestionDisplayData(TRUE);
-		//Get question display GUI
-		$question_display_gui_object = new assStackQuestionDisplayGUI($this->plugin, $question_display_data);
-		$question_display_gui = $question_display_gui_object->getQuestionDisplayGUI($show_specific_inline_feedback);
-		//fill question container with HTML from assStackQuestionDisplay
-		$container_tpl = $this->plugin->getTemplate("tpl.il_as_qpl_xqcas_question_container.html");
-		$container_tpl->setVariable('QUESTION', $question_display_gui->get());
-		$question_output = $container_tpl->get();
-		return $question_output;
-	}
-
-	/**
-	 * Get the question solution output
+	 * Populate taxonomy section in a form
+	 * (made public to be called from authoring GUI)
 	 *
-	 * @param integer $active_id The active user id
-	 * @param integer $pass The test pass
-	 * @param boolean $graphicalOutput Show visual feedback for right/wrong answers
-	 * @param boolean $result_output Show the reached points for parts of the question
-	 * @param boolean $show_question_only Show the question without the ILIAS content around
-	 * @param boolean $show_feedback Show the question feedback
-	 * @param boolean $show_correct_solution Show the correct solution instead of the user solution
-	 * @param boolean $show_manual_scoring Show specific information for the manual scoring output
-	 * @param boolean $show_question_text
-	 * @return string The solution output of the question as HTML code
+	 * @param ilPropertyFormGUI $form
 	 */
-	function getSolutionOutput($active_id, $pass = NULL, $graphicalOutput = FALSE, $result_output = FALSE, $show_question_only = TRUE, $show_feedback = TRUE, $show_correct_solution = FALSE, $show_manual_scoring = FALSE, $show_question_text = TRUE)
+	public function populateTaxonomyFormSection(ilPropertyFormGUI $form)
 	{
-		$solution_template = new ilTemplate("tpl.il_as_tst_solution_output.html", TRUE, TRUE, "Modules/TestQuestionPool");
-		$this->active_id = $active_id;
-		$this->pass = $pass;
-		//Check for PASS
-		if ($active_id) {
 
-			require_once './Modules/Test/classes/class.ilObjTest.php';
-			if (!ilObjTest::_getUsePreviousAnswers($active_id, true)) {
-				if (is_null($pass)) {
-					$pass = ilObjTest::_getPass($active_id);
-				}
-			}
-		}
-
-		//Is preview or Test
-		if (is_array($this->preview_mode)) {
-			$solutions = $this->preview_mode["question_feedback"];
-		} else {
-			//If ILIAS 5.1  or 5.0 using intermediate
-			if (method_exists($this->object, "getUserSolutionPreferingIntermediate")) {
-				$solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
-			} else {
-				$solutions =& $this->object->getSolutionValues($active_id, $pass);
-			}
-		}
-
-		if (($active_id > 0) && (!$show_correct_solution)) {
-			//User Solution
-			//Returns user solution HTML
-			//#25174
-			if (isset($_GET["cmd"])) {
-				if ($_GET["cmd"] == "outCorrectSolution") {
-					$show_feedback = TRUE;
-				}
-
-			}
-			$solution_output = $this->getQuestionOutput($solutions, FALSE, $show_feedback, TRUE);
-			//2.3.12 add feedback to solution
-			$solution_output .= $this->getSpecificFeedbackOutput($solutions);
-
-		} else {
-			//Correct solution
-			//Returns best solution HTML.
-			$solution_output = $this->getQuestionOutput($solutions, TRUE, $show_feedback);
-		}
-
-		$question_text = $this->object->getQuestion();
-		if ($show_question_text == true) {
-			$solution_template->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput($question_text, TRUE));
-		}
-
-
-		//Bug 0020117 regarding feedback
-		//Feedback in STACK works in a different way
-		/*
-		$feedback = '';
-		if ($show_feedback)
-		{
-			if (!$this->isTestPresentationContext())
-			{
-				$fb = $this->getGenericFeedbackOutput($active_id, $pass);
-				$feedback .= strlen($fb) ? $fb : '';
-			}
-
-			$fb = $this->getSpecificFeedbackOutput($active_id, $pass);
-			$feedback .= strlen($fb) ? $fb : '';
-		}
-		if (strlen($feedback))
-		{
-			//$solution_template->setVariable("FEEDBACK", $this->object->prepareTextareaOutput($feedback, true));
-		}
-		*/
-
-		//2.4.0 Print view on test, just show the questions
-		if ($active_id == "" and $pass == "" and $_REQUEST["cmd"] == "print") {
-			return $this->getQuestionOutput($solutions, FALSE, $show_feedback);
-		}
-
-		$solution_template->setVariable("SOLUTION_OUTPUT", $solution_output);
-
-		$solution_output = $solution_template->get();
-		if (!$show_question_only) {
-			// get page object output
-			$solution_output = $this->getILIASPage($solution_output);
-		}
-
-		return $solution_output;
-	}
-
-	/**
-	 * Shows the question filled in with the user response or the best solution for feedback.
-	 * @param $solutions array with Solution from DB or from Preview
-	 * @param $best_solution TRUE is best solution must be shown.
-	 * @param bool $show_feedback TRUE if specific feedback per PRT must be shown.
-	 * @return string
-	 */
-	public function getQuestionOutput($solutions, $best_solution, $show_feedback, $just_show = FALSE)
-	{
-		if (isset($solutions["question_text"]) and strlen($solutions["question_text"])) {
-			$question_text = $solutions["question_text"];
-
-
-			//Get Model answer from solutions and replace placeholders
-			if (isset($solutions["prt"])) {
-				foreach ($solutions["prt"] as $prt_name => $prt) {
-					if (isset($prt["response"])) {
-						foreach ($prt["response"] as $input_name => $input_answer) {
-							//Get input type for showing it properly
-							$input = $this->object->inputs[$input_name];
-
-							//Replace input depending on input type
-							switch ($input) {
-								case "stack_dropdown_input":
-								case "stack_checkbox_input":
-								case "stack_radio_input":
-									if ($best_solution) {
-										$input_replacement = $input_answer["model_answer"];
-										$validation_replacement = $input_answer["model_answer_display"];
-										$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
-										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
-									} else {
-										if ($just_show) {
-											$input_replacement = "</br>" . $input_answer["display"];
-											$question_text = str_replace("[[validation:" . $input_name . "]]", "", $question_text);
-
-										} else {
-											$input_replacement = $input_answer["value"];
-											$question_text = str_replace("[[validation:" . $input_name . "]]", $this->object->getStackQuestion()->getInputs($input_name)->render_validation($this->object->getStackQuestion()->getInputState($input_name, $input_replacement), $input_name), $question_text);
-										}
-									}
-
-									$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
-									break;
-								case "stack_matrix_input":
-									//Select replace depending on mode if $best_solution is TRUE, best solution when FALSE user solution.
-									if ($best_solution) {
-										$input_replacement = $input_answer["model_answer"];
-										$validation_replacement = $input_answer["model_answer_display"];
-										$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
-										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
-									} else {
-										//#24273
-										//Create STACK Question object if doesn't exists
-										if (!is_a($this->object->getStackQuestion(), 'assStackQuestionStackQuestion')) {
-											$this->plugin->includeClass("model/class.assStackQuestionStackQuestion.php");
-											$this->object->setStackQuestion(new assStackQuestionStackQuestion());
-											$this->object->getStackQuestion()->init($this->object);
-										}
-										$stack_matrix = $this->object->getStackQuestion()->getInputs($input_name);
-										$stack_matrix_response = $stack_matrix->maxima_to_response_array($input_answer["value"]);
-										$matrix_state = $this->object->getStackQuestion()->getInputState($input_name, $stack_matrix_response);
-										$input_replacement = $stack_matrix->render($matrix_state, $input_name . "_user_solution", TRUE, $stack_matrix_response);
-										$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
-										//#24273
-									}
-									break;
-								case "stack_textarea_input";
-								case "stack_equiv_input";
-									if ($best_solution) {
-										$input_replacement = $input_answer["model_answer"];
-										$validation_replacement = $input_answer["model_answer_display"];
-										$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
-										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
-									} else {
-										$input_replacement = "<textarea rows=\"4\" cols=\"50\">" . $input_answer["value"] . "</textarea>";
-									}
-									$size = $input->getBoxSize();
-									$input_text = "";
-									$input_text .= $input_replacement;
-									$question_text = str_replace("[[input:" . $input_name . "]]", $input_text, $question_text);
-									break;
-								default:
-									if ($best_solution) {
-										$input_replacement = $input_answer["model_answer"];
-										$validation_replacement = $input_answer["model_answer_display"];
-										$question_text = str_replace("[[input:" . $input_name . "]]", $input_replacement, $question_text);
-										$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
-									} else {
-										$input_replacement = $input_answer["value"];
-										if ($show_feedback) {
-											if (strlen($input_answer["display"])) {
-												$validation_replacement = stack_string('studentValidation_yourLastAnswer', $input_answer["display"]);
-											} else {
-												$validation_replacement = $input_answer["display"];
-											}
-											$question_text = str_replace("[[validation:" . $input_name . "]]", $validation_replacement, $question_text);
-										}
-									}
-									$size = strlen($input_replacement) + 5;
-									$input_html_display = '<input type="text" size="' . $size . '" value="' . $input_replacement . '" disabled="disabled">';
-									$question_text = str_replace("[[input:" . $input_name . "]]", $input_html_display, $question_text);
-									break;
-							}
-
-
-							//Replace feedback placeholder if required
-							if ($show_feedback) {
-								$string = "";
-								//Generic feedback
-								$string .= $prt["status"]["message"];
-								//Specific feedback
-								$string .= $prt["feedback"];
-								$string .= $prt["errors"];
-								$question_text = str_replace("[[feedback:" . $prt_name . "]]", assStackQuestionUtils::_getFeedbackStyledText($string, "feedback_default"), $question_text);
-							}
-						}
-					}
-
-				}
-			}
-
-			//Delete other place holders
-			$question_text = preg_replace('/\[\[validation:(.*?)\]\]/', "", $question_text);
-			if (!$show_feedback) {
-				$question_text = preg_replace('/\[\[feedback:(.*?)\]\]/', "", $question_text);
-			}
-
-			if ($best_solution) {
-				$question_text .= $solutions["general_feedback"];
-			}
-
-			//Return the question text with LaTeX problems solved.
-			return assStackQuestionUtils::_getLatex($question_text);
-		} else {
-			return "";
-		}
-	}
-
-	/**
-	 * Returns the answer specific feedback for the question
-	 *
-	 * Please not that the solution array structure is STACK specific!
-	 *
-	 * @param array $userSolution ($userSolution[<key>] = <value>)
-	 * @return string HTML Code with the answer specific feedback
-	 * @see assStackQuestion::getSolutionValues()
-	 **/
-	public function getSpecificFeedbackOutput($userSolution)
-	{
-		//We cannot use $userSolution, we need to get active id and pass to get the
-//Check for PASS
-
-		$active_id = $this->active_id;
-		$pass = $this->pass;
-
-		if ($active_id) {
-			require_once './Modules/Test/classes/class.ilObjTest.php';
-			if (!ilObjTest::_getUsePreviousAnswers($active_id, true)) {
-				if (is_null($pass)) {
-					$pass = ilObjTest::_getPass($active_id);
-				}
-			}
-		}
-		//Is preview or Test
-		if (is_array($this->preview_mode)) {
-			$solutions = $this->preview_mode["question_feedback"];
-		} else {
-			$solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
-		}
-		$specific_feedback = $this->object->specific_feedback_instantiated;
-
-		//Search for feedback placeholders in specific feedback text.
-		foreach ($this->object->prts as $prt_name => $prt) {
-			if (preg_match("[[feedback:" . $prt_name . "]]", $specific_feedback)) {
-				if (isset($solutions["prt"][$prt_name])) {
-					$string = "";
-					//feedback
-					//Generic feedback
-					$string .= $solutions["prt"][$prt_name]['status']['message'];
-					//Specific feedback
-					$string .= assStackQuestionUtils::_replaceFeedbackPlaceHolders($solutions["prt"][$prt_name]["feedback"]);
-					$string .= $solutions["prt"][$prt_name]["errors"];
-
-					$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", assStackQuestionUtils::_getFeedbackStyledText($string, "feedback_default"), $specific_feedback);
-				} else {
-					//allowempty do not show this message avoid previous message
-					$specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", "", $specific_feedback);
-				}
-			}
-		}
-
-		//Return the question text with LaTeX problems solved.
-		return assStackQuestionUtils::_getLatex($specific_feedback);
+		parent::populateTaxonomyFormSection($form);
 	}
 
 	/**
@@ -896,15 +285,181 @@ class assStackQuestionGUI extends assQuestionGUI
 	 * @access public
 	 * @deprecated Use getGenericFeedbackOutput instead.
 	 */
-	function getAnswerFeedbackOutput($active_id, $pass)
+	function getAnswerFeedbackOutput($active_id, $pass): string
 	{
 		return $this->getGenericFeedbackOutput($active_id, $pass);
 	}
 
+	/* ILIAS OVERWRITTEN METHODS END */
 
-	/*
-	 * TABS MANAGEMENT
+	/* ILIAS GUI COMMANDS METHODS BEGIN */
+
+	/**
+	 * Creates an output of the edit form for the question
+	 *
+	 * @param bool $checkonly
+	 *
+	 * @return bool
 	 */
+	public function editQuestion($checkonly = false)
+	{
+		$save = $this->isSaveCommand();
+
+		global $DIC;
+
+		//Tabs management
+		//TODO Aware on the Learning Modules tab if $this->object->getSelfAssessmentEditingMode() is active
+		$tabs = $DIC->tabs();
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('edit_question');
+
+		//TODO Is working still in ILIAS7? see comments
+		$this->getQuestionTemplate();
+
+		//Create GUI object
+		$this->plugin->includeClass('GUI/question_authoring/class.assStackQuestionAuthoringGUI.php');
+		$authoring_gui = new assStackQuestionAuthoringGUI($this->plugin, $this);
+
+		//Add CSS
+		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_authoring.css'));
+		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/multipart_form.css'));
+
+		//Javascript
+
+		//Show info messages
+		$this->info_config = new stdClass();
+		$ctrl = $DIC->ctrl();
+		$this->info_config->ajax_url = $ctrl->getLinkTargetByClass("assstackquestiongui", "saveInfoState", "", TRUE);
+
+		//Set to user's session value
+		if (isset($_SESSION['stack_authoring_show'])) {
+			$this->info_config->show = (int)$_SESSION['stack_authoring_show'];
+		} else {
+			//first time must be shown
+			$this->info_config->show = 1;
+		}
+		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/ilEnableDisableInfo.js');
+		$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.EnableDisableInfo.initInfoMessages(' . json_encode($this->info_config) . ')');
+
+		//Reform authoring interface
+		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/ilMultipartFormProperty.js');
+
+		//Returns Question Authoring form
+		if (!$checkonly) {
+			$this->tpl->setVariable("QUESTION_DATA", $authoring_gui->showAuthoringPanel());
+		}
+	}
+
+	/* ILIAS GUI COMMANDS METHODS END */
+
+	/* METHODS TO REDESIGN BEGIN */
+
+	/**
+	 * old deletionManagement()
+	 * Called by writePostData
+	 * Not only delete unused objects but handles also the copy/paste of nodes.
+	 * Access the DB
+	 * TODO
+	 */
+	public function questionCheck(): void
+	{
+		echo "questionCheck";
+
+		//TODO
+	}
+
+
+	public function checkPRTForDeletion(assStackQuestionPRT $prt)
+	{
+		echo "checkPRTForDeletion";
+
+		if (is_array($this->object->getPotentialResponsesTrees())) {
+			if (sizeof($this->object->getPotentialResponsesTrees()) < 2) {
+				$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_not_enought_prts'));
+
+				return TRUE;
+			}
+		}
+
+
+		return FALSE;
+	}
+
+	public function checkPRTNodeForDeletion(assStackQuestionPRT $prt, assStackQuestionPRTNode $node)
+	{
+		echo "checkPRTNodeForDeletion";
+
+		if (is_array($prt->getPRTNodes())) {
+			if (sizeof($prt->getPRTNodes()) < 2) {
+				$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_not_enought_prt_nodes'));
+
+				return TRUE;
+			}
+		}
+
+
+		if ((int)$prt->getFirstNodeName() == (int)$node->getNodeName()) {
+			$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_first_node'));
+
+			return TRUE;
+		}
+
+		foreach ($prt->getPRTNodes() as $prt_node) {
+			if ($prt_node->getTrueNextNode() == $node->getNodeName() or $prt_node->getFalseNextNode() == $node->getNodeName()) {
+				$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_connected_node'));
+
+				return TRUE;
+			}
+		}
+
+		return FALSE;
+	}
+
+
+
+	/* METHODS TO REDESIGN END */
+
+	/* Javascript, Ajax, jQuery etc. METHODS BEGIN */
+
+	/**
+	 * Decides whether to show the information fields in the session
+	 * Called by editQuestion onLoad
+	 */
+	public function enableDisableInfo()
+	{
+		echo "enableDisableInfo";
+
+		if (isset($_SESSION['show_input_info_fields_in_form'])) {
+			if ($_SESSION['show_input_info_fields_in_form'] == TRUE) {
+				$_SESSION['show_input_info_fields_in_form'] = FALSE;
+			} else {
+				$_SESSION['show_input_info_fields_in_form'] = TRUE;
+			}
+		} else {
+			$_SESSION['show_input_info_fields_in_form'] = TRUE;
+		}
+
+		//Redirects to show Question Form
+		$this->editQuestion();
+	}
+
+	/**
+	 * Save the showing info messages state in the user session
+	 * (This keeps info messages state between page moves)
+	 * @see self::addToPage()
+	 */
+	public function saveInfoState()
+	{
+		$_SESSION['stack_authoring_show'] = (int)$_GET['show'];
+
+		// debugging output (normally ignored by the js part)
+		echo json_encode(array('show' => $_SESSION['stack_authoring_show']));
+		exit;
+	}
+
+	/* Javascript, Ajax, jQuery etc. METHODS END */
+
+	/* TABS MANAGEMENT BEGIN */
 
 	/**
 	 * Sets the ILIAS tabs for this question type
@@ -986,279 +541,210 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	}
 
-	/*
-	 * COMMANDS METHODS
-	 */
-
-	/*
-	 * EDITION/CREATION OF QUESTIONS
-	 */
-
-	/**
-	 * This method has been modified for authoring interface creation in version 1.6.2
-	 */
-	public function editQuestionForm()
+	public function getLearningModuleTabs()
 	{
 		global $DIC;
+		$tabs = $DIC->tabs();
+
+		$this->ctrl->setParameterByClass("ilAssQuestionPageGUI", "q_id", $_GET["q_id"]);
+		include_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
+		$this->plugin->includeClass('class.ilAssStackQuestionFeedback.php');
+
+		$q_type = $this->object->getQuestionType();
+
+		if (strlen($q_type)) {
+			$classname = $q_type . "GUI";
+			$this->ctrl->setParameterByClass(strtolower($classname), "sel_question_types", $q_type);
+			$this->ctrl->setParameterByClass(strtolower($classname), "q_id", $this->object->getId());
+		}
+
+		$force_active = false;
+		$url = "";
+
+		if ($classname) {
+			$url = $this->ctrl->getLinkTargetByClass($classname, "editQuestion");
+		}
+		$commands = $_POST["cmd"];
+		if (is_array($commands)) {
+			foreach ($commands as $key => $value) {
+				if (preg_match("/^suggestrange_.*/", $key, $matches)) {
+					$force_active = true;
+				}
+			}
+		}
+		// edit question properties
+		$tabs->addTarget("edit_properties", $url, array("editQuestion", "save", "cancel", "addSuggestedSolution", "cancelExplorer", "linkChilds", "removeSuggestedSolution", "parseQuestion", "saveEdit", "suggestRange"), $classname, "", $force_active);
+
+		if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'deployedSeedsManagement', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle',))) {
+			$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
+			$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
+			$tabs->addSubTab('deployed_seeds_management', $this->plugin->txt('dsm_deployed_seeds'), $this->ctrl->getLinkTargetByClass($classname, "deployedSeedsManagement"));
+			$tabs->addSubTab('unit_tests', $this->plugin->txt('ut_title'), $this->ctrl->getLinkTargetByClass($classname, "showUnitTests"));
+		}
+
+	}
+
+	/* TABS MANAGEMENT END */
+
+	/* IMPORT / EXPORT TO MOODLE BEGIN */
+
+	public function importQuestionFromMoodleForm()
+	{
+		global $DIC;
+
+		$lng = $DIC->language();
+		$tabs = $DIC->tabs();
+
+		//#25145
+		if (isset($_REQUEST["test_ref_id"])) {
+			ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_import_in_test_error"), TRUE);
+			$DIC->ctrl()->redirect($this, 'editQuestion');
+		}
 
 		if ($this->object->getSelfAssessmentEditingMode()) {
 			$this->getLearningModuleTabs();
 		}
+		//Set all parameters required
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('import_from_moodle');
 
-		//QP
+		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+
+		$form = new ilPropertyFormGUI();
+		$form->setFormAction($this->ctrl->getFormAction($this));
+		$form->setTitle($lng->txt("qpl_qst_xqcas_import_xml"));
+
+		//Upload XML file
+		$item = new ilFileInputGUI($lng->txt("qpl_qst_xqcas_import_xml_file"), 'questions_xml');
+		$item->setSuffixes(array('xml'));
+		$form->addItem($item);
+
+		$hiddenFirstId = new ilHiddenInputGUI('first_question_id');
+		$hiddenFirstId->setValue($_GET['q_id']);
+		$form->addItem($hiddenFirstId);
+
+		$form->addCommandButton("importQuestionFromMoodle", $lng->txt("import"));
+		$form->addCommandButton("editQuestion", $lng->txt("cancel"));
+
+		$this->tpl->setContent($form->getHTML());
+	}
+
+	public function importQuestionFromMoodle()
+	{
+		global $DIC;
 		$tabs = $DIC->tabs();
 
 		//Set all parameters required
 		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('edit_question');
-		$this->getQuestionTemplate();
+		$tabs->activateSubTab('import_from_moodle');
 
-		//Create GUI object
-		$this->plugin->includeClass('GUI/question_authoring/class.assStackQuestionAuthoringGUI.php');
-		$authoring_gui = new assStackQuestionAuthoringGUI($this->plugin, $this);
-		//Add CSS
-		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_authoring.css'));
-		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/multipart_form.css'));
-
-		//Javascript
-
-		//Show info messages
-		$this->info_config = new stdClass();
-		$ctrl = $DIC->ctrl();
-		$this->info_config->ajax_url = $ctrl->getLinkTargetByClass("assstackquestiongui", "saveInfoState", "", TRUE);
-
-		//Set to user's session value
-		if (isset($_SESSION['stack_authoring_show'])) {
-			$this->info_config->show = (int)$_SESSION['stack_authoring_show'];
+		//Getting the xml file from $_FILES
+		if (file_exists($_FILES["questions_xml"]["tmp_name"])) {
+			$xml_file = $_FILES["questions_xml"]["tmp_name"];
 		} else {
-			//first time must be shown
-			$this->info_config->show = 1;
+			$this->object->setErrors($this->plugin->txt('error_import_question_in_test'), true);
+
+			return;
 		}
-		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/ilEnableDisableInfo.js');
-		$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.EnableDisableInfo.initInfoMessages(' . json_encode($this->info_config) . ')');
 
-		//Reform authoring interface
-		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/ilMultipartFormProperty.js');
+		//CHECK FOR NOT ALLOW IMPROT QUESTIONS DIRECTLY IN TESTS
+		if (isset($_GET['calling_test'])) {
+			$this->object->setErrors($this->plugin->txt('error_import_question_in_test'), true);
 
-		//Returns Deployed seeds form
-		$this->tpl->setVariable("QUESTION_DATA", $authoring_gui->showAuthoringPanel());
-
+			return;
+		} else {
+			//Include import class and prepare object
+			$this->plugin->includeClass('model/import/MoodleXML/class.assStackQuestionMoodleImport.php');
+			$import = new assStackQuestionMoodleImport($this->plugin, (int)$_POST['first_question_id'], $this->object);
+			$import->setRTETags($this->getRTETags());
+			$import->import($xml_file);
+		}
 	}
 
-
-	/**
-	 * Populate taxonomy section in a form
-	 * (made public to be called from authoring GUI)
-	 * @param ilPropertyFormGUI $form
-	 */
-	public function populateTaxonomyFormSection(ilPropertyFormGUI $form)
+	public function exportQuestiontoMoodleForm()
 	{
-		parent::populateTaxonomyFormSection($form);
+		global $DIC;
+		$tabs = $DIC->tabs();
+		$lng = $DIC->language();
+
+		//Set all parameters required
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('export_to_moodle');
+
+		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+
+		$form = new ilPropertyFormGUI();
+		$form->setFormAction($this->ctrl->getFormAction($this));
+		$form->setTitle($lng->txt("qpl_qst_xqcas_export_to_moodlexml"));
+
+		$options = new ilRadioGroupInputGUI($lng->txt("qpl_qst_xqcas_all_from_pool"), "xqcas_all_from_pool");
+		$only_question = new ilRadioOption($lng->txt("qpl_qst_xqcas_export_only_this"), "xqcas_export_only_this", $lng->txt("qpl_qst_xqcas_export_only_this_info"));
+		if (isset($_GET['calling_test'])) {
+			$all_from_pool = new ilRadioOption($lng->txt("qpl_qst_xqcas_export_all_from_test"), "xqcas_export_all_from_test", $lng->txt("qpl_qst_xqcas_export_all_from_test_info"));
+		} else {
+			$all_from_pool = new ilRadioOption($lng->txt("qpl_qst_xqcas_export_all_from_pool"), "xqcas_export_all_from_pool", $lng->txt("qpl_qst_xqcas_export_all_from_pool_info"));
+		}
+
+		$options->addOption($only_question);
+		$options->addOption($all_from_pool);
+
+		if (isset($_GET['calling_test'])) {
+			$options->setValue("xqcas_export_all_from_test");
+		} else {
+			$options->setValue("xqcas_export_all_from_pool");
+		}
+
+		$form->addItem($options);
+
+		$hiddenFirstId = new ilHiddenInputGUI('first_question_id');
+		$hiddenFirstId->setValue($_GET['q_id']);
+		$form->addItem($hiddenFirstId);
+
+		$form->addCommandButton("exportQuestionToMoodle", $lng->txt("export"));
+		$form->addCommandButton("editQuestion", $lng->txt("cancel"));
+
+		$this->tpl->setContent($form->getHTML());
 	}
 
-	public function editQuestion($checkonly = FALSE)
+	public function exportQuestionToMoodle()
 	{
-		$save = $this->isSaveCommand();
+		global $DIC;
+		$tabs = $DIC->tabs();
+		$lng = $DIC->language();
 
-		$this->editQuestionForm();
-	}
+		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/export/MoodleXML/class.assStackQuestionMoodleXMLExport.php';
 
-	public function enableDisableInfo()
-	{
-		if (isset($_SESSION['show_input_info_fields_in_form'])) {
-			if ($_SESSION['show_input_info_fields_in_form'] == TRUE) {
-				$_SESSION['show_input_info_fields_in_form'] = FALSE;
+		//Set all parameters required
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('export_to_moodle');
+
+		//Getting data from POST
+		if (isset($_POST['first_question_id']) and isset($_POST['xqcas_all_from_pool'])) {
+			$id = $_POST['first_question_id'];
+			$mode = "";
+			if ($_POST['xqcas_all_from_pool'] == 'xqcas_export_all_from_pool') {
+				//Get all questions from a pool
+				$export_to_moodle = new assStackQuestionMoodleXMLExport($this->object->getAllQuestionsFromPool());
+				$xml = $export_to_moodle->toMoodleXML();
+			} elseif ($_POST['xqcas_all_from_pool'] == 'xqcas_export_only_this') {
+				//get current stack question info.
+				$export_to_moodle = new assStackQuestionMoodleXMLExport(array($id => $this->object));
+				$xml = $export_to_moodle->toMoodleXML();
+			} elseif ($_POST['xqcas_all_from_pool'] == 'xqcas_export_all_from_test') {
+				//get current stack question info.
+				$export_to_moodle = new assStackQuestionMoodleXMLExport($this->object->getAllQuestionsFromTest());
+				$xml = $export_to_moodle->toMoodleXML();
 			} else {
-				$_SESSION['show_input_info_fields_in_form'] = TRUE;
+				throw new Exception($lng->txt('qpl_qst_xqcas_error_exporting_to_moodle_mode'));
 			}
 		} else {
-			$_SESSION['show_input_info_fields_in_form'] = TRUE;
+			throw new Exception($lng->txt('qpl_qst_xqcas_error_exporting_to_moodle_question_id'));
 		}
-
-		$this->editQuestionForm();
 	}
 
-	/*
-	 * DEPLOYED SEEDS METHODS
-	 */
+	/* IMPORT / EXPORT TO MOODLE END */
 
-	public function deployedSeedsManagement()
-	{
-		global $DIC;
-		$tabs = $DIC->tabs();
-
-		if ($this->object->getSelfAssessmentEditingMode()) {
-			$this->getLearningModuleTabs();
-		}
-		//Set all parameters required
-		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('deployed_seeds_management');
-		$this->getQuestionTemplate();
-
-		//Create GUI object
-		$this->plugin->includeClass('GUI/question_authoring/class.assStackQuestionDeployedSeedsGUI.php');
-		$deployed_seeds_gui = new assStackQuestionDeployedSeedsGUI($this->plugin, $this->object->getId(), $this);
-
-		//Add MathJax (Ensure MathJax is loaded)
-		include_once "./Services/Administration/classes/class.ilSetting.php";
-		$mathJaxSetting = new ilSetting("MathJax");
-		$DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
-
-		//Add CSS
-		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_deployed_seeds_management.css'));
-
-		//Returns Deployed seeds form
-		$this->tpl->setVariable("QUESTION_DATA", $deployed_seeds_gui->showDeployedSeedsPanel());
-	}
-
-	public function createNewDeployedSeed()
-	{
-		global $DIC;
-		$tabs = $DIC->tabs();
-		//Set all parameters required
-		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('deployed_seeds_management');
-		$this->getQuestionTemplate();
-
-		//New seed creation
-		$seed = (int)$_POST['deployed_seed'];
-		$question_id = (int)$_POST['question_id'];
-
-		$this->plugin->includeClass('model/ilias_object/class.assStackQuestionDeployedSeed.php');
-		$deployed_seed = new assStackQuestionDeployedSeed('', $question_id, $seed);
-		if (!$deployed_seed->save()) {
-			$this->question_gui->object->setErrors($this->plugin->txt('dsm_not_allowed_seed'));
-		}
-
-		$this->deployedSeedsManagement();
-	}
-
-	public function deleteDeployedSeed()
-	{
-		global $DIC;
-		$tabs = $DIC->tabs();
-		//Set all parameters required
-		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('deployed_seeds_management');
-		$this->getQuestionTemplate();
-
-		//New seed creation
-		$seed = $_POST['deployed_seed'];
-		$question_id = $_POST['question_id'];
-
-		$this->plugin->includeClass('model/ilias_object/class.assStackQuestionDeployedSeed.php');
-		$deployed_seeds = assStackQuestionDeployedSeed::_read($question_id);
-		foreach ($deployed_seeds as $deployed_seed) {
-			if ($deployed_seed->getSeed() == $seed) {
-				$deployed_seed->delete();
-				ilUtil::sendSuccess($this->plugin->txt('dsm_deployed_seed_deleted'));
-				break;
-			}
-		}
-
-		$this->deployedSeedsManagement();
-	}
-
-	/*
-	 * SCORING MANAGEMENT
-	 */
-
-	/**
-	 * This function is called when scoring tab is activated.
-	 * Shows the evaluation structure of the question by potentialresponse tree and a simulation
-	 * of the value of each PRT in real points, in order to change it.
-	 * @param float $new_question_points
-	 */
-	public function scoringManagementPanel($new_question_points = '')
-	{
-		global $DIC;
-		$tabs = $DIC->tabs();
-		if ($this->object->getSelfAssessmentEditingMode()) {
-			$this->getLearningModuleTabs();
-		}
-		//Set all parameters required
-		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('scoring_management');
-		$this->getQuestionTemplate();
-
-		//Create GUI object
-		$this->plugin->includeClass('GUI/question_authoring/class.assStackQuestionScoringGUI.php');
-		$scoring_gui = new assStackQuestionScoringGUI($this->plugin, $this->object->getId(), $this->object->getPoints());
-
-		//Add CSS
-		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_scoring_management.css'));
-
-		//Returns Deployed seeds form
-		$this->tpl->setVariable("QUESTION_DATA", $scoring_gui->showScoringPanel($new_question_points));
-	}
-
-	/**
-	 * This command is called when user requires a comparison between current evaluation
-	 * structure and a new one with the point value he insert in the input field.
-	 */
-	public function showScoringComparison()
-	{
-		//Get new points value
-		if (isset($_POST['new_scoring']) and (float)$_POST['new_scoring'] > 0.0) {
-			$new_question_points = (float)ilUtil::stripSlashes($_POST['new_scoring']);
-		} else {
-			$this->question_gui->object->setErrors($this->plugin->txt('sco_invalid_value'));
-		}
-		//Show scoring panel with comparison
-		$this->scoringManagementPanel($new_question_points);
-	}
-
-	/**
-	 * This command is called when the user wants to change the points value of the
-	 * question to the value inserted in the input field.
-	 */
-	public function saveNewScoring()
-	{
-		//Get new points value and save it to the DB
-		if (isset($_POST['new_scoring']) and (float)$_POST['new_scoring'] > 0.0) {
-			$this->object->setPoints(ilUtil::stripSlashes($_POST['new_scoring']));
-			$this->object->saveQuestionDataToDb($this->object->getId());
-		} else {
-			$this->question_gui->object->setErrors($this->plugin->txt('sco_invalid_value'));
-		}
-		//Show scoring panel
-		$this->scoringManagementPanel();
-	}
-
-	/*
-	 * UNIT TESTS
-	 */
-
-	/**
-	 * MAIN METHOD FOR SHOWING UNIT TESTS
-	 */
-	public function showUnitTests()
-	{
-		global $DIC;
-		$tabs = $DIC->tabs();
-		if ($this->object->getSelfAssessmentEditingMode()) {
-			$this->getLearningModuleTabs();
-		}
-
-		//Set all parameters required
-		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('unit_tests');
-		$this->getQuestionTemplate();
-
-		//Create GUI object
-		$this->plugin->includeClass('GUI/test/class.assStackQuestionTestGUI.php');
-		$unit_test_gui = new assStackQuestionTestGUI($this, $this->plugin);
-
-		//Add CSS
-		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
-
-		//Returns Deployed seeds form
-		$this->tpl->setVariable("QUESTION_DATA", $unit_test_gui->showUnitTestsPanel());
-	}
-
-	/*
-	 * UNIT TEST COMMANDS
-	 */
+	/* UNIT TESTS COMMANDS BEGIN */
 
 	/**
 	 * Command for run testcases
@@ -1515,297 +1001,60 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->showUnitTests();
 	}
 
-	/*
-	 * IMPORT FROM MOODLE
-	 */
+	/* UNIT TESTS COMMANDS END */
 
-	public function importQuestionFromMoodleForm()
-	{
-		global $DIC;
-
-		$lng = $DIC->language();
-		$tabs = $DIC->tabs();
-
-		//#25145
-		if (isset($_REQUEST["test_ref_id"])) {
-			ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_import_in_test_error"), TRUE);
-			$DIC->ctrl()->redirect($this, 'editQuestion');
-		}
-
-		if ($this->object->getSelfAssessmentEditingMode()) {
-			$this->getLearningModuleTabs();
-		}
-		//Set all parameters required
-		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('import_from_moodle');
-
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
-
-		$form = new ilPropertyFormGUI();
-		$form->setFormAction($this->ctrl->getFormAction($this));
-		$form->setTitle($lng->txt("qpl_qst_xqcas_import_xml"));
-
-		//Upload XML file
-		$item = new ilFileInputGUI($lng->txt("qpl_qst_xqcas_import_xml_file"), 'questions_xml');
-		$item->setSuffixes(array('xml'));
-		$form->addItem($item);
-
-		$hiddenFirstId = new ilHiddenInputGUI('first_question_id');
-		$hiddenFirstId->setValue($_GET['q_id']);
-		$form->addItem($hiddenFirstId);
-
-		$form->addCommandButton("importQuestionFromMoodle", $lng->txt("import"));
-		$form->addCommandButton("editQuestion", $lng->txt("cancel"));
-
-		$this->tpl->setContent($form->getHTML());
-	}
-
-	public function importQuestionFromMoodle()
-	{
-		global $DIC;
-		$tabs = $DIC->tabs();
-
-		//Set all parameters required
-		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('import_from_moodle');
-
-		//Getting the xml file from $_FILES
-		if (file_exists($_FILES["questions_xml"]["tmp_name"])) {
-			$xml_file = $_FILES["questions_xml"]["tmp_name"];
-		} else {
-			$this->object->setErrors($this->plugin->txt('error_import_question_in_test'), true);
-
-			return;
-		}
-
-		//CHECK FOR NOT ALLOW IMPROT QUESTIONS DIRECTLY IN TESTS
-		if (isset($_GET['calling_test'])) {
-			$this->object->setErrors($this->plugin->txt('error_import_question_in_test'), true);
-
-			return;
-		} else {
-			//Include import class and prepare object
-			$this->plugin->includeClass('model/import/MoodleXML/class.assStackQuestionMoodleImport.php');
-			$import = new assStackQuestionMoodleImport($this->plugin, (int)$_POST['first_question_id'], $this->object);
-			$import->setRTETags($this->getRTETags());
-			$import->import($xml_file);
-		}
-	}
-
-	public function exportQuestiontoMoodleForm()
-	{
-		global $DIC;
-		$tabs = $DIC->tabs();
-		$lng = $DIC->language();
-
-		//Set all parameters required
-		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('export_to_moodle');
-
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
-
-		$form = new ilPropertyFormGUI();
-		$form->setFormAction($this->ctrl->getFormAction($this));
-		$form->setTitle($lng->txt("qpl_qst_xqcas_export_to_moodlexml"));
-
-		$options = new ilRadioGroupInputGUI($lng->txt("qpl_qst_xqcas_all_from_pool"), "xqcas_all_from_pool");
-		$only_question = new ilRadioOption($lng->txt("qpl_qst_xqcas_export_only_this"), "xqcas_export_only_this", $lng->txt("qpl_qst_xqcas_export_only_this_info"));
-		if (isset($_GET['calling_test'])) {
-			$all_from_pool = new ilRadioOption($lng->txt("qpl_qst_xqcas_export_all_from_test"), "xqcas_export_all_from_test", $lng->txt("qpl_qst_xqcas_export_all_from_test_info"));
-		} else {
-			$all_from_pool = new ilRadioOption($lng->txt("qpl_qst_xqcas_export_all_from_pool"), "xqcas_export_all_from_pool", $lng->txt("qpl_qst_xqcas_export_all_from_pool_info"));
-		}
-
-		$options->addOption($only_question);
-		$options->addOption($all_from_pool);
-
-		if (isset($_GET['calling_test'])) {
-			$options->setValue("xqcas_export_all_from_test");
-		} else {
-			$options->setValue("xqcas_export_all_from_pool");
-		}
-
-		$form->addItem($options);
-
-		$hiddenFirstId = new ilHiddenInputGUI('first_question_id');
-		$hiddenFirstId->setValue($_GET['q_id']);
-		$form->addItem($hiddenFirstId);
-
-		$form->addCommandButton("exportQuestionToMoodle", $lng->txt("export"));
-		$form->addCommandButton("editQuestion", $lng->txt("cancel"));
-
-		$this->tpl->setContent($form->getHTML());
-	}
-
-	public function exportQuestionToMoodle()
-	{
-		global $DIC;
-		$tabs = $DIC->tabs();
-		$lng = $DIC->language();
-
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/export/MoodleXML/class.assStackQuestionMoodleXMLExport.php';
-
-		//Set all parameters required
-		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('export_to_moodle');
-
-		//Getting data from POST
-		if (isset($_POST['first_question_id']) and isset($_POST['xqcas_all_from_pool'])) {
-			$id = $_POST['first_question_id'];
-			$mode = "";
-			if ($_POST['xqcas_all_from_pool'] == 'xqcas_export_all_from_pool') {
-				//Get all questions from a pool
-				$export_to_moodle = new assStackQuestionMoodleXMLExport($this->object->getAllQuestionsFromPool());
-				$xml = $export_to_moodle->toMoodleXML();
-			} elseif ($_POST['xqcas_all_from_pool'] == 'xqcas_export_only_this') {
-				//get current stack question info.
-				$export_to_moodle = new assStackQuestionMoodleXMLExport(array($id => $this->object));
-				$xml = $export_to_moodle->toMoodleXML();
-			} elseif ($_POST['xqcas_all_from_pool'] == 'xqcas_export_all_from_test') {
-				//get current stack question info.
-				$export_to_moodle = new assStackQuestionMoodleXMLExport($this->object->getAllQuestionsFromTest());
-				$xml = $export_to_moodle->toMoodleXML();
-			} else {
-				throw new Exception($lng->txt('qpl_qst_xqcas_error_exporting_to_moodle_mode'));
-			}
-		} else {
-			throw new Exception($lng->txt('qpl_qst_xqcas_error_exporting_to_moodle_question_id'));
-		}
-	}
-
-	public function showFeedback()
-	{
-		global $DIC;
-		$tabs = $DIC->tabs();
-		//Set all parameters required
-		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('feedback');
-
-		return "";
-	}
+	/* GETTERS AND SETTERS BEGIN */
 
 	/**
-	 * Save the showing info messages state in the user session
-	 * (This keeps info messages state between page moves)
-	 * @see self::addToPage()
+	 * @return ilassStackQuestionPlugin
 	 */
-	public function saveInfoState()
-	{
-		$_SESSION['stack_authoring_show'] = (int)$_GET['show'];
-
-		// debugging output (normally ignored by the js part)
-		echo json_encode(array('show' => $_SESSION['stack_authoring_show']));
-		exit;
-	}
-
-	public function getErrors()
-	{
-		$isComplete = TRUE;
-
-		//Check all inputs have a model answer
-		$incomplete_model_answers = "";
-		foreach ($this->object->getInputs() as $input_name => $input) {
-			if ($input->getTeacherAnswer() == "" or $input->getTeacherAnswer() == " ") {
-				$isComplete = FALSE;
-				$incomplete_model_answers .= $input_name . ", ";
-			}
-		}
-		$incomplete_model_answers = substr($incomplete_model_answers, 0, -2);
-
-		//Check student answer is always filled in
-		$incomplete_student_answers = "";
-		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt) {
-			foreach ($prt->getPRTNodes() as $node_name => $node) {
-				if ($node->getStudentAnswer() == "" or $node->getStudentAnswer() == " ") {
-					$isComplete = FALSE;
-					$incomplete_student_answers .= $prt_name . " / " . $node_name . ", ";
-				}
-			}
-		}
-		$incomplete_student_answers = substr($incomplete_student_answers, 0, -2);
-
-		//Check teacher answer is always filled in
-		$incomplete_teacher_answers = "";
-		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt) {
-			foreach ($prt->getPRTNodes() as $node_name => $node) {
-				if ($node->getTeacherAnswer() == "" or $node->getTeacherAnswer() == " ") {
-					$isComplete = FALSE;
-					$incomplete_teacher_answers .= $prt_name . " / " . $node_name . ", ";
-				}
-			}
-		}
-		$incomplete_teacher_answers = substr($incomplete_teacher_answers, 0, -2);
-
-		if (!$isComplete and $this->object->getTitle() != NULL) {
-			if ($incomplete_model_answers != "") {
-				$this->object->setErrors($this->getPlugin()->txt("error_model_answer_missing") . " " . $incomplete_model_answers);
-			}
-			if ($incomplete_student_answers != "") {
-				$this->object->setErrors($this->getPlugin()->txt("error_student_answer_missing") . " " . $incomplete_student_answers);
-			}
-			if ($incomplete_teacher_answers != "") {
-				$this->object->setErrors($this->getPlugin()->txt("error_teacher_answer_missing") . " " . $incomplete_teacher_answers);
-			}
-		}
-	}
-
-	/**
-	 * @return null
-	 */
-	public function getPlugin()
+	public function getPlugin(): ilPlugin
 	{
 		return $this->plugin;
 	}
 
 	/**
-	 * @param null $plugin
+	 * @param ilassStackQuestionPlugin $plugin
 	 */
-	public function setPlugin($plugin)
+	public function setPlugin(ilPlugin $plugin): void
 	{
 		$this->plugin = $plugin;
 	}
 
-	public function getLearningModuleTabs()
+	/**
+	 * @return string
+	 */
+	public function getRteModule(): string
 	{
-		global $DIC;
-		$tabs = $DIC->tabs();
-
-		$this->ctrl->setParameterByClass("ilAssQuestionPageGUI", "q_id", $_GET["q_id"]);
-		include_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
-		$this->plugin->includeClass('class.ilAssStackQuestionFeedback.php');
-
-		$q_type = $this->object->getQuestionType();
-
-		if (strlen($q_type)) {
-			$classname = $q_type . "GUI";
-			$this->ctrl->setParameterByClass(strtolower($classname), "sel_question_types", $q_type);
-			$this->ctrl->setParameterByClass(strtolower($classname), "q_id", $this->object->getId());
-		}
-
-		$force_active = false;
-		$url = "";
-
-		if ($classname) {
-			$url = $this->ctrl->getLinkTargetByClass($classname, "editQuestion");
-		}
-		$commands = $_POST["cmd"];
-		if (is_array($commands)) {
-			foreach ($commands as $key => $value) {
-				if (preg_match("/^suggestrange_.*/", $key, $matches)) {
-					$force_active = true;
-				}
-			}
-		}
-		// edit question properties
-		$tabs->addTarget("edit_properties", $url, array("editQuestion", "save", "cancel", "addSuggestedSolution", "cancelExplorer", "linkChilds", "removeSuggestedSolution", "parseQuestion", "saveEdit", "suggestRange"), $classname, "", $force_active);
-
-		if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'deployedSeedsManagement', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle',))) {
-			$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
-			$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
-			$tabs->addSubTab('deployed_seeds_management', $this->plugin->txt('dsm_deployed_seeds'), $this->ctrl->getLinkTargetByClass($classname, "deployedSeedsManagement"));
-			$tabs->addSubTab('unit_tests', $this->plugin->txt('ut_title'), $this->ctrl->getLinkTargetByClass($classname, "showUnitTests"));
-		}
-
+		return $this->rte_module;
 	}
+
+	/**
+	 * @param string $rte_module
+	 */
+	public function setRteModule(string $rte_module): void
+	{
+		$this->rte_module = $rte_module;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getRteTags(): array
+	{
+		return $this->rte_tags;
+	}
+
+	/**
+	 * @param array $rte_tags
+	 */
+	public function setRteTags(array $rte_tags): void
+	{
+		$this->rte_tags = $rte_tags;
+	}
+
+
+
+	/* GETTERS AND SETTERS END */
 
 }
