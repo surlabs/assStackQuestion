@@ -55,11 +55,15 @@ class assStackQuestionRender
 	 */
 	public static function _renderQuestion(assStackQuestion $question, bool $show_inline_feedback = false): string
 	{
+		global $DIC;
 		$response = $question->getUserResponse();
 
 		$question_text = $question->question_text_instantiated;
 		// Replace inputs.
 		$inputs_to_validate = array();
+
+		//Replace Validation
+		$validation_divs = array();
 
 		// Get the list of placeholders before format_text.
 		$original_input_placeholders = array_unique(stack_utils::extract_placeholders($question_text, 'input'));
@@ -76,6 +80,20 @@ class assStackQuestionRender
 		sort($formatted_input_placeholders);
 		$formatted_feedback_placeholders = stack_utils::extract_placeholders($question_text, 'feedback');
 		sort($formatted_feedback_placeholders);
+
+
+		// Initialise validation, if enabled.
+		if (stack_utils::get_config()->ajaxvalidation) {
+			$validation_divs = self::_initValidation($question, 'instant');
+		} else {
+			$validation_divs = self::_initValidation($question, 'button');
+		}
+
+		//Add MathJax (Ensure MathJax is loaded)
+		include_once "./Services/Administration/classes/class.ilSetting.php";
+		$mathJaxSetting = new ilSetting("MathJax");
+		$DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
+
 
 		// We need to check that if the list has changed.
 		// Have we lost some of the placeholders entirely?
@@ -118,19 +136,6 @@ class assStackQuestionRender
 			$question_text = str_replace("[[feedback:{$index}]]", $feedback, $question_text);
 		}
 
-		// Initialise automatic validation, if enabled.
-		if (stack_utils::get_config()->ajaxvalidation) {
-			//TODO automatic validation
-			/*
-			if (method_exists($qa, 'get_outer_question_div_unique_id')) {
-				$questiondivid = $qa->get_outer_question_div_unique_id();
-			} else {
-				$questiondivid = 'q' . $qa->get_slot();
-			}
-			$this->page->requires->js_call_amd('qtype_stack/input', 'initInputs',
-				[$questiondivid, $qa->get_field_prefix(),
-					$qa->get_database_id(), $inputs_to_validate]);*/
-		}
 
 		$result = '';
 		$result .= $question_text;
@@ -205,6 +210,66 @@ class assStackQuestionRender
 		}
 
 		return html_writer::nonempty_tag($tag, $fb, array('class' => 'stackprtfeedback stackprtfeedback-' . $name));
+	}
+
+	/**
+	 *
+	 * Initialize Validation Settings and get the divs
+	 * @param assStackQuestion $question
+	 * @param string $validation_type
+	 * @return array
+	 */
+	public static function _initValidation(assStackQuestion $question, string $validation_type): array
+	{
+		global $DIC;
+
+		//Add variables to $DIC
+		if ($validation_type == 'instant') {
+
+			//Instant validation
+			$js_config = new stdClass();
+			$js_config->validate_url = ILIAS_HTTP_PATH . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/instant_validation.php";
+
+			$js_texts = new stdClass();
+			$js_texts->page = $question->getPlugin()->txt('page');
+
+			$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/instant_validation.js');
+			$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.instant_validation.init(' . json_encode($js_config) . ',' . json_encode($js_texts) . ')');
+		} elseif ($validation_type == 'button') {
+
+			//Button Validation
+			$js_config = new stdClass();
+			$js_config->validate_url = ILIAS_HTTP_PATH . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
+
+			$js_texts = new stdClass();
+			$js_texts->page = $question->getPlugin()->txt('page');
+
+			$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
+			$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($js_config) . ',' . json_encode($js_texts) . ')');
+		}
+
+		$validation_divs = array();
+		foreach ($question->inputs as $input_name => $input) {
+			if (is_a($input, 'stack_matrix_input')) {
+				$validation_divs[$input_name] = '<div id="validation_xqcas_roll_' . $question->getId() . '_' . $input_name . '"></div><div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '"></div><div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input['matrix_w'] . '</div><div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden";>' . $input['matrix_h'] . '</div>';
+			} elseif ($validation_type !== 'hidden') {
+				$validation_divs[$input_name] = '<div id="validation_xqcas_roll_' . $question->getId() . '_' . $input_name . '"></div><div class="xqcas_input_validation"><div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '"></div></div>';
+			} else {
+				$validation_divs[$input_name] = '';
+			}
+		}
+
+		return $validation_divs;
+	}
+
+	/**
+	 * Returns the button for current input field.
+	 * @param string $input_name
+	 * @return HTML the HTML code of the button of validation for this input.
+	 */
+	private function validationButton($input_name)
+	{
+		return "<button style=\"height:2.2em;\" class=\"\" name=\"cmd[xqcas_" . $this->getDisplay('question_id') . '_' . $input_name . "]\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></button>";
 	}
 
 
