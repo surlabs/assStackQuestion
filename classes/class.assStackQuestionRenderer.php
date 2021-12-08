@@ -13,7 +13,7 @@
  * @version $Id: 4.0$
  *
  */
-class assStackQuestionRender
+class assStackQuestionRenderer
 {
 	/* ILIAS REQUIRED METHODS RENDER BEGIN */
 
@@ -94,7 +94,6 @@ class assStackQuestionRender
 		$mathJaxSetting = new ilSetting("MathJax");
 		$DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
 
-
 		// We need to check that if the list has changed.
 		// Have we lost some of the placeholders entirely?
 		// Duplicates may have been removed by multi-lang,
@@ -141,6 +140,32 @@ class assStackQuestionRender
 		$result .= $question_text;
 
 		return $result;
+	}
+
+	/* INPUT RENDER END */
+
+	public static function _renderAlgebraicInput(stack_input_state$state, string $field_name, bool $read_only, $tavalue){
+
+		return '';
+		//fau: Add validation button from ILIAS
+		$attributes_button = array();
+		$attributes_button['name'] = 'cmd[' . $field_name . ']';
+		$attributes_button['class'] = 'input-group-addon';
+		$attributes_button['onclick'] = 'return false';
+		$attributes_button['style'] = 'cursor: pointer;';
+		$attributes_button['icon_class'] = 'glyphicon glyphicon-ok';
+
+		//Prepare Output
+		$input_output = '';
+		//Input group
+		$input_output.= html_writer::start_tag('span', array('class' => 'input-group', 'name' => $field_name));
+		$input_output.=html_writer::empty_tag('input', $attributes);
+		$input_output.=html_writer::start_tag('span', $attributes_button);
+		$input_output.=html_writer::empty_tag('span', array('class' => $attributes_button['icon_class'], 'name' => $attributes_button['name']));
+		$input_output.=html_writer::end_tag('span');
+		$input_output.=html_writer::end_tag('span');
+
+		return $input_output;
 	}
 
 	/**

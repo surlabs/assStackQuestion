@@ -116,8 +116,8 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->object->questionInitialisation($variant);
 
 		//Render question Preview
-		$this->getPlugin()->includeClass('class.assStackQuestionRender.php');
-		$question_preview = assStackQuestionRender::_renderQuestionPreview($this->object, $show_inline_feedback);
+		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
+		$question_preview = assStackQuestionRenderer::_renderQuestionPreview($this->object, $show_inline_feedback);
 
 		//Tab management
 		$tabs = $DIC->tabs();
@@ -1100,7 +1100,6 @@ class assStackQuestionGUI extends assQuestionGUI
 	{
 		$this->rte_tags = $rte_tags;
 	}
-
 
 
 	/* GETTERS AND SETTERS END */
