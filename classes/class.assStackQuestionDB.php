@@ -107,7 +107,7 @@ class assStackQuestionDB
 			$inputs[$input_name]['box_size'] = $row['box_size'];
 			$inputs[$input_name]['strict_syntax'] = $row['strict_syntax'];
 			$inputs[$input_name]['insert_stars'] = (int)$row['insert_stars'];
-			$inputs[$input_name]['syntax_hint'] = (isset($row['syntax_hint']) and $row['syntax_hint'] != NULL) ? trim($row['syntax_hint']) : '';
+			$inputs[$input_name]['syntax_hint'] = (isset($row['syntax_hint']) and $row['syntax_hint'] != null) ? trim($row['syntax_hint']) : '';
 			$inputs[$input_name]['forbid_words'] = $row['forbid_words'];
 			$inputs[$input_name]['allow_words'] = $row['allow_words'];
 			$inputs[$input_name]['forbid_float'] = (bool)$row['forbid_float'];
@@ -329,10 +329,12 @@ class assStackQuestionDB
 		$inputs_saved = self::_saveStackInputs($question, self::_readInputs($ids['question_id'], true));
 
 		//Save Prts
-		$prts_saved = self::_saveStackPRTs($question, self::_readPRTs($ids['question_id'], true));
+		//$prts_saved = self::_saveStackPRTs($question, self::_readPRTs($ids['question_id'], true));
 
 		//Extra Prts
-		$prts_saved = self::_saveStackExtraInformation($question, self::_readExtraInformation($ids['question_id'], true));
+		//$prts_saved = self::_saveStackExtraInformation($question, self::_readExtraInformation($ids['question_id'], true));
+
+		//Validate from form, popup errors
 	}
 
 	/**
@@ -347,7 +349,7 @@ class assStackQuestionDB
 		$db = $DIC->database();
 		include_once("./Services/RTE/classes/class.ilRTE.php");
 
-		if ($question->getId() < 0) {
+		if ($options_id < 0) {
 			//CREATE
 			$db->insert("xqcas_options", array(
 				"id" => array("integer", $db->nextId('xqcas_options')),
@@ -371,8 +373,8 @@ class assStackQuestionDB
 				"variants_selection_seed" => array("text", $question->variants_selection_seed),
 				"matrix_parens" => array("text", $question->options->get_option('matrixparens'))
 			));
-			return true;
 		} else {
+			//UPDATE
 			$db->replace('xqcas_options',
 				array(
 					"id" => array('integer', $options_id)),
@@ -397,8 +399,70 @@ class assStackQuestionDB
 					"variants_selection_seed" => array("text", $question->variants_selection_seed),
 					"matrix_parens" => array("text", $question->options->get_option('matrixparens')))
 			);
-
-			return TRUE;
 		}
+		return true;
+	}
+
+	/**
+	 * @param assStackQuestion $question
+	 * @param array $input_ids
+	 * @return bool
+	 */
+	public static function _saveStackInputs(assStackQuestion $question, array $input_ids = array()): bool
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		$question_id = $question->getId();
+
+		foreach ($question->inputs as $input_name => $input) {
+			if (!array_key_exists($input_name, $input_ids)) {
+				//CREATE
+				$db->insert("xqcas_inputs", array(
+					"id" => array("integer", $db->nextId('xqcas_inputs')),
+					"question_id" => array("integer", $question_id),
+					"name" => array("text", $input->get_name()),
+					"type" => array("text", assStackQuestionUtils::_getInputType($input)),
+					"tans" => array("text", $input->get_teacher_answer() !== null ? $input->get_teacher_answer() : ''),
+					"box_size" => array("integer", $input->get_parameter('boxWidth') !== null ? $input->get_parameter('boxWidth') : ''),
+					"strict_syntax" => array("integer", $input->get_parameter('strictSyntax') !== null ? $input->get_parameter('strictSyntax') : ''),
+					"insert_stars" => array("integer", $input->get_parameter('insertStars') !== null ? $input->get_parameter('insertStars') : ''),
+					"syntax_hint" => array("text", $input->get_parameter('syntaxHint') !== null ? $input->get_parameter('syntaxHint') : ''),
+					"forbid_words" => array("text", $input->get_parameter('forbidWords') !== null ? $input->get_parameter('forbidWords') : ''),
+					"allow_words" => array("text", $input->get_parameter('allowWords') !== null ? $input->get_parameter('allowWords') : ''),
+					"forbid_float" => array("integer", $input->get_parameter('forbidFloats') !== null ? $input->get_parameter('forbidFloats') : ''),
+					"require_lowest_terms" => array("integer", $input->get_parameter('lowestTerms') !== null ? $input->get_parameter('lowestTerms') : ''),
+					"check_answer_type" => array("integer", $input->get_parameter('sameType') !== null ? $input->get_parameter('sameType') : ''),
+					"must_verify" => array("integer", $input->get_parameter('mustVerify') !== null ? $input->get_parameter('mustVerify') : ''),
+					"show_validation" => array("integer", $input->get_parameter('showValidation') !== null ? $input->get_parameter('showValidation') : ''),
+					"options" => array("clob", assStackQuestionUtils::_serializeInputExtraOptions($input->get_extra_options()) !== null? assStackQuestionUtils::_serializeInputExtraOptions($input->get_extra_options()) : ''),
+				));
+			} else {
+				//UPDATE
+				$db->replace('xqcas_inputs',
+					array(
+						"id" => array('integer', $input_ids[$input_name])),
+					array(
+						"question_id" => array("integer", $question_id),
+						"name" => array("text", $input->get_name()),
+						"type" => array("text", assStackQuestionUtils::_getInputType($input)),
+						"tans" => array("text", $input->get_teacher_answer() !== null ? $input->get_teacher_answer() : ''),
+						"box_size" => array("integer", $input->get_parameter('boxWidth') !== null ? $input->get_parameter('boxWidth') : ''),
+						"strict_syntax" => array("integer", $input->get_parameter('strictSyntax') !== null ? $input->get_parameter('strictSyntax') : ''),
+						"insert_stars" => array("integer", $input->get_parameter('insertStars') !== null ? $input->get_parameter('insertStars') : ''),
+						"syntax_hint" => array("text", $input->get_parameter('syntaxHint') !== null ? $input->get_parameter('syntaxHint') : ''),
+						"forbid_words" => array("text", $input->get_parameter('forbidWords') !== null ? $input->get_parameter('forbidWords') : ''),
+						"allow_words" => array("text", $input->get_parameter('allowWords') !== null ? $input->get_parameter('allowWords') : ''),
+						"forbid_float" => array("integer", $input->get_parameter('forbidFloats') !== null ? $input->get_parameter('forbidFloats') : ''),
+						"require_lowest_terms" => array("integer", $input->get_parameter('lowestTerms') !== null ? $input->get_parameter('lowestTerms') : ''),
+						"check_answer_type" => array("integer", $input->get_parameter('sameType') !== null ? $input->get_parameter('sameType') : ''),
+						"must_verify" => array("integer", $input->get_parameter('mustVerify') !== null ? $input->get_parameter('mustVerify') : ''),
+						"show_validation" => array("integer", $input->get_parameter('showValidation') !== null ? $input->get_parameter('showValidation') : ''),
+						"options" => array("clob", assStackQuestionUtils::_serializeInputExtraOptions($input->get_extra_options()) !== null? assStackQuestionUtils::_serializeInputExtraOptions($input->get_extra_options()) : ''),
+					)
+				);
+			}
+		}
+		return true;
 	}
 }

@@ -725,4 +725,77 @@ class assStackQuestionUtils
 
 		return $prts;
 	}
+
+	/**
+	 * Called by assStackQuestionDB _readInputs
+	 * @param $input
+	 * @return string
+	 */
+	public static function _getInputType($input): string
+	{
+		switch ($input) {
+			case is_a($input, 'stack_algebraic_input'):
+				return 'algebraic';
+			case is_a($input, 'stack_boolean_input'):
+				return 'boolean';
+			case is_a($input, 'stack_checkbox_input'):
+				return 'checkbox';
+			case is_a($input, 'stack_dropdown_input'):
+				return 'dropdown';
+			case is_a($input, 'stack_equiv_input'):
+				return 'equiv';
+			case is_a($input, 'stack_matrix_input'):
+				return 'matrix';
+			case is_a($input, 'stack_notes_input'):
+				return 'notes';
+			case is_a($input, 'stack_numerical_input'):
+				return 'numerical';
+			case is_a($input, 'stack_radio_input'):
+				return 'radio';
+			case is_a($input, 'stack_singlechar_input'):
+				return 'singlechar';
+			case is_a($input, 'stack_string_input'):
+				return 'string';
+			case is_a($input, 'stack_textarea_input'):
+				return 'textarea';
+			case is_a($input, 'stack_units_input'):
+				return 'units';
+			case is_a($input, 'stack_varmatrix_input'):
+				return 'varmatrix';
+			default:
+				ilUtil::sendFailure('Input type not found', true);
+		}
+	}
+
+	/**
+	 * Called by assStackQuestionDB _readInputs
+	 * @param array $extra_options
+	 * @return string
+	 */
+	public static function _serializeInputExtraOptions(array $extra_options): string
+	{
+		$string = '';
+		foreach ($extra_options as $option_name => $status) {
+			if ($status === true) {
+				$string .= $option_name;
+			}
+		}
+		return $string;
+	}
+
+	/**
+	 * Called by assStackQuestion loadFromDB()
+	 * @param string $extra_options
+	 * @return array
+	 */
+	public static function _unserializeInputExtraOptions(string $extra_options): array
+	{
+		$extra_options_array = explode(';',$extra_options);
+		foreach ($extra_options as $option_name => $status) {
+			if (isset($extra_options[$option_name]) && $extra_options[$option_name] != false) {
+				$string .= $option_name . ':' . $status . ';';
+			}
+		}
+		return $extra_options_array;
+	}
 }
