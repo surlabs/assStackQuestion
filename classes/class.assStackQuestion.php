@@ -17,7 +17,7 @@ include_once './Modules/TestQuestionPool/interfaces/interface.iQuestionCondition
  * @ingroup    ModulesTestQuestionPool
  *
  */
-class assStackQuestion extends assQuestion implements iQuestionCondition
+class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQuestionScoringAdjustable
 {
 	/* ILIAS CORE ATTRIBUTES BEGIN */
 
@@ -579,7 +579,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 				//load only those inputs appearing in the question text
 				foreach (stack_utils::extract_placeholders($this->getQuestion(), 'input') as $name) {
 					$input_data = $inputs_from_db_array['inputs'][$name];
-					$allparameters = array(
+					$all_parameters = array(
 						'boxWidth' => $input_data['box_size'],
 						'strictSyntax' => $input_data['strict_syntax'],
 						'insertStars' => $input_data['strict_syntax'],
@@ -600,7 +600,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 						if ($parameter_name == 'inputType') {
 							continue;
 						}
-						$parameters[$parameter_name] = $allparameters[$parameter_name];
+						$parameters[$parameter_name] = $all_parameters[$parameter_name];
 					}
 					//SET INPUTS
 					$this->inputs[$name] = stack_input_factory::make($input_data['type'], $input_data['name'], $input_data['tans'], $this->options, $parameters);
@@ -748,6 +748,29 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		}
 
 		return $points;
+	}
+
+	//Save to DB
+	//Authoring Interface
+
+	/**
+	 * Saves a assStackQuestion object to the database
+	 *
+	 * @param string $original_id
+	 *
+	 */
+	public function saveToDb($original_id = "")
+	{
+		$this->saveQuestionDataToDb($original_id);
+		$this->saveAdditionalQuestionDataToDb();
+
+		parent::saveToDb($original_id);
+	}
+
+	public function saveAdditionalQuestionDataToDb()
+	{
+		$this->getPlugin()->includeClass('class.assStackQuestionDB.php');
+		assStackQuestionDB::_saveStackQuestion($this);
 	}
 
 

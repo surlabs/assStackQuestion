@@ -17,9 +17,10 @@ class assStackQuestionDB
 
 	/**
 	 * @param $question_id
+	 * @param bool $just_id
 	 * @return array|false
 	 */
-	public static function _readOptions($question_id)
+	public static function _readOptions($question_id, bool $just_id = false)
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -37,6 +38,9 @@ class assStackQuestionDB
 
 			//Filling object with data from DB
 			$ilias_options['id'] = ((int)$row->id);
+			if ($just_id) {
+				return $ilias_options['id'];
+			}
 			$ilias_options['question_id'] = ((int)$row->question_id);
 			$ilias_options['question_variables'] = ($row->question_variables);
 			$ilias_options['specific_feedback'] = (ilRTE::_replaceMediaObjectImageSrc($row->specific_feedback, 1));
@@ -73,9 +77,10 @@ class assStackQuestionDB
 
 	/**
 	 * @param $question_id
+	 * @param bool $just_id
 	 * @return array|false
 	 */
-	public static function _readInputs($question_id)
+	public static function _readInputs($question_id, bool $just_id = false)
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -86,13 +91,16 @@ class assStackQuestionDB
 
 		$inputs = array();
 		$ilias_inputs = array();
+		$input_ids = array();
 
 		while ($row = $db->fetchAssoc($res)) {
 
 			$input_name = $row['name'];
 
 			$ilias_inputs[$input_name]['id'] = (int)$row['id'];
-
+			if ($just_id) {
+				$input_ids[$input_name] = $ilias_inputs[$input_name]['id'];
+			}
 			$inputs[$input_name]['tans'] = $row['tans'];
 			$inputs[$input_name]['name'] = $row['name'];
 			$inputs[$input_name]['type'] = $row['type'];
@@ -110,19 +118,22 @@ class assStackQuestionDB
 			$inputs[$input_name]['options'] = $row['options'];
 
 			//TODO OPTIONS FEATURES
-
-
 		}
 
-		return array('inputs' => $inputs, 'ilias_inputs' => $ilias_inputs);
+		if ($just_id) {
+			return $input_ids;
+		} else {
+			return array('inputs' => $inputs, 'ilias_inputs' => $ilias_inputs);
+		}
 	}
 
 	/**
 	 * READS PRT AND PRT NODES FROM THE DB
 	 * @param $question_id
-	 * @return array|false
+	 * @param bool $just_id
+	 * @return array
 	 */
-	public static function _readPRTs($question_id)
+	public static function _readPRTs($question_id, bool $just_id = false)
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -133,6 +144,7 @@ class assStackQuestionDB
 
 		$potential_response_trees = array();
 		$ilias_prts = array(); //Stores only ID Unused
+		$prt_ids = array();
 
 		//If there is a result returns array, otherwise returns false.
 		while ($row = $db->fetchAssoc($res)) {
@@ -140,6 +152,9 @@ class assStackQuestionDB
 			$prt_name = $row['name'];
 
 			$ilias_prts[$prt_name]['id'] = (int)$row['id'];
+			if ($just_id) {
+				$prt_ids[$prt_name]['prt_id'] = $ilias_prts[$prt_name]['id'];
+			}
 
 			$potential_response_trees[$prt_name]['value'] = $row['value'];
 			$potential_response_trees[$prt_name]['auto_simplify'] = $row['auto_simplify'];
@@ -147,22 +162,30 @@ class assStackQuestionDB
 			$potential_response_trees[$prt_name]['first_node_name'] = $row['first_node_name'];
 
 			//Reading nodes
-			$potential_response_trees[$prt_name]['nodes'] = self::_readPRTNodes($question_id, $prt_name, 'only_nodes');
+
+			if ($just_id) {
+				$prt_ids[$prt_name]['nodes'] = self::_readPRTNodes($question_id, $prt_name, true);
+			} else {
+				$potential_response_trees[$prt_name]['nodes'] = self::_readPRTNodes($question_id, $prt_name, false);
+			}
 		}
-		return $potential_response_trees;
-
+		if ($just_id) {
+			return $prt_ids;
+		} else {
+			return $potential_response_trees;
+		}
 		//TODO FEATURE ADD DESCRIPTION TO PRT
-
 	}
 
 	/**
 	 * READS PRT NODES FROM DB
+	 * This function is always called by _readPRTs()
 	 * @param int $question_id
 	 * @param string $prt_name
-	 * @param string|null $mode
-	 * @return array|false
+	 * @param bool $just_id
+	 * @return array
 	 */
-	public static function _readPRTNodes(int $question_id, string $prt_name, string $mode = null)
+	private static function _readPRTNodes(int $question_id, string $prt_name, bool $just_id = false): array
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -178,8 +201,7 @@ class assStackQuestionDB
 		while ($row = $db->fetchAssoc($res)) {
 
 			$prt_node_name = $row['node_name'];
-
-			$ilias_prts_nodes[$prt_node_name]['id'] = (int)$row['id'];
+			$ilias_prts_nodes[$prt_node_name] = (int)$row['id'];
 
 			$potential_response_tree_nodes[$prt_node_name]['true_next_node'] = $row['true_next_node'];
 			$potential_response_tree_nodes[$prt_node_name]['false_next_node'] = $row['false_next_node'];
@@ -202,13 +224,12 @@ class assStackQuestionDB
 			$potential_response_tree_nodes[$prt_node_name]['false_answer_note'] = $row['false_answer_note'];
 			$potential_response_tree_nodes[$prt_node_name]['false_feedback'] = ilRTE::_replaceMediaObjectImageSrc($row['false_feedback'], 1);
 			$potential_response_tree_nodes[$prt_node_name]['false_feedback_format'] = (int)$row['false_feedback_format'];
-
-
 		}
-		if ($mode == 'only_nodes') {
-			return $potential_response_tree_nodes;
+
+		if ($just_id) {
+			return $ilias_prts_nodes;
 		} else {
-			return array('prt_nodes' => $potential_response_tree_nodes, 'ilias_prt_nodes' => $ilias_prts_nodes);
+			return $potential_response_tree_nodes;
 		}
 	}
 
@@ -255,9 +276,10 @@ class assStackQuestionDB
 	/**
 	 * READS EXTRA INFO FROM THE DB
 	 * @param $question_id
-	 * @return array|false
+	 * @param bool $just_id
+	 * @return array|false|int
 	 */
-	public static function _readExtraInformation($question_id)
+	public static function _readExtraInformation($question_id, bool $just_id = false)
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -271,6 +293,12 @@ class assStackQuestionDB
 		$extra_info = array();
 
 		if ($row) {
+
+			$extra_info['id'] = (int)$row->id;
+			if ($just_id) {
+				return $extra_info['id'];
+			}
+
 			include_once("./Services/RTE/classes/class.ilRTE.php");
 
 			$extra_info['general_feedback'] = ilRTE::_replaceMediaObjectImageSrc($row->general_feedback, 1);
@@ -283,5 +311,94 @@ class assStackQuestionDB
 		}
 	}
 
+	/**
+	 * SAVES STACK QUESTION INTO THE DB
+	 * Called from saveToDB()->saveAdditionalQuestionDataToDb();
+	 * @param assStackQuestion $question
+	 * @throws stack_exception
+	 */
+	public static function _saveStackQuestion(assStackQuestion $question)
+	{
+		//Get first all ILIAS DB ids for the current question.
+		$ids = array('question_id' => $question->getId());
 
+		//Save Options
+		$options_saved = self::_saveStackOptions($question, self::_readOptions($ids['question_id'], true));
+
+		//Save Inputs
+		$inputs_saved = self::_saveStackInputs($question, self::_readInputs($ids['question_id'], true));
+
+		//Save Prts
+		$prts_saved = self::_saveStackPRTs($question, self::_readPRTs($ids['question_id'], true));
+
+		//Extra Prts
+		$prts_saved = self::_saveStackExtraInformation($question, self::_readExtraInformation($ids['question_id'], true));
+	}
+
+	/**
+	 * @param assStackQuestion $question
+	 * @param $options_id $id
+	 * @return bool
+	 * @throws stack_exception
+	 */
+	public static function _saveStackOptions(assStackQuestion $question, int $options_id = -1): bool
+	{
+		global $DIC;
+		$db = $DIC->database();
+		include_once("./Services/RTE/classes/class.ilRTE.php");
+
+		if ($question->getId() < 0) {
+			//CREATE
+			$db->insert("xqcas_options", array(
+				"id" => array("integer", $db->nextId('xqcas_options')),
+				"question_id" => array("integer", $question->getId()),
+				"question_variables" => array("clob", $question->question_variables),
+				"specific_feedback" => array("clob", $question->specific_feedback),
+				"specific_feedback_format" => array("integer", 1),
+				"question_note" => array("text", $question->question_note),
+				"question_simplify" => array("integer", $question->options->get_option('simplify')),
+				"assume_positive" => array("integer", $question->options->get_option('assumepos')),
+				"prt_correct" => array("clob", $question->prt_correct),
+				"prt_correct_format" => array("integer", 1),
+				"prt_partially_correct" => array("clob", $question->prt_partially_correct),
+				"prt_partially_correct_format" => array("integer", 1),
+				"prt_incorrect" => array("clob", $question->prt_incorrect),
+				"prt_incorrect_format" => array("integer", 1),
+				"multiplication_sign" => array("text", $question->options->get_option('multiplicationsign') == null ? "dot" : $question->options->get_option('multiplicationsign')),
+				"sqrt_sign" => array("integer", $question->options->get_option('sqrtsign')),
+				"complex_no" => array("text", $question->options->get_option('complexno') == null ? "i" : $question->options->get_option('complexno')),
+				"inverse_trig" => array("text", $question->options->get_option('inversetrig')),
+				"variants_selection_seed" => array("text", $question->variants_selection_seed),
+				"matrix_parens" => array("text", $question->options->get_option('matrixparens'))
+			));
+			return true;
+		} else {
+			$db->replace('xqcas_options',
+				array(
+					"id" => array('integer', $options_id)),
+				array(
+					"question_id" => array("integer", $question->getId()),
+					"question_variables" => array("clob", $question->question_variables),
+					"specific_feedback" => array("clob", $question->specific_feedback),
+					"specific_feedback_format" => array("integer", 1),
+					"question_note" => array("text", $question->question_note),
+					"question_simplify" => array("integer", $question->options->get_option('simplify')),
+					"assume_positive" => array("integer", $question->options->get_option('assumepos')),
+					"prt_correct" => array("clob", $question->prt_correct),
+					"prt_correct_format" => array("integer", 1),
+					"prt_partially_correct" => array("clob", $question->prt_partially_correct),
+					"prt_partially_correct_format" => array("integer", 1),
+					"prt_incorrect" => array("clob", $question->prt_incorrect),
+					"prt_incorrect_format" => array("integer", 1),
+					"multiplication_sign" => array("text", $question->options->get_option('multiplicationsign') == null ? "dot" : $question->options->get_option('multiplicationsign')),
+					"sqrt_sign" => array("integer", $question->options->get_option('sqrtsign')),
+					"complex_no" => array("text", $question->options->get_option('complexno') == null ? "i" : $question->options->get_option('complexno')),
+					"inverse_trig" => array("text", $question->options->get_option('inversetrig')),
+					"variants_selection_seed" => array("text", $question->variants_selection_seed),
+					"matrix_parens" => array("text", $question->options->get_option('matrixparens')))
+			);
+
+			return TRUE;
+		}
+	}
 }

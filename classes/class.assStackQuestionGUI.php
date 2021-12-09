@@ -151,7 +151,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 * Evaluates a posted edit form and writes the form data in the question object
 	 * (called frm generic commands in assQuestionGUI)
 	 * Converts the data from post into assStackQuestion ($this->object)
-	 * CALLED BEFORE EDITQUESTION()
+	 * Called before editQuestion()
 	 *
 	 * @return integer    0: question can be saved / 1: form is not complete
 	 */
@@ -175,7 +175,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	/**
 	 * Writes the data from $_POST into assStackQuestion
-	 * CALLED BEFORE EDITQUESTION()
+	 * Called before editQuestion()
 	 */
 	public function writeQuestionSpecificPostData()
 	{
@@ -373,31 +373,6 @@ class assStackQuestionGUI extends assQuestionGUI
 				ilUtil::sendFailure($e, true);
 			}
 		}
-
-		//load seedsä
-		/*
-		$deployed_seeds = assStackQuestionDB::_readDeployedVariants($question_id);
-
-		if (is_array($deployed_seeds)) {
-			$this->deployed_seeds = array_values($deployed_seeds);
-		} else {
-			$this->deployed_seeds = array();
-		}*/
-
-		//load extra info
-		$extra_info['general_feedback'] = ilRTE::_replaceMediaObjectImageSrc($row->general_feedback, 1);
-		$extra_info['penalty'] = $row->penalty;
-		$extra_info['hidden'] = $row->hidden;
-
-		if (is_array($extra_info)) {
-			$this->object->general_feedback = $extra_info['general_feedback'];
-			$this->object->penalty = (float)$extra_info['penalty'];
-			$this->object->hidden = (bool)$extra_info['hidden'];
-		} else {
-			$this->object->general_feedback = '';
-			$this->object->penalty = 0.0;
-			$this->object->hidden = false;
-		}
 	}
 
 	/**
@@ -433,11 +408,10 @@ class assStackQuestionGUI extends assQuestionGUI
 	/**
 	 * Creates an output of the edit form for the question
 	 *
-	 * @param bool $checkonly
+	 * @param bool $check_only
 	 *
-	 * @return bool
 	 */
-	public function editQuestion($checkonly = false)
+	public function editQuestion(bool $check_only = false)
 	{
 		$save = $this->isSaveCommand();
 
@@ -481,7 +455,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/ilMultipartFormProperty.js');
 
 		//Returns Question Authoring form
-		if (!$checkonly) {
+		if (!$check_only) {
 			$this->tpl->setVariable("QUESTION_DATA", $authoring_gui->showAuthoringPanel());
 		}
 	}
