@@ -22,11 +22,10 @@ class assStackQuestionRenderer
 		// TODO: Implement getSpecificFeedbackOutput() method.
 	}
 
-	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true)
+	public static function _renderQuestionSolution($question,$active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true)
 	{
-		// TODO: Implement getSolutionOutput() method.
+		return self::_renderQuestion($question, false, true);
 	}
-
 	/**
 	 * @param assStackQuestion $question
 	 * @param bool $show_inline_feedback
@@ -50,13 +49,21 @@ class assStackQuestionRenderer
 	/**
 	 * @param assStackQuestion $question
 	 * @param bool $show_inline_feedback
+	 * @param bool $show_best_solution
 	 * @return string
 	 * @throws stack_exception
 	 */
-	public static function _renderQuestion(assStackQuestion $question, bool $show_inline_feedback = false): string
+	public static function _renderQuestion(assStackQuestion $question, bool $show_inline_feedback = false, bool $show_best_solution = false): string
 	{
 		global $DIC;
-		$response = $question->getUserResponse();
+
+		if (!$show_best_solution) {
+			//USER SOLUTION
+			$response = $question->getUserResponse();
+		} else {
+			//BEST SOLUTION
+			$response = $question->getCorrectResponse();
+		}
 
 		$question_text = $question->question_text_instantiated;
 		// Replace inputs.
@@ -80,7 +87,6 @@ class assStackQuestionRenderer
 		sort($formatted_input_placeholders);
 		$formatted_feedback_placeholders = stack_utils::extract_placeholders($question_text, 'feedback');
 		sort($formatted_feedback_placeholders);
-
 
 		// Initialise validation, if enabled.
 		if (stack_utils::get_config()->ajaxvalidation) {
@@ -144,7 +150,8 @@ class assStackQuestionRenderer
 
 	/* INPUT RENDER END */
 
-	public static function _renderAlgebraicInput(stack_input_state$state, string $field_name, bool $read_only, $tavalue){
+	public static function _renderAlgebraicInput(stack_input_state $state, string $field_name, bool $read_only, $tavalue)
+	{
 
 		return '';
 		//fau: Add validation button from ILIAS
@@ -158,12 +165,12 @@ class assStackQuestionRenderer
 		//Prepare Output
 		$input_output = '';
 		//Input group
-		$input_output.= html_writer::start_tag('span', array('class' => 'input-group', 'name' => $field_name));
-		$input_output.=html_writer::empty_tag('input', $attributes);
-		$input_output.=html_writer::start_tag('span', $attributes_button);
-		$input_output.=html_writer::empty_tag('span', array('class' => $attributes_button['icon_class'], 'name' => $attributes_button['name']));
-		$input_output.=html_writer::end_tag('span');
-		$input_output.=html_writer::end_tag('span');
+		$input_output .= html_writer::start_tag('span', array('class' => 'input-group', 'name' => $field_name));
+		$input_output .= html_writer::empty_tag('input', $attributes);
+		$input_output .= html_writer::start_tag('span', $attributes_button);
+		$input_output .= html_writer::empty_tag('span', array('class' => $attributes_button['icon_class'], 'name' => $attributes_button['name']));
+		$input_output .= html_writer::end_tag('span');
+		$input_output .= html_writer::end_tag('span');
 
 		return $input_output;
 	}
@@ -200,12 +207,8 @@ class assStackQuestionRenderer
 				}
 			}
 
-			if (is_null($format)) {
-				$format = FORMAT_HTML;
-			}
-
 			$feedback = $result->substitue_variables_in_feedback(implode(' ', $feedback));
-			$feedback = stack_maths::process_display_castext($feedback, stack_utils::get_config()->replacedollars);
+			$feedback = stack_maths::process_display_castext($feedback, null);
 		}
 
 		//TODO Generate the standard PRT feedback for a particular score.
@@ -276,7 +279,7 @@ class assStackQuestionRenderer
 		$validation_divs = array();
 		foreach ($question->inputs as $input_name => $input) {
 			if (is_a($input, 'stack_matrix_input')) {
-				$validation_divs[$input_name] = '<div id="validation_xqcas_roll_' . $question->getId() . '_' . $input_name . '"></div><div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '"></div><div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input['matrix_w'] . '</div><div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden";>' . $input['matrix_h'] . '</div>';
+				$validation_divs[$input_name] = '<div id="validation_xqcas_roll_' . $question->getId() . '_' . $input_name . '"></div><div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '"></div><div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input->getWidth() . '</div><div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden";>' . $input->getHeight() . '</div>';
 			} elseif ($validation_type !== 'hidden') {
 				$validation_divs[$input_name] = '<div id="validation_xqcas_roll_' . $question->getId() . '_' . $input_name . '"></div><div class="xqcas_input_validation"><div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '"></div></div>';
 			} else {

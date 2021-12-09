@@ -84,8 +84,16 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true)
 	{
-		// TODO: Implement getSolutionOutput() method.
-		echo "getSolutionOutput";
+		//Initialise the question
+		if(!isset($this->object->prt_incorrect_instantiated)){
+			$prts = $this->object->prts;
+			$variant = assStackQuestionUtils::_getSeedFromTest($this->object->getId(), $active_id, $pass, array_shift($prts));
+			$this->object->questionInitialisation($variant);
+		}
+
+		//Render question Preview
+		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
+		return assStackQuestionRenderer::_renderQuestionSolution($this->object, $active_id, $pass, $graphicalOutput, $result_output, $show_question_only, $show_feedback, $show_correct_solution, $show_manual_scoring, $show_question_text);
 	}
 
 	/**
@@ -113,7 +121,9 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 		//Initialise the question
-		$this->object->questionInitialisation($variant);
+		if(!isset($this->object->prt_incorrect_instantiated)){
+			$this->object->questionInitialisation($variant);
+		}
 
 		//Render question Preview
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
