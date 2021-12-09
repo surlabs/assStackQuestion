@@ -402,7 +402,8 @@ class assStackQuestionAuthoringGUI
 	 */
 	public function getInputPart(stack_input $input)
 	{
-		$input_name = $input->get_parameter('name');
+		$input_name = $input->get_name();
+
 		$part = new ilMultipartFormPart($this->getPlugin()->txt('show_input') . ' ' . $input_name);
 
 		$input_type = new ilSelectInputGUI($this->getPlugin()->txt('input_type'), $input_name . '_input_type');
