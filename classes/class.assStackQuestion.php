@@ -236,7 +236,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	 * @param int $owner
 	 * @param string $question
 	 */
-	function __construct($title = "", $comment = "", $author = "", $owner = -1, $question = "")
+	function __construct($title = "STACK question", $comment = "", $author = "", $owner = -1, $question = "")
 	{
 		parent::__construct($title, $comment, $author, $owner, $question);
 
@@ -250,7 +250,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 		//Initialise some parameters
 		$this->tas = array();
-
+		//For some reason we should initialize lasttime for new questions, it seems not been don in assQuestion Constructor
+		$this->setLastChange(time());
 	}
 
 	//assQuestion abstract methods
@@ -505,13 +506,16 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	/**
 	 * Gets all the data of an assStackQuestion from the DB
 	 * Called by assStackQuestionGUI Constructor
+	 * For new questions, calls assStackQuestionDB to save standard data.
 	 *
 	 * @param integer $question_id A unique key which defines the question in the database
+	 * @throws stack_exception
 	 */
 	public function loadFromDb($question_id)
 	{
 		//If no data stored
 		if ($this->getId() != $question_id) {
+
 			global $DIC;
 
 			$db = $DIC->database();
@@ -528,6 +532,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			$this->setAuthor($data["author"]);
 			$this->setOwner($data["owner"]);
 			$this->setPoints($data["points"]);
+			$this->lastChange = $data['tstamp'];
 
 			try {
 				$this->setLifecycle(ilAssQuestionLifecycle::getInstance($data['lifecycle']));
@@ -625,7 +630,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 							'The $totalvalue, the marks available for the question, must be positive in question ' .
 							$this->getTitle());
 					} catch (coding_exception $e) {
-						ilUtil::sendFailure($e, true);
+						echo $e;
+						exit;
 					}
 				}
 
@@ -666,7 +672,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 							$nodes[$node_name] = $node;
 						} catch (stack_exception $e) {
-							ilUtil::sendFailure($e, true);
+							echo $e;
+							exit;
 						}
 					}
 
@@ -675,7 +682,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 							$feedback_variables = new stack_cas_keyval($prt_data['feedback_variables']);
 							$feedback_variables = $feedback_variables->get_session();
 						} catch (stack_exception $e) {
-							ilUtil::sendFailure($e, true);
+							echo $e;
+							exit;
 						}
 					} else {
 						$feedback_variables = null;
@@ -685,7 +693,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 					try {
 						$this->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt_data['auto_simplify'], $prt_value, $feedback_variables, $nodes, (string)$prt_data['first_node_name'], 1);
 					} catch (stack_exception $e) {
-						ilUtil::sendFailure($e, true);
+						echo $e;
+						exit;
 					}
 				}
 
@@ -713,10 +722,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 			}
 			//TODO ELSE LOAD STANDARD
-
-			// loads additional stuff like suggested solutions
-			parent::loadFromDb($question_id);
 		}
+		// loads additional stuff like suggested solutions
+		parent::loadFromDb($question_id);
 	}
 
 	/**
@@ -766,10 +774,18 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		parent::saveToDb($original_id);
 	}
 
+	/**
+	 * Saves the STACK related parameters of the questions
+	 * @return mixed|void
+	 */
 	public function saveAdditionalQuestionDataToDb()
 	{
 		$this->getPlugin()->includeClass('class.assStackQuestionDB.php');
-		assStackQuestionDB::_saveStackQuestion($this);
+		try {
+			assStackQuestionDB::_saveStackQuestion($this);
+		} catch (stack_exception $e) {
+			ilUtil::sendFailure($e);
+		}
 	}
 
 

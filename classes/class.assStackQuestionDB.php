@@ -339,7 +339,7 @@ class assStackQuestionDB
 
 	/**
 	 * @param assStackQuestion $question
-	 * @param $options_id $id
+	 * @param int $options_id if -1, then we are creating an input, use create, else update
 	 * @return bool
 	 * @throws stack_exception
 	 */
@@ -559,21 +559,20 @@ class assStackQuestionDB
 				"quiet" => array("integer", $node->isQuiet()),
 				"true_score_mode" => array("text", $branches_info->truescoremode),
 				"true_score" => array("text", $branches_info->truescore),
-				"true_penalty" => array("text",$feedback_info['true_penalty']),
+				"true_penalty" => array("text", $feedback_info['true_penalty']),
 				"true_next_node" => array("text", $branches_info->truenextnode),
 				"true_answer_note" => array("text", $branches_info->truenote),
 				"true_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['true_feedback'], 0)),
 				"true_feedback_format" => array("integer", (int)$feedback_info['true_feedback_format']),
 				"false_score_mode" => array("text", $branches_info->falsescoremode),
 				"false_score" => array("text", $branches_info->falsescore),
-				"false_penalty" => array("text",$feedback_info['false_penalty']),
+				"false_penalty" => array("text", $feedback_info['false_penalty']),
 				"false_next_node" => array("text", $branches_info->falsenextnode),
 				"false_answer_note" => array("text", $branches_info->falsenote),
 				"false_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['false_feedback_format'], 0)),
 				"false_feedback_format" => array("integer", (int)$feedback_info['false_feedback_format']),
 			));
 		} else {
-			var_dump($node->getRawSans());
 			//UPDATE
 			$db->replace('xqcas_prt_nodes',
 				array(
@@ -589,14 +588,14 @@ class assStackQuestionDB
 					"quiet" => array("integer", $node->isQuiet()),
 					"true_score_mode" => array("text", $branches_info->truescoremode),
 					"true_score" => array("text", $branches_info->truescore),
-					"true_penalty" => array("text",$feedback_info['true_penalty']),
+					"true_penalty" => array("text", $feedback_info['true_penalty']),
 					"true_next_node" => array("text", $branches_info->truenextnode),
 					"true_answer_note" => array("text", $branches_info->truenote),
 					"true_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['true_feedback'], 0)),
 					"true_feedback_format" => array("integer", (int)$feedback_info['true_feedback_format']),
 					"false_score_mode" => array("text", $branches_info->falsescoremode),
 					"false_score" => array("text", $branches_info->falsescore),
-					"false_penalty" => array("text",$feedback_info['false_penalty']),
+					"false_penalty" => array("text", $feedback_info['false_penalty']),
 					"false_next_node" => array("text", $branches_info->falsenextnode),
 					"false_answer_note" => array("text", $branches_info->falsenote),
 					"false_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['false_feedback_format'], 0)),
