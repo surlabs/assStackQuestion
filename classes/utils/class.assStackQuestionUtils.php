@@ -772,15 +772,19 @@ class assStackQuestionUtils
 	 * @param array $extra_options
 	 * @return string
 	 */
-	public static function _serializeInputExtraOptions(array $extra_options): string
+	public static function _serializeExtraOptions($extra_options): string
 	{
-		$string = '';
-		foreach ($extra_options as $option_name => $status) {
-			if ($status === true) {
-				$string .= $option_name;
+		if (is_string($extra_options)) {
+			return $extra_options;
+		} elseif (is_array($extra_options)) {
+			$string = '';
+			foreach ($extra_options as $option_name => $status) {
+				if ($status === true) {
+					$string .= $option_name;
+				}
 			}
+			return $string;
 		}
-		return $string;
 	}
 
 	/**
@@ -790,7 +794,7 @@ class assStackQuestionUtils
 	 */
 	public static function _unserializeInputExtraOptions(string $extra_options): array
 	{
-		$extra_options_array = explode(';',$extra_options);
+		$extra_options_array = explode(';', $extra_options);
 		foreach ($extra_options as $option_name => $status) {
 			if (isset($extra_options[$option_name]) && $extra_options[$option_name] != false) {
 				$string .= $option_name . ':' . $status . ';';

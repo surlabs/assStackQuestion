@@ -329,7 +329,7 @@ class assStackQuestionDB
 		$inputs_saved = self::_saveStackInputs($question, self::_readInputs($ids['question_id'], true));
 
 		//Save Prts
-		//$prts_saved = self::_saveStackPRTs($question, self::_readPRTs($ids['question_id'], true));
+		$prts_saved = self::_saveStackPRTs($question, self::_readPRTs($ids['question_id'], true));
 
 		//Extra Prts
 		//$prts_saved = self::_saveStackExtraInformation($question, self::_readExtraInformation($ids['question_id'], true));
@@ -435,7 +435,7 @@ class assStackQuestionDB
 					"check_answer_type" => array("integer", $input->get_parameter('sameType') !== null ? $input->get_parameter('sameType') : ''),
 					"must_verify" => array("integer", $input->get_parameter('mustVerify') !== null ? $input->get_parameter('mustVerify') : ''),
 					"show_validation" => array("integer", $input->get_parameter('showValidation') !== null ? $input->get_parameter('showValidation') : ''),
-					"options" => array("clob", assStackQuestionUtils::_serializeInputExtraOptions($input->get_extra_options()) !== null? assStackQuestionUtils::_serializeInputExtraOptions($input->get_extra_options()) : ''),
+					"options" => array("clob", assStackQuestionUtils::_serializeExtraOptions($input->get_extra_options()) !== null ? assStackQuestionUtils::_serializeExtraOptions($input->get_extra_options()) : ''),
 				));
 			} else {
 				//UPDATE
@@ -458,11 +458,151 @@ class assStackQuestionDB
 						"check_answer_type" => array("integer", $input->get_parameter('sameType') !== null ? $input->get_parameter('sameType') : ''),
 						"must_verify" => array("integer", $input->get_parameter('mustVerify') !== null ? $input->get_parameter('mustVerify') : ''),
 						"show_validation" => array("integer", $input->get_parameter('showValidation') !== null ? $input->get_parameter('showValidation') : ''),
-						"options" => array("clob", assStackQuestionUtils::_serializeInputExtraOptions($input->get_extra_options()) !== null? assStackQuestionUtils::_serializeInputExtraOptions($input->get_extra_options()) : ''),
+						"options" => array("clob", assStackQuestionUtils::_serializeExtraOptions($input->get_extra_options()) !== null ? assStackQuestionUtils::_serializeExtraOptions($input->get_extra_options()) : ''),
 					)
 				);
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * @param assStackQuestion $question
+	 * @param array $prt_ids
+	 * @return bool
+	 */
+	public static function _saveStackPRTs(assStackQuestion $question, array $prt_ids = array()): bool
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		$question_id = $question->getId();
+
+		foreach ($question->prts as $prt_name => $prt) {
+			if (!array_key_exists($prt_name, $prt_ids)) {
+				//CREATE
+
+				//PRT
+				$db->insert("xqcas_prts", array(
+					"id" => array("integer", $db->nextId('xqcas_prts')),
+					"question_id" => array("integer", $question_id),
+					"name" => array("text", $question->prts[$prt_name]->get_name()),
+					"value" => array("text", $question->prts[$prt_name]->get_value() == null ? "1.0" : $question->prts[$prt_name]->get_value()),
+					"auto_simplify" => array("integer", $question->prts[$prt_name]->isSimplify() == null ? 0 : $question->prts[$prt_name]->isSimplify()),
+					"feedback_variables" => array("clob", $question->prts[$prt_name]->get_feedbackvariables_keyvals() == null ? "" : $question->prts[$prt_name]->get_feedbackvariables_keyvals()),
+					"first_node_name" => array("text", $question->prts[$prt_name]->getFirstNode() == null ? '-1' : $question->prts[$prt_name]->getFirstNode()),
+				));
+
+				//PRT NODES
+				foreach ($prt->getNodes() as $node_name => $node) {
+					if (!array_key_exists($prt_name, $prt_ids)) {
+						//CREATE
+						self::_saveStackPRTNodes($node, $question_id, $prt_name);
+					} else {
+						//UPDATE
+						self::_saveStackPRTNodes($node, $question_id, $prt_name, $prt_ids[$prt_name]['nodes'][$node_name]);
+					}
+				}
+
+			} else {
+				//UPDATE
+
+				//PRT
+				$db->replace('xqcas_prts',
+					array(
+						"id" => array('integer', $prt_ids[$prt_name])),
+					array(
+						"question_id" => array("integer", $question_id),
+						"name" => array("text", $question->prts[$prt_name]->get_name()),
+						"value" => array("text", $question->prts[$prt_name]->get_value() == null ? "1.0" : $question->prts[$prt_name]->get_value()),
+						"auto_simplify" => array("integer", $question->prts[$prt_name]->isSimplify() == null ? 0 : $question->prts[$prt_name]->isSimplify()),
+						"feedback_variables" => array("clob", $question->prts[$prt_name]->get_feedbackvariables_keyvals() == null ? "" : $question->prts[$prt_name]->get_feedbackvariables_keyvals()),
+						"first_node_name" => array("text", $question->prts[$prt_name]->getFirstNode() == null ? '-1' : $question->prts[$prt_name]->getFirstNode()),
+					)
+				);
+
+				//PRT NODES
+				foreach ($prt->getNodes() as $node_name => $node) {
+					if (!array_key_exists($prt_name, $prt_ids)) {
+						//CREATE
+						self::_saveStackPRTNodes($node, $question_id, $prt_name);
+					} else {
+						//UPDATE
+						self::_saveStackPRTNodes($node, $question_id, $prt_name, $prt_ids[$prt_name]['nodes'][$node_name]);
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+	public static function _saveStackPRTNodes(stack_potentialresponse_node $node, int $question_id, string $prt_name, int $id = -1)
+	{
+		global $DIC;
+		$db = $DIC->database();
+		include_once("./Services/RTE/classes/class.ilRTE.php");
+
+		$branches_info = $node->summarise_branches();
+		$feedback_info = $node->getFeedbackFromNode();
+
+		if ($id < 0) {
+			//CREATE
+			$db->insert("xqcas_prt_nodes", array(
+				"id" => array("integer", $db->nextId('xqcas_prt_nodes')),
+				"question_id" => array("integer", $question_id),
+				"prt_name" => array("text", $prt_name),
+				"node_name" => array("text", (string)$node->nodeid),
+				"answer_test" => array("text", $node->get_test()),
+				"sans" => array("text", $node->getRawSans()),
+				"tans" => array("text", $node->getRawTans()),
+				"test_options" => array("text", assStackQuestionUtils::_serializeExtraOptions($node->getAtoptions())),
+				"quiet" => array("integer", $node->isQuiet()),
+				"true_score_mode" => array("text", $branches_info->truescoremode),
+				"true_score" => array("text", $branches_info->truescore),
+				"true_penalty" => array("text",$feedback_info['true_penalty']),
+				"true_next_node" => array("text", $branches_info->truenextnode),
+				"true_answer_note" => array("text", $branches_info->truenote),
+				"true_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['true_feedback'], 0)),
+				"true_feedback_format" => array("integer", (int)$feedback_info['true_feedback_format']),
+				"false_score_mode" => array("text", $branches_info->falsescoremode),
+				"false_score" => array("text", $branches_info->falsescore),
+				"false_penalty" => array("text",$feedback_info['false_penalty']),
+				"false_next_node" => array("text", $branches_info->falsenextnode),
+				"false_answer_note" => array("text", $branches_info->falsenote),
+				"false_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['false_feedback_format'], 0)),
+				"false_feedback_format" => array("integer", (int)$feedback_info['false_feedback_format']),
+			));
+		} else {
+			var_dump($node->getRawSans());
+			//UPDATE
+			$db->replace('xqcas_prt_nodes',
+				array(
+					"id" => array('integer', $id)),
+				array(
+					"question_id" => array("integer", $question_id),
+					"prt_name" => array("text", $prt_name),
+					"node_name" => array("text", (string)$node->nodeid),
+					"answer_test" => array("text", $node->get_test()),
+					"sans" => array("text", $node->getRawSans()),
+					"tans" => array("text", $node->getRawTans()),
+					"test_options" => array("text", assStackQuestionUtils::_serializeExtraOptions($node->getAtoptions())),
+					"quiet" => array("integer", $node->isQuiet()),
+					"true_score_mode" => array("text", $branches_info->truescoremode),
+					"true_score" => array("text", $branches_info->truescore),
+					"true_penalty" => array("text",$feedback_info['true_penalty']),
+					"true_next_node" => array("text", $branches_info->truenextnode),
+					"true_answer_note" => array("text", $branches_info->truenote),
+					"true_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['true_feedback'], 0)),
+					"true_feedback_format" => array("integer", (int)$feedback_info['true_feedback_format']),
+					"false_score_mode" => array("text", $branches_info->falsescoremode),
+					"false_score" => array("text", $branches_info->falsescore),
+					"false_penalty" => array("text",$feedback_info['false_penalty']),
+					"false_next_node" => array("text", $branches_info->falsenextnode),
+					"false_answer_note" => array("text", $branches_info->falsenote),
+					"false_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['false_feedback_format'], 0)),
+					"false_feedback_format" => array("integer", (int)$feedback_info['false_feedback_format']),
+				)
+			);
+		}
 	}
 }

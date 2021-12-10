@@ -659,7 +659,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 						try {
 							//Create Node and add it to the
-							$node = new stack_potentialresponse_node($sans, $tans, $node_data['answer_test'], $node_data['test_options'], (bool)$node_data['quiet'], '', (int)$node_name);
+							$node = new stack_potentialresponse_node($sans, $tans, $node_data['answer_test'], $node_data['test_options'], (bool)$node_data['quiet'], '', (int)$node_name, $node_data['sans'], $node_data['tans']);
 
 							$node->add_branch(0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty, $node_data['false_next_node'], $node_data['false_feedback'], $node_data['false_feedback_format'], $node_data['false_answer_note']);
 							$node->add_branch(1, $node_data['true_score_mode'], $node_data['true_score'], $true_penalty, $node_data['true_next_node'], $node_data['true_feedback'], $node_data['true_feedback_format'], $node_data['true_answer_note']);
@@ -742,8 +742,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	public function calculateReachedPointsForSolution($participant_solution = null)
 	{
 		$points = 0.0;
-		foreach ($this->getPRTResults() as $results)
-		{
+		foreach ($this->getPRTResults() as $results) {
 			//todo
 		}
 

@@ -861,8 +861,8 @@ class assStackQuestionAuthoringGUI
 			$node_quiet->setValue($this->default["prt_node_quiet"]);
 		} else {
 			$answer_test->setValue($node->get_test());
-			$node_student_answer->setValue($node->sans->get_evaluationform() == " " ? '' : $node->sans->get_evaluationform());
-			$node_teacher_answer->setValue($node->tans->get_evaluationform() == " " ? '' : $node->tans->get_evaluationform());
+			$node_student_answer->setValue($node->getRawSans() == " " ? '' : $node->getRawSans());
+			$node_teacher_answer->setValue($node->getRawTans() == " " ? '' : $node->getRawTans());
 			$node_options->setValue((string)$node->getAtoptions());
 			$node_quiet->setValue($node->isQuiet());
 		}
