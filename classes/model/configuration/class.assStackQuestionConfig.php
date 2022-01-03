@@ -545,7 +545,7 @@ class assStackQuestionConfig
 	public function setDefaultSettingsForPRTs()
 	{
 		//Default values for prts
-		$prts_default_values = array('prt_simplify' => '1', 'prt_node_answer_test' => 'AlgEquiv', 'prt_node_options' => '', 'prt_node_quiet' => '1', 'prt_pos_mod' => '=', 'prt_pos_score' => '1', 'prt_pos_penalty' => '0', 'prt_pos_answernote' => 'prt1-0-T', 'prt_neg_mod' => '=', 'prt_neg_score' => '0', 'prt_neg_penalty' => '0', 'prt_neg_answernote' => 'prt1-0-F');
+		$prts_default_values = array('prt_simplify' => '1', 'prt_node_answer_test' => 'AlgEquiv', 'prt_node_options' => '', 'prt_node_quiet' => '1', 'prt_pos_mod' => '=', 'prt_pos_score' => '1', 'prt_pos_penalty' => '0', 'prt_pos_answernote' => 'prt1-1-T', 'prt_neg_mod' => '=', 'prt_neg_score' => '0', 'prt_neg_penalty' => '0', 'prt_neg_answernote' => 'prt1-1-F');
 		//Is not the first time, replace current values by default values
 		foreach ($prts_default_values as $paremeter_name => $value)
 		{

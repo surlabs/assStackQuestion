@@ -847,3 +847,7 @@ if ($db->tableExists('xqcas_configuration'))
 <?php
 //Script only step
 ?>
+<#40>
+<?php
+//set pos and neg default answer note to prt1-1-T/F instead 0.
+?>
