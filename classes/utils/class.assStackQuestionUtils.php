@@ -557,8 +557,8 @@ class assStackQuestionUtils
 		global $DIC;
 		$lng = $DIC->language();
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
-		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
-
+		//Initialize some STACK required parameters
+		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
 		//Do replacement
 		//#22779 a_strip_html must be false
 		$new_text = ilUtil::secureString(stack_maths::replace_dollars($a_text), FALSE);
@@ -582,8 +582,8 @@ class assStackQuestionUtils
 	public static function stack_output_castext($castext)
 	{
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
-		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
-
+		//Initialize some STACK required parameters
+		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
 		return stack_maths::process_display_castext($castext);
 	}
 
@@ -707,11 +707,14 @@ class assStackQuestionUtils
 	/**
 	 * Search in the question text and the specific feedback for PRT placeholders
 	 * @param string $question_text
-	 * @param string $specific_feedback
+	 * @param string|null $specific_feedback
 	 * @return array|false
 	 */
-	public static function _getPRTNamesFromQuestion(string $question_text, string $specific_feedback, array $prts_in_db): array
+	public static function _getPRTNamesFromQuestion(string $question_text, $specific_feedback, array $prts_in_db): array
 	{
+		if($specific_feedback == null){
+			$specific_feedback = '';
+		}
 		$prts = stack_utils::extract_placeholders($question_text . $specific_feedback, 'feedback');
 		$prt_names = array();
 

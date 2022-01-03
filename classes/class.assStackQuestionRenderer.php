@@ -13,8 +13,13 @@
  * @version $Id: 4.0$
  *
  */
+
+//Initialize some STACK required parameters
+include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
+
 class assStackQuestionRenderer
 {
+
 	/* ILIAS REQUIRED METHODS RENDER BEGIN */
 
 	public function getSpecificFeedbackOutput($userSolution)

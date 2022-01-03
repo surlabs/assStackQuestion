@@ -72,11 +72,8 @@ class assStackQuestionGUI extends assQuestionGUI
 		if ($id >= 0) {
 			$this->object->loadFromDb($id);
 		}
-
 		//Initialize some STACK required parameters
-		if (!in_array('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php', get_included_files())) {
-			include_once 'Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
-		}
+		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
 	}
 
 	public function getSpecificFeedbackOutput($userSolution)
@@ -151,7 +148,6 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function getTestOutput($active_id, $pass, $is_question_postponed, $user_post_solutions, $show_specific_inline_feedback)
 	{
-		echo "getTestOutput";
 
 		// TODO: Implement getTestOutput() method.
 	}

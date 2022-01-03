@@ -61,45 +61,45 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	public string $stack_version;
 
 	/**
-	 * @var string STACK specific: variables, as authored by the teacher.
+	 * @var string|null STACK specific: variables, as authored by the teacher.
 	 */
-	public string $question_variables;
+	public $question_variables;
 
 	/**
-	 * @var string STACK specific: variables, as authored by the teacher.
+	 * @var string|null STACK specific: variables, as authored by the teacher.
 	 */
-	public string $question_note;
+	public $question_note;
 
 	/**
-	 * @var string Any specific feedback for this question. This is displayed
+	 * @var string|null Any specific feedback for this question. This is displayed
 	 * in the 'yellow' feedback area of the question. It can contain PRT_feedback
 	 * tags, but not IE_feedback.
 	 */
-	public string $specific_feedback;
+	public $specific_feedback;
 
-	/** @var int one of the FORMAT_... constants */
-	public int $specific_feedback_format;
+	/** @var int|null one of the FORMAT_... constants */
+	public $specific_feedback_format;
 
-	/** @var string Feedback that is displayed for any PRT that returns a score of 1. */
-	public string $prt_correct;
+	/** @var string|null Feedback that is displayed for any PRT that returns a score of 1. */
+	public $prt_correct;
 
-	/** @var int one of the FORMAT_... constants */
-	public int $prt_correct_format;
+	/** @var int|null one of the FORMAT_... constants */
+	public $prt_correct_format;
 
-	/** @var string Feedback that is displayed for any PRT that returns a score between 0 and 1. */
-	public string $prt_partially_correct;
+	/** @var string|null Feedback that is displayed for any PRT that returns a score between 0 and 1. */
+	public $prt_partially_correct;
 
-	/** @var int one of the FORMAT_... constants */
-	public int $prt_partially_correct_format;
+	/** @var int|null one of the FORMAT_... constants */
+	public $prt_partially_correct_format;
 
-	/** @var string Feedback that is displayed for any PRT that returns a score of 0. */
-	public string $prt_incorrect;
+	/** @var string|null Feedback that is displayed for any PRT that returns a score of 0. */
+	public $prt_incorrect;
 
-	/** @var int one of the FORMAT_... constants */
-	public int $prt_incorrect_format;
+	/** @var int|null one of the FORMAT_... constants */
+	public $prt_incorrect_format;
 
-	/** @var string if set, this is used to control the pseudo-random generation of the seed. */
-	public string $variants_selection_seed;
+	/** @var string|null if set, this is used to control the pseudo-random generation of the seed. */
+	public $variants_selection_seed;
 
 	/**
 	 * @var stack_input[] STACK specific: string name as it appears in the question text => stack_input
@@ -236,7 +236,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	 * @param int $owner
 	 * @param string $question
 	 */
-	function __construct($title = "STACK question", $comment = "", $author = "", $owner = -1, $question = "")
+	function __construct($title = "", $comment = "", $author = "", $owner = -1, $question = "")
 	{
 		parent::__construct($title, $comment, $author, $owner, $question);
 
@@ -250,8 +250,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 		//Initialise some parameters
 		$this->tas = array();
-		//For some reason we should initialize lasttime for new questions, it seems not been don in assQuestion Constructor
+		//For some reason we should initialize lasttime for new questions, it seems not been donE in assQuestion Constructor
 		$this->setLastChange(time());
+		//Initialize some STACK required parameters
+		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
 	}
 
 	//assQuestion abstract methods
@@ -513,6 +515,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	 */
 	public function loadFromDb($question_id)
 	{
+		//If a question has no options stored in the DB we are creating a new STACK Question
+		$is_new_question = false;
+
 		//If no data stored
 		if ($this->getId() != $question_id) {
 
@@ -553,6 +558,23 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 				$options_from_db_array = assStackQuestionDB::_readOptions($question_id);
 
 				try {
+					if ($options_from_db_array === false) {
+						//NEW QUESTION, LOAD STANDARD INFORMATION FROM CONFIGURATION
+						$is_new_question = true;
+
+						$standard_options = assStackQuestionConfig::_getStoredSettings('options');
+						$options_array = array();
+
+						$options_array['simplify'] = ((int)$standard_options['options_question_simplify']);
+						$options_array['assumepos'] = ((int)$standard_options['options_assume_positive']);
+						$options_array['multiplicationsign'] = ($standard_options['options_multiplication_sign']);
+						$options_array['sqrtsign'] = ((int)$standard_options['options_sqrt_sign']);
+						$options_array['complexno'] = ($standard_options['options_complex_numbers']);
+						$options_array['inversetrig'] = ($standard_options['options_inverse_trigonometric']);
+						$options_array['matrixparens'] = ($standard_options['options_matrix_parents']);
+
+						$options_from_db_array['options'] = $options_array;
+					}
 					$options = new stack_options($options_from_db_array['options']);
 					//SET OPTIONS
 					$this->options = $options;
@@ -560,21 +582,39 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 					ilUtil::sendFailure($e, true);
 				}
 
-				//load Data stored in options but not part of the session options
-				$this->question_variables = $options_from_db_array['ilias_options']['question_variables'];
-				$this->question_note = $options_from_db_array['ilias_options']['question_note'];
+				if ($is_new_question) {
+					//NEW QUESTION, LOAD STANDARD INFORMATION FROM CONFIGURATION
+					$this->question_variables = '';
+					$this->question_note = '';
 
-				$this->specific_feedback = $options_from_db_array['ilias_options']['specific_feedback'];
-				$this->specific_feedback_format = $options_from_db_array['ilias_options']['specific_feedback_format'];
+					$this->specific_feedback = $options_from_db_array['ilias_options']['specific_feedback'];
+					$this->specific_feedback_format = $options_from_db_array['ilias_options']['specific_feedback_format'];
 
-				$this->prt_correct = $options_from_db_array['ilias_options']['prt_correct'];
-				$this->prt_correct_format = $options_from_db_array['ilias_options']['prt_correct_format'];
-				$this->prt_partially_correct = $options_from_db_array['ilias_options']['prt_partially_correct'];
-				$this->prt_partially_correct_format = $options_from_db_array['ilias_options']['prt_partially_correct_format'];
-				$this->prt_incorrect = $options_from_db_array['ilias_options']['prt_incorrect'];
-				$this->prt_incorrect_format = $options_from_db_array['ilias_options']['prt_incorrect_format'];
+					$this->prt_correct = $standard_options['options_prt_correct'];
+					$this->prt_correct_format = 1;
+					$this->prt_partially_correct = $standard_options['options_prt_correct'];
+					$this->prt_partially_correct_format = 1;
+					$this->prt_incorrect = $standard_options['options_prt_correct'];
+					$this->prt_incorrect_format = 1;
 
-				$this->variants_selection_seed = $options_from_db_array['ilias_options']['variants_selection_seed'];
+					$this->variants_selection_seed = '';
+				} else {
+					//load Data stored in options but not part of the session options
+					$this->question_variables = $options_from_db_array['ilias_options']['question_variables'];
+					$this->question_note = $options_from_db_array['ilias_options']['question_note'];
+
+					$this->specific_feedback = $options_from_db_array['ilias_options']['specific_feedback'];
+					$this->specific_feedback_format = $options_from_db_array['ilias_options']['specific_feedback_format'];
+
+					$this->prt_correct = $options_from_db_array['ilias_options']['prt_correct'];
+					$this->prt_correct_format = $options_from_db_array['ilias_options']['prt_correct_format'];
+					$this->prt_partially_correct = $options_from_db_array['ilias_options']['prt_partially_correct'];
+					$this->prt_partially_correct_format = $options_from_db_array['ilias_options']['prt_partially_correct_format'];
+					$this->prt_incorrect = $options_from_db_array['ilias_options']['prt_incorrect'];
+					$this->prt_incorrect_format = $options_from_db_array['ilias_options']['prt_incorrect_format'];
+
+					$this->variants_selection_seed = $options_from_db_array['ilias_options']['variants_selection_seed'];
+				}
 
 				//load inputs
 				$inputs_from_db_array = assStackQuestionDB::_readInputs($question_id);
