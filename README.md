@@ -112,5 +112,6 @@ Version 4.x.x (UNDER DEVELOPMENT, DO NOT USE) for ILIAS 7
 - assStackQuestionRender is now responsible for all the rendering before presenting the question to the user.
 - Questions can now be saved and edited. No Maxima interaction in this process.
 - Questions can now be created in 2 clicks, loading the standard information from configuration.
+- Questions can now be imported from MoodleXML
 
 First Commit **THIS VERSION IS NOT READY FOR TESTING**

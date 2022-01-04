@@ -36,9 +36,9 @@ class assStackQuestionMoodleImport
 	private int $first_question;
 
 	/**
-	 * @var string
+	 * @var array
 	 */
-	private string $error_log;
+	private array $error_log = array();
 
 	/**
 	 * @var string    allowed html tags, e.g. "<em><strong>..."
@@ -104,12 +104,16 @@ class assStackQuestionMoodleImport
 
 				$this->getQuestion()->saveToDb();
 				$number_of_questions_created++;
-
 			}
+		}
+
+		if (!empty($this->error_log)) {
+			//Show Errors
 		}
 	}
 
 	/**
+	 * Initializes $this->getQuestion with the values from the XML object.
 	 * @param SimpleXMLElement $question
 	 * @return bool
 	 */
@@ -139,11 +143,218 @@ class assStackQuestionMoodleImport
 
 		//set standard question fields as current.
 		$this->getQuestion()->setTitle(ilUtil::secureString($question_title));
-		$this->getQuestion()->setQuestion(ilUtil::secureString($question_text));
 		$this->getQuestion()->setPoints(ilUtil::secureString($points));
+		$this->getQuestion()->setQuestion(ilUtil::secureString($question_text));
+		$this->getQuestion()->setLifecycle(ilAssQuestionLifecycle::getDraftInstance());
 
 		//STEP 2: load xqcas_options fields
 
+		//question variables
+		$this->getQuestion()->question_variables = ilUtil::secureString((string)$question->questionvariables);
+
+		//specific feedback
+		$specific_feedback = (string)$question->specificfeedback->text;
+		if (isset($question->specificfeedback->file)) {
+			$mapping = $this->getMediaObjectsFromXML($question->specificfeedback->file);
+			$specific_feedback = $this->replaceMediaObjectReferences($specific_feedback, $mapping);
+		}
+		$this->getQuestion()->specific_feedback = ilUtil::secureString($specific_feedback);
+
+		$this->getQuestion()->specific_feedback_format = 1;
+
+		//question note
+		if (isset($question->questionnote)) {
+			$this->getQuestion()->question_note = ilUtil::secureString((string)$question->questionnote);
+		}
+
+		//prt correct feedback
+		$prt_correct = (string)$question->prtcorrect->text;
+		if (isset($question->prtcorrect->file)) {
+			$mapping = $this->getMediaObjectsFromXML($question->prtcorrect->file);
+			$prt_correct = $this->replaceMediaObjectReferences($prt_correct, $mapping);
+		}
+		$this->getQuestion()->prt_correct = ilUtil::secureString($prt_correct);
+
+		$this->getQuestion()->prt_correct_format = 1;
+
+		//prt partially correct
+		$prt_partially_correct = (string)$question->prtpartiallycorrect->text;
+		if (isset($question->prtpartiallycorrect->file)) {
+			$mapping = $this->getMediaObjectsFromXML($question->prtpartiallycorrect->file);
+			$prt_partially_correct = $this->replaceMediaObjectReferences($prt_partially_correct, $mapping);
+		}
+		$this->getQuestion()->prt_partially_correct = ilUtil::secureString($prt_partially_correct);
+
+		$this->getQuestion()->prt_partially_correct_format = 1;
+
+		//prt incorrect
+		$prt_incorrect = (string)$question->prtincorrect->text;
+		if (isset($question->prtincorrect->file)) {
+			$mapping = $this->getMediaObjectsFromXML($question->prtincorrect->file);
+			$prt_incorrect = $this->replaceMediaObjectReferences($prt_incorrect, $mapping);
+		}
+		$this->getQuestion()->prt_incorrect = ilUtil::secureString($prt_incorrect);
+		$this->getQuestion()->prt_incorrect_format = 1;
+
+		//variants selection seeds
+		$this->getQuestion()->variants_selection_seed = ilUtil::secureString((string)$question->variantsselectionseed);
+
+		//options
+		$options = array();
+		$options['simplify'] = ((int)$question->questionsimplify);
+		$options['assumepos'] = ((int)$question->assumepositive);
+		$options['multiplicationsign'] = ilUtil::secureString((string)$question->multiplicationsign);
+		$options['sqrtsign'] = ((int)$question->sqrtsign);
+		$options['complexno'] = ilUtil::secureString((string)$question->complexno);
+		$options['inversetrig'] = ilUtil::secureString((string)$question->inversetrig);
+		$options['matrixparens'] = ilUtil::secureString((string)$question->matrixparens);
+
+		//load options
+		try {
+			$this->getQuestion()->options = new stack_options($options);
+		} catch (stack_exception $e) {
+			ilUtil::sendFailure($e, true);
+		}
+
+		//STEP 3: load xqcas_inputs fields
+
+		$required_parameters = stack_input_factory::get_parameters_used();
+
+		//load all inputs present in the XML
+		foreach ($question->input as $input) {
+
+			$input_name = ilUtil::secureString((string)$input->name);
+			$input_type = ilUtil::secureString((string)$input->type);
+
+			$all_parameters = array(
+				'boxWidth' => ilUtil::secureString((string)$question->boxsize),
+				'strictSyntax' => ilUtil::secureString((string)$question->strictsyntax),
+				'insertStars' => ilUtil::secureString((string)$question->insertstars),
+				'syntaxHint' => ilUtil::secureString((string)$question->syntaxhint),
+				'syntaxAttribute' => ilUtil::secureString((string)$question->syntaxattribute),
+				'forbidWords' => ilUtil::secureString((string)$question->forbidwords),
+				'allowWords' => ilUtil::secureString((string)$question->allowwords),
+				'forbidFloats' => ilUtil::secureString((string)$question->forbidfloat),
+				'lowestTerms' => ilUtil::secureString((string)$question->requirelowestterms),
+				'sameType' => ilUtil::secureString((string)$question->checkanswertype),
+				'mustVerify' => ilUtil::secureString((string)$question->mustverify),
+				'showValidation' => ilUtil::secureString((string)$question->showvalidation),
+				'options' => ilUtil::secureString((string)$question->options),
+			);
+
+			$parameters = array();
+			foreach ($required_parameters[$input_type] as $parameter_name) {
+				if ($parameter_name == 'inputType') {
+					continue;
+				}
+				$parameters[$parameter_name] = $all_parameters[$parameter_name];
+			}
+
+			//load inputs
+			$this->getQuestion()->inputs[$input_name] = stack_input_factory::make($input_type, $input_name, ilUtil::secureString((string)$input->tans), $this->getQuestion()->options, $parameters);
+		}
+
+		//STEP 4:load PRTs and PRT nodes
+
+		//Values
+		$total_value = 0;
+
+		//in ILIAS all attempts are graded
+		$grade_all = true;
+
+		foreach ($question->prt as $prt_data) {
+			$total_value += (float)ilUtil::secureString((string)$prt_data->value);
+		}
+
+		if ($total_value < 0.0000001) {
+			try {
+				throw new coding_exception('There is an error authoring your question. ' .
+					'The $totalvalue, the marks available for the question, must be positive in question ' .
+					$this->getTitle());
+			} catch (coding_exception $e) {
+				echo $e;
+				exit;
+			}
+		}
+
+		foreach ($question->prt as $prt) {
+
+			$prt_name = ilUtil::secureString((string)$prt->name);
+			$nodes = array();
+			$is_first_node = true;
+
+			foreach ($prt->node as $xml_node) {
+
+				$node_name = ilUtil::secureString((string)$xml_node->name);
+				$raw_sans = ilUtil::secureString((string)$xml_node->sans);
+				$raw_tans = ilUtil::secureString((string)$xml_node->tans);
+
+				$sans = stack_ast_container::make_from_teacher_source('PRSANS' . $node_name . ':' . $raw_sans, '', new stack_cas_security());
+				$tans = stack_ast_container::make_from_teacher_source('PRTANS' . $node_name . ':' . $raw_tans, '', new stack_cas_security());
+
+				//Penalties management, penalties are not an ILIAS Feature
+				$false_penalty = ilUtil::secureString((string)$xml_node->falsepenalty);
+				$true_penalty = ilUtil::secureString((string)$xml_node->truepenalty);
+
+				try {
+					//Create Node and add it to the
+					$node = new stack_potentialresponse_node($sans, $tans, ilUtil::secureString((string)$xml_node->answertest), ilUtil::secureString((string)$xml_node->testoptions), (bool)$xml_node->testoptions, '', (int)$node_name, $raw_sans, $raw_tans);
+
+					//manage images in false feedback
+					$false_feedback = (string)$xml_node->falsefeedback->text;
+					if (isset($xml_node->falsefeedback->file)) {
+						$mapping = $this->getMediaObjectsFromXML($xml_node->falsefeedback->file);
+						$false_feedback = $this->replaceMediaObjectReferences($false_feedback, $mapping);
+					}
+
+					//manage images in true feedback
+					$true_feedback = (string)$xml_node->truefeedback->text;
+					if (isset($xml_node->truefeedback->file)) {
+						$mapping = $this->getMediaObjectsFromXML($xml_node->truefeedback->file);
+						$true_feedback = $this->replaceMediaObjectReferences($true_feedback, $mapping);
+					}
+
+					$node->add_branch(0, ilUtil::secureString((string)$xml_node->falsescoremode), ilUtil::secureString((string)$xml_node->falsescore), $false_penalty, ilUtil::secureString((string)$xml_node->falsenextnode), $false_feedback, 1, ilUtil::secureString((string)$xml_node->falseanswernote));
+					$node->add_branch(1, ilUtil::secureString((string)$xml_node->truescoremode), ilUtil::secureString((string)$xml_node->truescore), $true_penalty, ilUtil::secureString((string)$xml_node->truenextnode), $true_feedback, 1, ilUtil::secureString((string)$xml_node->trueanswernote));
+
+					$nodes[$node_name] = $node;
+
+					//set first node
+					if ($is_first_node) {
+						$first_node = $node_name;
+						$is_first_node = false;
+					}
+
+				} catch (stack_exception $e) {
+					echo $e;
+					exit;
+				}
+			}
+
+			if ((string)$prt->feedbackvariables->text) {
+				try {
+					$feedback_variables = new stack_cas_keyval(ilUtil::secureString((string)$prt->feedbackvariables->text));
+					$feedback_variables = $feedback_variables->get_session();
+				} catch (stack_exception $e) {
+					echo $e;
+					exit;
+				}
+			} else {
+				$feedback_variables = null;
+			}
+
+			$prt_value = (float)$prt->value / $total_value;
+
+			try {
+				$this->getQuestion()->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt->autosimplify, $prt_value, $feedback_variables, $nodes, $first_node, 1);
+			} catch (stack_exception $e) {
+				echo $e;
+				exit;
+			}
+
+			//TODO SEEDS; TESTS; EXTRA INFO
+			return true;
+		}
 	}
 
 	public function deletePredefinedQuestionData($question_id)
@@ -158,48 +369,6 @@ class assStackQuestionMoodleImport
 		$db->manipulate($query);
 	}
 
-	/**
-	 * Stablish the data in order to create an Standard Question
-	 * @param array $data
-	 */
-	private function createStandardQuestion($data)
-	{
-		//Question id management.
-		if ($this->getQuestion()->getId() == $this->getFirstQuestion()) {
-			//Nothing to do, first question
-		} else {
-			$this->getQuestion()->setId(-1);
-		}
-
-		if (!isset($data['name'][0]['text']) or $data['name'][0]['text'] == '') {
-			$this->error_log[] = $this->getPlugin()->txt('error_import_no_title');
-
-			return FALSE;
-		}
-
-		if (!isset($data['questiontext'][0]['text']) or $data['questiontext'][0]['text'] == '') {
-			$this->error_log[] = $this->getPlugin()->txt('error_import_no_question_text') . ' ' . $data['name'][0]['text'];
-
-			return FALSE;
-		}
-
-		if (!isset($data['defaultgrade']) or $data['defaultgrade'] == '') {
-			$this->error_log[] = $this->getPlugin()->txt('error_import_no_points') . ' ' . $data['name'][0]['text'];
-
-			return FALSE;
-		}
-
-		$mapping = $this->getMediaObjectsFromXML($data['questiontext'][0]['file']);
-		$questiontext = $this->replaceMediaObjectReferences($data['questiontext'][0]['text'], $mapping);
-
-		//Other parameters settings.
-		$this->getQuestion()->setTitle(strip_tags($data['name'][0]['text']));
-		$this->getQuestion()->setQuestion(assStackQuestionUtils::_casTextConverter($questiontext, $this->getQuestion()->getTitle(), TRUE), $this->getQuestion()->getTitle(), true, $this->getRTETags());
-		$this->getQuestion()->setPoints($data['defaultgrade']);
-
-		//Save standard data.
-		$this->getQuestion()->saveQuestionDataToDb();
-	}
 
 	private function checkQuestionType($data)
 	{
@@ -217,248 +386,6 @@ class assStackQuestionMoodleImport
 		}
 	}
 
-	/**
-	 * Get Options from XML
-	 * NOTICE:
-	 * * Formats are set always as 1 (1 means HTML)
-	 * * Due to lack of inverse_trig parameteter in MoodleXML files inverse_trig is always set as cos-1.
-	 * * SOLVED if field doesn't exist, set to cos-1
-	 * @param array $data
-	 */
-	private function getOptionsFromXML($data)
-	{
-		$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionOptions.php');
-		$question_options = new assStackQuestionOptions(-1, $this->getQuestion()->getId());
-
-		//Question Variables
-		if (isset($data['questionvariables'][0]['text'])) {
-			$question_options->setQuestionVariables($data['questionvariables'][0]['text']);
-		}
-
-		//Specific feedback
-		$mapping = $this->getMediaObjectsFromXML($data['specificfeedback'][0]['file']);
-		$specificfeedback = assStackQuestionUtils::_casTextConverter($this->replaceMediaObjectReferences($data['specificfeedback'][0]['text'], $mapping), $this->getQuestion()->getTitle(), TRUE);
-		$question_options->setSpecificFeedback(ilUtil::secureString($specificfeedback, true, $this->getRTETags()));
-		$question_options->setSpecificFeedbackFormat(1);
-
-		//Question note:
-		$question_note = assStackQuestionUtils::_casTextConverter($data['questionnote'][0]['text'], $this->getQuestion()->getTitle(), TRUE);
-		$question_options->setQuestionNote($question_note);
-
-		//Question simplify? Assume possitive?
-		$question_options->setQuestionSimplify((int)$data['questionsimplify']);
-		$question_options->setAssumePositive((int)$data['assumepositive']);
-
-		//PRT Messages
-		$question_options->setPRTCorrectFormat(1);
-		$question_options->setPRTPartiallyCorrectFormat(1);
-		$question_options->setPRTIncorrectFormat(1);
-
-		$mapping = $this->getMediaObjectsFromXML($data['prtcorrect'][0]['file']);
-		$prtcorrect = $this->replaceMediaObjectReferences($data['prtcorrect'][0]['text'], $mapping);
-		$question_options->setPRTCorrect(ilUtil::secureString($prtcorrect, true, $this->getRTETags()));
-
-		$mapping = $this->getMediaObjectsFromXML($data['prtpartiallycorrect'][0]['file']);
-		$prtpartiallycorrect = $this->replaceMediaObjectReferences($data['prtpartiallycorrect'][0]['text'], $mapping);
-		$question_options->setPRTPartiallyCorrect(ilUtil::secureString($prtpartiallycorrect, true, $this->getRTETags()));
-
-		$mapping = $this->getMediaObjectsFromXML($data['prtincorrect'][0]['file']);
-		$prtincorrect = $this->replaceMediaObjectReferences($data['prtincorrect'][0]['text'], $mapping);
-		$question_options->setPRTIncorrect(ilUtil::secureString($prtincorrect, true, $this->getRTETags()));
-
-		//Multiplication, SQRT, Complex No, Variants seeds
-		$question_options->setMultiplicationSign(strip_tags($data['multiplicationsign']));
-		$question_options->setSqrtSign(strip_tags($data['sqrtsign']));
-		$question_options->setComplexNumbers(strip_tags($data['complexno']));
-		$question_options->setInverseTrig(isset($data['inversetrig']) ? strip_tags($data['inversetrig']) : 'cos-1');
-		$question_options->setMatrixParens(isset($data['matrixparens']) ? strip_tags($data['matrixparens']) : '[');
-		$question_options->setVariantsSelectionSeeds(strip_tags($data['variantsselectionseed']));
-
-		return $question_options;
-	}
-
-	/**
-	 * Get Inputs from XML and returns an array with them.
-	 * NOTICE:
-	 * * Options are setted as ""
-	 * @param array $data
-	 * @return \assStackQuestionInput
-	 */
-	private function getInputsFromXML($data)
-	{
-		$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionInput.php');
-
-		$inputs = array();
-		if (is_array($data)) {
-			foreach ($data as $input) {
-
-				//Main attributes needed to create an InputOBJ
-				$input_name = strip_tags($input['name']);
-				$input_type = strip_tags($input['type']);
-				$input_teacher_answer = strip_tags($input['tans']);
-				$new_input = new assStackQuestionInput(-1, $this->getQuestion()->getId(), $input_name, $input_type, $input_teacher_answer);
-
-				//Setting the rest of the attributes
-				$new_input->setBoxSize((int)$input['boxsize']);
-				$new_input->setStrictSyntax((int)$input['strictsyntax']);
-				$new_input->setInsertStars((int)$input['insertstars']);
-				$new_input->setSyntaxHint(strip_tags($input['syntaxhint']));
-				$new_input->setForbidWords(strip_tags($input['forbidwords']));
-				$new_input->setAllowWords(strip_tags($input['allowwords']));
-				$new_input->setForbidFloat((int)$input['forbidfloat']);
-				$new_input->setRequireLowestTerms((int)$input['requirelowestterms']);
-				$new_input->setCheckAnswerType((int)$input['checkanswertype']);
-				$new_input->setMustVerify((int)$input['mustverify']);
-				$new_input->setShowValidation((int)$input['showvalidation']);
-				$new_input->setOptions(strip_tags($input['options']));
-
-				$inputs[$input_name] = $new_input;
-			}
-		}
-		//Allow creation of questions without inputs
-		/*else {
-			$this->error_log[] = $this->getPlugin()->txt('error_import_no_inputs') . ' ' . $this->getQuestion()->getTitle();
-
-			return FALSE;
-		}
-
-		if (!is_array($inputs)) {
-			$this->error_log[] = $this->getPlugin()->txt('error_import_no_inputs') . ' ' . $this->getQuestion()->getTitle();
-
-			return FALSE;
-		}*/
-
-		//array of assStackQuestionInputs
-		return $inputs;
-	}
-
-	/**
-	 * Get PRTs from XML and returns an array with them
-	 * NOTICE:
-	 * * This method calls getPRTNodesFromXML
-	 * * prt_nodes[first] should be unset after prt->first_node is set.
-	 * @param array $data
-	 * @return \assStackQuestionPRT
-	 */
-	private function getPRTsFromXML($data)
-	{
-		$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionPRT.php');
-		$prts = array();
-
-		if (is_array($data)) {
-			foreach ($data as $prt) {
-				//Creation of the PRT
-				$new_prt = new assStackQuestionPRT(-1, $this->getQuestion()->getId());
-				$prt_name = strip_tags($prt['name']);
-				$new_prt->setPRTName($prt_name);
-				$new_prt->setPRTValue(strip_tags($prt['value']));
-				$new_prt->setAutoSimplify(strip_tags($prt['autosimplify']));
-				$new_prt->setPRTFeedbackVariables($prt['feedbackvariables'][0]['text']);
-
-				//Creation of Nodes
-				$prt_nodes = $this->getPRTNodesFromXML($prt['node'], $new_prt->getPRTName());
-
-				//Set the first node and later unset from array
-				$new_prt->setFirstNodeName($prt_nodes['first']);
-
-				unset($prt_nodes['first']);
-				$new_prt->setPRTNodes($prt_nodes);
-
-				$prts[] = $new_prt;
-			}
-
-		}
-		//Allow creation of questions without prt
-		/*else {
-			$this->error_log[] = $this->getPlugin()->txt('error_import_no_prt') . ' ' . $this->getQuestion()->getTitle();
-
-			return FALSE;
-		}
-
-		if (!is_array($prts)) {
-			$this->error_log[] = $this->getPlugin()->txt('error_import_no_prt') . ' ' . $this->getQuestion()->getTitle();
-
-			return FALSE;
-		}*/
-
-		//array of assStackQuestionPRT
-		return $prts;
-	}
-
-	/**
-	 * Get PRTNodes from XML and returns an array with them and also with the first node of the PRT
-	 * NOTICE:
-	 * * Feedback format is set as 1 (Possible error in STACK because in description of DB
-	 * * this field will be used for store the format of the feedback but is an int)
-	 * @param array $data
-	 * @param string $prt_name
-	 * @return \assStackQuestionPRTNode
-	 */
-	private function getPRTNodesFromXML($data, $prt_name)
-	{
-		$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionPRTNode.php');
-		$prt_nodes = array();
-
-		//First node var
-		$is_first_node = true;
-		foreach ($data as $prt_node) {
-			//Main attributes for creating the PRTNode OBJ
-			$node_name = strip_tags($prt_node['name']);
-
-			$true_next_node = strip_tags($prt_node['truenextnode']);
-			$false_next_node = strip_tags($prt_node['falsenextnode']);
-			$new_node = new assStackQuestionPRTNode(-1, $this->getQuestion()->getId(), $prt_name, $node_name, $true_next_node, $false_next_node);
-
-			//Setting Answers
-			$new_node->setAnswerTest(strip_tags($prt_node['answertest']));
-			$new_node->setStudentAnswer($prt_node['sans']);
-			$new_node->setTeacherAnswer($prt_node['tans']);
-
-			//Other options
-			$new_node->setTestOptions($prt_node['testoptions']);
-			$new_node->setQuiet((int)$prt_node['quiet']);
-
-			//True child
-			$new_node->setTrueScoreMode(strip_tags($prt_node['truescoremode']));
-			$new_node->setTrueScore(strip_tags($prt_node['truescore']));
-			$new_node->setTruePenalty(strip_tags($prt_node['truepenalty']));
-			$new_node->setTrueAnswerNote($prt_node['trueanswernote']);
-			if (isset($prt_node['truefeedbackformat'])) {
-				$new_node->setTrueFeedbackFormat($prt_node['truefeedbackformat']);
-			} else {
-				$new_node->setTrueFeedbackFormat(1);
-			}
-
-			$mapping = $this->getMediaObjectsFromXML($prt_node['truefeedback'][0]['file']);
-			$truefeedback = assStackQuestionUtils::_casTextConverter($this->replaceMediaObjectReferences($prt_node['truefeedback'][0]['text'], $mapping), $this->getQuestion()->getTitle(), TRUE);
-			$new_node->setTrueFeedback(ilUtil::secureString($truefeedback, true, $this->getRTETags()));
-
-			//False child
-			$new_node->setFalseScoreMode(strip_tags($prt_node['falsescoremode']));
-			$new_node->setFalseScore(strip_tags($prt_node['falsescore']));
-			$new_node->setFalsePenalty(strip_tags($prt_node['falsepenalty']));
-			$new_node->setFalseAnswerNote($prt_node['falseanswernote']);
-			if (isset($prt_node['falsefeedbackformat'])) {
-				$new_node->setFalseFeedbackFormat($prt_node['falsefeedbackformat']);
-			} else {
-				$new_node->setFalseFeedbackFormat(1);
-			}
-
-			$mapping = $this->getMediaObjectsFromXML($prt_node['falsefeedback'][0]['file']);
-			$falsefeedback = assStackQuestionUtils::_casTextConverter($this->replaceMediaObjectReferences($prt_node['falsefeedback'][0]['text'], $mapping), $this->getQuestion()->getTitle(), TRUE);
-			$new_node->setFalseFeedback(ilUtil::secureString($falsefeedback, true, $this->getRTETags()));
-
-			if ($is_first_node) {
-				$prt_nodes['first'] = $new_node->getNodeName();
-				$is_first_node = false;
-			}
-
-			$prt_nodes[] = $new_node;
-		}
-
-		//array of assStackQuestionPRTNode
-		return $prt_nodes;
-	}
 
 	private function getTestsFromXML($data)
 	{

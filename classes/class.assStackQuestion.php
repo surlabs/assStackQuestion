@@ -161,25 +161,25 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	 * @var string instantiated version of specific_feedback.
 	 * Initialised in start_attempt / apply_attempt_state.
 	 */
-	public string $specific_feedback_instantiated;
+	public $specific_feedback_instantiated;
 
 	/**
 	 * @var string instantiated version of prt_correct.
 	 * Initialised in start_attempt / apply_attempt_state.
 	 */
-	public string $prt_correct_instantiated;
+	public $prt_correct_instantiated;
 
 	/**
 	 * @var string instantiated version of prt_partially_correct.
 	 * Initialised in start_attempt / apply_attempt_state.
 	 */
-	public string $prt_partially_correct_instantiated;
+	public $prt_partially_correct_instantiated;
 
 	/**
 	 * @var string instantiated version of prt_incorrect.
 	 * Initialised in start_attempt / apply_attempt_state.
 	 */
-	public string $prt_incorrect_instantiated;
+	public $prt_incorrect_instantiated;
 
 	/**
 	 * @var array Errors generated at runtime.
