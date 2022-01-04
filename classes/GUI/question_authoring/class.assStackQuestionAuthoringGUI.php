@@ -220,7 +220,35 @@ class assStackQuestionAuthoringGUI
 			}
 			$this->getForm()->addItem($inputs);
 		} else {
-			$input = new assStackQuestionInput("", $this->getQuestionGUI()->object->getId(), "ans1", "algebraic", "");
+			//load standard input
+			$standard_input = assStackQuestionConfig::_getStoredSettings('inputs');
+
+			$required_parameters = stack_input_factory::get_parameters_used();
+
+			$all_parameters = array(
+				'boxWidth' => $standard_input['input_box_size'],
+				'strictSyntax' => $standard_input['input_strict_syntax'],
+				'insertStars' => $standard_input['input_insert_stars'],
+				'syntaxHint' => $standard_input['input_syntax_hint'],
+				'syntaxAttribute' => '',
+				'forbidWords' => $standard_input['input_forbidden_words'],
+				'allowWords' => $standard_input['input_allow_words'],
+				'forbidFloats' => $standard_input['input_forbid_float'],
+				'lowestTerms' => $standard_input['input_require_lowest_terms'],
+				'sameType' => $standard_input['input_check_answer_type'],
+				'mustVerify' => $standard_input['input_must_verify'],
+				'showValidation' => $standard_input['input_show_validation'],
+				'options' => $standard_input['input_extra_options'],
+			);
+
+			$parameters = array();
+			foreach ($required_parameters[$standard_input['input_type']] as $parameter_name) {
+				if ($parameter_name == 'inputType') {
+					continue;
+				}
+				$parameters[$parameter_name] = $all_parameters[$parameter_name];
+			}
+			$input = stack_input_factory::make('algebraic', 'ans1', 1,$this->getQuestionGUI()->object->options, $parameters);
 			$input_part = $this->getInputPart($input);
 			$input_part->setTitle($this->getPlugin()->txt('auth_inputs') . " ans1");
 			$inputs->addPart($input_part);
