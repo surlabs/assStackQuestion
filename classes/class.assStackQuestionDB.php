@@ -18,7 +18,7 @@ class assStackQuestionDB
 	/**
 	 * @param $question_id
 	 * @param bool $just_id
-	 * @return array|false
+	 * @return array|int
 	 */
 	public static function _readOptions($question_id, bool $just_id = false)
 	{
@@ -71,14 +71,14 @@ class assStackQuestionDB
 
 			return array('options' => $options, 'ilias_options' => $ilias_options);
 		} else {
-			return false;
+			return -1;
 		}
 	}
 
 	/**
 	 * @param $question_id
 	 * @param bool $just_id
-	 * @return array|false
+	 * @return array|int
 	 */
 	public static function _readInputs($question_id, bool $just_id = false)
 	{
@@ -324,13 +324,13 @@ class assStackQuestionDB
 		$ids = array('question_id' => $question_id);
 
 		//Save Options
-		$options_saved = self::_saveStackOptions($question, self::_readOptions($ids['question_id'], true));
+		$options_saved = self::_saveStackOptions($question);
 
 		//Save Inputs
 		$inputs_saved = self::_saveStackInputs($question, self::_readInputs($ids['question_id'], true));
 
 		//Save Prts
-		$prts_saved = self::_saveStackPRTs($question, self::_readPRTs($ids['question_id'], true));
+		$prts_saved = self::_saveStackPRTs($question);
 
 		//Extra Prts
 		//$prts_saved = self::_saveStackExtraInformation($question, self::_readExtraInformation($ids['question_id'], true));
@@ -344,11 +344,13 @@ class assStackQuestionDB
 	 * @return bool
 	 * @throws stack_exception
 	 */
-	public static function _saveStackOptions(assStackQuestion $question, int $options_id = -1): bool
+	public static function _saveStackOptions(assStackQuestion $question): bool
 	{
 		global $DIC;
 		$db = $DIC->database();
 		include_once("./Services/RTE/classes/class.ilRTE.php");
+
+		$options_id = self::_readOptions($question->getId(), true);
 
 		if ($options_id < 0) {
 			//CREATE
@@ -472,7 +474,7 @@ class assStackQuestionDB
 	 * @param array $prt_ids
 	 * @return bool
 	 */
-	public static function _saveStackPRTs(assStackQuestion $question, array $prt_ids = array()): bool
+	public static function _saveStackPRTs(assStackQuestion $question): bool
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -494,8 +496,13 @@ class assStackQuestionDB
 					"first_node_name" => array("text", $question->prts[$prt_name]->getFirstNode() == null ? '-1' : $question->prts[$prt_name]->getFirstNode()),
 				));
 
+
+				//Nodes cannot be named "0" we should ensure this at saving.
+				var_dump($prt_ids);Exit;
 				//PRT NODES
 				foreach ($prt->getNodes() as $node_name => $node) {
+
+
 					if (!array_key_exists($prt_name, $prt_ids)) {
 						//CREATE
 						self::_saveStackPRTNodes($node, $question_id, $prt_name);

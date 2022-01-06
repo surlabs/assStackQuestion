@@ -96,12 +96,8 @@ class assStackQuestionMoodleImport
 
 			//If import process has been successful, save question to DB.
 			if ($this->importQuestions($question)) {
-
-				$this->getQuestion()->setId(-1);
-				$this->getQuestion()->createNewQuestion();
 				$this->getQuestion()->saveToDb();
 				$number_of_questions_created++;
-
 			}
 		}
 
@@ -144,6 +140,9 @@ class assStackQuestionMoodleImport
 		$this->getQuestion()->setPoints(ilUtil::secureString($points));
 		$this->getQuestion()->setQuestion(ilUtil::secureString($question_text));
 		$this->getQuestion()->setLifecycle(ilAssQuestionLifecycle::getDraftInstance());
+
+		//Save current values, to set the Id properly.
+		$this->getQuestion()->saveQuestionDataToDb();
 
 		//STEP 2: load xqcas_options fields
 
@@ -1044,8 +1043,8 @@ class assStackQuestionMoodleImport
 					}
 
 					//Nodes
-					if (is_array($prt_raw['node'])) {
-						foreach ($prt_raw['node'] as $node_raw) {
+					if (is_array($prt_raw['nodes'])) {
+						foreach ($prt_raw['nodes'] as $node_raw) {
 							$node_data = array();
 
 							//name
@@ -1175,7 +1174,7 @@ class assStackQuestionMoodleImport
 							}
 
 							//Add to prt
-							$prt_data['node'][] = $node_data;
+							$prt_data['nodes'][] = $node_data;
 						}
 					}
 

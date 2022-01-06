@@ -554,7 +554,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 				$options_from_db_array = assStackQuestionDB::_readOptions($question_id);
 
-				if ($options_from_db_array === false) {
+				if ($options_from_db_array === -1) {
 
 					//NEW QUESTION, LOAD STANDARD INFORMATION FROM CONFIGURATION
 					$this->loadStandardQuestion();

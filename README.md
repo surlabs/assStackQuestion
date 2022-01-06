@@ -113,5 +113,6 @@ Version 4.x.x (UNDER DEVELOPMENT, DO NOT USE) for ILIAS 7
 - Questions can now be saved and edited. No Maxima interaction in this process.
 - Questions can now be created in 2 clicks, loading the standard information from configuration.
 - Questions can now be imported from MoodleXML
-
+- "0" is no longer valid as node name, a DB Update script to automatically change this value (Step 40) has been added
+- The Save PRT function now checks also for invalid node names, which may come from Imported questions.
 First Commit **THIS VERSION IS NOT READY FOR TESTING**

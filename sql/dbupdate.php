@@ -849,5 +849,69 @@ if ($db->tableExists('xqcas_configuration'))
 ?>
 <#40>
 <?php
-//set pos and neg default answer note to prt1-1-T/F instead 0.
+//modify all prts with 0 as node names, no longer supported.
+//Includes the
+global $DIC;
+$db = $DIC->database();
+
+//Select queries
+$query = 'SELECT question_id, name FROM xqcas_prts ORDER BY xqcas_prts.question_id';
+$res_prt = $db->query($query);
+
+$query = 'SELECT id, question_id, prt_name, node_name, true_next_node, false_next_node FROM xqcas_prt_nodes ORDER BY xqcas_prt_nodes.question_id';
+$res_nodes = $db->query($query);
+
+//Question_id, prt _name from xqcas_prts
+$questions = array();
+
+while ($row_prt = $db->fetchAssoc($res_prt)) {
+	$questions[$row_prt['question_id']][$row_prt['name']] = array();
+}
+
+//get node_name and id
+while ($row_nodes = $db->fetchAssoc($res_nodes)) {
+	$questions[$row_nodes['question_id']][$row_nodes['prt_name']][$row_nodes['node_name']]['id'] = (int)$row_nodes['id'];
+	$questions[$row_nodes['question_id']][$row_nodes['prt_name']][$row_nodes['node_name']]['true_next_node'] = (int)$row_nodes['true_next_node'];
+	$questions[$row_nodes['question_id']][$row_nodes['prt_name']][$row_nodes['node_name']]['false_next_node'] = (int)$row_nodes['false_next_node'];
+}
+
+
+foreach ($questions as $question_id => $prts) {
+	foreach ($prts as $prt_name => $nodes) {
+
+		//Change Node name and all derived parameters like answer note or next node.
+		foreach ($nodes as $node_name => $node) {
+
+			//If there is a node 0 in a PRT, change all nodes to node_name +1
+			if (array_key_exists(0, $nodes)) {
+				$new_node_name = (int)$node_name + 1;
+			} else {
+				$new_node_name = (int)$node_name;
+			}
+
+			$true_next_node = $node['true_next_node'];
+			$false_next_node = $node['false_next_node'];
+
+			//If certain nodes point node 0 as next node (not usual)
+			//The next node will now be -1, so, end of the prt.
+			if ($true_next_node === 0) {
+				$true_next_node = -1;
+			}
+
+			if ($false_next_node === 0) {
+				$false_next_node = -1;
+			}
+
+			//We ensure the answer notes are properly created (prt_name-node name-true or false)
+			$query = 'UPDATE xqcas_prt_nodes
+				SET node_name =' . $db->quote($new_node_name, 'string')
+				. ', true_answer_note=' . $db->quote($prt_name . '-' . $new_node_name . '-T', 'string')
+				. ', true_next_node=' . $db->quote($true_next_node, 'integer')
+				. ', false_answer_note=' . $db->quote($prt_name . '-' . $new_node_name . '-F', 'string')
+				. ', false_next_node=' . $db->quote($false_next_node, 'integer')
+				. ' WHERE id=' . $db->quote($node['id'], 'integer');
+			$db->query($query);
+		}
+	}
+}
 ?>
