@@ -49,7 +49,7 @@ platform_type_info#:#STACK needs to know what sort of operating system it is run
 windows#:#Windows
 unix#:#Linux
 maxima_version#:#Maxima version
-maxima_version_info#:#The version of Maxima being used.
+maxima_version_info#:#Only valid for non-server connections. The version of Maxima being used.
 cas_connection_timeout#:#CAS connection timeout
 cas_connection_timeout_info#:#The timeout to use when trying to connect to Maxima.
 cas_result_caching#:#CAS result caching

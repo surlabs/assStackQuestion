@@ -97,13 +97,11 @@ class assStackQuestionMoodleImport
 			//If import process has been successful, save question to DB.
 			if ($this->importQuestions($question)) {
 
-				//If we are not in the first question (standard data already in DB), set id to -1 to ensure creation.
-				if ($this->getQuestion()->getId() != $this->getFirstQuestion()) {
-					$this->getQuestion()->setId(-1);
-				}
-
+				$this->getQuestion()->setId(-1);
+				$this->getQuestion()->createNewQuestion();
 				$this->getQuestion()->saveToDb();
 				$number_of_questions_created++;
+
 			}
 		}
 
@@ -259,19 +257,16 @@ class assStackQuestionMoodleImport
 		//Values
 		$total_value = 0;
 
-		//in ILIAS all attempts are graded
-		$grade_all = true;
-
 		foreach ($question->prt as $prt_data) {
 			$total_value += (float)ilUtil::secureString((string)$prt_data->value);
 		}
 
 		if ($total_value < 0.0000001) {
 			try {
-				throw new coding_exception('There is an error authoring your question. ' .
+				throw new stack_exception('There is an error authoring your question. ' .
 					'The $totalvalue, the marks available for the question, must be positive in question ' .
-					$this->getTitle());
-			} catch (coding_exception $e) {
+					$this->getQuestion()->getTitle());
+			} catch (stack_exception $e) {
 				echo $e;
 				exit;
 			}

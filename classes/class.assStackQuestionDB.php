@@ -320,7 +320,8 @@ class assStackQuestionDB
 	public static function _saveStackQuestion(assStackQuestion $question)
 	{
 		//Get first all ILIAS DB ids for the current question.
-		$ids = array('question_id' => $question->getId());
+		$question_id = $question->getId();
+		$ids = array('question_id' => $question_id);
 
 		//Save Options
 		$options_saved = self::_saveStackOptions($question, self::_readOptions($ids['question_id'], true));
