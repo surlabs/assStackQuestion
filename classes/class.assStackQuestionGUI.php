@@ -803,21 +803,20 @@ class assStackQuestionGUI extends assQuestionGUI
 			$xml_file = $_FILES["questions_xml"]["tmp_name"];
 		} else {
 			$this->object->setErrors($this->plugin->txt('error_import_question_in_test'), true);
-
 			return;
 		}
 
 		//CHECK FOR NOT ALLOW IMPROT QUESTIONS DIRECTLY IN TESTS
 		if (isset($_GET['calling_test'])) {
 			$this->object->setErrors($this->plugin->txt('error_import_question_in_test'), true);
-
-			return;
 		} else {
 			//Include import class and prepare object
 			$this->plugin->includeClass('model/import/MoodleXML/class.assStackQuestionMoodleImport.php');
 			$import = new assStackQuestionMoodleImport($this->plugin, (int)$_POST['first_question_id'], $this->object);
 			$import->setRTETags($this->getRTETags());
 			$import->import($xml_file);
+
+			$DIC->ctrl()->redirect($this, 'editQuestion');
 		}
 	}
 

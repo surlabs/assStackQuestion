@@ -397,7 +397,7 @@ class assStackQuestionConfig
 		}
 		if (!array_key_exists('prt_pos_answernote', $new_prts_data))
 		{
-			$new_prts_data['prt_pos_answernote'] = 'prt1-0-T';
+			$new_prts_data['prt_pos_answernote'] = 'prt1-1-T';
 		}
 		if (!array_key_exists('prt_neg_mod', $new_prts_data))
 		{
@@ -413,7 +413,7 @@ class assStackQuestionConfig
 		}
 		if (!array_key_exists('prt_neg_answernote', $new_prts_data))
 		{
-			$new_prts_data['prt_neg_answernote'] = 'prt1-0-F';
+			$new_prts_data['prt_neg_answernote'] = 'prt1-1-F';
 		}
 
 		//Save to DB

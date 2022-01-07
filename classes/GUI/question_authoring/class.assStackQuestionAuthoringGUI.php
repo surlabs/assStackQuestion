@@ -643,15 +643,11 @@ class assStackQuestionAuthoringGUI
 		$graph = new stack_abstract_graph();
 		$first_node_name = $prt->getFirstNode();
 		$nodes = array();
+
+		//Show all nodes
 		foreach ($prt->getNodes() as $node_name => $node) {
 			$nodes[$node_name] = $node;
-			if ((int)$node_name == (int)$first_node_name) {
-				$first_node = $node;
-				unset($nodes[$node_name]);
-			}
 		}
-
-		array_unshift($nodes, $first_node);
 
 		foreach ($nodes as $node_name => $node) {
 			if (is_a($node, "stack_potentialresponse_node")) {
@@ -675,7 +671,7 @@ class assStackQuestionAuthoringGUI
 			$graph->layout();
 			$svg = stack_abstract_graph_svg_renderer::render($graph, $prt_name . 'graphsvg');
 		} catch (stack_exception $e) {
-			$this->question_gui->object->setErrors($e->getMessage());
+			ilUtil::sendFailure($e->getMessage(), true);
 		}
 
 		//TODO Create new class to avoid deprecated custom property
@@ -949,11 +945,11 @@ class assStackQuestionAuthoringGUI
 
 		$node_pos_next_node = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_pos_next'), 'prt_' . $prt->get_name() . '_node_' . $node->nodeid . '_pos_next');
 		$node_list = array(-1 => $this->getPlugin()->txt('end'));
+
 		//Get list of nodes
-		//Solve 22289
-		foreach ($prt->get_nodes_summary() as $prt_node) {
-			if ($prt_node->nodeid != $node->nodeid) {
-				$node_list[$prt_node->nodeid] = $prt_node->nodeid;
+		foreach ($prt->get_nodes_summary() as $node_name => $prt_node) {
+			if ($node_name != $node->nodeid) {
+				$node_list[$node_name] = $node_name;
 			}
 		}
 
@@ -1036,10 +1032,11 @@ class assStackQuestionAuthoringGUI
 
 		$node_neg_next_node = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_neg_next'), 'prt_' . $prt->get_name() . '_node_' . $node->nodeid . '_neg_next');
 		$node_list = array(-1 => $this->getPlugin()->txt('end'));
-		//Solve 22289
-		foreach ($prt->getNodes() as $prt_node) {
-			if ($prt_node->nodeid != $node->nodeid) {
-				$node_list[$prt_node->nodeid] = $prt_node->nodeid;
+
+		//Get list of nodes
+		foreach ($prt->get_nodes_summary() as $node_name => $prt_node) {
+			if ($node_name != $node->nodeid) {
+				$node_list[$node_name] = $node_name;
 			}
 		}
 

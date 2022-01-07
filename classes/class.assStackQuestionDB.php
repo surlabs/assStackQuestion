@@ -315,9 +315,10 @@ class assStackQuestionDB
 	 * SAVES STACK QUESTION INTO THE DB
 	 * Called from saveToDB()->saveAdditionalQuestionDataToDb();
 	 * @param assStackQuestion $question
+	 * @param string $purpose
 	 * @throws stack_exception
 	 */
-	public static function _saveStackQuestion(assStackQuestion $question)
+	public static function _saveStackQuestion(assStackQuestion $question, string $purpose = ''): bool
 	{
 		//Get first all ILIAS DB ids for the current question.
 		$question_id = $question->getId();
@@ -327,20 +328,20 @@ class assStackQuestionDB
 		$options_saved = self::_saveStackOptions($question);
 
 		//Save Inputs
-		$inputs_saved = self::_saveStackInputs($question, self::_readInputs($ids['question_id'], true));
+		$inputs_saved = self::_saveStackInputs($question, $purpose);
 
 		//Save Prts
-		$prts_saved = self::_saveStackPRTs($question);
+		$prts_saved = self::_saveStackPRTs($question, $purpose);
 
 		//Extra Prts
 		//$prts_saved = self::_saveStackExtraInformation($question, self::_readExtraInformation($ids['question_id'], true));
 
 		//Validate from form, popup errors
+		return true;
 	}
 
 	/**
 	 * @param assStackQuestion $question
-	 * @param int $options_id if -1, then we are creating an input, use create, else update
 	 * @return bool
 	 * @throws stack_exception
 	 */
@@ -408,18 +409,23 @@ class assStackQuestionDB
 
 	/**
 	 * @param assStackQuestion $question
-	 * @param array $input_ids
+	 * @param string $purpose
 	 * @return bool
 	 */
-	public static function _saveStackInputs(assStackQuestion $question, array $input_ids = array()): bool
+	public static function _saveStackInputs(assStackQuestion $question, string $purpose = ''): bool
 	{
 		global $DIC;
 		$db = $DIC->database();
 
 		$question_id = $question->getId();
 
+		//Saves the current loaded inputs
 		foreach ($question->inputs as $input_name => $input) {
-			if (!array_key_exists($input_name, $input_ids)) {
+
+			//Authoring interface saveToDB command
+			$input_ids = self::_readInputs($question_id, true);
+
+			if (!array_key_exists($input_name, $input_ids) or empty($input_ids) or $purpose == 'import') {
 				//CREATE
 				$db->insert("xqcas_inputs", array(
 					"id" => array("integer", $db->nextId('xqcas_inputs')),
@@ -465,16 +471,17 @@ class assStackQuestionDB
 					)
 				);
 			}
+
 		}
 		return true;
 	}
 
 	/**
 	 * @param assStackQuestion $question
-	 * @param array $prt_ids
+	 * @param string $purpose
 	 * @return bool
 	 */
-	public static function _saveStackPRTs(assStackQuestion $question): bool
+	public static function _saveStackPRTs(assStackQuestion $question, string $purpose = ''): bool
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -482,10 +489,12 @@ class assStackQuestionDB
 		$question_id = $question->getId();
 
 		foreach ($question->prts as $prt_name => $prt) {
-			if (!array_key_exists($prt_name, $prt_ids)) {
-				//CREATE
 
-				//PRT
+			$prt_ids = self::_readPRTs($question_id, true);
+
+			if (!array_key_exists($prt_name, $prt_ids) or empty($prt_ids) or $purpose == 'import') {
+				//IF a PRT doesn't exist in the question, if the there is no prts in the question, or if we are importing a question
+				//CREATE
 				$db->insert("xqcas_prts", array(
 					"id" => array("integer", $db->nextId('xqcas_prts')),
 					"question_id" => array("integer", $question_id),
@@ -496,29 +505,17 @@ class assStackQuestionDB
 					"first_node_name" => array("text", $question->prts[$prt_name]->getFirstNode() == null ? '-1' : $question->prts[$prt_name]->getFirstNode()),
 				));
 
-
-				//Nodes cannot be named "0" we should ensure this at saving.
-				var_dump($prt_ids);Exit;
-				//PRT NODES
-				foreach ($prt->getNodes() as $node_name => $node) {
-
-
-					if (!array_key_exists($prt_name, $prt_ids)) {
-						//CREATE
-						self::_saveStackPRTNodes($node, $question_id, $prt_name);
-					} else {
-						//UPDATE
-						self::_saveStackPRTNodes($node, $question_id, $prt_name, $prt_ids[$prt_name]['nodes'][$node_name]);
-					}
+				//Insert nodes
+				foreach ($prt->getNodes() as $node) {
+					self::_saveStackPRTNodes($node, $question_id, $prt_name, -1);
 				}
 
 			} else {
-				//UPDATE
 
-				//PRT
+				//UPDATE
 				$db->replace('xqcas_prts',
 					array(
-						"id" => array('integer', $prt_ids[$prt_name])),
+						"id" => array('integer', $prt_ids[$prt_name]['prt_id'])),
 					array(
 						"question_id" => array("integer", $question_id),
 						"name" => array("text", $question->prts[$prt_name]->get_name()),
@@ -529,21 +526,34 @@ class assStackQuestionDB
 					)
 				);
 
-				//PRT NODES
+				//Update/Insert Nodes
+				$prt_node_ids = self::_readPRTNodes($question_id, $prt_name, true);
+
 				foreach ($prt->getNodes() as $node_name => $node) {
-					if (!array_key_exists($prt_name, $prt_ids)) {
+					if (!array_key_exists($node_name, $prt_node_ids) or empty($prt_node_ids) or $purpose == 'import') {
 						//CREATE
-						self::_saveStackPRTNodes($node, $question_id, $prt_name);
+						self::_saveStackPRTNodes($node, $question_id, $prt_name, -1);
 					} else {
 						//UPDATE
-						self::_saveStackPRTNodes($node, $question_id, $prt_name, $prt_ids[$prt_name]['nodes'][$node_name]);
+						if (isset($prt_ids[$prt_name]['nodes'][$node_name])) {
+							self::_saveStackPRTNodes($node, $question_id, $prt_name, $prt_ids[$prt_name]['nodes'][$node_name]);
+						} else {
+							ilUtil::sendFailure('question:' . $question_id . $prt_name . $node_name);
+						}
 					}
 				}
 			}
+
 		}
 		return true;
 	}
 
+	/**
+	 * @param stack_potentialresponse_node $node
+	 * @param int $question_id
+	 * @param string $prt_name
+	 * @param int $id
+	 */
 	public static function _saveStackPRTNodes(stack_potentialresponse_node $node, int $question_id, string $prt_name, int $id = -1)
 	{
 		global $DIC;

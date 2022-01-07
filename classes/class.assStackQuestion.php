@@ -2136,7 +2136,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			return $cc;
 		} catch (stack_exception $e) {
 			ilUtil::sendFailure($e, true);
-			return false;
+			return array();
 		}
 	}
 

@@ -93,11 +93,32 @@ class assStackQuestionMoodleImport
 
 			//New list of media objects for each question
 			$this->clearMediaObjects();
+			//Set current question Id to -1 if we have created already one question, to ensure creation of the others
+			if ($number_of_questions_created > 0) {
+				$this->getQuestion()->setId(-1);
+			}
+			//Delete predefined inputs and prts
+			$this->getQuestion()->inputs = array();
+			$this->getQuestion()->prts = array();
 
 			//If import process has been successful, save question to DB.
-			if ($this->importQuestions($question)) {
-				$this->getQuestion()->saveToDb();
-				$number_of_questions_created++;
+			if ($this->loadFromMoodleXML($question)) {
+
+				//Save standard question data
+				$this->getQuestion()->saveQuestionDataToDb();
+				$this->getPlugin()->includeClass('class.assStackQuestionDB.php');
+				try {
+					//Save STACK Parameters forcing insert.
+					if (assStackQuestionDB::_saveStackQuestion($this->getQuestion(), 'import')) {
+						$number_of_questions_created++;
+					}
+				} catch (stack_exception $e) {
+					ilUtil::sendFailure($e);
+				}
+			} else {
+				//Do not create not well created questions
+				ilUtil::sendFailure('question malformed: ' . $this->getQuestion()->getTitle());
+				$this->getQuestion()->delete($this->getQuestion()->getId());
 			}
 		}
 
@@ -111,7 +132,7 @@ class assStackQuestionMoodleImport
 	 * @param SimpleXMLElement $question
 	 * @return bool
 	 */
-	public function importQuestions(SimpleXMLElement $question): bool
+	public function loadFromMoodleXML(SimpleXMLElement $question): bool
 	{
 		//STEP 1: load standard question fields
 		if (!isset($question->name->text) or $question->name->text == '') {
@@ -147,7 +168,9 @@ class assStackQuestionMoodleImport
 		//STEP 2: load xqcas_options fields
 
 		//question variables
-		$this->getQuestion()->question_variables = ilUtil::secureString((string)$question->questionvariables);
+		if (isset($question->questionvariables->text)) {
+			$this->getQuestion()->question_variables = ilUtil::secureString((string)$question->questionvariables->text);
+		}
 
 		//specific feedback
 		$specific_feedback = (string)$question->specificfeedback->text;
@@ -160,8 +183,8 @@ class assStackQuestionMoodleImport
 		$this->getQuestion()->specific_feedback_format = 1;
 
 		//question note
-		if (isset($question->questionnote)) {
-			$this->getQuestion()->question_note = ilUtil::secureString((string)$question->questionnote);
+		if (isset($question->questionnote->text)) {
+			$this->getQuestion()->question_note = ilUtil::secureString((string)$question->questionnote->text);
 		}
 
 		//prt correct feedback
@@ -210,7 +233,7 @@ class assStackQuestionMoodleImport
 		try {
 			$this->getQuestion()->options = new stack_options($options);
 		} catch (stack_exception $e) {
-			ilUtil::sendFailure($e, true);
+			$this->error_log[] = $question_title . ': options not created';
 		}
 
 		//STEP 3: load xqcas_inputs fields
@@ -248,7 +271,11 @@ class assStackQuestionMoodleImport
 			}
 
 			//load inputs
-			$this->getQuestion()->inputs[$input_name] = stack_input_factory::make($input_type, $input_name, ilUtil::secureString((string)$input->tans), $this->getQuestion()->options, $parameters);
+			try {
+				$this->getQuestion()->inputs[$input_name] = stack_input_factory::make($input_type, $input_name, ilUtil::secureString((string)$input->tans), $this->getQuestion()->options, $parameters);
+			} catch (stack_exception $e) {
+				$this->error_log[] = $this->getQuestion()->getTitle() . ': ' . $e;
+			}
 		}
 
 		//STEP 4:load PRTs and PRT nodes
@@ -261,14 +288,9 @@ class assStackQuestionMoodleImport
 		}
 
 		if ($total_value < 0.0000001) {
-			try {
-				throw new stack_exception('There is an error authoring your question. ' .
-					'The $totalvalue, the marks available for the question, must be positive in question ' .
-					$this->getQuestion()->getTitle());
-			} catch (stack_exception $e) {
-				echo $e;
-				exit;
-			}
+			$this->error_log[] = 'There is an error authoring your question. ' .
+				'The $totalvalue, the marks available for the question, must be positive in question ' .
+				$this->getQuestion()->getTitle();
 		}
 
 		foreach ($question->prt as $prt) {
@@ -276,10 +298,24 @@ class assStackQuestionMoodleImport
 			$prt_name = ilUtil::secureString((string)$prt->name);
 			$nodes = array();
 			$is_first_node = true;
+			$invalid_node = false;
+
+			//Check for non "0" nodes
+			foreach ($prt->node as $xml_node) {
+				if ($xml_node->name == '0') {
+					$invalid_node = true;
+				}
+			}
 
 			foreach ($prt->node as $xml_node) {
+				//Check for non "0" nodes
+				if ($invalid_node) {
+					$new_node_name = ((int)$xml_node->name) + 1;
+					$node_name = ilUtil::secureString((string)$new_node_name);
+				} else {
+					$node_name = ilUtil::secureString((string)$xml_node->name);
+				}
 
-				$node_name = ilUtil::secureString((string)$xml_node->name);
 				$raw_sans = ilUtil::secureString((string)$xml_node->sans);
 				$raw_tans = ilUtil::secureString((string)$xml_node->tans);
 
@@ -292,7 +328,7 @@ class assStackQuestionMoodleImport
 
 				try {
 					//Create Node and add it to the
-					$node = new stack_potentialresponse_node($sans, $tans, ilUtil::secureString((string)$xml_node->answertest), ilUtil::secureString((string)$xml_node->testoptions), (bool)$xml_node->testoptions, '', (int)$node_name, $raw_sans, $raw_tans);
+					$node = new stack_potentialresponse_node($sans, $tans, ilUtil::secureString((string)$xml_node->answertest), ilUtil::secureString((string)$xml_node->testoptions), (bool)$xml_node->quiet, '', (int)$node_name, $raw_sans, $raw_tans);
 
 					//manage images in false feedback
 					$false_feedback = (string)$xml_node->falsefeedback->text;
@@ -308,8 +344,36 @@ class assStackQuestionMoodleImport
 						$true_feedback = $this->replaceMediaObjectReferences($true_feedback, $mapping);
 					}
 
-					$node->add_branch(0, ilUtil::secureString((string)$xml_node->falsescoremode), ilUtil::secureString((string)$xml_node->falsescore), $false_penalty, ilUtil::secureString((string)$xml_node->falsenextnode), $false_feedback, 1, ilUtil::secureString((string)$xml_node->falseanswernote));
-					$node->add_branch(1, ilUtil::secureString((string)$xml_node->truescoremode), ilUtil::secureString((string)$xml_node->truescore), $true_penalty, ilUtil::secureString((string)$xml_node->truenextnode), $true_feedback, 1, ilUtil::secureString((string)$xml_node->trueanswernote));
+					//Check for non "0" next nodes
+					$true_next_node = $xml_node->truenextnode;
+					$false_next_node = $xml_node->falsenextnode;
+
+					//If certain nodes point node 0 as next node (not usual)
+					//The next node will now be -1, so, end of the prt.
+					//If we are already in node 1, we cannot point ourselves
+					if ($true_next_node == '-1') {
+						$true_next_node = -1;
+					} else {
+						$true_next_node = $true_next_node + 1;
+					}
+
+					if ($false_next_node == '-1') {
+						$false_next_node = -1;
+					} else {
+						$false_next_node = $false_next_node + 1;
+					}
+
+					//Check for non "0" answer notes
+					if ($invalid_node) {
+						$true_answer_note = $prt_name . '-' . $node_name . '-T';
+						$false_answer_note = $prt_name . '-' . $node_name . '-F';
+					} else {
+						$true_answer_note = $xml_node->trueanswernote;
+						$false_answer_note = $xml_node->falseanswernote;
+					}
+
+					$node->add_branch(0, ilUtil::secureString((string)$xml_node->falsescoremode), ilUtil::secureString((string)$xml_node->falsescore), $false_penalty, ilUtil::secureString((string)$false_next_node), $false_feedback, 1, ilUtil::secureString((string)$false_answer_note));
+					$node->add_branch(1, ilUtil::secureString((string)$xml_node->truescoremode), ilUtil::secureString((string)$xml_node->truescore), $true_penalty, ilUtil::secureString((string)$true_next_node), $true_feedback, 1, ilUtil::secureString((string)$true_answer_note));
 
 					$nodes[$node_name] = $node;
 
@@ -320,8 +384,7 @@ class assStackQuestionMoodleImport
 					}
 
 				} catch (stack_exception $e) {
-					echo $e;
-					exit;
+					$this->error_log[] = $this->getQuestion()->getTitle() . ': ' . $e;
 				}
 			}
 
@@ -330,8 +393,7 @@ class assStackQuestionMoodleImport
 					$feedback_variables = new stack_cas_keyval(ilUtil::secureString((string)$prt->feedbackvariables->text));
 					$feedback_variables = $feedback_variables->get_session();
 				} catch (stack_exception $e) {
-					echo $e;
-					exit;
+					$this->error_log[] = $this->getQuestion()->getTitle() . ': ' . $e;
 				}
 			} else {
 				$feedback_variables = null;
@@ -340,14 +402,16 @@ class assStackQuestionMoodleImport
 			$prt_value = (float)$prt->value / $total_value;
 
 			try {
-				$this->getQuestion()->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt->autosimplify, $prt_value, $feedback_variables, $nodes, $first_node, 1);
+				$this->getQuestion()->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt->autosimplify, $prt_value, $feedback_variables, $nodes, (string)$first_node, 1);
 			} catch (stack_exception $e) {
-				echo $e;
-				exit;
+				$this->error_log[] = $this->getQuestion()->getTitle() . ': ' . $e;
 			}
+		}
 
-			//TODO SEEDS; TESTS; EXTRA INFO
+		if (empty($this->error_log)) {
 			return true;
+		} else {
+			return false;
 		}
 	}
 
