@@ -638,12 +638,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 					if ($prt_from_db_array && $grade_all && $total_value < 0.0000001) {
 						try {
-							throw new coding_exception('There is an error authoring your question. ' .
+							throw new stack_exception('There is an error authoring your question. ' .
 								'The $totalvalue, the marks available for the question, must be positive in question ' .
 								$this->getTitle());
-						} catch (coding_exception $e) {
-							echo $e;
-							exit;
+						} catch (stack_exception $e) {
+							ilUtil::sendFailure($e);
+							$total_value = 1.0;
 						}
 					}
 
@@ -806,6 +806,18 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		return true;
 	}
 
+	/**
+	 * @param int $question_id
+	 */
+	public function delete($question_id)
+	{
+		//delete general question data
+		parent::delete($question_id);
+
+		//delete stack specific question data
+		assStackQuestionDB::_deleteStackQuestion($question_id);
+	}
+
 	/* ILIAS OVERWRITTEN METHODS END */
 
 	/* ILIAS SPECIFIC METHODS BEGIN */
@@ -954,6 +966,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 		//load seeds
 		$this->deployed_seeds = array();
+
+		$this->setPoints(1);
 
 		//load extra info
 		$this->general_feedback = '';

@@ -622,4 +622,81 @@ class assStackQuestionDB
 			);
 		}
 	}
+
+	/**
+	 * @param int $question_id
+	 * @param string $purpose
+	 * @param string $specific_table
+	 * @return bool
+	 */
+	public static function _deleteStackQuestion(int $question_id, string $purpose = '', string $specific_table = ''): bool
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		switch ($specific_table) {
+			case 'options':
+				$query = 'DELETE FROM xqcas_options WHERE question_id = ' . $db->quote($question_id, 'integer');
+				$db->manipulate($query);
+				if ($purpose != 'delete_question') {
+					break;
+				}
+			case 'extra_info':
+				$query = 'DELETE FROM xqcas_extra_info WHERE question_id = ' . $db->quote($question_id, 'integer');
+				$db->manipulate($query);
+				if ($purpose != 'delete_question') {
+					break;
+				}
+			case 'inputs':
+				$query = 'DELETE FROM xqcas_inputs WHERE question_id = ' . $db->quote($question_id, 'integer');
+				$db->manipulate($query);
+				if ($purpose != 'delete_question') {
+					break;
+				}
+			case 'prts':
+				$query = 'DELETE FROM xqcas_prts WHERE question_id = ' . $db->quote($question_id, 'integer');
+				$db->manipulate($query);
+				if ($purpose != 'delete_question') {
+					break;
+				}
+			case 'prt_nodes':
+				$query = 'DELETE FROM xqcas_prt_nodes WHERE question_id = ' . $db->quote($question_id, 'integer');
+				$db->manipulate($query);
+				if ($purpose != 'delete_question') {
+					break;
+				}
+			case 'seeds':
+				$query = 'DELETE FROM xqcas_deployed_seeds WHERE question_id = ' . $db->quote($question_id, 'integer');
+				$db->manipulate($query);
+				if ($purpose != 'delete_question') {
+					break;
+				}
+			case 'qtest_expected':
+				$query = 'DELETE FROM xqcas_qtest_expected WHERE question_id = ' . $db->quote($question_id, 'integer');
+				$db->manipulate($query);
+				if ($purpose != 'delete_question') {
+					break;
+				}
+			case 'qtest_input':
+				$query = 'DELETE FROM xqcas_qtest_input WHERE question_id = ' . $db->quote($question_id, 'integer');
+				$db->manipulate($query);
+				if ($purpose != 'delete_question') {
+					break;
+				}
+			case 'qtests':
+				$query = 'DELETE FROM xqcas_qtests WHERE question_id = ' . $db->quote($question_id, 'integer');
+				$db->manipulate($query);
+				if ($purpose != 'delete_question') {
+					break;
+				}
+			default:
+				ilUtil::sendFailure('non existing table');
+				break;
+		}
+	}
+
+	public static function _deleteStackOptions(int $question_id): bool
+	{
+
+	}
 }

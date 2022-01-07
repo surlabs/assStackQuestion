@@ -170,6 +170,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		if (!$hasErrors) {
 
 			$this->questionCheck();
+
 			//Parent
 			$this->writeQuestionGenericPostData();
 			$this->writeQuestionSpecificPostData();
@@ -482,8 +483,6 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function questionCheck(): void
 	{
-		echo "questionCheck";
-
 		//TODO
 	}
 
