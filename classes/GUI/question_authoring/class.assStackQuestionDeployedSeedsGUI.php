@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2014 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
+ * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
  * GPLv2, see LICENSE
  */
 require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
@@ -8,10 +8,8 @@ require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/as
 /**
  * STACK Question deployed seeds authoring GUI class
  *
- * @author Fred Neumann <fred.neumann@ili.fau.de>
  * @author Jesus Copado <jesus.copado@ili.fau.de>
- * @version $Id: 1.6.2$
- * @ingroup    ModulesTestQuestionPool
+ * @version $Id: 3.9$
  *
  * @ilCtrl_isCalledBy assStackQuestionDeployedSeedsGUI: ilObjQuestionPoolGUI
  */
@@ -22,31 +20,35 @@ class assStackQuestionDeployedSeedsGUI
 	 * Plugin instance for templates and language management
 	 * @var ilassStackQuestionPlugin
 	 */
-	private $plugin;
+	private ilassStackQuestionPlugin $plugin;
 
 	/**
 	 * @var ilTemplate for showing the deployed seeds panel
 	 */
-	private $template;
+	private ilTemplate $template;
 
 	/**
-	 * @var mixed Array with the assStackQuestionDeployedSeed object of the current question.
+	 * @var array Array with the assStackQuestionDeployedSeed object of the current question.
 	 */
-	private $deployed_seeds;
+	private array $deployed_seeds;
 
 	/**
 	 * @var int
 	 */
-	private $question_id;
+	private int $question_id;
 
-	private $parent_obj;
+	/**
+	 * @var assStackQuestionGUI Parent GUI Class
+	 */
+	private assStackQuestionGUI $parent_obj;
 
 	/**
 	 * Sets required data for deployed seeds management
 	 * @param $plugin ilassStackQuestionPlugin instance
 	 * @param $question_id int
+	 * @param assStackQuestionGUI $parent_obj
 	 */
-	function __construct($plugin, $question_id, $parent_obj)
+	function __construct(ilassStackQuestionPlugin $plugin, int $question_id, assStackQuestionGUI $parent_obj)
 	{
 		//Set plugin and template objects
 		$this->setPlugin($plugin);
@@ -54,8 +56,11 @@ class assStackQuestionDeployedSeedsGUI
 		$this->setQuestionId($question_id);
 
 		//Get deployed seeds for current question
-		$this->setDeployedSeeds(assStackQuestionDeployedSeed::_read($this->getQuestionId()));
-		$this->parent_obj = $parent_obj;
+		$this->getPlugin()->includeClass('class.assStackQuestionDB.php');
+		$variants = assStackQuestionDB::_readDeployedVariants($this->getQuestionId());
+
+		$this->setDeployedSeeds($variants);
+		$this->setParentObj($parent_obj);
 	}
 
 	/**
@@ -65,7 +70,8 @@ class assStackQuestionDeployedSeedsGUI
 	public function showDeployedSeedsPanel()
 	{
 		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/GUI/tables/class.assStackQuestionSeedsTableGUI.php';
-		$seeds_table = new assStackQuestionSeedsTableGUI($this->parent_obj, "deployedSeedsManagement");
+		$seeds_table = new assStackQuestionSeedsTableGUI($this->getParentObj(), "deployedSeedsManagement");
+
 		$this->getQuestionNotesForSeeds();
 		$seeds_table->prepareData($this->getDeployedSeeds());
 
@@ -75,47 +81,14 @@ class assStackQuestionDeployedSeedsGUI
 
 	private function getQuestionNotesForSeeds()
 	{
-		//Create ILIAS options objects and raws
-		$ilias_options = assStackQuestionOptions::_read($this->getQuestionId());
-		$question_variables_raw = $ilias_options->getQuestionVariables();
-		$question_note_raw = $ilias_options->getQuestionNote();
-		//Create STACK question
-		$this->getPlugin()->includeClass('model/class.assStackQuestionStackQuestion.php');
-		$stack_question = new assStackQuestionStackQuestion();
-		$stack_question->createOptions($ilias_options);
-
-		//Get question note for each different seed
-		foreach ($this->getDeployedSeeds() as $deployed_seed)
-		{
-			$deployed_seed->setQuestionNote($stack_question->getQuestionNoteForSeed($deployed_seed->getSeed(), $question_variables_raw, $question_note_raw, $this->getQuestionId()));
-		}
-
-		//Avoid duplicates bugr 16727#
 		$valid_seeds = array();
 		$number_of_valid_seeds = 0;
-		foreach ($this->getDeployedSeeds() as $deployed_seed)
-		{
-			$q_note = $deployed_seed->getQuestionNote();
-			$include = TRUE;
-
-			if (!empty($valid_seeds))
-			{
-				foreach ($valid_seeds as $valid_seed)
-				{
-					if ($valid_seed->getQuestionNote() == $q_note)
-					{
-						$deployed_seed->delete();
-						$include = FALSE;
-						break;
-					}
-				}
-			}
-
-			if ($include)
-			{
-				$number_of_valid_seeds++;
-				$valid_seeds[] = $deployed_seed;
-			}
+		//Get question note for each different seed
+		foreach ($this->getDeployedSeeds() as $id => $deployed_seed) {
+			$this->getParentObj()->object->questionInitialisation($deployed_seed, true);
+			$question_note_instantiated = $this->getParentObj()->object->getQuestionNoteInstantiated();
+			$number_of_valid_seeds++;
+			$valid_seeds[$id] = array('seed' => $deployed_seed, 'note' => $question_note_instantiated,'question_id' => $this->getParentObj()->object->getId());
 		}
 
 		$this->setDeployedSeeds($valid_seeds);
@@ -154,17 +127,17 @@ class assStackQuestionDeployedSeedsGUI
 	 */
 
 	/**
-	 * @param \ilassStackQuestionPlugin $plugin
+	 * @param ilassStackQuestionPlugin $plugin
 	 */
-	private function setPlugin($plugin)
+	protected function setPlugin(ilassStackQuestionPlugin $plugin)
 	{
 		$this->plugin = $plugin;
 	}
 
 	/**
-	 * @return \ilassStackQuestionPlugin
+	 * @return ilassStackQuestionPlugin
 	 */
-	public function getPlugin()
+	public function getPlugin(): ilassStackQuestionPlugin
 	{
 		return $this->plugin;
 	}
@@ -178,25 +151,41 @@ class assStackQuestionDeployedSeedsGUI
 	}
 
 	/**
+	 * @return assStackQuestionGUI
+	 */
+	public function getParentObj(): assStackQuestionGUI
+	{
+		return $this->parent_obj;
+	}
+
+	/**
+	 * @param assStackQuestionGUI $parent_obj
+	 */
+	public function setParentObj(assStackQuestionGUI $parent_obj): void
+	{
+		$this->parent_obj = $parent_obj;
+	}
+
+	/**
 	 * @return ilTemplate
 	 */
-	private function getTemplate()
+	private function getTemplate(): ilTemplate
 	{
 		return $this->template;
 	}
 
 	/**
-	 * @param mixed $deployed_seeds
+	 * @param array $deployed_seeds
 	 */
-	private function setDeployedSeeds($deployed_seeds)
+	private function setDeployedSeeds(array $deployed_seeds)
 	{
 		$this->deployed_seeds = $deployed_seeds;
 	}
 
 	/**
-	 * @return mixed
+	 * @return array
 	 */
-	public function getDeployedSeeds()
+	public function getDeployedSeeds(): array
 	{
 		return $this->deployed_seeds;
 	}
@@ -204,7 +193,7 @@ class assStackQuestionDeployedSeedsGUI
 	/**
 	 * @param int $question_id
 	 */
-	private function setQuestionId($question_id)
+	private function setQuestionId(int $question_id)
 	{
 		$this->question_id = $question_id;
 	}
@@ -212,7 +201,7 @@ class assStackQuestionDeployedSeedsGUI
 	/**
 	 * @return int
 	 */
-	private function getQuestionId()
+	private function getQuestionId(): int
 	{
 		return $this->question_id;
 	}

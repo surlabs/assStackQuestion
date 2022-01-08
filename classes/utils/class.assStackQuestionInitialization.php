@@ -178,6 +178,11 @@ if (!function_exists('get_config')) {
 		$configs->inversetrig = $saved_config['options_inverse_trigonometric'];
 		$configs->matrixparens = "[";
 
+		//assume_real variable in maxima
+		$configs->assumereal = $saved_config['options_assume_real'];
+		//assume_real variable in maxima
+		$configs->logicsymbol = $saved_config['options_logic_symbol'];
+
 		/*
 		 * DEFAULT INPUTS CONFIGURATION
 		 */

@@ -8,7 +8,7 @@
  * STACK Question Import from MoodleXML
  *
  * @author Jesus Copado <jesus.copado@fau.de>
- * @version $Id: 4.0$
+ * @version $Id: 3.9$
  *
  */
 require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
@@ -116,7 +116,7 @@ class assStackQuestionMoodleImport
 						$number_of_questions_created++;
 					}
 				} catch (stack_exception $e) {
-					ilUtil::sendFailure($e);
+					$this->error_log[] = 'question was not saved: ' . $this->getQuestion()->getTitle();
 				}
 			} else {
 				//Do not create not well created questions
@@ -230,15 +230,21 @@ class assStackQuestionMoodleImport
 		$options = array();
 		$options['simplify'] = ((int)$question->questionsimplify);
 		$options['assumepos'] = ((int)$question->assumepositive);
+		$options['assumereal'] = ((int)$question->assumereal);
 		$options['multiplicationsign'] = ilUtil::secureString((string)$question->multiplicationsign);
 		$options['sqrtsign'] = ((int)$question->sqrtsign);
 		$options['complexno'] = ilUtil::secureString((string)$question->complexno);
 		$options['inversetrig'] = ilUtil::secureString((string)$question->inversetrig);
 		$options['matrixparens'] = ilUtil::secureString((string)$question->matrixparens);
+		$options['logicsymbol'] = ilUtil::secureString((string)$question->logicsymbol);
 
 		//load options
 		try {
 			$this->getQuestion()->options = new stack_options($options);
+			//set stack version
+			if (isset($question->stackversion->text)) {
+				$this->getQuestion()->stack_version = (string)ilUtil::secureString((string)$question->stackversion->text);
+			}
 		} catch (stack_exception $e) {
 			$this->error_log[] = $question_title . ': options not created';
 		}
@@ -254,19 +260,19 @@ class assStackQuestionMoodleImport
 			$input_type = ilUtil::secureString((string)$input->type);
 
 			$all_parameters = array(
-				'boxWidth' => ilUtil::secureString((string)$question->boxsize),
-				'strictSyntax' => ilUtil::secureString((string)$question->strictsyntax),
-				'insertStars' => ilUtil::secureString((string)$question->insertstars),
-				'syntaxHint' => ilUtil::secureString((string)$question->syntaxhint),
-				'syntaxAttribute' => ilUtil::secureString((string)$question->syntaxattribute),
-				'forbidWords' => ilUtil::secureString((string)$question->forbidwords),
-				'allowWords' => ilUtil::secureString((string)$question->allowwords),
-				'forbidFloats' => ilUtil::secureString((string)$question->forbidfloat),
-				'lowestTerms' => ilUtil::secureString((string)$question->requirelowestterms),
-				'sameType' => ilUtil::secureString((string)$question->checkanswertype),
-				'mustVerify' => ilUtil::secureString((string)$question->mustverify),
-				'showValidation' => ilUtil::secureString((string)$question->showvalidation),
-				'options' => ilUtil::secureString((string)$question->options),
+				'boxWidth' => ilUtil::secureString((string)$input->boxsize),
+				'strictSyntax' => ilUtil::secureString((string)$input->strictsyntax),
+				'insertStars' => ilUtil::secureString((string)$input->insertstars),
+				'syntaxHint' => ilUtil::secureString((string)$input->syntaxhint),
+				'syntaxAttribute' => ilUtil::secureString((string)$input->syntaxattribute),
+				'forbidWords' => ilUtil::secureString((string)$input->forbidwords),
+				'allowWords' => ilUtil::secureString((string)$input->allowwords),
+				'forbidFloats' => ilUtil::secureString((string)$input->forbidfloat),
+				'lowestTerms' => ilUtil::secureString((string)$input->requirelowestterms),
+				'sameType' => ilUtil::secureString((string)$input->checkanswertype),
+				'mustVerify' => ilUtil::secureString((string)$input->mustverify),
+				'showValidation' => ilUtil::secureString((string)$input->showvalidation),
+				'options' => ilUtil::secureString((string)$input->options),
 			);
 
 			$parameters = array();
@@ -299,6 +305,7 @@ class assStackQuestionMoodleImport
 		}
 
 		foreach ($question->prt as $prt) {
+			$first_node = 1;
 
 			$prt_name = ilUtil::secureString((string)$prt->name);
 			$nodes = array();
@@ -393,6 +400,7 @@ class assStackQuestionMoodleImport
 				}
 			}
 
+			$feedback_variables = null;
 			if ((string)$prt->feedbackvariables->text) {
 				try {
 					$feedback_variables = new stack_cas_keyval(ilUtil::secureString((string)$prt->feedbackvariables->text));
@@ -400,8 +408,6 @@ class assStackQuestionMoodleImport
 				} catch (stack_exception $e) {
 					$this->error_log[] = $this->getQuestion()->getTitle() . ': ' . $e;
 				}
-			} else {
-				$feedback_variables = null;
 			}
 
 			$prt_value = (float)$prt->value / $total_value;
@@ -412,6 +418,15 @@ class assStackQuestionMoodleImport
 				$this->error_log[] = $this->getQuestion()->getTitle() . ': ' . $e;
 			}
 		}
+
+		//seeds:
+		$seeds = array();
+		if (isset($question->deployedseed)) {
+			foreach ($question->deployedseed as $seed) {
+				$seeds[] = (int)ilUtil::secureString((string)$seed);
+			}
+		}
+		$this->getQuestion()->deployed_seeds = $seeds;
 
 		if (empty($this->error_log)) {
 			return true;
@@ -632,19 +647,6 @@ class assStackQuestionMoodleImport
 		return $test_expected;
 	}
 
-	private function getDeployedSeedsFromXML($data)
-	{
-		$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionDeployedSeed.php');
-		$deployed_seeds = array();
-
-		foreach ($data as $deployed_seed_string) {
-			$deployed_seed = new assStackQuestionDeployedSeed(-1, $this->getQuestion()->getId(), (int)$deployed_seed_string);
-			$deployed_seeds[] = $deployed_seed;
-		}
-
-		//array of assStackQuestionDeployedSeed
-		return $deployed_seeds;
-	}
 
 	private function getExtraInfoFromXML($data)
 	{

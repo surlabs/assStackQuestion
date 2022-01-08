@@ -61,8 +61,8 @@ class assStackQuestionSeedsTableGUI extends ilTable2GUI
 	{
 		foreach ($deployed_seeds as $seed)
 		{
-			$row['seed'] = $seed->getSeed();
-			$row['question_note'] = assStackQuestionUtils::_getLatex(assStackQuestionUtils::_solveKeyBracketsBug($seed->getQuestionNote()));
+			$row['seed'] = $seed['seed'];
+			$row['question_note'] = assStackQuestionUtils::_getLatex(assStackQuestionUtils::_solveKeyBracketsBug($seed['note']));
 			$row['form'] = $seed;
 			$data[] = $row;
 		}
@@ -102,7 +102,7 @@ class assStackQuestionSeedsTableGUI extends ilTable2GUI
 		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
 
 		$delete_seed = new ilHiddenInputGUI('deployed_seed');
-		$delete_seed->setValue($seed->getSeed());
+		$delete_seed->setValue($seed['seed']);
 		$form->addItem($delete_seed);
 
 		$fixed_seed = new ilHiddenInputGUI('fixed_seed');
@@ -110,10 +110,10 @@ class assStackQuestionSeedsTableGUI extends ilTable2GUI
 		$form->addItem($fixed_seed);
 
 		$question_id = new ilHiddenInputGUI('question_id');
-		$question_id->setValue($seed->getQuestionId());
+		$question_id->setValue($seed['question_id']);
 		$form->addItem($question_id);
 
-		$ctrl->setParameterByClass("ilAssQuestionPageGUI", "fixed_seed", $seed->getSeed());
+		$ctrl->setParameterByClass("ilAssQuestionPageGUI", "fixed_seed", $seed['seed']);
 
 		$ftpl = new ilTemplate("tpl.external_settings.html", true, true, "Services/Administration");
 

@@ -116,4 +116,10 @@ Version 4.x.x (UNDER DEVELOPMENT, DO NOT USE) for ILIAS 7
 - "0" is no longer valid as node name, a DB Update script to automatically change this value (Step 40) has been added
 - The Save PRT function now checks also for invalid node names, which may come from Imported questions.
 - Questions can now be deleted
+- New attributes added to the question (not yet customisable):
+- assume real, logic symbol, stack version and compiled cache to stack_options
+- syntax attribute for stack_inputs
+- Seeds management is now active
+- Scoring management is now active
+
 First Commit **THIS VERSION IS NOT READY FOR TESTING**

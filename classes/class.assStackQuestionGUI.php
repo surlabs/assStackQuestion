@@ -676,7 +676,7 @@ class assStackQuestionGUI extends assQuestionGUI
 				$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 				$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
 				$tabs->addSubTab('deployed_seeds_management', $this->plugin->txt('dsm_deployed_seeds'), $this->ctrl->getLinkTargetByClass($classname, "deployedSeedsManagement"));
-				$tabs->addSubTab('unit_tests', $this->plugin->txt('ut_title'), $this->ctrl->getLinkTargetByClass($classname, "showUnitTests"));
+				//$tabs->addSubTab('unit_tests', $this->plugin->txt('ut_title'), $this->ctrl->getLinkTargetByClass($classname, "showUnitTests"));
 				$tabs->addSubTab('import_from_moodle', $this->plugin->txt('import_from_moodle'), $this->ctrl->getLinkTargetByClass($classname, "importQuestionFromMoodleForm"));
 				$tabs->addSubTab('export_to_moodle', $this->plugin->txt('export_to_moodle'), $this->ctrl->getLinkTargetByClass($classname, "exportQuestiontoMoodleForm"));
 			}
@@ -901,6 +901,153 @@ class assStackQuestionGUI extends assQuestionGUI
 	}
 
 	/* IMPORT / EXPORT TO MOODLE END */
+
+	/* DEPLOYED SEEDS METHODS BEGIN */
+
+	public function deployedSeedsManagement()
+	{
+		global $DIC;
+		$tabs = $DIC->tabs();
+
+		if ($this->object->getSelfAssessmentEditingMode()) {
+			$this->getLearningModuleTabs();
+		}
+		//Set all parameters required
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('deployed_seeds_management');
+		$this->getQuestionTemplate();
+
+		//Create GUI object
+		$this->getPlugin()->includeClass('GUI/question_authoring/class.assStackQuestionDeployedSeedsGUI.php');
+		$deployed_seeds_gui = new assStackQuestionDeployedSeedsGUI($this->plugin, $this->object->getId(), $this);
+
+		//Add MathJax (Ensure MathJax is loaded)
+		include_once "./Services/Administration/classes/class.ilSetting.php";
+		$mathJaxSetting = new ilSetting("MathJax");
+		$DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
+
+		//Add CSS
+		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_deployed_seeds_management.css'));
+
+		//Returns Deployed seeds form
+		$this->tpl->setVariable("QUESTION_DATA", $deployed_seeds_gui->showDeployedSeedsPanel());
+	}
+
+	public function createNewDeployedSeed()
+	{
+		global $DIC;
+		$tabs = $DIC->tabs();
+		//Set all parameters required
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('deployed_seeds_management');
+		$this->getQuestionTemplate();
+
+		//New seed creation
+		$seed = (int)$_POST['deployed_seed'];
+		$question_id = (int)$_POST['question_id'];
+
+		$this->plugin->includeClass('model/ilias_object/class.assStackQuestionDeployedSeed.php');
+		$deployed_seed = new assStackQuestionDeployedSeed('', $question_id, $seed);
+		if (!$deployed_seed->save()) {
+			ilUtil::sendFailure($this->plugin->txt('dsm_not_allowed_seed'), true);
+		}
+
+		$this->deployedSeedsManagement();
+	}
+
+	public function deleteDeployedSeed()
+	{
+		global $DIC;
+		$tabs = $DIC->tabs();
+		//Set all parameters required
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('deployed_seeds_management');
+		$this->getQuestionTemplate();
+
+		//New seed creation
+		$seed = $_POST['deployed_seed'];
+		$question_id = $_POST['question_id'];
+
+		$this->plugin->includeClass('model/ilias_object/class.assStackQuestionDeployedSeed.php');
+		$deployed_seeds = assStackQuestionDeployedSeed::_read($question_id);
+		foreach ($deployed_seeds as $deployed_seed) {
+			if ($deployed_seed->getSeed() == $seed) {
+				$deployed_seed->delete();
+				ilUtil::sendSuccess($this->plugin->txt('dsm_deployed_seed_deleted'));
+				break;
+			}
+		}
+
+		$this->deployedSeedsManagement();
+	}
+
+	/* DEPLOYED SEEDS METHODS END */
+
+	/* SCORING METHODS BEGIN */
+
+	/**
+	 * This function is called when scoring tab is activated.
+	 * Shows the evaluation structure of the question by potentialresponse tree and a simulation
+	 * of the value of each PRT in real points, in order to change it.
+	 * @param float $new_question_points
+	 */
+	public function scoringManagementPanel($new_question_points = '')
+	{
+		global $DIC;
+		$tabs = $DIC->tabs();
+		if ($this->object->getSelfAssessmentEditingMode()) {
+			$this->getLearningModuleTabs();
+		}
+		//Set all parameters required
+		$tabs->activateTab('edit_properties');
+		$tabs->activateSubTab('scoring_management');
+		$this->getQuestionTemplate();
+
+		//Create GUI object
+		$this->plugin->includeClass('GUI/question_authoring/class.assStackQuestionScoringGUI.php');
+		$scoring_gui = new assStackQuestionScoringGUI($this->plugin, $this->object->getId(), $this->object->getPoints());
+
+		//Add CSS
+		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_scoring_management.css'));
+
+		//Returns Deployed seeds form
+		$this->tpl->setVariable("QUESTION_DATA", $scoring_gui->showScoringPanel($new_question_points));
+	}
+
+	/**
+	 * This command is called when user requires a comparison between current evaluation
+	 * structure and a new one with the point value he insert in the input field.
+	 */
+	public function showScoringComparison()
+	{
+		//Get new points value
+		if (isset($_POST['new_scoring']) and (float)$_POST['new_scoring'] > 0.0) {
+			$new_question_points = (float)ilUtil::stripSlashes($_POST['new_scoring']);
+		} else {
+			$this->question_gui->object->setErrors($this->plugin->txt('sco_invalid_value'));
+		}
+		//Show scoring panel with comparison
+		$this->scoringManagementPanel($new_question_points);
+	}
+
+	/**
+	 * This command is called when the user wants to change the points value of the
+	 * question to the value inserted in the input field.
+	 */
+	public function saveNewScoring()
+	{
+		//Get new points value and save it to the DB
+		if (isset($_POST['new_scoring']) and (float)$_POST['new_scoring'] > 0.0) {
+			$this->object->setPoints(ilUtil::stripSlashes($_POST['new_scoring']));
+			$this->object->saveQuestionDataToDb($this->object->getId());
+		} else {
+			$this->question_gui->object->setErrors($this->plugin->txt('sco_invalid_value'));
+		}
+		//Show scoring panel
+		$this->scoringManagementPanel();
+	}
+
+	/* SCORING METHODS END */
 
 	/* UNIT TESTS COMMANDS BEGIN */
 

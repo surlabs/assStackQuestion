@@ -898,6 +898,76 @@ if (array_key_exists('prt_pos_answernote', $existing_entries)) {
 if (array_key_exists('prt_neg_answernote', $existing_entries)) {
 	$db->replace("xqcas_configuration", array('parameter_name' => array('text', 'prt_neg_answernote'), 'value' => array('text', 'prt1-1-F'), 'group_name' => array('text', 'prts')), array());
 }
+?>
+<#41>
+<?php
+//add new columns to xqcas question tables.
+global $DIC;
+$db = $DIC->database();
 
+//assume real in options
+$assume_real = array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0);
+if (!$db->tableColumnExists("xqcas_options", "assume_real")) {
+	$db->addTableColumn("xqcas_options", "assume_real", $assume_real);
+}
 
+//logic symbol in options
+$logic_symbol = array('type' => 'text', 'length' => 8, 'notnull' => true, 'default' => 'lang');
+if (!$db->tableColumnExists("xqcas_options", "logic_symbol")) {
+	$db->addTableColumn("xqcas_options", "logic_symbol", $logic_symbol);
+}
+
+//stack version in options
+$stack_version = array('type' => 'clob', 'notnull' => false, 'default' => null);
+if (!$db->tableColumnExists("xqcas_options", "stack_version")) {
+	$db->addTableColumn("xqcas_options", "stack_version", $stack_version);
+}
+
+//compiled cache in options
+$compiled_cache = array('type' => 'clob', 'notnull' => false, 'default' => null);
+if (!$db->tableColumnExists("xqcas_options", "compiled_cache")) {
+	$db->addTableColumn("xqcas_options", "compiled_cache", $compiled_cache);
+}
+
+//Syntax attribute for Inputs
+$syntax_attribute = array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0);
+if (!$db->tableColumnExists("xqcas_inputs", "syntax_attribute")) {
+	$db->addTableColumn("xqcas_inputs", "syntax_attribute", $syntax_attribute);
+}
+
+//Add default values to configuration
+if ($db->tableExists('xqcas_configuration')) {
+
+    //options
+	$existing_entries = array();
+	$result = $db->query('SELECT * FROM xqcas_configuration WHERE group_name = "options"');
+	while ($row = $db->fetchAssoc($result)) {
+		$existing_entries[$row['parameter_name']] = '';
+	}
+
+	//assume real
+	if (!array_key_exists('options_assume_real', $existing_entries)) {
+		//We have to store the id of the content style we want to use for stack feedback styles
+		$db->insert('xqcas_configuration', array('parameter_name' => array('text', 'options_assume_real'), 'value' => array('clob', '0'), 'group_name' => array('text', 'options')));
+	}
+
+	//logic symbol
+	if (!array_key_exists('options_logic_symbol', $existing_entries)) {
+		//We have to store the id of the content style we want to use for stack feedback styles
+		$db->insert('xqcas_configuration', array('parameter_name' => array('text', 'options_logic_symbol'), 'value' => array('clob', 'lang'), 'group_name' => array('text', 'options')));
+	}
+
+	//inputs
+	$existing_entries = array();
+	$result = $db->query('SELECT * FROM xqcas_configuration WHERE group_name = "inputs"');
+	while ($row = $db->fetchAssoc($result)) {
+		$existing_entries[$row['parameter_name']] = '';
+	}
+
+	//logic symbol
+	if (!array_key_exists('input_syntax_attribute', $existing_entries)) {
+		//We have to store the id of the content style we want to use for stack feedback styles
+		$db->insert('xqcas_configuration', array('parameter_name' => array('text', 'input_syntax_attribute'), 'value' => array('clob', '0'), 'group_name' => array('text', 'inputs')));
+	}
+}
 ?>

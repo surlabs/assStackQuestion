@@ -53,6 +53,8 @@ class assStackQuestionDB
 			$ilias_options['prt_incorrect'] = (ilRTE::_replaceMediaObjectImageSrc($row->prt_incorrect, 1));
 			$ilias_options['prt_incorrect_format'] = ((int)$row->prt_incorrect_format);
 			$ilias_options['variants_selection_seed'] = ($row->variants_selection_seed);
+			$ilias_options['stack_version'] = ($row->stack_version);
+			$ilias_options['compiled_cache'] = ($row->compiled_cache);
 
 			$options['simplify'] = ((int)$row->question_simplify);
 			$options['assumepos'] = ((int)$row->assume_positive);
@@ -61,13 +63,8 @@ class assStackQuestionDB
 			$options['complexno'] = ($row->complex_no);
 			$options['inversetrig'] = ($row->inverse_trig);
 			$options['matrixparens'] = ($row->matrix_parens);
-
-			//TODO OPTIONS FEATURES
-			/*
-			$this->set_option('logicsymbol', $stackconfig->logicsymbol);
-			$this->set_option('floats', (bool) $stackconfig->inputforbidfloat);
-			$this->set_option('assumereal', (bool) $stackconfig->assumereal);
-			*/
+			$options['assumereal'] = ((int)$row->assume_real);
+			$options['logicsymbol'] = ((int)$row->logic_symbol);
 
 			return array('options' => $options, 'ilias_options' => $ilias_options);
 		} else {
@@ -107,6 +104,7 @@ class assStackQuestionDB
 			$inputs[$input_name]['box_size'] = $row['box_size'];
 			$inputs[$input_name]['strict_syntax'] = $row['strict_syntax'];
 			$inputs[$input_name]['insert_stars'] = (int)$row['insert_stars'];
+			$inputs[$input_name]['syntax_attribute'] = (isset($row['syntax_attribute']) and $row['syntax_attribute'] != null) ? trim($row['syntax_attribute']) : 0;
 			$inputs[$input_name]['syntax_hint'] = (isset($row['syntax_hint']) and $row['syntax_hint'] != null) ? trim($row['syntax_hint']) : '';
 			$inputs[$input_name]['forbid_words'] = $row['forbid_words'];
 			$inputs[$input_name]['allow_words'] = $row['allow_words'];
@@ -174,7 +172,6 @@ class assStackQuestionDB
 		} else {
 			return $potential_response_trees;
 		}
-		//TODO FEATURE ADD DESCRIPTION TO PRT
 	}
 
 	/**
@@ -191,7 +188,8 @@ class assStackQuestionDB
 		$db = $DIC->database();
 
 		//Select query
-		$query = 'SELECT * FROM xqcas_prt_nodes WHERE question_id = ' . $db->quote($question_id, 'integer') . ' AND prt_name = ' . $db->quote($prt_name, 'text');
+		$query = /** @lang text */
+			'SELECT * FROM xqcas_prt_nodes WHERE question_id = ' . $db->quote($question_id, 'integer') . ' AND prt_name = ' . $db->quote($prt_name, 'text');
 		$res = $db->query($query);
 
 		$potential_response_tree_nodes = array();
@@ -244,7 +242,8 @@ class assStackQuestionDB
 		$db = $DIC->database();
 
 		//Select query
-		$query = 'SELECT * FROM xqcas_deployed_seeds WHERE question_id = ' . $db->quote($question_id, 'integer');
+		$query = /** @lang text */
+			'SELECT * FROM xqcas_deployed_seeds WHERE question_id = ' . $db->quote($question_id, 'integer');
 		$res = $db->query($query);
 
 		//Seeds array
@@ -252,14 +251,10 @@ class assStackQuestionDB
 
 		//If there is a result returns array, otherwise returns false.
 		while ($row = $db->fetchAssoc($res)) {
-			$variants[] = (int)$row["seed"];
+			$variants[(int)$row["id"]] = (int)$row["seed"];
 		}
 
-		if (empty($variants)) {
-			return false;
-		} else {
-			return $variants;
-		}
+		return $variants;
 	}
 
 	/**
@@ -316,6 +311,7 @@ class assStackQuestionDB
 	 * Called from saveToDB()->saveAdditionalQuestionDataToDb();
 	 * @param assStackQuestion $question
 	 * @param string $purpose
+	 * @return bool
 	 * @throws stack_exception
 	 */
 	public static function _saveStackQuestion(assStackQuestion $question, string $purpose = ''): bool
@@ -332,6 +328,9 @@ class assStackQuestionDB
 
 		//Save Prts
 		$prts_saved = self::_saveStackPRTs($question, $purpose);
+
+		//Save Seeds
+		$seeds_saved = self::_saveStackSeeds($question, $purpose);
 
 		//Extra Prts
 		//$prts_saved = self::_saveStackExtraInformation($question, self::_readExtraInformation($ids['question_id'], true));
@@ -375,7 +374,10 @@ class assStackQuestionDB
 				"complex_no" => array("text", $question->options->get_option('complexno') == null ? "i" : $question->options->get_option('complexno')),
 				"inverse_trig" => array("text", $question->options->get_option('inversetrig')),
 				"variants_selection_seed" => array("text", $question->variants_selection_seed),
-				"matrix_parens" => array("text", $question->options->get_option('matrixparens'))
+				"matrix_parens" => array("text", $question->options->get_option('matrixparens')),
+				"assume_real" => array("text", $question->options->get_option('assumereal')),
+				"logic_symbol" => array("text", $question->options->get_option('logicsymbol')),
+				"stack_version" => array("text", $question->stack_version)
 			));
 		} else {
 			//UPDATE
@@ -401,8 +403,11 @@ class assStackQuestionDB
 					"complex_no" => array("text", $question->options->get_option('complexno') == null ? "i" : $question->options->get_option('complexno')),
 					"inverse_trig" => array("text", $question->options->get_option('inversetrig')),
 					"variants_selection_seed" => array("text", $question->variants_selection_seed),
-					"matrix_parens" => array("text", $question->options->get_option('matrixparens')))
-			);
+					"matrix_parens" => array("text", $question->options->get_option('matrixparens')),
+					"assume_real" => array("text", $question->options->get_option('assumereal')),
+					"logic_symbol" => array("text", $question->options->get_option('logicsymbol')),
+					"stack_version" => array("text", $question->stack_version)
+				));
 		}
 		return true;
 	}
@@ -437,6 +442,7 @@ class assStackQuestionDB
 					"strict_syntax" => array("integer", $input->get_parameter('strictSyntax') !== null ? $input->get_parameter('strictSyntax') : ''),
 					"insert_stars" => array("integer", $input->get_parameter('insertStars') !== null ? $input->get_parameter('insertStars') : ''),
 					"syntax_hint" => array("text", $input->get_parameter('syntaxHint') !== null ? $input->get_parameter('syntaxHint') : ''),
+					"syntax_attribute" => array("text", $input->get_parameter('syntaxAttribute') !== null ? $input->get_parameter('syntaxAttribute') : ''),
 					"forbid_words" => array("text", $input->get_parameter('forbidWords') !== null ? $input->get_parameter('forbidWords') : ''),
 					"allow_words" => array("text", $input->get_parameter('allowWords') !== null ? $input->get_parameter('allowWords') : ''),
 					"forbid_float" => array("integer", $input->get_parameter('forbidFloats') !== null ? $input->get_parameter('forbidFloats') : ''),
@@ -460,6 +466,7 @@ class assStackQuestionDB
 						"strict_syntax" => array("integer", $input->get_parameter('strictSyntax') !== null ? $input->get_parameter('strictSyntax') : ''),
 						"insert_stars" => array("integer", $input->get_parameter('insertStars') !== null ? $input->get_parameter('insertStars') : ''),
 						"syntax_hint" => array("text", $input->get_parameter('syntaxHint') !== null ? $input->get_parameter('syntaxHint') : ''),
+						"syntax_attribute" => array("text", $input->get_parameter('syntaxAttribute') !== null ? $input->get_parameter('syntaxAttribute') : ''),
 						"forbid_words" => array("text", $input->get_parameter('forbidWords') !== null ? $input->get_parameter('forbidWords') : ''),
 						"allow_words" => array("text", $input->get_parameter('allowWords') !== null ? $input->get_parameter('allowWords') : ''),
 						"forbid_float" => array("integer", $input->get_parameter('forbidFloats') !== null ? $input->get_parameter('forbidFloats') : ''),
@@ -624,49 +631,60 @@ class assStackQuestionDB
 	}
 
 	/**
+	 * @param assStackQuestion $question
+	 * @param string $purpose
+	 * @return bool
+	 */
+	public static function _saveStackSeeds(assStackQuestion $question, string $purpose = ''): bool
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		$question_id = $question->getId();
+		$deployed_seeds_from_db = self::_readDeployedVariants($question_id);
+		foreach ($question->deployed_seeds as $id => $seed) {
+			if (!array_key_exists($id, $deployed_seeds_from_db) or empty($deployed_seeds_from_db) or $purpose == 'import') {
+				//CREATE
+				$db->insert('xqcas_deployed_seeds',
+					array('id' => array('integer', $db->nextId('xqcas_deployed_seeds')),
+						'question_id' => array('integer', $question_id),
+						'seed' => array('integer', $seed)
+					));
+			} else {
+				//UPDATE
+				$db->replace('xqcas_deployed_seeds',
+					array('id' => array('integer', $id)),
+					array(
+						'question_id' => array('integer', $question_id),
+						'seed' => array('integer', $seed)
+					));
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * @param int $question_id
 	 * @return bool
 	 */
 	public static function _deleteStackQuestion(int $question_id): bool
 	{
-
 		$options = self::_deleteStackOptions($question_id);
 
 		$inputs = self::_deleteStackInputs($question_id);
 
 		$prts = self::_deleteStackPrts($question_id);
+
+		$seeds = self::_deleteStackSeeds($question_id);
 		/*
-				switch ($specific_table) {
-					case 'options':
-						$query = 'DELETE FROM xqcas_options WHERE question_id = ' . $db->quote($question_id, 'integer');
-						$db->manipulate($query);
-						if ($purpose != 'delete_question') {
-							break;
-						}
+
 					case 'extra_info':
 						$query = 'DELETE FROM xqcas_extra_info WHERE question_id = ' . $db->quote($question_id, 'integer');
 						$db->manipulate($query);
 						if ($purpose != 'delete_question') {
 							break;
 						}
-					case 'inputs':
-						$query = 'DELETE FROM xqcas_inputs WHERE question_id = ' . $db->quote($question_id, 'integer');
-						$db->manipulate($query);
-						if ($purpose != 'delete_question') {
-							break;
-						}
-					case 'prts':
-						$query = 'DELETE FROM xqcas_prts WHERE question_id = ' . $db->quote($question_id, 'integer');
-						$db->manipulate($query);
-						if ($purpose != 'delete_question') {
-							break;
-						}
-					case 'prt_nodes':
-						$query = 'DELETE FROM xqcas_prt_nodes WHERE question_id = ' . $db->quote($question_id, 'integer');
-						$db->manipulate($query);
-						if ($purpose != 'delete_question') {
-							break;
-						}
+
 					case 'seeds':
 						$query = 'DELETE FROM xqcas_deployed_seeds WHERE question_id = ' . $db->quote($question_id, 'integer');
 						$db->manipulate($query);
@@ -691,9 +709,6 @@ class assStackQuestionDB
 						if ($purpose != 'delete_question') {
 							break;
 						}
-					default:
-						ilUtil::sendFailure('non existing table');
-						break;
 				}*/
 		return true;
 	}
@@ -754,12 +769,14 @@ class assStackQuestionDB
 			$query = /** @lang text */
 				'DELETE FROM xqcas_prts WHERE question_id = ' . $db->quote($question_id, 'integer');
 			$prts_deleted = $db->manipulate($query);
+			//delete all nodes in question
 			$nodes_deleted = self::_deleteStackPrtNodes($question_id);
 		} else {
 			//delete only $prt_name
 			$query = /** @lang text */
 				'DELETE FROM xqcas_prts WHERE question_id = ' . $db->quote($question_id, 'integer') . ' AND name = ' . $db->quote($prt_name, 'text');
 			$prts_deleted = $db->manipulate($query);
+			//delete nodes on that tree
 			$nodes_deleted = self::_deleteStackPrtNodes($question_id, $prt_name);
 		}
 
@@ -794,6 +811,31 @@ class assStackQuestionDB
 				$query = /** @lang text */
 					'DELETE FROM xqcas_prt_nodes WHERE question_id = ' . $db->quote($question_id, 'integer') . ' AND prt_name = ' . $db->quote($prt_name, 'text') . ' AND node_name = ' . $db->quote($node_name, 'text');
 			}
+		}
+		if ($db->manipulate($query) != false) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param int $question_id
+	 * @param string $seed_id
+	 * @return bool
+	 */
+	public static function _deleteStackSeeds(int $question_id, string $seed_id = ''): bool
+	{
+		global $DIC;
+		$db = $DIC->database();
+		if ($seed_id == '') {
+			//delete all seeds of the question
+			$query = /** @lang text */
+				'DELETE FROM xqcas_deployed_seeds WHERE question_id = ' . $db->quote($question_id, 'integer');
+		} else {
+			//delete only $seed_id
+			$query = /** @lang text */
+				'DELETE FROM xqcas_deployed_seeds WHERE id = ' . $db->quote($seed_id, 'integer');
 		}
 		if ($db->manipulate($query) != false) {
 			return true;
