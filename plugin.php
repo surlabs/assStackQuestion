@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2021 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
+ * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
  * GPLv2, see LICENSE 
  */
 
@@ -9,7 +9,7 @@ $id = "xqcas";
  
 // code version; must be changed for all code changes
 
-$version = "3.9.9";
+$version = "5.0";
  
 // ilias min and max version; must always reflect the versions that should
 // run with the plugin
