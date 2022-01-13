@@ -244,6 +244,35 @@ class assStackQuestionRenderer
 	}
 
 	/**
+	 * @param assStackQuestion $question
+	 * @param array $user_solution
+	 * @return string
+	 */
+	public static function _renderSpecificFeedback(assStackQuestion $question, array $user_solution): string
+	{
+		$specific_feedback = $question->specific_feedback_instantiated;
+
+		if (!$specific_feedback) {
+			return '';
+		}
+
+		$specific_feedback_text = stack_maths::process_display_castext($specific_feedback);
+
+		//TODO Connect with feedback styles should be done here.
+
+		// Replace specific feedback placeholders.
+		try {
+			foreach (stack_utils::extract_placeholders($question->specific_feedback_instantiated, 'feedback') as $prt_name) {
+				$feedback = self::_prtFeedbackDisplay($prt_name, $question->getPrtResult($prt_name, $user_solution, true), $question->prts[$prt_name]->get_feedbackstyle());
+				$specific_feedback_text = str_replace("[[feedback:{$prt_name}]]", stack_maths::process_display_castext($feedback), $specific_feedback_text);
+			}
+		} catch (stack_exception $e) {
+			$specific_feedback_text = $e->getMessage();
+		}
+		return $specific_feedback_text;
+	}
+
+	/**
 	 *
 	 * Initialize Validation Settings and get the divs
 	 * @param assStackQuestion $question
@@ -298,7 +327,8 @@ class assStackQuestionRenderer
 	 * @param string $input_name
 	 * @return HTML the HTML code of the button of validation for this input.
 	 */
-	private function validationButton($input_name)
+	private
+	function validationButton($input_name)
 	{
 		return "<button style=\"height:2.2em;\" class=\"\" name=\"cmd[xqcas_" . $this->getDisplay('question_id') . '_' . $input_name . "]\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></button>";
 	}

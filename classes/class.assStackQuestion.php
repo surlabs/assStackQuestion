@@ -656,61 +656,72 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			$this->getPlugin()->includeClass('utils/class.assStackQuestionUtils.php');
 			$prt_names = assStackQuestionUtils::_getPRTNamesFromQuestion($this->getQuestion(), $options_from_db_array['ilias_options']['specific_feedback'], $prt_from_db_array);
 
-			foreach ($prt_names as $prt_name) {
+			if (!empty($prt_names)) {
+				foreach ($prt_names as $prt_name) {
 
-				$prt_data = $prt_from_db_array[$prt_name];
-				$nodes = array();
+					$prt_data = $prt_from_db_array[$prt_name];
+					$nodes = array();
 
-				foreach ($prt_data['nodes'] as $node_name => $node_data) {
+					if (isset($prt_data['nodes']) and !empty($prt_data['nodes'])) {
+						foreach ($prt_data['nodes'] as $node_name => $node_data) {
 
-					$sans = stack_ast_container::make_from_teacher_source('PRSANS' . $node_name . ':' . $node_data['sans'], '', new stack_cas_security());
-					$tans = stack_ast_container::make_from_teacher_source('PRTANS' . $node_name . ':' . $node_data['tans'], '', new stack_cas_security());
+							$sans = stack_ast_container::make_from_teacher_source('PRSANS' . $node_name . ':' . $node_data['sans'], '', new stack_cas_security());
+							$tans = stack_ast_container::make_from_teacher_source('PRTANS' . $node_name . ':' . $node_data['tans'], '', new stack_cas_security());
 
-					//Penalties management, penalties are not an ILIAS Feature
-					if (is_null($node_data['false_penalty']) || $node_data['false_penalty'] === '') {
-						$false_penalty = 0;
+							//Penalties management, penalties are not an ILIAS Feature
+							if (is_null($node_data['false_penalty']) || $node_data['false_penalty'] === '') {
+								$false_penalty = 0;
+							} else {
+								$false_penalty = $node_data['false_penalty'];
+							}
+
+							if (is_null(($node_data['true_penalty']) || $node_data['true_penalty'] === '')) {
+								$true_penalty = 0;
+							} else {
+								$true_penalty = $node_data['true_penalty'];
+							}
+
+							try {
+								//Create Node and add it to the
+								$node = new stack_potentialresponse_node($sans, $tans, $node_data['answer_test'], $node_data['test_options'], (bool)$node_data['quiet'], '', (int)$node_name, $node_data['sans'], $node_data['tans']);
+
+								$node->add_branch(0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty, $node_data['false_next_node'], $node_data['false_feedback'], $node_data['false_feedback_format'], $node_data['false_answer_note']);
+								$node->add_branch(1, $node_data['true_score_mode'], $node_data['true_score'], $true_penalty, $node_data['true_next_node'], $node_data['true_feedback'], $node_data['true_feedback_format'], $node_data['true_answer_note']);
+
+								$nodes[$node_name] = $node;
+							} catch (stack_exception $e) {
+								echo $e;
+								exit;
+							}
+						}
 					} else {
-						$false_penalty = $node_data['false_penalty'];
+						break;
 					}
 
-					if (is_null(($node_data['true_penalty']) || $node_data['true_penalty'] === '')) {
-						$true_penalty = 0;
+					if ($prt_data['feedback_variables']) {
+						try {
+							$feedback_variables = new stack_cas_keyval($prt_data['feedback_variables']);
+							$feedback_variables = $feedback_variables->get_session();
+						} catch (stack_exception $e) {
+							echo $e;
+							exit;
+						}
 					} else {
-						$true_penalty = $node_data['true_penalty'];
+						$feedback_variables = null;
+					}
+
+					if ($total_value == 0) {
+						//TODO Non gradable question
+						$prt_value = 0.0;
+					} else {
+						$prt_value = $prt_data['value'] / $total_value;
 					}
 
 					try {
-						//Create Node and add it to the
-						$node = new stack_potentialresponse_node($sans, $tans, $node_data['answer_test'], $node_data['test_options'], (bool)$node_data['quiet'], '', (int)$node_name, $node_data['sans'], $node_data['tans']);
-
-						$node->add_branch(0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty, $node_data['false_next_node'], $node_data['false_feedback'], $node_data['false_feedback_format'], $node_data['false_answer_note']);
-						$node->add_branch(1, $node_data['true_score_mode'], $node_data['true_score'], $true_penalty, $node_data['true_next_node'], $node_data['true_feedback'], $node_data['true_feedback_format'], $node_data['true_answer_note']);
-
-						$nodes[$node_name] = $node;
+						$this->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt_data['auto_simplify'], $prt_value, $feedback_variables, $nodes, (string)$prt_data['first_node_name'], 1);
 					} catch (stack_exception $e) {
-						echo $e;
-						exit;
+						ilUtil::sendFailure($e, true);
 					}
-				}
-
-				if ($prt_data['feedback_variables']) {
-					try {
-						$feedback_variables = new stack_cas_keyval($prt_data['feedback_variables']);
-						$feedback_variables = $feedback_variables->get_session();
-					} catch (stack_exception $e) {
-						echo $e;
-						exit;
-					}
-				} else {
-					$feedback_variables = null;
-				}
-
-				$prt_value = $prt_data['value'] / $total_value;
-				try {
-					$this->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt_data['auto_simplify'], $prt_value, $feedback_variables, $nodes, (string)$prt_data['first_node_name'], 1);
-				} catch (stack_exception $e) {
-					echo $e;
-					exit;
 				}
 			}
 
@@ -1579,38 +1590,38 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	/**
 	 * get_prt_result($index, $response, $acceptvalid) in Moodle
 	 * Evaluate a PRT for a particular response.
-	 * @param string $index the index of the PRT to evaluate.
+	 * @param string $prt_name the name of the PRT to evaluate.
 	 * @param array $response the response to process.
 	 * @param bool $accept_valid if this is true, then we will grade things even if the corresponding inputs are only VALID, and not SCORE.
 	 * @return stack_potentialresponse_tree_state|false
 	 */
-	public function getPrtResult(string $index, array $response, bool $accept_valid)
+	public function getPrtResult(string $prt_name, array $response, bool $accept_valid)
 	{
 		try {
 			$this->validateCache($response, $accept_valid);
 
-			if (array_key_exists($index, $this->getPrtResults())) {
-				return $this->getPrtResults($index);
+			if (array_key_exists($prt_name, $this->getPrtResults())) {
+				return $this->getPrtResults($prt_name);
 			}
 
 			// We can end up with a null prt at this point if we have question tests for a deleted PRT.
-			if (!array_key_exists($index, $this->prts)) {
+			if (!array_key_exists($prt_name, $this->prts)) {
 				// Bail here with an empty state to avoid a later exception which prevents question test editing.
 				return new stack_potentialresponse_tree_state(null, null, null, null);
 			}
-			$prt = $this->prts[$index];
+			$prt = $this->prts[$prt_name];
 
 			if (!$this->hasNecessaryPrtInputs($prt, $response, $accept_valid)) {
-				$this->setPrtResults(new stack_potentialresponse_tree_state($prt->get_value(), null, null, null), $index);
-				return $this->getPrtResults($index);
+				$this->setPrtResults(new stack_potentialresponse_tree_state($prt->get_value(), null, null, null), $prt_name);
+				return $this->getPrtResults($prt_name);
 			}
 
 			//EVALUATE PRT
-			$prt_input = $this->getPrtInput($index, $response, $accept_valid);
+			$prt_input = $this->getPrtInput($prt_name, $response, $accept_valid);
 
-			$this->setPrtResults($prt->evaluate_response($this->session, $this->options, $prt_input, $this->seed), $index);
+			$this->setPrtResults($prt->evaluate_response($this->session, $this->options, $prt_input, $this->seed), $prt_name);
 
-			return $this->getPrtResults($index);
+			return $this->getPrtResults($prt_name);
 		} catch (stack_exception $e) {
 			ilUtil::sendFailure($e, true);
 			return false;

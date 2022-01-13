@@ -42,6 +42,13 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	protected array $rte_tags = array();
 
+	/**
+	 * Stores the preview data while on preview mode
+	 * Otherwise empty
+	 * @var array
+	 */
+	private array $is_preview;
+
 	/* ILIAS VERSION SPECIFIC ATTRIBUTES END */
 
 	/* ILIAS REQUIRED METHODS BEGIN */
@@ -76,10 +83,12 @@ class assStackQuestionGUI extends assQuestionGUI
 		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
 	}
 
-	public function getSpecificFeedbackOutput($userSolution)
+	public function getSpecificFeedbackOutput($userSolution): string
 	{
-		// TODO: Implement getSpecificFeedbackOutput() method.
-		echo "getSpecificFeedbackOutput";
+		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
+		$this->object->specific_feedback_instantiated = assStackQuestionRenderer::_renderSpecificFeedback($this->object, $userSolution);
+
+		return $this->object->specific_feedback_instantiated;
 	}
 
 	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true)
@@ -104,6 +113,9 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function getPreview($show_question_only = false, $show_inline_feedback = false): string
 	{
 		global $DIC;
+
+		//set preview mode
+		$this->setIsPreview(array(1));
 
 		//User response from session
 		$this->object->setUserResponse(is_object($this->getPreviewSession()) ? (array)$this->getPreviewSession()->getParticipantsSolution() : array());
@@ -1363,6 +1375,22 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function setRteTags(array $rte_tags): void
 	{
 		$this->rte_tags = $rte_tags;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getIsPreview(): array
+	{
+		return $this->is_preview;
+	}
+
+	/**
+	 * @param array $is_preview
+	 */
+	public function setIsPreview(array $is_preview): void
+	{
+		$this->is_preview = $is_preview;
 	}
 
 

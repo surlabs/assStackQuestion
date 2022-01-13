@@ -180,14 +180,17 @@ class assStackQuestionMoodleImport
 		}
 
 		//specific feedback
-		$specific_feedback = (string)$question->specificfeedback->text;
-		if (isset($question->specificfeedback->file)) {
-			$mapping = $this->getMediaObjectsFromXML($question->specificfeedback->file);
-			$specific_feedback = $this->replaceMediaObjectReferences($specific_feedback, $mapping);
-		}
-		$this->getQuestion()->specific_feedback = ilUtil::secureString($specific_feedback);
+		if (isset($question->specificfeedback->text)) {
+			$specific_feedback = (string)$question->specificfeedback->text;
 
-		$this->getQuestion()->specific_feedback_format = 1;
+			if (isset($question->specificfeedback->file)) {
+				$mapping = $this->getMediaObjectsFromXML($question->specificfeedback->file);
+				$specific_feedback = $this->replaceMediaObjectReferences($specific_feedback, $mapping);
+			}
+			$this->getQuestion()->specific_feedback = ilUtil::secureString($specific_feedback);
+
+			$this->getQuestion()->specific_feedback_format = 1;
+		}
 
 		//question note
 		if (isset($question->questionnote->text)) {
@@ -342,18 +345,28 @@ class assStackQuestionMoodleImport
 					//Create Node and add it to the
 					$node = new stack_potentialresponse_node($sans, $tans, ilUtil::secureString((string)$xml_node->answertest), ilUtil::secureString((string)$xml_node->testoptions), (bool)$xml_node->quiet, '', (int)$node_name, $raw_sans, $raw_tans);
 
-					//manage images in false feedback
-					$false_feedback = (string)$xml_node->falsefeedback->text;
-					if (isset($xml_node->falsefeedback->file)) {
-						$mapping = $this->getMediaObjectsFromXML($xml_node->falsefeedback->file);
-						$false_feedback = $this->replaceMediaObjectReferences($false_feedback, $mapping);
+					//manage images in true feedback
+					if (isset($xml_node->falsefeedback->text)) {
+						$false_feedback = (string)$xml_node->falsefeedback->text;
+
+						if (isset($xml_node->falsefeedback->file)) {
+							$mapping = $this->getMediaObjectsFromXML($xml_node->falsefeedback->file);
+							$false_feedback = $this->replaceMediaObjectReferences($false_feedback, $mapping);
+						}
+					} else {
+						$false_feedback = '';
 					}
 
 					//manage images in true feedback
-					$true_feedback = (string)$xml_node->truefeedback->text;
-					if (isset($xml_node->truefeedback->file)) {
-						$mapping = $this->getMediaObjectsFromXML($xml_node->truefeedback->file);
-						$true_feedback = $this->replaceMediaObjectReferences($true_feedback, $mapping);
+					if (isset($xml_node->truefeedback->text)) {
+						$true_feedback = (string)$xml_node->truefeedback->text;
+
+						if (isset($xml_node->truefeedback->file)) {
+							$mapping = $this->getMediaObjectsFromXML($xml_node->truefeedback->file);
+							$true_feedback = $this->replaceMediaObjectReferences($true_feedback, $mapping);
+						}
+					} else {
+						$true_feedback = '';
 					}
 
 					//Check for non "0" next nodes
@@ -384,8 +397,8 @@ class assStackQuestionMoodleImport
 						$false_answer_note = $xml_node->falseanswernote;
 					}
 
-					$node->add_branch(0, ilUtil::secureString((string)$xml_node->falsescoremode), ilUtil::secureString((string)$xml_node->falsescore), $false_penalty, ilUtil::secureString((string)$false_next_node), $false_feedback, 1, ilUtil::secureString((string)$false_answer_note));
-					$node->add_branch(1, ilUtil::secureString((string)$xml_node->truescoremode), ilUtil::secureString((string)$xml_node->truescore), $true_penalty, ilUtil::secureString((string)$true_next_node), $true_feedback, 1, ilUtil::secureString((string)$true_answer_note));
+					$node->add_branch(0, ilUtil::secureString((string)$xml_node->falsescoremode), ilUtil::secureString((string)$xml_node->falsescore), $false_penalty, ilUtil::secureString((string)$false_next_node), ilUtil::secureString($false_feedback), 1, ilUtil::secureString((string)$false_answer_note));
+					$node->add_branch(1, ilUtil::secureString((string)$xml_node->truescoremode), ilUtil::secureString((string)$xml_node->truescore), $true_penalty, ilUtil::secureString((string)$true_next_node), ilUtil::secureString($true_feedback), 1, ilUtil::secureString((string)$true_answer_note));
 
 					$nodes[$node_name] = $node;
 

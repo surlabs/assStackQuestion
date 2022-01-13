@@ -981,15 +981,16 @@ class assStackQuestionAuthoringGUI
 			$node_pos_feedback_class->setValue(1);
 		} else {
 			$node_data = $node->summarise_branches();
+			$feedback_data = $node->getFeedbackFromNode();
+
 			$node_pos_mode->setValue($node_data->truescoremode);
 			$node_pos_score->setValue($node_data->truescore);
 			$node_pos_next_node->setValue($node_data->truenextnode);
 			$node_pos_answernote->setValue($node_data->truenote);
 
-			//TODO NOT CONNECTED
-			$node_pos_penalty->setValue($node_data->truepenalty);
-			$node_pos_specific_feedback->setValue($node_data->truefeedback);
-			$node_pos_feedback_class->setValue($node_data->truefeedbackformat);
+			$node_pos_penalty->setValue($feedback_data['true_penalty']);
+			$node_pos_specific_feedback->setValue($feedback_data['true_feedback']);
+			$node_pos_feedback_class->setValue($feedback_data['true_feedback_format']);
 		}
 
 
@@ -1068,16 +1069,16 @@ class assStackQuestionAuthoringGUI
 			$node_neg_feedback_class->setValue(1);
 		} else {
 			$node_data = $node->summarise_branches();
+			$feedback_data = $node->getFeedbackFromNode();
 
 			$node_neg_mode->setValue($node_data->falsescoremode);
 			$node_neg_score->setValue($node_data->falsescore);
 			$node_neg_next_node->setValue($node_data->falsenextnode);
 			$node_neg_answernote->setValue($node_data->falsenote);
 
-			//TODO NOT CONNECTED
-			$node_neg_penalty->setValue($node_data->falsepenalty);
-			$node_neg_specific_feedback->setValue($node_data->falsefeedback);
-			$node_neg_feedback_class->setValue($node_data->falsefeedbackformat);
+			$node_neg_penalty->setValue($feedback_data['false_penalty']);
+			$node_neg_specific_feedback->setValue($feedback_data['false_feedback']);
+			$node_neg_feedback_class->setValue($feedback_data['false_feedback_format']);
 		}
 
 		//Add properties to form

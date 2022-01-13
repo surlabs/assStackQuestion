@@ -594,7 +594,7 @@ class assStackQuestionDB
 				"false_penalty" => array("text", $feedback_info['false_penalty']),
 				"false_next_node" => array("text", $branches_info->falsenextnode),
 				"false_answer_note" => array("text", $branches_info->falsenote),
-				"false_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['false_feedback_format'], 0)),
+				"false_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['false_feedback'], 0)),
 				"false_feedback_format" => array("integer", (int)$feedback_info['false_feedback_format']),
 			));
 		} else {

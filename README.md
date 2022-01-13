@@ -130,3 +130,4 @@ Version 5.1 for ILIAS 7 (Beta testing) DO NOT USE IN PRODUCTIVE PLATFORMS
   This site will be updated with the latest status.
 - LaTeX is now be properly rendered.
 - User answer are now properly validated by Maxima.
+- Node Specific feedback is not properly imported
