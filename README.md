@@ -103,7 +103,7 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
-Version 5.0 for ILIAS 7 (Beta testing) DO NOT USE IN PRODUCTIVE PLATFORMS
+Version 5.1 for ILIAS 7 (Beta testing) DO NOT USE IN PRODUCTIVE PLATFORMS
 ----------------------------------------
 - This STACK for ILIAS plugin version requires a Maxima Server with the maxima version 2021120900. Other versions may trigger validation errors.
 - This version includes DBUpdate steps which change values in the xqcas_prt_nodes tables, please, backup this table before update.
@@ -129,3 +129,4 @@ Version 5.0 for ILIAS 7 (Beta testing) DO NOT USE IN PRODUCTIVE PLATFORMS
   https://www.stack.odl.org/ilias-public/goto.php?target=cat_1160&client_id=StackPublic
   This site will be updated with the latest status.
 - LaTeX is now be properly rendered.
+- User answer are now properly validated by Maxima.
