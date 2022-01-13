@@ -587,14 +587,14 @@ class assStackQuestionDB
 				"true_penalty" => array("text", $feedback_info['true_penalty']),
 				"true_next_node" => array("text", $branches_info->truenextnode),
 				"true_answer_note" => array("text", $branches_info->truenote),
-				"true_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['true_feedback'], 0)),
+				"true_feedback" => array("clob", $feedback_info['true_feedback']),
 				"true_feedback_format" => array("integer", (int)$feedback_info['true_feedback_format']),
 				"false_score_mode" => array("text", $branches_info->falsescoremode),
 				"false_score" => array("text", $branches_info->falsescore),
 				"false_penalty" => array("text", $feedback_info['false_penalty']),
 				"false_next_node" => array("text", $branches_info->falsenextnode),
 				"false_answer_note" => array("text", $branches_info->falsenote),
-				"false_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['false_feedback'], 0)),
+				"false_feedback" => array("clob", $feedback_info['false_feedback']),
 				"false_feedback_format" => array("integer", (int)$feedback_info['false_feedback_format']),
 			));
 		} else {
@@ -616,14 +616,14 @@ class assStackQuestionDB
 					"true_penalty" => array("text", $feedback_info['true_penalty']),
 					"true_next_node" => array("text", $branches_info->truenextnode),
 					"true_answer_note" => array("text", $branches_info->truenote),
-					"true_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['true_feedback'], 0)),
+					"true_feedback" => array("clob", $feedback_info['true_feedback']),
 					"true_feedback_format" => array("integer", (int)$feedback_info['true_feedback_format']),
 					"false_score_mode" => array("text", $branches_info->falsescoremode),
 					"false_score" => array("text", $branches_info->falsescore),
 					"false_penalty" => array("text", $feedback_info['false_penalty']),
 					"false_next_node" => array("text", $branches_info->falsenextnode),
 					"false_answer_note" => array("text", $branches_info->falsenote),
-					"false_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['false_feedback_format'], 0)),
+					"false_feedback" => array("clob", $feedback_info['false_feedback']),
 					"false_feedback_format" => array("integer", (int)$feedback_info['false_feedback_format']),
 				)
 			);

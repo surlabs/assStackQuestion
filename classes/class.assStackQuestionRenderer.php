@@ -122,7 +122,11 @@ class assStackQuestionRenderer
 			$field_name = 'xqcas_' . $question->getId() . '_' . $name;
 			$state = $question->getInputState($name, $response);
 
-			$question_text = str_replace("[[input:{$name}]]", $input->render($state, $field_name, false, $ta_value), $question_text);
+			if ($input->get_parameter('showValidation') != 0) {
+				$question_text = str_replace("[[input:{$name}]]", $input->render($state, $field_name, false, $ta_value) . ' ' . self::_renderValidationButton($question->getId(), $name), $question_text);
+			} else {
+				$question_text = str_replace("[[input:{$name}]]", $input->render($state, $field_name, false, $ta_value), $question_text);
+			}
 
 			$question_text = $input->replace_validation_tags($state, $field_name, $question_text);
 
@@ -324,13 +328,13 @@ class assStackQuestionRenderer
 
 	/**
 	 * Returns the button for current input field.
+	 * @param string $question_id
 	 * @param string $input_name
-	 * @return HTML the HTML code of the button of validation for this input.
+	 * @return string the HTML code of the button of validation for this input.
 	 */
-	private
-	function validationButton($input_name)
+	public static function _renderValidationButton(string $question_id, string $input_name): string
 	{
-		return "<button style=\"height:2.2em;\" class=\"\" name=\"cmd[xqcas_" . $this->getDisplay('question_id') . '_' . $input_name . "]\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></button>";
+		return "<button style=\"height:2.2em;\" class=\"\" name=\"cmd[xqcas_" . $question_id . '_' . $input_name . "]\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></button>";
 	}
 
 

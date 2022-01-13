@@ -1703,7 +1703,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	{
 		try {
 			if ($this->getTas($input_name)->is_correctly_evaluated()) {
-				return $this->getTas($input_name)->get_value();
+				return $this->getTas($input_name);
 			}
 			return true;
 		} catch (stack_exception $e) {
