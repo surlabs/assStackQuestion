@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2021 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
+ * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
  * GPLv2, see LICENSE
  */
 
@@ -24,7 +24,7 @@ class assStackQuestionRenderer
 
 	public function getSpecificFeedbackOutput($userSolution)
 	{
-		// TODO: Implement getSpecificFeedbackOutput() method.
+		//TODO: Implement getSpecificFeedbackOutput() method.
 	}
 
 	public static function _renderQuestionSolution($question, $active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true)
@@ -148,10 +148,7 @@ class assStackQuestionRenderer
 		}
 
 
-		$result = '';
-		$result .= $question_text;
-
-		return $result;
+		return assStackQuestionUtils::_getLatex($question_text);
 	}
 
 	/* INPUT RENDER END */

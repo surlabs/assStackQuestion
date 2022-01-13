@@ -106,6 +106,8 @@ Version History
 Version 5.0 for ILIAS 7 (Beta testing) DO NOT USE IN PRODUCTIVE PLATFORMS
 ----------------------------------------
 - This STACK for ILIAS plugin version requires a Maxima Server with the maxima version 2021120900. Other versions may trigger validation errors.
+- This version includes DBUpdate steps which change values in the xqcas_prt_nodes tables, please, backup this table before update.
+- Ensure you clear the cache after updating.
 - The core from STACK plugin Version for Moodle (4.3.9 December 2021) has been included.
 - assStackQuestion becomes the "alter ego" of stack_question, the Moodle Plugin class. The old assStackQuestion is now named as assStackQuestion2 and it's going to be deleted.
 - assStackQuestion is now responsible for all STACK variables, previously managed by assStackQuestionStackQuestion, which it's going to be deleted.
@@ -125,4 +127,5 @@ Version 5.0 for ILIAS 7 (Beta testing) DO NOT USE IN PRODUCTIVE PLATFORMS
 - Scoring management is now active
 - Question main Operations are ready for testing, but please, check the development site to know what has been developed:
   https://www.stack.odl.org/ilias-public/goto.php?target=cat_1160&client_id=StackPublic
-  This site will be updated with the latest status. 
+  This site will be updated with the latest status.
+- LaTeX is now be properly rendered.
