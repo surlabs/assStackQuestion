@@ -275,7 +275,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		}
 
 		//Determine seed for current test run
-		$seed = $this->getQuestionSeedForCurrentTestRun($active_id, $pass);
+		$seed = assStackQuestionDB::_getSeedForTestPass($this, $active_id, $pass);
 
 		//Create STACK Question object if doesn't exists
 		if (!is_a($this->getStackQuestion(), 'assStackQuestionStackQuestion')) {

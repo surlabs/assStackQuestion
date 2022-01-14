@@ -1,7 +1,7 @@
 <#1>
 <?php
 /**
- * Copyright (c) 2014 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
+ * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
  * GPLv2, see LICENSE
  *
  *
@@ -10,7 +10,7 @@
  * @author Fred Neumann <fred.neumann@ili.fau.de>
  * @author Jesus Copado <jesus.copado@ili.fau.de>
  *
- * $Id$
+ * $Id 5.2$
  */
 /*
  * Create the new question type
@@ -968,6 +968,30 @@ if ($db->tableExists('xqcas_configuration')) {
 	if (!array_key_exists('input_syntax_attribute', $existing_entries)) {
 		//We have to store the id of the content style we want to use for stack feedback styles
 		$db->insert('xqcas_configuration', array('parameter_name' => array('text', 'input_syntax_attribute'), 'value' => array('clob', '0'), 'group_name' => array('text', 'inputs')));
+	}
+}
+?>
+<#42>
+<?php
+global $DIC;
+$db = $DIC->database();
+if (!$db->tableExists('xqcas_test_seeds')) {
+	$fields = array('question_id' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
+        'active_id' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
+        'pass' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
+		'seed' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
+		'stamp' => array('type' => 'integer', 'length' => 8, 'notnull' => true));
+	$db->createTable('xqcas_test_seeds', $fields);
+	$db->addPrimaryKey('xqcas_test_seeds', array('question_id', 'active_id', 'pass'));
+
+	if (!$db->indexExistsByFields('xqcas_test_seeds', array('active_id', 'pass'))) {
+		$db->addIndex('xqcas_test_seeds', array('active_id', 'pass'), 'ts1');
+	}
+	if (!$db->indexExistsByFields('xqcas_test_seeds', array('seed'))) {
+		$db->addIndex('xqcas_test_seeds', array('seed'), 'ts2');
+	}
+	if (!$db->indexExistsByFields('xqcas_test_seeds', array('stamp'))) {
+		$db->addIndex('xqcas_test_seeds', array('stamp'), 'ts3');
 	}
 }
 ?>

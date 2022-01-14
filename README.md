@@ -132,3 +132,5 @@ Version 5.1 for ILIAS 7 (Beta testing) DO NOT USE IN PRODUCTIVE PLATFORMS
 - User answer are now properly validated by Maxima.
 - Node Specific feedback is not properly imported
 - Question Validation is again active, instant validation not yet supported.
+- Question can now be added and presented in Tests.
+- The problem with question variants in test will be solved with this version, as the seed management in test function has been completely redesigned.
