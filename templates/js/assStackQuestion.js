@@ -39,7 +39,7 @@ il.assStackQuestion = new function () {
 	this.init = function (a_config, a_texts) {
 		config = a_config;
 		texts = a_texts;
-		$('tr#xqcas_question_display button, tr#xqcas_question_display span.input-group-addon,tr#xqcas_question_display span.glyphicon.glyphicon-ok').click(self.validate);
+		$('form > div.ilc_question_Standard > button').click(self.validate);
 	};
 
 

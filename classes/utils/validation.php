@@ -21,62 +21,61 @@ exit;
 
 /**
  * Gets the students answer and send it to maxima in order to get the validation.
- * @param string $student_answer
+ * @param $question_id
+ * @param $input_name
+ * @param $user_response
  * @return string the Validation message.
  */
 function checkUserResponse($question_id, $input_name, $user_response)
 {
 	require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/class.assStackQuestion.php';
-	require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/class.assStackQuestionStackQuestion.php';
 
-	$ilias_question = new assStackQuestion();
-	$ilias_question->loadFromDb($question_id);
-	//v1.6+ Randomisation improvements
+	$question = new assStackQuestion();
+
+	try {
+		$question->loadFromDb($question_id);
+	} catch (stack_exception $e) {
+		return $e;
+	}
+
+	//Initialize question from seed
 	$active_id = $_GET['active_id'];
 	require_once "./Modules/Test/classes/class.ilObjTest.php";
 	$pass = ilObjTest::_getPass($active_id);
 
-    //Secure input
-    $user_response = ilutil::stripScriptHTML($user_response);
-
-	if (is_int($active_id) AND is_int($pass))
-	{
-		$stack_question = new assStackQuestionStackQuestion($active_id, $pass);
-		$stack_question->init($ilias_question, 8);
-	} else
-	{
-		$stack_question = new assStackQuestionStackQuestion();
+	if (is_int($active_id) and is_int($pass)) {
+		//test mode
+	} else {
+		//preview mode
 		$seed = $_SESSION['q_seed_for_preview_' . $_GET['q_id'] . ''];
-		$stack_question->init($ilias_question, 8, $seed);
+		$question->questionInitialisation($seed);
 	}
 
-	$stack_input = $stack_question->getInputs($input_name);
-	$stack_options = $stack_question->getOptions();
-	$teacher_answer = $stack_input->get_teacher_answer();
+	//Secure input
+	$user_response = array($input_name => ilutil::stripScriptHTML($user_response));
 
-	if (is_a($stack_input, "stack_equiv_input") OR is_a($stack_input, "stack_textarea_input"))
-	{
-		$stack_response = $stack_input->maxima_to_response_array("[" . $user_response . "]");
-	} elseif (is_a($stack_input, "stack_matrix_input"))
-	{
-
-		$input = $stack_question->getInputs($input_name);
-		$forbiddenwords = $input->get_parameter('forbidWords', '');
-		$array = $input->maxima_to_response_array($user_response);
-
-		$state = $stack_question->getInputState($input_name, $array, $forbiddenwords);
-
-		$result = array('input' => $user_response, 'status' => $state->status, 'message' => $input->render_validation($state, $input_name),);
-
-		return $result['message'];
-	} else
-	{
-		$stack_response = $stack_input->maxima_to_response_array($user_response);
+	//Get Teacher answer
+	if (array_key_exists($input_name, $question->getTas())) {
+		if ($question->getTas($input_name)->is_correctly_evaluated()) {
+			try {
+				$teacher_answer = $question->getTas($input_name)->get_value();
+			} catch (stack_exception $e) {
+				return $e;
+			}
+		} else {
+			return "not properly evaluated";
+		}
+	} else {
+		return "no teacher answer on this input";
 	}
 
-	$status = $stack_input->validate_student_response($stack_response, $stack_options, $teacher_answer, null);
+	try {
+		$status = $question->inputs[$input_name]->validate_student_response($user_response, $question->options, $teacher_answer, $question->getSecurity());
+	} catch (stack_exception $e) {
+		return $e;
+	}
 
-	$result = array('input' => $user_response, 'status' => $status->status, 'message' => $stack_input->render_validation($status, $input_name));
+	$result = array('input' => $user_response, 'status' => $status->status, 'message' => $question->inputs[$input_name]->render_validation($status, $input_name));
 
 	return $result['message'];
 }

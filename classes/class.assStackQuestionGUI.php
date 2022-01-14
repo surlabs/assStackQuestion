@@ -102,7 +102,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Render question Preview
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
-		return assStackQuestionRenderer::_renderQuestionSolution($this->object, $active_id, $pass, $graphicalOutput, $result_output, $show_question_only, $show_feedback, $show_correct_solution, $show_manual_scoring, $show_question_text);
+		return assStackQuestionRenderer::_renderQuestionSolution($this->object, 1, 1, $graphicalOutput, $result_output, $show_question_only, $show_feedback, $show_correct_solution, $show_manual_scoring, $show_question_text);
 	}
 
 	/**
