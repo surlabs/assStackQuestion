@@ -160,8 +160,31 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	public function getTestOutput($active_id, $pass, $is_question_postponed, $user_post_solutions, $show_specific_inline_feedback)
 	{
+		global $DIC;
 
-		// TODO: Implement getTestOutput() method.
+		//Initialise the question
+		if (!isset($this->object->prt_incorrect_instantiated)) {
+			$this->object->questionInitialisation(assStackQuestionDB::_getSeedForTestPass($this->object, $active_id, $pass), true);
+		}
+
+		//Render question Preview
+		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
+		try {
+			$question_output = assStackQuestionRenderer::_renderQuestion($this->object, $show_specific_inline_feedback, false, $active_id, $pass);
+
+			//Tab management
+			$tabs = $DIC->tabs();
+			if ($_GET['cmd'] == 'edit') {
+				$tabs->activateTab('edit_page');
+			} elseif ($_GET['cmd'] == 'preview') {
+				$tabs->activateTab('preview');
+			}
+
+			//Returns output with page
+			return $this->getILIASPage($question_output);
+		} catch (stack_exception $e) {
+			return $e;
+		}
 	}
 
 	/* ILIAS REQUIRED METHODS END */

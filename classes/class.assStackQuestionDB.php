@@ -234,9 +234,10 @@ class assStackQuestionDB
 	/**
 	 * READS DEPLOYED SEEDS FROM THE DB
 	 * @param $question_id
-	 * @return array|false
+	 * @param bool $seeds_as_keys
+	 * @return array
 	 */
-	public static function _readDeployedVariants($question_id)
+	public static function _readDeployedVariants($question_id, $seeds_as_keys = false): array
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -251,7 +252,11 @@ class assStackQuestionDB
 
 		//If there is a result returns array, otherwise returns false.
 		while ($row = $db->fetchAssoc($res)) {
-			$variants[(int)$row["id"]] = (int)$row["seed"];
+			if ($seeds_as_keys) {
+				$variants[(int)$row['seed']] = (int)$row['seed'];
+			} else {
+				$variants[(int)$row['id']] = (int)$row['seed'];
+			}
 		}
 
 		return $variants;
@@ -842,5 +847,72 @@ class assStackQuestionDB
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * @param assStackQuestion $question
+	 * @param int $active_id
+	 * @param int $pass
+	 * @return int
+	 */
+	public static function _getSeedForTestPass(assStackQuestion $question, int $active_id, int $pass): int
+	{
+		//set seed to non-random value 1
+		$seed = 1;
+
+		//Does this question uses randomisation?
+		if ($question->hasRandomVariants()) {
+			global $DIC;
+			$db = $DIC->database();
+			$question_id = $question->getId();
+			//Search for a seed in DB
+			//returns seed if exists
+			$query = /** @lang text */
+				'SELECT seed FROM xqcas_test_seeds WHERE question_id = '
+				. $db->quote($question_id, 'integer') . ' AND active_id = '
+				. $db->quote($active_id, 'integer') . ' AND pass = '
+				. $db->quote($pass, 'integer') . ' ORDER BY xqcas_test_seeds.stamp';
+
+			$res = $db->query($query);
+			if (isset($res)) if (!empty($res)) {
+				$seed_found = 0;
+				while ($row = $db->fetchAssoc($res)) {
+					//set actual seed stored in DB
+					$seed = (int)$row['seed'];
+					if ($seed_found === 0) {
+						$seed_found = $seed;
+					} else {
+						echo 'error: trying to create a different question seed';
+						exit;
+					}
+				}
+			}
+
+			if ($seed == 1) {
+				//Create new seed
+				$variants = self::_readDeployedVariants($question_id, true);
+
+				//If there are variants
+				if (!empty($variants)) {
+					//Choose between deployed seeds
+					$chosen_seed = array_rand($variants);
+					//Set random selected seed
+					$seed = (int)$chosen_seed;
+				} else {
+					//Complete randomisation
+					$seed = rand(1111111111, 9999999999);
+				}
+
+				//Save into xqcas_test_seeds
+				$db->insert("xqcas_test_seeds", array(
+					'question_id' => array('integer', $question_id),
+					'active_id' => array('integer', $active_id),
+					'pass' => array('integer', $pass),
+					'seed' => array('integer', $seed),
+					'stamp' => array('integer', time())));
+			}
+		}
+
+		return $seed;
 	}
 }

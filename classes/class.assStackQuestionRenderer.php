@@ -59,23 +59,35 @@ class assStackQuestionRenderer
 
 	/**
 	 * @param assStackQuestion $question
-	 * @param int $active_id
-	 * @param int $pass
 	 * @param bool $show_inline_feedback
 	 * @param bool $show_best_solution
+	 * @param int|null $active_id
+	 * @param int|null $pass
 	 * @return string
 	 * @throws stack_exception
 	 */
-	public static function _renderQuestion(assStackQuestion $question, int $active_id, int $pass, bool $show_inline_feedback = false, bool $show_best_solution = false): string
+	public static function _renderQuestion(assStackQuestion $question, bool $show_inline_feedback = false, bool $show_best_solution = false, int $active_id = null, int $pass = null): string
 	{
 		global $DIC;
 
-		if (!$show_best_solution) {
-			//USER SOLUTION
-			$response = $question->getUserResponse();
+		if ($active_id !== null and $pass !== null) {
+			//Render Test Version
+			if (!$show_best_solution) {
+				//QUESTION
+				$response = $question->getUserSolutionPreferingIntermediate($active_id, $pass);
+			} else {
+				//BEST SOLUTION
+				$response = $question->getCorrectResponse();
+			}
 		} else {
-			//BEST SOLUTION
-			$response = $question->getCorrectResponse();
+			//Render Preview Version
+			if (!$show_best_solution) {
+				//QUESTION
+				$response = $question->getUserResponse();
+			} else {
+				//BEST SOLUTION
+				$response = $question->getCorrectResponse();
+			}
 		}
 
 		$question_text = $question->question_text_instantiated;
