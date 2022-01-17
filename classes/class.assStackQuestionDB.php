@@ -915,4 +915,118 @@ class assStackQuestionDB
 
 		return $seed;
 	}
+
+	/**
+	 * @param assStackQuestion $question
+	 * @param int $active_id
+	 * @param int $pass
+	 * @param bool $authorized
+	 * @return int
+	 */
+	public static function _saveUserTestSolution(assStackQuestion $question, int $active_id, int $pass, bool $authorized): int
+	{
+
+		//Save question text instantiated
+		$question->saveCurrentSolution($active_id, $pass, 'xqcas_text_' . $question->getId(), $question->getQuestion(), $authorized);
+		//Save question note
+		$question->saveCurrentSolution($active_id, $pass, 'xqcas_solution_' . $question->getId(), $question->question_note_instantiated, $authorized);
+		//Save general feedback
+		$question->saveCurrentSolution($active_id, $pass, 'xqcas_general_feedback_' . $question->getId(), $question->general_feedback, $authorized);
+
+		$entered_values = 3;
+		//Save PRT information
+		foreach ($question->getPrtResults() as $prt_name => $prt) {
+
+			//Save PRT information
+			//value1 = xqcas_input_name, $value2 = input_name
+			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name);
+			$entered_values++;
+			//Save input information per PRT
+
+			foreach ($question->getInputStates() as $input_name => $input_state) {
+				//Ensure only input data is stored
+				if (array_key_exists($input_name, $question->inputs)) {
+
+					//value1 = xqcas_input_*_value, value2 = raw student answer for this question input
+					$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_value_' . $input_name, $input_state->contentsmodified);
+					$entered_values++;
+
+					//value1 = xqcas_input_*_display, value2 = student answer displayed for this question input after validation
+					$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_display_' . $input_name, $input_state->contentsdisplayed);
+					$entered_values++;
+
+					//value1 = xqcas_input_*_model_answer, value2 = teacher answer for this question input in raw format but initialised
+					$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_' . $input_name, $question->getTas($input_name)->get_value());
+					$entered_values++;
+
+					//value1 = xqcas_input_*_model_answer_display_, value2 = teacher answer for this question input validation display
+					$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_display_' . $input_name, $question->getTas($input_name)->get_display());
+					$entered_values++;
+
+					//value1 = xqcas_input_*_model_answer, value2 = student answer for this question input in LaTeX
+					$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_seed', $question->seed);
+					$entered_values++;
+
+				}
+			}
+			//value1 = xqcas_input_*_errors, $value2 = feedback given by CAS
+			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_errors', $prt->__get('errors'));
+			$entered_values++;
+
+			//value1 = xqcas_input_*_feedback, $value2 = feedback given by CAS
+			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_feedback', $prt->get_feedback()->feedback);
+			$entered_values++;
+
+			//value1 = xqcas_input_*_status, $value2 = status
+			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status', $prt->__get('score'));
+			$entered_values++;
+
+			//value1 = xqcas_input_*_status_message, $value2 = answernotes
+			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_answernote', implode(';', $prt->__get('answernotes')));
+			$entered_values++;
+
+			if ($prt_name) {
+				self::_addPointsToPRTDBEntry($question, $active_id, $pass, $prt_name, $prt->__get('fraction'));
+			}
+		}
+
+		return $entered_values;
+	}
+
+
+	/**
+	 * @param assStackQuestion $question
+	 * @param int $active_id
+	 * @param int $pass
+	 * @param string $prt_name
+	 * @param float $points
+	 * @param bool|null $authorized
+	 */
+	public static function _addPointsToPRTDBEntry(assStackQuestion $question, int $active_id, int $pass, string $prt_name, float $points, bool $authorized = null)
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		$field_data = array('points' => array('float', $points));
+
+		//Get step in case it exists
+		if ($question->getStep() !== null) {
+			$field_data['step'] = array('integer', $question->getStep());
+		}
+
+		//get Solution Id for prt_name field in tst_solutions
+		$solution_id = null;
+		$solution_values = $question->getSolutionValues($active_id, $pass, $authorized);
+		foreach ($solution_values as $solution) {
+			if ($solution['value1'] == 'xqcas_prt_' . $prt_name . '_name') {
+				$solution_id = $solution['solution_id'];
+				break;
+			}
+		}
+
+		//Replace points in tst_solution solution_id entry
+		if ($solution_id != null) {
+			$db->update('tst_solutions', $field_data, array('solution_id' => array('integer', (int)$solution_id)));
+		}
+	}
 }

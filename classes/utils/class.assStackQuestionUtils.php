@@ -805,4 +805,31 @@ class assStackQuestionUtils
 		}
 		return $extra_options_array;
 	}
+
+	/**
+	 * Moodle method
+	 * Tests to see whether two arrays have the same value at a particular key.
+	 * Missing values are replaced by '', and then the values are cast to
+	 * strings and compared with ===.
+	 * @param array $array1 the first array.
+	 * @param array $array2 the second array.
+	 * @param string $key an array key.
+	 * @return bool whether the two arrays have the same value (or lack of
+	 *      one) for a given key.
+	 */
+	public static function arrays_same_at_key_missing_is_blank(
+		array $array1, array $array2, $key): bool
+	{
+		if (array_key_exists($key, $array1)) {
+			$value1 = $array1[$key];
+		} else {
+			$value1 = '';
+		}
+		if (array_key_exists($key, $array2)) {
+			$value2 = $array2[$key];
+		} else {
+			$value2 = '';
+		}
+		return ((string) $value1) === ((string) $value2);
+	}
 }

@@ -94,7 +94,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true)
 	{
 		//Initialise the question
-		if (!isset($this->object->prt_incorrect_instantiated)) {
+		if (!$this->object->isInstantiated()) {
 			$prts = $this->object->prts;
 			$variant = assStackQuestionUtils::_getSeedFromTest($this->object->getId(), $active_id, $pass, array_shift($prts));
 			$this->object->questionInitialisation($variant);
@@ -133,7 +133,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 		//Initialise the question
-		if (!isset($this->object->prt_incorrect_instantiated)) {
+		if (!$this->object->isInstantiated()) {
 			$this->object->questionInitialisation($variant);
 		}
 
@@ -163,7 +163,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		global $DIC;
 
 		//Initialise the question
-		if (!isset($this->object->prt_incorrect_instantiated)) {
+		if (!$this->object->isInstantiated()) {
 			$this->object->questionInitialisation(assStackQuestionDB::_getSeedForTestPass($this->object, $active_id, $pass), true);
 		}
 

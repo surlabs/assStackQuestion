@@ -35,6 +35,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	//plugin attributes
 
 	/**
+	 * @var float|null
+	 */
+	private $reached_points = null;
+
+	/**
 	 * @var bool
 	 */
 	private bool $hidden;
@@ -47,7 +52,17 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	/**
 	 * @var array The user answer given in each input
 	 */
-	private array $user_response;
+	private array $user_response = array();
+
+	/**
+	 * @var bool true when question has been instantiated with a seed
+	 */
+	private bool $instantiated = false;
+
+	/**
+	 * @var bool
+	 */
+	private bool $evaluated = false;
 
 	/* ILIAS VERSION SPECIFIC ATTRIBUTES END */
 
@@ -266,6 +281,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	 */
 	public function saveWorkingData($active_id, $pass = null, $authorized = true): bool
 	{
+		/** @var $ilDB ilDBInterface */
 		global $DIC;
 		$db = $DIC->database();
 
@@ -277,105 +293,40 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		//Determine seed for current test run
 		$seed = assStackQuestionDB::_getSeedForTestPass($this, $active_id, $pass);
 
-		//Create STACK Question object if doesn't exists
-		if (!is_a($this->getStackQuestion(), 'assStackQuestionStackQuestion')) {
-			$this->plugin->includeClass("model/class.assStackQuestionStackQuestion.php");
-			$this->setStackQuestion(new assStackQuestionStackQuestion($active_id, $pass));
-			$this->getStackQuestion()->init($this, '', $seed);
-		}
-
 		$entered_values = 0;
-
 		$saved = true;
+		$this->setUserResponse($this->getSolutionSubmit());
 
-		$user_solution = $this->getSolutionSubmit();
-		//Calculate results for user_solution before save it
-		//Create evaluation object
-		$this->plugin->includeClass("model/question_evaluation/class.assStackQuestionEvaluation.php");
-		$evaluation_object = new assStackQuestionEvaluation($this->plugin, $this->getStackQuestion(), $user_solution);
-		//Evaluate question
-		$question_evaluation = $evaluation_object->evaluateQuestion();
-
-		//Get Feedback
-		$this->plugin->includeClass('model/question_evaluation/class.assStackQuestionFeedback.php');
-		$feedback_object = new assStackQuestionFeedback($this->plugin, $question_evaluation);
-		$feedback_data = $feedback_object->getFeedback();
-
-		//Remove current solutions depending on the authorized parameter.
-		if ($authorized) {
-			$this->removeExistingSolutions($active_id, $pass);
-		} else {
-			$this->removeIntermediateSolution($active_id, $pass);
+		//Instantiate Question if not.
+		if (!$this->isInstantiated()) {
+			$this->questionInitialisation($seed, true);
 		}
 
-		//5.1
-		//Save new user solution
-		//Save question text instantiated
-		$this->saveCurrentSolution($active_id, $pass, 'xqcas_text_' . $this->getStackQuestion()->getQuestionId(), $feedback_data['question_text'], $authorized);
-		//Save question note
-		$this->saveCurrentSolution($active_id, $pass, 'xqcas_solution_' . $this->getStackQuestion()->getQuestionId(), $feedback_data['question_note'], $authorized);
-		//Save general feedback
-		$this->saveCurrentSolution($active_id, $pass, 'xqcas_general_feedback_' . $this->getStackQuestion()->getQuestionId(), $feedback_data['general_feedback'], $authorized);
-
-		//Save PRT information
-		foreach ($feedback_data['prt'] as $prt_name => $prt) {
-			//value1 = xqcas_input_name, $value2 = input_name
-			$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name, $authorized);
-
-			//Save input information per PRT
-			foreach ($prt['response'] as $input_name => $response) {
-				//value1 = xqcas_input_*_value, value2 = student answer for this question input
-				//Notes result change to real user input value
-				if (is_a($this->getStackQuestion()->getInputs($input_name), "stack_notes_input")) {
-					$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_value_' . $input_name, $this->getStackQuestion()->getInputStates($input_name)->__get("contents")[0], $authorized);
-				} else {
-					$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_value_' . $input_name, $response['value'], $authorized);
-				}
-				//value1 = xqcas_input_*_display, value2 = student answer for this question input in LaTeX
-				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_display_' . $input_name, $response['display'], $authorized);
-				//value1 = xqcas_input_*_model_answer, value2 = student answer for this question input in LaTeX
-				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_' . $input_name, $response['model_answer'], $authorized);
-				//value1 = xqcas_input_*_model_answer_diplay_, value2 = model answer for this question input in LaTeX
-				if (isset($response['model_answer_display'])) {
-					$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_display_' . $input_name, $response['model_answer_display'], $authorized);
-				}
-				//value1 = xqcas_input_*_model_answer, value2 = student answer for this question input in LaTeX
-				$this->removeOldSeeds($active_id, $pass);
-				$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_seed', $seed, $authorized);
-			}
-			//value1 = xqcas_input_*_errors, $value2 = feedback given by CAS
-			$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_errors', $prt['errors'], $authorized);
-			//value1 = xqcas_input_*_feedback, $value2 = feedback given by CAS
-			$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_feedback', $prt['feedback'], $authorized);
-			//value1 = xqcas_input_*_status, $value2 = status
-			$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status', $prt['status']['value'], $authorized);
-			//value1 = xqcas_input_*_status_message, $value2 = status message
-			$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status_message', $prt['status']['message'], $authorized);
-			//value1 = xqcas_input_*_status_message, $value2 = status message
-			$this->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_answernote', $prt['answernote'], $authorized);
-			if ($prt_name) {
-				$this->addPointsToPRTDBEntry($this->getStackQuestion()->getQuestionId(), $active_id, $pass, $prt_name, $prt['points'], $authorized);
-			}
-			//Set entered values as TRUE
-			$entered_values = TRUE;
+		//Evaluate Question if not.
+		if (!$this->isEvaluated()) {
+			$this->evaluateQuestion();
 		}
 
+		//Save user test solution
+		//$this->getProcessLocker()->executeUserSolutionUpdateLockOperation(function () use (&$entered_values, $active_id, $pass, $authorized) {
+			$this->removeCurrentSolution($active_id, $pass, $authorized);
+			$entered_values = assStackQuestionDB::_saveUserTestSolution($this, $active_id, $pass, $authorized);
+		//});
 
-		//$this->getProcessLocker()->releaseUserSolutionUpdateLock();
+		include_once/** @lang text */
+		('./Modules/Test/classes/class.ilObjAssessmentFolder.php');
 
 		if ($entered_values) {
-			require_once './Modules/Test/classes/class.ilObjAssessmentFolder.php';
 			if (ilObjAssessmentFolder::_enabledAssessmentLogging()) {
-				$this->logAction($this->lng->txtlng("assessment", "log_user_entered_values", ilObjAssessmentFolder::_getLogLanguage()), $active_id, $this->getId());
+				assQuestion::logAction($this->lng->txtlng('assessment', 'log_user_entered_values', ilObjAssessmentFolder::_getLogLanguage()), $active_id, $this->getId());
 			}
 		} else {
-			include_once("./Modules/Test/classes/class.ilObjAssessmentFolder.php");
 			if (ilObjAssessmentFolder::_enabledAssessmentLogging()) {
-				$this->logAction($this->lng->txtlng("assessment", "log_user_not_entered_values", ilObjAssessmentFolder::_getLogLanguage()), $active_id, $this->getId());
+				assQuestion::logAction($this->lng->txtlng('assessment', 'log_user_not_entered_values', ilObjAssessmentFolder::_getLogLanguage()), $active_id, $this->getId());
 			}
 		}
 
-		return $saved;
+		return true;
 	}
 
 	/**
@@ -839,6 +790,66 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	/* ILIAS SPECIFIC METHODS BEGIN */
 
 	/**
+	 * Evaluates a STACK Question
+	 */
+	private function evaluateQuestion(): void
+	{
+		try {
+
+			$fraction = 0;
+
+			foreach ($this->prts as $prt_name => $prt) {
+				if ($prt->is_formative()) {
+					continue;
+				}
+
+				$accumulated_penalty = 0;
+				$last_input = array();
+				$penalty_to_apply = null;
+				$results = new stdClass();
+				$results->fraction = 0;
+
+				foreach ($this->getUserResponse() as $input_name => $response) {
+
+					$user_input_answer = $this->getPrtInput($prt_name, array($input_name => $response), true);
+					$this->getInputState($input_name, $user_input_answer, true);
+
+					if (!$this->isSamePRTInput($prt_name, $last_input, $user_input_answer)) {
+						$penalty_to_apply = $accumulated_penalty;
+						$last_input = $user_input_answer;
+					}
+
+					if ($this->canExecutePrt($this->prts[$prt_name], $this->getUserResponse(), true)) {
+
+						$results = $this->prts[$prt_name]->evaluate_response($this->session, $this->options, $user_input_answer, $this->seed);
+						$this->setPrtResults($results, $prt_name);
+
+						$accumulated_penalty += $results->fractionalpenalty;
+					}
+				}
+
+				$fraction += max($results->fraction - $penalty_to_apply, 0);
+
+				//debug
+				if (isset($input_states['test_player_navigation_url'])) {
+					unset($input_states['test_player_navigation_url']);
+				}
+			}
+
+			//Set Points
+			$this->setReachedPoints((float)$fraction);
+
+			//Mark as evaluated
+			$this->setEvaluated(true);
+
+		} catch (stack_exception $e) {
+
+			ilUtil::sendFailure($e, true);
+
+		}
+	}
+
+	/**
 	 * This function loads the standard values from xqcas_configuration to the question object
 	 */
 	public function loadStandardQuestion()
@@ -1240,6 +1251,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 					$this->question_text_instantiated .= $s;
 				}
 			}
+
+			//Question has been properly instantiated
+			$this->setInstantiated(true);
+
 		} catch (stack_exception $e) {
 			ilUtil::sendFailure($e, true);
 		}
@@ -1498,8 +1513,22 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	/* grade_response(array $response) not required as it is only Moodle relevant */
 	//TODO FEATURE MANUAL GRADING
 
-	/* is_same_prt_input($index, $prtinput1, $prtinput2) not required as it is only Moodle relevant */
-	//TODO FEATURE
+	/**
+	 * @param $current_prt_name
+	 * @param $last_input
+	 * @param $prt_input
+	 * @return bool
+	 */
+	public function isSamePRTInput($current_prt_name, $last_input, $prt_input): bool
+	{
+		//Not yet cached, this method has been adapted
+		foreach ($this->getCached('required')[$this->prts[$current_prt_name]->get_name()] as $name) {
+			if (!assStackQuestionUtils::arrays_same_at_key_missing_is_blank($last_input, $prt_input, $name)) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	/* get_parts_and_weights() not required as it is only Moodle relevant */
 	//TODO FEATURE
@@ -1562,6 +1591,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	 */
 	protected function getPrtInput(string $index, array $response, bool $accept_valid)
 	{
+		$input_states = array();
 		try {
 			if (!array_key_exists($index, $this->prts)) {
 				$msg = '"' . $this->getTitle() . '" (' . $this->getId() . ') seed = ' . $this->seed . ' and STACK version = ' . $this->stack_version;
@@ -1571,6 +1601,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			$prt_input = array();
 			foreach ($this->getCached('required')[$prt->get_name()] as $name) {
 				$state = $this->getInputState($name, $response);
+				$input_states[$name] = $state;
 				if (stack_input::SCORE == $state->status || ($accept_valid && stack_input::VALID == $state->status)) {
 					$val = $state->contentsmodified;
 					if ($state->simp === true) {
@@ -2035,6 +2066,55 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		} else {
 			$this->user_response = $user_response;
 		}
+	}
+
+	/**
+	 * Not get because that function exists in assQuestion with a different purpose
+	 * @return float|null
+	 */
+	public function obtainReachedPoints(): ?float
+	{
+		return $this->reached_points;
+	}
+
+	/**
+	 * @param float|null $reached_points
+	 */
+	public function setReachedPoints(?float $reached_points): void
+	{
+		$this->reached_points = $reached_points;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isInstantiated(): bool
+	{
+		return $this->instantiated;
+	}
+
+	/**
+	 * @param bool $instantiated
+	 */
+	public function setInstantiated(bool $instantiated): void
+	{
+		$this->instantiated = $instantiated;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEvaluated(): bool
+	{
+		return $this->evaluated;
+	}
+
+	/**
+	 * @param bool $evaluated
+	 */
+	public function setEvaluated(bool $evaluated): void
+	{
+		$this->evaluated = $evaluated;
 	}
 
 	/* GETTERS AND SETTERS END */

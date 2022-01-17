@@ -20,35 +20,27 @@ class assStackQuestionEvaluation
 {
 
 	/**
-	 * Plugin instance for templates and language management
-	 * @var ilassStackQuestionPlugin
-	 */
-	private $plugin;
-
-	/**
 	 * STACK version of the question
 	 * @var assStackQuestion
 	 */
-	private $question;
+	private assStackQuestion $question;
 
 	/**
 	 * The user response to be evaluated
 	 * @var array
 	 */
-	private $user_response;
+	private array $user_response;
 
 	/**
 	 * Set the parameters needed for evaluation
-	 * @param ilassStackQuestionPlugin $plugin
-	 * @param assStackQuestionStackQuestion $question
+	 * @param assStackQuestion $question
 	 * @param array|bool $user_response
 	 */
-	public function __construct(ilassStackQuestionPlugin $plugin, assStackQuestion $question, $user_response)
+	public function __construct(assStackQuestion $question, $user_response)
 	{
-		//Set plugin object
-		$this->setPlugin($plugin);
 		//Set question object to be displayed
 		$this->setQuestion($question);
+
 		//Set user response
 		//In assStackQuestionEvaluation the User response should be store with the "reduced" format for assStackQuestionUtils::_getUserResponse.
 		$this->setUserResponse($user_response);
@@ -58,7 +50,7 @@ class assStackQuestionEvaluation
 	 * ### MAIN METHOD OF THIS CLASS ###
 	 * This method is called from assStackQuestion or assStackQuestionPreview to get the question evaluation.
 	 * If any pre check for complete question must be done, should be done here.
-	 * @return assStackQuestionStackQuestion the evaluated question.
+	 * @return assStackQuestion the evaluated question.
 	 */
 	public function evaluateQuestion($forbiddenkeys = '')
 	{
@@ -309,23 +301,7 @@ class assStackQuestionEvaluation
 	 */
 
 	/**
-	 * @param \ilassStackQuestionPlugin $plugin
-	 */
-	private function setPlugin($plugin)
-	{
-		$this->plugin = $plugin;
-	}
-
-	/**
-	 * @return \ilassStackQuestionPlugin
-	 */
-	public function getPlugin()
-	{
-		return $this->plugin;
-	}
-
-	/**
-	 * @param \assStackQuestionStackQuestion $question
+	 * @param assStackQuestion $question
 	 */
 	private function setQuestion($question)
 	{
@@ -333,7 +309,7 @@ class assStackQuestionEvaluation
 	}
 
 	/**
-	 * @return \assStackQuestionStackQuestion
+	 * @return assStackQuestion
 	 */
 	public function getQuestion()
 	{
