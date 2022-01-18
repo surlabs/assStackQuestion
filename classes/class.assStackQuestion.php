@@ -60,9 +60,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	private bool $instantiated = false;
 
 	/**
-	 * @var bool
+	 * @var array
 	 */
-	private bool $evaluated = false;
+	private array $evaluation = array();
 
 	/* ILIAS VERSION SPECIFIC ATTRIBUTES END */
 
@@ -286,7 +286,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		$db = $DIC->database();
 
 		if (is_null($pass)) {
-			include_once "./Modules/Test/classes/class.ilObjTest.php";
+			include_once /** @lang text */
+			"./Modules/Test/classes/class.ilObjTest.php";
 			$pass = ilObjTest::_getPass($active_id);
 		}
 
@@ -294,8 +295,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		$seed = assStackQuestionDB::_getSeedForTestPass($this, $active_id, $pass);
 
 		$entered_values = 0;
-		$saved = true;
-		$this->setUserResponse($this->getSolutionSubmit());
+		$user_solution = $this->getSolutionSubmit();
+
+		//debug
+		if (isset($user_solution['test_player_navigation_url'])) {
+			$navigation_url = $user_solution['test_player_navigation_url'];
+			unset($user_solution['test_player_navigation_url']);
+		}
+		$this->setUserResponse($user_solution);
 
 		//Instantiate Question if not.
 		if (!$this->isInstantiated()) {
@@ -303,14 +310,16 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		}
 
 		//Evaluate Question if not.
-		if (!$this->isEvaluated()) {
+		if (empty($this->getEvaluation())) {
 			$this->evaluateQuestion();
 		}
 
 		//Save user test solution
 		//$this->getProcessLocker()->executeUserSolutionUpdateLockOperation(function () use (&$entered_values, $active_id, $pass, $authorized) {
-			$this->removeCurrentSolution($active_id, $pass, $authorized);
-			$entered_values = assStackQuestionDB::_saveUserTestSolution($this, $active_id, $pass, $authorized);
+		//Remove previous solution
+		$this->removeCurrentSolution($active_id, $pass, $authorized);
+		//Add current solution
+		$entered_values = assStackQuestionDB::_saveUserTestSolution($this, $active_id, $pass, $authorized);
 		//});
 
 		include_once/** @lang text */
@@ -789,58 +798,31 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 	/* ILIAS SPECIFIC METHODS BEGIN */
 
+
 	/**
-	 * Evaluates a STACK Question
+	 * @return void
 	 */
 	private function evaluateQuestion(): void
 	{
 		try {
 
-			$fraction = 0;
-
+			$evaluation_data = array();
 			foreach ($this->prts as $prt_name => $prt) {
-				if ($prt->is_formative()) {
-					continue;
+
+				//User answers for PRT Evaluation
+				$prt_input = $this->getPrtInput($prt_name, $this->getUserResponse(), true);
+
+				//PRT Results
+				$evaluation_data['prts'][$prt_name] = $this->prts[$prt_name]->evaluate_response($this->session, $this->options, $prt_input, $this->seed);
+				if ($evaluation_data['prts'][$prt_name]->_valid) {
+					$evaluation_data['points'][$prt_name] = ($evaluation_data['prts'][$prt_name]->_score * $evaluation_data['prts'][$prt_name]->_weight);
 				}
 
-				$accumulated_penalty = 0;
-				$last_input = array();
-				$penalty_to_apply = null;
-				$results = new stdClass();
-				$results->fraction = 0;
-
-				foreach ($this->getUserResponse() as $input_name => $response) {
-
-					$user_input_answer = $this->getPrtInput($prt_name, array($input_name => $response), true);
-					$this->getInputState($input_name, $user_input_answer, true);
-
-					if (!$this->isSamePRTInput($prt_name, $last_input, $user_input_answer)) {
-						$penalty_to_apply = $accumulated_penalty;
-						$last_input = $user_input_answer;
-					}
-
-					if ($this->canExecutePrt($this->prts[$prt_name], $this->getUserResponse(), true)) {
-
-						$results = $this->prts[$prt_name]->evaluate_response($this->session, $this->options, $user_input_answer, $this->seed);
-						$this->setPrtResults($results, $prt_name);
-
-						$accumulated_penalty += $results->fractionalpenalty;
-					}
-				}
-
-				$fraction += max($results->fraction - $penalty_to_apply, 0);
-
-				//debug
-				if (isset($input_states['test_player_navigation_url'])) {
-					unset($input_states['test_player_navigation_url']);
-				}
 			}
 
-			//Set Points
-			$this->setReachedPoints((float)$fraction);
-
+			$evaluation_data['inputs'] = $this->getInputStates();
 			//Mark as evaluated
-			$this->setEvaluated(true);
+			$this->setEvaluation($evaluation_data);
 
 		} catch (stack_exception $e) {
 
@@ -1547,17 +1529,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	 */
 	public function hasNecessaryPrtInputs(stack_potentialresponse_tree $prt, array $response, bool $accept_valid): bool
 	{
-
 		// Some kind of time-time error in the question, so bail here.
 		if ($this->getCached('required') === null) {
 			return false;
 		}
 
 		foreach ($this->getCached('required')[$prt->get_name()] as $name) {
-			$status = $this->getInputState($name, $response)->status;
-			if (!(stack_input::SCORE == $status || ($accept_valid && stack_input::VALID == $status))) {
-				return false;
-			}
+			$this->getInputState($name, $response);
 		}
 
 		return true;
@@ -1573,10 +1551,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	 */
 	protected function canExecutePrt(stack_potentialresponse_tree $prt, array $response, bool $accept_valid): bool
 	{
-
 		// The only way to find out is to actually try evaluating it. This calls
 		// has_necessary_prt_inputs, and then does the computation, which ensures
 		// there are no CAS errors.
+
 		$result = $this->getPrtResult($prt->get_name(), $response, $accept_valid);
 		return null !== $result->valid && !$result->errors;
 	}
@@ -1624,7 +1602,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	 * @param string $prt_name the name of the PRT to evaluate.
 	 * @param array $response the response to process.
 	 * @param bool $accept_valid if this is true, then we will grade things even if the corresponding inputs are only VALID, and not SCORE.
-	 * @return stack_potentialresponse_tree_state|false
+	 * @return stack_potentialresponse_tree_state|string
 	 */
 	public function getPrtResult(string $prt_name, array $response, bool $accept_valid)
 	{
@@ -1654,8 +1632,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 			return $this->getPrtResults($prt_name);
 		} catch (stack_exception $e) {
-			ilUtil::sendFailure($e, true);
-			return false;
+			return $e->getMessage();
 		}
 	}
 
@@ -2102,19 +2079,19 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	}
 
 	/**
-	 * @return bool
+	 * @return array
 	 */
-	public function isEvaluated(): bool
+	public function getEvaluation(): array
 	{
-		return $this->evaluated;
+		return $this->evaluation;
 	}
 
 	/**
-	 * @param bool $evaluated
+	 * @param array $evaluation
 	 */
-	public function setEvaluated(bool $evaluated): void
+	public function setEvaluation(array $evaluation): void
 	{
-		$this->evaluated = $evaluated;
+		$this->evaluation = $evaluation;
 	}
 
 	/* GETTERS AND SETTERS END */
@@ -2243,7 +2220,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 				}
 				// This is surprisingly expensive to do, simpler to extract from compiled.
 				$cc['required'][$prt->get_name()] = $prt->get_required_variables(array_keys($inputs));
-				// TODO: compile PRTs.
 			}
 
 			// Note that instead of just adding the unit loading to the 'preamble-qv'

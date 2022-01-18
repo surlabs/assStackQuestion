@@ -25,7 +25,8 @@ class assStackQuestionDB
 		global $DIC;
 		$db = $DIC->database();
 
-		$query = 'SELECT * FROM xqcas_options WHERE question_id = ' . $db->quote($question_id, 'integer');
+		$query = /** @lang text */
+			'SELECT * FROM xqcas_options WHERE question_id = ' . $db->quote($question_id, 'integer');
 		$res = $db->query($query);
 		$row = $db->fetchObject($res);
 
@@ -75,15 +76,16 @@ class assStackQuestionDB
 	/**
 	 * @param $question_id
 	 * @param bool $just_id
-	 * @return array|int
+	 * @return array
 	 */
-	public static function _readInputs($question_id, bool $just_id = false)
+	public static function _readInputs($question_id, bool $just_id = false): array
 	{
 		global $DIC;
 		$db = $DIC->database();
 
 		//Select query
-		$query = 'SELECT * FROM xqcas_inputs WHERE question_id = ' . $db->quote($question_id, 'integer');
+		$query = /** @lang text */
+			'SELECT * FROM xqcas_inputs WHERE question_id = ' . $db->quote($question_id, 'integer');
 		$res = $db->query($query);
 
 		$inputs = array();
@@ -131,13 +133,14 @@ class assStackQuestionDB
 	 * @param bool $just_id
 	 * @return array
 	 */
-	public static function _readPRTs($question_id, bool $just_id = false)
+	public static function _readPRTs($question_id, bool $just_id = false): array
 	{
 		global $DIC;
 		$db = $DIC->database();
 
 		//Select query
-		$query = 'SELECT * FROM xqcas_prts WHERE question_id = ' . $db->quote($question_id, 'integer') . ' ORDER BY xqcas_prts.id';
+		$query = /** @lang text */
+			'SELECT * FROM xqcas_prts WHERE question_id = ' . $db->quote($question_id, 'integer') . ' ORDER BY xqcas_prts.id';
 		$res = $db->query($query);
 
 		$potential_response_trees = array();
@@ -164,7 +167,7 @@ class assStackQuestionDB
 			if ($just_id) {
 				$prt_ids[$prt_name]['nodes'] = self::_readPRTNodes($question_id, $prt_name, true);
 			} else {
-				$potential_response_trees[$prt_name]['nodes'] = self::_readPRTNodes($question_id, $prt_name, false);
+				$potential_response_trees[$prt_name]['nodes'] = self::_readPRTNodes($question_id, $prt_name);
 			}
 		}
 		if ($just_id) {
@@ -237,7 +240,7 @@ class assStackQuestionDB
 	 * @param bool $seeds_as_keys
 	 * @return array
 	 */
-	public static function _readDeployedVariants($question_id, $seeds_as_keys = false): array
+	public static function _readDeployedVariants($question_id, bool $seeds_as_keys = false): array
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -265,9 +268,9 @@ class assStackQuestionDB
 	/**
 	 * READS UNIT TESTS FROM THE DB
 	 * @param $question_id
-	 * @return array|false
+	 * @return array
 	 */
-	public static function _readUnitTests($question_id)
+	public static function _readUnitTests($question_id): array
 	{
 		//TODO
 		return array();
@@ -285,7 +288,8 @@ class assStackQuestionDB
 		$db = $DIC->database();
 
 		//Select query
-		$query = 'SELECT * FROM xqcas_extra_info WHERE question_id = ' . $db->quote($question_id, 'integer');
+		$query = /** @lang text */
+			'SELECT * FROM xqcas_extra_info WHERE question_id = ' . $db->quote($question_id, 'integer');
 		$res = $db->query($query);
 		$row = $db->fetchObject($res);
 
@@ -927,7 +931,7 @@ class assStackQuestionDB
 	{
 
 		//Save question text instantiated
-		$question->saveCurrentSolution($active_id, $pass, 'xqcas_text_' . $question->getId(), $question->getQuestion(), $authorized);
+		$question->saveCurrentSolution($active_id, $pass, 'xqcas_text_' . $question->getId(), $question->question_text_instantiated, $authorized);
 		//Save question note
 		$question->saveCurrentSolution($active_id, $pass, 'xqcas_solution_' . $question->getId(), $question->question_note_instantiated, $authorized);
 		//Save general feedback
@@ -935,15 +939,21 @@ class assStackQuestionDB
 
 		$entered_values = 3;
 		//Save PRT information
-		foreach ($question->getPrtResults() as $prt_name => $prt) {
 
-			//Save PRT information
+		foreach ($question->getEvaluation()['prts'] as $prt_name => $prt) {
+
 			//value1 = xqcas_input_name, $value2 = input_name
 			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name);
+
+			//Save points
+			if (isset($question->getEvaluation()['points'][$prt_name])) {
+				self::_addPointsToPRTDBEntry($question, $active_id, $pass, $prt_name, $question->getEvaluation()['points'][$prt_name], $authorized);
+			}
+
 			$entered_values++;
 			//Save input information per PRT
 
-			foreach ($question->getInputStates() as $input_name => $input_state) {
+			foreach ($question->getEvaluation()['inputs'] as $input_name => $input_state) {
 				//Ensure only input data is stored
 				if (array_key_exists($input_name, $question->inputs)) {
 
@@ -955,13 +965,17 @@ class assStackQuestionDB
 					$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_display_' . $input_name, $input_state->contentsdisplayed);
 					$entered_values++;
 
-					//value1 = xqcas_input_*_model_answer, value2 = teacher answer for this question input in raw format but initialised
-					$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_' . $input_name, $question->getTas($input_name)->get_value());
-					$entered_values++;
+					try {
+						//value1 = xqcas_input_*_model_answer, value2 = teacher answer for this question input in raw format but initialised
+						$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_' . $input_name, $question->getTas($input_name)->get_value());
+						$entered_values++;
 
-					//value1 = xqcas_input_*_model_answer_display_, value2 = teacher answer for this question input validation display
-					$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_display_' . $input_name, $question->getTas($input_name)->get_display());
-					$entered_values++;
+						//value1 = xqcas_input_*_model_answer_display_, value2 = teacher answer for this question input validation display
+						$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_display_' . $input_name, $question->getTas($input_name)->get_display());
+						$entered_values++;
+					} catch (stack_exception $e) {
+						ilUtil::sendFailure($e);
+					}
 
 					//value1 = xqcas_input_*_model_answer, value2 = student answer for this question input in LaTeX
 					$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_seed', $question->seed);
@@ -970,7 +984,7 @@ class assStackQuestionDB
 				}
 			}
 			//value1 = xqcas_input_*_errors, $value2 = feedback given by CAS
-			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_errors', $prt->__get('errors'));
+			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_errors', $prt->_errors);
 			$entered_values++;
 
 			//value1 = xqcas_input_*_feedback, $value2 = feedback given by CAS
@@ -978,21 +992,17 @@ class assStackQuestionDB
 			$entered_values++;
 
 			//value1 = xqcas_input_*_status, $value2 = status
-			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status', $prt->__get('score'));
+			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status', $prt->_valid);
 			$entered_values++;
 
 			//value1 = xqcas_input_*_status_message, $value2 = answernotes
-			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_answernote', implode(';', $prt->__get('answernotes')));
+			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_answernote', implode(';', $prt->_answernotes));
 			$entered_values++;
 
-			if ($prt_name) {
-				self::_addPointsToPRTDBEntry($question, $active_id, $pass, $prt_name, $prt->__get('fraction'));
-			}
 		}
 
 		return $entered_values;
 	}
-
 
 	/**
 	 * @param assStackQuestion $question
@@ -1007,21 +1017,33 @@ class assStackQuestionDB
 		global $DIC;
 		$db = $DIC->database();
 
+		//Get solutionID as getCurrentSolutionResultSet is protected we have to overwrite this method
+		$query = /** @lang text */
+			"
+				SELECT solution_id
+				FROM tst_solutions
+				WHERE active_fi = %s
+				AND question_fi = %s
+				AND pass = %s
+				AND value1 = %s
+				AND authorized = %s
+			";
+
+		$result = $db->queryF(
+			$query,
+			array('integer', 'integer', 'integer', 'text','integer'),
+			array($active_id, $question->getId(), $pass, 'xqcas_prt_' . $prt_name . '_name',(int)$authorized)
+		);
+
+		$row = $db->fetchAssoc($result);
+		$solution_id = $row["solution_id"];
+
+		//Prepare data to update
 		$field_data = array('points' => array('float', $points));
 
 		//Get step in case it exists
 		if ($question->getStep() !== null) {
 			$field_data['step'] = array('integer', $question->getStep());
-		}
-
-		//get Solution Id for prt_name field in tst_solutions
-		$solution_id = null;
-		$solution_values = $question->getSolutionValues($active_id, $pass, $authorized);
-		foreach ($solution_values as $solution) {
-			if ($solution['value1'] == 'xqcas_prt_' . $prt_name . '_name') {
-				$solution_id = $solution['solution_id'];
-				break;
-			}
 		}
 
 		//Replace points in tst_solution solution_id entry

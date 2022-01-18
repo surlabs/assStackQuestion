@@ -41,11 +41,15 @@ class assStackQuestionRenderer
 	 * @param assStackQuestion $question
 	 * @param bool $show_inline_feedback
 	 * @return string
-	 * @throws stack_exception
 	 */
 	public static function _renderQuestionPreview(assStackQuestion $question, bool $show_inline_feedback = false): string
 	{
-		return self::_renderQuestion($question, 1, 1, $show_inline_feedback);
+		try {
+			return self::_renderQuestion($question, true, false, $show_inline_feedback);
+		} catch (stack_exception$e) {
+			echo $e;
+			exit;
+		}
 	}
 
 	public function getTestOutput($active_id, $pass, $is_question_postponed, $user_post_solutions, $show_specific_inline_feedback)
