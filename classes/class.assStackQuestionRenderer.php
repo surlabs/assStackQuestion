@@ -28,12 +28,44 @@ class assStackQuestionRenderer
 	}
 
 
-	public static function _renderQuestionSolution($question, $active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true): string
+	public static function _renderQuestionSolution(assStackQuestion $question, int $active_id, int $pass = null, bool $graphicalOutput = false, bool $result_output = false, bool $show_question_only = true, bool $show_feedback = false, bool $show_correct_solution = false, bool $show_manual_scoring = false, bool $show_question_text = true): string
 	{
-		try {
-			return self::_renderQuestion($question, $active_id, $pass, false, true);
-		} catch (stack_exception$e) {
-			ilUtil::sendFailure($e);
+		if (empty($user_solutions_from_db = $question->getTestOutputSolutions($active_id, $pass))) {
+			//Render question from scratch
+			return '_renderQuestionSolution error';
+		} else {
+			//Question has been already evaluated, use DB Data
+			$question_text = $user_solutions_from_db['question_text'];
+
+			//Replace Input placeholders
+			foreach ($question->inputs as $input_name => $input) {
+
+				// Get the actual value of the teacher's answer at this point.
+				$ta_value = $question->getTeacherAnswerForInput($input_name);
+
+				$field_name = 'xqcas_' . $question->getId() . '_' . $input_name;
+				$state = $question->getInputState($input_name, array($input_name => $user_solutions_from_db['inputs'][$input_name]['correct_value']));
+
+				if ($input->get_parameter('showValidation') != 0) {
+					$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, true, $ta_value), $question_text);
+					$ilias_validation =
+						'<div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">'
+						. $user_solutions_from_db['inputs'][$input_name]['correct_display'] .
+						'</div><div class="xqcas_input_validation"><div id="validation_xqcas_'
+						. $question->getId() . '_' . $input_name . '"></div></div>';
+					$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
+				} else {
+					$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, true, $ta_value), $question_text);
+				}
+			}
+
+			//Replace PRT placeholders
+			foreach ($question->prts as $prt_name => $prt) {
+				$question_text = str_replace("[[feedback:{$prt_name}]]", $user_solutions_from_db['prts'][$prt_name]['feedback'] . $user_solutions_from_db['prts'][$prt_name]['errors'], $question_text);
+			}
+
+			//Return question text
+			return assStackQuestionUtils::_getLatex($question_text);
 		}
 	}
 
@@ -52,9 +84,55 @@ class assStackQuestionRenderer
 		}
 	}
 
-	public function getTestOutput($active_id, $pass, $is_question_postponed, $user_post_solutions, $show_specific_inline_feedback)
+	/**
+	 * @param assStackQuestion $question
+	 * @param int $active_id
+	 * @param int $pass
+	 * @param bool $user_solutions
+	 * @param bool $show_specific_inline_feedback
+	 * @param bool $is_question_postponed
+	 * @return string
+	 * @throws stack_exception
+	 */
+	public static function _renderQuestionTest(assStackQuestion $question, int $active_id, int $pass, bool $user_solutions, bool $show_specific_inline_feedback, bool $is_question_postponed = false): string
 	{
-		// TODO: Implement getTestOutput() method.
+		if (empty($user_solutions_from_db = $question->getTestOutputSolutions($active_id, $pass))) {
+			//Render question from scratch
+			return self::_renderQuestion($question, $show_specific_inline_feedback, false, $active_id, $pass);
+		} else {
+			//Question has been already evaluated, use DB Data
+			$question_text = $user_solutions_from_db['question_text'];
+
+			//Replace Input placeholders
+			foreach ($question->inputs as $input_name => $input) {
+
+				// Get the actual value of the teacher's answer at this point.
+				$ta_value = $question->getTeacherAnswerForInput($input_name);
+
+				$field_name = 'xqcas_' . $question->getId() . '_' . $input_name;
+				$state = $question->getInputState($input_name, array($input_name => $user_solutions_from_db['inputs'][$input_name]['value']));
+
+				if ($input->get_parameter('showValidation') != 0) {
+					$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, false, $ta_value) . ' ' . self::_renderValidationButton($question->getId(), $input_name), $question_text);
+					$ilias_validation =
+						'<div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">'
+						. $user_solutions_from_db['inputs'][$input_name]['validation_display'] .
+						'</div><div class="xqcas_input_validation"><div id="validation_xqcas_'
+						. $question->getId() . '_' . $input_name . '"></div></div>';
+					$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
+				} else {
+					$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, false, $ta_value), $question_text);
+				}
+			}
+
+			//Replace PRT placeholders
+			foreach ($question->prts as $prt_name => $prt) {
+				$question_text = str_replace("[[feedback:{$prt_name}]]", $user_solutions_from_db['prts'][$prt_name]['feedback'] . $user_solutions_from_db['prts'][$prt_name]['errors'], $question_text);
+			}
+
+			//Return question text
+			return assStackQuestionUtils::_getLatex($question_text);
+		}
 	}
 
 	/* ILIAS REQUIRED METHODS RENDER END */
@@ -68,21 +146,14 @@ class assStackQuestionRenderer
 	 * @param int|null $active_id
 	 * @param int|null $pass
 	 * @return string
-	 * @throws stack_exception
 	 */
 	public static function _renderQuestion(assStackQuestion $question, bool $show_inline_feedback = false, bool $show_best_solution = false, int $active_id = null, int $pass = null): string
 	{
 		global $DIC;
 
 		if ($active_id !== null and $pass !== null) {
-			//Render Test Version
-			if (!$show_best_solution) {
-				//QUESTION
-				$response = $question->getUserSolutionPreferingIntermediate($active_id, $pass);
-			} else {
-				//BEST SOLUTION
-				$response = $question->getCorrectResponse();
-			}
+			//QUESTION
+			$response = $question->getUserResponse();
 		} else {
 			//Render Preview Version
 			if (!$show_best_solution) {
@@ -139,14 +210,26 @@ class assStackQuestionRenderer
 
 			if ($input->get_parameter('showValidation') != 0) {
 				//Input and Validation Button
-				$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, false, $ta_value) . ' ' . self::_renderValidationButton($question->getId(), $name), $question_text);
+				if (!$show_best_solution) {
+					$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, false, $ta_value) . ' ' . self::_renderValidationButton($question->getId(), $name), $question_text);
+				} else {
+					$field_name = 'xqcas_solution_' . $question->getId() . '_' . $name;
+					$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, true, $ta_value), $question_text);
+				}
 
 				//Validation tags
-				$ilias_validation = '<div id="validation_xqcas_roll_' . $question->getId() . '_' . $name . '"></div><div class="xqcas_input_validation"><div id="validation_xqcas_' . $question->getId() . '_' . $name . '"></div></div>';
-
-				$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
+				if (!$show_best_solution) {
+					$ilias_validation = '<div id="validation_xqcas_' . $question->getId() . '_' . $name . '"></div><div class="xqcas_input_validation"><div id="validation_xqcas_' . $question->getId() . '_' . $name . '"></div></div>';
+					$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
+				} else {
+					$question_text = str_replace("[[validation:{$name}]]", '</br>', $question_text);
+				}
 			} else {
-				$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, false, $ta_value), $question_text);
+				if (!$show_best_solution) {
+					$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, false, $ta_value), $question_text);
+				} else {
+					$question_text = str_replace("[[validation:{$name}]]", '</br>', $question_text);
+				}
 			}
 
 			if ($input->requires_validation()) {

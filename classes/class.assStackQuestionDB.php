@@ -865,56 +865,56 @@ class assStackQuestionDB
 		$seed = 1;
 
 		//Does this question uses randomisation?
-		if ($question->hasRandomVariants()) {
-			global $DIC;
-			$db = $DIC->database();
-			$question_id = $question->getId();
-			//Search for a seed in DB
-			//returns seed if exists
-			$query = /** @lang text */
-				'SELECT seed FROM xqcas_test_seeds WHERE question_id = '
-				. $db->quote($question_id, 'integer') . ' AND active_id = '
-				. $db->quote($active_id, 'integer') . ' AND pass = '
-				. $db->quote($pass, 'integer') . ' ORDER BY xqcas_test_seeds.stamp';
+		global $DIC;
+		$db = $DIC->database();
+		$question_id = $question->getId();
+		//Search for a seed in DB
+		//returns seed if exists
+		$query = /** @lang text */
+			'SELECT seed FROM xqcas_test_seeds WHERE question_id = '
+			. $db->quote($question_id, 'integer') . ' AND active_id = '
+			. $db->quote($active_id, 'integer') . ' AND pass = '
+			. $db->quote($pass, 'integer') . ' ORDER BY xqcas_test_seeds.stamp';
 
-			$res = $db->query($query);
-			if (isset($res)) if (!empty($res)) {
-				$seed_found = 0;
-				while ($row = $db->fetchAssoc($res)) {
-					//set actual seed stored in DB
-					$seed = (int)$row['seed'];
-					if ($seed_found === 0) {
-						$seed_found = $seed;
-					} else {
-						echo 'error: trying to create a different question seed';
-						exit;
-					}
+		$res = $db->query($query);
+		if (isset($res)) if (!empty($res)) {
+			$seed_found = 0;
+			while ($row = $db->fetchAssoc($res)) {
+				//set actual seed stored in DB
+				$seed = (int)$row['seed'];
+				if ($seed_found === 0) {
+					$seed_found = $seed;
+				} else {
+					echo 'error: trying to create a different question seed';
+					exit;
 				}
 			}
+		}
 
-			if ($seed == 1) {
-				//Create new seed
-				$variants = self::_readDeployedVariants($question_id, true);
+		if ($seed == 1) {
+			//Create new seed
+			$variants = self::_readDeployedVariants($question_id, true);
 
-				//If there are variants
-				if (!empty($variants)) {
-					//Choose between deployed seeds
-					$chosen_seed = array_rand($variants);
-					//Set random selected seed
-					$seed = (int)$chosen_seed;
-				} else {
-					//Complete randomisation
+			//If there are variants
+			if (!empty($variants)) {
+				//Choose between deployed seeds
+				$chosen_seed = array_rand($variants);
+				//Set random selected seed
+				$seed = (int)$chosen_seed;
+			} else {
+				//Complete randomisation
+				if ($question->hasRandomVariants()) {
 					$seed = rand(1111111111, 9999999999);
 				}
-
-				//Save into xqcas_test_seeds
-				$db->insert("xqcas_test_seeds", array(
-					'question_id' => array('integer', $question_id),
-					'active_id' => array('integer', $active_id),
-					'pass' => array('integer', $pass),
-					'seed' => array('integer', $seed),
-					'stamp' => array('integer', time())));
 			}
+
+			//Save into xqcas_test_seeds
+			$db->insert("xqcas_test_seeds", array(
+				'question_id' => array('integer', $question_id),
+				'active_id' => array('integer', $active_id),
+				'pass' => array('integer', $pass),
+				'seed' => array('integer', $seed),
+				'stamp' => array('integer', time())));
 		}
 
 		return $seed;
@@ -936,8 +936,44 @@ class assStackQuestionDB
 		$question->saveCurrentSolution($active_id, $pass, 'xqcas_solution_' . $question->getId(), $question->question_note_instantiated, $authorized);
 		//Save general feedback
 		$question->saveCurrentSolution($active_id, $pass, 'xqcas_general_feedback_' . $question->getId(), $question->general_feedback, $authorized);
+		//Save Seed
+		$question->saveCurrentSolution($active_id, $pass, 'xqcas_question_' . $question->getId() . '_seed', $question->seed);
 
-		$entered_values = 3;
+		$entered_values = 4;
+
+		foreach ($question->getEvaluation()['inputs']['states'] as $input_name => $input_state) {
+
+			//Ensure only input data is stored
+			if (array_key_exists($input_name, $question->inputs)) {
+				//value1 = xqcas_input_*_value, value2 = raw student answer for this question input
+				$question->saveCurrentSolution($active_id, $pass, 'xqcas_input_' . $input_name . '_value', $input_state->contentsmodified);
+				$entered_values++;
+
+				//value1 = xqcas_input_*_display, value2 = student answer displayed for this question input after validation
+				$question->saveCurrentSolution($active_id, $pass, 'xqcas_input_' . $input_name . '_display', $input_state->contentsdisplayed);
+				$entered_values++;
+
+				//value1 = xqcas_input_*_display, value2 = student answer displayed for this question input after validation
+				if (isset($question->getEvaluation()['inputs']['validation'][$input_name])) {
+					$question->saveCurrentSolution($active_id, $pass, 'xqcas_input_' . $input_name . '_validation_display', $question->getEvaluation()['inputs']['validation'][$input_name]);
+					$entered_values++;
+				}
+
+				try {
+					//value1 = xqcas_input_*_model_answer, value2 = teacher answer for this question input in raw format but initialised
+					$question->saveCurrentSolution($active_id, $pass, 'xqcas_input_' . $input_name . '_model_answer', $question->getTas($input_name)->get_value());
+					$entered_values++;
+
+					//value1 = xqcas_input_*_model_answer_display_, value2 = teacher answer for this question input validation display
+					$question->saveCurrentSolution($active_id, $pass, 'xqcas_input_' . $input_name . '_model_answer_display', $question->getTas($input_name)->get_display());
+					$entered_values++;
+
+				} catch (stack_exception $e) {
+					ilUtil::sendFailure($e, true);
+				}
+
+			}
+		}
 		//Save PRT information
 
 		foreach ($question->getEvaluation()['prts'] as $prt_name => $prt) {
@@ -951,38 +987,7 @@ class assStackQuestionDB
 			}
 
 			$entered_values++;
-			//Save input information per PRT
 
-			foreach ($question->getEvaluation()['inputs'] as $input_name => $input_state) {
-				//Ensure only input data is stored
-				if (array_key_exists($input_name, $question->inputs)) {
-
-					//value1 = xqcas_input_*_value, value2 = raw student answer for this question input
-					$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_value_' . $input_name, $input_state->contentsmodified);
-					$entered_values++;
-
-					//value1 = xqcas_input_*_display, value2 = student answer displayed for this question input after validation
-					$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_display_' . $input_name, $input_state->contentsdisplayed);
-					$entered_values++;
-
-					try {
-						//value1 = xqcas_input_*_model_answer, value2 = teacher answer for this question input in raw format but initialised
-						$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_' . $input_name, $question->getTas($input_name)->get_value());
-						$entered_values++;
-
-						//value1 = xqcas_input_*_model_answer_display_, value2 = teacher answer for this question input validation display
-						$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_model_answer_display_' . $input_name, $question->getTas($input_name)->get_display());
-						$entered_values++;
-					} catch (stack_exception $e) {
-						ilUtil::sendFailure($e);
-					}
-
-					//value1 = xqcas_input_*_model_answer, value2 = student answer for this question input in LaTeX
-					$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_seed', $question->seed);
-					$entered_values++;
-
-				}
-			}
 			//value1 = xqcas_input_*_errors, $value2 = feedback given by CAS
 			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_errors', $prt->_errors);
 			$entered_values++;
@@ -1031,8 +1036,8 @@ class assStackQuestionDB
 
 		$result = $db->queryF(
 			$query,
-			array('integer', 'integer', 'integer', 'text','integer'),
-			array($active_id, $question->getId(), $pass, 'xqcas_prt_' . $prt_name . '_name',(int)$authorized)
+			array('integer', 'integer', 'integer', 'text', 'integer'),
+			array($active_id, $question->getId(), $pass, 'xqcas_prt_' . $prt_name . '_name', (int)$authorized)
 		);
 
 		$row = $db->fetchAssoc($result);
@@ -1049,6 +1054,27 @@ class assStackQuestionDB
 		//Replace points in tst_solution solution_id entry
 		if ($solution_id != null) {
 			$db->update('tst_solutions', $field_data, array('solution_id' => array('integer', (int)$solution_id)));
+		}
+	}
+
+	/**
+	 * @param assStackQuestion $question
+	 * @param int $active_id
+	 * @param int $pass
+	 * @param string $input_name
+	 * @return void
+	 */
+	public static function _saveModelAnswerIntoDB(assStackQuestion $question, int $active_id, int $pass, string $input_name, string $input_value, string $input_display)
+	{
+		try {
+			//value1 = xqcas_input_*_model_answer, value2 = teacher answer for this question input in raw format but initialised
+			$question->saveCurrentSolution($active_id, $pass, 'xqcas_input_' . $input_name . '_model_answer', $input_value);
+
+			//value1 = xqcas_input_*_model_answer_display_, value2 = teacher answer for this question input validation display
+			$question->saveCurrentSolution($active_id, $pass, 'xqcas_input_' . $input_name . '_model_answer_display', $input_display);
+
+		} catch (stack_exception $e) {
+			ilUtil::sendFailure($e, true);
 		}
 	}
 }

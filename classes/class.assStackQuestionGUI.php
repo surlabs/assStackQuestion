@@ -83,26 +83,99 @@ class assStackQuestionGUI extends assQuestionGUI
 		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
 	}
 
-	public function getSpecificFeedbackOutput($userSolution): string
+	/**
+	 * @param $active_id
+	 * @param $pass
+	 * @param $is_question_postponed
+	 * @param $user_post_solutions
+	 * @param $show_specific_inline_feedback
+	 * @return false|mixed|string|void|null
+	 */
+	public function getTestOutput($active_id, $pass, $is_question_postponed, $user_post_solutions, $show_specific_inline_feedback)
 	{
-		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
-		$this->object->specific_feedback_instantiated = assStackQuestionRenderer::_renderSpecificFeedback($this->object, $userSolution);
+		//Question initialization
+		$seed = assStackQuestionDB::_getSeedForTestPass($this->object, $active_id, $pass);
 
-		return $this->object->specific_feedback_instantiated;
-	}
-
-	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true)
-	{
-		//Initialise the question
 		if (!$this->object->isInstantiated()) {
-			$prts = $this->object->prts;
-			$variant = assStackQuestionUtils::_getSeedFromTest($this->object->getId(), $active_id, $pass, array_shift($prts));
-			$this->object->questionInitialisation($variant);
+			$this->object->questionInitialisation($seed, true);
 		}
 
-		//Render question Preview
+		//If no user solution is given but question is not evaluated
+		//Force Evaluate Question
+		if (empty($this->object->getEvaluation())) {
+			$user_solutions = $this->object->getSolutionSubmit();
+			if (isset($user_solutions['test_player_navigation_url'])) {
+				unset($user_solutions['test_player_navigation_url']);
+			}
+
+			$this->object->setUserResponse($user_solutions);
+			$this->object->evaluateQuestion();
+		}
+
+		//Render Question
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
-		return assStackQuestionRenderer::_renderQuestionSolution($this->object, 1, 1, $graphicalOutput, $result_output, $show_question_only, $show_feedback, $show_correct_solution, $show_manual_scoring, $show_question_text);
+		try {
+			$question_output = assStackQuestionRenderer::_renderQuestionTest($this->object, $active_id, $pass, $user_post_solutions, $show_specific_inline_feedback, $is_question_postponed);
+
+			//Return question output
+			return $this->outQuestionPage('', $is_question_postponed, $active_id, $question_output, $show_specific_inline_feedback);
+		} catch (stack_exception $e) {
+			return $e->getMessage();
+		}
+	}
+
+	/**
+	 * Returns question view with correct response filled in
+	 * @param int $active_id
+	 * @param int $pass
+	 * @param bool $graphicalOutput
+	 * @param bool $result_output
+	 * @param bool $show_question_only
+	 * @param bool $show_feedback
+	 * @param bool $show_correct_solution
+	 * @param bool $show_manual_scoring
+	 * @param bool $show_question_text
+	 * @return string
+	 */
+	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true): string
+	{
+		//Question initialization
+
+		if (is_null($pass)) {
+			include_once /** @lang text */
+			"./Modules/Test/classes/class.ilObjTest.php";
+			$pass = ilObjTest::_getPass($active_id);
+		}
+
+		//Question initialization
+		$seed = assStackQuestionDB::_getSeedForTestPass($this->object, $active_id, $pass);
+
+		if (!$this->object->isInstantiated()) {
+			$this->object->questionInitialisation($seed, true);
+		}
+
+		//If no user solution is given but question is not evaluated
+		//Force Evaluate Question
+		if (empty($this->object->getEvaluation())) {
+			$user_solutions = $this->object->getSolutionSubmit();
+			if (isset($user_solutions['test_player_navigation_url'])) {
+				unset($user_solutions['test_player_navigation_url']);
+			}
+
+			$this->object->setUserResponse($user_solutions);
+			$this->object->evaluateQuestion();
+		}
+
+		//Render Solution
+		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
+		$solution_output = assStackQuestionRenderer::_renderQuestionSolution($this->object, $active_id, $pass, $graphicalOutput, $result_output, $show_question_only, $show_feedback, $show_correct_solution, $show_manual_scoring, $show_question_text);
+
+		//Return Solution output
+		if (!$show_question_only) {
+			// get page object output
+			$solution_output = $this->getILIASPage($solution_output);
+		}
+		return $solution_output;
 	}
 
 	/**
@@ -158,34 +231,14 @@ class assStackQuestionGUI extends assQuestionGUI
 		return $question_preview;
 	}
 
-	public function getTestOutput($active_id, $pass, $is_question_postponed, $user_post_solutions, $show_specific_inline_feedback)
+	public function getSpecificFeedbackOutput($userSolution): string
 	{
-		global $DIC;
-
-		//Initialise the question
-		if (!$this->object->isInstantiated()) {
-			$this->object->questionInitialisation(assStackQuestionDB::_getSeedForTestPass($this->object, $active_id, $pass), true);
-		}
-
-		//Render question Preview
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
-		try {
-			$question_output = assStackQuestionRenderer::_renderQuestion($this->object, $show_specific_inline_feedback, false, $active_id, $pass);
+		$this->object->specific_feedback_instantiated = assStackQuestionRenderer::_renderSpecificFeedback($this->object, $userSolution);
 
-			//Tab management
-			$tabs = $DIC->tabs();
-			if ($_GET['cmd'] == 'edit') {
-				$tabs->activateTab('edit_page');
-			} elseif ($_GET['cmd'] == 'preview') {
-				$tabs->activateTab('preview');
-			}
-
-			//Returns output with page
-			return $this->getILIASPage($question_output);
-		} catch (stack_exception $e) {
-			return $e;
-		}
+		return $this->object->specific_feedback_instantiated;
 	}
+
 
 	/* ILIAS REQUIRED METHODS END */
 

@@ -413,10 +413,10 @@ class assStackQuestionUtils
 
 	/**
 	 * This function returns the LaTeX rendered version of $text
-	 * @param $text The raw text
+	 * @param $text string The raw text
 	 * @return string
 	 */
-	public static function _getLatex($text)
+	public static function _getLatex(string $text): string
 	{
 		/*
 		 * Step 1 check current platform's LaTeX delimiters
@@ -712,7 +712,7 @@ class assStackQuestionUtils
 	 */
 	public static function _getPRTNamesFromQuestion(string $question_text, $specific_feedback, array $prts_in_db): array
 	{
-		if($specific_feedback == null){
+		if ($specific_feedback == null) {
 			$specific_feedback = '';
 		}
 		$prts = stack_utils::extract_placeholders($question_text . $specific_feedback, 'feedback');
@@ -830,6 +830,6 @@ class assStackQuestionUtils
 		} else {
 			$value2 = '';
 		}
-		return ((string) $value1) === ((string) $value2);
+		return ((string)$value1) === ((string)$value2);
 	}
 }
