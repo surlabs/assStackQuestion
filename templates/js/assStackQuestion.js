@@ -39,7 +39,9 @@ il.assStackQuestion = new function () {
 	this.init = function (a_config, a_texts) {
 		config = a_config;
 		texts = a_texts;
+
 		$('form > div.ilc_question_Standard > button').click(self.validate);
+		$('#ilc_Page > div.ilc_question_Standard > button').click(self.validate);
 	};
 
 

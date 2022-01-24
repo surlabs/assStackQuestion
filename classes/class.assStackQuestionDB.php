@@ -861,8 +861,7 @@ class assStackQuestionDB
 	 */
 	public static function _getSeedForTestPass(assStackQuestion $question, int $active_id, int $pass): int
 	{
-		//set seed to non-random value 1
-		$seed = 1;
+		$seed = 0;
 
 		//Does this question uses randomisation?
 		global $DIC;
@@ -891,7 +890,7 @@ class assStackQuestionDB
 			}
 		}
 
-		if ($seed == 1) {
+		if ($seed < 1) {
 			//Create new seed
 			$variants = self::_readDeployedVariants($question_id, true);
 
@@ -905,6 +904,8 @@ class assStackQuestionDB
 				//Complete randomisation
 				if ($question->hasRandomVariants()) {
 					$seed = rand(1111111111, 9999999999);
+				} else {
+					$seed = 1;
 				}
 			}
 

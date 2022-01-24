@@ -43,19 +43,17 @@ class assStackQuestionRenderer
 				// Get the actual value of the teacher's answer at this point.
 				$ta_value = $question->getTeacherAnswerForInput($input_name);
 
-				$field_name = 'xqcas_' . $question->getId() . '_' . $input_name;
+				$field_name = 'xqcas_solution_' . $question->getId() . '_' . $input_name;
 				$state = $question->getInputState($input_name, array($input_name => $user_solutions_from_db['inputs'][$input_name]['correct_value']));
 
 				if ($input->get_parameter('showValidation') != 0) {
 					$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, true, $ta_value), $question_text);
-					$ilias_validation =
-						'<div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">'
-						. $user_solutions_from_db['inputs'][$input_name]['correct_display'] .
-						'</div><div class="xqcas_input_validation"><div id="validation_xqcas_'
-						. $question->getId() . '_' . $input_name . '"></div></div>';
+					$ilias_validation ='';
 					$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
 				} else {
 					$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, true, $ta_value), $question_text);
+					$ilias_validation ='';
+					$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
 				}
 			}
 
@@ -130,7 +128,15 @@ class assStackQuestionRenderer
 				$question_text = str_replace("[[feedback:{$prt_name}]]", $user_solutions_from_db['prts'][$prt_name]['feedback'] . $user_solutions_from_db['prts'][$prt_name]['errors'], $question_text);
 			}
 
-			//Return question text
+			//Validation
+			//Button Validation
+			global $DIC;
+			$jsconfig = new stdClass();
+			$jsconfig->validate_url = ILIAS_HTTP_PATH . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
+
+			$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
+			$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
+
 			return assStackQuestionUtils::_getLatex($question_text);
 		}
 	}
@@ -378,7 +384,7 @@ class assStackQuestionRenderer
 	 */
 	public static function _renderValidationButton(string $question_id, string $input_name): string
 	{
-		return "<button style=\"height:1.8em;\" class=\"\" name=\"cmd[xqcas_" . $question_id . '_' . $input_name . "]\" id=\"cmd[xqcas_" . $question_id . '_' . $input_name . "]\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></button>";
+		return "<button style=\"height:1.8em;\" class=\"xqcas\" name=\"cmd[xqcas_" . $question_id . '_' . $input_name . "]\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></button>";
 	}
 
 
