@@ -77,7 +77,11 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->object = new assStackQuestion();
 
 		if ($id >= 0) {
-			$this->object->loadFromDb($id);
+			try {
+				$this->object->loadFromDb($id);
+			} catch (stack_exception $e) {
+				ilUtil::sendFailure($e, true);
+			}
 		}
 		//Initialize some STACK required parameters
 		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
@@ -104,11 +108,8 @@ class assStackQuestionGUI extends assQuestionGUI
 		//Force Evaluate Question
 		if (empty($this->object->getEvaluation())) {
 			$user_solutions = $this->object->getSolutionSubmit();
-			if (isset($user_solutions['test_player_navigation_url'])) {
-				unset($user_solutions['test_player_navigation_url']);
-			}
-
 			$this->object->setUserResponse($user_solutions);
+
 			$this->object->evaluateQuestion();
 		}
 
@@ -158,11 +159,8 @@ class assStackQuestionGUI extends assQuestionGUI
 		//Force Evaluate Question
 		if (empty($this->object->getEvaluation())) {
 			$user_solutions = $this->object->getSolutionSubmit();
-			if (isset($user_solutions['test_player_navigation_url'])) {
-				unset($user_solutions['test_player_navigation_url']);
-			}
-
 			$this->object->setUserResponse($user_solutions);
+
 			$this->object->evaluateQuestion();
 		}
 
@@ -180,10 +178,10 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	/**
 	 * @param bool $show_question_only
-	 * @param bool $show_inline_feedback
+	 * @param bool $showInlineFeedback
 	 * @return string HTML
 	 */
-	public function getPreview($show_question_only = false, $show_inline_feedback = false): string
+	public function getPreview($show_question_only = false, $showInlineFeedback = false): string
 	{
 		global $DIC;
 
@@ -207,12 +205,12 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Initialise the question
 		if (!$this->object->isInstantiated()) {
-			$this->object->questionInitialisation($variant);
+			$this->object->questionInitialisation($variant, true);
 		}
 
 		//Render question Preview
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
-		$question_preview = assStackQuestionRenderer::_renderQuestionPreview($this->object, $show_inline_feedback);
+		$question_preview = assStackQuestionRenderer::_renderQuestionPreview($this->object, $showInlineFeedback);
 
 		//Tab management
 		$tabs = $DIC->tabs();

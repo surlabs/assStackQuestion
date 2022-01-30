@@ -414,7 +414,7 @@ class assStackQuestionMoodleImport
 			}
 
 			$feedback_variables = null;
-			if ((string)$prt->feedbackvariables->text) {
+			if ((string) $prt->feedbackvariables->text) {
 				try {
 					$feedback_variables = new stack_cas_keyval(ilUtil::secureString((string)$prt->feedbackvariables->text));
 					$feedback_variables = $feedback_variables->get_session();
@@ -423,7 +423,7 @@ class assStackQuestionMoodleImport
 				}
 			}
 
-			$prt_value = (float)$prt->value / $total_value;
+			$prt_value = (float) $prt->value / $total_value;
 
 			try {
 				$this->getQuestion()->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt->autosimplify, $prt_value, $feedback_variables, $nodes, (string)$first_node, 1);
@@ -432,7 +432,7 @@ class assStackQuestionMoodleImport
 			}
 		}
 
-		//seeds:
+		//seeds
 		$seeds = array();
 		if (isset($question->deployedseed)) {
 			foreach ($question->deployedseed as $seed) {
@@ -440,6 +440,27 @@ class assStackQuestionMoodleImport
 			}
 		}
 		$this->getQuestion()->deployed_seeds = $seeds;
+
+		//Extra Information
+
+		//General feedback / How to Solve
+		if (isset($question->generalfeedback->text)) {
+			$general_feedback = (string)$question->generalfeedback->text;
+
+			if (isset($question->generalfeedback->file)) {
+				$mapping = $this->getMediaObjectsFromXML($question->generalfeedback->file);
+				$general_feedback = $this->replaceMediaObjectReferences($general_feedback, $mapping);
+			}
+			$this->getQuestion()->general_feedback = ilUtil::secureString($general_feedback);
+		}
+
+		//Penalty
+		if (isset($question->penalty) and $question->penalty != '') {
+			$this->getQuestion()->setPenalty((float) $question->penalty);
+		}
+
+		//Hidden
+		$this->getQuestion()->setHidden(0);
 
 		if (empty($this->error_log)) {
 			return true;

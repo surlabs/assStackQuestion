@@ -1,19 +1,21 @@
 <?php
 /**
- * Copyright (c) 2021 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
+ * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
  * GPLv2, see LICENSE
  */
 
-require_once './Modules/TestQuestionPool/classes/class.assQuestion.php';
+require_once /** @lang text */
+'./Modules/TestQuestionPool/classes/class.assQuestion.php';
 
 // Interface for FormATest
-include_once './Modules/TestQuestionPool/interfaces/interface.iQuestionCondition.php';
+include_once /** @lang text */
+'./Modules/TestQuestionPool/interfaces/interface.iQuestionCondition.php';
 
 /**
  * STACK Question OBJECT
  *
  * @author Jesus Copado <jesus.copado@fau.de>
- * @version $Id: 4.0$
+ * @version $Id: 7.0$
  * @ingroup    ModulesTestQuestionPool
  *
  */
@@ -37,17 +39,17 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	/**
 	 * @var float|null
 	 */
-	private $reached_points = null;
+	private ?float $reached_points = null;
 
 	/**
-	 * @var bool
+	 * @var int
 	 */
-	private bool $hidden;
+	private int $hidden;
 
 	/**
 	 * @var float
 	 */
-	private bool $penalty;
+	private float $penalty;
 
 	/**
 	 * @var array The user answer given in each input
@@ -78,43 +80,43 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	/**
 	 * @var string|null STACK specific: variables, as authored by the teacher.
 	 */
-	public $question_variables;
+	public ?string $question_variables;
 
 	/**
 	 * @var string|null STACK specific: variables, as authored by the teacher.
 	 */
-	public $question_note;
+	public ?string $question_note;
 
 	/**
 	 * @var string|null Any specific feedback for this question. This is displayed
 	 * in the 'yellow' feedback area of the question. It can contain PRT_feedback
 	 * tags, but not IE_feedback.
 	 */
-	public $specific_feedback;
+	public ?string $specific_feedback;
 
 	/** @var int|null one of the FORMAT_... constants */
-	public $specific_feedback_format;
+	public ?int $specific_feedback_format;
 
 	/** @var string|null Feedback that is displayed for any PRT that returns a score of 1. */
-	public $prt_correct;
+	public ?string $prt_correct;
 
 	/** @var int|null one of the FORMAT_... constants */
-	public $prt_correct_format;
+	public ?int $prt_correct_format;
 
 	/** @var string|null Feedback that is displayed for any PRT that returns a score between 0 and 1. */
-	public $prt_partially_correct;
+	public ?string $prt_partially_correct;
 
 	/** @var int|null one of the FORMAT_... constants */
-	public $prt_partially_correct_format;
+	public ?int $prt_partially_correct_format;
 
 	/** @var string|null Feedback that is displayed for any PRT that returns a score of 0. */
-	public $prt_incorrect;
+	public ?string $prt_incorrect;
 
 	/** @var int|null one of the FORMAT_... constants */
-	public $prt_incorrect_format;
+	public ?int $prt_incorrect_format;
 
 	/** @var string|null if set, this is used to control the pseudo-random generation of the seed. */
-	public $variants_selection_seed;
+	public ?string $variants_selection_seed;
 
 	/**
 	 * @var stack_input[] STACK specific: string name as it appears in the question text => stack_input
@@ -122,7 +124,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	public array $inputs = array();
 
 	/**
-	 * @var stack_potentialresponse_tree[] STACK specific: respones tree number => ...
+	 * @var stack_potentialresponse_tree[] STACK specific: responses tree number => ...
 	 */
 	public array $prts = array();
 
@@ -167,34 +169,34 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	protected $question_note_instantiated;
 
 	/**
-	 * @var string instantiated version of question_text.
+	 * @var string|null instantiated version of question_text.
 	 * Initialised in start_attempt / apply_attempt_state.
 	 */
-	public string $question_text_instantiated;
+	public ?string $question_text_instantiated;
 
 	/**
-	 * @var string instantiated version of specific_feedback.
+	 * @var string|null instantiated version of specific_feedback.
 	 * Initialised in start_attempt / apply_attempt_state.
 	 */
-	public $specific_feedback_instantiated;
+	public ?string $specific_feedback_instantiated;
 
 	/**
-	 * @var string instantiated version of prt_correct.
+	 * @var string|null instantiated version of prt_correct.
 	 * Initialised in start_attempt / apply_attempt_state.
 	 */
-	public $prt_correct_instantiated;
+	public ?string $prt_correct_instantiated;
 
 	/**
-	 * @var string instantiated version of prt_partially_correct.
+	 * @var string|null instantiated version of prt_partially_correct.
 	 * Initialised in start_attempt / apply_attempt_state.
 	 */
-	public $prt_partially_correct_instantiated;
+	public ?string $prt_partially_correct_instantiated;
 
 	/**
-	 * @var string instantiated version of prt_incorrect.
+	 * @var string|null instantiated version of prt_incorrect.
 	 * Initialised in start_attempt / apply_attempt_state.
 	 */
-	public $prt_incorrect_instantiated;
+	public ?string $prt_incorrect_instantiated;
 
 	/**
 	 * @var array Errors generated at runtime.
@@ -724,7 +726,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		unset($user_response_from_post["formtimestamp"]);
 		unset($user_response_from_post["cmd"]);
 
-		return assStackQuestionUtils::_adaptUserResponseTo($user_response_from_post, $this->getId(), "only_input_names");
+		$user_solutions = assStackQuestionUtils::_adaptUserResponseTo($user_response_from_post, $this->getId(), "only_input_names");
+
+		//Debug
+		if (isset($user_solutions['test_player_navigation_url'])) {
+			unset($user_solutions['test_player_navigation_url']);
+		}
+
+		return $user_solutions;
 	}
 
 	/**
@@ -2073,17 +2082,17 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	}
 
 	/**
-	 * @return bool
+	 * @return int
 	 */
-	public function isHidden(): bool
+	public function getHidden(): int
 	{
 		return $this->hidden;
 	}
 
 	/**
-	 * @param bool $hidden
+	 * @param int $hidden
 	 */
-	public function setHidden(bool $hidden): void
+	public function setHidden(int $hidden): void
 	{
 		$this->hidden = $hidden;
 	}

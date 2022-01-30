@@ -341,8 +341,8 @@ class assStackQuestionDB
 		//Save Seeds
 		$seeds_saved = self::_saveStackSeeds($question, $purpose);
 
-		//Extra Prts
-		//$prts_saved = self::_saveStackExtraInformation($question, self::_readExtraInformation($ids['question_id'], true));
+		//Extra Info
+		$extra_saved = self::_saveStackExtraInformation($question, $purpose);
 
 		//Validate from form, popup errors
 		return true;
@@ -673,6 +673,42 @@ class assStackQuestionDB
 	}
 
 	/**
+	 * @param assStackQuestion $question
+	 * @param string $purpose
+	 * @return bool
+	 */
+	public static function _saveStackExtraInformation(assStackQuestion $question, string $purpose): bool
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		$question_id = $question->getId();
+		$extra_info_from_db = self::_readExtraInformation($question_id);
+
+		if (is_array($extra_info_from_db) and !empty($extra_info_from_db)) {
+			//UPDATE
+			$db->replace('xqcas_extra_info',
+				array('id' => array('integer', $extra_info_from_db['id'])),
+				array(
+					'question_id' => array('integer', $question_id),
+					'general_feedback' => array('clob', $question->general_feedback),
+					'penalty' => array('string', (string)$question->getPenalty()),
+					'hidden' => array('integer', $question->getHidden())
+				));
+		} else {
+			//CREATE
+			$db->insert('xqcas_extra_info',
+				array('id' => array('integer', $db->nextId('xqcas_extra_info')),
+					'question_id' => array('integer', $question_id),
+					'general_feedback' => array('clob', $question->general_feedback),
+					'penalty' => array('string', (string)$question->getPenalty()),
+					'hidden' => array('integer', $question->getHidden())
+				));
+		}
+		return true;
+	}
+
+	/**
 	 * @param int $question_id
 	 * @return bool
 	 */
@@ -685,6 +721,8 @@ class assStackQuestionDB
 		$prts = self::_deleteStackPrts($question_id);
 
 		$seeds = self::_deleteStackSeeds($question_id);
+
+		$extra = self::_deleteStackExtraInfo($question_id);
 		/*
 
 					case 'extra_info':
@@ -846,6 +884,24 @@ class assStackQuestionDB
 			$query = /** @lang text */
 				'DELETE FROM xqcas_deployed_seeds WHERE id = ' . $db->quote($seed_id, 'integer');
 		}
+		if ($db->manipulate($query) != false) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param int $question_id
+	 * @return bool
+	 */
+	public static function _deleteStackExtraInfo(int $question_id): bool{
+		global $DIC;
+		$db = $DIC->database();
+			//delete all seeds of the question
+			$query = /** @lang text */
+				'DELETE FROM xqcas_extra_info WHERE question_id = ' . $db->quote($question_id, 'integer');
+
 		if ($db->manipulate($query) != false) {
 			return true;
 		} else {
