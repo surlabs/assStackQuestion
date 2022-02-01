@@ -8,7 +8,7 @@
  * STACK Question Import from MoodleXML
  *
  * @author Jesus Copado <jesus.copado@fau.de>
- * @version $Id: 3.9$
+ * @version $Id: 7.0$
  *
  */
 require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
@@ -414,7 +414,7 @@ class assStackQuestionMoodleImport
 			}
 
 			$feedback_variables = null;
-			if ((string) $prt->feedbackvariables->text) {
+			if ((string)$prt->feedbackvariables->text) {
 				try {
 					$feedback_variables = new stack_cas_keyval(ilUtil::secureString((string)$prt->feedbackvariables->text));
 					$feedback_variables = $feedback_variables->get_session();
@@ -423,7 +423,7 @@ class assStackQuestionMoodleImport
 				}
 			}
 
-			$prt_value = (float) $prt->value / $total_value;
+			$prt_value = (float)$prt->value / $total_value;
 
 			try {
 				$this->getQuestion()->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt->autosimplify, $prt_value, $feedback_variables, $nodes, (string)$first_node, 1);
@@ -456,12 +456,47 @@ class assStackQuestionMoodleImport
 
 		//Penalty
 		if (isset($question->penalty) and $question->penalty != '') {
-			$this->getQuestion()->setPenalty((float) $question->penalty);
+			$this->getQuestion()->setPenalty((float)$question->penalty);
 		}
 
 		//Hidden
 		$this->getQuestion()->setHidden(0);
 
+		//Unit Tests
+		$unit_tests = array();
+		if (isset($question->qtest)) {
+			foreach ($question->qtest as $testcase) {
+
+				$testcase_name = ilUtil::secureString((string)$testcase->testcase);
+				$unit_tests['test_cases'][$testcase_name] = array();
+
+				foreach ($testcase->testinput as $testcase_input) {
+
+					$input_name = ilUtil::secureString((string)$testcase_input->name);
+					$input_value = ilUtil::secureString((string)$testcase_input->value);
+
+					$unit_tests['test_cases'][$testcase_name]['inputs'][$input_name]['value'] = $input_value;
+
+				}
+
+				foreach ($testcase->expected as $testcase_expected) {
+
+					$prt_name = ilUtil::secureString((string)$testcase_expected->name);
+					$expected_score = ilUtil::secureString((string)$testcase_expected->expectedscore);
+					$expected_penalty = ilUtil::secureString((string)$testcase_expected->expectedpenalty);
+					$expected_answer_note = ilUtil::secureString((string)$testcase_expected->expectedanswernote);
+
+					$unit_tests['test_cases'][$testcase_name]['expected'][$prt_name]['score'] = $expected_score;
+					$unit_tests['test_cases'][$testcase_name]['expected'][$prt_name]['penalty'] = $expected_penalty;
+					$unit_tests['test_cases'][$testcase_name]['expected'][$prt_name]['answer_note'] = $expected_answer_note;
+
+				}
+			}
+		}
+
+		$this->getQuestion()->setUnitTests($unit_tests);
+
+		//Return status
 		if (empty($this->error_log)) {
 			return true;
 		} else {
@@ -614,254 +649,5 @@ class assStackQuestionMoodleImport
 	}
 
 	/* GETTERS AND SETTERS END */
-
-	/*
-
-	private function getTestsFromXML($data)
-	{
-		$this->getPlugin()->includeClass('model/ilias_object/test/class.assStackQuestionTest.php');
-		$tests = array();
-
-		foreach ($data as $test) {
-			//Main attributes needed to create an TestOBJ
-			$test_case = (int)$test['testcase'];
-			$new_test = new assStackQuestionTest(-1, $this->getQuestion()->getId(), $test_case);
-
-			//Creation of inputs
-			$test_inputs = $this->getTestInputsFromXML($test['testinput'], $this->getQuestion()->getId(), $test_case);
-			$new_test->setTestInputs($test_inputs);
-
-			//Creation of expected results
-			$test_expected = $this->getTestExpectedFromXML($test['expected'], $this->getQuestion()->getId(), $test_case);
-			$new_test->setTestExpected($test_expected);
-
-			$tests[] = $new_test;
-		}
-
-		//array of assStackQuestionTest
-		return $tests;
-	}
-
-	private function getTestInputsFromXML($data, $question_id, $test_case)
-	{
-		$this->getPlugin()->includeClass('model/ilias_object/test/class.assStackQuestionTestInput.php');
-		$test_inputs = array();
-
-		foreach ($data as $input) {
-			$new_test_input = new assStackQuestionTestInput(-1, $this->getQuestion()->getId(), $test_case);
-
-			$new_test_input->setTestInputName($input['name']);
-			$new_test_input->setTestInputValue($input['value']);
-
-			$test_inputs[] = $new_test_input;
-		}
-
-		//array of assStackQuestionTestInput
-		return $test_inputs;
-	}
-
-	private function getTestExpectedFromXML($data, $question_id, $test_case)
-	{
-		$this->getPlugin()->includeClass('model/ilias_object/test/class.assStackQuestionTestExpected.php');
-		$test_expected = array();
-
-		foreach ($data as $expected) {
-			//Getting the PRT name
-			$prt_name = strip_tags($expected['name']);
-			$new_test_expected = new assStackQuestionTestExpected(-1, $this->getQuestion()->getId(), $test_case, $prt_name);
-
-			$new_test_expected->setExpectedScore(strip_tags($expected['expectedscore']));
-			$new_test_expected->setExpectedPenalty(strip_tags($expected['expectedpenalty']));
-			$new_test_expected->setExpectedAnswerNote($expected['expectedanswernote']);
-
-			$test_expected[] = $new_test_expected;
-		}
-
-		//array of assStackQuestionTestExpected
-		return $test_expected;
-	}
-
-
-	private function getExtraInfoFromXML($data)
-	{
-		$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionExtraInfo.php');
-		$extra_info = new assStackQuestionExtraInfo(-1, $this->getQuestion()->getId());
-
-		//General feedback property
-		$mapping = $this->getMediaObjectsFromXML($data['generalfeedback'][0]['file']);
-		$how_to_solve = assStackQuestionUtils::_casTextConverter($this->replaceMediaObjectReferences($data['generalfeedback'][0]['text'], $mapping), $this->getQuestion()->getTitle(), TRUE);
-		$extra_info->setHowToSolve(ilUtil::secureString($how_to_solve, true, $this->getRTETags()));
-		//Penalty property
-		$penalty = $data['penalty'];
-		$extra_info->setPenalty($penalty);
-		//Hidden property
-		$hidden = $data['hidden'];
-		$extra_info->setHidden($hidden);
-
-		//assStackQuestionExtraInfo
-		return $extra_info;
-	}
-
-	public function php72Format($raw_data)
-	{
-		$full_data = array();
-
-		foreach ($raw_data as $question_data) {
-			$data = array();
-			//Check for not category
-			if (is_array($question_data['category'])) {
-				continue;
-			}
-			//qtest
-			if (is_array($question_data['qtest'])) {
-				foreach ($question_data['qtest'] as $qtest_raw) {
-					$qtest_data = array();
-
-					//testcase
-					if (isset($qtest_raw['testcase'][0]["_content"])) {
-						$qtest_data['testcase'] = $qtest_raw['testcase'][0]["_content"];
-					} else {
-						$qtest_data['testcase'] = "";
-					}
-
-					//testinput
-					if (isset($qtest_raw['testinput'][0]['name'][0]["_content"]) and isset($qtest_raw['testinput'][0]['value'][0]["_content"])) {
-						$qtest_data['testinput'][0]['name'] = $qtest_raw['testinput'][0]['name'][0]["_content"];
-						$qtest_data['testinput'][0]['value'] = $qtest_raw['testinput'][0]['value'][0]["_content"];
-					} else {
-						$qtest_data['testinput'][0]['name'] = "";
-						$qtest_data['testinput'][0]['value'] = "";
-					}
-
-					//expected
-					if (isset($qtest_raw['expected'][0]['name'][0]["_content"]) and isset($qtest_raw['expected'][0]['expectedscore'][0]["_content"]) and isset($qtest_raw['expected'][0]['expectedanswernote'][0]["_content"])) {
-						$qtest_data['expected'][0]['name'] = $qtest_raw['expected'][0]['name'][0]["_content"];
-						$qtest_data['expected'][0]['expectedscore'] = $qtest_raw['expected'][0]['expectedscore'][0]["_content"];
-						$qtest_data['expected'][0]['expectedpenalty'] = $qtest_raw['expected'][0]['expectedpenalty'][0]["_content"];
-						$qtest_data['expected'][0]['expectedanswernote'] = $qtest_raw['expected'][0]['expectedanswernote'][0]["_content"];
-
-					} else {
-						$qtest_data['expected'][0]['name'] = "";
-						$qtest_data['expected'][0]['expectedscore'] = "";
-						$qtest_data['expected'][0]['expectedpenalty'] = "";
-						$qtest_data['expected'][0]['expectedanswernote'] = "";
-					}
-
-					//Add to question
-					$data['qtest'][] = $qtest_data;
-				}
-			}
-
-			//Add to full data
-			$full_data['question'][] = $data;
-		}
-
-		return $full_data;
-	}
-
-
-	public function checkQuestion(assStackQuestion $question)
-	{
-		//Step 1: Check if there is one option object and at least one input, one prt with at least one node;
-		if (!is_a($question->getOptions(), 'assStackQuestionOptions')) {
-			return false;
-		}
-		if (is_array($question->getInputs())) {
-			foreach ($question->getInputs() as $input) {
-				if (!is_a($input, 'assStackQuestionInput')) {
-					return false;
-				}
-			}
-		} else {
-			return false;
-		}
-		if (is_array($question->getPotentialResponsesTrees())) {
-			foreach ($question->getPotentialResponsesTrees() as $prt) {
-				if (!is_a($prt, 'assStackQuestionPRT')) {
-					return false;
-				} else {
-					foreach ($prt->getPRTNodes() as $node) {
-						if (!is_a($node, 'assStackQuestionPRTNode')) {
-							return false;
-						}
-					}
-				}
-			}
-		} else {
-			return false;
-		}
-
-		//Step 2: Check options
-		$options_are_ok = $question->getOptions()->checkOptions(TRUE);
-
-		//Step 3: Check inputs
-		foreach ($question->getInputs() as $input) {
-			$inputs_are_ok = $input->checkInput(TRUE);
-			if ($inputs_are_ok == FALSE) {
-				break;
-			}
-		}
-
-		//Step 4A: Check PRT
-		if (is_array($question->getPotentialResponsesTrees())) {
-			foreach ($question->getPotentialResponsesTrees() as $PRT) {
-				$PRTs_are_ok = $PRT->checkPRT(TRUE);
-				if ($PRTs_are_ok == FALSE) {
-					break;
-				} else {
-					//Step 4B: Check Nodes
-					if (is_array($PRT->getPRTNodes())) {
-						foreach ($PRT->getPRTNodes() as $node) {
-							$Nodes_are_ok = $node->checkPRTNode(TRUE);
-							if ($Nodes_are_ok == FALSE) {
-								break;
-							}
-						}
-					}
-					//Step 4C: Check if nodes make a PRT
-				}
-			}
-		}
-
-		//Step 5: Check tests
-		if (!empty($question->getTests())) {
-			foreach ($question->getTests() as $test) {
-				if (!is_a($test, 'assStackQuestionTest')) {
-					return false;
-				} else {
-					$tests_creation_is_ok = $test->checkTest(TRUE);
-					//Step 5B: Check inputs
-					foreach ($test->getTestInputs() as $input) {
-						$test_inputs_are_ok = $input->checkTestInput(TRUE);
-						if ($test_inputs_are_ok == FALSE) {
-							break;
-						}
-					}
-					//Step 5C: Check expected
-					foreach ($test->getTestExpected() as $expected) {
-						$test_expected_are_ok = $expected->checkTestExpected(TRUE);
-						if ($test_expected_are_ok == FALSE) {
-							break;
-						}
-					}
-					if ($tests_creation_is_ok and $test_inputs_are_ok and $test_expected_are_ok) {
-						$test_are_ok = TRUE;
-					} else {
-						$test_are_ok = FALSE;
-					}
-				}
-			}
-		} else {
-			$test_are_ok = TRUE;
-		}
-
-		if ($options_are_ok and $inputs_are_ok and $PRTs_are_ok and $Nodes_are_ok and $test_are_ok) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	*/
 
 }

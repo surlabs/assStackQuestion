@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2021 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
+ * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
  * GPLv2, see LICENSE
  */
 
@@ -9,7 +9,7 @@
  * All DB Stuff will be placed here
  *
  * @author Jesus Copado <jesus.copado@fau.de>
- * @version $Id: 4.0$
+ * @version $Id: 5.6$
  *
  */
 class assStackQuestionDB
@@ -118,8 +118,6 @@ class assStackQuestionDB
 			$inputs[$input_name]['must_verify'] = (bool)$row['must_verify'];
 			$inputs[$input_name]['show_validation'] = $row['show_validation'];
 			$inputs[$input_name]['options'] = $row['options'];
-
-			//TODO OPTIONS FEATURES
 		}
 
 		if ($just_id) {
@@ -338,6 +336,7 @@ class assStackQuestionDB
 				$unit_tests['test_cases'][$testcase_name]['expected'] = self::_readUnitTestExpected($question_id, $testcase_name);
 			}
 		}
+
 		return $unit_tests;
 	}
 
@@ -423,10 +422,6 @@ class assStackQuestionDB
 	 */
 	public static function _saveStackQuestion(assStackQuestion $question, string $purpose = ''): bool
 	{
-		//Get first all ILIAS DB ids for the current question.
-		$question_id = $question->getId();
-		$ids = array('question_id' => $question_id);
-
 		//Save Options
 		$options_saved = self::_saveStackOptions($question);
 
@@ -440,13 +435,22 @@ class assStackQuestionDB
 		$seeds_saved = self::_saveStackSeeds($question, $purpose);
 
 		//Extra Info
-		$extra_saved = self::_saveStackExtraInformation($question, $purpose);
+		$extra_saved = self::_saveStackExtraInformation($question);
 
 		//Unit Tests
 		$unit_tests_saved = self::_saveStackUnitTests($question, $purpose);
 
 		//Validate from form, popup errors
-		return true;
+		if ($options_saved
+			and $inputs_saved
+			and $prts_saved
+			and $seeds_saved
+			and $extra_saved
+			and $unit_tests_saved) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -647,7 +651,7 @@ class assStackQuestionDB
 				$prt_node_ids = self::_readPRTNodes($question_id, $prt_name, true);
 
 				foreach ($prt->getNodes() as $node_name => $node) {
-					if (!array_key_exists($node_name, $prt_node_ids) or empty($prt_node_ids) or $purpose == 'import') {
+					if (!array_key_exists($node_name, $prt_node_ids) or empty($prt_node_ids)) {
 						//CREATE
 						self::_saveStackPRTNodes($node, $question_id, $prt_name, -1);
 					} else {
@@ -671,7 +675,7 @@ class assStackQuestionDB
 	 * @param string $prt_name
 	 * @param int $id
 	 */
-	private static function _saveStackPRTNodes(stack_potentialresponse_node $node, int $question_id, string $prt_name, int $id = -1)
+	private static function _saveStackPRTNodes(stack_potentialresponse_node $node, int $question_id, string $prt_name, int $id = -1): void
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -775,10 +779,9 @@ class assStackQuestionDB
 
 	/**
 	 * @param assStackQuestion $question
-	 * @param string $purpose
 	 * @return bool
 	 */
-	private static function _saveStackExtraInformation(assStackQuestion $question, string $purpose): bool
+	private static function _saveStackExtraInformation(assStackQuestion $question): bool
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -816,72 +819,172 @@ class assStackQuestionDB
 
 		$question_id = $question->getId();
 
-		foreach ($question->getUnitTests()['test_cases'] as $testcase_name => $test_case) {
+		if (isset($question->getUnitTests()['test_cases'])) {
+			foreach ($question->getUnitTests()['test_cases'] as $testcase_name => $test_case) {
 
-			$testcases_ids = self::_readUnitTests($question_id, true);
+				$testcases_ids = self::_readUnitTests($question_id, true);
 
-			if (!array_key_exists($testcase_name, $testcases_ids) or empty($testcases_ids) or $purpose == 'import') {
+				if (!array_key_exists($testcase_name, $testcases_ids) or empty($testcases_ids) or $purpose == 'import') {
 
-				//CREATE
-				$db->insert("xqcas_qtests", array(
-					"id" => array("integer", $db->nextId('xqcas_qtests')),
-					"question_id" => array("integer", $question_id),
-					"test_case" => array("integer", $testcase_name),
-				));
-
-				//Manage Unit Tests Input
-				self::_saveStackUnitTestInputs($question_id, $testcase_name, $test_case['inputs'], -1);
-
-				//Manage Unit Tests Input
-				self::_saveStackUnitTestExpected($question_id, $testcase_name, $test_case['expected'], -1);
-
-			} else {
-
-				//UPDATE
-				$db->replace('xqcas_qtests',
-					array(
-						"id" => array('integer', $testcases_ids[$testcase_name])),
-					array(
+					//CREATE Test Case
+					$db->insert("xqcas_qtests", array(
+						"id" => array("integer", $db->nextId('xqcas_qtests')),
 						"question_id" => array("integer", $question_id),
 						"test_case" => array("integer", $testcase_name),
-					)
-				);
+					));
+
+					//Create Unit Tests Input
+					foreach ($test_case['inputs'] as $input_name => $input) {
+						self::_saveStackUnitTestInput($question_id, $testcase_name, $input_name, $input['value'], -1);
+					}
+
+					//Create Unit Tests Expected
+					foreach ($test_case['expected'] as $prt_name => $expected) {
+						self::_saveStackUnitTestExpected($question_id, $testcase_name, $prt_name, $expected, -1);
+					}
 
 
-				//Manage Unit Tests Input
-				$testcase_input_ids = self::_readUnitTestInputs($question_id, $testcase_name, true);
+				} else {
 
-				foreach ($test_case['inputs'] as $input_name => $input) {
-					if (!array_key_exists($input_name, $testcase_input_ids) or empty($testcase_input_ids)) {
-						//CREATE
-						self::_saveStackUnitTestInputs($question_id, $testcase_name, $input_name, $input['value'], -1);
-					} else {
-						//UPDATE
-						if (isset($input['value'])) {
-							self::_saveStackUnitTestInputs($question_id, $testcase_name, $input_name, $input['value'], $testcase_input_ids[$input_name]);
+					//UPDATE
+					$db->replace('xqcas_qtests',
+						array(
+							"id" => array('integer', $testcases_ids[$testcase_name])),
+						array(
+							"question_id" => array("integer", $question_id),
+							"test_case" => array("integer", $testcase_name),
+						)
+					);
+
+					//Manage Unit Tests Input
+					$testcase_input_ids = self::_readUnitTestInputs($question_id, $testcase_name, true);
+
+					foreach ($test_case['inputs'] as $input_name => $input) {
+						if (!array_key_exists($input_name, $testcase_input_ids) or empty($testcase_input_ids)) {
+							//CREATE
+							self::_saveStackUnitTestInput($question_id, $testcase_name, $input_name, $input['value'], -1);
 						} else {
-							ilUtil::sendFailure('question test:' . $question_id . $testcase_name . $input_name);
+							//UPDATE
+							if (isset($input['value'])) {
+								self::_saveStackUnitTestInput($question_id, $testcase_name, $input_name, $input['value'], $testcase_input_ids[$input_name]);
+							} else {
+								ilUtil::sendFailure('question test inputs:' . $question_id . $testcase_name . $input_name, true);
+							}
 						}
 					}
+
+					//Manage Unit Tests Expected
+					$testcase_expected_ids = self::_readUnitTestExpected($question_id, $testcase_name, true);
+
+					foreach ($test_case['expected'] as $prt_name => $expected) {
+						if (!array_key_exists($prt_name, $testcase_expected_ids) or empty($testcase_expected_ids)) {
+							//CREATE
+							self::_saveStackUnitTestExpected($question_id, $testcase_name, $prt_name, $expected, -1);
+						} else {
+							//UPDATE
+							if (isset($expected['score']) and isset($expected['penalty']) and isset($expected['answer_note'])) {
+								self::_saveStackUnitTestExpected($question_id, $testcase_name, $prt_name, $expected, $testcase_expected_ids[$prt_name]);
+							} else {
+								ilUtil::sendFailure('question test expected:' . $question_id . $testcase_name . $prt_name, true);
+							}
+						}
+					}
+
+
 				}
 			}
-
-			//Manage Unit Tests Input
-			self::_saveStackUnitTestInputs($question_id, $testcase_name, $test_case['inputs']);
-
-			//Manage Unit Tests Input
-			self::_saveStackUnitTestExpected($question_id, $testcase_name, $test_case['expected']);
-
 		}
+
 		return true;
 	}
 
 	/**
 	 * @param int $question_id
+	 * @param int $testcase_name
+	 * @param string $input_name
+	 * @param string $input_value
+	 * @param int $id
+	 * @return void
+	 */
+	private static function _saveStackUnitTestInput(int $question_id, int $testcase_name, string $input_name, string $input_value, int $id): void
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		if ($id < 0) {
+			//CREATE
+			$db->insert("xqcas_qtest_inputs", array(
+				"id" => array("integer", $db->nextId('xqcas_qtest_inputs')),
+				"question_id" => array("integer", $question_id),
+				"test_case" => array("integer", $testcase_name),
+				"input_name" => array("text", $input_name),
+				"value" => array("text", $input_value)
+			));
+		} else {
+			//UPDATE
+			$db->replace('xqcas_qtest_inputs',
+				array(
+					"id" => array('integer', $id)),
+				array(
+					"question_id" => array("integer", $question_id),
+					"test_case" => array("integer", $testcase_name),
+					"input_name" => array("text", $input_name),
+					"value" => array("text", $input_value)
+				)
+			);
+		}
+	}
+
+	/**
+	 * @param int $question_id
+	 * @param int $testcase_name
+	 * @param string $prt_name
+	 * @param array $expected
+	 * @param int $id
+	 * @return void
+	 */
+	private static function _saveStackUnitTestExpected(int $question_id, int $testcase_name, string $prt_name, array $expected, int $id): void
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		if ($id < 0) {
+			//CREATE
+			$db->insert("xqcas_qtest_expected", array(
+				"id" => array("integer", $db->nextId('xqcas_qtest_expected')),
+				"question_id" => array("integer", $question_id),
+				"test_case" => array("integer", $testcase_name),
+				"prt_name" => array("text", $prt_name),
+				"expected_score" => array("text", $expected['score']),
+				"expected_penalty" => array("text", $expected['penalty']),
+				"expected_answer_note" => array("text", $expected['answer_note'])
+			));
+		} else {
+			//UPDATE
+			$db->replace('xqcas_qtest_expected',
+				array(
+					"id" => array('integer', $id)),
+				array(
+					"question_id" => array("integer", $question_id),
+					"test_case" => array("integer", $testcase_name),
+					"prt_name" => array("text", $prt_name),
+					"expected_score" => array("text", $expected['score']),
+					"expected_penalty" => array("text", $expected['penalty']),
+					"expected_answer_note" => array("text", $expected['answer_note'])
+				)
+			);
+		}
+	}
+
+	/* SAVE QUESTION INTO DB END */
+
+	/* DELETE QUESTION IN DB BEGIN */
+
+	/**
+	 * @param int $question_id
 	 * @return bool
 	 */
-	public
-	static function _deleteStackQuestion(int $question_id): bool
+	public static function _deleteStackQuestion(int $question_id): bool
 	{
 		$options = self::_deleteStackOptions($question_id);
 
@@ -892,41 +995,10 @@ class assStackQuestionDB
 		$seeds = self::_deleteStackSeeds($question_id);
 
 		$extra = self::_deleteStackExtraInfo($question_id);
-		/*
 
-					case 'extra_info':
-						$query = 'DELETE FROM xqcas_extra_info WHERE question_id = ' . $db->quote($question_id, 'integer');
-						$db->manipulate($query);
-						if ($purpose != 'delete_question') {
-							break;
-						}
+		$unit_tests = self::_deleteStackUnitTests($question_id);
 
-					case 'seeds':
-						$query = 'DELETE FROM xqcas_deployed_seeds WHERE question_id = ' . $db->quote($question_id, 'integer');
-						$db->manipulate($query);
-						if ($purpose != 'delete_question') {
-							break;
-						}
-					case 'qtest_expected':
-						$query = 'DELETE FROM xqcas_qtest_expected WHERE question_id = ' . $db->quote($question_id, 'integer');
-						$db->manipulate($query);
-						if ($purpose != 'delete_question') {
-							break;
-						}
-					case 'qtest_input':
-						$query = 'DELETE FROM xqcas_qtest_input WHERE question_id = ' . $db->quote($question_id, 'integer');
-						$db->manipulate($query);
-						if ($purpose != 'delete_question') {
-							break;
-						}
-					case 'qtests':
-						$query = 'DELETE FROM xqcas_qtests WHERE question_id = ' . $db->quote($question_id, 'integer');
-						$db->manipulate($query);
-						if ($purpose != 'delete_question') {
-							break;
-						}
-				}*/
-		return true;
+		return $options and $inputs and $prts and $seeds and $extra and $unit_tests;
 	}
 
 	/**
@@ -1078,6 +1150,66 @@ class assStackQuestionDB
 			return false;
 		}
 	}
+
+	/**
+	 * @param int $question_id
+	 * @return bool
+	 */
+	public static function _deleteStackUnitTests(int $question_id): bool
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		$query = /** @lang text */
+			'DELETE FROM xqcas_qtests WHERE question_id = ' . $db->quote($question_id, 'integer');
+
+		if ($db->manipulate($query) != false) {
+			return self::_deleteStackUnitTestInputs($question_id) and self::_deleteStackUnitTestExpected($question_id);
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param int $question_id
+	 * @return bool
+	 */
+	public static function _deleteStackUnitTestInputs(int $question_id): bool
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		$query = /** @lang text */
+			'DELETE FROM xqcas_qtest_inputs WHERE question_id = ' . $db->quote($question_id, 'integer');
+
+		if ($db->manipulate($query) != false) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param int $question_id
+	 * @return bool
+	 */
+	public static function _deleteStackUnitTestExpected(int $question_id): bool
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		$query = /** @lang text */
+			'DELETE FROM xqcas_qtest_expected WHERE question_id = ' . $db->quote($question_id, 'integer');
+
+		if ($db->manipulate($query) != false) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/* DELETE QUESTION IN DB END */
+
 
 	/**
 	 * @param assStackQuestion $question
