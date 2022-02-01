@@ -144,6 +144,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	public ?int $seed = null;
 
 	/**
+	 * @var array Question Unit Tests.
+	 */
+	public array $unit_tests = array();
+
+	/**
 	 * @var stack_cas_session2 STACK specific: session of variables.
 	 */
 	protected stack_cas_session2 $session;
@@ -517,6 +522,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 			//NEW QUESTION, LOAD STANDARD INFORMATION FROM CONFIGURATION
 			$this->loadStandardQuestion();
+
 		} else {
 
 			//EXISTING QUESTION, LOAD INFORMATION FROM DB
@@ -689,12 +695,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 			//load seeds
 			$deployed_seeds = assStackQuestionDB::_readDeployedVariants($question_id);
-
-			if (is_array($deployed_seeds)) {
-				$this->deployed_seeds = array_values($deployed_seeds);
-			} else {
-				$this->deployed_seeds = array();
-			}
+			$this->deployed_seeds = array_values($deployed_seeds);
 
 			//load extra info
 			$extra_info = assStackQuestionDB::_readExtraInformation($question_id);
@@ -707,6 +708,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 				$this->penalty = 0.0;
 				$this->hidden = false;
 			}
+
+			//load unit tests
+			$unit_tests = assStackQuestionDB::_readUnitTests($question_id);
+			$this->setUnitTests($unit_tests);
 		}
 
 
@@ -1931,6 +1936,22 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	public function setSeed(?int $seed): void
 	{
 		$this->seed = $seed;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getUnitTests(): array
+	{
+		return $this->unit_tests;
+	}
+
+	/**
+	 * @param array $unit_tests
+	 */
+	public function setUnitTests(array $unit_tests): void
+	{
+		$this->unit_tests = $unit_tests;
 	}
 
 	/**
