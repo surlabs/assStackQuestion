@@ -1242,8 +1242,8 @@ class assStackQuestionDB
 				if ($seed_found === 0) {
 					$seed_found = $seed;
 				} else {
-					echo 'error: trying to create a different question seed';
-					exit;
+					ilUtil::sendFailure("ERROR: Trying to create a new seed where there is already one assigned",true);
+					return 0;
 				}
 			}
 		}

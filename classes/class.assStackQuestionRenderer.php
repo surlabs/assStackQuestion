@@ -27,45 +27,72 @@ class assStackQuestionRenderer
 		//TODO: Implement getSpecificFeedbackOutput() method.
 	}
 
-
+	/**
+	 * @param assStackQuestion $question
+	 * @param int $active_id
+	 * @param int|null $pass
+	 * @param bool $graphicalOutput
+	 * @param bool $result_output
+	 * @param bool $show_question_only
+	 * @param bool $show_feedback
+	 * @param bool $show_correct_solution
+	 * @param bool $show_manual_scoring
+	 * @param bool $show_question_text
+	 * @return string
+	 */
 	public static function _renderQuestionSolution(assStackQuestion $question, int $active_id, int $pass = null, bool $graphicalOutput = false, bool $result_output = false, bool $show_question_only = true, bool $show_feedback = false, bool $show_correct_solution = false, bool $show_manual_scoring = false, bool $show_question_text = true): string
 	{
-		if (empty($user_solutions_from_db = $question->getTestOutputSolutions($active_id, $pass))) {
-			//Render question from scratch
-			return '_renderQuestionSolution error';
-		} else {
-			//Question has been already evaluated, use DB Data
-			$question_text = $user_solutions_from_db['question_text'];
+		$correct_solution = array();
 
-			//Replace Input placeholders
+		if ($active_id === 0 and $pass === 0) {
+			//Preview Mode
+			$question_text = $question->question_text_instantiated;
+
 			foreach ($question->inputs as $input_name => $input) {
+				$correct_solution[$input_name] = $question->getTas($input_name)->get_dispvalue();
+			}
 
-				// Get the actual value of the teacher's answer at this point.
-				$ta_value = $question->getTeacherAnswerForInput($input_name);
+		} else {
+			//Test Mode
+			$user_solutions_from_db = $question->getTestOutputSolutions($active_id, $pass);
 
-				$field_name = 'xqcas_solution_' . $question->getId() . '_' . $input_name;
-				$state = $question->getInputState($input_name, array($input_name => $user_solutions_from_db['inputs'][$input_name]['correct_value']));
-
-				if ($input->get_parameter('showValidation') != 0) {
-					$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, true, $ta_value), $question_text);
-					$ilias_validation ='';
-					$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
-				} else {
-					$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, true, $ta_value), $question_text);
-					$ilias_validation ='';
-					$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
+			$question_text = $user_solutions_from_db['question_text'];
+			if (isset($user_solutions_from_db['inputs'])) {
+				foreach ($user_solutions_from_db['inputs'] as $input_name => $input) {
+					$correct_solution[$input_name] = $input['correct_value'];
 				}
 			}
-
-			//Replace PRT placeholders
-			foreach ($question->prts as $prt_name => $prt) {
-				$question_text = str_replace("[[feedback:{$prt_name}]]", $user_solutions_from_db['prts'][$prt_name]['feedback'] . $user_solutions_from_db['prts'][$prt_name]['errors'], $question_text);
-			}
-
-			//Return question text
-			return assStackQuestionUtils::_getLatex($question_text);
 		}
+
+		//Replace Input placeholders
+		foreach ($question->inputs as $input_name => $input) {
+
+			// Get the actual value of the teacher's answer at this point.
+			$ta_value = $question->getTeacherAnswerForInput($input_name);
+
+			$field_name = 'xqcas_solution_' . $question->getId() . '_' . $input_name;
+			$state = $question->getInputState($input_name, array($input_name => $correct_solution[$input_name]));
+
+			if ($input->get_parameter('showValidation') != 0) {
+				$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, true, $ta_value), $question_text);
+				$ilias_validation = '';
+				$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
+			} else {
+				$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, true, $ta_value), $question_text);
+				$ilias_validation = '';
+				$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
+			}
+		}
+
+		//Replace PRT placeholders
+		foreach ($question->prts as $prt_name => $prt) {
+			$question_text = str_replace("[[feedback:{$prt_name}]]", $user_solutions_from_db['prts'][$prt_name]['feedback'] . $user_solutions_from_db['prts'][$prt_name]['errors'], $question_text);
+		}
+
+		//Return question text
+		return assStackQuestionUtils::_getLatex($question_text);
 	}
+
 
 	/**
 	 * @param assStackQuestion $question
@@ -77,8 +104,7 @@ class assStackQuestionRenderer
 		try {
 			return self::_renderQuestion($question, true, false, $show_inline_feedback);
 		} catch (stack_exception$e) {
-			echo $e;
-			exit;
+			return $e->getMessage();
 		}
 	}
 
@@ -153,7 +179,8 @@ class assStackQuestionRenderer
 	 * @param int|null $pass
 	 * @return string
 	 */
-	public static function _renderQuestion(assStackQuestion $question, bool $show_inline_feedback = false, bool $show_best_solution = false, int $active_id = null, int $pass = null): string
+	public
+	static function _renderQuestion(assStackQuestion $question, bool $show_inline_feedback = false, bool $show_best_solution = false, int $active_id = null, int $pass = null): string
 	{
 		global $DIC;
 
@@ -290,7 +317,8 @@ class assStackQuestionRenderer
 	 * @return string
 	 * @throws stack_exception
 	 */
-	public static function _prtFeedbackDisplay(string $name, stack_potentialresponse_tree_state $result, $feedback_style): string
+	public
+	static function _prtFeedbackDisplay(string $name, stack_potentialresponse_tree_state $result, $feedback_style): string
 	{
 		$err = '';
 		if ($result->errors) {
@@ -352,7 +380,8 @@ class assStackQuestionRenderer
 	 * @param array $user_solution
 	 * @return string
 	 */
-	public static function _renderSpecificFeedback(assStackQuestion $question, array $user_solution): string
+	public
+	static function _renderSpecificFeedback(assStackQuestion $question, array $user_solution): string
 	{
 		$specific_feedback = $question->specific_feedback_instantiated;
 
@@ -382,13 +411,17 @@ class assStackQuestionRenderer
 	 * @param string $input_name
 	 * @return string the HTML code of the button of validation for this input.
 	 */
-	public static function _renderValidationButton(string $question_id, string $input_name): string
+	public
+	static function _renderValidationButton(string $question_id, string $input_name): string
 	{
 		return "<button style=\"height:1.8em;\" class=\"xqcas\" name=\"cmd[xqcas_" . $question_id . '_' . $input_name . "]\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></button>";
 	}
 
 
 	/* OTHER RENDER METHODS END */
+
+
+	/* IMPORT / EXPORT RENDER METHODS END */
 
 	/* AUTHORING INTERFACE RENDER METHODS BEGIN */
 

@@ -119,14 +119,14 @@ class assStackQuestionMoodleImport
 					$this->error_log[] = 'question was not saved: ' . $this->getQuestion()->getTitle();
 				}
 			} else {
-				//Do not create not well created questions
+				//Do not allow not well created questions
 				//Send Error Message
 				$error_message = '';
 				foreach ($this->error_log as $error) {
 					$error_message .= $error . '</br>';
 				}
-				ilUtil::sendFailure('faumiss Error message for malformed questions: ' . $this->getQuestion()->getTitle() . ' ' . $error_message, true);
-				//Purge media objects as we didn't imported the question
+				ilUtil::sendFailure('fau Error message for malformed questions: ' . $this->getQuestion()->getTitle() . ' ' . $error_message, true);
+				//Purge media objects as we didn't import the question
 				$this->purgeMediaObjects();
 				//Delete Question
 				$this->getQuestion()->delete($this->getQuestion()->getId());

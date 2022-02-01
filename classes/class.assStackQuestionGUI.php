@@ -874,6 +874,9 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->tpl->setContent($form->getHTML());
 	}
 
+	/**
+	 * @return void
+	 */
 	public function importQuestionFromMoodle()
 	{
 		global $DIC;

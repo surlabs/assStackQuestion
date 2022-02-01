@@ -136,3 +136,4 @@ Version 5.1 for ILIAS 7 (Beta testing) DO NOT USE IN PRODUCTIVE PLATFORMS
 - The problem with question variants in test is solved with this version, as the seed management in test function has been completely redesigned.
 - Validation is not available in tests.
 - General Feedback and penalty are now properly imported.
+- Unit tests are now also imported from MoodleXML, not yet editable.

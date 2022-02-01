@@ -1,18 +1,24 @@
 <?php
-
 /**
- * Copyright (c) 2014 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
+ * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
  * GPLv2, see LICENSE
  */
-include_once "./Modules/TestQuestionPool/classes/import/qti12/class.assQuestionImport.php";
-require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+
+/**
+ * STACK Question IMPORT OF QUESTIONS from ILIAS
+ *
+ * @author Jesus Copado <jesus.copado@fau.de>
+ * @version $Id: 5.7$
+ *
+ */
+require_once './Services/MediaObjects/classes/class.ilObjMediaObject.php';
+require_once './Modules/TestQuestionPool/classes/import/qti12/class.assQuestionImport.php';
 
 /**
  * STACK Question IMPORT OF QUESTIONS from an ILIAS file
  *
- * @author Fred Neumann <fred.neumann@ili.fau.de>
  * @author Jesus Copado <jesus.copado@ili.fau.de>
- * @version    $Id: 1.8$$
+ * @version    $Id: 5.7$$
  * @ingroup    ModulesTestQuestionPool
  *
  */
@@ -29,20 +35,22 @@ class assStackQuestionImport extends assQuestionImport
 	 * @param array $import_mapping An array containing references to included ILIAS objects
 	 * @access public
 	 */
-	function fromXML(&$item, $questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping)
+	public function fromXML(&$item, $questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping)
 	{
-		global $ilUser;
-
+		global $DIC;
+		$ilUser = $DIC['ilUser'];
 		// empty session variable for imported xhtml mobs
 		unset($_SESSION["import_mob_xhtml"]);
+
 		$presentation = $item->getPresentation();
 		$duration = $item->getDuration();
 		$shuffle = 0;
+		$selectionLimit = null;
 		$now = getdate();
 		$created = sprintf("%04d%02d%02d%02d%02d%02d", $now['year'], $now['mon'], $now['mday'], $now['hours'], $now['minutes'], $now['seconds']);
 		$answers = array();
 
-		//Obtain question general datae
+		//Obtain question general data
 		$this->addGeneralMetadata($item);
 		$this->object->setTitle($item->getTitle());
 		$this->object->setNrOfTries($item->getMaxattempts());

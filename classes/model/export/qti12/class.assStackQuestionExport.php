@@ -1,21 +1,31 @@
 <?php
 /**
- * Copyright (c) 2014 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
+ * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
  * GPLv2, see LICENSE
  */
+
+/**
+ * STACK Question EXPORT OF QUESTIONS to ILIAS
+ *
+ * @author Jesus Copado <jesus.copado@fau.de>
+ * @version $Id: 5.7$
+ *
+ */
 include_once "./Modules/TestQuestionPool/classes/export/qti12/class.assQuestionExport.php";
-require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 
 /**
  * STACK Question EXPORT to ILIAS format management class
  *
  * @author Fred Neumann <fred.neumann@ili.fau.de>
  * @author Jesus Copado <jesus.copado@ili.fau.de>
- * @version    $Id: 1.8$$
+ * @version    $Id: 1.8$
  *
  */
 class assStackQuestionExport extends assQuestionExport
 {
+	/** @var assStackQuestion */
+	var $object;
+
 	/**
 	 * Returns a QTI xml representation of the question
 	 *
@@ -28,6 +38,7 @@ class assStackQuestionExport extends assQuestionExport
 
 		include_once("./Services/Xml/classes/class.ilXmlWriter.php");
 		$a_xml_writer = new ilXmlWriter;
+
 		// set xml header
 		$a_xml_writer->xmlHeader();
 		$a_xml_writer->xmlStartTag("questestinterop");
@@ -37,12 +48,15 @@ class assStackQuestionExport extends assQuestionExport
 			"maxattempts" => $this->object->getNrOfTries()
 		);
 		$a_xml_writer->xmlStartTag("item", $attrs);
+
 		// add question description
 		$a_xml_writer->xmlElement("qticomment", NULL, $this->object->getComment());
+
 		// add estimated working time
 		$workingtime = $this->object->getEstimatedWorkingTime();
 		$duration = sprintf("P0Y0M0DT%dH%dM%dS", $workingtime["h"], $workingtime["m"], $workingtime["s"]);
 		$a_xml_writer->xmlElement("duration", NULL, $duration);
+
 		// add ILIAS specific metadata
 		$a_xml_writer->xmlStartTag("itemmetadata");
 		$a_xml_writer->xmlStartTag("qtimetadata");
@@ -66,37 +80,31 @@ class assStackQuestionExport extends assQuestionExport
 		//OPTIONS
 		$a_xml_writer->xmlStartTag("qtimetadatafield");
 		$a_xml_writer->xmlElement("fieldlabel", NULL, "options");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->getOptions())));
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->options)));
 		$a_xml_writer->xmlEndTag("qtimetadatafield");
 
 		//INPUTS
 		$a_xml_writer->xmlStartTag("qtimetadatafield");
 		$a_xml_writer->xmlElement("fieldlabel", NULL, "inputs");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->getInputs())));
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->inputs)));
 		$a_xml_writer->xmlEndTag("qtimetadatafield");
 
 		//PRTS
 		$a_xml_writer->xmlStartTag("qtimetadatafield");
 		$a_xml_writer->xmlElement("fieldlabel", NULL, "prts");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->getPotentialResponsesTrees())));
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->prts)));
 		$a_xml_writer->xmlEndTag("qtimetadatafield");
 
 		//SEEDS
 		$a_xml_writer->xmlStartTag("qtimetadatafield");
 		$a_xml_writer->xmlElement("fieldlabel", NULL, "seeds");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->getDeployedSeeds())));
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->deployed_seeds)));
 		$a_xml_writer->xmlEndTag("qtimetadatafield");
 
 		//TESTS
 		$a_xml_writer->xmlStartTag("qtimetadatafield");
 		$a_xml_writer->xmlElement("fieldlabel", NULL, "tests");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->getTests())));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		//EXTRA INFO
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "extra_info");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->getExtraInfo())));
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->getUnitTests())));
 		$a_xml_writer->xmlEndTag("qtimetadatafield");
 
 		// additional content editing information
@@ -111,71 +119,27 @@ class assStackQuestionExport extends assQuestionExport
 			"label" => $this->object->getTitle()
 		);
 		$a_xml_writer->xmlStartTag("presentation", $attrs);
+
 		// add flow to presentation
 		$a_xml_writer->xmlStartTag("flow");
+
 		// add material with question text to presentation
 		$this->object->addQTIMaterial($a_xml_writer, $this->object->getQuestion());
-		$this->object->addQTIMaterial($a_xml_writer, $this->object->getOptions()->getPRTCorrect());
-		$this->object->addQTIMaterial($a_xml_writer, $this->object->getOptions()->getPRTIncorrect());
-		$this->object->addQTIMaterial($a_xml_writer, $this->object->getOptions()->getPRTPartiallyCorrect());
-		$this->object->addQTIMaterial($a_xml_writer, $this->object->getOptions()->getSpecificFeedback());
-		$this->object->addQTIMaterial($a_xml_writer, $this->object->getExtraInfo()->getHowToSolve());
-		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt) {
-			foreach ($prt->getPRTNodes() as $node_name => $node) {
-				$this->object->addQTIMaterial($a_xml_writer, $node->getFalseFeedback());
-				$this->object->addQTIMaterial($a_xml_writer, $node->getTrueFeedback());
+		$this->object->addQTIMaterial($a_xml_writer, $this->object->prt_correct);
+		$this->object->addQTIMaterial($a_xml_writer, $this->object->prt_partially_correct);
+		$this->object->addQTIMaterial($a_xml_writer, $this->object->prt_incorrect);
+		$this->object->addQTIMaterial($a_xml_writer, $this->object->specific_feedback);
+		$this->object->addQTIMaterial($a_xml_writer, $this->object->general_feedback);
+
+		foreach ($this->object->prts as $prt) {
+			foreach ($prt->getNodes() as $node) {
+				$feedback = $node->getFeedbackFromNode();
+
+				$this->object->addQTIMaterial($a_xml_writer, $feedback['true_feedback']);
+				$this->object->addQTIMaterial($a_xml_writer, $feedback['false_feedback']);
 			}
 		}
 
-		/*
-		// PART III: qti itemfeedback
-		$feedback_allcorrect = $this->object->feedbackOBJ->getGenericFeedbackExportPresentation(
-			$this->object->getId(), true
-		);
-
-		$feedback_onenotcorrect = $this->object->feedbackOBJ->getGenericFeedbackExportPresentation(
-			$this->object->getId(), false
-		);
-
-		$attrs = array(
-			"ident" => "Correct",
-			"view" => "All"
-		);
-		$a_xml_writer->xmlStartTag("itemfeedback", $attrs);
-		// qti flow_mat
-		$a_xml_writer->xmlStartTag("flow_mat");
-		$a_xml_writer->xmlStartTag("material");
-		$a_xml_writer->xmlElement("mattext");
-		$a_xml_writer->xmlEndTag("material");
-		$a_xml_writer->xmlEndTag("flow_mat");
-		$a_xml_writer->xmlEndTag("itemfeedback");
-		if (strlen($feedback_allcorrect)) {
-			$attrs = array(
-				"ident" => "response_allcorrect",
-				"view" => "All"
-			);
-			$a_xml_writer->xmlStartTag("itemfeedback", $attrs);
-			// qti flow_mat
-			$a_xml_writer->xmlStartTag("flow_mat");
-			$this->object->addQTIMaterial($a_xml_writer, $feedback_allcorrect);
-			$a_xml_writer->xmlEndTag("flow_mat");
-			$a_xml_writer->xmlEndTag("itemfeedback");
-		}
-		if (strlen($feedback_onenotcorrect)) {
-			$attrs = array(
-				"ident" => "response_onenotcorrect",
-				"view" => "All"
-			);
-			$a_xml_writer->xmlStartTag("itemfeedback", $attrs);
-			// qti flow_mat
-			$a_xml_writer->xmlStartTag("flow_mat");
-			$this->object->addQTIMaterial($a_xml_writer, $feedback_onenotcorrect);
-			$a_xml_writer->xmlEndTag("flow_mat");
-			$a_xml_writer->xmlEndTag("itemfeedback");
-		}
-
-
-*/
 		$a_xml_writer->xmlEndTag("flow");
 		$a_xml_writer->xmlEndTag("presentation");
 		$a_xml_writer->xmlEndTag("item");
@@ -460,7 +424,7 @@ class assStackQuestionExport extends assQuestionExport
 	 *
 	 * @return string
 	 */
-	public function exportToExcel($deliver = TRUE, $filterby = "", $filtertext = "", $passedonly = FALSE)
+	public function exportToExcel($deliver = TRUE, $filterby = "", $filtertext = "", $passedonly = FALSE): string
 	{
 		if (strcmp($this->mode, "aggregated") == 0) return $this->aggregatedResultsToExcel($deliver);
 

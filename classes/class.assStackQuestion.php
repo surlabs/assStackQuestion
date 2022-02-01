@@ -658,8 +658,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 								$nodes[$node_name] = $node;
 							} catch (stack_exception $e) {
-								echo $e;
-								exit;
+								ilUtil::sendFailure($e->getMessage(), true);
 							}
 						}
 					} else {
@@ -671,8 +670,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 							$feedback_variables = new stack_cas_keyval($prt_data['feedback_variables']);
 							$feedback_variables = $feedback_variables->get_session();
 						} catch (stack_exception $e) {
-							echo $e;
-							exit;
+							ilUtil::sendFailure($e->getMessage(), true);
 						}
 					} else {
 						$feedback_variables = null;
@@ -835,6 +833,46 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		$this->setUserResponse($parsed_user_response_from_db);
 		return $parsed_user_response_from_db;
 	}
+
+	//Import and Export
+
+	/**
+	 * Creates a question from a QTI file
+	 *
+	 * Receives parameters from a QTI parser and creates a valid ILIAS question object
+	 *
+	 * @param object $item The QTI item object
+	 * @param integer $questionpool_id The id of the parent questionpool
+	 * @param integer $tst_id The id of the parent test if the question is part of a test
+	 * @param object $tst_object A reference to the parent test object
+	 * @param integer $question_counter A reference to a question counter to count the questions of an imported question pool
+	 * @param array $import_mapping An array containing references to included ILIAS objects
+	 */
+	public function fromXML(&$item, &$questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping): void
+	{
+		$this->getPlugin()->includeClass('import/qti12/class.assStackQuestionImport.php');
+		$import = new assStackQuestionImport($this);
+		$import->fromXML($item, $questionpool_id, $tst_id, $tst_object, $question_counter, $import_mapping);
+	}
+
+	/**
+	 * Returns a QTI xml representation of the question and sets the internal
+	 * domxml variable with the DOM XML representation of the QTI xml representation
+	 * @param bool $a_include_header
+	 * @param bool $a_include_binary
+	 * @param bool $a_shuffle
+	 * @param bool $test_output
+	 * @param bool $force_image_references
+	 * @return string The QTI xml representation of the question
+	 */
+	public function toXML($a_include_header = true, $a_include_binary = true, $a_shuffle = false, $test_output = false, $force_image_references = false): string
+	{
+		$this->getPlugin()->includeClass('model/export/qti12/class.assStackQuestionExport.php');
+		$export = new assStackQuestionExport($this);
+
+		return $export->toXML($a_include_header, $a_include_binary, $a_shuffle, $test_output, $force_image_references);
+	}
+
 
 	/**
 	 * Calculates the points reached for question Preview
@@ -1042,12 +1080,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 		if ($standard_prt && $grade_all && $total_value < 0.0000001) {
 			try {
-				throw new coding_exception('There is an error authoring your question. ' .
+				throw new stack_exception('There is an error authoring your question. ' .
 					'The $totalvalue, the marks available for the question, must be positive in question ' .
 					$this->getTitle());
-			} catch (coding_exception $e) {
-				echo $e;
-				exit;
+			} catch (stack_exception $e) {
+				ilUtil::sendFailure($e->getMessage(), true);
 			}
 		}
 
@@ -1082,8 +1119,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 			$nodes[1] = $node;
 		} catch (stack_exception $e) {
-			echo $e;
-			exit;
+			ilUtil::sendFailure($e->getMessage(), true);
 		}
 
 		$feedback_variables = null;
@@ -1092,8 +1128,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		try {
 			$this->prts['prt1'] = new stack_potentialresponse_tree('prt1', '', (bool)$standard_prt['prt_simplify'], $prt_value, $feedback_variables, $nodes, '1', 1);
 		} catch (stack_exception $e) {
-			echo $e;
-			exit;
+			ilUtil::sendFailure($e->getMessage(), true);
 		}
 
 		//load seeds
@@ -1822,7 +1857,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	 * Enable the renderer to access the teacher's answer in the session.
 	 * TODO: should we give the whole thing?
 	 * @param string $input_name
-	 * @return string|bool
+	 * @return string|bool|stack_ast_container[]|stack_ast_container
 	 */
 	public function getTeacherAnswerForInput(string $input_name): string
 	{
