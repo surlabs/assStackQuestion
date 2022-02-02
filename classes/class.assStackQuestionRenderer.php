@@ -178,9 +178,9 @@ class assStackQuestionRenderer
 	 * @param int|null $active_id
 	 * @param int|null $pass
 	 * @return string
+	 * @throws stack_exception
 	 */
-	public
-	static function _renderQuestion(assStackQuestion $question, bool $show_inline_feedback = false, bool $show_best_solution = false, int $active_id = null, int $pass = null): string
+	public static function _renderQuestion(assStackQuestion $question, bool $show_inline_feedback = false, bool $show_best_solution = false, int $active_id = null, int $pass = null): string
 	{
 		global $DIC;
 
@@ -210,7 +210,7 @@ class assStackQuestionRenderer
 		sort($original_feedback_placeholders);
 
 		// Now format the question-text.
-		$question_text = stack_maths::process_display_castext($question_text, null);
+		$question_text = stack_maths::process_display_castext($question_text);
 
 		// Get the list of placeholders after format_text.
 		$formatted_input_placeholders = stack_utils::extract_placeholders($question_text, 'input');
@@ -224,7 +224,7 @@ class assStackQuestionRenderer
 		$DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
 
 		// We need to check that if the list has changed.
-		// Have we lost some of the placeholders entirely?
+		// Have we lost some placeholders entirely?
 		// Duplicates may have been removed by multi-lang,
 		// No duplicates should remain.
 		if ($formatted_input_placeholders !== $original_input_placeholders ||

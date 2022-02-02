@@ -366,77 +366,11 @@ if ($db->tableExists('xqcas_options')) {
 ?>
 <#29>
 <?php
-global $DIC;
-$db = $DIC->database();
-$lng = $DIC->language();//Adding of all feedback placeholder in question specific feedback
-if ($db->tableExists('xqcas_options') and $db->tableExists('xqcas_prts')) {
-	$counter = 0;
-
-	//Get specific feedback text and question_id
-	$options_result = $db->query("SELECT question_id, specific_feedback FROM xqcas_options");
-	while ($options_row = $db->fetchAssoc($options_result)) {
-		$question_id = $options_row['question_id'];
-		$specific_feedback_text = $options_row['specific_feedback'];
-
-		//Get question text of those STACK questions
-		$question_result = $db->query("SELECT question_text FROM qpl_questions WHERE question_id = '" . $question_id . "'");
-		$question_row = $db->fetchAssoc($question_result);
-		$question_text = $question_row['question_text'];
-
-		//If no feedback placeholder in question text and specific_feedback
-		if (!preg_match('/\[\[feedback:(.*?)\]\]/', $question_text) and !preg_match('/\[\[feedback:(.*?)\]\]/', $specific_feedback_text)) {
-			require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/ilias_object/class.assStackQuestionOptions.php');
-			$options = assStackQuestionOptions::_read($question_id);
-
-			//get PRT name
-			$prt_results = $db->query("SELECT name FROM xqcas_prts WHERE question_id = '" . $question_id . "'");
-			while ($prt_row = $db->fetchAssoc($prt_results)) {
-				$specific_feedback_text .= "<p>[[feedback:";
-				$specific_feedback_text .= $prt_row['name'];
-				$specific_feedback_text .= "]]</p>";
-			}
-
-			//Add placeholder to specific_feedback
-			$options->setSpecificFeedback($specific_feedback_text);
-			$options->save();
-			$counter++;
-		}
-	}
-	ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_questions_updated_new_feedback_system") . ": " . $counter . ". " . $lng->txt("qpl_qst_xqcas_questions_updated_new_feedback_system"));
-}
+//No longer needed
 ?>
 <#30>
 <?php
-global $DIC;
-$db = $DIC->database();
-if ($db->tableExists('xqcas_options')) {
-	//Get matrix parens field
-	require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/ilias_object/class.assStackQuestionOptions.php');
-	$options_result = $db->query("SELECT question_id, matrix_parens FROM xqcas_options");
-	while ($options_row = $db->fetchAssoc($options_result)) {
-		$matrix_parens = $options_row['matrix_parens'];
-		$question_id = $options_row['question_id'];
-		switch ($matrix_parens) {
-			case "]":
-				$options = assStackQuestionOptions::_read($question_id);
-				$options->setMatrixParens("[");
-				$options->save();
-				break;
-			case ")":
-				$options = assStackQuestionOptions::_read($question_id);
-				$options->setMatrixParens("(");
-				$options->save();
-				break;
-			case "}":
-				$options = assStackQuestionOptions::_read($question_id);
-				$options->setMatrixParens("{");
-				$options->save();
-				break;
-			default:
-				break;
-		}
-	}
-}
+//No longer needed
 ?>
 <#31>
 <?php
@@ -460,6 +394,7 @@ if ($db->tableExists('xqcas_options')) {
 	$db->modifyTableColumn("xqcas_options", "complex_no", array("notnull" => false));
 	$db->modifyTableColumn("xqcas_options", "inverse_trig", array("notnull" => false));
 }
+
 if ($db->tableExists('xqcas_inputs')) {
 	$db->modifyTableColumn("xqcas_inputs", "name", array("notnull" => false));
 	$db->modifyTableColumn("xqcas_inputs", "type", array("notnull" => false));
@@ -477,6 +412,7 @@ if ($db->tableExists('xqcas_inputs')) {
 	$db->modifyTableColumn("xqcas_inputs", "options", array("notnull" => false));
 	$db->modifyTableColumn("xqcas_inputs", "allow_words", array("notnull" => false));
 }
+
 if ($db->tableExists('xqcas_prts')) {
 	$db->modifyTableColumn("xqcas_prts", "name", array("notnull" => false));
 	$db->modifyTableColumn("xqcas_prts", "value", array("notnull" => false));
@@ -507,104 +443,27 @@ if ($db->tableExists('xqcas_prt_nodes')) {
 	$db->modifyTableColumn("xqcas_prt_nodes", "false_feedback", array("notnull" => false));
 	$db->modifyTableColumn("xqcas_prt_nodes", "false_feedback_format", array("notnull" => false));
 }
+
 if ($db->tableExists('xqcas_qtests')) {
 	$db->modifyTableColumn("xqcas_qtests", "test_case", array("notnull" => false));
 }
+
 if ($db->tableExists('xqcas_qtest_inputs')) {
 	$db->modifyTableColumn("xqcas_qtest_inputs", "test_case", array("notnull" => false));
 	$db->modifyTableColumn("xqcas_qtest_inputs", "input_name", array("notnull" => false));
 	$db->modifyTableColumn("xqcas_qtest_inputs", "value", array("notnull" => false));
 }
+
 if ($db->tableExists('xqcas_qtest_expected')) {
 	$db->modifyTableColumn("xqcas_qtest_expected", "test_case", array("notnull" => false));
 	$db->modifyTableColumn("xqcas_qtest_expected", "prt_name", array("notnull" => false));
 	$db->modifyTableColumn("xqcas_qtest_expected", "expected_answer_note", array("notnull" => false));
 }
+
 ?>
 <#32>
 <?php
-
-/*
- */
-
-try {
-	global $DIC;
-	$db = $DIC->database();
-
-	$lng = $DIC->language();
-	require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
-
-//DB Update Script TEST
-//Check for STACK questions IDs
-
-//Change questions base
-//Change all question Texts in qpl_questions of questions with question_fi same as STACK type, collect all
-
-//Get assStackQuestion question type id in current platform
-	$type_id_query = "SELECT question_type_id FROM qpl_qst_type WHERE type_tag = \"assStackQuestion\"";
-	$res = $db->query($type_id_query);
-	$data = $db->fetchAssoc($res);
-	$type_id = $data["question_type_id"];
-
-//Change question texts and get all question_id of stack questions
-	$select_stack_questions_query = "SELECT question_id, question_text FROM qpl_questions WHERE question_type_fi = " . $type_id;
-	$stack_questions_result = $db->query($select_stack_questions_query);
-	while ($row = $db->fetchAssoc($stack_questions_result)) {
-		$fieldData = array("question_text" => array("clob", assStackQuestionUtils::_casTextConverter($row["question_text"])), "tstamp" => array("integer", time()));
-
-		$db->update("qpl_questions", $fieldData, array('question_id' => array('integer', $row["question_id"])));
-	}
-
-//Change all question note and specific feedback
-	$select_question_note_specific_feedback_query = "SELECT question_id, question_note, specific_feedback FROM xqcas_options";
-	$stack_options_result = $db->query($select_question_note_specific_feedback_query);
-	while ($row = $db->fetchAssoc($stack_options_result)) {
-		if ($row["question_note"] != "") {
-			$fieldData = array("question_note" => array("clob", assStackQuestionUtils::_casTextConverter($row["question_note"])));
-
-			$db->update("xqcas_options", $fieldData, array('question_id' => array('integer', $row["question_id"])));
-		}
-
-		if ($row["specific_feedback"] != "") {
-			$fieldData = array("specific_feedback" => array("clob", assStackQuestionUtils::_casTextConverter($row["specific_feedback"])));
-
-			$db->update("xqcas_options", $fieldData, array('question_id' => array('integer', $row["question_id"])));
-		}
-	}
-
-//General feedback from xqcas_extra_info
-	$select_general_feedback_query = "SELECT question_id, general_feedback FROM xqcas_extra_info";
-	$stack_general_feedback_result = $db->query($select_general_feedback_query);
-	while ($row = $db->fetchAssoc($stack_general_feedback_result)) {
-		if ($row["general_feedback"] != "") {
-			$fieldData = array("general_feedback" => array("clob", assStackQuestionUtils::_casTextConverter($row["general_feedback"])));
-
-			$db->update("xqcas_extra_info", $fieldData, array('question_id' => array('integer', $row["question_id"])));
-		}
-	}
-//True feedback and false feedback from xqcas_prt_nodes
-	$select_truefalse_feedback_query = "SELECT question_id, prt_name, node_name, true_feedback, false_feedback FROM xqcas_prt_nodes";
-	$stack_truefalse_feedback_result = $db->query($select_truefalse_feedback_query);
-	while ($row = $db->fetchAssoc($stack_truefalse_feedback_result)) {
-		if ($row["true_feedback"] != "") {
-			$fieldData = array("true_feedback" => array("clob", assStackQuestionUtils::_casTextConverter($row["true_feedback"])));
-
-			$db->update("xqcas_prt_nodes", $fieldData, array('question_id' => array('integer', $row["question_id"]), 'prt_name' => array('text', $row["prt_name"]), 'node_name' => array('text', $row["node_name"])));
-		}
-
-		if ($row["false_feedback"] != "") {
-			$fieldData = array("false_feedback" => array("clob", assStackQuestionUtils::_casTextConverter($row["false_feedback"])));
-
-			$db->update("xqcas_prt_nodes", $fieldData, array('question_id' => array('integer', $row["question_id"]), 'prt_name' => array('text', $row["prt_name"]), 'node_name' => array('text', $row["node_name"])));
-		}
-	}
-
-	ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_update_to_version_3"), TRUE);
-} catch (ResponseSendingException $e) {
-	ilUtil::sendFailure($e->getMessage(), TRUE);
-	throw new Exception("Error in the update script of all current questions of the platform, try to run the db update again");
-}
-
+//No longer needed
 ?>
 <#33>
 <?php
