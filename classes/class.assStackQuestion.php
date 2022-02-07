@@ -516,6 +516,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		//Load the specific assStackQuestion data from DB
 		$this->getPlugin()->includeClass('class.assStackQuestionDB.php');
 
+		//TODO Check Maxima Connection
+
 		$options_from_db_array = assStackQuestionDB::_readOptions($this->getId());
 
 		if ($options_from_db_array === -1) {
