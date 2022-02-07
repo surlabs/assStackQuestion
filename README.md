@@ -95,7 +95,7 @@ input you can evaluate your answer (in self assessment mode) or move to the next
 Version History
 ===============
 
-* The Beta testing version 5.0 for **ILIAS 7** with the STACK Core version 4.3.9 can be found in the Github branch **stack_for_ilias7**
+* The Beta testing version 6.0 for **ILIAS 7** with the STACK Core version 4.3.9 can be found in the Github branch **stack_for_ilias7**
 * The stable version 3.4.x for **ILIAS 7** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias7**
 * The stable version 3.2.x for **ILIAS 6** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias6**
 * The stable version 3.1.x for **ILIAS 5.4** is no longer maintained
@@ -103,7 +103,7 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
-Version 5.1 for ILIAS 7 (Beta testing) DO NOT USE IN PRODUCTIVE PLATFORMS
+Version 6.0 for ILIAS 7 (Beta) DO NOT USE IN PRODUCTIVE PLATFORMS
 ----------------------------------------
 - This STACK for ILIAS plugin version requires a Maxima Server with the maxima version 2021120900. Other versions may trigger validation errors.
 - This version includes DBUpdate steps which change values in the xqcas_prt_nodes tables, please, backup this table before update.
