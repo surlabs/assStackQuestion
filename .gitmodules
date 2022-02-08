@@ -1,0 +1,3 @@
+[submodule "stack"]
+	path = stack
+	url = https://github.com/ilifau/stack.git
