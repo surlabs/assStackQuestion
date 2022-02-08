@@ -24,8 +24,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../../locallib.php');
 require_once(__DIR__ . '/../utils.class.php');
 
-class stack_cas_casstring_units
-{
+class stack_cas_casstring_units {
 
     /*
      * Entries in this array are supported prefix mulipliers.
@@ -69,6 +68,7 @@ class stack_cas_casstring_units
         // People have asked for this duplication, and L is in the SI system as legitimate.
         array('L', 'm^3/1000', 'L', 'litre'),
         array('g', 'kg/1000', 'g', 'gram'),
+        array('t', '1000*kg', 't', 'tonne'),
         array('s', 's', 's', 'second'),
         array('h', 's*3600', 'h', 'hour'),
         array('Hz', '1/s', 'Hz', 'Hertz'),
@@ -83,6 +83,7 @@ class stack_cas_casstring_units
         array('eV', '1.602177e-19*J', 'eV', 'Electron volt'),
         array('J', '(kg*m^2)/s^2', 'J', 'Joules'),
         array('W', '(kg*m^2)/s^3', 'W', 'Watts'),
+        array('Wh', '3600*(kg*m^2)/s^2', 'Wh', 'Watts hours'),
         array('A', 'A', 'A', 'Ampere'),
         array('ohm', '(kg*m^2)/(s^3*A^2)', '\Omega', 'ohm'),
         array('C', 's*A', 'C', 'Coulomb'),
@@ -96,11 +97,16 @@ class stack_cas_casstring_units
         array('rem', '0.01*Sv', 'rem', 'Roentgen equivalent'),
         array('Sv', 'm^2/s^2', 'Sv', 'sievert'),
         array('lx', 'cd/m^2', 'lx', 'lux'),
+        array('lm', 'cd', 'lm', 'lumen'),
         array('mol', 'mol', 'mol', 'moles'),
         array('M', 'mol/(m^3/1000)', 'M', 'Molar'),
         array('kat', 'mol/s', 'kat', 'katal'),
         array('rad', 'rad', 'rad', 'radian'),
+        array('sr', 'sr', 'sr', 'steradian'),
         array('K', 'K', 'K', 'Kelvin'),
+        array('VA', '(kg*m^2)/(s^3)', 'VA', 'volt-ampere'),
+        array('eV', '1.602176634E-19*J', 'eV', 'electronvolt'),
+        array('Ci', 'Ci', 'Ci', 'curie'),
         // @codingStandardsIgnoreStart
         // Celsius conflicts with Coulomb.
         // Add in 'C', 'C', '{}^{o}C', 'Celsius'.
@@ -110,13 +116,15 @@ class stack_cas_casstring_units
     /*
      * Entries in this array are supported units which are used without any prefix.
      * Entries below are in the form of array(label, base, TeX, fullname).
+     * Remember to add any with three or more letters to security-map.json.
      */
-    private static $nonpreficunits = array(
+    private static $nonprefixunits = array(
         array('min', 's*60', 'min', 'minutes'),
         array('amu', 'amu', 'amu', 'Atomic mass units'),
         array('u', 'amu', 'u', ''),
         array('mmHg', '133.322387415*Pa', 'mmHg', 'Millimeters of mercury'),
         array('bar', '10^5*Pa', 'bar', 'bar'),
+        array('ha', '10^4*m^2', 'ha', 'hectare'),
         array('cc', 'm^3*10^(-6)', 'cc', 'cubic centimetre'),
         array('gal', '3.785*l', 'gal', 'US gallon'),
         array('mbar', '10^2*Pa', 'mbar', 'millibar'),
@@ -125,13 +133,22 @@ class stack_cas_casstring_units
         array('rev', '2*pi*rad', 'rev', 'revolutions'),
         array('deg', 'pi*rad/180', '{}^{o}', 'degrees'),
         array('rpm', 'pi*rad/(30*s)', 'rpm', 'revolutions per minute'),
+        array('au', '149597870700*m', 'au', 'astronomical unit'),
+        array('Da', '1.660539040E-27*kg', 'Da', 'Dalton'),
+        // Logarithmic ratio quantities.
+        array('Np', 'Np', 'Np', 'neper'),
+        array('B', 'B', 'B', 'bel'),
+        array('dB', 'dB', 'dB', 'decibel'),
         // We know these two are not really correct, but there we are.
         array('day', '86400*s', 'day', 'day'),
         array('year', '3.156e7*s', 'year', 'year'),
         // Some countries are only inching towards the metric system.  Added by user request.
+        array('hp', '746*W', 'hp', 'horsepower'),
         array('in', 'in', 'in', 'inch'),
         array('ft', '12*in', 'ft', 'foot'),
+        array('yd', '36*in', 'yd', 'yard'),
         array('mi', '5280*12*in', 'mi', 'mile'),
+        array('lb', '4.4482*N', 'lb', 'pound'),
     );
 
     /* This array keeps a list of synoymns which students are likely to use.
@@ -149,24 +166,15 @@ class stack_cas_casstring_units
         'day' => array('days')
     );
 
-    /* This array keeps a list of substitutions which are made when we deal with units.
-     */
-    private static $unitsubstitutions = array(
-        'Torr' => 'torr',
-        'kgm/s' => 'kg*m/s'
-    );
-
     /**
      * Static class. You cannot create instances.
      */
-    private function __construct()
-    {
+    private function __construct() {
         throw new stack_exception('stack_casstring_units: you cannot create instances of this class.');
     }
 
     /* This function contributes to the maximalocal.mac file generated in installhelper.class.php. */
-    public static function maximalocal_units()
-    {
+    public static function maximalocal_units() {
 
         $maximalocal = "    /* Define units available in STACK. */\n";
 
@@ -178,11 +186,9 @@ class stack_cas_casstring_units
             $multiplier[] = $unit[1];
             $tex[] = self::maximalocal_units_tex($unit[2]);
         }
-        // fau: fixPhp74Implode
-        $maximalocal .= '    stack_unit_si_prefix_code:[' . implode(', ', $code) . "],\n";
-        $maximalocal .= '    stack_unit_si_prefix_multiplier:[' . implode(', ', $multiplier) . "],\n";
-        $maximalocal .= '    stack_unit_si_prefix_tex:[' . implode(', ', $tex) . "],\n";
-        // fau.
+        $maximalocal .= '    stack_unit_si_prefix_code:['. implode(', ', $code). "],\n";
+        $maximalocal .= '    stack_unit_si_prefix_multiplier:['. implode(', ', $multiplier). "],\n";
+        $maximalocal .= '    stack_unit_si_prefix_tex:['. implode(', ', $tex). "],\n";
 
         $code = array();
         $conversions = array();
@@ -192,26 +198,23 @@ class stack_cas_casstring_units
             $conversions[] = $unit[1];
             $tex[] = self::maximalocal_units_tex($unit[2]);
         }
-        // fau: fixPhp74Implode
-        $maximalocal .= '    stack_unit_si_unit_code:[' . implode(', ', $code) . "],\n";
-        $maximalocal .= '    stack_unit_si_unit_conversions:[' . implode(', ', $conversions) . "],\n";
-        $maximalocal .= '    stack_unit_si_unit_tex:[' . implode(', ', $tex) . "],\n";
-        // fau.
+
+        $maximalocal .= '    stack_unit_si_unit_code:['. implode(', ', $code). "],\n";
+        $maximalocal .= '    stack_unit_si_unit_conversions:['. implode(', ', $conversions). "],\n";
+        $maximalocal .= '    stack_unit_si_unit_tex:['. implode(', ', $tex). "],\n";
 
         $code = array();
         $conversions = array();
         $tex = array();
-        foreach (self::$nonpreficunits as $unit) {
+        foreach (self::$nonprefixunits as $unit) {
             $code[] = $unit[0];
             $conversions[] = $unit[1];
             $tex[] = self::maximalocal_units_tex($unit[2]);
         }
 
-        // fau: fixPhp74Implode
-        $maximalocal .= '    stack_unit_other_unit_code:[' . implode(', ', $code) . "],\n";
-        $maximalocal .= '    stack_unit_other_unit_conversions:[' . implode(', ', $conversions) . "],\n";
-        $maximalocal .= '    stack_unit_other_unit_tex:[' . implode(', ', $tex) . "],\n";
-        // fau.
+        $maximalocal .= '    stack_unit_other_unit_code:['. implode(', ', $code). "],\n";
+        $maximalocal .= '    stack_unit_other_unit_conversions:['. implode(', ', $conversions). "],\n";
+        $maximalocal .= '    stack_unit_other_unit_tex:['. implode(', ', $tex). "],\n";
 
         return $maximalocal;
     }
@@ -219,26 +222,24 @@ class stack_cas_casstring_units
     /*
      * Sort out the TeX code for this string.
      */
-    private static function maximalocal_units_tex($texstr)
-    {
+    private static function maximalocal_units_tex($texstr) {
         if (substr($texstr, 0, 1) === '\\') {
-            return ('"\\' . $texstr . '"');
+            return('"\\'.$texstr.'"');
         } else {
-            return ('"\\\\mathrm{' . $texstr . '}"');
+            return('"\\\\mathrm{'.$texstr.'}"');
         }
     }
 
     /* This function builds a list of all permitted prefix.unit combinations as defined above.
      * @param int len This is the minimum length of string to be needed to be worth considering.
      */
-    public static function get_permitted_units($len)
-    {
+    public static function get_permitted_units($len) {
         static $cache = array();
         if (array_key_exists($len, $cache)) {
             return $cache[$len];
         }
         $units = array();
-        foreach (self::$nonpreficunits as $unit) {
+        foreach (self::$nonprefixunits as $unit) {
             if (strlen($unit[0]) > $len) {
                 $units[$unit[0]] = true;
             }
@@ -246,7 +247,7 @@ class stack_cas_casstring_units
         foreach (self::$supportedunits as $unit) {
             $units[$unit[0]] = true;
             foreach (self::$supportedprefix as $prefix) {
-                $cmd = $prefix[0] . $unit[0];
+                $cmd = $prefix[0].$unit[0];
                 // By default, the student is allowed to type in any two letter string.
                 // We have an option to ignore short stings.
                 if (strlen($cmd) > $len) {
@@ -255,26 +256,44 @@ class stack_cas_casstring_units
             }
         }
         $cache[$len] = $units;
-        return ($units);
+        return($units);
     }
 
-    /* Make substitutions in an expression.
-     * @param string $val is student's raw casstring.
-     */
-    public static function make_units_substitutions($val)
-    {
-        foreach (self::$unitsubstitutions as $in => $out) {
-            $val = str_replace($in, $out, $val);
-        }
 
-        return $val;
+    /* This array keeps a list of substitutions which are made when we deal with units.
+     */
+    private static $unitsubstitutions = array(
+        'Torr' => 'torr',
+        'kgm/s' => 'kg*m/s'
+    );
+
+    /* Make substitutions in an expression.
+     * @param MP_Identifier any identifier in the parse tree.
+     */
+    public static function make_units_substitutions($identifiernode) {
+        if ($identifiernode->value == 'Torr') {
+            $identifiernode->value = 'torr';
+        } else if ($identifiernode->value == 'kgm') {
+            // TODO: Do we actually care if there is that '/s' or is that some regexp thing?
+            if ($identifiernode->parent instanceof MP_Operation &&
+                (($identifiernode->parent->op === '/' &&
+                  $identifiernode->parent->lhs === $identifiernode &&
+                  $identifiernode->parent->rhs instanceof MP_Identifier &&
+                  $identifiernode->parent->rhs->value === 's')) ||
+                 ($identifiernode->parent->rhs === $identifiernode &&
+                  $identifiernode->parent->operationOnRight() === '/' &&
+                  $identifiernode->parent->operandOnRight() instanceof MP_Identifier &&
+                  $identifiernode->parent->operandOnRight()->value === 's')) {
+                $identifiernode->value = 'kg';
+                $identifiernode->parent->replace($identifiernode, new MP_Operation('*', $identifiernode, new MP_Identifier('s')));
+            }
+        }
     }
 
     /* Check to see if the student looks like they have used a synonym instead of a correct unit.
      * @param string $key is just a single atomic key.
      */
-    public static function find_units_synonyms($key)
-    {
+    public static function find_units_synonyms($key) {
         static $cache = false;
         if ($cache === false) {
             $cache = array();
@@ -293,7 +312,8 @@ class stack_cas_casstring_units
                 $fndsynonym = true;
                 $answernote = 'unitssynonym';
                 $synonymerr = stack_string('stackCas_unitssynonym',
-                    array('forbid' => stack_maxima_format_casstring($key), 'unit' => stack_maxima_format_casstring($cache[strtolower($key)])));
+                        array('forbid' => stack_maxima_format_casstring($key),
+                                'unit' => stack_maxima_format_casstring($cache[strtolower($key)])));
             }
         }
 
@@ -303,21 +323,20 @@ class stack_cas_casstring_units
     /* Check to see if the student looks like they have used units with the wrong case.
      * @param string $key is just a single atomic key.
      */
-    public static function check_units_case($key)
-    {
+    public static function check_units_case($key) {
         static $valid = false;
         static $invalid = false;
         if ($valid === false) {
             $valid = array();
             $invalid = array();
 
-            foreach (self::$nonpreficunits as $unit) {
+            foreach (self::$nonprefixunits as $unit) {
                 $valid[$unit[0]] = true;
             }
             foreach (self::$supportedunits as $unit) {
                 $valid[$unit[0]] = true;
                 foreach (self::$supportedprefix as $prefix) {
-                    $valid[$prefix[0] . $unit[0]] = true;
+                    $valid[$prefix[0].$unit[0]] = true;
                 }
             }
             foreach ($valid as $k => $noop) {
@@ -341,10 +360,8 @@ class stack_cas_casstring_units
             return false;
         }
 
-        return (stack_string('stackCas_unknownUnitsCase',
+        return(stack_string('stackCas_unknownUnitsCase',
             array('forbid' => stack_maxima_format_casstring($key),
-                 // fau: fixPhp74Implode
-                'unit' => stack_maxima_format_casstring('[' . implode(", ", $invalid[strtolower($key)]) . ']'))));
-                // fau.
+                'unit' => stack_maxima_format_casstring('['.implode(', ', $invalid[strtolower($key)]).']'))));
     }
 }

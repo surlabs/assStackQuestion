@@ -19,7 +19,6 @@ defined('MOODLE_INTERNAL') || die();
 //fau: #40 Do not use filterlib from Moodle
 //require_once($CFG->libdir . '/filterlib.php');
 //fau.
-require_once(__DIR__ . '/mathsoutputfilterbase.class.php');
 
 /**
  * STACK maths output methods for using MathJax.
@@ -27,11 +26,9 @@ require_once(__DIR__ . '/mathsoutputfilterbase.class.php');
  * @copyright  2012 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_maths_output_mathjax extends stack_maths_output_filter_base
-{
+class stack_maths_output_mathjax extends stack_maths_output_filter_base {
 
-    protected function initialise_delimiters()
-    {
+    protected function initialise_delimiters() {
         $this->displaywrapstart = '';
         $this->displaywrapend = '';
         $this->displaystart = '\[';
@@ -40,8 +37,7 @@ class stack_maths_output_mathjax extends stack_maths_output_filter_base
         $this->inlineend = '\)';
     }
 
-    protected function make_filter()
-    {
+    protected function make_filter() {
         global $CFG, $PAGE;
         require_once($CFG->dirroot . '/filter/mathjaxloader/filter.php');
         $context = context_system::instance();

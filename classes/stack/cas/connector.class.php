@@ -25,8 +25,7 @@ require_once(__DIR__ . '/../cas/connector.interface.php');
  * @copyright  2012 The University of Birmingham
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class stack_cas_connection_base implements stack_cas_connection
-{
+abstract class stack_cas_connection_base implements stack_cas_connection {
     /** @var string path to write Maxiam error output to. */
     protected $logs;
 
@@ -60,26 +59,27 @@ abstract class stack_cas_connection_base implements stack_cas_connection
     // @codingStandardsIgnoreStart
     /* @see stack_cas_connection::compute() */
     // @codingStandardsIgnoreEnd
-    public function compute($command)
-    {
-        $context = "Platform: " . stack_connection_helper::get_platform() . "\n";
-        $context .= "Maxima shell command: " . $this->command . "\n";
-        $context .= "Maxima initial command: " . $this->initcommand . "\n";
-        $context .= "Maxima timeout: " . $this->timeout;
+    public function compute($command) {
+
+        $context = "Platform: ". stack_connection_helper::get_platform() . "\n";
+        $context .= "Maxima shell command: ". $this->command . "\n";;
+        $context .= "Maxima initial command: ". $this->initcommand . "\n";
+        $context .= "Maxima timeout: ". $this->timeout;
         $this->debug->log('Context used', $context);
 
         $this->debug->log('Maxima command', $command);
 
-        //fau: #2 log maxima calls in the benchmark
-        global $ilBench;
-        if (is_object($ilBench)) {
-            $ilBench->startDbBench('MAXIMA ' . $command);
-            $rawresult = $this->call_maxima($command);
-            $ilBench->stopDbBench();
-        } else {
-            $rawresult = $this->call_maxima($command);
-        }
-        // fau.
+		//fau: #2 log maxima calls in the benchmark
+		global $ilBench;
+		if (is_object($ilBench)) {
+			$ilBench->startDbBench('MAXIMA ' . $command);
+			$rawresult = $this->call_maxima($command);
+			$ilBench->stopDbBench();
+		} else {
+			$rawresult = $this->call_maxima($command);
+		}
+
+		// fau.
         $this->debug->log('CAS result', $rawresult);
 
         $unpackedresult = $this->unpack_raw_result($rawresult);
@@ -94,18 +94,59 @@ abstract class stack_cas_connection_base implements stack_cas_connection
         return $unpackedresult;
     }
 
+    public function json_compute($command): array {
+        $this->debug->log('Maxima command', $command);
+
+        $starterr = 'STACK-ERR-OUTPUT-BEGINS>';
+        // Write a starting tag so in the event of a total failure we can report something useful back.
+        $command = "print(\"" . $starterr . "\")$\n" . $command;
+
+        $raw = $this->call_maxima($command);
+        $this->debug->log('CAS result', $raw);
+
+        // Always do what we can to return some kind of useful message starting at the actual output of our command.
+        $errmsg = $raw;
+        $errmsg = mb_substr($errmsg, mb_strpos($errmsg, $starterr) + mb_strlen($starterr));
+        // Tidy Maxima error message to avoid confusion.
+        $errmsg = str_replace('To debug this try: debugmode(true);', '', $errmsg);
+
+        $startmark = 'STACK-OUTPUT-BEGINS>';
+        $endmark = '<STACK-OUTPUT-ENDS';
+
+        $split = $raw;
+        if (mb_strpos($split, $startmark) === false) {
+            $this->debug->log('Timedout', true);
+            return array('timeout' => true, 'debug' => $split, 'timeouterrmessage' => $errmsg);
+        }
+        $split = mb_substr($split, mb_strpos($split, $startmark) + mb_strlen($startmark));
+
+        if (mb_strpos($split, $endmark) === false) {
+            $this->debug->log('Timedout', 'in the middle of output');
+            return array('timeout' => true, 'debug' => $split, 'timeouterrmessage' => $errmsg);
+        }
+        $split = mb_substr($split, 0, mb_strpos($split, $endmark));
+
+        $parsed = json_decode($split, true);
+        if ($parsed === null) {
+            $parsed = [];
+        }
+        // @codingStandardsIgnoreStart
+        $this->debug->log('Parsed result as', print_r($parsed, true));
+        // @codingStandardsIgnoreEnd
+
+        return $parsed;
+    }
+
     // @codingStandardsIgnoreStart
     /* @see stack_cas_connection::get_debuginfo() */
     // @codingStandardsIgnoreEnd
-    public function get_debuginfo()
-    {
+    public function get_debuginfo() {
         return $this->debug->get_log();
     }
 
-    /* On a Unix system list the versions of maxima available for use. */
-    public function get_maxima_available()
-    {
-        if ('unix' != stack_connection_helper::get_platform()) {
+    /* On a Linux system list the versions of maxima available for use. */
+    public function get_maxima_available() {
+        if ('linux' != stack_connection_helper::get_platform()) {
             return stack_string('healthunabletolistavail');
         }
         $this->command = 'maxima --list-avail';
@@ -119,7 +160,7 @@ abstract class stack_cas_connection_base implements stack_cas_connection
      * @param string $path the path to the stack workspace folder.
      * @return string Maxima executable name.
      */
-    protected abstract function guess_maxima_command($path);
+    abstract protected function guess_maxima_command($path);
 
     /**
      * Connect directly to the CAS, and return the raw string result.
@@ -127,15 +168,14 @@ abstract class stack_cas_connection_base implements stack_cas_connection
      * @param string $command The string of CAS commands to be processed.
      * @return string|boolean The converted HTML string or FALSE if there was an error.
      */
-    protected abstract function call_maxima($command);
+    abstract protected function call_maxima($command);
 
     /**
      * Constructor.
      * @param stdClass $settings the Maxima configuration settings.
      * @param stack_debug_log $debuglog the debug log to use.
      */
-    public function __construct($settings, stack_debug_log $debuglog)
-    {
+    public function __construct($settings, stack_debug_log $debuglog) {
         global $CFG;
 
         $path = $CFG->dataroot . '/stack';
@@ -144,18 +184,22 @@ abstract class stack_cas_connection_base implements stack_cas_connection
         $initcommand = str_replace("\\", "/", $initcommand);
         $initcommand .= "\n";
 
-        if ('' != trim($settings->maximacommand)) {
-            $cmd = $settings->maximacommand;
-        } else {
+        $cmd = $settings->maximacommand;
+        if ($settings->platform == 'linux-optimised') {
+            $cmd = $settings->maximacommandopt;
+        } else if ($settings->platform == 'server') {
+            $cmd = $settings->maximacommandserver;
+        }
+        if ('' === trim($cmd)) {
             $cmd = $this->guess_maxima_command($path);
         }
 
-        $this->logs = $path;
-        $this->command = $cmd;
-        $this->initcommand = $initcommand;
-        $this->timeout = $settings->castimeout;
+        $this->logs           = $path;
+        $this->command        = $cmd;
+        $this->initcommand    = $initcommand;
+        $this->timeout        = $settings->castimeout;
         $this->serveruserpass = $settings->serveruserpass;
-        $this->debug = $debuglog;
+        $this->debug          = $debuglog;
         if (strpos($CFG->wwwroot, '_') !== false) {
             $this->wwwroothasunderscores = true;
             $this->wwwrootfixupfind = str_replace('_', '\_', $CFG->wwwroot);
@@ -171,8 +215,7 @@ abstract class stack_cas_connection_base implements stack_cas_connection
      * @param array $rawresult Raw CAS output
      * @return array
      */
-    protected function unpack_raw_result($rawresult)
-    {
+    protected function unpack_raw_result($rawresult) {
         $result = '';
         $errors = false;
         // This adds sufficient closing brackets to make sure we have enough to match.
@@ -185,7 +228,7 @@ abstract class stack_cas_connection_base implements stack_cas_connection
         // Check we have a STACKSTART stamp & remove everything before it.
         $ts = substr_count($rawresult, '[STACKSTART');
         if ($ts != 1) {
-            $this->debug->log('', 'unpack_raw_result: no STACKSTART returned. Data returned was: ' . $rawresult);
+            $this->debug->log('', 'unpack_raw_result: no STACKSTART returned. Data returned was: '.$rawresult);
             return array();
         } else {
             $result = strstr($rawresult, '[STACKSTART'); // Remove everything before the [STACKSTART.
@@ -244,7 +287,7 @@ abstract class stack_cas_connection_base implements stack_cas_connection
 
                 if ($this->wwwroothasunderscores) {
                     $local['display'] = str_replace($this->wwwrootfixupfind,
-                        $this->wwwrootfixupreplace, $local['display']);
+                            $this->wwwrootfixupreplace, $local['display']);
                 }
             }
             foreach ($local as $key => $val) {
@@ -255,8 +298,7 @@ abstract class stack_cas_connection_base implements stack_cas_connection
     }
 
 
-    protected function unpack_helper($rawresultfragment)
-    {
+    protected function unpack_helper($rawresultfragment) {
         // Take the raw string from the CAS, and unpack this into an array.
         $offset = 0;
         $rawresultfragmentlen = strlen($rawresultfragment);
@@ -298,8 +340,7 @@ abstract class stack_cas_connection_base implements stack_cas_connection
      * @param string $errstr a Maxima error string
      * @return string
      */
-    protected function tidy_error($errstr)
-    {
+    protected function tidy_error($errstr) {
 
         if ('' === trim($errstr)) {
             return '';

@@ -30,14 +30,14 @@ abstract class stack_fact_sheets {
      * E.g. greek_alphabet_name and greek_alphabet_fact
      */
     protected static $factsheets = array('greek_alphabet', 'alg_inequalities',
-        'alg_indices', 'alg_logarithms', 'alg_quadratic_formula',
-        'alg_partial_fractions', 'trig_degrees_radians', 'trig_standard_values',
-        'trig_standard_identities', 'hyp_functions', 'hyp_identities',
-        'hyp_inverse_functions', 'calc_diff_standard_derivatives',
-        'calc_diff_linearity_rule', 'calc_product_rule', 'calc_quotient_rule',
-        'calc_chain_rule', 'calc_rules', 'calc_int_standard_integrals',
-        'calc_int_linearity_rule', 'calc_int_methods_substitution',
-        'calc_int_methods_parts');
+                    'alg_indices', 'alg_logarithms', 'alg_quadratic_formula',
+                    'alg_partial_fractions', 'trig_degrees_radians', 'trig_standard_values',
+                    'trig_standard_identities', 'hyp_functions', 'hyp_identities',
+                    'hyp_inverse_functions', 'calc_diff_standard_derivatives',
+                    'calc_diff_linearity_rule', 'calc_product_rule', 'calc_quotient_rule',
+                    'calc_chain_rule', 'calc_rules', 'calc_int_standard_integrals',
+                    'calc_int_linearity_rule', 'calc_int_methods_substitution',
+                    'calc_int_methods_parts', 'calc_int_methods_parts_indefinite');
 
     /**
      * Check each facts tag actually corresponds to a valid fact sheet.
@@ -93,8 +93,8 @@ abstract class stack_fact_sheets {
             }
 
             $text = str_replace('[[facts:' . $tag . ']]',
-                $renderer->fact_sheet(stack_string($tag . '_name'), stack_string($tag . '_fact')),
-                $text);
+                    $renderer->fact_sheet(stack_string($tag . '_name'), stack_string($tag . '_fact')),
+                    $text);
         }
 
         return $text;
@@ -129,8 +129,9 @@ abstract class stack_fact_sheets {
     public static function generate_docs() {
         $doc = '';
         foreach (self::$factsheets as $tag) {
-            $doc .= '<h4>' . stack_string($tag . '_name') . "</h4>\n<p>[[facts:" . $tag . "]]</p>\n";
-            $doc .= '<p>' . stack_string($tag . '_fact') . "</p>\n";
+            $doc .= '### ' . stack_string($tag . '_name') . "\n\n<code>[[facts:" . $tag . "]]</code>\n\n";
+            // Unusually we don't use stack_string here to make sure mathematics is not processed (yet).
+            $doc .= get_string($tag . '_fact', 'qtype_stack') . "\n\n\n";
         }
         return $doc;
     }

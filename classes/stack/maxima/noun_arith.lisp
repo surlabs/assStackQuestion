@@ -27,21 +27,27 @@
 (defprop $noun^ 140. tex-lbp)
 (defprop $noun^ 139. tex-rbp)
 
-;; Chris Sangwin 3 Feb 2016.
-
 (defprop $nounand tex-nary tex)
 ;;(defprop $nounand ("\\land ") texsym)
 (defprop $nounand ("\\,{\\mbox{ !AND! }}\\, ") texsym)
-(defprop $nounand 69. tex-lbp)
-(defprop $nounand 69. tex-rbp)
+(defprop $nounand 65. tex-lbp)
+(defprop $nounand 65. tex-rbp)
+;;(defprop mand ("\\land ") texsym)
+(defprop mand ("\\,{\\mbox{ !AND! }}\\, ")  texsym)
 
 (defprop $nounor tex-nary tex)
 ;;(defprop $nounor ("\\lor ") texsym)
 (defprop $nounor ("\\,{\\mbox{ !OR! }}\\, ") texsym)
-(defprop $nounor 70. tex-lbp)
-(defprop $nounor 70. tex-rbp)
+(defprop $nounor 61. tex-lbp)
+(defprop $nounor 61. tex-rbp)
+;;(defprop mor ("\\lor ") texsym)
+(defprop mor ("\\,{\\mbox{ !OR! }}\\, ")  texsym)
 
-;; Chris Sangwin 29 Sept 2017.
-
+(defprop $nounnot tex-prefix tex)
+;;(defprop $nounnot ("\\neg ") texsym)
+(defprop $nounnot ("{\\rm !NOT!}") texsym)
+(defprop $nounnot 70. tex-lbp)
+(defprop $nounnot 70. tex-rbp)
 (defprop mnot tex-prefix tex)
+;;(defprop mnot ("\\neg ") texsym)
 (defprop mnot ("{\\rm !NOT!}") texsym)

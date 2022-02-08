@@ -22,8 +22,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2012 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-interface stack_cas_connection
-{
+interface stack_cas_connection {
 
     /**
      * Send some Maxima code to Maxima, and return the unpacked results.
@@ -37,4 +36,12 @@ interface stack_cas_connection
      *      debugging is enabled by the configuration.
      */
     public function get_debuginfo();
+
+
+    /**
+     * Send some Maxima code to Maxima, and return the parsed results.
+     * @param string $command Maxima code to execute.
+     * @return array the unpacked results returned by Maxima.
+     */
+    public function json_compute($command): array;
 }

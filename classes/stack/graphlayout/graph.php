@@ -36,8 +36,7 @@ require_once(__DIR__ . '/svgrenderer.php');
  * @copyright 2013 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_abstract_graph
-{
+class stack_abstract_graph {
     /** @var int constant representing a left branch direction. */
     const LEFT = -1;
     /** @var int constant representing a right branch direction. */
@@ -78,14 +77,12 @@ class stack_abstract_graph
      * @param string $rightlabel lable to display on the edge to the right child.
      * @param string $url if set, this node should be a link to that URL.
      */
-    public function add_node($name, $leftchild, $rightchild, $leftlabel = '', $rightlabel = '', $url = '')
-    {
+    public function add_node($name, $leftchild, $rightchild, $leftlabel = '', $rightlabel = '', $url = '') {
         $this->nodes[$name] = new stack_abstract_graph_node($name, $leftchild, $rightchild,
-            $leftlabel, $rightlabel, $url);
+                $leftlabel, $rightlabel, $url);
     }
 
-    public function remove_node($nametodelete)
-    {
+    public function remove_node($nametodelete) {
         foreach ($this->nodes as $name => $node) {
             if ($name == $nametodelete) {
                 unset($this->nodes[$name]);
@@ -105,8 +102,7 @@ class stack_abstract_graph
      * Lay out the graph, based on the left and right links.
      * @param string $firstnode identifier of the root node.
      */
-    public function layout()
-    {
+    public function layout() {
         // First we assign a depth to each node, to ensure that ercs always go
         // from one depth to a deeper one.
         $this->stack = array();
@@ -180,16 +176,17 @@ class stack_abstract_graph
                         $this->remove_clump($rightclump);
                     }
 
-                    //fau: #11 Check there are no division by 0.
-                    if (($rightchild->depth - $node->depth + $leftchild->depth - $node->depth) == 0) {
-                        return;
-                    }
-                    //fau.
+					//fau: #11 Check there are no division by 0.
+					if (($rightchild->depth - $node->depth + $leftchild->depth - $node->depth) == 0) {
+						return;
+					}
+					//fau.
+
                     // @codingStandardsIgnoreStart
                     // Weighted mean based on the length of the two branches.
                     $xpos = (($leftchild->x + 1) * ($rightchild->depth - $node->depth) +
-                            ($rightchild->x - 1) * ($leftchild->depth - $node->depth)) /
-                        ($rightchild->depth - $node->depth + $leftchild->depth - $node->depth);
+                                ($rightchild->x - 1) * ($leftchild->depth - $node->depth)) /
+                                ($rightchild->depth - $node->depth + $leftchild->depth - $node->depth);
                     // @codingStandardsIgnoreEnd
 
                     $leftclump->add_node($node, $xpos, 2);
@@ -222,8 +219,7 @@ class stack_abstract_graph
      * @param stack_abstract_graph_node $node1
      * @param stack_abstract_graph_node $node2
      */
-    protected static function compare_node_x_coords(stack_abstract_graph_node $node1, stack_abstract_graph_node $node2)
-    {
+    protected static function compare_node_x_coords(stack_abstract_graph_node $node1, stack_abstract_graph_node $node2) {
         if ($node1->x < $node2->x) {
             return -1;
         } else if ($node1->x == $node2->x) {
@@ -244,8 +240,7 @@ class stack_abstract_graph
      * @param stack_abstract_graph_node $currentnode
      * @param integer $depth
      */
-    protected function depth_first_search(stack_abstract_graph_node $currentnode, $depth)
-    {
+    protected function depth_first_search(stack_abstract_graph_node $currentnode, $depth) {
 
         if ($currentnode->depth >= $depth) {
             return; // Aready done, and at least as deep as this path.
@@ -274,7 +269,7 @@ class stack_abstract_graph
         }
 
         if (array_pop($this->stack) != $currentnode->name) {
-            throw new coding_exception('Something went wrong with the stack.');
+            throw new stack_exception('Something went wrong with the stack.');
         }
     }
 
@@ -288,8 +283,7 @@ class stack_abstract_graph
      * @param int $x heuristic x-position to give that node.
      * @param float $dx the gap that should be left between the two child nodes.
      */
-    protected function compute_heuristic_xs(stack_abstract_graph_node $node, $x, $dx)
-    {
+    protected function compute_heuristic_xs(stack_abstract_graph_node $node, $x, $dx) {
         $node->heuristicxs[] = $x;
         $dx /= 2;
         if ($node->left) {
@@ -305,25 +299,23 @@ class stack_abstract_graph
      * @param stack_abstract_graph_node $node
      * @return stack_abstract_graph_node_clump
      */
-    protected function find_clump_containing_node(stack_abstract_graph_node $node)
-    {
+    protected function find_clump_containing_node(stack_abstract_graph_node $node) {
         foreach ($this->clumps as $clump) {
             if ($clump->contains($node)) {
                 return $clump;
             }
         }
-        throw new coding_exception($node->name . ' is not in any clump.');
+        throw new stack_exception($node->name . ' is not in any clump.');
     }
 
     /**
      * Remove a clump from the list of clumps.
      * @param stack_abstract_graph_node_clump $clump
      */
-    protected function remove_clump(stack_abstract_graph_node_clump $clump)
-    {
+    protected function remove_clump(stack_abstract_graph_node_clump $clump) {
         $key = array_search($clump, $this->clumps);
         if (is_null($key)) {
-            throw new coding_exception('Unknown clump.');
+            throw new stack_exception('Unknown clump.');
         }
         unset($this->clumps[$key]);
     }
@@ -333,10 +325,9 @@ class stack_abstract_graph
      * @param string $nodename
      * @return stack_abstract_graph_node
      */
-    public function get($nodename)
-    {
+    public function get($nodename) {
         if (!array_key_exists($nodename, $this->nodes)) {
-            throw new coding_exception('Node ' . $nodename . ' is not in the graph.');
+            throw new stack_exception('Node ' . $nodename . ' is not in the graph.');
         }
         return $this->nodes[$nodename];
     }
@@ -344,8 +335,7 @@ class stack_abstract_graph
     /**
      * @return array node name => stack_abstract_graph_node the list of all nodes.
      */
-    public function get_nodes()
-    {
+    public function get_nodes() {
         return $this->nodes;
     }
 
@@ -354,8 +344,7 @@ class stack_abstract_graph
      * roots in the graph. (That is, no other node links to them.) Only available
      * once the graph has been laid out.
      */
-    public function get_roots()
-    {
+    public function get_roots() {
         return $this->roots;
     }
 
@@ -365,8 +354,7 @@ class stack_abstract_graph
      * that fact here, then carry on. Therefore, this is a list of errors.
      * Only available once the graph has been laid out.
      */
-    public function get_broken_cycles()
-    {
+    public function get_broken_cycles() {
         return $this->brokenloops;
     }
 
@@ -375,16 +363,14 @@ class stack_abstract_graph
      * @param int $direction self::LEFT or self::RIGHT.
      * @return book whether this edge was broken to break a cycle.
      */
-    public function is_broken_edge(stack_abstract_graph_node $node, $direction)
-    {
+    public function is_broken_edge(stack_abstract_graph_node $node, $direction) {
         return array_key_exists($node->name . '|' . $direction, $this->brokenloops);
     }
 
     /**
      * @return int the maximum depth of any node. Root nodes have depth 1.
      */
-    public function max_depth()
-    {
+    public function max_depth() {
         end($this->nodesbydepth);
         return key($this->nodesbydepth);
     }
@@ -392,8 +378,7 @@ class stack_abstract_graph
     /**
      * @return array with two elements, the minimum and maximum x-coordinates of any node.
      */
-    public function x_range()
-    {
+    public function x_range() {
         $minx = null;
         $maxx = null;
         foreach ($this->nodes as $node) {
@@ -413,8 +398,7 @@ class stack_abstract_graph
      * @param stack_abstract_graph_node $child one of its children.
      * @return bool whether there is another node on the direct line from parent to child.
      */
-    public function edge_hits_another_node(stack_abstract_graph_node $parent, stack_abstract_graph_node $child)
-    {
+    public function edge_hits_another_node(stack_abstract_graph_node $parent, stack_abstract_graph_node $child) {
         $x = $parent->x;
         $dx = ($child->x - $parent->x) / ($child->depth - $parent->depth);
         for ($depth = $parent->depth + 1; $depth < $child->depth; $depth += 1) {
@@ -436,8 +420,7 @@ class stack_abstract_graph
      *  - otherwise true branch before false branch.
      * @return array old node name => new node name.
      */
-    public function get_suggested_node_names()
-    {
+    public function get_suggested_node_names() {
         $rawresults = $this->suggested_names_worker(array(), reset($this->roots));
         $newnames = array();
         foreach ($rawresults as $newkey => $oldname) {
@@ -453,8 +436,7 @@ class stack_abstract_graph
      * @param array partial array of new node name - 1 => old node name with all the childern of $currentnode named.
      */
     protected function suggested_names_worker(array $alreadynamed,
-                                              stack_abstract_graph_node $node)
-    {
+            stack_abstract_graph_node $node) {
         if (in_array($node->name, $alreadynamed)) {
             return $alreadynamed;
         }
@@ -482,8 +464,7 @@ class stack_abstract_graph
         }
     }
 
-    public function __toString()
-    {
+    public function __toString() {
         $string = '';
         foreach ($this->nodesbydepth as $depth => $nodes) {
             $string .= 'Depth ' . $depth . ': ' . implode(' ', $nodes) . "\n";

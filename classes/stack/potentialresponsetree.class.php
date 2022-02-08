@@ -24,8 +24,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/potentialresponsenode.class.php');
 require_once(__DIR__ . '/potentialresponsetreestate.class.php');
 
-class stack_potentialresponse_tree
-{
+class stack_potentialresponse_tree {
 
     /** @var string Name of the PRT. */
     private $name;
@@ -33,25 +32,39 @@ class stack_potentialresponse_tree
     /** @var string Description of the PRT. */
     private $description;
 
-    /** @var boolean Should this PRT simplify when its arguments are evaluated? */
+    /** @var bool Should this PRT simplify when its arguments are evaluated? */
     private $simplify;
 
-    /** @var float total amount of fraction available from this PRT. */
+    /** @var float total amount of fraction available from this PRT. Zero is possible for formative PRT questions. */
     private $value;
 
-    /** @var stack_cas_cassession Feeback variables. */
+    /**
+     * Special variables in the question which should be exposed to the inputs.
+     */
+    protected $contextsession = array();
+
+    /** @var stack_cas_session2 Feeback variables. */
     private $feedbackvariables;
 
     /** @var string index of the first node. */
     private $firstnode;
 
-    /** @var array of stack_potentialresponse_node. */
+    /** @var stack_potentialresponse_node[] the nodes of the tree. */
     private $nodes;
 
-    public function __construct($name, $description, $simplify, $value, $feedbackvariables, $nodes, $firstnode)
-    {
+    /** @var int The feedback style of this PRT.
+     *  0. Formative PRT: Errors and PRT feedback only.
+     *     Does not contribute to the attempt grade, no grade displayed ever, no standard feedback.
+     *  1. Standard PRT.
+     *  Making this an integer now, and not a Boolean, will allow future options (such as "compact" or "symbol only")
+     *  without further DB upgrades.
+     **/
+    private $feedbackstyle;
 
-        $this->name = $name;
+    public function __construct($name, $description, $simplify, $value,
+            $feedbackvariables, $nodes, $firstnode, $feedbackstyle) {
+
+        $this->name        = $name;
         $this->description = $description;
 
         if (!is_bool($simplify)) {
@@ -60,37 +73,60 @@ class stack_potentialresponse_tree
             $this->simplify = $simplify;
         }
 
+        if (!is_int($feedbackstyle)) {
+            throw new stack_exception('stack_potentialresponse_tree: __construct: feedbackstyle must be an integer.');
+        } else {
+            $this->feedbackstyle = $feedbackstyle;
+        }
+
         $this->value = $value;
 
-        if (is_a($feedbackvariables, 'stack_cas_session') || null === $feedbackvariables) {
+        if (is_a($feedbackvariables, 'stack_cas_session2') || null === $feedbackvariables) {
             $this->feedbackvariables = $feedbackvariables;
+            if ($this->feedbackvariables === null) {
+                // Using an empty session here makes life so much simpler.
+                $this->feedbackvariables = new stack_cas_session2(array());
+            }
         } else {
             throw new stack_exception('stack_potentialresponse_tree: __construct: ' .
-                'expects $feedbackvariables to be null or a stack_cas_session.');
+                    'expects $feedbackvariables to be null or a stack_cas_session.');
         }
+
+        $this->contextsession = $this->feedbackvariables->get_contextvariables();
 
         if ($nodes === null) {
             $nodes = array();
         }
         if (!is_array($nodes)) {
             throw new stack_exception('stack_potentialresponse_tree: __construct: ' .
-                'attempting to construct a potential response tree with potential ' .
-                'responses which are not an array of stack_potentialresponse');
+                    'attempting to construct a potential response tree with potential ' .
+                    'responses which are not an array of stack_potentialresponse');
         }
         foreach ($nodes as $node) {
             if (!is_a($node, 'stack_potentialresponse_node')) {
                 throw new stack_exception ('stack_potentialresponse_tree: __construct: ' .
-                    'attempting to construct a potential response tree with potential ' .
-                    'responses which are not stack_potentialresponse');
+                        'attempting to construct a potential response tree with potential ' .
+                        'responses which are not stack_potentialresponse');
             }
         }
         $this->nodes = $nodes;
 
         if (!array_key_exists($firstnode, $this->nodes)) {
             throw new stack_exception ('stack_potentialresponse_tree: __construct: ' .
-                'the specified first node does not exist in the tree.');
+                    'the specified first node does not exist in the tree.');
         }
         $this->firstnode = $firstnode;
+    }
+
+    /*
+     * Set the contextsession values.
+     */
+    public function add_contextsession($contextsession) {
+        if ($contextsession != null) {
+            // Always make this the start of an array.
+            // We may already have some context from the feedback variables.
+            $this->contextsession = array_merge(array($contextsession), $this->contextsession);
+        }
     }
 
     /**
@@ -98,27 +134,22 @@ class stack_potentialresponse_tree
      * all the question variables, student responses, feedback variables, and all
      * the sans, tans and atoptions expressions from all the nodes.
      *
-     * @param stack_cas_session $questionvars the question varaibles.
+     * @param stack_cas_session2 $questionvars the question variables.
      * @param stack_options $options
      * @param array $answers name => value the student response.
      * @param int $seed the random number seed.
-     * @return stack_cas_session initialised with all the expressions this PRT will need.
+     * @return stack_cas_session2 initialised with all the expressions this PRT will need.
      */
-    protected function create_cas_context_for_evaluation($questionvars, $options, $answers, $seed)
-    {
+    protected function create_cas_context_for_evaluation($questionvars, $options, $answers, $seed) {
 
         // Start with the question variables (note that order matters here).
+        // TODO: this clone needs to go, we need a way of pulling the setting and seed
+        // from the questionvars to start up this thing.
         $cascontext = clone $questionvars;
-        // Set the value of simp from this point onwards.
-        // If the question has simp:true, but the prt simp:false, then this needs to be done here.
-        if ($this->simplify) {
-            $simp = 'true';
-        } else {
-            $simp = 'false';
-        }
-        $cs = new stack_cas_casstring($simp);
-        $cs->set_key('simp');
-        $answervars = array($cs);
+
+        // Do not simplify the answers.
+        $sf = stack_ast_container::make_from_teacher_source('simp:false', '', new stack_cas_security());
+        $cascontext->add_statement($sf);
         // Add the student's responses, but only those needed by this prt.
         // Some irrelevant but invalid answers might break the CAS connection.
         foreach ($this->get_required_variables(array_keys($answers)) as $name) {
@@ -127,141 +158,156 @@ class stack_potentialresponse_tree
             } else {
                 $ans = $answers[$name];
             }
-            // We always add logical nouns to students' answers.
-            $ans = stack_utils::logic_nouns_sort($ans, 'add');
-            $cs = new stack_cas_casstring($ans);
-
             // Validating as teacher at this stage removes the problem of "allowWords" which
             // we don't have access to.  This effectively allows any words here.  But the
             // student's answer has already been through validation.
-            $cs->get_valid('t');
-            // Setting the key must come after validation.
+            $cs = stack_ast_container::make_from_teacher_source($ans, '', new stack_cas_security());
+            // That all said, we then need to manually add in nouns to ensure these are protected.
+            $cs->set_nounify(2);
             $cs->set_key($name);
-            $answervars[] = $cs;
+            $cs->set_keyless(false);
+            $cascontext->add_statement($cs);
         }
-        $cascontext->add_vars($answervars);
+
+        // Set the value of simp for the feedback variables from this point onwards.
+        // If the question has simp:true, but the prt simp:false, then this needs to be done here.
+        if ($this->simplify) {
+            $simp = 'true';
+        } else {
+            $simp = 'false';
+        }
+        $cs = stack_ast_container::make_from_teacher_source('simp:' . $simp, '', new stack_cas_security());
+        $cascontext->add_statement($cs);
 
         // Add the feedback variables.
-        $cascontext->merge_session($this->feedbackvariables);
+        $this->feedbackvariables->append_to_session($cascontext);
 
         // Add all the expressions from all the nodes.
         // Note this approach does not allow for effective guard clauses in the PRT.
         // All the inputs to answer tests are evaluated at the start.
         foreach ($this->nodes as $key => $node) {
-            $cascontext->add_vars($node->get_context_variables($key));
+            $cascontext->add_statements($node->get_context_variables($key));
         }
 
-        $cascontext->instantiate();
+        // Set the value of simp to be false from this point onwards again (may have been reset).
+        $cs = stack_ast_container::make_from_teacher_source('simp:false', '', new stack_cas_security());
+        $cascontext->add_statement($cs);
+
+        if ($cascontext->get_valid()) {
+            $cascontext->instantiate();
+        }
 
         return $cascontext;
     }
 
-	/**
-	 * This function actually traverses the tree and generates outcomes.
-	 *
-	 * @param stack_cas_session $questionvars the question varaibles.
-	 * @param stack_options $options
-	 * @param array $answers name => value the student response.
-	 * @param int $seed the random number seed.
-	 * @return stack_potentialresponse_tree_state the result.
-	 */
-	public function evaluate_response(stack_cas_session $questionvars, $options, $answers, $seed) {
-		if (empty($this->nodes)) {
-			throw new stack_exception('stack_potentialresponse_tree: evaluate_response ' .
-				'attempting to traverse an empty tree. Something is wrong here.');
-		}
+    /**
+     * This function actually traverses the tree and generates outcomes.
+     *
+     * @param stack_cas_session2 $questionvars the question variables.
+     * @param stack_options $options
+     * @param array $answers name => value the student response.
+     * @param int $seed the random number seed.
+     * @return stack_potentialresponse_tree_state the result.
+     */
+    public function evaluate_response(stack_cas_session2 $questionvars, $options, $answers, $seed) {
 
-		$localoptions = clone $options;
-		$localoptions->set_option('simplify', $this->simplify);
+        if (empty($this->nodes)) {
+            throw new stack_exception('stack_potentialresponse_tree: evaluate_response ' .
+                    'attempting to traverse an empty tree. Something is wrong here.');
+        }
 
-		$cascontext = $this->create_cas_context_for_evaluation($questionvars, $localoptions, $answers, $seed);
+        $localoptions = clone $options;
+        $localoptions->set_option('simplify', $this->simplify);
 
-		$results = new stack_potentialresponse_tree_state($this->value, true, 0, 0);
-		$fv = $this->feedbackvariables;
-		if ($fv !== null) {
-			$results->add_trace($fv->get_keyval_representation());
-		}
+        $cascontext = $this->create_cas_context_for_evaluation($questionvars, $localoptions, $answers, $seed);
 
-		// Traverse the tree.
-		$nodekey = $this->firstnode;
-		$visitednodes = array();
-		while ($nodekey != -1) {
-			if (!array_key_exists($nodekey, $this->nodes)) {
-				throw new stack_exception('stack_potentialresponse_tree: ' .
-					'evaluate_response: attempted to jump to a potential response ' .
-					'which does not exist in this question.  This is a question ' .
-					'authoring/validation problem.');
-			}
+        $results = new stack_potentialresponse_tree_state($this->value, true, 0, 0);
+        $fv = $this->feedbackvariables;
+        $tr = $fv->get_keyval_representation();
+        if (trim($tr) != '') {
+            $tr .= "\n/* ------------------- */";
+            $results->add_trace($tr);
+        }
+        $er = $fv->get_errors(true);
+        if (trim($er)) {
+            $results->add_fverrors($er);
+        }
 
-			if (array_key_exists($nodekey, $visitednodes)) {
-				$results->add_answernote('[PRT-CIRCULARITY]=' . $nodekey);
-				break;
-			}
+        // Traverse the tree.
+        $nodekey = $this->firstnode;
+        $visitednodes = array();
+        while ($nodekey != -1) {
 
-			$visitednodes[$nodekey] = true;
-			$nodekey = $this->nodes[$nodekey]->traverse($results, $nodekey, $cascontext, $answers, $localoptions);
+            if (!array_key_exists($nodekey, $this->nodes)) {
+                throw new stack_exception('stack_potentialresponse_tree: ' .
+                        'evaluate_response: attempted to jump to a potential response ' .
+                        'which does not exist in this question.  This is a question ' .
+                        'authoring/validation problem.');
+            }
 
-			if ($results->_errors) {
-				break;
-			}
-		}
+            if (array_key_exists($nodekey, $visitednodes)) {
+                $results->add_answernote('[PRT-CIRCULARITY]=' . $nodekey);
+                break;
+            }
 
+            $visitednodes[$nodekey] = true;
+            $nodekey = $this->nodes[$nodekey]->traverse($results, $nodekey, $cascontext, $answers, $localoptions,
+                    $this->contextsession);
 
-		// Make sure these are PHP numbers.
-		$results->_score = $results->_score + 0;
-		$results->_penalty = $results->_penalty + 0;
+            if ($results->_errors) {
+                break;
+            }
+        }
 
-		// Restrict score to be between 0 and 1.
-		$results->_score = min(max($results->_score, 0), 1);
+        // Make sure these are PHP numbers.
+        $results->_score = $results->_score + 0;
+        $results->_penalty = $results->_penalty + 0;
 
-		// Take a continued fraction approximation of the score, within 5 decimal places of the original
-		// This will round numbers like 0.999999 to exactly 1, 0.33333 to 1/3, etc.
-		$results->_score = stack_utils::fix_to_continued_fraction($results->score, 5);
+        // Restrict score to be between 0 and 1.
+        $results->_score = min(max($results->_score, 0), 1);
 
-		// From a strictly logical point of view the 'score' and the 'penalty' are independent.
-		// Hence, this clause belongs in the question behaviour.
-		// From a practical point of view, it is confusing/off-putting when testing to see "score=1, penalty=0.1".
-		// Why does this correct attempt attract a penalty?  So, this is a unilateral decision:
-		// If the score is 1 there is never a penalty.
-		if ($results->_score == 1) {
-			$results->_penalty = 0;
-		}
+        // Take a continued fraction approximation of the score, within 5 decimal places of the original
+        // This will round numbers like 0.999999 to exactly 1, 0.33333 to 1/3, etc.
+        $results->_score = stack_utils::fix_to_continued_fraction($results->score, 5);
 
-		if ($results->errors) {
-			$results->_score = null;
-			$results->_penalty = null;
-		}
+        // From a strictly logical point of view the 'score' and the 'penalty' are independent.
+        // Hence, this clause belongs in the question behaviour.
+        // From a practical point of view, it is confusing/off-putting when testing to see "score=1, penalty=0.1".
+        // Why does this correct attempt attract a penalty?  So, this is a unilateral decision:
+        // If the score is 1 there is never a penalty.
+        if ($results->_score == 1) {
+            $results->_penalty = 0;
+        }
 
-		$results->set_cas_context($cascontext, $seed);
-
-		return $results;
-	}
+        if ($results->errors) {
+            $results->_score = null;
+            $results->_penalty = null;
+        }
+        $results->set_cas_context($cascontext, $seed, $this->simplify);
+        return $results;
+    }
 
     /**
-     * Take an array of input names, or equivalently response varaibles, (for
+     * Take an array of input names, or equivalently response variables, (for
      * example sans1, a) and return those that are used by this potential response tree.
      *
      * @param array of string variable names.
      * @return array filter list of variable names. Only those variable names
      * referred to be this PRT are returned.
      */
-    public function get_required_variables($variablenames)
-    {
+    public function get_required_variables($variablenames) {
 
-        $rawcasstrings = array();
+        $usedvariables = array();
         if ($this->feedbackvariables !== null) {
-            $rawcasstrings = $this->feedbackvariables->get_all_raw_casstrings();
+            $usedvariables = $this->feedbackvariables->get_variable_usage($usedvariables);
         }
         foreach ($this->nodes as $node) {
-            $rawcasstrings = array_merge($rawcasstrings, $node->get_required_cas_strings());
+            $usedvariables = $node->get_variable_usage($usedvariables);
         }
-
-        // Remove strings in castrings so that strings like "...ans1..." do not match ans1.
-        $rawcasstring = stack_utils::eliminate_strings(implode('; ', $rawcasstrings));
 
         $requirednames = array();
         foreach ($variablenames as $name) {
-            if ($this->string_contains_variable($name, $rawcasstring)) {
+            if (isset($usedvariables['read']) && isset($usedvariables['read'][$name])) {
                 $requirednames[] = $name;
             }
         }
@@ -269,23 +315,10 @@ class stack_potentialresponse_tree
     }
 
     /**
-     * Looks for occurances of $variable in $string as whole words only.
-     * @param string $variable a variable name.
-     * @param string $string a cas string.
-     * @return bool whether the string refers to the variable.
-     */
-    private function string_contains_variable($variable, $string)
-    {
-        $regex = '~\b' . preg_quote(strtolower($variable), '~') . '\b~';
-        return preg_match($regex, strtolower($string));
-    }
-
-    /**
      * This lists all possible answer notes, used for question testing.
      * @return array string Of all the answer notes this tree might produce.
      */
-    public function get_all_answer_notes()
-    {
+    public function get_all_answer_notes() {
         $nodenotes = array();
         foreach ($this->nodes as $node) {
             $nodenotes = array_merge($nodenotes, $node->get_answer_notes());
@@ -301,8 +334,7 @@ class stack_potentialresponse_tree
      * @return array with keys the same as $this->nodes, and values objects with
      *      fields falsenote, falsescore, truenote, truescore.
      */
-    public function get_nodes_summary()
-    {
+    public function get_nodes_summary() {
         $nodesummary = array();
         foreach ($this->nodes as $key => $node) {
             $nodesummary[$key] = $node->summarise_branches();
@@ -313,26 +345,30 @@ class stack_potentialresponse_tree
     /**
      * @return string the name of this PRT.
      */
-    public function get_name()
-    {
+    public function get_name() {
         return $this->name;
     }
 
     /**
      * @return float the value of this PRT within the question.
      */
-    public function get_value()
-    {
+    public function get_value() {
         return $this->value;
+    }
+
+    /**
+     * @return int.
+     */
+    public function get_feedbackstyle() {
+        return $this->feedbackstyle;
     }
 
     /**
      * @return string Representation of the PRT for Maxima offline use.
      */
-    public function get_maxima_representation()
-    {
+    public function get_maxima_representation() {
         $prttrace = array();
-        $prttrace[] = "\n/* " . $this->name . " */";
+        $prttrace[] = "\n/* ". $this->name . " */";
         $fv = $this->feedbackvariables;
         if ($fv !== null) {
             $prttrace[] = $fv->get_keyval_representation();
@@ -346,11 +382,131 @@ class stack_potentialresponse_tree
     /**
      * @return string Representation of the PRT for Maxima offline use.
      */
-    public function get_feedbackvariables_keyvals()
-    {
+    public function get_feedbackvariables_keyvals() {
         if (null === $this->feedbackvariables) {
             return '';
         }
         return $this->feedbackvariables->get_keyval_representation();
     }
+
+    /**
+     * @return array Languages used in the feedback.
+     */
+    public function get_feedback_languages() {
+        $langs = array();
+        foreach ($this->nodes as $key => $node) {
+            $langs[$key] = $node->get_feedback_languages();
+        }
+        return $langs;
+    }
+
+    /**
+     * @return array All the "sans" strings used in the nodes with test requiring a raw input.
+     */
+    public function get_raw_sans_used() {
+        $sans = array();
+        foreach ($this->nodes as $key => $node) {
+            if (stack_ans_test_controller::required_raw($node->get_test())) {
+                $name = (string) $this->get_name() . '-' . ($key + 1);
+                $sans[$name] = $node->sans->get_inputform(true, 1);
+            }
+        }
+        return $sans;
+    }
+
+    /**
+     * @return boolean whether this PRT contains any tests that use units.
+     */
+    public function has_units(): bool {
+        foreach ($this->nodes as $node) {
+            if (strpos($node->get_test(), 'Units') === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return array Returns the answer tests used by this PRT.
+     */
+    public function get_answertests(): array {
+        $tests = array();
+        foreach ($this->nodes as $node) {
+            $tests[$node->get_test()] = true;
+        }
+        return $tests;
+    }
+
+    /**
+     * A "formative" PRT is a PRT which does not contribute marks to the question.
+     * This affected whether a response is "complete", and how marks are shown for feedback.
+     * @return boolean
+     */
+    public function is_formative() {
+        // Note, some of this logic is duplicated in renderer.php before we have instantiated this class.
+        if ($this->feedbackstyle === 0) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @return array of choices for the show validation select menu.
+     */
+    public static function get_feedbackstyle_options() {
+        return array(
+            '0' => get_string('feedbackstyle0', 'qtype_stack'),
+            '1' => get_string('feedbackstyle1', 'qtype_stack'),
+            '2' => get_string('feedbackstyle2', 'qtype_stack'),
+            '3' => get_string('feedbackstyle3', 'qtype_stack'),
+        );
+    }
+
+	/**
+	 * @return string
+	 */
+	public function getFirstNode(): string
+	{
+		return $this->firstnode;
+	}
+
+	/**
+	 * @param string $first_node
+	 */
+	public function setFirstNode(string $first_node): void
+	{
+		$this->firstnode = $first_node;
+	}
+
+	/**
+	 * @return stack_potentialresponse_node[]
+	 */
+	public function getNodes(): array
+	{
+		return $this->nodes;
+	}
+
+	/**
+	 * @param stack_potentialresponse_node[] $nodes
+	 */
+	public function setNodes(array $nodes): void
+	{
+		$this->nodes = $nodes;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isSimplify(): bool
+	{
+		return $this->simplify;
+	}
+
+	/**
+	 * @param bool $simplify
+	 */
+	public function setSimplify(bool $simplify): void
+	{
+		$this->simplify = $simplify;
+	}
 }

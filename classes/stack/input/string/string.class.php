@@ -25,15 +25,14 @@ require_once(__DIR__ . '/../algebraic/algebraic.class.php');
  * @copyright  2018 University of Edinburgh
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_string_input extends stack_algebraic_input
-{
+class stack_string_input extends stack_algebraic_input {
 
     protected $extraoptions = array(
-        'hideanswer' => false
+        'hideanswer' => false,
+        'allowempty' => false
     );
 
-    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue)
-    {
+    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue) {
 
         if ($this->errors) {
             return $this->render_error($this->errors);
@@ -41,14 +40,14 @@ class stack_string_input extends stack_algebraic_input
 
         $size = $this->parameters['boxWidth'] * 0.9 + 0.1;
         $attributes = array(
-            'type' => 'text',
-            'name' => $fieldname,
-            'id' => $fieldname,
-            'size' => $this->parameters['boxWidth'] * 1.1,
-            'style' => 'width: ' . $size . 'em',
+            'type'  => 'text',
+            'name'  => $fieldname,
+            'id'    => $fieldname,
+            'size'  => $this->parameters['boxWidth'] * 1.1,
+            'style' => 'width: '.$size.'em',
             'autocapitalize' => 'none',
-            'spellcheck' => 'false',
-            'class' => 'maxima-string',
+            'spellcheck'     => 'false',
+            'class'     => 'maxima-string',
         );
 
         if ($this->is_blank_response($state->contents)) {
@@ -56,10 +55,10 @@ class stack_string_input extends stack_algebraic_input
             if ($this->parameters['syntaxAttribute'] == '1') {
                 $field = 'placeholder';
             }
-            $attributes[$field] = $this->strip_string(stack_utils::logic_nouns_sort($this->parameters['syntaxHint'], 'remove'));
+            $attributes[$field] = $this->parameters['syntaxHint'];
         } else {
             $value = stack_utils::maxima_string_to_php_string($this->contents_to_maxima($state->contents));
-            $attributes['value'] = $in = $this->strip_string($value);
+            $attributes['value'] = $value;
         }
 
         if ($readonly) {
@@ -76,11 +75,14 @@ class stack_string_input extends stack_algebraic_input
      * @param array|string $in
      * @return string
      */
-    protected function response_to_contents($response)
-    {
+    protected function response_to_contents($response) {
 
         $contents = array();
         if (array_key_exists($this->name, $response)) {
+            // Don't turn an empty string into an empty string.
+            if (trim($response[$this->name]) === '' && !$this->extraoptions['allowempty']) {
+                return $contents;
+            }
             // Protect any other quotes etc.
             $converted = stack_utils::php_string_to_maxima_string($response[$this->name]);
             // Finally make sure we actually have a Maxima string!
@@ -90,28 +92,30 @@ class stack_string_input extends stack_algebraic_input
     }
 
     /**
-     * @return string the teacher's answer, displayed to the student in the general feedback.
+     * @return string The teacher's answer, displayed to the student in the general feedback.
      */
-    public function get_teacher_answer_display($value, $display)
-    {
+    public function get_teacher_answer_display($value, $display) {
         if ($this->extraoptions['hideanswer']) {
             return '';
         }
 
         $value = stack_utils::maxima_string_to_php_string($value);
-        $value = $this->strip_string($value);
-        return stack_string('teacheranswershow', array('value' => '<code>' . $value . '</code>', 'display' => $display));
+        return stack_string('teacheranswershow', array('value' => '<code>'.$value.'</code>', 'display' => $display));
     }
 
     /**
      * This is used by the question to get the teacher's correct response.
      * The dropdown type needs to intercept this to filter the correct answers.
-     * @param unknown_type $in
+     *
+     * @param array|string $in
+     * @return array response to submit for this input.
      */
-    public function get_correct_response($in)
-    {
-        $value = stack_utils::logic_nouns_sort($in, 'remove');
-        $value = $this->strip_string($value);
+    public function get_correct_response($in) {
+        $value = $in;
+        if (trim($value) == 'EMPTYANSWER' || $value === null) {
+            $value = '';
+        }
+
         return $this->maxima_to_response_array($value);
     }
 
@@ -122,11 +126,15 @@ class stack_string_input extends stack_algebraic_input
      * it into expected inputs.
      *
      * @param array|string $in
-     * @return string
+     * @return array how response $in is submitted.
      */
-    public function maxima_to_response_array($in)
-    {
-        $response[$this->name] = $this->strip_string($in);
+    public function maxima_to_response_array($in) {
+        if ($in === '') {
+            return [$this->name => ''];
+        }
+
+        $value = stack_utils::maxima_string_to_php_string($in);
+        $response[$this->name] = $value;
         if ($this->requires_validation()) {
             // Do not strip strings from the _val, to enable test inputs to work.
             $response[$this->name . '_val'] = $in;
@@ -141,8 +149,7 @@ class stack_string_input extends stack_algebraic_input
      * @param array|string $in
      * @return string
      */
-    public function contents_to_maxima($contents)
-    {
+    public function contents_to_maxima($contents) {
         if (array_key_exists(0, $contents)) {
             return $this->ensure_string($contents[0]);
         } else {
@@ -150,20 +157,10 @@ class stack_string_input extends stack_algebraic_input
         }
     }
 
-    private function strip_string($ex)
-    {
-        $ex = trim($ex);
-        if (substr($ex, 0, 1) === '"') {
-            $ex = substr($ex, 1, -1);
-        }
-        return $ex;
-    }
-
-    private function ensure_string($ex)
-    {
+    private function ensure_string($ex) {
         $ex = trim($ex);
         if (substr($ex, 0, 1) !== '"') {
-            $ex = '"' . $ex . '"';
+            $ex = '"'.$ex.'"';
         }
         return $ex;
     }

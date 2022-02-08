@@ -25,29 +25,28 @@ require_once(__DIR__ . '/inputbase.class.php');
 // @copyright  2012 University of Birmingham.
 // @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
-class stack_input_factory
-{
+class stack_input_factory {
     /**
      * @var array type name => array of parameter names used. Used to cache the
      *      results of {@link get_parameters_defaults()}.
      */
     protected static $parametersdefaults = null;
 
-    /**
-     * Create an input of a given type and return it.
-     * @param string $type the required type. Must be one of the values retured by
-     *      {@link getAvailableTypes()}.
-     * @param string $name the name of the input. This is the name of the
-     *      POST variable that the input from this element will be submitted as.
-     * @param int $width size of the input.
-     * @param string $default initial contets of the input.
-     * @param int $maxLength limit on the maximum input length.
-     * @param int $height height of the input.
-     * @param array $param some sort of options.
-     * @return stack_input the requested input.
-     */
-    public static function make($type, $name, $teacheranswer, $options = null, $parameters = null, $runtime = true)
-    {
+	/**
+	 * Create an input of a given type and return it.
+	 * @param string $type the required type. Must be one of the values retured by
+	 *      {@link getAvailableTypes()}.
+	 * @param string $name the name of the input. This is the name of the
+	 *      POST variable that the input from this element will be submitted as.
+	 * @param int $width size of the input.
+	 * @param string $default initial contets of the input.
+	 * @param int $maxLength limit on the maximum input length.
+	 * @param int $height height of the input.
+	 * @param array $param some sort of options.
+	 * @return stack_input the requested input.
+	 * @throws stack_exception
+	 */
+    public static function make($type, $name, $teacheranswer, $options = null, $parameters = null, $runtime = true) {
         $class = self::class_for_type($type);
         return new $class($name, $teacheranswer, $options, $parameters, $runtime);
     }
@@ -57,8 +56,11 @@ class stack_input_factory
      * @param string $type input type name.
      * @return string corresponding class name.
      */
-    protected static function class_for_type($type)
-    {
+    protected static function class_for_type($type) {
+        static $cache = [];
+        if (isset($cache[$type])) {
+            return $cache[$type];
+        }
         $typelc = strtolower($type);
         $file = __DIR__ . "/{$typelc}/{$typelc}.class.php";
         $class = "stack_{$typelc}_input";
@@ -70,21 +72,21 @@ class stack_input_factory
 
         if (!class_exists($class)) {
             throw new stack_exception('stack_input_factory: input type ' . $type .
-                ' does not define the expected class ' . $class);
+                    ' does not define the expected class ' . $class);
         }
+        $cache[$type] = $class;
         return $class;
     }
-
-    //fau: #28 Refactoring of this method which uses several moodle methods
 
     /**
      * @return array of available type names.
      */
-    public static function get_available_types()
-    {
-        /*
+    public static function get_available_types() {
         $ignored = array('CVS', '_vti_cnf', 'tests', 'yui', 'phpunit');
-        $types = array();
+        static $types = null;
+        if ($types !== null) {
+            return $types;
+        }
 
         $types = array();
         foreach (new DirectoryIterator(__DIR__) as $item) {
@@ -99,9 +101,11 @@ class stack_input_factory
                 continue;
             }
 
+            // fau: Moodle  method clean param not used
             // Skip folders with dubious names.
-            $inputname = clean_param($foldername, PARAM_PLUGIN);
-            if (empty($inputname) || $inputname != $foldername) {
+            //$inputname = clean_param($foldername, PARAM_PLUGIN);
+			$inputname = $foldername;
+			if (empty($inputname) || $inputname != $foldername) {
                 continue;
             }
 
@@ -122,18 +126,13 @@ class stack_input_factory
             $types[$inputname] = $class;
         }
 
-        return $types;*/
-        require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
-        return assStackQuestionUtils::_getAvailableTypes();
-
-        //fau.
+        return $types;
     }
 
     /**
      * @return array input type internal name => display name.
      */
-    public static function get_available_type_choices()
-    {
+    public static function get_available_type_choices() {
         $types = self::get_available_types();
         $choices = array();
         foreach ($types as $type => $notused) {
@@ -148,8 +147,7 @@ class stack_input_factory
      * use in authoring interface.
      * @return array $typename => array of names of options used.
      */
-    public static function get_parameters_used()
-    {
+    public static function get_parameters_used() {
 
         $used = array();
         foreach (self::get_parameters_defaults() as $type => $defaults) {
@@ -164,27 +162,26 @@ class stack_input_factory
      * use in authoring interface, with the fromform mapping.
      * @return array $typename => array of names of options used.
      */
-    public static function get_parameters_fromform_mapping($type)
-    {
+    public static function get_parameters_fromform_mapping($type) {
         $parametermapping = array(
-            'sameType' => 'checkanswertype',
-            'mustVerify' => 'mustverify',
-            'showValidation' => 'showvalidation',
-            'boxWidth' => 'boxsize',
-            'strictSyntax' => 'strictsyntax',
-            'syntaxAttribute' => 'syntaxattribute',
-            'insertStars' => 'insertstars',
-            'syntaxHint' => 'syntaxhint',
-            'forbidWords' => 'forbidwords',
-            'allowWords' => 'allowwords',
-            'forbidFloats' => 'forbidfloat',
-            'lowestTerms' => 'requirelowestterms',
-            'options' => 'options');
+            'sameType'           => 'checkanswertype',
+            'mustVerify'         => 'mustverify',
+            'showValidation'     => 'showvalidation',
+            'boxWidth'           => 'boxsize',
+            'strictSyntax'       => 'strictsyntax',
+            'syntaxAttribute'    => 'syntaxattribute',
+            'insertStars'        => 'insertstars',
+            'syntaxHint'         => 'syntaxhint',
+            'forbidWords'        => 'forbidwords',
+            'allowWords'         => 'allowwords',
+            'forbidFloats'       => 'forbidfloat',
+            'lowestTerms'        => 'requirelowestterms',
+            'options'            => 'options');
 
         $used = self::get_parameters_defaults();
         $mapping = array();
         foreach ($used[$type] as $param => $defaults) {
-            $mapping[$param] = $parametermapping[$param];
+                $mapping[$param] = $parametermapping[$param];
         }
         return $mapping;
     }
@@ -194,8 +191,7 @@ class stack_input_factory
      * for use in authoring interface.
      * @return array $typename => array of option names => default.
      */
-    public static function get_parameters_defaults()
-    {
+    public static function get_parameters_defaults() {
         if (!is_null(self::$parametersdefaults)) {
             return self::$parametersdefaults;
         }
@@ -209,13 +205,33 @@ class stack_input_factory
     /**
      * Convert a raw value as received from a fromform value into a correct datatype.
      */
-    public static function convert_parameter_fromform($key, $value)
-    {
+    public static function convert_parameter_fromform($key, $value) {
         $booleanparamaters = array('strictSyntax' => true, 'mustVerify' => true, 'sameType' => true,
             'forbidFloats' => true, 'lowestTerms' => true);
         if (array_key_exists($key, $booleanparamaters)) {
-            $value = (bool)$value;
+            $value = (bool) $value;
         }
         return $value;
+    }
+
+    /**
+     * Convert the old value of "insert stars" (version<
+     */
+    public static function convert_legacy_insert_stars($value) {
+        $map = [
+            // Don't insert stars.
+            0 => 0,
+            // Insert stars for implied multiplication only.
+            1 => stack_input::GRAMMAR_FIX_INSERT_STARS,
+            // Insert stars assuming single-character variable names.
+            2 => stack_input::GRAMMAR_FIX_INSERT_STARS | stack_input::GRAMMAR_FIX_SINGLE_CHAR,
+            // Insert stars for spaces only.
+            3 => stack_input::GRAMMAR_FIX_SPACES,
+            // Insert stars for implied multiplication and for spaces.
+            4 => stack_input::GRAMMAR_FIX_INSERT_STARS | stack_input::GRAMMAR_FIX_SPACES,
+            // Insert stars assuming single-character variables, implied and for spaces.
+            5 => stack_input::GRAMMAR_FIX_INSERT_STARS | stack_input::GRAMMAR_FIX_SINGLE_CHAR | stack_input::GRAMMAR_FIX_SPACES
+        ];
+        return $map[$value];
     }
 }

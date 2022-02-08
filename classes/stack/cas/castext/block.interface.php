@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - https://stack.maths.ed.ac.uk
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,21 +28,16 @@ defined('MOODLE_INTERNAL') || die();
 
 defined('MOODLE_INTERNAL') || die();
 
-abstract class stack_cas_castext_block
-{
+abstract class stack_cas_castext_block {
 
     // Nodes here are like DOM-nodes but not quite. The type is stack_cas_castext_parsetreenode, we use these nodes instead of
     // arrays so that the references are simpler to handle.
     private $node;
     private $session;
     protected $seed;
-    protected $security;
-    protected $syntax;
-    protected $insertstars;
 
     // Returns the node this block is supposed to act on.
-    public function &get_node()
-    {
+    public function get_node() {
         return $this->node;
     }
 
@@ -50,28 +45,12 @@ abstract class stack_cas_castext_block
     /**
      * The functions here are listed in the order they will be called from the castext-processor.
      */
-    public function __construct(&$node, &$session = null, $seed = null, $security = 's', $syntax = true, $insertstars = 0)
-    {
+    public function __construct($node, $session=null, $seed=null) {
         $this->node = $node;
 
-        if (!('s' === $security || 't' === $security)) {
-            throw new stack_exception('stack_cas_castext_block: security level, must be "s" or "t" only.  Got the following: ' . $security);
-        }
-
-        if (!is_bool($syntax)) {
-            throw new stack_exception('stack_cas_castext_block: syntax, must be Boolean.');
-        }
-
-        if (!is_int($insertstars)) {
-            throw new stack_exception('stack_cas_castext_block: insertstars, must be an integer.');
-        }
-
         // These are for creating a new castext-parser if need be.
-        $this->session = &$session;
-        $this->seed = $seed;
-        $this->security = $security;
-        $this->syntax = $syntax;
-        $this->insertstars = $insertstars;
+        $this->session     = &$session;
+        $this->seed        = $seed;
     }
 
     /**
@@ -81,7 +60,7 @@ abstract class stack_cas_castext_block
      * Meant for extracting CAS-commands that have not been encased in "raw"- or "latex"-blocks. As well
      * as things not present in code.
      */
-    abstract public function extract_attributes(&$tobeevaluatedcassession, $conditionstack = null);
+    abstract public function extract_attributes($tobeevaluatedcassession, $conditionstack = null);
 
     /**
      * Returns false if the contents of this block should not be processed by the castext-processor
@@ -103,8 +82,7 @@ abstract class stack_cas_castext_block
      * Called for the last set of blocks in the evaluation process so that they may clear out anything they
      * Have left in the tree for multiple pass processing. This is specially meant for the define block.
      */
-    public function clear()
-    {
+    public function clear() {
         // Does nothing in most cases.
     }
 
@@ -118,12 +96,11 @@ abstract class stack_cas_castext_block
      * Handles basic validation of the casstrings feel free to extend to include block attribute related
      * validations e.g. comments on mandatory attributes.
      */
-    public function validate(&$errors = array())
-    {
+    public function validate(&$errors=array()) {
         $valid = true;
         $first = true;
         foreach ($this->validate_extract_attributes() as $casstring) {
-            $v = $casstring->get_valid($this->security, $this->syntax, $this->insertstars);
+            $v = $casstring->get_valid();
             if (!$v) {
                 if ($first) {
                     $first = false;

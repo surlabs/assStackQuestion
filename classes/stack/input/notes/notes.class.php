@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk/
+// This file is part of Stack - https://stack.maths.ed.ac.uk
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,12 +25,14 @@ require_once(__DIR__ . '/../../utils.class.php');
  * @copyright  2017 University of Edinburgh
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_notes_input extends stack_input
-{
+class stack_notes_input extends stack_input {
 
-    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue)
-    {
+    protected $extraoptions = array(
+        'hideanswer' => false,
+        'manualgraded' => false,
+    );
 
+    public function render(stack_input_state $state, $fieldname, $readonly, $tavalue) {
         if ($this->errors) {
             return $this->render_error($this->errors);
         }
@@ -39,7 +41,7 @@ class stack_notes_input extends stack_input
         // used as minimums. If the current input is bigger, the box is expanded.
         $attributes = array(
             'name' => $fieldname,
-            'id' => $fieldname,
+            'id'   => $fieldname,
         );
 
         if ($this->is_blank_response($state->contents)) {
@@ -66,14 +68,6 @@ class stack_notes_input extends stack_input
             html_writer::tag('div', "", array('class' => 'clearfix'));
     }
 
-    /*
-     * The notes class is ignored by Maxima and hence is never validated.
-     */
-    public function requires_validation()
-    {
-        return false;
-    }
-
     /**
      * This is the basic validation of the student's "answer".
      * This method is only called if the input is not blank.
@@ -83,18 +77,17 @@ class stack_notes_input extends stack_input
      * @param array $contents the content array of the student's input.
      * @return array of the validity, errors strings and modified contents.
      */
-    protected function validate_contents($contents, $forbiddenkeys, $localoptions)
-    {
-        $errors = null;
+    protected function validate_contents($contents, $basesecurity, $localoptions) {
+        $errors   = null;
+        $notes    = array();
         $caslines = array();
-        $valid = true;
-        $modifiedcontents[] = '';
+        $valid    = true;
+        $answer   = stack_ast_container::make_from_student_source('', '', $basesecurity);;
 
-        return array($valid, $errors, $modifiedcontents, $caslines);
+        return array($valid, $errors, $notes, $answer, $caslines);
     }
 
-    public function add_to_moodleform_testinput(MoodleQuickForm $mform)
-    {
+    public function add_to_moodleform_testinput(MoodleQuickForm $mform) {
         $mform->addElement('text', $this->name, $this->name, array('size' => $this->parameters['boxWidth']));
         $mform->setDefault($this->name, $this->parameters['syntaxHint']);
         $mform->setType($this->name, PARAM_RAW);
@@ -107,8 +100,7 @@ class stack_notes_input extends stack_input
      * @param array|string $in
      * @return string
      */
-    public function contents_to_maxima($contents)
-    {
+    public function contents_to_maxima($contents) {
         return 'true';
     }
 
@@ -117,29 +109,29 @@ class stack_notes_input extends stack_input
      * base class implementation, no default options are set.
      * @return array option => default value.
      */
-    public static function get_parameters_defaults()
-    {
+    public static function get_parameters_defaults() {
         return array(
-            'mustVerify' => false,
-            'boxWidth' => 50,
-            'strictSyntax' => false,
-            'insertStars' => 0,
-            'syntaxHint' => '',
-            'forbidWords' => '',
-            'allowWords' => '',
-            'forbidFloats' => true,
-            'lowestTerms' => true,
-            'sameType' => true);
+            'mustVerify'     => false,
+            'showValidation' => 1,
+            'boxWidth'       => 50,
+            'insertStars'    => 0,
+            'syntaxHint'     => '',
+            'forbidWords'    => '',
+            'allowWords'     => '',
+            'forbidFloats'   => true,
+            'lowestTerms'    => true,
+            'sameType'       => true,
+            'options'        => '',
+        );
     }
 
     /**
      * Each actual extension of this base class must decide what parameter values are valid.
      * @return array of parameters names.
      */
-    public function internal_validate_parameter($parameter, $value)
-    {
+    public function internal_validate_parameter($parameter, $value) {
         $valid = true;
-        switch ($parameter) {
+        switch($parameter) {
             case 'boxWidth':
                 $valid = is_int($value) && $value > 0;
                 break;
@@ -156,8 +148,7 @@ class stack_notes_input extends stack_input
      * this input as part of a correct response to the question.
      * For the notes class this is always the boolean "true".
      */
-    public function get_teacher_answer()
-    {
+    public function get_teacher_answer() {
         return 'true';
     }
 
@@ -165,8 +156,10 @@ class stack_notes_input extends stack_input
      * For the notes class, there is no teacher's answer.
      * @return string the teacher's answer, displayed to the student in the general feedback.
      */
-    public function get_teacher_answer_display($value, $display)
-    {
+    public function get_teacher_answer_display($value, $display) {
+        if ($this->extraoptions['hideanswer']) {
+            return '';
+        }
         return stack_string('teacheranswershownotes');
     }
 
@@ -176,13 +169,34 @@ class stack_notes_input extends stack_input
      * @param string $fieldname the field name to use in the HTML for this input.
      * @return string HTML for the validation results for this input.
      */
-    public function render_validation(stack_input_state $state, $fieldname)
-    {
+    public function render_validation(stack_input_state $state, $fieldname) {
+
         if (self::BLANK == $state->status) {
             return '';
         }
+        if ($this->get_extra_option('allowempty') && $this->is_blank_response($state->contents)) {
+            return '';
+        }
+        if ($this->get_parameter('showValidation', 1) == 0) {
+            return '';
+        }
 
-        return html_writer::tag('p', stack_string('studentValidation_notes'));
+        $contents = $state->contents;
+        $render = '';
+        if (array_key_exists(0, $contents)) {
+            $render .= html_writer::tag('p', $contents[0]);
+        }
+        $render .= html_writer::tag('p', stack_string('studentValidation_notes'), array('class' => 'stackinputnotice'));
+        return format_text(stack_maths::process_display_castext($render));
+    }
+
+    public function summarise_response($name, $state, $response) {
+        // Output the value for reporting.
+        $val = '';
+        if (array_key_exists($name, $response)) {
+            $val = '"' . addslashes($response[$name]) . '"';
+        }
+        return $name . ': ' . $val . ' [' . $state->status . ']';
     }
 
 }

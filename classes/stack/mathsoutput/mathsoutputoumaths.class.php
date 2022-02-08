@@ -17,9 +17,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-//fau: #40 Do not use filterlib from Moodle
-//require_once($CFG->libdir . '/filterlib.php');
-//fau.
+require_once($CFG->libdir . '/filterlib.php');
 require_once(__DIR__ . '/mathsoutputfilterbase.class.php');
 
 
@@ -29,28 +27,24 @@ require_once(__DIR__ . '/mathsoutputfilterbase.class.php');
  * @copyright  2012 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_maths_output_oumaths extends stack_maths_output_filter_base
-{
+class stack_maths_output_oumaths extends stack_maths_output_filter_base {
 
     /**
      * @return boolean is the OU maths filter installed?
      */
-    public static function filter_is_installed()
-    {
+    public static function filter_is_installed() {
         global $CFG;
         return file_exists($CFG->dirroot . '/filter/maths/filter.php');
     }
 
-    protected function initialise_delimiters()
-    {
+    protected function initialise_delimiters() {
         $this->displaystart = '&lt;tex mode="display"&gt;';
         $this->displayend = '&lt;/tex&gt;';
         $this->inlinestart = '&lt;tex mode="inline"&gt;';
         $this->inlineend = '&lt;/tex&gt;';
     }
 
-    protected function make_filter()
-    {
+    protected function make_filter() {
         global $CFG;
 
         if (!self::filter_is_installed()) {

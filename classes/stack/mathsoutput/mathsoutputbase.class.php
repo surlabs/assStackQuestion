@@ -26,15 +26,13 @@ require_once(dirname(__FILE__) . '/fact_sheets.class.php');
  * @copyright  2012 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class stack_maths_output
-{
+abstract class stack_maths_output {
     /**
      * Do the necessary processing on equations in a language string, before it is output.
      * @param string $string the language string, as loaded by get_string.
      * @return string the string, with equations rendered to HTML.
      */
-    public function process_lang_string($string)
-    {
+    public function process_lang_string($string) {
         return $string;
     }
 
@@ -44,8 +42,7 @@ abstract class stack_maths_output
      * @param string $docs content of the documentation file.
      * @return string the documentation content ready to pass to Markdown.
      */
-    public function pre_process_docs_page($docs)
-    {
+    public function pre_process_docs_page($docs) {
         // Double all the \ characters, since Markdown uses it as an escape char,
         // but we use it for maths.
         $docs = str_replace('\\', '\\\\', $docs);
@@ -53,9 +50,9 @@ abstract class stack_maths_output
         // Re-double \ characters inside text areas, because we don't want maths
         // renderered there.
         return preg_replace_callback('~(<textarea[^>]*>)(.*?)(</textarea>)~s',
-            function ($match) {
-                return $match[1] . str_replace('\\', '\\\\', $match[2]) . $match[3];
-            }, $docs);
+                function ($match) {
+                    return $match[1] . str_replace('\\', '\\\\', $match[2]) . $match[3];
+                }, $docs);
         $docs = str_replace('\\', '\\\\', $docs);
 
         return $docs;
@@ -67,13 +64,12 @@ abstract class stack_maths_output
      * @param string $html rendered version of the documentation page.
      * @return string rendered version of the documentation page with equations inserted.
      */
-    public function post_process_docs_page($html)
-    {
+    public function post_process_docs_page($html) {
         // Now, undo the doubling of the \\ characters inside <code> and <textarea> regions.
         return preg_replace_callback('~(<code>|<textarea[^>]*>)(.*?)(</code>|</textarea>)~s',
-            function ($match) {
-                return $match[1] . str_replace('\\\\', '\\', $match[2]) . $match[3];
-            }, $html);
+                function ($match) {
+                    return $match[1] . str_replace('\\\\', '\\', $match[2]) . $match[3];
+                }, $html);
 
         return $html;
     }
@@ -86,18 +82,17 @@ abstract class stack_maths_output
      * @param qtype_stack_renderer $renderer (options) the STACK renderer, if you have one.
      * @return string the content ready to pass to format_text.
      */
-    public function process_display_castext($text, $replacedollars, qtype_stack_renderer $renderer = null)
-    {
+    public function process_display_castext($text, $replacedollars, qtype_stack_renderer $renderer = null) {
         if ($replacedollars) {
             $text = $this->replace_dollars($text);
         }
 
-        //fau: #35 Use ILIAS plotting system instead of Moodle
-        global $CFG;
-        $text = str_replace('!ploturl!', $CFG->dataurl . '/stack/plots/', $text);
-        //fau.
+		//fau: #35 Use ILIAS plotting system instead of Moodle
+		global $CFG;
+		$text = str_replace('!ploturl!', $CFG->dataurl . '/stack/plots/', $text);
+		//fau.
 
-        $text = stack_fact_sheets::display($text, $renderer);
+		$text = stack_fact_sheets::display($text, $renderer);
 
         return $text;
     }
@@ -109,51 +104,49 @@ abstract class stack_maths_output
      * @param bool $markup surround the change with <ins></ins> tags.
      * @return string the text with delimiters replaced.
      */
-    public function replace_dollars($text, $markup = false)
-    {
-        //fau: #36 Use platform inline delimiters instead of default \(...\)
-        $old_text = $text;
-        $mathJaxSetting = new ilSetting("MathJax");
-        switch ((int)$mathJaxSetting->setting['limiter']) {
-            case 0:
-                /*\(...\)*/
-                $start = '\(';
-                $end = '\)';
-                break;
-            case 1:
-                /*[tex]...[/tex]*/
-                $start = '[tex]';
-                $end = '[/tex]';
-                break;
-            case 2:
-                /*&lt;span class="math"&gt;...&lt;/span&gt;*/
-                $start = '&lt;span class="math"&gt;';
-                $end = '&lt;/span&gt;';
-                break;
-            default:
-                /*\(...\)*/
-                $start = '\(';
-                $end = '\)';
-                break;
-        }
+    public function replace_dollars($text, $markup = false) {
+		//fau: #36 Use platform inline delimiters instead of default \(...\)
+		$old_text = $text;
+		$mathJaxSetting = new ilSetting("MathJax");
+		switch ((int)$mathJaxSetting->setting['limiter']) {
+			case 0:
+				/*\(...\)*/
+				$start = '\(';
+				$end = '\)';
+				break;
+			case 1:
+				/*[tex]...[/tex]*/
+				$start = '[tex]';
+				$end = '[/tex]';
+				break;
+			case 2:
+				/*&lt;span class="math"&gt;...&lt;/span&gt;*/
+				$start = '&lt;span class="math"&gt;';
+				$end = '&lt;/span&gt;';
+				break;
+			default:
+				/*\(...\)*/
+				$start = '\(';
+				$end = '\)';
+				break;
+		}
 
-        if ($markup) {
-            $displaystart = '<ins>\[</ins>';
-            $displayend = '<ins>\]</ins>';
-            $inlinestart = '<ins>' . $start . '</ins>';
-            $inlineend = '<ins>' . $end . '</ins>';
-            $v4start = '<ins>{@</ins>';
-            $v4end = '<ins>@}</ins>';
-        } else {
-            $displaystart = '\[';
-            $displayend = '\]';
-            $inlinestart = '\(';
-            $inlineend = '\)';
-            $v4start = '{@';
-            $v4end = '@}';
-        }
-        //fau.
-
+		if ($markup) {
+			$displaystart = '<ins>\[</ins>';
+			$displayend = '<ins>\]</ins>';
+			$inlinestart = '<ins>' . $start . '</ins>';
+			$inlineend = '<ins>' . $end . '</ins>';
+			$v4start = '<ins>{@</ins>';
+			$v4end = '<ins>@}</ins>';
+		} else {
+			$displaystart = '\[';
+			$displayend = '\]';
+			$inlinestart = '\(';
+			$inlineend = '\)';
+			$v4start = '{@';
+			$v4end = '@}';
+		}
+		//fau.
         $text = preg_replace('~(?<!\\\\)\$\$(.*?)(?<!\\\\)\$\$~', $displaystart . '$1' . $displayend, $text);
         $text = preg_replace('~(?<!\\\\)\$(.*?)(?<!\\\\)\$~', $inlinestart . '$1' . $inlineend, $text);
 
@@ -179,20 +172,20 @@ abstract class stack_maths_output
             $i = $pos + strlen($v4start);
         }
 
-        //fau: #37 Use ILIAS Insert LaTeX images and add alert if text has been changed
-        if ($old_text != $text) {
-            global $DIC;
-            $lng = $DIC->language();
-            ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_update_to_version_3_2"), TRUE);
+		//fau: #37 Use ILIAS Insert LaTeX images and add alert if text has been changed
+		if ($old_text != $text) {
+			global $DIC;
+			$lng = $DIC->language();
+			ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_update_to_version_3_2"), TRUE);
 
-        }
-        include_once './Services/MathJax/classes/class.ilMathJax.php';
-        //ilMathJax::getInstance()->insertLatexImages cannot render \( delimiters so we change it to [tex]
-        if ($start == '\(') {
-            return ilMathJax::getInstance()->insertLatexImages($text);
-        } else {
-            return ilMathJax::getInstance()->insertLatexImages($text, $start, $end);
-        }
-        //fau.
+		}
+		include_once './Services/MathJax/classes/class.ilMathJax.php';
+		//ilMathJax::getInstance()->insertLatexImages cannot render \( delimiters so we change it to [tex]
+		if ($start == '\(') {
+			return ilMathJax::getInstance()->insertLatexImages($text);
+		} else {
+			return ilMathJax::getInstance()->insertLatexImages($text, $start, $end);
+		}
+		//fau.
     }
 }

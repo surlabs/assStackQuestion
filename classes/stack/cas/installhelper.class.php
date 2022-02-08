@@ -20,16 +20,14 @@ defined('MOODLE_INTERNAL') || die();
 //fau: #8 Include the Initializaion class
 require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
 //fau.
-
 require_once(__DIR__ . '/../../locallib.php');
 require_once(__DIR__ . '/../utils.class.php');
-require_once(__DIR__ . '/casstring.units.class.php');
+require_once(__DIR__ . '/ast.container.class.php');
 require_once(__DIR__ . '/connectorhelper.class.php');
-require_once(__DIR__ . '/cassession.class.php');
+require_once(__DIR__ . '/cassession2.class.php');
 
 
-class stack_cas_configuration
-{
+class stack_cas_configuration {
     protected static $instance = null;
 
     /** @var array This variable controls which optional packages are supported by STACK. */
@@ -51,23 +49,23 @@ class stack_cas_configuration
     /**
      * Constructor, initialises all the settings.
      */
-    public function __construct()
-    {
+    public function __construct() {
         global $CFG;
         $this->settings = get_config('qtype_stack');
         $this->date = date("F j, Y, g:i a");
 
-        //fau: #9 fix for #22797 - omit the moodle specific sub path
-        $this->maximacodepath = stack_utils::convert_slash_paths($CFG->dirroot . '/classes/stack/maxima');
-        //fau.
+		//fau: #9 fix for #22797 - omit the moodle specific sub path
+		$this->maximacodepath = stack_utils::convert_slash_paths($CFG->dirroot . '/classes/stack/maxima');
+		//fau.
+
         $this->logpath = stack_utils::convert_slash_paths($CFG->dataroot . '/stack/logs');
 
-        $this->vnum = (float)substr($this->settings->maximaversion, 2);
+        $this->vnum = (float) substr($this->settings->maximaversion, 2);
 
         $this->blocksettings = array();
         $this->blocksettings['MAXIMA_PLATFORM'] = $this->settings->platform;
         $this->blocksettings['maxima_tempdir'] = stack_utils::convert_slash_paths($CFG->dataroot . '/stack/tmp/');
-        $this->blocksettings['IMAGE_DIR'] = stack_utils::convert_slash_paths($CFG->dataroot . '/stack/plots/');
+        $this->blocksettings['IMAGE_DIR']     = stack_utils::convert_slash_paths($CFG->dataroot . '/stack/plots/');
 
         $this->blocksettings['PLOT_SIZE'] = '[450,300]';
         // These are used by the GNUplot "set terminal" command. Currently no user interface...
@@ -78,10 +76,10 @@ class stack_cas_configuration
         $this->blocksettings['PLOT_TERM_OPT'] = 'dynamic font \",11\" linewidth 1.2';
 
         if ($this->settings->platform === 'win') {
-            $this->blocksettings['DEL_CMD'] = 'del';
+            $this->blocksettings['DEL_CMD']     = 'del';
             $this->blocksettings['GNUPLOT_CMD'] = $this->get_plotcommand_win();
         } else {
-            $this->blocksettings['DEL_CMD'] = 'rm';
+            $this->blocksettings['DEL_CMD']     = 'rm';
             if ((trim($this->settings->plotcommand)) != '') {
                 $this->blocksettings['GNUPLOT_CMD'] = $this->settings->plotcommand;
             } else if (is_readable('/Applications/Gnuplot.app/Contents/Resources/bin/gnuplot')) {
@@ -94,15 +92,15 @@ class stack_cas_configuration
         if ($this->settings->platform === 'win') {
             foreach ($this->blocksettings as $var => $val) {
                 if ($var != 'PLOT_TERM_OPT') {
-                    $this->blocksettings[$var] = addslashes(str_replace('/', '\\', $val));
+                    $this->blocksettings[$var] = addslashes(str_replace( '/', '\\', $val));
                 }
             }
         }
 
         $this->blocksettings['MAXIMA_VERSION_EXPECTED'] = $this->settings->maximaversion;
-        $this->blocksettings['URL_BASE'] = '!ploturl!';
+        $this->blocksettings['URL_BASE']       = '!ploturl!';
         if ($this->settings->platform === 'win') {
-            $this->blocksettings['URL_BASE'] = '!ploturl!/';
+            $this->blocksettings['URL_BASE']       = '!ploturl!/';
         }
     }
 
@@ -110,8 +108,7 @@ class stack_cas_configuration
      * Try to guess the gnuplot command on Windows.
      * @return string the command.
      */
-    public function get_plotcommand_win()
-    {
+    public function get_plotcommand_win() {
         global $CFG;
         if ($this->settings->plotcommand && $this->settings->plotcommand != 'gnuplot') {
             return $this->settings->plotcommand;
@@ -121,9 +118,9 @@ class stack_cas_configuration
         $maximalocation = $this->maxima_win_location();
 
         $plotcommands = array();
-        $plotcommands[] = $maximalocation . 'gnuplot/wgnuplot.exe';
-        $plotcommands[] = $maximalocation . 'bin/wgnuplot.exe';
-        $plotcommands[] = $maximalocation . 'gnuplot/bin/wgnuplot.exe';
+        $plotcommands[] = $maximalocation. 'gnuplot/wgnuplot.exe';
+        $plotcommands[] = $maximalocation. 'bin/wgnuplot.exe';
+        $plotcommands[] = $maximalocation. 'gnuplot/bin/wgnuplot.exe';
 
         // I'm really now totally and finally fed up with dealing with spaces in MS filenames.
         $newplotlocation = stack_utils::convert_slash_paths($CFG->dataroot . '/stack/wgnuplot.exe');
@@ -132,8 +129,8 @@ class stack_cas_configuration
                 if (substr_count($plotcommand, ' ') === 0) {
                     $newplotlocation = stack_utils::convert_slash_paths($CFG->dataroot . '/stack/wgnuplot.bat');
                     if (!file_put_contents($newplotlocation, $this->maxima_win_location() .
-                        "gnuplot/bin/wgnuplot.exe %1 %2 %3 %3 %5 %6 %7 \n\n")) {
-                        throw new stack_exception('Failed to write wgnuplot batch file to:' . $newplotlocation);
+                            "gnuplot/bin/wgnuplot.exe %1 %2 %3 %3 %5 %6 %7 \n\n")) {
+                        throw new stack_exception('Failed to write wgnuplot batch file to:'. $newplotlocation);
                     }
                 } else {
                     copy($plotcommand, $newplotlocation);
@@ -144,8 +141,7 @@ class stack_cas_configuration
         throw new stack_exception('Could not locate GNUPlot.');
     }
 
-    public function maxima_win_location()
-    {
+    public function maxima_win_location() {
         if ($this->settings->platform != 'win') {
             return '';
         }
@@ -178,17 +174,16 @@ class stack_cas_configuration
         $locations[] = 'C:/Program Files (x86)/Maxima/';
 
         foreach ($locations as $location) {
-            if (file_exists($location . 'bin/maxima.bat')) {
+            if (file_exists($location.'bin/maxima.bat')) {
                 return $location;
             }
         }
 
         throw new stack_exception('Could not locate the directory into which Maxima is installed. Tried the following:' .
-            implode(', ', $locations));
+                implode(', ', $locations));
     }
 
-    public function copy_maxima_bat()
-    {
+    public function copy_maxima_bat() {
         global $CFG;
 
         if ($this->settings->platform != 'win') {
@@ -198,7 +193,7 @@ class stack_cas_configuration
         $batchfilename = $this->maxima_win_location() . 'bin/maxima.bat';
         if (substr_count($batchfilename, ' ') === 0) {
             $batchfilecontents = "rem Auto-generated Maxima batch file.  \n\n";
-            $batchfilecontents .= $batchfilename . "\n\n";
+            $batchfilecontents .= $batchfilename."\n\n";
             if (!file_put_contents($CFG->dataroot . '/stack/maxima.bat', $batchfilecontents)) {
                 throw new stack_exception('Failed to write Maxima batch file.');
             }
@@ -208,13 +203,12 @@ class stack_cas_configuration
         // If there are spaces within the pathname to the windows batch file we need to copy the batch file.
         if (!copy($batchfilename, $CFG->dataroot . '/stack/maxima.bat')) {
             throw new stack_exception('Could not copy the Maxima batch file ' . $batchfilename .
-                ' to location ' . $CFG->dataroot . '/stack/maxima.bat');
+                    ' to location ' . $CFG->dataroot . '/stack/maxima.bat');
         }
         return true;
     }
 
-    public function maxima_bat_is_ok()
-    {
+    public function maxima_bat_is_ok() {
         global $CFG;
 
         if ($this->settings->platform != 'win') {
@@ -224,8 +218,7 @@ class stack_cas_configuration
         return is_readable($CFG->dataroot . '/stack/maxima.bat');
     }
 
-    public function get_maximalocal_contents()
-    {
+    public function get_maximalocal_contents() {
         $contents = <<<END
 /* ***********************************************************************/
 /* This file is automatically generated at installation time.            */
@@ -265,7 +258,7 @@ END;
 
 END;
 
-        if ($this->settings->platform == 'unix-optimised') {
+        if ($this->settings->platform == 'linux-optimised') {
             $contents .= <<<END
 /* We are using an optimised lisp image with maxima and the stack libraries
    pre-loaded. That is why you don't see the familiar load("stackmaxima.mac")$ here.
@@ -286,13 +279,13 @@ END;
                 $lib = trim($lib);
                 // Only include and load supported libraries.
                 if (in_array($lib, self::$maximalibraries)) {
-                    $contents .= 'load("' . $lib . '")$' . "\n";
+                    $contents .= 'load("'.$lib.'")$'."\n";
                 }
             }
 
         }
 
-        $contents .= 'print(sconcat("[ STACK-Maxima started, library version ", stackmaximaversion, " ]"))$' . "\n";
+        $contents .= 'print(sconcat("[ STACK-Maxima started, library version ", stackmaximaversion, " ]"))$'."\n";
 
         return $contents;
     }
@@ -300,8 +293,7 @@ END;
     /**
      * @return stack_cas_configuration the singleton instance of this class.
      */
-    protected static function get_instance()
-    {
+    protected static function get_instance() {
         if (is_null(self::$instance)) {
             self::$instance = new self();
         }
@@ -312,8 +304,7 @@ END;
      * Get the full path for the maximalocal.mac file.
      * @return string the full path to where the maximalocal.mac file should be stored.
      */
-    public static function maximalocal_location()
-    {
+    public static function maximalocal_location() {
         global $CFG;
         return stack_utils::convert_slash_paths($CFG->dataroot . '/stack/maximalocal.mac');
     }
@@ -322,8 +313,7 @@ END;
      * Get the full path to the folder where plot files are stored.
      * @return string the full path to where the maximalocal.mac file should be stored.
      */
-    public static function images_location()
-    {
+    public static function images_location() {
         global $CFG;
         return stack_utils::convert_slash_paths($CFG->dataroot . '/stack/plots');
     }
@@ -331,34 +321,33 @@ END;
     /**
      * Create the maximalocal.mac file, overwriting it if it already exists.
      */
-    public static function create_maximalocal()
-    {
-        //fau: #10 creation of images directories
-        //make_upload_directory('stack');
-        //make_upload_directory('stack/logs');
-        //make_upload_directory('stack/plots');
-        //make_upload_directory('stack/tmp');
-        global $CFG;
-        if (!is_dir($CFG->dataroot . '/stack')) {
-            mkdir($CFG->dataroot . '/stack', 0700, true);
-            mkdir($CFG->dataroot . '/stack/logs');
-            mkdir($CFG->dataroot . '/stack/plots');
-            mkdir($CFG->dataroot . '/stack/tmp');
-        }
-        //fau.
-		self::get_instance()->copy_maxima_bat();
-
-		if (!file_put_contents(self::maximalocal_location(), self::generate_maximalocal_contents())) {
-			throw new stack_exception('Failed to write Maxima configuration file.');
+    public static function create_maximalocal() {
+		//fau: #10 creation of images directories
+		//make_upload_directory('stack');
+		//make_upload_directory('stack/logs');
+		//make_upload_directory('stack/plots');
+		//make_upload_directory('stack/tmp');
+		global $CFG;
+		if (!is_dir($CFG->dataroot . '/stack')) {
+			mkdir($CFG->dataroot . '/stack', 0700, true);
+			mkdir($CFG->dataroot . '/stack/logs');
+			mkdir($CFG->dataroot . '/stack/plots');
+			mkdir($CFG->dataroot . '/stack/tmp');
 		}
+		//fau.
+
+        self::get_instance()->copy_maxima_bat();
+
+        if (!file_put_contents(self::maximalocal_location(), self::generate_maximalocal_contents())) {
+            throw new stack_exception('Failed to write Maxima configuration file.');
+        }
     }
 
     /**
      * Generate the contents for the maximalocal configuration file.
      * @return string the contents that the maximalocal.mac file should have.
      */
-    public static function generate_maximalocal_contents()
-    {
+    public static function generate_maximalocal_contents() {
         return self::get_instance()->get_maximalocal_contents();
     }
 
@@ -366,8 +355,7 @@ END;
      * Generate the contents for the maximalocal configuration file.
      * @return string the contents that the maximalocal.mac file should have.
      */
-    public static function maxima_bat_is_missing()
-    {
+    public static function maxima_bat_is_missing() {
         return !self::get_instance()->maxima_bat_is_ok();
     }
 
@@ -375,16 +363,14 @@ END;
      * Generate the directoryname
      * @return string the contents that the maximalocal.mac file should have.
      */
-    public static function confirm_maxima_win_location()
-    {
+    public static function confirm_maxima_win_location() {
         return self::get_instance()->maxima_win_location();
     }
 
     /**
      * This function checks the current setting match to the supported packages.
      */
-    protected function get_validate_maximalibraries()
-    {
+    protected function get_validate_maximalibraries() {
 
         $valid = true;
         $message = '';
@@ -399,14 +385,13 @@ END;
                 $message .= stack_string('settingmaximalibraries_error', $a);
             }
         }
-        return (array($valid, $message));
+        return(array($valid, $message));
     }
 
     /**
      * This function checks the current setting match to the supported packages.
      */
-    public static function validate_maximalibraries()
-    {
+    public static function validate_maximalibraries() {
         return self::get_instance()->get_validate_maximalibraries();
     }
 
@@ -414,28 +399,29 @@ END;
      * This function genuinely recreates the maxima image and stores the results in
      * the configuration settings.
      */
-    public static function create_auto_maxima_image()
-    {
+    public static function create_auto_maxima_image() {
         $config = get_config('qtype_stack');
-        // Do not try to generate the optimised image on MS platforms.
+            // Do not try to generate the optimised image on MS platforms.
         if ($config->platform == 'win') {
             $errmsg = "Microsoft Windows version cannot be automatically optimised";
             return array(false, $errmsg);
-        } else if ($config->platform != 'unix' && $config->platform != 'unix-optimised') {
+        } else if ($config->platform != 'linux' && $config->platform != 'linux-optimised') {
             $errmsg = "$config->platform version cannot be automatically optimised";
             return array(false, $errmsg);
         }
 
-        // Revert to the plain unix platform.  This will genuinely call the CAS, and
+        // Revert to the plain Linux platform.  This will genuinely call the CAS, and
         // as a result create a new image.
         $oldplatform = $config->platform;
-        $oldmaximacommand = $config->maximacommand;
-        set_config('platform', 'unix', 'qtype_stack');
-        set_config('maximacommand', '', 'qtype_stack');
-        stack_utils::get_config()->platform = 'unix';
-        stack_utils::get_config()->maximacommand = '';
-        self::get_instance()->settings->platform = 'unix';
-        self::get_instance()->settings->maximacommand = '';
+        set_config('platform', 'linux', 'qtype_stack');
+        if ($oldplatform == 'linux-optimised') {
+            // If we have explicitly set a path, or a --use-version = we should respect it here.
+            set_config('maximacommand', '', 'qtype_stack');
+            self::get_instance()->settings->maximacommand = '';
+            self::get_instance()->settings->platform = 'linux';
+            stack_utils::get_config()->maximacommand = '';
+            stack_utils::get_config()->platform = 'linux';
+        }
 
         // Try to make a new version of the maxima local file.
         self::create_maximalocal();
@@ -456,27 +442,26 @@ END;
 
         } else {
             // Try to auto make the optimised image.
-            list($message, $genuinedebug, $result, $commandline)
-                = stack_connection_helper::stackmaxima_auto_maxima_optimise($genuinedebug);
+            list($message, $genuinedebug, $result, $commandline, $rawcommand)
+                    = stack_connection_helper::stackmaxima_auto_maxima_optimise($genuinedebug);
 
             if (!$result) {
                 $errmsg = "Automake failed: $message\n\n$genuinedebug";
-
             } else {
-                set_config('platform', 'unix-optimised', 'qtype_stack');
-                set_config('maximacommand', $commandline, 'qtype_stack');
-                stack_utils::get_config()->platform = 'unix-optimised';
-                stack_utils::get_config()->maximacommand = $commandline;
-                self::get_instance()->settings->platform = 'unix-optimised';
-                self::get_instance()->settings->maximacommand = $commandline;
+                set_config('platform', 'linux-optimised', 'qtype_stack');
+                set_config('maximacommandopt', $commandline, 'qtype_stack');
+                stack_utils::get_config()->platform = 'linux-optimised';
+                stack_utils::get_config()->maximacommandopt = $commandline;
+                self::get_instance()->settings->platform = 'linux-optimised';
+                self::get_instance()->settings->maximacommandopt = $commandline;
                 // We need to regenerate this file to supress stackmaxima.mac and libraries being reloaded.
                 self::create_maximalocal();
 
                 // Now we need to check this actually works.
-                $cs = new stack_cas_casstring('a:1+1');
-                $ts = new stack_cas_session(array($cs));
+                $cs = stack_ast_container::make_from_teacher_source('a:1+1', '', new stack_cas_security());
+                $ts = new stack_cas_session2(array($cs));
                 $ts->instantiate();
-                if ($ts->get_value_key('a') != '2') {
+                if ($cs->get_value() != '2') {
                     $errors = $ts->get_errors();
                     $errmsg = "Evaluation test failed, errors: $errors";
                 } else {
@@ -489,15 +474,12 @@ END;
 
         if ($revert) {
             set_config('platform', $oldplatform, 'qtype_stack');
-            set_config('maximacommand', $oldmaximacommand, 'qtype_stack');
             stack_utils::get_config()->platform = $oldplatform;
-            stack_utils::get_config()->maximacommand = $oldmaximacommand;
             self::get_instance()->settings->platform = $oldplatform;
-            self::get_instance()->settings->maximacommand = $oldmaximacommand;
             self::create_maximalocal();
             return array(false, $errmsg);
         } else {
-            return array(true, "DONE.");
+            return array(true, $rawcommand);
         }
     }
 }

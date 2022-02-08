@@ -22,6 +22,7 @@ defined('MOODLE_INTERNAL') || die();
 // @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
 require_once(__DIR__ . '/answertest/controller.class.php');
+require_once(__DIR__ . '/maximaparser/utils.php');
 
 /**
  * A node in a potential response tree.
@@ -37,52 +38,55 @@ class stack_potentialresponse_node
 	 */
 	public $nodeid;
 
-	/*
-	 * @var stack_cas_casstring Hold's nominal "student's answer".
+	/**
+	 * @var stack_ast_container Holds nominal "student's answer".
 	 */
 	public $sans;
 
-	/*
-	 * @var stack_cas_casstring Hold's nominal "teacher's answer".
+	/**
+	 * @var stack_ast_container Holds nominal "teacher's answer".
 	 */
 	public $tans;
 
-	/*
+	/**
 	 * @var string Name of answer test to be used here.
 	 */
 	private $answertest;
 
-	/*
-	 * @var string Options taken by the answer test.
+	/**
+	 * @var array Options taken by the answer test.
 	 */
 	private $atoptions;
 
-	/*
-	* @var boolean Suppress any feedback from the answer test itself?
+	/**
+	 * @var bool Suppress any feedback from the answer test itself?
 	 */
 	private $quiet;
 
-	/*
+	/**
 	 * @var string Private notes/memos about this potential response.
 	 */
 	private $notes;
 
-	/*
+	/**
 	 * @var array Holds the information for each branch.
 	 */
 	private $branches;
 
-	public function __construct($sans, $tans, $answertest, $atoptions = null, $quiet = false, $notes = '', $nodeid = 0)
+	private $raw_sans;
+	private $raw_tans;
+
+	public function __construct($sans, 	$tans, $answertest, $atoptions = null, $quiet = false, $notes = '', $nodeid = 0,string $raw_sans = '',string $raw_tans = '')
 	{
-		if (is_a($sans, 'stack_cas_casstring')) {
+		if (is_a($sans, 'stack_ast_container')) {
 			$this->sans = $sans;
 		} else {
-			throw new stack_exception('stack_potentialresponse_node: sans must be a stack_cas_casstring');
+			throw new stack_exception('stack_potentialresponse_node: sans must be a stack_ast_container');
 		}
-		if (is_a($tans, 'stack_cas_casstring')) {
+		if (is_a($tans, 'stack_ast_container')) {
 			$this->tans = $tans;
 		} else {
-			throw new stack_exception('stack_potentialresponse_node: tans must be a stack_cas_casstring');
+			throw new stack_exception('stack_potentialresponse_node: tans must be a stack_ast_container');
 		}
 		$this->answertest = $answertest;
 		if (!is_bool($quiet)) {
@@ -94,7 +98,7 @@ class stack_potentialresponse_node
 		/*
 		 * For some tests there is an option assume_pos. This will be evaluated by maxima (since this is also the name
 		 * of a maxima variable).  So, we need to protect the name from being evaluated.
-		*/
+		 */
 		$op = $atoptions;
 		$reps = array('assume_pos' => 'assumepos', 'assume_real' => 'assumereal');
 		foreach ($reps as $key => $val) {
@@ -106,6 +110,9 @@ class stack_potentialresponse_node
 		$this->nodeid = $nodeid;
 
 		$this->branches = array();
+
+		$this->raw_sans = $raw_sans;
+		$this->raw_tans = $raw_tans;
 	}
 
 	/**
@@ -117,6 +124,7 @@ class stack_potentialresponse_node
 	 * @param float $penalty penalty for this branch.
 	 * @param int $nextnode index of the node to process next on this branch.
 	 * @param string $feedback feedback for this branch.
+	 * @param int $feedbackformat one of Moodle's FORMAT_... constants.
 	 * @param string $answernote answer note for this branch.
 	 */
 	public function add_branch($trueorfalse, $mod, $score, $penalty, $nextnode, $feedback, $feedbackformat, $answernote)
@@ -138,18 +146,26 @@ class stack_potentialresponse_node
 
 	/**
 	 * Actually execute the test for this node.
+	 *
+	 * @param $nsans
+	 * @param $ntans
+	 * @param $ncasopts
+	 * @param $options
+	 * @param stack_potentialresponse_tree_state $results
+	 * @return int the next node to evaluate (or -1 to stop).
 	 */
-	public function do_test($nsans, $ntans, $ncasopts, $options, stack_potentialresponse_tree_state $results)
+	public function do_test($nsans, $ntans, $ncasopts, $options, $contextsession,
+							stack_potentialresponse_tree_state $results)
 	{
+
 		// If an option is required by the answer test, but not processed by the CAS then take the raw value.
 		if ($this->required_atoptions() && !$this->process_atoptions()) {
 			$ncasopts = $this->atoptions;
 		}
-		$at = new stack_ans_test_controller($this->answertest, $nsans, $ntans, $options, $ncasopts);
+		$at = new stack_ans_test_controller($this->answertest, $nsans, $ntans, $ncasopts, $options, $contextsession);
 		$at->do_test();
 
 		$testpassed = $at->get_at_mark();
-
 		if ($testpassed) {
 			$resultbranch = $this->branches[1];
 			$branchname = 'prtnodetruefeedback';
@@ -205,28 +221,32 @@ class stack_potentialresponse_node
 	 *
 	 * @param stack_potentialresponse_tree_state $results to be updated.
 	 * @param int $key the index of this node.
-	 * @param stack_cas_session $cascontext the CAS context that holds all the relevant variables.
+	 * @param stack_cas_session2 $cascontext the CAS context that holds all the relevant variables.
+	 * @param array $answers
 	 * @param stack_options $options
-	 * @return array with two elements, the updated $results and the index of the next node.
+	 * @param cas_evaluatable[] $cascontext
+	 * @return int the next node to evaluate, or -1 to stop.
 	 */
-	public function traverse($results, $key, $cascontext, $answers, $options) {
+	public function traverse($results, $key, $cascontext, $answers, $options, $contextsession)
+	{
+
 		$errorfree = true;
-		if ($cascontext->get_errors_key('PRSANS' . $key)) {
-			$results->_errors .= $cascontext->get_errors_key('PRSANS' . $key);
-			$results->add_feedback(' '.stack_string('prtruntimeerror',
-					array('node' => 'PRSANS'.($key + 1), 'error' => $cascontext->get_errors_key('PRSANS' . $key))));
+		if ($cascontext->get_by_key('PRSANS' . $key)->get_errors() !== '') {
+			$results->_errors .= $cascontext->get_by_key('PRSANS' . $key)->get_errors();
+			$results->add_feedback(' ' . stack_string('prtruntimeerror',
+					array('node' => 'PRSANS' . ($key + 1), 'error' => $cascontext->get_by_key('PRSANS' . $key)->get_errors())));
 			$errorfree = false;
 		}
-		if ($cascontext->get_errors_key('PRTANS' . $key)) {
-			$results->_errors .= $cascontext->get_errors_key('PRTANS' . $key);
-			$results->add_feedback(' '.stack_string('prtruntimeerror',
-					array('node' => 'PRTANS'.($key + 1), 'error' => $cascontext->get_errors_key('PRTANS' . $key))));
+		if ($cascontext->get_by_key('PRTANS' . $key) !== null && $cascontext->get_by_key('PRTANS' . $key)->get_errors() !== '') {
+			$results->_errors .= $cascontext->get_by_key('PRTANS' . $key)->get_errors();
+			$results->add_feedback(' ' . stack_string('prtruntimeerror',
+					array('node' => 'PRTANS' . ($key + 1), 'error' => $cascontext->get_by_key('PRTANS' . $key)->get_errors())));
 			$errorfree = false;
 		}
-		if ($cascontext->get_errors_key('PRATOPT' . $key)) {
-			$results->_errors .= $cascontext->get_errors_key('PRATOPT' . $key);
-			$results->add_feedback(' '.stack_string('prtruntimeerror',
-					array('node' => 'PRATOPT'.($key + 1), 'error' => $cascontext->get_errors_key('PRATOPT' . $key))));
+		if ($cascontext->get_by_key('PRATOPT' . $key) !== null && $cascontext->get_by_key('PRATOPT' . $key)->get_errors() !== '') {
+			$results->_errors .= $cascontext->get_by_key('PRATOPT' . $key)->get_errors();
+			$results->add_feedback(' ' . stack_string('prtruntimeerror',
+					array('node' => 'PRATOPT' . ($key + 1), 'error' => $cascontext->get_by_key('PRATOPT' . $key)->get_errors())));
 			$errorfree = false;
 		}
 		if (!($errorfree)) {
@@ -235,21 +255,22 @@ class stack_potentialresponse_node
 		// At this point we need to subvert the CAS.  If the sans or tans is *exactly* the name of one of the
 		// inputs, then we should use the casstring (not the rawcasstring).  Running the value through the CAS strips
 		// off trailing zeros, making it effectively impossible to run the numerical sigfigs tests.
-		$sans   = $cascontext->get_value_key('PRSANS' . $key);
-		$tans   = $cascontext->get_value_key('PRTANS' . $key);
+
+		// TODO: refactor this to pass the ast, then we won't need to "subvert the CAS".....
+		$sans = $cascontext->get_by_key('PRSANS' . $key);
+		$tans = $cascontext->get_by_key('PRTANS' . $key);
 		foreach ($answers as $cskey => $val) {
 			// Check whether the raw input to the node exactly matches one of the answer names.
 			$cs = $this->sans;
-			if (trim($cs->get_raw_casstring()) == trim($cskey)) {
-				$sans = $cascontext->get_casstring_key($cskey);
+			if ($cs->get_valid() && trim($cs->get_inputform(true)) == trim($cskey)) {
+				$sans = $cascontext->get_by_key($cskey);
 			}
 			$cs = $this->tans;
-			if (trim($cs->get_raw_casstring()) == trim($cskey)) {
-				$tans = $cascontext->get_casstring_key($cskey);
+			if ($cs->get_valid() && trim($cs->get_inputform(true)) == trim($cskey)) {
+				$tans = $cascontext->get_by_key($cskey);
 			}
-
 		}
-		$atopts = $cascontext->get_value_key('PRATOPT' . $key);
+		$atopts = $cascontext->get_by_key('PRATOPT' . $key);
 		// If we can't find atopts then they were not processed by the CAS.
 		// They might still be some in the potential response which do not
 		// need to be processed.
@@ -257,9 +278,7 @@ class stack_potentialresponse_node
 			$atopts = null;
 		}
 
-		$nextnode = $this->do_test($sans, $tans, $atopts, $options, $results);
-
-		return $nextnode;
+		return $this->do_test($sans, $tans, $atopts, $options, $contextsession, $results);
 	}
 
 	/*
@@ -267,8 +286,7 @@ class stack_potentialresponse_node
 	 */
 	public function process_atoptions()
 	{
-		$at = new stack_ans_test_controller($this->answertest, '', '', null, '');
-		return $at->process_atoptions();
+		return stack_ans_test_controller::process_atoptions($this->answertest);
 	}
 
 	/*
@@ -276,8 +294,7 @@ class stack_potentialresponse_node
 	 */
 	public function required_atoptions()
 	{
-		$at = new stack_ans_test_controller($this->answertest, '', '', null, '');
-		return $at->required_atoptions();
+		return stack_ans_test_controller::required_atoptions($this->answertest);
 	}
 
 	protected function update_score($oldscore, $resultbranch)
@@ -298,50 +315,54 @@ class stack_potentialresponse_node
 		}
 	}
 
-	/**
-	 * @return array of CAS strings. These cas strings include the names of all
-	 * the input variables that are required by this node.
-	 */
-	public function get_required_cas_strings()
+	public function get_variable_usage(array $updatearray = array()): array
 	{
-
 		$ct = new stack_cas_text($this->branches[0]['feedback'] . $this->branches[1]['feedback']);
-		$requiredcasstrings = $ct->get_all_raw_casstrings();
-
-		$requiredcasstrings[] = $this->sans->get_raw_casstring();
-		$requiredcasstrings[] = $this->tans->get_raw_casstring();
+		$updatearray = $ct->get_variable_usage($updatearray);
+		$updatearray = $this->sans->get_variable_usage($updatearray);
+		$updatearray = $this->tans->get_variable_usage($updatearray);
 
 		if ($this->process_atoptions() && trim($this->atoptions) != '') {
-			$requiredcasstrings[] = $this->atoptions;
+			// Eventtually at-options will be an ast_container, not yet though
+			// so if it is not an empty string then it is parseable.
+			$ast = maxima_parser_utils::parse($this->atoptions);
+			$updatearray = maxima_parser_utils::variable_usage_finder($ast, $updatearray);
 		}
 
-		return $requiredcasstrings;
+		return $updatearray;
 	}
 
 	/**
 	 * Get the context variables that this node uses, so that they can be
-	 * pre-evaluated prior to transversing the tree.
+	 * pre-evaluated prior to traversing the tree.
 	 * @param string $key used to make the variable names unique to this node.
-	 * @return array of stack_cas_casstring
+	 * @return array of stack_ast_container
 	 */
 	public function get_context_variables($key)
 	{
 		$variables = array();
 
-		$this->sans->set_key('PRSANS' . $key);
-		$variables[] = $this->sans;
-
-		$this->tans->set_key('PRTANS' . $key);
-		$variables[] = $this->tans;
-
-		if ($this->process_atoptions() && trim($this->atoptions) != '') {
-
-			$atopts = new stack_cas_casstring($this->atoptions);
-			$atopts->get_valid('t', false, 0);
-			$atopts->set_key('PRATOPT' . $key);
-			$variables[] = $atopts;
+		// Do we simplify the expressions in the context variables?
+		$simp = 'false';
+		if (stack_ans_test_controller::simp($this->answertest)) {
+			$simp = 'true';
 		}
+		$sf = stack_ast_container::make_from_teacher_source('simp:' . $simp, '', new stack_cas_security());
+		$variables[0] = $sf;
 
+		// We need to clone these, so we can set the key for evaluation and the simplification context.
+		$variables[1] = clone $this->sans;
+		$variables[1]->set_key('PRSANS' . $key);
+		$variables[2] = clone $this->tans;
+		$variables[2]->set_key('PRTANS' . $key);
+
+		if (stack_ans_test_controller::process_atoptions($this->answertest) && trim($this->atoptions) != '') {
+			// We always simplify the options field.
+			$nodeoptions = 'ev(' . $this->atoptions . ',simp)';
+			$cs = stack_ast_container::make_from_teacher_source('PRATOPT' . $key . ':' . $nodeoptions,
+				'', new stack_cas_security());
+			$variables[] = $cs;
+		}
 		return $variables;
 	}
 
@@ -371,14 +392,108 @@ class stack_potentialresponse_node
 		return $summary;
 	}
 
+	/**
+	 * @return array Languages used in the feedback.
+	 */
+	public function get_feedback_languages()
+	{
+		$ml = new stack_multilang();
+		$langs = array();
+		$feedback = $this->branches[0]['feedback'];
+		if ($ml->non_trivial_content_for_check($feedback)) {
+			$langs[$this->branches[0]['answernote']] = $ml->languages_used($feedback);
+		}
+		$feedback = $this->branches[1]['feedback'];
+		if ($ml->non_trivial_content_for_check($feedback)) {
+			$langs[$this->branches[1]['answernote']] = $ml->languages_used($feedback);
+		}
+		return $langs;
+	}
+
 	public function get_maxima_representation()
 	{
 		$ncasoptions = null;
 		if ($this->required_atoptions()) {
-			$ncasoptions = $this->atoptions;
+			$ncasoptions = stack_ast_container::make_from_teacher_source($this->atoptions);
 		}
-		$at = new stack_ans_test_controller($this->answertest,
-			$this->sans->get_raw_casstring(), $this->tans->get_raw_casstring(), null, $ncasoptions);
+		$at = new stack_ans_test_controller($this->answertest, $this->sans, $this->tans, $ncasoptions, null);
 		return $at->get_trace(false);
+	}
+
+	/**
+	 * @return string just the name of the test.
+	 */
+	public function get_test(): string
+	{
+		return $this->answertest;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isQuiet(): bool
+	{
+		return $this->quiet;
+	}
+
+	/**
+	 * @param bool $quiet
+	 */
+	public function setQuiet(bool $quiet): void
+	{
+		$this->quiet = $quiet;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAtoptions()
+	{
+		return $this->atoptions;
+	}
+
+	/**
+	 * @param array $atoptions
+	 */
+	public function setAtoptions($atoptions): void
+	{
+		$this->atoptions = $atoptions;
+	}
+
+	public function getFeedbackFromNode()
+	{
+		return array('true_feedback' => $this->branches[true]['feedback'], 'true_feedback_format' => $this->branches[true]['feedbackformat'], 'true_penalty' => $this->branches[true]['penalty'], 'false_feedback' => $this->branches[false]['feedback'], 'false_feedback_format' => $this->branches[false]['feedbackformat'], 'false_penalty' => $this->branches[false]['penalty']);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getRawSans(): string
+	{
+		return $this->raw_sans;
+	}
+
+	/**
+	 * @param string $raw_sans
+	 */
+	public function setRawSans(string $raw_sans): void
+	{
+		$this->raw_sans = $raw_sans;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getRawTans(): string
+	{
+		return $this->raw_tans;
+	}
+
+	/**
+	 * @param string $raw_tans
+	 */
+	public function setRawTans(string $raw_tans): void
+	{
+		$this->raw_tans = $raw_tans;
 	}
 }

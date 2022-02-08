@@ -21,8 +21,7 @@ defined('MOODLE_INTERNAL') || die();
 // @copyright 2012 The Open University.
 // @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
-class stack_question_test_result
-{
+class stack_question_test_result {
     /**
      * @var stack_question_test the test case that this is the results for.
      */
@@ -34,6 +33,11 @@ class stack_question_test_result
     public $inputvalues;
 
     /**
+     * @var array input name => modified value of this input.
+     */
+    public $inputvaluesmodified;
+
+    /**
      * @var array input name => the displayed value of that input.
      */
     public $inputdisplayed;
@@ -43,27 +47,36 @@ class stack_question_test_result
      */
     public $inputerrors;
 
-    /**
-     * @var array input name => the input statues. One of the stack_input::STATUS_... constants.
-     */
+     /**
+      * @var array input name => the input statues. One of the stack_input::STATUS_... constants.
+      */
     public $inputstatuses;
 
-    /**
-     * @var array prt name => stack_potentialresponse_tree_state object
-     */
+     /**
+      * @var array prt name => stack_potentialresponse_tree_state object
+      */
     public $actualresults;
 
-    /**
-     * @var array prt name => debuginfo
-     */
+     /**
+      * @var array prt name => debuginfo
+      */
     public $debuginfo;
+
+    /**
+     * @var float Store the question penalty to check defaults.
+     */
+    public $questionpenalty;
+
+    /**
+     * @bool Store whether this looks like a trivial empty test case.
+     */
+    public $emptytestcase;
 
     /**
      * Constructor
      * @param stack_question_test $testcase the testcase this is the results for.
      */
-    public function __construct(stack_question_test $testcase)
-    {
+    public function __construct(stack_question_test $testcase) {
         $this->testcase = $testcase;
     }
 
@@ -74,30 +87,33 @@ class stack_question_test_result
      * @param string $displayvalue the displayed version of the value that was input.
      * @param string $status one of the stack_input::STATUS_... constants.
      */
-    public function set_input_state($inputname, $inputvalue, $displayvalue, $status, $error)
-    {
-        $this->inputvalues[$inputname] = $inputvalue;
-        $this->inputdisplayed[$inputname] = $displayvalue;
-        $this->inputstatuses[$inputname] = $status;
-        $this->inputerrors[$inputname] = $error;
+    public function set_input_state($inputname, $inputvalue, $inputmodified, $displayvalue, $status, $error) {
+        $this->inputvalues[$inputname]         = $inputvalue;
+        $this->inputvaluesmodified[$inputname] = $inputmodified;
+        $this->inputdisplayed[$inputname]      = $displayvalue;
+        $this->inputstatuses[$inputname]       = $status;
+        $this->inputerrors[$inputname]         = $error;
     }
 
-    public function set_prt_result($prtname, stack_potentialresponse_tree_state $actualresult)
-    {
+    public function set_prt_result($prtname, stack_potentialresponse_tree_state $actualresult) {
         $this->actualresults[$prtname] = $actualresult;
+    }
+
+    public function set_questionpenalty($penalty) {
+        $this->questionpenalty = $penalty;
     }
 
     /**
      * @return array input name => object with fields ->input, ->display and ->status.
      */
-    public function get_input_states()
-    {
+    public function get_input_states() {
         $states = array();
 
         foreach ($this->inputvalues as $inputname => $inputvalue) {
             $state = new stdClass();
             $state->rawinput = $this->testcase->get_input($inputname);
             $state->input = $inputvalue;
+            $state->modified = $this->inputvaluesmodified[$inputname];
             $state->display = $this->inputdisplayed[$inputname];
             $state->status = $this->inputstatuses[$inputname];
             $state->errors = $this->inputerrors[$inputname];
@@ -112,8 +128,7 @@ class stack_question_test_result
      *      ->penalty, ->expectedpenalty, ->answernote, ->expectedanswernote,
      *      ->feedback and ->testoutcome.
      */
-    public function get_prt_states()
-    {
+    public function get_prt_states() {
         $states = array();
 
         foreach ($this->testcase->expectedresults as $prtname => $expectedresult) {
@@ -130,11 +145,7 @@ class stack_question_test_result
                 $state->penalty = $actualresult->penalty;
                 $state->answernote = implode(' | ', $actualresult->answernotes);
                 $state->trace = implode("\n", $actualresult->trace);
-                $feedback = array();
-                foreach ($actualresult->feedback as $fb) {
-                    $feedback[] = $fb->feedback;
-                }
-                $state->feedback = implode(' ', $feedback);
+                $state->feedback = $actualresult->feedback;
                 $state->debuginfo = $actualresult->debuginfo;
             } else {
                 $state->score = '';
@@ -147,14 +158,22 @@ class stack_question_test_result
             $state->testoutcome = true;
             $reason = array();
             if (is_null($state->expectedscore) != is_null($state->score) ||
-                abs($state->expectedscore - $state->score) > 10E-6) {
+                    abs($state->expectedscore - $state->score) > 10E-6) {
                 $state->testoutcome = false;
                 $reason[] = stack_string('score');
             }
-            if (is_null($state->expectedpenalty) != is_null($state->penalty) ||
-                abs($state->expectedpenalty - $state->penalty) > 10E-6) {
-                $state->testoutcome = false;
-                $reason[] = stack_string('penalty');
+            // If the expected penalty is null then we use the question default penalty.
+            $penalty = $state->expectedpenalty;
+            if (is_null($state->expectedpenalty)) {
+                $penalty = $this->questionpenalty;
+            }
+            // If we have a "NULL" expected answer note we just ignore what happens to penalties here.
+            if ('NULL' !== $state->expectedanswernote) {
+                if (is_null($state->penalty) ||
+                        abs($penalty - $state->penalty) > 10E-6) {
+                    $state->testoutcome = false;
+                    $reason[] = stack_string('penalty');
+                }
             }
             if (!$this->test_answer_note($state->expectedanswernote, $actualresult->answernotes)) {
                 $state->testoutcome = false;
@@ -163,7 +182,7 @@ class stack_question_test_result
             if (empty($reason)) {
                 $state->reason = '';
             } else {
-                $state->reason = ' (' . implode(', ', $reason) . ')';
+                $state->reason = ' ('.implode(', ', $reason).')';
             }
 
             $states[$prtname] = $state;
@@ -178,8 +197,7 @@ class stack_question_test_result
      * @param array $actual the actual answer notes returend.
      * @return bool whether the answer notes match sufficiently.
      */
-    protected function test_answer_note($expected, $actual)
-    {
+    protected function test_answer_note($expected, $actual) {
         $lastactual = array_pop($actual);
         if ('NULL' == $expected) {
             return '' == trim($lastactual);
@@ -190,8 +208,10 @@ class stack_question_test_result
     /**
      * @return bool whether the test passed successfully.
      */
-    public function passed()
-    {
+    public function passed() {
+        if ($this->emptytestcase) {
+            return false;
+        }
         foreach ($this->get_prt_states() as $state) {
             if (!$state->testoutcome) {
                 return false;
