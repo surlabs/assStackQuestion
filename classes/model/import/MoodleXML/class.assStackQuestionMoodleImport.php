@@ -542,7 +542,7 @@ class assStackQuestionMoodleImport
 	private function replaceMediaObjectReferences($text = "", $mapping = array()): string
 	{
 		foreach ($mapping as $name => $id) {
-			$text = str_replace('src="@@PLUGINFILE@@/' . $name, 'src="' . ILIAS_HTTP_PATH . '/data/' . CLIENT_ID . '/mobs/mm_' . $id . "/" . $name . '"', $text);
+			$text = str_replace('src="@@PLUGINFILE@@/' . $name, 'src="' . ilUtil::_getHttpPath() . '/data/' . CLIENT_ID . '/mobs/mm_' . $id . "/" . $name . '"', $text);
 		}
 
 		return $text;

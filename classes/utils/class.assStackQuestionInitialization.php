@@ -19,12 +19,12 @@
  */
 $CFG = new stdClass;
 // the base url of the installation (without script)
-$CFG->wwwroot = ILIAS_HTTP_PATH;
+$CFG->wwwroot = ilUtil::_getHttpPath();
 // the server path of the installation
 $CFG->dirroot = realpath(dirname(__FILE__) . '/../..');
 // the data directory of the plugin
 $CFG->dataroot = realpath(ilUtil::getWebspaceDir('filesystem')) . '/xqcas';
-$CFG->dataurl = ILIAS_HTTP_PATH . "/" . ILIAS_WEB_DIR . "/" . CLIENT_ID . "/xqcas";
+$CFG->dataurl = ilUtil::_getHttpPath() . "/" . ILIAS_WEB_DIR . "/" . CLIENT_ID . "/xqcas";
 $GLOBALS['CFG'] =& $CFG;
 
 define('PARAM_RAW', 'raw');

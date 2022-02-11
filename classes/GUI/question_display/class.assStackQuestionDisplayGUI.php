@@ -94,7 +94,7 @@ class assStackQuestionDisplayGUI
                 if ($this->getDisplay('validation', $input_name) == 'instant') {
                     //Instant validation
                     $this->jsconfig = new stdClass();
-                    $this->jsconfig->validate_url = ILIAS_HTTP_PATH . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/instant_validation.php";
+                    $this->jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/instant_validation.php";
 
                     $this->jstexts = new stdClass();
                     $this->jstexts->page = $this->getPlugin()->txt('page');
@@ -105,7 +105,7 @@ class assStackQuestionDisplayGUI
                 } elseif ($this->getDisplay('validation', $input_name) == 'button') {
                     //Button Validation
                     $this->jsconfig = new stdClass();
-                    $this->jsconfig->validate_url = ILIAS_HTTP_PATH . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
+                    $this->jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
 
                     $this->jstexts = new stdClass();
                     $this->jstexts->page = $this->getPlugin()->txt('page');
@@ -245,7 +245,7 @@ class assStackQuestionDisplayGUI
     private function fillTemplate()
     {
         $this->getTemplate()->setVariable('QUESTION_ID', $this->getDisplay('question_id'));
-        $this->getTemplate()->setVariable('VALIDATION_URL', ILIAS_HTTP_PATH . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php");
+        $this->getTemplate()->setVariable('VALIDATION_URL', ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php");
         $this->getTemplate()->setVariable('QUESTION_TEXT', assStackQuestionUtils::_getLatex($this->getDisplay('question_text')));
         //$this->getTemplate()->setVariable('SPECIFIC_FEEDBACK', assStackQuestionUtils::_getLatex($this->getDisplay('question_specific_feedback')));
     }
