@@ -90,6 +90,12 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
 
+
+Version 3.4.2 (2022-02-11) for ILIAS 7 and ILIAS 6
+----------------------------------------
+Solves Composer install warning regarding duplicate class definition.
+
+
 Version 3.4.1 (2021-11-04) for ILIAS 7 and ILIAS 6
 ----------------------------------------
 Solves #31405 bug report.
