@@ -496,4 +496,8 @@ class stack_potentialresponse_node
 	{
 		$this->raw_tans = $raw_tans;
 	}
+
+	public function setBranchFeedback(int $trueorfalse, string $feedback):void{
+		$this->branches[$trueorfalse]['feedback'] = $feedback;
+	}
 }

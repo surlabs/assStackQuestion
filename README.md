@@ -103,37 +103,21 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
-Version 6.0 for ILIAS 7 (Beta) DO NOT USE IN PRODUCTIVE PLATFORMS
+Version 6.0 for ILIAS 7 (Beta)
 ----------------------------------------
 - This STACK for ILIAS plugin version requires a Maxima Server with the maxima version 2021120900. Other versions may trigger validation errors.
-- This version includes DBUpdate steps which change values in the xqcas_prt_nodes tables, please, backup this table before update.
+- **This version includes DBUpdate steps which change values in the xqcas_prt_nodes tables, please, backup this table before update.**
 - Ensure you clear the cache after updating.
+- **Changes in this Version**
+- 95% Percent of the changes on this version were made to the backend, so do not expect many user interface changes.
 - The core from STACK plugin Version for Moodle (4.3.9 December 2021) has been included.
 - assStackQuestion becomes the "alter ego" of stack_question, the Moodle Plugin class. The old assStackQuestion is now named as assStackQuestion2 and it's going to be deleted.
 - assStackQuestion is now responsible for all STACK variables, previously managed by assStackQuestionStackQuestion, which it's going to be deleted.
 - assStackQuestionDB is now responsible for all DB Access methods, previously managed by the model/ilias_object classes. These classes are going to be deleted.
-- The Authoring interface (assStackQuestionAuthoringGUI) is now connected to the new question object, and it is ready to be tested.
-- The Question Preview in Question Pools is now connected to the new question object, and it is ready to be tested.
 - assStackQuestionGUI Has been reworked, to adapt it to the new object assStackQuestion.
-- assStackQuestionRender is now responsible for all the rendering before presenting the question to the user.
-- Questions can now be saved and edited. No Maxima interaction in this process.
-- Questions can now be created in 2 clicks, loading the standard information from configuration.
-- Questions can now be imported from MoodleXML
+- assStackQuestionRender is now responsible for all the rendering methods.
 - "0" is no longer valid as node name, a DB Update script to automatically change this value (Step 40) has been added
 - The Save PRT function now checks also for invalid node names, which may come from Imported questions.
-- Questions can now be deleted
 - New attributes added to the question (not yet customisable): assume real, logic symbol, stack version and compiled cache to stack_options  and syntax attribute for stack_inputs
-- Seeds management is now active
-- Scoring management is now active
-- Question main Operations are ready for testing, but please, check the development site to know what has been developed:
-  https://www.stack.odl.org/ilias-public/goto.php?target=cat_1160&client_id=StackPublic
-  This site will be updated with the latest status.
-- LaTeX is now be properly rendered.
-- User answer are now properly validated by Maxima.
-- Node Specific feedback is not properly imported
-- Question Validation is again active, instant validation not yet supported.
-- Question can now be added and presented in Tests.
-- The problem with question variants in test is solved with this version, as the seed management in test function has been completely redesigned.
-- Validation is not available in tests.
-- General Feedback and penalty are now properly imported.
-- Unit tests are now also imported from MoodleXML, not yet editable.
+- **The extremely rare and not replicable issue with question variants in test must be solved with this version, as the seed management in test function has been completely redesigned. **
+- Questions exported from a platform with a stack plugin version < 6.2 won't be imported as the import/export functions has been adapted to the new assStackQuestion structure. Funding is needed to allow compatibility with previous stack versions.

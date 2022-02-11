@@ -73,6 +73,11 @@ class assStackQuestionExport extends assQuestionExport
 		$a_xml_writer->xmlElement("fieldentry", NULL, $this->object->getAuthor());
 		$a_xml_writer->xmlEndTag("qtimetadatafield");
 		$a_xml_writer->xmlStartTag("qtimetadatafield");
+
+		// additional content editing information
+		$this->addAdditionalContentEditingModeInformation($a_xml_writer);
+		$this->addGeneralMetadata($a_xml_writer);
+
 		$a_xml_writer->xmlElement("fieldlabel", NULL, "POINTS");
 		$a_xml_writer->xmlElement("fieldentry", NULL, $this->object->getPoints());
 		$a_xml_writer->xmlEndTag("qtimetadatafield");
@@ -107,9 +112,84 @@ class assStackQuestionExport extends assQuestionExport
 		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->getUnitTests())));
 		$a_xml_writer->xmlEndTag("qtimetadatafield");
 
-		// additional content editing information
-		$this->addAdditionalContentEditingModeInformation($a_xml_writer);
-		$this->addGeneralMetadata($a_xml_writer);
+		//EXTRA INFO
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "question_variables");
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->question_variables)));
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "question_note");
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->question_note)));
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "specific_feedback");
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->specific_feedback)));
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "specific_feedback_format");
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->specific_feedback_format)));
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "prt_correct");
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->prt_correct)));
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "prt_correct_format");
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->prt_correct_format)));
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "prt_partially_correct");
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->prt_partially_correct)));
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "prt_partially_correct_format");
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->prt_partially_correct_format)));
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "prt_incorrect");
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->prt_incorrect)));
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "prt_incorrect_format");
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->prt_incorrect_format)));
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "stack_version");
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->stack_version)));
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "general_feedback");
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->general_feedback)));
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "penalty");
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->getPenalty())));
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "variants_selection_seeds");
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->variants_selection_seed)));
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "hidden");
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->getHidden())));
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
 
 		$a_xml_writer->xmlEndTag("qtimetadata");
 		$a_xml_writer->xmlEndTag("itemmetadata");
@@ -119,17 +199,11 @@ class assStackQuestionExport extends assQuestionExport
 			"label" => $this->object->getTitle()
 		);
 		$a_xml_writer->xmlStartTag("presentation", $attrs);
-
 		// add flow to presentation
 		$a_xml_writer->xmlStartTag("flow");
 
-		// add material with question text to presentation
-		$this->object->addQTIMaterial($a_xml_writer, $this->object->getQuestion());
-		$this->object->addQTIMaterial($a_xml_writer, $this->object->prt_correct);
-		$this->object->addQTIMaterial($a_xml_writer, $this->object->prt_partially_correct);
-		$this->object->addQTIMaterial($a_xml_writer, $this->object->prt_incorrect);
-		$this->object->addQTIMaterial($a_xml_writer, $this->object->specific_feedback);
-		$this->object->addQTIMaterial($a_xml_writer, $this->object->general_feedback);
+		$question_text = $this->object->getQuestion() ?: '&nbsp;';
+		$this->object->addQTIMaterial($a_xml_writer, $question_text);
 
 		foreach ($this->object->prts as $prt) {
 			foreach ($prt->getNodes() as $node) {
@@ -140,279 +214,26 @@ class assStackQuestionExport extends assQuestionExport
 			}
 		}
 
+		$this->object->addQTIMaterial($a_xml_writer, $this->object->specific_feedback);
+
+		$this->object->addQTIMaterial($a_xml_writer, $this->object->prt_correct);
+		$this->object->addQTIMaterial($a_xml_writer, $this->object->prt_partially_correct);
+		$this->object->addQTIMaterial($a_xml_writer, $this->object->prt_incorrect);
+
+		$this->object->addQTIMaterial($a_xml_writer, $this->object->general_feedback);
+
 		$a_xml_writer->xmlEndTag("flow");
 		$a_xml_writer->xmlEndTag("presentation");
 		$a_xml_writer->xmlEndTag("item");
 		$a_xml_writer->xmlEndTag("questestinterop");
 
-		$xml = $a_xml_writer->xmlDumpMem(FALSE);
+		$xml = $a_xml_writer->xmlDumpMem(false);
 		if (!$a_include_header) {
 			$pos = strpos($xml, "?>");
 			$xml = substr($xml, $pos + 2);
 		}
 		return $xml;
 	}
-
-
-
-	/*
-	//OPTIONS
-	$options = $this->object->getOptions();
-	$attrs = array();
-
-	//Options attributes
-	$attrs["question_id"] = $options->getQuestionId();
-	$a_xml_writer->xmlStartTag("options", $attrs);
-
-	//Options elements
-	$a_xml_writer->xmlElement("options_id", $attrs, $a_xml_writer->xmlEncodeData($options->getOptionsId()));
-	$a_xml_writer->xmlElement("question_id", $attrs, $a_xml_writer->xmlEncodeData($options->getQuestionId()));
-	$a_xml_writer->xmlElement("question_variables", $attrs, $a_xml_writer->xmlEncodeData($options->getQuestionVariables()));
-	$a_xml_writer->xmlElement("specific_feedback", $attrs, $a_xml_writer->xmlEncodeData($options->getSpecificFeedback()));
-	$a_xml_writer->xmlElement("question_note", $attrs, $a_xml_writer->xmlEncodeData($options->getQuestionNote()));
-	$a_xml_writer->xmlElement("question_simplify", $attrs, $a_xml_writer->xmlEncodeData($options->getQuestionSimplify()));
-	$a_xml_writer->xmlElement("assume_positive", $attrs, $a_xml_writer->xmlEncodeData($options->getAssumePositive()));
-	$a_xml_writer->xmlElement("prt_correct", $attrs, $a_xml_writer->xmlEncodeData($options->getPRTCorrect()));
-	$a_xml_writer->xmlElement("prt_partially_correct", $attrs, $a_xml_writer->xmlEncodeData($options->getPRTPartiallyCorrect()));
-	$a_xml_writer->xmlElement("prt_incorrect", $attrs, $a_xml_writer->xmlEncodeData($options->getPRTIncorrect()));
-	$a_xml_writer->xmlElement("multiplication_sign", $attrs, $a_xml_writer->xmlEncodeData($options->getMultiplicationSign()));
-	$a_xml_writer->xmlElement("sqrt_sign", $attrs, $a_xml_writer->xmlEncodeData($options->getSqrtSign()));
-	$a_xml_writer->xmlElement("complex_numbers", $attrs, $a_xml_writer->xmlEncodeData($options->getComplexNumbers()));
-	$a_xml_writer->xmlElement("inverse_trig", $attrs, $a_xml_writer->xmlEncodeData($options->getInverseTrig()));
-	$a_xml_writer->xmlElement("variants_selection_seeds", $attrs, $a_xml_writer->xmlEncodeData($options->getVariantsSelectionSeeds()));
-
-	$a_xml_writer->xmlEndTag("options");
-
-	//INPUTS
-	$inputs = $this->object->getInputs();
-	$attrs = array();
-
-	//Inputs attributes
-	$attrs["question_id"] = $this->object->getId();
-	$a_xml_writer->xmlStartTag("inputs", $attrs);
-
-	foreach ($inputs as $input_name => $input) {
-		$attrs = array();
-		//Inputs attributes
-		$attrs["input_name"] = $input_name;
-		$attrs["question_id"] = $input->getQuestionId();
-		$a_xml_writer->xmlStartTag("input", $attrs);
-
-		//Inputs elements
-		$a_xml_writer->xmlElement("input_id", $attrs, $a_xml_writer->xmlEncodeData($input->getInputId()));
-		$a_xml_writer->xmlElement("question_id", $attrs, $a_xml_writer->xmlEncodeData($input->getQuestionId()));
-		$a_xml_writer->xmlElement("input_name", $attrs, $a_xml_writer->xmlEncodeData($input->getInputName()));
-		$a_xml_writer->xmlElement("input_type", $attrs, $a_xml_writer->xmlEncodeData($input->getInputType()));
-		$a_xml_writer->xmlElement("teacher_answer", $attrs, $a_xml_writer->xmlEncodeData($input->getTeacherAnswer()));
-		$a_xml_writer->xmlElement("box_size", $attrs, $a_xml_writer->xmlEncodeData($input->getBoxSize()));
-		$a_xml_writer->xmlElement("strict_syntax", $attrs, $a_xml_writer->xmlEncodeData($input->getStrictSyntax()));
-		$a_xml_writer->xmlElement("insert_stars", $attrs, $a_xml_writer->xmlEncodeData($input->getInsertStars()));
-		$a_xml_writer->xmlElement("syntax_hint", $attrs, $a_xml_writer->xmlEncodeData($input->getSyntaxHint()));
-		$a_xml_writer->xmlElement("forbid_words", $attrs, $a_xml_writer->xmlEncodeData($input->getForbidWords()));
-		$a_xml_writer->xmlElement("allow_words", $attrs, $a_xml_writer->xmlEncodeData($input->getAllowWords()));
-		$a_xml_writer->xmlElement("forbid_float", $attrs, $a_xml_writer->xmlEncodeData($input->getForbidFloat()));
-		$a_xml_writer->xmlElement("require_lowest_terms", $attrs, $a_xml_writer->xmlEncodeData($input->getRequireLowestTerms()));
-		$a_xml_writer->xmlElement("check_answer_type", $attrs, $a_xml_writer->xmlEncodeData($input->getCheckAnswerType()));
-		$a_xml_writer->xmlElement("must_verify", $attrs, $a_xml_writer->xmlEncodeData($input->getMustVerify()));
-		$a_xml_writer->xmlElement("show_validation", $attrs, $a_xml_writer->xmlEncodeData($input->getShowValidation()));
-		$a_xml_writer->xmlElement("options", $attrs, $a_xml_writer->xmlEncodeData($input->getOptions()));
-
-		$a_xml_writer->xmlEndTag("input");
-	}
-	$a_xml_writer->xmlEndTag("inputs");
-
-	//PRTS and NODES
-	$prts = $this->object->getPotentialResponsesTrees();
-	$attrs = array();
-
-	//PRTS attributes
-	$attrs["question_id"] = $this->object->getId();
-	$a_xml_writer->xmlStartTag("prts", $attrs);
-
-	foreach ($prts as $prt_name => $prt) {
-		$attrs = array();
-		//PRT attributes
-		$attrs["prt_name"] = $prt_name;
-		$attrs["question_id"] = $prt->getQuestionId();
-		$a_xml_writer->xmlStartTag("prt", $attrs);
-
-		//PRT elements
-		$a_xml_writer->xmlElement("prt_id", $attrs, $a_xml_writer->xmlEncodeData($prt->getPRTId()));
-		$a_xml_writer->xmlElement("question_id", $attrs, $a_xml_writer->xmlEncodeData($prt->getQuestionId()));
-		$a_xml_writer->xmlElement("prt_name", $attrs, $a_xml_writer->xmlEncodeData($prt->getPRTName()));
-		$a_xml_writer->xmlElement("prt_value", $attrs, $a_xml_writer->xmlEncodeData($prt->getPRTValue()));
-		$a_xml_writer->xmlElement("auto_simplify", $attrs, $a_xml_writer->xmlEncodeData($prt->getAutoSimplify()));
-		$a_xml_writer->xmlElement("prt_feedback_variables", $attrs, $a_xml_writer->xmlEncodeData($prt->getPRTFeedbackVariables()));
-		$a_xml_writer->xmlElement("first_node_name", $attrs, $a_xml_writer->xmlEncodeData($prt->getFirstNodeName()));
-
-		//PRT NODES
-		foreach ($prt->getPRTNodes() as $node) {
-			$attrs = array();
-			//PRT Node attributes
-			$attrs["prt"] = $node->getPRTName();
-			$attrs["node"] = $node->getNodeName();
-			$attrs["question_id"] = $node->getQuestionId();
-			$a_xml_writer->xmlStartTag("prt_node", $attrs);
-
-			//PRT Node elements
-			$a_xml_writer->xmlElement("node_id", $attrs, $a_xml_writer->xmlEncodeData($node->getNodeId()));
-			$a_xml_writer->xmlElement("question_id", $attrs, $a_xml_writer->xmlEncodeData($node->getQuestionId()));
-			$a_xml_writer->xmlElement("prt_name", $attrs, $a_xml_writer->xmlEncodeData($node->getPRTName()));
-			$a_xml_writer->xmlElement("node_name", $attrs, $a_xml_writer->xmlEncodeData($node->getNodeName()));
-			$a_xml_writer->xmlElement("answer_test", $attrs, $a_xml_writer->xmlEncodeData($node->getAnswerTest()));
-			$a_xml_writer->xmlElement("student_answer", $attrs, $a_xml_writer->xmlEncodeData($node->getStudentAnswer()));
-			$a_xml_writer->xmlElement("teacher_answer", $attrs, $a_xml_writer->xmlEncodeData($node->getTeacherAnswer()));
-			$a_xml_writer->xmlElement("test_options", $attrs, $a_xml_writer->xmlEncodeData($node->getTestOptions()));
-			$a_xml_writer->xmlElement("quiet", $attrs, $a_xml_writer->xmlEncodeData($node->getQuiet()));
-			$a_xml_writer->xmlElement("true_score_mode", $attrs, $a_xml_writer->xmlEncodeData($node->getTrueScoreMode()));
-			$a_xml_writer->xmlElement("true_score", $attrs, $a_xml_writer->xmlEncodeData($node->getTrueScore()));
-			$a_xml_writer->xmlElement("true_penalty", $attrs, $a_xml_writer->xmlEncodeData($node->getTruePenalty()));
-			$a_xml_writer->xmlElement("true_next_node", $attrs, $a_xml_writer->xmlEncodeData($node->getTrueNextNode()));
-			$a_xml_writer->xmlElement("true_answer_note", $attrs, $a_xml_writer->xmlEncodeData($node->getTrueAnswerNote()));
-			$a_xml_writer->xmlElement("true_feedback", $attrs, $a_xml_writer->xmlEncodeData($node->getTrueFeedback()));
-			$a_xml_writer->xmlElement("true_feedback_format", $attrs, $a_xml_writer->xmlEncodeData($node->getTrueFeedbackFormat()));
-			$a_xml_writer->xmlElement("false_score_mode", $attrs, $a_xml_writer->xmlEncodeData($node->getFalseScoreMode()));
-			$a_xml_writer->xmlElement("false_score", $attrs, $a_xml_writer->xmlEncodeData($node->getFalseScore()));
-			$a_xml_writer->xmlElement("false_penalty", $attrs, $a_xml_writer->xmlEncodeData($node->getFalsePenalty()));
-			$a_xml_writer->xmlElement("false_next_node", $attrs, $a_xml_writer->xmlEncodeData($node->getFalseNextNode()));
-			$a_xml_writer->xmlElement("false_answer_note", $attrs, $a_xml_writer->xmlEncodeData($node->getFalseAnswerNote()));
-			$a_xml_writer->xmlElement("false_feedback", $attrs, $a_xml_writer->xmlEncodeData($node->getFalseFeedback()));
-			$a_xml_writer->xmlElement("false_feedback_format", $attrs, $a_xml_writer->xmlEncodeData($node->getFalseFeedbackFormat()));
-
-			$a_xml_writer->xmlEndTag("prt_node");
-
-		}
-		$a_xml_writer->xmlEndTag("prt");
-	}
-	$a_xml_writer->xmlEndTag("prts");
-
-	//SEEDS
-	$seeds = $this->object->getDeployedSeeds();
-	$attrs = array();
-
-	//seeds attributes
-	$attrs["question_id"] = $this->object->getId();
-	$a_xml_writer->xmlStartTag("seeds", $attrs);
-
-	if (is_array($seeds)) {
-		foreach ($seeds as $seed) {
-			if (is_a($seed, 'assStackQuestionDeployedSeed')) {
-				$attrs = array();
-				//Seed attributes
-				$attrs["seed"] = $seed->getSeed();
-				$attrs["question_id"] = $seed->getQuestionId();
-				$a_xml_writer->xmlStartTag("seed", $attrs);
-
-				//Seed elements
-				$a_xml_writer->xmlElement("seed_id", $attrs, $a_xml_writer->xmlEncodeData($seed->getSeedId()));
-				$a_xml_writer->xmlElement("question_id", $attrs, $a_xml_writer->xmlEncodeData($seed->getQuestionId()));
-				$a_xml_writer->xmlElement("seed", $attrs, $a_xml_writer->xmlEncodeData($seed->getSeed()));
-				$a_xml_writer->xmlElement("question_note", $attrs, $a_xml_writer->xmlEncodeData($seed->getQuestionNote()));
-
-				$a_xml_writer->xmlEndTag("seed");
-			}
-		}
-	}
-	$a_xml_writer->xmlEndTag("seeds");
-
-	//TESTS
-	$tests = $this->object->getTests();
-	$attrs = array();
-
-	//tests attributes
-	$attrs["question_id"] = $this->object->getId();
-	$a_xml_writer->xmlStartTag("tests", $attrs);
-
-	foreach ($tests as $testcase => $test) {
-		$attrs = array();
-		//test attributes
-		$attrs["test_case"] = $testcase;
-		$attrs["question_id"] = $test->getQuestionId();
-		$a_xml_writer->xmlStartTag("test", $attrs);
-
-		//test elements
-		$a_xml_writer->xmlElement("test_id", $attrs, $a_xml_writer->xmlEncodeData($test->getTestId()));
-		$a_xml_writer->xmlElement("question_id", $attrs, $a_xml_writer->xmlEncodeData($test->getQuestionId()));
-		$a_xml_writer->xmlElement("test_case", $attrs, $a_xml_writer->xmlEncodeData($test->getTestCase()));
-		$a_xml_writer->xmlElement("number_of_tests", $attrs, $a_xml_writer->xmlEncodeData($test->getTestInputs()));
-
-		//TEST INPUTS
-		$attrs = array();
-		//Test inputs attributes
-		$attrs["test_case"] = $testcase;
-		$attrs["question_id"] = $this->object->getId();
-		$a_xml_writer->xmlStartTag("test_inputs", $attrs);
-
-		foreach ($test->getTestInputs() as $test_input) {
-			$attrs = array();
-			//Test inputs attributes
-			$attrs["test_case"] = $test_input->getTestCase();
-			$attrs["input"] = $test_input->getTestInputName();
-			$attrs["question_id"] = $test_input->getQuestionId();
-			$a_xml_writer->xmlStartTag("input", $attrs);
-
-			//Test inputs elements
-			$a_xml_writer->xmlElement("test_input_id", $attrs, $a_xml_writer->xmlEncodeData($test_input->getTestInputId()));
-			$a_xml_writer->xmlElement("question_id", $attrs, $a_xml_writer->xmlEncodeData($test_input->getQuestionId()));
-			$a_xml_writer->xmlElement("test_case", $attrs, $a_xml_writer->xmlEncodeData($test_input->getTestCase()));
-			$a_xml_writer->xmlElement("test_input_name", $attrs, $a_xml_writer->xmlEncodeData($test_input->getTestInputName()));
-			$a_xml_writer->xmlElement("test_input_value", $attrs, $a_xml_writer->xmlEncodeData($test_input->getTestInputValue()));
-
-			$a_xml_writer->xmlEndTag("input");
-
-		}
-		$a_xml_writer->xmlEndTag("test_inputs");
-
-		//TEST EXPECTED
-		$attrs = array();
-		//Test inputs attributes
-		$attrs["test_case"] = $testcase;
-		$attrs["question_id"] = $this->object->getId();
-		$a_xml_writer->xmlStartTag("test_expected", $attrs);
-
-		foreach ($test->getTestExpected() as $test_expected) {
-			$attrs = array();
-			//Test inputs attributes
-			$attrs["test_case"] = $test_expected->getTestCase();
-			$attrs["prt"] = $test_expected->getTestPRTName();
-			$attrs["question_id"] = $test_expected->getQuestionId();
-			$a_xml_writer->xmlStartTag("expected", $attrs);
-
-			//Test inputs elements
-			$a_xml_writer->xmlElement("test_expected_id", $attrs, $a_xml_writer->xmlEncodeData($test_expected->getTestExpectedId()));
-			$a_xml_writer->xmlElement("question_id", $attrs, $a_xml_writer->xmlEncodeData($test_expected->getQuestionId()));
-			$a_xml_writer->xmlElement("test_case", $attrs, $a_xml_writer->xmlEncodeData($test_expected->getTestCase()));
-			$a_xml_writer->xmlElement("test_prt_name", $attrs, $a_xml_writer->xmlEncodeData($test_expected->getTestPRTName()));
-			$a_xml_writer->xmlElement("expected_score", $attrs, $a_xml_writer->xmlEncodeData($test_expected->getExpectedScore()));
-			$a_xml_writer->xmlElement("expected_penalty", $attrs, $a_xml_writer->xmlEncodeData($test_expected->getExpectedPenalty()));
-			$a_xml_writer->xmlElement("expected_answer_note", $attrs, $a_xml_writer->xmlEncodeData($test_expected->getExpectedAnswerNote()));
-
-			$a_xml_writer->xmlEndTag("expected");
-
-		}
-		$a_xml_writer->xmlEndTag("test_expected");
-
-		$a_xml_writer->xmlEndTag("test");
-	}
-	$a_xml_writer->xmlEndTag("tests");
-
-	//EXTRA INFO
-	$extra_info = $this->object->getExtraInfo();
-	$attrs = array();
-
-	//extra info attributes
-	$attrs["question_id"] = $options->getQuestionId();
-	$a_xml_writer->xmlStartTag("extra_info", $attrs);
-
-	//extra info elements
-	$a_xml_writer->xmlElement("points", $attrs, $a_xml_writer->xmlEncodeData($this->object->getPoints()));
-	$a_xml_writer->xmlElement("how_to_solve", $attrs, $a_xml_writer->xmlEncodeData($extra_info->getHowToSolve()));
-	$a_xml_writer->xmlElement("penalty", $attrs, $a_xml_writer->xmlEncodeData($extra_info->getPenalty()));
-	$a_xml_writer->xmlElement("hidden", $attrs, $a_xml_writer->xmlEncodeData($extra_info->getHidden()));
-
-	$a_xml_writer->xmlEndTag("extra_info");
-	*/
-
 
 	/**
 	 * Exports the evaluation data to the Microsoft Excel file format
