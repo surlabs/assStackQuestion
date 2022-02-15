@@ -363,11 +363,13 @@ class assStackQuestionDB
 			$input_name = (string)$row['input_name'];
 			$value = (string)$row['value'];
 
-			$testcase_inputs[$input_name]['id'] = (int)$row['id'];
-
-			if (!$just_id) {
+			if ($just_id) {
+				$testcase_inputs[$input_name] = (int)$row['id'];
+			} else {
+				$testcase_inputs[$input_name]['id'] = (int)$row['id'];
 				$testcase_inputs[$input_name]['value'] = $value;
 			}
+
 		}
 
 		return $testcase_inputs;
@@ -395,9 +397,11 @@ class assStackQuestionDB
 		while ($row = $db->fetchAssoc($res)) {
 
 			$prt_name = (string)$row['prt_name'];
-			$testcase_expected[$prt_name]['id'] = (int)$row['id'];
 
-			if (!$just_id) {
+			if ($just_id) {
+				$testcase_expected[$prt_name] = (int)$row['id'];
+			} else {
+				$testcase_expected[$prt_name]['id'] = (int)$row['id'];
 				$testcase_expected[$prt_name]['score'] = (string)$row['expected_score'];
 				$testcase_expected[$prt_name]['penalty'] = (string)$row['expected_penalty'];
 				$testcase_expected[$prt_name]['answer_note'] = (string)$row['expected_answer_note'];
@@ -1242,7 +1246,7 @@ class assStackQuestionDB
 				if ($seed_found === 0) {
 					$seed_found = $seed;
 				} else {
-					ilUtil::sendFailure("ERROR: Trying to create a new seed where there is already one assigned",true);
+					ilUtil::sendFailure("ERROR: Trying to create a new seed where there is already one assigned", true);
 					return 0;
 				}
 			}
@@ -1353,7 +1357,11 @@ class assStackQuestionDB
 			$entered_values++;
 
 			//value1 = xqcas_input_*_feedback, $value2 = feedback given by CAS
-			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_feedback', $prt->get_feedback()->feedback);
+			$feedback = '';
+			foreach ($prt->get_feedback() as $feedback_element) {
+				$feedback .= $feedback_element->feedback . ' ';
+			}
+			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_feedback', $feedback);
 			$entered_values++;
 
 			//value1 = xqcas_input_*_status, $value2 = status

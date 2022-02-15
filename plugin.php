@@ -9,7 +9,7 @@ $id = "xqcas";
  
 // code version; must be changed for all code changes
 
-$version = "6.2";
+$version = "6.3";
  
 // ilias min and max version; must always reflect the versions that should
 // run with the plugin

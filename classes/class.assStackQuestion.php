@@ -573,7 +573,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 				$all_parameters = array(
 					'boxWidth' => $input_data['box_size'],
 					'strictSyntax' => $input_data['strict_syntax'],
-					'insertStars' => $input_data['strict_syntax'],
+					'insertStars' => $input_data['insert_stars'],
 					'syntaxHint' => $input_data['syntax_hint'],
 					'syntaxAttribute' => $input_data['syntax_attribute'],
 					'forbidWords' => $input_data['forbid_words'],
