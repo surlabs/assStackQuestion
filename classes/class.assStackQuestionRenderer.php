@@ -22,9 +22,58 @@ class assStackQuestionRenderer
 
 	/* ILIAS REQUIRED METHODS RENDER BEGIN */
 
-	public function getSpecificFeedbackOutput($userSolution)
+	/**
+	 * @param assStackQuestion $question
+	 * @param array $user_solution
+	 * @return string
+	 */
+	public static function _renderSpecificFeedback(assStackQuestion $question, array $user_solution): string
 	{
-		//TODO: Implement getSpecificFeedbackOutput() method.
+		//General Feedback output
+		$general_feedback = self::_renderGeneralFeedback($question, $user_solution);
+
+		//Specific feedback
+		$specific_feedback = $question->specific_feedback_instantiated;
+
+		if (!$specific_feedback) {
+			return $general_feedback;
+		}
+
+		$specific_feedback_text = stack_maths::process_display_castext($specific_feedback);
+
+		//TODO Connect with feedback styles should be done here.
+
+		// Replace specific feedback placeholders.
+		try {
+			foreach (stack_utils::extract_placeholders($question->specific_feedback_instantiated, 'feedback') as $prt_name) {
+				$feedback = self::_prtFeedbackDisplay($prt_name, $question->getPrtResult($prt_name, $user_solution, true), $question->prts[$prt_name]->get_feedbackstyle());
+				$specific_feedback_text = str_replace("[[feedback:{$prt_name}]]", stack_maths::process_display_castext($feedback), $specific_feedback_text);
+			}
+		} catch (stack_exception $e) {
+			$specific_feedback_text = $e->getMessage();
+		}
+
+		return $specific_feedback_text . $general_feedback;
+	}
+
+	/**
+	 * @param assStackQuestion $question
+	 * @param array $user_solution
+	 * @return string
+	 */
+	public static function _renderGeneralFeedback(assStackQuestion $question, array $user_solution): string
+	{
+		try {
+			$general_feedback_text = new stack_cas_text($question->general_feedback, $question->session, $question->seed);
+
+			if ($general_feedback_text->get_errors()) {
+				$question->runtime_errors[$general_feedback_text->get_errors()] = true;
+			}
+
+			return assStackQuestionUtils::_getLatex($general_feedback_text->get_display_castext());
+		} catch (stack_exception $e) {
+			return '';
+		}
 	}
 
 	/**
@@ -373,36 +422,6 @@ class assStackQuestionRenderer
 		}
 
 		return html_writer::nonempty_tag($tag, $fb, array('class' => 'stackprtfeedback stackprtfeedback-' . $name));
-	}
-
-	/**
-	 * @param assStackQuestion $question
-	 * @param array $user_solution
-	 * @return string
-	 */
-	public
-	static function _renderSpecificFeedback(assStackQuestion $question, array $user_solution): string
-	{
-		$specific_feedback = $question->specific_feedback_instantiated;
-
-		if (!$specific_feedback) {
-			return '';
-		}
-
-		$specific_feedback_text = stack_maths::process_display_castext($specific_feedback);
-
-		//TODO Connect with feedback styles should be done here.
-
-		// Replace specific feedback placeholders.
-		try {
-			foreach (stack_utils::extract_placeholders($question->specific_feedback_instantiated, 'feedback') as $prt_name) {
-				$feedback = self::_prtFeedbackDisplay($prt_name, $question->getPrtResult($prt_name, $user_solution, true), $question->prts[$prt_name]->get_feedbackstyle());
-				$specific_feedback_text = str_replace("[[feedback:{$prt_name}]]", stack_maths::process_display_castext($feedback), $specific_feedback_text);
-			}
-		} catch (stack_exception $e) {
-			$specific_feedback_text = $e->getMessage();
-		}
-		return $specific_feedback_text;
 	}
 
 	/**

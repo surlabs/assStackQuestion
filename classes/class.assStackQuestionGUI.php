@@ -233,7 +233,6 @@ class assStackQuestionGUI extends assQuestionGUI
 	{
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
 		$this->object->specific_feedback_instantiated = assStackQuestionRenderer::_renderSpecificFeedback($this->object, $userSolution);
-
 		return $this->object->specific_feedback_instantiated;
 	}
 

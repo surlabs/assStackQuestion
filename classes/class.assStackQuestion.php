@@ -885,6 +885,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	{
 		$points = 0.0;
 		foreach ($this->getPRTResults() as $results) {
+
 			//todo
 		}
 
@@ -1457,26 +1458,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 				$this->runtime_errors[$hint_text->get_errors()] = true;
 			}
 			return $hint_text;
-		} catch (stack_exception $e) {
-			ilUtil::sendFailure($e, true);
-			return false;
-		}
-	}
-
-	/**
-	 * get_generalfeedback_castext() in Moodle
-	 * Get the castext for the general feedback, instantiated within the question's session.
-	 * @return stack_cas_text|false the castext.
-	 */
-	public function getGeneralFeedbackCASText(): stack_cas_text
-	{
-		try {
-			$general_feedback_text = new stack_cas_text($this->general_feedback, $this->session, $this->seed);
-
-			if ($general_feedback_text->get_errors()) {
-				$this->runtime_errors[$general_feedback_text->get_errors()] = true;
-			}
-			return $general_feedback_text;
 		} catch (stack_exception $e) {
 			ilUtil::sendFailure($e, true);
 			return false;
