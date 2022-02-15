@@ -1385,8 +1385,7 @@ class assStackQuestionDB
 	 * @param float $points
 	 * @param bool|null $authorized
 	 */
-	public
-	static function _addPointsToPRTDBEntry(assStackQuestion $question, int $active_id, int $pass, string $prt_name, float $points, bool $authorized = null)
+	public static function _addPointsToPRTDBEntry(assStackQuestion $question, int $active_id, int $pass, string $prt_name, float $points, bool $authorized = null)
 	{
 		global $DIC;
 		$db = $DIC->database();

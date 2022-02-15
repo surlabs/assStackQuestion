@@ -963,7 +963,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 				//PRT Results
 				$evaluation_data['prts'][$prt_name] = $this->prts[$prt_name]->evaluate_response($this->session, $this->options, $prt_input, $this->seed);
 				if ($evaluation_data['prts'][$prt_name]->_valid) {
-					$evaluation_data['points'][$prt_name] = ($evaluation_data['prts'][$prt_name]->_score * $evaluation_data['prts'][$prt_name]->_weight);
+					$evaluation_data['points'][$prt_name] = ($evaluation_data['prts'][$prt_name]->_score * $evaluation_data['prts'][$prt_name]->_weight * $this->getPoints());
 				}
 
 			}
