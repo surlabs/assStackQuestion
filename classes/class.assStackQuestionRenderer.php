@@ -289,28 +289,29 @@ class assStackQuestionRenderer
 			//$field_name = 'q' . $question->getId() . ':' . $input_number . '_' . $name;
 			$field_name = 'xqcas_' . $question->getId() . '_' . $name;
 			$state = $question->getInputState($name, $response);
+			if (is_a($state, 'stack_input_state')) {
+				if ($input->get_parameter('showValidation') != 0) {
+					//Input and Validation Button
+					if (!$show_best_solution) {
+						$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, false, $ta_value) . ' ' . self::_renderValidationButton($question->getId(), $name), $question_text);
+					} else {
+						$field_name = 'xqcas_solution_' . $question->getId() . '_' . $name;
+						$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, true, $ta_value), $question_text);
+					}
 
-			if ($input->get_parameter('showValidation') != 0) {
-				//Input and Validation Button
-				if (!$show_best_solution) {
-					$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, false, $ta_value) . ' ' . self::_renderValidationButton($question->getId(), $name), $question_text);
+					//Validation tags
+					if (!$show_best_solution) {
+						$ilias_validation = '<div id="validation_xqcas_' . $question->getId() . '_' . $name . '"></div><div class="xqcas_input_validation"><div id="validation_xqcas_' . $question->getId() . '_' . $name . '"></div></div>';
+						$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
+					} else {
+						$question_text = str_replace("[[validation:{$name}]]", '</br>', $question_text);
+					}
 				} else {
-					$field_name = 'xqcas_solution_' . $question->getId() . '_' . $name;
-					$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, true, $ta_value), $question_text);
-				}
-
-				//Validation tags
-				if (!$show_best_solution) {
-					$ilias_validation = '<div id="validation_xqcas_' . $question->getId() . '_' . $name . '"></div><div class="xqcas_input_validation"><div id="validation_xqcas_' . $question->getId() . '_' . $name . '"></div></div>';
-					$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
-				} else {
-					$question_text = str_replace("[[validation:{$name}]]", '</br>', $question_text);
-				}
-			} else {
-				if (!$show_best_solution) {
-					$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, false, $ta_value), $question_text);
-				} else {
-					$question_text = str_replace("[[validation:{$name}]]", '</br>', $question_text);
+					if (!$show_best_solution) {
+						$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, false, $ta_value), $question_text);
+					} else {
+						$question_text = str_replace("[[validation:{$name}]]", '</br>', $question_text);
+					}
 				}
 			}
 
