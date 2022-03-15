@@ -763,7 +763,7 @@ class assStackQuestionGUI extends assQuestionGUI
 				$tabs->addSubTab('deployed_seeds_management', $this->plugin->txt('dsm_deployed_seeds'), $this->ctrl->getLinkTargetByClass($classname, "deployedSeedsManagement"));
 				//$tabs->addSubTab('unit_tests', $this->plugin->txt('ut_title'), $this->ctrl->getLinkTargetByClass($classname, "showUnitTests"));
 				$tabs->addSubTab('import_from_moodle', $this->plugin->txt('import_from_moodle'), $this->ctrl->getLinkTargetByClass($classname, "importQuestionFromMoodleForm"));
-				//$tabs->addSubTab('export_to_moodle', $this->plugin->txt('export_to_moodle'), $this->ctrl->getLinkTargetByClass($classname, "exportQuestiontoMoodleForm"));
+				$tabs->addSubTab('export_to_moodle', $this->plugin->txt('export_to_moodle'), $this->ctrl->getLinkTargetByClass($classname, "exportQuestiontoMoodleForm"));
 			}
 
 		}
@@ -952,6 +952,9 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->tpl->setContent($form->getHTML());
 	}
 
+	/**
+	 * @return void
+	 */
 	public function exportQuestionToMoodle()
 	{
 		global $DIC;
@@ -966,25 +969,30 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Getting data from POST
 		if (isset($_POST['first_question_id']) and isset($_POST['xqcas_all_from_pool'])) {
-			$id = $_POST['first_question_id'];
-			$mode = "";
-			if ($_POST['xqcas_all_from_pool'] == 'xqcas_export_all_from_pool') {
-				//Get all questions from a pool
-				$export_to_moodle = new assStackQuestionMoodleXMLExport($this->object->getAllQuestionsFromPool());
-				$xml = $export_to_moodle->toMoodleXML();
-			} elseif ($_POST['xqcas_all_from_pool'] == 'xqcas_export_only_this') {
-				//get current stack question info.
-				$export_to_moodle = new assStackQuestionMoodleXMLExport(array($id => $this->object));
-				$xml = $export_to_moodle->toMoodleXML();
-			} elseif ($_POST['xqcas_all_from_pool'] == 'xqcas_export_all_from_test') {
-				//get current stack question info.
-				$export_to_moodle = new assStackQuestionMoodleXMLExport($this->object->getAllQuestionsFromTest());
-				$xml = $export_to_moodle->toMoodleXML();
-			} else {
-				throw new Exception($lng->txt('qpl_qst_xqcas_error_exporting_to_moodle_mode'));
+			$question_id = (int)$_POST['first_question_id'];
+			$q_type_id = $this->object->getQuestionTypeID();
+			try {
+				if ($_POST['xqcas_all_from_pool'] == 'xqcas_export_all_from_pool') {
+					//Get all questions from a pool
+					$questions = assStackQuestionDB::_getAllQuestionsFromPool($question_id, $q_type_id);
+					$export_to_moodle = new assStackQuestionMoodleXMLExport($questions);
+				} elseif ($_POST['xqcas_all_from_pool'] == 'xqcas_export_only_this') {
+					//get current stack question info.
+					$export_to_moodle = new assStackQuestionMoodleXMLExport(array($question_id => $this->object));
+				} elseif ($_POST['xqcas_all_from_pool'] == 'xqcas_export_all_from_test') {
+					//get current stack question info.
+					$questions = assStackQuestionDB::_getAllQuestionsFromTest($question_id, $q_type_id);
+					$export_to_moodle = new assStackQuestionMoodleXMLExport($questions);
+				}
+
+				$export_to_moodle->toMoodleXML();
+
+			} catch (stack_exception $e) {
+				ilUtil::sendFailure($e, true);
 			}
+
 		} else {
-			throw new Exception($lng->txt('qpl_qst_xqcas_error_exporting_to_moodle_question_id'));
+			ilUtil::sendFailure($lng->txt('qpl_qst_xqcas_error_exporting_to_moodle_question_id'), true);
 		}
 	}
 

@@ -1290,8 +1290,7 @@ class assStackQuestionDB
 	 * @param bool $authorized
 	 * @return int
 	 */
-	public
-	static function _saveUserTestSolution(assStackQuestion $question, int $active_id, int $pass, bool $authorized): int
+	public static function _saveUserTestSolution(assStackQuestion $question, int $active_id, int $pass, bool $authorized): int
 	{
 
 		//Save question text instantiated
@@ -1338,8 +1337,8 @@ class assStackQuestionDB
 
 			}
 		}
-		//Save PRT information
 
+		//Save PRT information
 		foreach ($question->getEvaluation()['prts'] as $prt_name => $prt) {
 
 			//value1 = xqcas_input_name, $value2 = input_name
@@ -1432,8 +1431,7 @@ class assStackQuestionDB
 	 * @param string $input_name
 	 * @return void
 	 */
-	public
-	static function _saveModelAnswerIntoDB(assStackQuestion $question, int $active_id, int $pass, string $input_name, string $input_value, string $input_display)
+	public static function _saveModelAnswerIntoDB(assStackQuestion $question, int $active_id, int $pass, string $input_name, string $input_value, string $input_display)
 	{
 		try {
 			//value1 = xqcas_input_*_model_answer, value2 = teacher answer for this question input in raw format but initialised
@@ -1445,5 +1443,66 @@ class assStackQuestionDB
 		} catch (stack_exception $e) {
 			ilUtil::sendFailure($e, true);
 		}
+	}
+
+	/**
+	 * @return assStackQuestion[]
+	 * @throws stack_exception
+	 */
+	public static function _getAllQuestionsFromPool(int $question_id, int $q_type_id): array
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		$questions_array = array();
+
+		if ($question_id > 0 and $q_type_id) {
+			$result = $db->queryF(/** @lang text */ "SELECT question_id FROM qpl_questions AS qpl
+									WHERE qpl.obj_fi = (SELECT obj_fi FROM qpl_questions WHERE question_id = %s)
+									AND qpl.question_type_fi = %s", array('integer', 'integer'), array($question_id, $q_type_id));
+
+			while ($row = $db->fetchAssoc($result)) {
+				$new_question_id = $row['question_id'];
+
+				$ilias_question = new assStackQuestion();
+				$ilias_question->loadFromDb($new_question_id);
+
+				$questions_array[$new_question_id] = $ilias_question;
+			}
+		}
+
+		return $questions_array;
+	}
+
+	/**
+	 * @return assStackQuestion[]
+	 * @throws stack_exception
+	 */
+	public static function _getAllQuestionsFromTest(int $question_id, int $q_type_id): array
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		$questions_array = array();
+
+		if ($question_id > 0 AND $q_type_id)
+		{
+			$result = $db->queryF(/** @lang text */ "SELECT question_fi FROM tst_test_question AS tst INNER JOIN qpl_questions AS qpl
+								WHERE tst.question_fi = qpl.question_id
+								AND tst.test_fi = (SELECT test_fi FROM tst_test_question WHERE question_fi = %s)
+								AND qpl.question_type_fi = %s", array('integer', 'integer'), array($question_id, $q_type_id));
+
+			while ($row = $db->fetchAssoc($result))
+			{
+				$new_question_id = $row['question_fi'];
+
+				$ilias_question = new assStackQuestion();
+				$ilias_question->loadFromDb($new_question_id);
+
+				$questions_array[$new_question_id] = $ilias_question;
+			}
+		}
+
+		return $questions_array;
 	}
 }

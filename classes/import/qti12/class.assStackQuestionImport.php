@@ -41,7 +41,7 @@ class assStackQuestionImport extends assQuestionImport
 	public function fromXML(&$item, $questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping)
 	{
 		if (!is_string($item->getMetadataEntry('stack_version'))) {
-			ilUtil::sendFailure('The question pool you are importing is too old, please re export the file on a platform using at least branch stack_for_ilias7', true);
+			ilUtil::sendFailure('The question pool you are importing is too old, please, use the MoodleXML format or re-export the questions on a platform using at least branch stack_for_ilias7', true);
 			return;
 		}
 

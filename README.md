@@ -20,7 +20,7 @@ ILIAS STACK Question Type Plugin.
 
 This plugin is an ILIAS port of STACK, developed by Chris Sangwin. It provides a test question type
 for mathematical questions that are calculated by a the Computer Algebra System (CAS) Maxima.
-See the original STACK documentation at http://stack.bham.ac.uk/moodle
+See the original STACK documentation at https://stack.maths.ed.ac.uk/demo/
 
 Additional Software Requirements
 --------------------------------
@@ -103,7 +103,7 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
-Version 6.0 for ILIAS 7 (Beta)
+Version 6.4 for ILIAS 7 (Beta)
 ----------------------------------------
 - This STACK for ILIAS plugin version requires a Maxima Server with the maxima version 2021120900. Other versions may trigger validation errors.
 - **This version includes DBUpdate steps which change values in the xqcas_prts and xqcas_prt_nodes tables, please, backup these tables before update.**
@@ -120,4 +120,4 @@ Version 6.0 for ILIAS 7 (Beta)
 - The Save PRT function now checks also for invalid node names, which may come from Imported questions.
 - New attributes added to the question (not yet customisable): assume real, logic symbol, stack version and compiled cache to stack_options  and syntax attribute for stack_inputs
 - **The extremely rare and not replicable issue with question variants in test must be solved with this version, as the seed management in test function has been completely redesigned. **
-- Questions exported from a platform with a stack plugin version < 6.2 won't be imported as the import/export functions has been adapted to the new assStackQuestion structure. Funding is needed to allow compatibility with previous stack versions.
+- Questions exported from a platform with a stack plugin version < 6.2 won't be imported using the ILIAS format, as the import/export functions has been adapted to the new assStackQuestion structure. Funding is needed to allow compatibility with previous versions. You can always use the MoodleXML format for that purpose.
