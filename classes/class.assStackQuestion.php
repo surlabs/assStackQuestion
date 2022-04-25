@@ -875,18 +875,22 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		return $export->toXML($a_include_header, $a_include_binary, $a_shuffle, $test_output, $force_image_references);
 	}
 
+	//Question Points
 
 	/**
-	 * Calculates the points reached for question Preview
-	 * @param null $participant_solution
-	 * @return float|mixed
+	 * Calculate the points a user has reached in a preview session
+	 * @param ilAssQuestionPreviewSession $previewSession
+	 * @return float
 	 */
-	public function calculateReachedPointsForSolution($participant_solution = null)
+	public function calculateReachedPointsFromPreviewSession(ilAssQuestionPreviewSession $previewSession)
 	{
 		$points = 0.0;
-		foreach ($this->getPRTResults() as $results) {
 
-			//todo
+		foreach ($this->prts as $index => $prt) {
+
+			$prt_result = $this->getPrtResult($index, $previewSession->getParticipantsSolution(), true);
+			$points += $prt_result->_score * $prt_result->_weight;
+
 		}
 
 		return $points;
@@ -963,10 +967,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 				//PRT Results
 				$evaluation_data['prts'][$prt_name] = $this->prts[$prt_name]->evaluate_response($this->session, $this->options, $prt_input, $this->seed);
-				if ($evaluation_data['prts'][$prt_name]->_valid) {
+				//Accept valid
+				//if ($evaluation_data['prts'][$prt_name]->_valid) {
 					$evaluation_data['points'][$prt_name] = ($evaluation_data['prts'][$prt_name]->_score * $evaluation_data['prts'][$prt_name]->_weight * $this->getPoints());
-				}
-
+				//}
 			}
 
 			//Manage Inputs and Validation

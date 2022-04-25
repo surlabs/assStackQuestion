@@ -46,7 +46,19 @@ class assStackQuestionRenderer
 		// Replace specific feedback placeholders.
 		try {
 			foreach (stack_utils::extract_placeholders($question->specific_feedback_instantiated, 'feedback') as $prt_name) {
-				$feedback = self::_prtFeedbackDisplay($prt_name, $question->getPrtResult($prt_name, $user_solution, true), $question->prts[$prt_name]->get_feedbackstyle());
+				$prt_results = $question->getPrtResult($prt_name, $user_solution, true);
+
+				$feedback = '';
+
+				if ($prt_results->_score == 0) {
+					$feedback .= $question->prt_incorrect_instantiated;
+				} elseif ($prt_results->_score == 1) {
+					$feedback .= $question->prt_correct_instantiated;
+				} else {
+					$feedback .= $question->prt_partially_correct_instantiated;
+				}
+
+				$feedback .= self::_prtFeedbackDisplay($prt_name, $prt_results, $question->prts[$prt_name]->get_feedbackstyle());
 				$specific_feedback_text = str_replace("[[feedback:{$prt_name}]]", stack_maths::process_display_castext($feedback), $specific_feedback_text);
 			}
 		} catch (stack_exception $e) {
@@ -278,7 +290,7 @@ class assStackQuestionRenderer
 		// No duplicates should remain.
 		if ($formatted_input_placeholders !== $original_input_placeholders ||
 			$formatted_feedback_placeholders !== $original_feedback_placeholders) {
-			throw new stack_exception('Inconsistent placeholders. Possibly due to multi-lang filtter not being active.');
+			throw new stack_exception('Inconsistent placeholders. Possibly due to multi-lang filter not being active.');
 		}
 
 		$input_number = 1;
@@ -324,17 +336,31 @@ class assStackQuestionRenderer
 
 		// Replace PRTs.
 		foreach ($question->prts as $index => $prt) {
+
 			$feedback = '';
+			$prt_results = $question->getPrtResult($index, $response, true);
+
 			if ($show_inline_feedback) {
-				$feedback = self::_prtFeedbackDisplay($index, $question->getPrtResult($index, $response, true), $prt->get_feedbackstyle());
+
+				if ($prt_results->_score == 0) {
+					$feedback .= $question->prt_incorrect_instantiated;
+				} elseif ($prt_results->_score == 1) {
+					$feedback .= $question->prt_correct_instantiated;
+				} else {
+					$feedback .= $question->prt_partially_correct_instantiated;
+				}
+
+				$feedback .= '<div>' . self::_prtFeedbackDisplay($index, $prt_results, $prt->get_feedbackstyle()) . '</div>';
 
 			} else {
 				// The behaviour name test here is a hack. The trouble is that interactive
 				// behaviour or adaptivemulipart does not show feedback if the input
 				// is invalid, but we want to show the CAS errors from the PRT.
-				$result = $question->getPrtResult($index, $response, true);
-				$feedback = html_writer::nonempty_tag('span', $result->errors, array('class' => 'stackprtfeedback stackprtfeedback-' . $name));
+				$feedback = html_writer::nonempty_tag('span', $prt_results->errors, array('class' => 'stackprtfeedback stackprtfeedback-' . $name));
 			}
+
+			$points = $prt_results->_score * $prt_results->_weight;
+
 			$question_text = str_replace("[[feedback:{$index}]]", $feedback, $question_text);
 		}
 
@@ -367,16 +393,11 @@ class assStackQuestionRenderer
 	 * @return string
 	 * @throws stack_exception
 	 */
-	public
-	static function _prtFeedbackDisplay(string $name, stack_potentialresponse_tree_state $result, $feedback_style): string
+	public static function _prtFeedbackDisplay(string $name, stack_potentialresponse_tree_state $result, $feedback_style): string
 	{
-		$err = '';
-		if ($result->errors) {
-			$err = $result->errors;
-		}
-
 		$feedback = '';
 		$feedback_bits = $result->get_feedback();
+
 		if ($feedback_bits) {
 			$feedback = array();
 			$format = null;
@@ -398,31 +419,7 @@ class assStackQuestionRenderer
 
 		//TODO Generate the standard PRT feedback for a particular score.
 		//$standard_feedback = $this->standard_prt_feedback($qa, $question, $result, $feedbackstyle);
-
-		$tag = 'div';
-		switch ($feedback_style) {
-			case 0:
-				// Formative PRT.
-				$fb = $err . $feedback;
-				break;
-			case 1:
-				$fb = $err . $feedback;
-				break;
-			case 2:
-				// Compact.
-				$fb = $err . $feedback;
-				$tag = 'span';
-				break;
-			case 3:
-				// Symbolic.
-				$fb = $err;
-				$tag = 'span';
-				break;
-			default:
-				echo "i is not equal to 0, 1 or 2";
-		}
-
-		return html_writer::nonempty_tag($tag, $fb, array('class' => 'stackprtfeedback stackprtfeedback-' . $name));
+		return $feedback;
 	}
 
 	/**
@@ -444,7 +441,6 @@ class assStackQuestionRenderer
 	/* IMPORT / EXPORT RENDER METHODS END */
 
 	/* AUTHORING INTERFACE RENDER METHODS BEGIN */
-
 
 	/* AUTHORING INTERFACE RENDER METHODS END */
 }

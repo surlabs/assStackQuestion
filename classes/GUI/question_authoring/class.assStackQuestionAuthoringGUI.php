@@ -436,7 +436,19 @@ class assStackQuestionAuthoringGUI
 
 		$input_type = new ilSelectInputGUI($this->getPlugin()->txt('input_type'), $input_name . '_input_type');
 		//TODO CHANGE TO STACK METHOD
-		$input_type->setOptions(array("algebraic" => $this->getPlugin()->txt('input_type_algebraic'), "boolean" => $this->getPlugin()->txt('input_type_boolean'), "matrix" => $this->getPlugin()->txt('input_type_matrix'), "singlechar" => $this->getPlugin()->txt('input_type_singlechar'), "textarea" => $this->getPlugin()->txt('input_type_textarea'), "checkbox" => $this->getPlugin()->txt('input_type_checkbox'), "dropdown" => $this->getPlugin()->txt('input_type_dropdown'), "equiv" => $this->getPlugin()->txt('input_type_equiv'), "notes" => $this->getPlugin()->txt('input_type_notes'), "radio" => $this->getPlugin()->txt('input_type_radio'), "units" => $this->getPlugin()->txt('input_type_units'), "string" => $this->getPlugin()->txt('input_type_string'), "numerical" => $this->getPlugin()->txt('input_type_numerical')));
+		$input_type->setOptions(array("algebraic" => $this->getPlugin()->txt('input_type_algebraic'),
+			"boolean" => $this->getPlugin()->txt('input_type_boolean'),
+			"matrix" => $this->getPlugin()->txt('input_type_matrix'),
+			"singlechar" => $this->getPlugin()->txt('input_type_singlechar'),
+			"textarea" => $this->getPlugin()->txt('input_type_textarea'),
+			"checkbox" => $this->getPlugin()->txt('input_type_checkbox'),
+			"dropdown" => $this->getPlugin()->txt('input_type_dropdown'),
+			"equiv" => $this->getPlugin()->txt('input_type_equiv'),
+			"notes" => $this->getPlugin()->txt('input_type_notes'),
+			"radio" => $this->getPlugin()->txt('input_type_radio'),
+			"units" => $this->getPlugin()->txt('input_type_units'),
+			"string" => $this->getPlugin()->txt('input_type_string'),
+			"numerical" => $this->getPlugin()->txt('input_type_numerical')));
 		$input_type->setInfo($this->getPlugin()->txt('input_type_info'));
 		$input_type->setRequired(TRUE);
 
@@ -643,6 +655,8 @@ class assStackQuestionAuthoringGUI
 		$graph = new stack_abstract_graph();
 		$first_node_name = $prt->getFirstNode();
 		$nodes = array();
+
+		$prt_name = $prt->get_name();
 
 		//Show all nodes
 		foreach ($prt->getNodes() as $node_name => $node) {

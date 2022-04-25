@@ -191,20 +191,35 @@ class assStackQuestionGUI extends assQuestionGUI
 		//User response from session
 		$this->object->setUserResponse(is_object($this->getPreviewSession()) ? (array)$this->getPreviewSession()->getParticipantsSolution() : array());
 
-		//Variant management
-		if (isset($_REQUEST['fixed_seed'])) {
-			$variant = (int)$_REQUEST['fixed_seed'];
-			$_SESSION['q_seed_for_preview_' . $this->object->getId() . ''] = $variant;
-		} else {
-			if (isset($_SESSION['q_seed_for_preview_' . $this->object->getId() . ''])) {
-				$variant = (int)$_SESSION['q_seed_for_preview_' . $this->object->getId() . ''];
-			} else {
-				$variant = 1;
-			}
-		}
-
 		//Initialise the question
 		if (!$this->object->isInstantiated()) {
+
+			//Variant management
+			if (isset($_SESSION['q_seed_for_preview_' . $this->object->getId() . ''])) {
+				//We do have already a seed
+				$variant = (int)$_SESSION['q_seed_for_preview_' . $this->object->getId() . ''];
+			} else {
+				//We need a seed
+				if (!$this->object->hasRandomVariants()) {
+					// Randomisation not used.
+					$variant = 1;
+				} else if (!empty($this->object->deployed_seeds)) {
+					//If there are variants
+					//Choose between deployed seeds
+					$chosen_seed = array_rand($this->object->deployed_seeds);
+					//Set random selected seed
+					$variant = (int)$chosen_seed;
+				} else {
+					//Complete randomisation
+					if ($this->object->hasRandomVariants()) {
+						$variant = rand(1111111111, 9999999999);
+					} else {
+						$variant = 1;
+					}
+				}
+			}
+
+			$_SESSION['q_seed_for_preview_' . $this->object->getId() . ''] = $variant;
 			$this->object->questionInitialisation($variant, true);
 		}
 
@@ -232,8 +247,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function getSpecificFeedbackOutput($userSolution): string
 	{
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
-		$this->object->specific_feedback_instantiated = assStackQuestionRenderer::_renderSpecificFeedback($this->object, $userSolution);
-		return $this->object->specific_feedback_instantiated;
+		return assStackQuestionRenderer::_renderSpecificFeedback($this->object, $userSolution);
 	}
 
 
