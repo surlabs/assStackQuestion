@@ -550,26 +550,7 @@ class assStackQuestionDB
 
 			if (!array_key_exists($input_name, $input_ids) or empty($input_ids) or $purpose == 'import') {
 				//CREATE
-				$db->insert("xqcas_inputs", array(
-					"id" => array("integer", $db->nextId('xqcas_inputs')),
-					"question_id" => array("integer", $question_id),
-					"name" => array("text", $input->get_name()),
-					"type" => array("text", assStackQuestionUtils::_getInputType($input)),
-					"tans" => array("text", $input->get_teacher_answer() !== null ? $input->get_teacher_answer() : ''),
-					"box_size" => array("integer", $input->get_parameter('boxWidth') !== null ? $input->get_parameter('boxWidth') : ''),
-					"strict_syntax" => array("integer", $input->get_parameter('strictSyntax') !== null ? $input->get_parameter('strictSyntax') : ''),
-					"insert_stars" => array("integer", $input->get_parameter('insertStars') !== null ? $input->get_parameter('insertStars') : ''),
-					"syntax_hint" => array("text", $input->get_parameter('syntaxHint') !== null ? $input->get_parameter('syntaxHint') : ''),
-					"syntax_attribute" => array("text", $input->get_parameter('syntaxAttribute') !== null ? $input->get_parameter('syntaxAttribute') : ''),
-					"forbid_words" => array("text", $input->get_parameter('forbidWords') !== null ? $input->get_parameter('forbidWords') : ''),
-					"allow_words" => array("text", $input->get_parameter('allowWords') !== null ? $input->get_parameter('allowWords') : ''),
-					"forbid_float" => array("integer", $input->get_parameter('forbidFloats') !== null ? $input->get_parameter('forbidFloats') : ''),
-					"require_lowest_terms" => array("integer", $input->get_parameter('lowestTerms') !== null ? $input->get_parameter('lowestTerms') : ''),
-					"check_answer_type" => array("integer", $input->get_parameter('sameType') !== null ? $input->get_parameter('sameType') : ''),
-					"must_verify" => array("integer", $input->get_parameter('mustVerify') !== null ? $input->get_parameter('mustVerify') : ''),
-					"show_validation" => array("integer", $input->get_parameter('showValidation') !== null ? $input->get_parameter('showValidation') : ''),
-					"options" => array("clob", assStackQuestionUtils::_serializeExtraOptions($input->get_extra_options()) !== null ? assStackQuestionUtils::_serializeExtraOptions($input->get_extra_options()) : ''),
-				));
+				self::_saveInput($question_id, $input);
 			} else {
 				//UPDATE
 				$db->replace('xqcas_inputs',
@@ -978,6 +959,42 @@ class assStackQuestionDB
 				)
 			);
 		}
+	}
+
+	/**
+	 *
+	 * @param string $question_id
+	 * @param stack_input $input
+	 * @return bool
+	 */
+	public static function _saveInput(string $question_id, stack_input $input): bool
+	{
+		global $DIC;
+		$db = $DIC->database();
+
+		//CREATE
+		$db->insert("xqcas_inputs", array(
+			"id" => array("integer", $db->nextId('xqcas_inputs')),
+			"question_id" => array("integer", $question_id),
+			"name" => array("text", $input->get_name()),
+			"type" => array("text", assStackQuestionUtils::_getInputType($input)),
+			"tans" => array("text", $input->get_teacher_answer() !== null ? $input->get_teacher_answer() : ''),
+			"box_size" => array("integer", $input->get_parameter('boxWidth') !== null ? $input->get_parameter('boxWidth') : ''),
+			"strict_syntax" => array("integer", $input->get_parameter('strictSyntax') !== null ? $input->get_parameter('strictSyntax') : ''),
+			"insert_stars" => array("integer", $input->get_parameter('insertStars') !== null ? $input->get_parameter('insertStars') : ''),
+			"syntax_hint" => array("text", $input->get_parameter('syntaxHint') !== null ? $input->get_parameter('syntaxHint') : ''),
+			"syntax_attribute" => array("text", $input->get_parameter('syntaxAttribute') !== null ? $input->get_parameter('syntaxAttribute') : ''),
+			"forbid_words" => array("text", $input->get_parameter('forbidWords') !== null ? $input->get_parameter('forbidWords') : ''),
+			"allow_words" => array("text", $input->get_parameter('allowWords') !== null ? $input->get_parameter('allowWords') : ''),
+			"forbid_float" => array("integer", $input->get_parameter('forbidFloats') !== null ? $input->get_parameter('forbidFloats') : ''),
+			"require_lowest_terms" => array("integer", $input->get_parameter('lowestTerms') !== null ? $input->get_parameter('lowestTerms') : ''),
+			"check_answer_type" => array("integer", $input->get_parameter('sameType') !== null ? $input->get_parameter('sameType') : ''),
+			"must_verify" => array("integer", $input->get_parameter('mustVerify') !== null ? $input->get_parameter('mustVerify') : ''),
+			"show_validation" => array("integer", $input->get_parameter('showValidation') !== null ? $input->get_parameter('showValidation') : ''),
+			"options" => array("clob", assStackQuestionUtils::_serializeExtraOptions($input->get_extra_options()) !== null ? assStackQuestionUtils::_serializeExtraOptions($input->get_extra_options()) : ''),
+		));
+
+		return true;
 	}
 
 	/* SAVE QUESTION INTO DB END */
@@ -1485,15 +1502,13 @@ class assStackQuestionDB
 
 		$questions_array = array();
 
-		if ($question_id > 0 AND $q_type_id)
-		{
+		if ($question_id > 0 and $q_type_id) {
 			$result = $db->queryF(/** @lang text */ "SELECT question_fi FROM tst_test_question AS tst INNER JOIN qpl_questions AS qpl
 								WHERE tst.question_fi = qpl.question_id
 								AND tst.test_fi = (SELECT test_fi FROM tst_test_question WHERE question_fi = %s)
 								AND qpl.question_type_fi = %s", array('integer', 'integer'), array($question_id, $q_type_id));
 
-			while ($row = $db->fetchAssoc($result))
-			{
+			while ($row = $db->fetchAssoc($result)) {
 				$new_question_id = $row['question_fi'];
 
 				$ilias_question = new assStackQuestion();

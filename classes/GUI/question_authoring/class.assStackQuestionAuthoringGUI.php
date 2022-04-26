@@ -248,7 +248,7 @@ class assStackQuestionAuthoringGUI
 				}
 				$parameters[$parameter_name] = $all_parameters[$parameter_name];
 			}
-			$input = stack_input_factory::make('algebraic', 'ans1', 1,$this->getQuestionGUI()->object->options, $parameters);
+			$input = stack_input_factory::make('algebraic', 'ans1', 1, $this->getQuestionGUI()->object->options, $parameters);
 			$input_part = $this->getInputPart($input);
 			$input_part->setTitle($this->getPlugin()->txt('auth_inputs') . " ans1");
 			$inputs->addPart($input_part);
@@ -522,7 +522,7 @@ class assStackQuestionAuthoringGUI
 			$input_show_validation->setValue((int)$this->default["input_show_validation"]);
 			$input_options->setValue($this->default["input_extra_options"]);
 		} else {
-			$input_type->setValue($input->get_parameter('value'));
+			$input_type->setValue(assStackQuestionUtils::_getInputType($input));
 			$input_model_answer->setValue($input->get_teacher_answer());
 			$input_box_size->setValue($input->get_parameter('boxWidth'));
 			$input_strict_syntax->setChecked($input->get_parameter('strictSyntax'));
@@ -774,7 +774,7 @@ class assStackQuestionAuthoringGUI
 		if (!empty($q_nodes)) {
 			foreach ($q_nodes as $node) {
 				$node_part = $this->getNodePart($prt, $node);
-				$node_part->setType($prt->get_name(). '-' . $node->nodeid);
+				$node_part->setType($prt->get_name() . '-' . $node->nodeid);
 				$nodes->addPart($node_part);
 			}
 		}

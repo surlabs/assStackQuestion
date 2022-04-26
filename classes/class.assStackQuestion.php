@@ -567,6 +567,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 			$required_parameters = stack_input_factory::get_parameters_used();
 
+			$new_inputs = array();
+
 			//load only those inputs appearing in the question text
 			foreach (stack_utils::extract_placeholders($this->getQuestion(), 'input') as $name) {
 				$input_data = $inputs_from_db_array['inputs'][$name];
@@ -587,14 +589,31 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 				);
 
 				$parameters = array();
-				foreach ($required_parameters[$input_data['type']] as $parameter_name) {
-					if ($parameter_name == 'inputType') {
-						continue;
+
+				//We collect the non-existing inputs present in the question text
+				//We take care about them later
+				//Otherwise we proceed we normal loading
+				if ($input_data == null) {
+					$new_inputs[$name] = '';
+				} else {
+					foreach ($required_parameters[$input_data['type']] as $parameter_name) {
+						if ($parameter_name == 'inputType') {
+							continue;
+						}
+						$parameters[$parameter_name] = $all_parameters[$parameter_name];
 					}
-					$parameters[$parameter_name] = $all_parameters[$parameter_name];
+					//SET INPUTS
+					$this->inputs[$name] = stack_input_factory::make($input_data['type'], $input_data['name'], $input_data['tans'], $this->options, $parameters);
 				}
-				//SET INPUTS
-				$this->inputs[$name] = stack_input_factory::make($input_data['type'], $input_data['name'], $input_data['tans'], $this->options, $parameters);
+
+			}
+
+			//If an input placeholder has appeared in the text, but it is not in the DB
+			//we create the new Input as default, load it to the question.
+			//And save it into the DB.
+			foreach ($new_inputs as $input_name => $i_value) {
+				$this->loadStandardInput($input_name);
+				assStackQuestionDB::_saveInput($this->getId(), $this->inputs[$input_name]);
 			}
 
 			//load PRTs and PRT nodes
@@ -969,7 +988,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 				$evaluation_data['prts'][$prt_name] = $this->prts[$prt_name]->evaluate_response($this->session, $this->options, $prt_input, $this->seed);
 				//Accept valid
 				//if ($evaluation_data['prts'][$prt_name]->_valid) {
-					$evaluation_data['points'][$prt_name] = ($evaluation_data['prts'][$prt_name]->_score * $evaluation_data['prts'][$prt_name]->_weight * $this->getPoints());
+				$evaluation_data['points'][$prt_name] = ($evaluation_data['prts'][$prt_name]->_score * $evaluation_data['prts'][$prt_name]->_weight * $this->getPoints());
 				//}
 			}
 
@@ -995,6 +1014,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 	/**
 	 * This function loads the standard values from xqcas_configuration to the question object
+	 * @throws stack_exception
 	 */
 	public function loadStandardQuestion()
 	{
@@ -1042,38 +1062,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		//Stack version TODO CONFIG
 		$this->stack_version = '2021120900';
 
-
 		//load standard input
-		$standard_input = assStackQuestionConfig::_getStoredSettings('inputs');
-
-		$required_parameters = stack_input_factory::get_parameters_used();
-
-		$all_parameters = array(
-			'boxWidth' => $standard_input['input_box_size'],
-			'strictSyntax' => $standard_input['input_strict_syntax'],
-			'insertStars' => $standard_input['input_insert_stars'],
-			'syntaxHint' => $standard_input['input_syntax_hint'],
-			'syntaxAttribute' => '',
-			'forbidWords' => $standard_input['input_forbidden_words'],
-			'allowWords' => $standard_input['input_allow_words'],
-			'forbidFloats' => $standard_input['input_forbid_float'],
-			'lowestTerms' => $standard_input['input_require_lowest_terms'],
-			'sameType' => $standard_input['input_check_answer_type'],
-			'mustVerify' => $standard_input['input_must_verify'],
-			'showValidation' => $standard_input['input_show_validation'],
-			'options' => $standard_input['input_extra_options'],
-		);
-
-		$parameters = array();
-		foreach ($required_parameters[$standard_input['input_type']] as $parameter_name) {
-			if ($parameter_name == 'inputType') {
-				continue;
-			}
-			$parameters[$parameter_name] = $all_parameters[$parameter_name];
-		}
-
-		//Set input and add placeholders to question text.
-		$this->inputs['ans1'] = stack_input_factory::make($standard_input['input_type'], 'ans1', 1, $this->options, $parameters);
+		$this->loadStandardInput('ans1');
 		$this->setQuestion('[[input:ans1]] [[validation:ans1]]');
 
 		//load PRTs and PRT nodes
@@ -1147,6 +1137,51 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		$this->general_feedback = '';
 		$this->penalty = 0.0;
 		$this->hidden = false;
+	}
+
+	/**
+	 * @throws stack_exception
+	 */
+	public function loadStandardInput(string $input_name)
+	{
+		//Ensure input doesn't exists
+		if (!isset($this->inputs[$input_name])) {
+			//load standard input
+			$standard_input = assStackQuestionConfig::_getStoredSettings('inputs');
+
+			$required_parameters = stack_input_factory::get_parameters_used();
+
+			$all_parameters = array(
+				'boxWidth' => $standard_input['input_box_size'],
+				'strictSyntax' => $standard_input['input_strict_syntax'],
+				'insertStars' => $standard_input['input_insert_stars'],
+				'syntaxHint' => $standard_input['input_syntax_hint'],
+				'syntaxAttribute' => $standard_input['input_syntax_attribute'],
+				'forbidWords' => $standard_input['input_forbidden_words'],
+				'allowWords' => $standard_input['input_allow_words'],
+				'forbidFloats' => $standard_input['input_forbid_float'],
+				'lowestTerms' => $standard_input['input_require_lowest_terms'],
+				'sameType' => $standard_input['input_check_answer_type'],
+				'mustVerify' => $standard_input['input_must_verify'],
+				'showValidation' => $standard_input['input_show_validation'],
+				'options' => $standard_input['input_extra_options'],
+			);
+
+			$parameters = array();
+			foreach ($required_parameters[$standard_input['input_type']] as $parameter_name) {
+				if ($parameter_name == 'inputType') {
+					continue;
+				}
+				$parameters[$parameter_name] = $all_parameters[$parameter_name];
+			}
+
+			//Create Input
+			$input = stack_input_factory::make($standard_input['input_type'], $input_name, 1, $this->options, $parameters);
+			//Load input to the question.
+			$this->inputs[$input_name] = $input;
+		} else {
+			ilUtil::sendInfo('The new input ' . $input_name . ' was already created', true);
+		}
 	}
 
 	/* ILIAS SPECIFIC METHODS END */
