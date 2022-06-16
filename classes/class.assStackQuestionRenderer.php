@@ -132,8 +132,8 @@ class assStackQuestionRenderer
 			$ta_value = $question->getTeacherAnswerForInput($input_name);
 
 			$field_name = 'xqcas_solution_' . $question->getId() . '_' . $input_name;
-			$state = $question->getInputState($input_name, array($input_name => $correct_solution[$input_name]));
 
+			$state = $question->getInputState($input_name, array($input_name => $input->adapt_to_model_answer($correct_solution[$input_name])));
 			if ($input->get_parameter('showValidation') != 0) {
 				$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, true, $ta_value), $question_text);
 				$ilias_validation = '';
@@ -197,8 +197,15 @@ class assStackQuestionRenderer
 				$field_name = 'xqcas_' . $question->getId() . '_' . $input_name;
 				$state = $question->getInputState($input_name, array($input_name => $user_solutions_from_db['inputs'][$input_name]['value']));
 
+				$validation_button = '';
+				//Do not show validation in some inputs
+				if (!is_a($input, 'stack_radio_input') && !is_a($input, 'stack_dropdown_input') && !is_a($input, 'stack_checkbox_input')) {
+					$validation_button = self::_renderValidationButton($question->getId(), $input_name);
+				}
+
 				if ($input->get_parameter('showValidation') != 0) {
-					$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, false, $ta_value) . ' ' . self::_renderValidationButton($question->getId(), $input_name), $question_text);
+					$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, false, $ta_value) .
+						' ' . $validation_button, $question_text);
 					$ilias_validation =
 						'<div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">'
 						. $user_solutions_from_db['inputs'][$input_name]['validation_display'] .
@@ -305,7 +312,12 @@ class assStackQuestionRenderer
 				if ($input->get_parameter('showValidation') != 0) {
 					//Input and Validation Button
 					if (!$show_best_solution) {
-						$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, false, $ta_value) . ' ' . self::_renderValidationButton($question->getId(), $name), $question_text);
+						//Do not show validation in some inputs
+						$validation_button = '';
+						if (!is_a($input, 'stack_radio_input') && !is_a($input, 'stack_dropdown_input') && !is_a($input, 'stack_checkbox_input')) {
+							$validation_button = self::_renderValidationButton($question->getId(), $name);
+						}
+						$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, false, $ta_value) . ' ' . $validation_button, $question_text);
 					} else {
 						$field_name = 'xqcas_solution_' . $question->getId() . '_' . $name;
 						$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, true, $ta_value), $question_text);

@@ -743,8 +743,6 @@ class assStackQuestionUtils
 				return 'boolean';
 			case is_a($input, 'stack_checkbox_input'):
 				return 'checkbox';
-			case is_a($input, 'stack_dropdown_input'):
-				return 'dropdown';
 			case is_a($input, 'stack_equiv_input'):
 				return 'equiv';
 			case is_a($input, 'stack_matrix_input'):
@@ -765,6 +763,8 @@ class assStackQuestionUtils
 				return 'units';
 			case is_a($input, 'stack_varmatrix_input'):
 				return 'varmatrix';
+			case is_a($input, 'stack_dropdown_input'):
+				return 'dropdown';
 			default:
 				ilUtil::sendFailure('Input type not found', true);
 		}

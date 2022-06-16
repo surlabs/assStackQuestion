@@ -81,8 +81,9 @@ class stack_checkbox_input extends stack_dropdown_input {
             if ($readonly) {
                 $inputattributes['disabled'] = 'disabled';
             }
+			//ILI-FAU added &nbsp;
             $radiobuttons[] = html_writer::empty_tag('input', $inputattributes) .
-                html_writer::tag('label', $ansid, $labelattributes);
+                html_writer::tag('label', '&nbsp;'.$ansid, $labelattributes);
         }
 
         $result = '';
