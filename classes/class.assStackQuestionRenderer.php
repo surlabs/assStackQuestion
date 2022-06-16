@@ -125,6 +125,7 @@ class assStackQuestionRenderer
 			}
 		}
 
+		$states = $question->getInputStates();
 		//Replace Input placeholders
 		foreach ($question->inputs as $input_name => $input) {
 
@@ -133,7 +134,7 @@ class assStackQuestionRenderer
 
 			$field_name = 'xqcas_solution_' . $question->getId() . '_' . $input_name;
 
-			$state = $question->getInputState($input_name, array($input_name => $input->adapt_to_model_answer($correct_solution[$input_name])));
+			$state = $states[$input_name];
 			if ($input->get_parameter('showValidation') != 0) {
 				$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, true, $ta_value), $question_text);
 				$ilias_validation = '';
