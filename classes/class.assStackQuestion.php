@@ -302,14 +302,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		$seed = assStackQuestionDB::_getSeedForTestPass($this, $active_id, $pass);
 
 		$entered_values = 0;
-		$user_solution = $this->getSolutionSubmit();
+		$user_solution = $this->getUserResponse();
 
 		//debug
 		if (isset($user_solution['test_player_navigation_url'])) {
 			$navigation_url = $user_solution['test_player_navigation_url'];
 			unset($user_solution['test_player_navigation_url']);
 		}
-		$this->setUserResponse($user_solution);
 
 		//Instantiate Question if not.
 		if (!$this->isInstantiated()) {
@@ -318,7 +317,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 		//Evaluate Question if not.
 		if (empty($this->getEvaluation())) {
-			$this->evaluateQuestion();
+			$this->evaluateQuestion($user_solution);
 		}
 
 		//Save user test solution
@@ -701,7 +700,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 						//TODO Non gradable question
 						$prt_value = 0.0;
 					} else {
-						$prt_value = $prt_data['value'] / $total_value;
+						$prt_value = $prt_data['value'];
 					}
 
 					try {
@@ -972,9 +971,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	/* ILIAS SPECIFIC METHODS BEGIN */
 
 	/**
+	 * @param array $user_response
 	 * @return void
 	 */
-	public function evaluateQuestion(): void
+	public function evaluateQuestion(array $user_response): void
 	{
 		try {
 
@@ -982,7 +982,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			foreach ($this->prts as $prt_name => $prt) {
 
 				//User answers for PRT Evaluation
-				$prt_input = $this->getPrtInput($prt_name, $this->getUserResponse(), true);
+				$prt_input = $this->getPrtInput($prt_name, $user_response, true);
 
 				//PRT Results
 				$evaluation_data['prts'][$prt_name] = $this->prts[$prt_name]->evaluate_response($this->session, $this->options, $prt_input, $this->seed);

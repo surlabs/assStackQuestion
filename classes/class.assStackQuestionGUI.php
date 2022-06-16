@@ -110,7 +110,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			$user_solutions = $this->object->getSolutionSubmit();
 			$this->object->setUserResponse($user_solutions);
 
-			$this->object->evaluateQuestion();
+			$this->object->evaluateQuestion($user_solutions);
 		}
 
 		//Render Question
@@ -141,7 +141,6 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true): string
 	{
 		//Question initialization
-
 		if (is_null($pass)) {
 			include_once /** @lang text */
 			"./Modules/Test/classes/class.ilObjTest.php";
@@ -158,10 +157,15 @@ class assStackQuestionGUI extends assQuestionGUI
 		//If no user solution is given but question is not evaluated
 		//Force Evaluate Question
 		if (empty($this->object->getEvaluation())) {
-			$user_solutions = $this->object->getSolutionSubmit();
-			$this->object->setUserResponse($user_solutions);
+			if (empty($this->object->getSolutionSubmit())) {
+				//Preview Mode
+				$user_solutions = $this->object->getUserResponse();
+			} else {
+				//Test Mode
+				$user_solutions = $this->object->getSolutionSubmit();
+			}
 
-			$this->object->evaluateQuestion();
+			$this->object->evaluateQuestion($user_solutions);
 		}
 
 		//Render Solution
@@ -189,7 +193,17 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->setIsPreview(array(1));
 
 		//User response from session
-		$this->object->setUserResponse(is_object($this->getPreviewSession()) ? (array)$this->getPreviewSession()->getParticipantsSolution() : array());
+		$user_solution = array();
+		//Debug the PreviewSession Data
+		if (is_object($this->getPreviewSession())) {
+			$raw_participants_solution = (array)$this->getPreviewSession()->getParticipantsSolution();
+			foreach ($raw_participants_solution as $key => $value) {
+				if (!str_starts_with($key, 'xqcas_solution')) {
+					$user_solution[$key] = $value;
+				}
+			}
+		}
+		$this->object->setUserResponse($user_solution);
 
 		//Initialise the question
 		if (!$this->object->isInstantiated()) {
@@ -378,6 +392,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		$prt_from_post_array = array();
 
+
 		//Load only those prt located in the question text or in the specific feedback.
 		$prt_placeholders = stack_utils::extract_placeholders($this->object->getQuestion() . $this->object->specific_feedback, 'feedback');
 		foreach ($prt_placeholders as $prt_name) {
@@ -386,7 +401,6 @@ class assStackQuestionGUI extends assQuestionGUI
 			$prt_from_post_array[$prt_name]['auto_simplify'] = ((isset($_POST['prt_' . $prt_name . '_simplify']) and $_POST['prt_' . $prt_name . '_simplify'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_simplify'])) : '');
 			$prt_from_post_array[$prt_name]['feedback_variables'] = ((isset($_POST['prt_' . $prt_name . '_feedback_variables']) and $_POST['prt_' . $prt_name . '_feedback_variables'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_feedback_variables'])) : '');
 			$prt_from_post_array[$prt_name]['first_node_name'] = ((isset($_POST['prt_' . $prt_name . '_first_node']) and $_POST['prt_' . $prt_name . '_first_node'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_first_node'])) : '');
-
 			//Look for node info
 			foreach ($this->object->prts[$prt_name]->get_nodes_summary() as $node_id => $node) {
 
@@ -475,7 +489,7 @@ class assStackQuestionGUI extends assQuestionGUI
 				}
 			}
 
-			$prt_value = $prt_data['value'] / $total_value;
+			$prt_value = $prt_data['value'];
 
 			try {
 				$this->object->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt_data['auto_simplify'], $prt_value, $feedback_variables, $nodes, (string)$prt_data['first_node_name'], 1);

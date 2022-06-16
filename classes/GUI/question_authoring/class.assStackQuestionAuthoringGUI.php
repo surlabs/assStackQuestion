@@ -982,7 +982,7 @@ class assStackQuestionAuthoringGUI
 		$node_pos_feedback_class->setOptions($this->getFeedbackOptions());
 		$node_pos_feedback_class->setInfo($this->getPlugin()->txt('prt_node_pos_feedback_class_info'));
 
-		$this->getQuestionGUI()->setRTESupport($node_pos_specific_feedback);
+		//$this->getQuestionGUI()->setRTESupport($node_pos_specific_feedback);
 
 		//Set value if exists if not default values
 		if ($this->new_question) {
@@ -1070,7 +1070,7 @@ class assStackQuestionAuthoringGUI
 		$node_neg_feedback_class->setOptions($this->getFeedbackOptions());
 		$node_neg_feedback_class->setInfo($this->getPlugin()->txt('prt_node_neg_feedback_class_info'));
 
-		$this->getQuestionGUI()->setRTESupport($node_neg_specific_feedback);
+		//$this->getQuestionGUI()->setRTESupport($node_neg_specific_feedback);
 
 		//Set value if exists if not default values
 		if ($this->new_question) {
