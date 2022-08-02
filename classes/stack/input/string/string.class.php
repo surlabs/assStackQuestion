@@ -72,10 +72,11 @@ class stack_string_input extends stack_algebraic_input {
      * Transforms the student's response input into an array.
      * Most return the same as went in.
      *
+	 * ILI-FAU
      * @param array|string $in
      * @return string
      */
-    protected function response_to_contents($response) {
+    public function response_to_contents($response) {
 
         $contents = array();
         if (array_key_exists($this->name, $response)) {

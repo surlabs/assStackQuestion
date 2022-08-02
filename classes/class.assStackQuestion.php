@@ -302,7 +302,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		$seed = assStackQuestionDB::_getSeedForTestPass($this, $active_id, $pass);
 
 		$entered_values = 0;
-		$user_solution = $this->getUserResponse();
+		$user_solution = $this->getSolutionSubmit();
 
 		//debug
 		if (isset($user_solution['test_player_navigation_url'])) {
@@ -570,7 +570,21 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 			//load only those inputs appearing in the question text
 			foreach (stack_utils::extract_placeholders($this->getQuestion(), 'input') as $name) {
+
 				$input_data = $inputs_from_db_array['inputs'][$name];
+
+				//Adjust syntax Hint for Textareas
+				//Firstline shown as irstlin
+
+				if ($input_data['type'] == 'equiv' || $input_data['type'] == 'textarea') {
+					if (strlen($input_data['syntax_hint']) and !str_starts_with($input_data['syntax_hint'], '[')) {
+						$input_data['syntax_hint'] = '[' . $input_data['syntax_hint'] . ']';
+					}
+					if (strlen($input_data['tans']) and !str_starts_with($input_data['tans'], '[')) {
+						$input_data['tans'] = '[' . $input_data['tans'] . ']';
+					}
+				}
+
 				$all_parameters = array(
 					'boxWidth' => $input_data['box_size'],
 					'strictSyntax' => $input_data['strict_syntax'],
@@ -980,6 +994,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 			$evaluation_data = array();
 			foreach ($this->prts as $prt_name => $prt) {
+
+				if (!$this->hasNecessaryPrtInputs($prt, $user_response, true)) {
+					ilUtil::sendFailure('The PRT ' . $prt_name . ' wasnt evaluated because not all inputs were answered.');
+					continue;
+				}
 
 				//User answers for PRT Evaluation
 				$prt_input = $this->getPrtInput($prt_name, $user_response, true);
@@ -1399,6 +1418,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			$this->prt_partially_correct_instantiated = $prt_partially_correct->get_display_castext();
 			$this->prt_incorrect_instantiated = $prt_incorrect->get_display_castext();
 			$this->session = $session_to_keep;
+			$this->addQuestionVarsToSession($session);
+
 			if ($session_to_keep->get_errors()) {
 				$s = stack_string('runtimefielderr', array('field' => stack_string('questionvariables'), 'err' => $session_to_keep->get_errors(true)));
 				$this->runtime_errors[$s] = true;

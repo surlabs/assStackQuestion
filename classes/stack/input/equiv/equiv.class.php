@@ -117,11 +117,11 @@ class stack_equiv_input extends stack_input {
     /**
      * Transforms the student's response input into an array.
      * Most return the same as went in.
-     *
+     * ILI-FAU
      * @param array|string $in
      * @return string
      */
-    protected function response_to_contents($response) {
+    public function response_to_contents($response) {
         $contents = array();
         if (array_key_exists($this->name, $response)) {
             $sans = $response[$this->name];
@@ -356,6 +356,7 @@ class stack_equiv_input extends stack_input {
         // Looks odd making this true, but if there is a validity error here it will have
         // surfaced somewhere else.
         if (!($fl->get_valid())) {
+			var_dump($teacheranswer);exit;
             $fl = new stack_cas_casstring('firstline:true');
         }
 

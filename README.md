@@ -103,7 +103,7 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
-Version 6.6 for ILIAS 7 (Beta)
+Version 6.7 for ILIAS 7 (Beta)
 ----------------------------------------
 - This STACK for ILIAS plugin version requires a Maxima Server with the maxima version 2021120900. Other versions may trigger validation errors.
 - **This version includes DBUpdate steps which change values in the xqcas_prts and xqcas_prt_nodes tables, please, backup these tables before update.**

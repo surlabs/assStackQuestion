@@ -100,18 +100,17 @@ class assStackQuestionRenderer
 	 * @param bool $show_manual_scoring
 	 * @param bool $show_question_text
 	 * @return string
+	 * @throws stack_exception
 	 */
 	public static function _renderQuestionSolution(assStackQuestion $question, int $active_id, int $pass = null, bool $graphicalOutput = false, bool $result_output = false, bool $show_question_only = true, bool $show_feedback = false, bool $show_correct_solution = false, bool $show_manual_scoring = false, bool $show_question_text = true): string
 	{
 		$correct_solution = array();
 
 		if ($active_id === 0 and $pass === 0) {
+
 			//Preview Mode
 			$question_text = $question->question_text_instantiated;
-
-			foreach ($question->inputs as $input_name => $input) {
-				$correct_solution[$input_name] = $question->getTas($input_name)->get_dispvalue();
-			}
+			$correct_solution = $question->getCorrectResponse();
 
 		} else {
 			//Test Mode
@@ -125,25 +124,20 @@ class assStackQuestionRenderer
 			}
 		}
 
-		$states = $question->getInputStates();
+
 		//Replace Input placeholders
 		foreach ($question->inputs as $input_name => $input) {
 
 			// Get the actual value of the teacher's answer at this point.
-			$ta_value = $question->getTeacherAnswerForInput($input_name);
+			$teacher_answer_input = $input;
+
+			$correct_state = $teacher_answer_input->validate_student_response($correct_solution, $question->options, $correct_solution[$input_name], $question->getSecurity(), false);
 
 			$field_name = 'xqcas_solution_' . $question->getId() . '_' . $input_name;
 
-			$state = $states[$input_name];
-			if ($input->get_parameter('showValidation') != 0) {
-				$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, true, $ta_value), $question_text);
-				$ilias_validation = '';
-				$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
-			} else {
-				$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, true, $ta_value), $question_text);
-				$ilias_validation = '';
-				$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
-			}
+			$question_text = str_replace("[[input:{$input_name}]]", '&nbsp' . $input->render($correct_state, $field_name, true, $correct_solution[$input_name]), $question_text);
+			$question_text = str_replace("[[validation:{$input_name}]]", '</br>', $question_text);
+
 		}
 
 		//Replace PRT placeholders
@@ -441,8 +435,7 @@ class assStackQuestionRenderer
 	 * @param string $input_name
 	 * @return string the HTML code of the button of validation for this input.
 	 */
-	public
-	static function _renderValidationButton(string $question_id, string $input_name): string
+	public static function _renderValidationButton(string $question_id, string $input_name): string
 	{
 		return "<button style=\"height:1.8em;\" class=\"xqcas\" name=\"cmd[xqcas_" . $question_id . '_' . $input_name . "]\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></button>";
 	}
