@@ -305,7 +305,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		require_once("./Services/RTE/classes/class.ilRTE.php");
 
 		//Question Text - Reload it with RTE (already loaded in writeQuestionGenericPostData())
-		$question_text = ((isset($_POST['options_question_simplify']) and $_POST['question'] != null) ? trim(ilUtil::secureString($_POST['question'])) : '');
+		$question_text = ((isset($_POST['options_question_simplify']) and $_POST['question'] != null) ? trim(ilUtil::secureString($_POST['question'], false)) : '');
 		$this->object->setQuestion(ilRTE::_replaceMediaObjectImageSrc($question_text, 1));
 
 		//stack_options
@@ -327,20 +327,20 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 		//Load data sent as options but not part of the session options
-		$this->object->question_variables = ((isset($_POST['options_question_variables']) and $_POST['options_question_variables'] != null) ? trim(ilUtil::secureString($_POST['options_question_variables'])) : '');
-		$this->object->question_note = ((isset($_POST['options_question_note']) and $_POST['options_question_note'] != null) ? trim(ilUtil::secureString($_POST['options_question_note'])) : '');
+		$this->object->question_variables = ((isset($_POST['options_question_variables']) and $_POST['options_question_variables'] != null) ? trim(ilUtil::secureString($_POST['options_question_variables'], false)) : '');
+		$this->object->question_note = ((isset($_POST['options_question_note']) and $_POST['options_question_note'] != null) ? trim(ilUtil::secureString($_POST['options_question_note'], false)) : '');
 
-		$this->object->specific_feedback = ((isset($_POST['options_specific_feedback']) and $_POST['options_specific_feedback'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST['options_specific_feedback']))) : '');
+		$this->object->specific_feedback = ((isset($_POST['options_specific_feedback']) and $_POST['options_specific_feedback'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST['options_specific_feedback'], false))) : '');
 		$this->object->specific_feedback_format = 1;
 
-		$this->object->prt_correct = ((isset($_POST['options_prt_correct']) and $_POST['options_prt_correct'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST['options_prt_correct']))) : '');
+		$this->object->prt_correct = ((isset($_POST['options_prt_correct']) and $_POST['options_prt_correct'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST['options_prt_correct'], false))) : '');
 		$this->object->prt_correct_format = 1;
-		$this->object->prt_partially_correct = ((isset($_POST['options_prt_partially_correct']) and $_POST['options_prt_partially_correct'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST['options_prt_partially_correct']))) : '');
+		$this->object->prt_partially_correct = ((isset($_POST['options_prt_partially_correct']) and $_POST['options_prt_partially_correct'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST['options_prt_partially_correct'], false))) : '');
 		$this->object->prt_partially_correct_format = 1;
-		$this->object->prt_incorrect = ((isset($_POST['options_prt_incorrect']) and $_POST['options_prt_incorrect'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST['options_prt_incorrect']))) : '');
+		$this->object->prt_incorrect = ((isset($_POST['options_prt_incorrect']) and $_POST['options_prt_incorrect'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST['options_prt_incorrect'], false))) : '');
 		$this->object->prt_incorrect_format = 1;
 
-		$this->object->general_feedback = ((isset($_POST['options_how_to_solve']) and $_POST['options_how_to_solve'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST['options_how_to_solve']))) : '');
+		$this->object->general_feedback = ((isset($_POST['options_how_to_solve']) and $_POST['options_how_to_solve'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST['options_how_to_solve'], false))) : '');
 
 		//TODO
 		//$this->object->variants_selection_seed = ?;
@@ -418,14 +418,14 @@ class assStackQuestionGUI extends assQuestionGUI
 				$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_score_mode'] = ((isset($_POST[$prefix . '_pos_mod']) and $_POST[$prefix . '_pos_mod'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_mod'])) : '');
 				$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_penalty'] = ((isset($_POST[$prefix . '_pos_penalty']) and $_POST[$prefix . '_pos_penalty'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_penalty'])) : '');
 				$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_answer_note'] = ((isset($_POST[$prefix . '_pos_answernote']) and $_POST[$prefix . '_pos_answernote'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_answernote'])) : '');
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_feedback'] = ((isset($_POST[$prefix . '_pos_specific_feedback']) and $_POST[$prefix . '_pos_specific_feedback'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST[$prefix . '_pos_specific_feedback']))) : '');
+				$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_feedback'] = ((isset($_POST[$prefix . '_pos_specific_feedback']) and $_POST[$prefix . '_pos_specific_feedback'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST[$prefix . '_pos_specific_feedback'], false))) : '');
 				$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_feedback_format'] = ((isset($_POST[$prefix . '_pos_feedback_class']) and $_POST[$prefix . '_pos_feedback_class'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_pos_feedback_class'])) : '');
 
 				$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_score'] = ((isset($_POST[$prefix . '_neg_score']) and $_POST[$prefix . '_neg_score'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_score'])) : '');
 				$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_score_mode'] = ((isset($_POST[$prefix . '_neg_mod']) and $_POST[$prefix . '_neg_mod'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_mod'])) : '');
 				$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_penalty'] = ((isset($_POST[$prefix . '_neg_penalty']) and $_POST[$prefix . '_neg_penalty'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_penalty'])) : '');
 				$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_answer_note'] = ((isset($_POST[$prefix . '_neg_answernote']) and $_POST[$prefix . '_neg_answernote'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_answernote'])) : '');
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_feedback'] = ((isset($_POST[$prefix . '_neg_specific_feedback']) and $_POST[$prefix . '_neg_specific_feedback'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST[$prefix . '_neg_specific_feedback']))) : '');
+				$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_feedback'] = ((isset($_POST[$prefix . '_neg_specific_feedback']) and $_POST[$prefix . '_neg_specific_feedback'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST[$prefix . '_neg_specific_feedback'], false))) : '');
 				$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_feedback_format'] = ((isset($_POST[$prefix . '_neg_feedback_class']) and $_POST[$prefix . '_neg_feedback_class'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_neg_feedback_class'])) : '');
 
 			}
