@@ -262,6 +262,11 @@ class assStackQuestionHealthcheck
 		$query = "TRUNCATE table xqcas_cas_cache";
 		$db->manipulate($query);
 
+		#31702
+		/*Additional this two pathes should be flushed too:
+		./data/<client_id>/xqcas/stack/plots
+		./data/<client_id>/xqcas/stack/tmp*/
+
 		return TRUE;
 	}
 

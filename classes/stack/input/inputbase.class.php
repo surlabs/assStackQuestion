@@ -448,6 +448,7 @@ abstract class stack_input {
     /**
      * Validates the value of an input parameter.
      * @return array of parameters names.
+	 * TODO fau call this function on authoring interface saving
      */
     public function validate_parameter($parameter, $value) {
         if (!$this->is_parameter_used($parameter)) {

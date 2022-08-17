@@ -535,7 +535,7 @@ class assStackQuestionAuthoringGUI
 			$input_check_answer_type->setChecked($input->get_parameter('sameType'));
 			$input_must_verify->setChecked($input->get_parameter('mustVerify'));
 			$input_show_validation->setValue($input->get_parameter('showValidation'));
-			$input_options->setValue($input->get_parameter('extraoptions'));
+			$input_options->setValue($input->get_parameter('options'));
 		}
 
 		//Add form properties
@@ -888,7 +888,7 @@ class assStackQuestionAuthoringGUI
 		$node_options->setInfo($node_options_info_text);
 
 		$node_quiet = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_quiet'), 'prt_' . $prt->get_name() . '_node_' . $node->nodeid . '_quiet');
-		$node_quiet->setOptions(array(TRUE => $lng->txt('yes'), FALSE => $lng->txt('no'),));
+		$node_quiet->setOptions(array(true => $lng->txt('yes'), false => $lng->txt('no'),));
 		$node_quiet->setInfo($this->getPlugin()->txt('prt_node_quiet_info'));
 
 		if ($this->new_question) {
@@ -902,7 +902,7 @@ class assStackQuestionAuthoringGUI
 			$node_student_answer->setValue($node->getRawSans() == " " ? '' : $node->getRawSans());
 			$node_teacher_answer->setValue($node->getRawTans() == " " ? '' : $node->getRawTans());
 			$node_options->setValue((string)$node->getAtoptions());
-			$node_quiet->setValue($node->isQuiet());
+			$node_quiet->setValue($node->isQuiet() ? 1 : 0);
 		}
 
 		$common_node_part->addFormProperty($answer_test);

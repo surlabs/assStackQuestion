@@ -72,7 +72,7 @@ function checkUserResponse($question_id, $input_name, $user_response)
 	try {
 		$status = $question->inputs[$input_name]->validate_student_response($user_response, $question->options, $teacher_answer, $question->getSecurity());
 	} catch (stack_exception $e) {
-		return $e;
+		return $e->getMessage();
 	}
 
 	$result = array('input' => $user_response, 'status' => $status->status, 'message' => $question->inputs[$input_name]->render_validation($status, $input_name));

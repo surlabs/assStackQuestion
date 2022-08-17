@@ -575,7 +575,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 				//Adjust syntax Hint for Textareas
 				//Firstline shown as irstlin
-
+				/*
 				if ($input_data['type'] == 'equiv' || $input_data['type'] == 'textarea') {
 					if (strlen($input_data['syntax_hint']) and !str_starts_with($input_data['syntax_hint'], '[')) {
 						$input_data['syntax_hint'] = '[' . $input_data['syntax_hint'] . ']';
@@ -583,7 +583,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 					if (strlen($input_data['tans']) and !str_starts_with($input_data['tans'], '[')) {
 						$input_data['tans'] = '[' . $input_data['tans'] . ']';
 					}
-				}
+					if (strlen($input_data['sans']) and !str_starts_with($input_data['sans'], '[')) {
+						$input_data['sans'] = '[' . $input_data['sans'] . ']';
+					}
+				}*/
 
 				$all_parameters = array(
 					'boxWidth' => $input_data['box_size'],

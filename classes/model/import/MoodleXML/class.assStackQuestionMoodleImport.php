@@ -343,7 +343,7 @@ class assStackQuestionMoodleImport
 
 				try {
 					//Create Node and add it to the
-					$node = new stack_potentialresponse_node($sans, $tans, ilUtil::secureString((string)$xml_node->answertest), ilUtil::secureString((string)$xml_node->testoptions), (bool)$xml_node->quiet, '', (int)$node_name, $raw_sans, $raw_tans);
+					$node = new stack_potentialresponse_node($sans, $tans, ilUtil::secureString((string)$xml_node->answertest), ilUtil::secureString((string)$xml_node->testoptions), (bool)(string)$xml_node->quiet, '', (int)$node_name, $raw_sans, $raw_tans);
 
 					//manage images in true feedback
 					if (isset($xml_node->falsefeedback->text)) {

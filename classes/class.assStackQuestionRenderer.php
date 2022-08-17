@@ -41,31 +41,48 @@ class assStackQuestionRenderer
 
 		$specific_feedback_text = stack_maths::process_display_castext($specific_feedback);
 
-		//TODO Connect with feedback styles should be done here.
+		foreach (stack_utils::extract_placeholders($question->getQuestion(), 'input') as $input_name) {
+			if (array_key_exists($input_name, $user_solution)) {
+				//Preview
+				// Replace specific feedback placeholders.
+				try {
+					foreach (stack_utils::extract_placeholders($question->specific_feedback_instantiated, 'feedback') as $prt_name) {
 
-		// Replace specific feedback placeholders.
-		try {
-			foreach (stack_utils::extract_placeholders($question->specific_feedback_instantiated, 'feedback') as $prt_name) {
-				$prt_results = $question->getPrtResult($prt_name, $user_solution, true);
+						$prt_results = $question->getPrtResult($prt_name, $user_solution, true);
 
-				$feedback = '';
+						$feedback = '';
 
-				if ($prt_results->_score == 0) {
-					$feedback .= $question->prt_incorrect_instantiated;
-				} elseif ($prt_results->_score == 1) {
-					$feedback .= $question->prt_correct_instantiated;
-				} else {
-					$feedback .= $question->prt_partially_correct_instantiated;
+						if ($prt_results->_score == 0) {
+							$feedback .= $question->prt_incorrect_instantiated;
+						} elseif ($prt_results->_score == 1) {
+							$feedback .= $question->prt_correct_instantiated;
+						} else {
+							$feedback .= $question->prt_partially_correct_instantiated;
+						}
+
+						$feedback .= self::_prtFeedbackDisplay($prt_name, $prt_results, $question->prts[$prt_name]->get_feedbackstyle());
+						$specific_feedback_text = str_replace("[[feedback:{$prt_name}]]", stack_maths::process_display_castext($feedback), $specific_feedback_text);
+					}
+				} catch (stack_exception $e) {
+					$specific_feedback_text = $e->getMessage();
 				}
 
-				$feedback .= self::_prtFeedbackDisplay($prt_name, $prt_results, $question->prts[$prt_name]->get_feedbackstyle());
-				$specific_feedback_text = str_replace("[[feedback:{$prt_name}]]", stack_maths::process_display_castext($feedback), $specific_feedback_text);
+				return $specific_feedback_text . $general_feedback;
+			} else {
+				//Test
+				foreach (stack_utils::extract_placeholders($question->specific_feedback_instantiated, 'feedback') as $prt_name) {
+					if (array_key_exists('xqcas_prt_' . $prt_name . '_feedback', $user_solution)) {
+						$feedback = $user_solution['xqcas_prt_' . $prt_name . '_feedback'];
+					}
+					if (array_key_exists('xqcas_prt_' . $prt_name . '_errors', $user_solution)) {
+						$errors = $user_solution['xqcas_prt_' . $prt_name . '_errors'];
+					}
+					$specific_feedback_text = str_replace("[[feedback:{$prt_name}]]", stack_maths::process_display_castext($feedback).'</br>'.stack_maths::process_display_castext($errors), $specific_feedback_text);
+				}
+				return $specific_feedback_text;
 			}
-		} catch (stack_exception $e) {
-			$specific_feedback_text = $e->getMessage();
 		}
-
-		return $specific_feedback_text . $general_feedback;
+		return $specific_feedback_text;
 	}
 
 	/**
@@ -328,6 +345,7 @@ class assStackQuestionRenderer
 				} else {
 					if (!$show_best_solution) {
 						$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, false, $ta_value), $question_text);
+						$question_text = str_replace("[[validation:{$name}]]", '</br>', $question_text);
 					} else {
 						$question_text = str_replace("[[validation:{$name}]]", '</br>', $question_text);
 					}

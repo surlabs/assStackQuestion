@@ -73,7 +73,7 @@ Configuration and test of the plugin
 ------------------------------------
 1. Go to Administration > Plugins
 2. Choose action "Configure" for the assStackQuestion plugin
-3. Set the platform type and maxima version according your installation
+3. Set the platform type and maxima servers according your installation
 4. Go to the tab "Health Check" and click "Do Health Check"
 
 Import of questions from moodleXML
@@ -103,7 +103,7 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
-Version 6.7 for ILIAS 7 (Beta)
+Version 6.8 for ILIAS 7 (Beta)
 ----------------------------------------
 - This STACK for ILIAS plugin version requires a Maxima Server with the maxima version 2021120900. Other versions may trigger validation errors.
 - **This version includes DBUpdate steps which change values in the xqcas_prts and xqcas_prt_nodes tables, please, backup these tables before update.**

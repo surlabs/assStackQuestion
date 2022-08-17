@@ -777,17 +777,19 @@ class assStackQuestionUtils
 	 */
 	public static function _serializeExtraOptions($extra_options): string
 	{
+		$string = '';
 		if (is_string($extra_options)) {
 			return $extra_options;
 		} elseif (is_array($extra_options)) {
 			$string = '';
 			foreach ($extra_options as $option_name => $status) {
 				if ($status === true) {
-					$string .= $option_name;
+					$string .= $option_name.',';
 				}
 			}
-			return $string;
+			return substr($string, 0, -1);
 		}
+		return $string;
 	}
 
 	/**

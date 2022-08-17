@@ -24,13 +24,14 @@ $CFG->wwwroot = ilUtil::_getHttpPath();
 $CFG->dirroot = realpath(dirname(__FILE__) . '/../..');
 // the data directory of the plugin
 $CFG->dataroot = realpath(ilUtil::getWebspaceDir('filesystem')) . '/xqcas';
-$CFG->dataurl = ilUtil::_getHttpPath() . "/" . ilUtil::getWebspaceDir() . "/" . CLIENT_ID . "/xqcas";
+$CFG->dataurl = ilUtil::_getHttpPath() . "/" . ILIAS_WEB_DIR . "/" . CLIENT_ID . "/xqcas";
 $GLOBALS['CFG'] =& $CFG;
 
 define('PARAM_RAW', 'raw');
 define('MOODLE_INTERNAL', '1');
 
 include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/locallib.php';
+include_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/exceptions/class.assStackQuestionException.php');
 
 
 if (!function_exists('getLanguage')) {

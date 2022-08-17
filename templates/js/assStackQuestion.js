@@ -40,7 +40,8 @@ il.assStackQuestion = new function () {
 		config = a_config;
 		texts = a_texts;
 
-		$('form > div.ilc_question_Standard > button').click(self.validate);
+		$('button.xqcas').click(self.validate);
+		//$('form > div.ilc_question_Standard > button').click(self.validate);
 		$('#ilc_Page > div.ilc_question_Standard > button').click(self.validate);
 	};
 
