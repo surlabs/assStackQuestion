@@ -395,9 +395,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 * @param bool $authorized
 	 * @return array
 	 */
-	function &getSolutionValues($active_id, $pass = NULL, $authorized = TRUE)
+	function getSolutionValues($active_id, $pass = NULL, $authorized = TRUE)
 	{
-		return $this->fromDBToReadableFormat(parent::getSolutionValues($active_id, $pass, $authorized));
+		$solution_values =parent::getSolutionValues($active_id, $pass, $authorized);
+		return $this->fromDBToReadableFormat($solution_values);
 	}
 
 	/**
@@ -497,7 +498,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 * @param integer $question_counter A reference to a question counter to count the questions of an imported question pool
 	 * @param array $import_mapping An array containing references to included ILIAS objects
 	 */
-	public function fromXML(&$item, &$questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping)
+	public function fromXML(&$item, &$questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping, array $solution_hints = [])
 	{
 		$this->getPlugin()->includeClass('import/qti12/class.assStackQuestionImport.php');
 		$import = new assStackQuestionImport($this);
@@ -531,8 +532,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 		$lng = $DIC->language();
 		$answered_inputs = array();
 
-		$worksheet->setCell($startrow, 0, $this->lng->txt($this->plugin->txt('assStackQuestion')), $format_title);
-		$worksheet->setCell($startrow, 1, $this->getTitle(), $format_title);
+		$worksheet->setCell($startrow, 0, $this->lng->txt($this->plugin->txt('assStackQuestion')));
+		$worksheet->setCell($startrow, 1, $this->getTitle());
 		$i = 1;
 		foreach ($solution as $solution_id => $solutionvalue)
 		{
@@ -540,25 +541,25 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 			{
 				if ($solution_id == 'question_text')
 				{
-					$worksheet->setCell($startrow + $i, 0, $this->plugin->txt('message_question_text'), $format_title);
+					$worksheet->setCell($startrow + $i, 0, $this->plugin->txt('message_question_text'));
 					$worksheet->setCell($startrow + $i, 1, $solutionvalue);
 					$i++;
 				}
 				if ($solution_id == 'question_note')
 				{
-					$worksheet->setCell($startrow + $i, 0, $this->plugin->txt('exp_question_note'), $format_title);
+					$worksheet->setCell($startrow + $i, 0, $this->plugin->txt('exp_question_note'));
 					$worksheet->setCell($startrow + $i, 1, $solutionvalue);
 					$i++;
 				}
 				if ($solution_id == 'general_feedback')
 				{
-					$worksheet->setCell($startrow + $i, 0, $this->plugin->txt('exp_general_feedback'), $format_title);
+					$worksheet->setCell($startrow + $i, 0, $this->plugin->txt('exp_general_feedback'));
 					$worksheet->setCell($startrow + $i, 1, $solutionvalue);
 					$i++;
 				}
 				if ($solution_id == 'points')
 				{
-					$worksheet->setCell($startrow + $i, 0, $lng->txt('points'), $format_title);
+					$worksheet->setCell($startrow + $i, 0, $lng->txt('points'));
 					$worksheet->setCell($startrow + $i, 1, $solutionvalue);
 					$i++;
 				}
@@ -568,13 +569,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 				{
 					if (isset($prt_value['points']))
 					{
-						$worksheet->setCell($startrow + $i, 0, $prt_name . ' ' . $lng->txt('points'), $format_bold);
+						$worksheet->setCell($startrow + $i, 0, $prt_name . ' ' . $lng->txt('points'));
 						$worksheet->setCell($startrow + $i, 1, $prt_value['points']);
 						$i++;
 					}
 					if ($prt_value['answernote'])
 					{
-						$worksheet->setCell($startrow + $i, 0, $prt_name . ' ' . $this->plugin->txt('message_answernote_part'), $format_bold);
+						$worksheet->setCell($startrow + $i, 0, $prt_name . ' ' . $this->plugin->txt('message_answernote_part'));
 						$worksheet->setCell($startrow + $i, 1, $prt_value['answernote']);
 						$i++;
 					}
@@ -582,7 +583,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 					{
 						foreach ($prt_value['response'] as $input_name => $input)
 						{
-							$worksheet->setCell($startrow + $i, 0, $input_name . ' ' . $this->plugin->txt('exp_student_answer'), $format_bold);
+							$worksheet->setCell($startrow + $i, 0, $input_name . ' ' . $this->plugin->txt('exp_student_answer'));
 							$worksheet->setCell($startrow + $i, 1, $input['value']);
 							$answered_inputs[$input_name] = $input['value'];
 							$i++;

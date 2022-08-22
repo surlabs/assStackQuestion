@@ -528,7 +528,7 @@ class assStackQuestionGUI extends assQuestionGUI
             if (method_exists($this->object, "getUserSolutionPreferingIntermediate")) {
                 $solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
             } else {
-                $solutions =& $this->object->getSolutionValues($active_id, $pass);
+                $solutions = $this->object->getSolutionValues($active_id, $pass);
             }
         }
         //Create STACK Question object if doesn't exists
@@ -624,7 +624,7 @@ class assStackQuestionGUI extends assQuestionGUI
             if (method_exists($this->object, "getUserSolutionPreferingIntermediate")) {
                 $solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
             } else {
-                $solutions =& $this->object->getSolutionValues($active_id, $pass);
+                $solutions = $this->object->getSolutionValues($active_id, $pass);
             }
         }
 
@@ -842,7 +842,7 @@ class assStackQuestionGUI extends assQuestionGUI
     public function getSpecificFeedbackOutput($userSolution)
     {
         //We cannot use $userSolution, we need to get active id and pass to get the
-//Check for PASS
+		//Check for PASS
 
         $active_id = $this->active_id;
         $pass = $this->pass;
@@ -863,7 +863,7 @@ class assStackQuestionGUI extends assQuestionGUI
             if (method_exists($this->object, "getUserSolutionPreferingIntermediate")) {
                 $solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
             } else {
-                $solutions =& $this->object->getSolutionValues($active_id, $pass);
+                $solutions = $this->object->getSolutionValues($active_id, $pass);
             }
         }
         $specific_feedback = $this->object->getOptions()->getSpecificFeedback();
