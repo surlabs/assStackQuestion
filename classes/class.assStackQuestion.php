@@ -498,7 +498,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition
 	 * @param integer $question_counter A reference to a question counter to count the questions of an imported question pool
 	 * @param array $import_mapping An array containing references to included ILIAS objects
 	 */
-	public function fromXML(&$item, &$questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping, array $solution_hints = [])
+	public function fromXML(&$item, &$questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping)
 	{
 		$this->getPlugin()->includeClass('import/qti12/class.assStackQuestionImport.php');
 		$import = new assStackQuestionImport($this);
