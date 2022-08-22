@@ -90,10 +90,10 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
 
-Version 3.4.3 (2022-08-22) ONLY for ILIAS 7.12+
+Version 3.4.3 (2022-08-22) only for ILIAS 6 - 7.11
 ----------------------------------------
 Solves Conflict with new fromXML Method definition in assQuestion.
-**Do not install this version in non ILIAS 7.12+ Platforms, as fromXML definition is different in those versions.**
+**Do not install this version in ILIAS 7.12+ Platforms, as fromXML definition is different in those versions.**
 
 Version 3.4.2 (2022-02-11) for ILIAS 7 and ILIAS 6
 ----------------------------------------
