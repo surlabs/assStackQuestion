@@ -17,6 +17,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/stack/mathsoutput/mathsoutput.class.php');
+include_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/exceptions/class.assStackQuestionException.php');
 
 /**
  * Base class for all the types of exception we throw.
