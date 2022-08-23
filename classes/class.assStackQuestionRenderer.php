@@ -20,98 +20,32 @@ include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/as
 class assStackQuestionRenderer
 {
 
-	public static function renderQuestionTextForPreview(){
+	/* QUESTION TEXT RENDERING */
 
-	}
-
-	public static function renderQuestionTextForTestView(){
-
-	}
-
-	public static function renderQuestionTextForTestResults(){
-
-	}
-
-	public static function renderSpecificFeedbackForPreview(){
-
-	}
-
-
-	public static function renderSpecificFeedbackForTestView(){
-
-	}
-
-	/* ILIAS REQUIRED METHODS RENDER BEGIN */
-
-	/**
-	 * @param assStackQuestion $question
-	 * @param array $user_solution
-	 * @return string
-	 */
-	public static function _renderSpecificFeedback(assStackQuestion $question, array $user_solution): string
+	public static function renderQuestionTextForPreview()
 	{
-		//General Feedback output
-		$general_feedback = self::_renderGeneralFeedback($question, $user_solution);
 
-		//Specific feedback
-		$specific_feedback = $question->specific_feedback_instantiated;
-
-		if (!$specific_feedback) {
-			return $general_feedback;
-		}
-
-		$specific_feedback_text = stack_maths::process_display_castext($specific_feedback);
-
-		foreach (stack_utils::extract_placeholders($question->getQuestion(), 'input') as $input_name) {
-			if (array_key_exists($input_name, $user_solution)) {
-				//Preview
-				// Replace specific feedback placeholders.
-				try {
-					foreach (stack_utils::extract_placeholders($question->specific_feedback_instantiated, 'feedback') as $prt_name) {
-
-						$prt_results = $question->getPrtResult($prt_name, $user_solution, true);
-
-						$feedback = '';
-
-						if ($prt_results->_score == 0) {
-							$feedback .= $question->prt_incorrect_instantiated;
-						} elseif ($prt_results->_score == 1) {
-							$feedback .= $question->prt_correct_instantiated;
-						} else {
-							$feedback .= $question->prt_partially_correct_instantiated;
-						}
-
-						$feedback .= self::_prtFeedbackDisplay($prt_name, $prt_results, $question->prts[$prt_name]->get_feedbackstyle());
-						$specific_feedback_text = str_replace("[[feedback:{$prt_name}]]", stack_maths::process_display_castext($feedback), $specific_feedback_text);
-					}
-				} catch (stack_exception $e) {
-					$specific_feedback_text = $e->getMessage();
-				}
-
-				return $specific_feedback_text . $general_feedback;
-			} else {
-				//Test
-				foreach (stack_utils::extract_placeholders($question->specific_feedback_instantiated, 'feedback') as $prt_name) {
-					if (array_key_exists('xqcas_prt_' . $prt_name . '_feedback', $user_solution)) {
-						$feedback = $user_solution['xqcas_prt_' . $prt_name . '_feedback'];
-					}
-					if (array_key_exists('xqcas_prt_' . $prt_name . '_errors', $user_solution)) {
-						$errors = $user_solution['xqcas_prt_' . $prt_name . '_errors'];
-					}
-					$specific_feedback_text = str_replace("[[feedback:{$prt_name}]]", stack_maths::process_display_castext($feedback) . '</br>' . stack_maths::process_display_castext($errors), $specific_feedback_text);
-				}
-				return $specific_feedback_text;
-			}
-		}
-		return $specific_feedback_text;
 	}
 
+	public static function renderQuestionTextForTestView()
+	{
+
+	}
+
+	public static function renderQuestionTextForTestResults()
+	{
+
+	}
+
+	/* GENERAL + SPECIFIC FEEDBACK RENDERING */
+
 	/**
+	 * Uses Evaluation Object -> Test & Preview
+	 * Renders the General Feedback text
 	 * @param assStackQuestion $question
-	 * @param array $user_solution
-	 * @return string
+	 * @return string HTML Code with the rendered specific feedback text
 	 */
-	public static function _renderGeneralFeedback(assStackQuestion $question, array $user_solution): string
+	public static function _renderGeneralFeedback(assStackQuestion $question): string
 	{
 		try {
 			$general_feedback_text = new stack_cas_text($question->general_feedback, $question->session, $question->seed);
@@ -127,6 +61,141 @@ class assStackQuestionRenderer
 	}
 
 	/**
+	 * Uses Evaluation Object -> Preview
+	 * Renders the Specific Feedback text
+	 * Including all feedback placeholders
+	 * @param assStackQuestion $question
+	 * @return string HTML Code with the rendered specific feedback text
+	 */
+	public static function _renderSpecificFeedbackForPreview(assStackQuestion $question): string
+	{
+		//Specific feedback
+		$specific_feedback = $question->specific_feedback_instantiated;
+
+		foreach (stack_utils::extract_placeholders($question->specific_feedback_instantiated, 'feedback') as $prt_name) {
+
+			$evaluation = $question->getEvaluation();
+
+			$prt_feedback = '';
+
+			//Standard Feedback
+			$prt_points_obtained = (float)$evaluation['points'][$prt_name];
+			$prt_points_max = (float)$question->prts[$prt_name]->get_value();
+
+			if ($prt_points_obtained == $prt_points_max) {
+				$prt_feedback .= $question->prt_correct_instantiated;
+			} elseif ($prt_points_obtained <= 0) {
+				$prt_feedback .= $question->prt_incorrect_instantiated;
+			} else {
+				$prt_feedback .= $question->prt_partially_correct_instantiated;
+			}
+
+			//Errors & Feedback
+			//Ensure evaluation has been done
+			if (!isset($evaluation['prts'][$prt_name]) or !is_a($evaluation['prts'][$prt_name], 'stack_potentialresponse_tree_state')) {
+
+				$prt_feedback .= 'WARNING: No evaluation state for prt: ' . $prt_name . '</br>';
+
+			} else {
+
+				$prt_state = $evaluation['prts'][$prt_name];
+
+				$prt_feedback .= self::renderPRTFeedbackForPreview($prt_state);
+
+			}
+
+			$specific_feedback = stack_utils::replace_feedback_placeholders($specific_feedback, $prt_feedback);
+
+		}
+
+		//Use General Feedback Style for the whole Text
+		return assStackQuestionUtils::_getFeedbackStyledText($specific_feedback, 'feedback_default');
+
+	}
+
+	/**
+	 * Uses $user_solution_from_db -> Test View
+	 * Renders the Specific Feedback text
+	 * Including all feedback placeholders
+	 * status in db determines feedback class
+	 * Used also for Test Results
+	 * @param assStackQuestion $question
+	 * @param array $user_solution_from_db
+	 * @return string HTML Code with the rendered specific feedback text
+	 */
+	public static function _renderSpecificFeedbackForTest(assStackQuestion $question, array $user_solution_from_db): string
+	{
+		//Specific feedback
+		$specific_feedback = $question->specific_feedback_instantiated;
+
+		foreach (stack_utils::extract_placeholders($question->specific_feedback_instantiated, 'feedback') as $prt_name) {
+
+			$prt_feedback = '';
+			$format = "1";
+
+			//Ensure points obtained are known
+			if (isset($user_solution_from_db['xqcas_prt_' . $prt_name . '_status'])) {
+
+				$prt_status = (float)$user_solution_from_db['xqcas_prt_' . $prt_name . '_status'];
+
+				if ($prt_status == 1.0) {
+					$prt_feedback .= $question->prt_correct_instantiated;
+					$format = '2';
+				} elseif ($prt_status <= 0.0) {
+					$prt_feedback .= $question->prt_incorrect_instantiated;
+					$format = '3';
+				} else {
+					$prt_feedback .= $question->prt_partially_correct_instantiated;
+				}
+
+				if (isset($user_solution_from_db['xqcas_prt_' . $prt_name . '_feedback'])) {
+
+					//Substitute Variables in Feedback text
+					$prt_feedback .= self::substituteVariablesInFeedback(null, $user_solution_from_db['xqcas_prt_' . $prt_name . '_feedback'], $format, 'test');
+
+					//Ensure LaTeX is properly render
+					$prt_feedback = stack_maths::process_display_castext($prt_feedback, null);
+
+					//Replace Temporal Style Placeholders
+					$prt_feedback = self::replaceFeedbackPlaceHolders($prt_feedback);
+				}
+			}
+
+			$specific_feedback = stack_utils::replace_feedback_placeholders($specific_feedback, $prt_feedback);
+		}
+
+		//Use General Feedback Style for the whole Text
+		return assStackQuestionUtils::_getFeedbackStyledText($specific_feedback, 'feedback_default');
+	}
+
+	public static function renderSpecificFeedbackForTestResults()
+	{
+
+	}
+
+	/* BEST SOLUTION RENDERING */
+
+	public
+	static function renderBestSolutionForPreview()
+	{
+
+	}
+
+	public
+	static function renderBestSolutionForTestView()
+	{
+
+	}
+
+	public
+	static function renderBestSolutionForTestResults()
+	{
+
+	}
+
+	/* ILIAS REQUIRED METHODS RENDER BEGIN */
+
+	/**
 	 * @param assStackQuestion $question
 	 * @param int $active_id
 	 * @param int|null $pass
@@ -140,7 +209,8 @@ class assStackQuestionRenderer
 	 * @return string
 	 * @throws stack_exception
 	 */
-	public static function _renderQuestionSolution(assStackQuestion $question, int $active_id, int $pass = null, bool $graphicalOutput = false, bool $result_output = false, bool $show_question_only = true, bool $show_feedback = false, bool $show_correct_solution = false, bool $show_manual_scoring = false, bool $show_question_text = true): string
+	public
+	static function _renderQuestionSolution(assStackQuestion $question, int $active_id, int $pass = null, bool $graphicalOutput = false, bool $result_output = false, bool $show_question_only = true, bool $show_feedback = false, bool $show_correct_solution = false, bool $show_manual_scoring = false, bool $show_question_text = true): string
 	{
 		$correct_solution = array();
 
@@ -157,10 +227,10 @@ class assStackQuestionRenderer
 			$question_text = $user_solutions_from_db['question_text'];
 			if (isset($user_solutions_from_db['inputs'])) {
 				foreach ($user_solutions_from_db['inputs'] as $input_name => $input) {
-					$teacher_solution =  $input['correct_value'];
+					$teacher_solution = $input['correct_value'];
 
 					//TEXTAREAS EQUIV, User response from DB tuning
-					if (is_a($input, 'stack_textarea_input') or is_a($input, 'stack_equiv_input')) {
+					if (isset($question->inputs[$input_name]) && (is_a($question->inputs[$input_name], 'stack_textarea_input') or is_a($question->inputs[$input_name], 'stack_equiv_input'))) {
 						$teacher_solution = substr($teacher_solution, 1, -1);
 						$teacher_solution = explode(',', $teacher_solution);
 						$teacher_solution = implode("\n", $teacher_solution);
@@ -201,7 +271,8 @@ class assStackQuestionRenderer
 	 * @param bool $show_inline_feedback
 	 * @return string
 	 */
-	public static function _renderQuestionPreview(assStackQuestion $question, bool $show_inline_feedback = false): string
+	public
+	static function _renderQuestionPreview(assStackQuestion $question, bool $show_inline_feedback = false): string
 	{
 		try {
 			return self::_renderQuestion($question, true, false, $show_inline_feedback);
@@ -220,7 +291,8 @@ class assStackQuestionRenderer
 	 * @return string
 	 * @throws stack_exception
 	 */
-	public static function _renderQuestionTest(assStackQuestion $question, int $active_id, int $pass, bool $user_solutions, bool $show_specific_inline_feedback, bool $is_question_postponed = false): string
+	public
+	static function _renderQuestionTest(assStackQuestion $question, int $active_id, int $pass, bool $user_solutions, bool $show_specific_inline_feedback, bool $is_question_postponed = false): string
 	{
 		if (empty($user_solutions_from_db = $question->getTestOutputSolutions($active_id, $pass))) {
 			//Render question from scratch
@@ -298,7 +370,8 @@ class assStackQuestionRenderer
 	 * @return string
 	 * @throws stack_exception
 	 */
-	public static function _renderQuestion(assStackQuestion $question, bool $show_inline_feedback = false, bool $show_best_solution = false, int $active_id = null, int $pass = null): string
+	public
+	static function _renderQuestion(assStackQuestion $question, bool $show_inline_feedback = false, bool $show_best_solution = false, int $active_id = null, int $pass = null): string
 	{
 		global $DIC;
 
@@ -456,7 +529,8 @@ class assStackQuestionRenderer
 	 * @return string
 	 * @throws stack_exception
 	 */
-	public static function _prtFeedbackDisplay(string $name, stack_potentialresponse_tree_state $result, $feedback_style): string
+	public
+	static function _prtFeedbackDisplay(string $name, stack_potentialresponse_tree_state $result, $feedback_style): string
 	{
 		$feedback = '';
 		$feedback_bits = $result->get_feedback();
@@ -491,10 +565,153 @@ class assStackQuestionRenderer
 	 * @param string $input_name
 	 * @return string the HTML code of the button of validation for this input.
 	 */
-	public static function _renderValidationButton(string $question_id, string $input_name): string
+	public
+	static function _renderValidationButton(string $question_id, string $input_name): string
 	{
 		return "<button style=\"height:1.8em;\" class=\"xqcas\" name=\"cmd[xqcas_" . $question_id . '_' . $input_name . "]\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></button>";
 	}
+
+	/* FEEDBACK RENDERING HELPER METHODS BEGIN */
+
+	/**
+	 * Uses Evaluation Object -> Preview
+	 * Renders the feedback from a single PRT evaluation
+	 * @param stack_potentialresponse_tree_state $prt_state
+	 * @return string HTML Code with the rendered PRT feedback
+	 */
+	protected static function renderPRTFeedbackForPreview(stack_potentialresponse_tree_state $prt_state): string
+	{
+		$feedback = '';
+		$feedback_bits = $prt_state->get_feedback();
+		$feedback_array = array();
+
+		if ($feedback_bits) {
+			$format = null;
+			foreach ($feedback_bits as $bit) {
+				$feedback_array[] = $bit->feedback;
+				if (!is_null($bit->format)) {
+					if (is_null($format)) {
+						$format = $bit->format;
+					}
+					if ($bit->format != $format) {
+						ilutil::sendFailure('Inconsistent feedback formats found in PRT ', true);
+					}
+				}
+			}
+
+			//Substitute Variables in Feedback text
+			$feedback .= self::substituteVariablesInFeedback($prt_state, $feedback_array, $format, 'preview');
+
+			//Ensure LaTeX is properly render
+			$feedback = stack_maths::process_display_castext($feedback, null);
+
+			//Replace Temporal Placeholders
+			$feedback = assStackQuestionUtils::_getFeedbackStyledText($feedback, $format);
+		}
+
+		return self::replaceFeedbackPlaceHolders($feedback);
+	}
+
+	/**
+	 * Add temporal placeholders for feedback styles while replace variables in feedback
+	 * @param stack_potentialresponse_tree_state|null $prt_state
+	 * @param array|string $feedback
+	 * @param string $format
+	 * @param string $mode
+	 * @return string
+	 */
+	protected static function substituteVariablesInFeedback(?stack_potentialresponse_tree_state $prt_state, $feedback, string $format, string $mode): string
+	{
+		if ($mode == 'preview') {
+			switch ($format) {
+				case "2":
+					$feedback = "[[feedback_node_right]]" . $prt_state->substitue_variables_in_feedback(implode(' ', $feedback)) . "[[feedback_node_right_close]]";
+					break;
+				case "3":
+					$feedback = "[[feedback_node_wrong]]" . $prt_state->substitue_variables_in_feedback(implode(' ', $feedback)) . "[[feedback_node_wrong_close]]";
+					break;
+				case "4":
+					$feedback = "[[feedback_solution_hint]]" . $prt_state->substitue_variables_in_feedback(implode(' ', $feedback)) . "[[feedback_solution_hint_close]]";
+					break;
+				case "5":
+					$feedback = "[[feedback_extra_info]]" . $prt_state->substitue_variables_in_feedback(implode(' ', $feedback)) . "[[feedback_extra_info_close]]";
+					break;
+				case "6":
+					$feedback = "[[feedback_plot_feedback]]" . $prt_state->substitue_variables_in_feedback(implode(' ', $feedback)) . "[[feedback_plot_feedback_close]]";
+					break;
+				default:
+					//By default, add no style
+					$feedback = $prt_state->substitue_variables_in_feedback(implode(' ', $feedback));
+					break;
+			}
+		} elseif ($mode == 'test') {
+			switch ($format) {
+				case "2":
+					$feedback = "[[feedback_node_right]]" . $feedback . "[[feedback_node_right_close]]";
+					break;
+				case "3":
+					$feedback = "[[feedback_node_wrong]]" . $feedback . "[[feedback_node_wrong_close]]";
+					break;
+				case "4":
+					$feedback = "[[feedback_solution_hint]]" . $feedback . "[[feedback_solution_hint_close]]";
+					break;
+				case "5":
+					$feedback = "[[feedback_extra_info]]" . $feedback . "[[feedback_extra_info_close]]";
+					break;
+				case "6":
+					$feedback = "[[feedback_plot_feedback]]" . $feedback . "[[feedback_plot_feedback_close]]";
+					break;
+				default:
+					//By default, add no style
+					break;
+			}
+		}
+
+		return $feedback;
+	}
+
+	/**
+	 * Replaces the temporal placeholders for the feedback with the correct HTML
+	 * @param string $feedback
+	 * @return array|string|string[] HTML Stylized feedback
+	 */
+	protected static function replaceFeedbackPlaceHolders(string $feedback): string
+	{
+		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
+
+		//Get Styles assigned to Formats
+		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
+
+		$text = $feedback;
+		//Search for right feedback
+		$style_assigned = $config_options["feedback_node_right"];
+		$text = str_replace("[[feedback_node_right]]", '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">', $text);
+		$text = str_replace("[[feedback_node_right_close]]", '</div>', $text);
+
+		//Search for wrong feedback
+		$style_assigned = $config_options["feedback_node_wrong"];
+		$text = str_replace("[[feedback_node_wrong]]", '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">', $text);
+		$text = str_replace("[[feedback_node_wrong_close]]", '</div>', $text);
+
+		//Search for wrong feedback
+		$style_assigned = $config_options["feedback_solution_hint"];
+		$text = str_replace("[[feedback_solution_hint]]", '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">', $text);
+		$text = str_replace("[[feedback_solution_hint_close]]", '</div>', $text);
+
+		//Replace Extra info
+		$style_assigned = $config_options["feedback_extra_info"];
+		$text = str_replace("[[feedback_extra_info]]", '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">', $text);
+		$text = str_replace("[[feedback_extra_info_close]]", '</div>', $text);
+
+		//Replace Extra info
+		$style_assigned = $config_options["feedback_plot_feedback"];
+		$text = str_replace("[[feedback_plot_feedback]]", '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">', $text);
+		$text = str_replace("[[feedback_plot_feedback_close]]", '</div>', $text);
+
+		return $text;
+	}
+
+	/* FEEDBACK RENDERING HELPER METHODS END */
 
 
 	/* OTHER RENDER METHODS END */

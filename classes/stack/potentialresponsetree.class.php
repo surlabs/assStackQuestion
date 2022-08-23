@@ -350,7 +350,7 @@ class stack_potentialresponse_tree {
     }
 
     /**
-     * @return float the value of this PRT within the question.
+     * @return  the value of this PRT within the question.
      */
     public function get_value() {
         return $this->value;

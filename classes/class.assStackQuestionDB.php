@@ -1381,7 +1381,10 @@ class assStackQuestionDB
 			$entered_values++;
 
 			//value1 = xqcas_input_*_status, $value2 = status
-			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status', $prt->_valid);
+			$obtained_points = (float)$question->getEvaluation()['points'][$prt_name];
+			$max_prt_points = (float)$question->prts[$prt_name]->get_value();
+			$fraction = $obtained_points / $max_prt_points;
+			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status', (string)$fraction);
 			$entered_values++;
 
 			//value1 = xqcas_input_*_status_message, $value2 = answernotes
@@ -1448,7 +1451,8 @@ class assStackQuestionDB
 	 * @param string $input_name
 	 * @return void
 	 */
-	public static function _saveModelAnswerIntoDB(assStackQuestion $question, int $active_id, int $pass, string $input_name, string $input_value, string $input_display)
+	public
+	static function _saveModelAnswerIntoDB(assStackQuestion $question, int $active_id, int $pass, string $input_name, string $input_value, string $input_display)
 	{
 		try {
 			//value1 = xqcas_input_*_model_answer, value2 = teacher answer for this question input in raw format but initialised
@@ -1466,7 +1470,8 @@ class assStackQuestionDB
 	 * @return assStackQuestion[]
 	 * @throws stack_exception
 	 */
-	public static function _getAllQuestionsFromPool(int $question_id, int $q_type_id): array
+	public
+	static function _getAllQuestionsFromPool(int $question_id, int $q_type_id): array
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -1495,7 +1500,8 @@ class assStackQuestionDB
 	 * @return assStackQuestion[]
 	 * @throws stack_exception
 	 */
-	public static function _getAllQuestionsFromTest(int $question_id, int $q_type_id): array
+	public
+	static function _getAllQuestionsFromTest(int $question_id, int $q_type_id): array
 	{
 		global $DIC;
 		$db = $DIC->database();

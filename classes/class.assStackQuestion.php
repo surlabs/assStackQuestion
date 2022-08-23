@@ -893,7 +893,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	 * @param integer $question_counter A reference to a question counter to count the questions of an imported question pool
 	 * @param array $import_mapping An array containing references to included ILIAS objects
 	 */
-	public function fromXML(&$item, &$questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping): void
+	public function fromXML(&$item, &$questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping, array $solutionhints = []): void
 	{
 		$this->getPlugin()->includeClass('import/qti12/class.assStackQuestionImport.php');
 		$import = new assStackQuestionImport($this);
@@ -1693,8 +1693,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		} else if ($this->isAnyInputBlank($response)) {
 			return stack_string('pleaseananswerallparts');
 
-		} else {
-			return stack_string('pleasecheckyourinputs');
 		}
 	}
 

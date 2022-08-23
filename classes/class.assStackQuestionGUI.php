@@ -253,10 +253,36 @@ class assStackQuestionGUI extends assQuestionGUI
 		return $question_preview;
 	}
 
+	/**
+	 * @param $userSolution
+	 * @return string HTML Code with the rendered specific feedback text including the general feedback
+	 */
 	public function getSpecificFeedbackOutput($userSolution): string
 	{
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
-		return assStackQuestionRenderer::_renderSpecificFeedback($this->object, $userSolution);
+
+		//Include content Style
+		$style_id = assStackQuestionUtils::_getActiveContentStyleId();
+		if (strlen($style_id)) {
+			require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
+			global $DIC;
+			$DIC->globalScreen()->layout()->meta()->addCss(ilObjStyleSheet::getContentStylePath((int)$style_id));
+		}
+
+		$general_feedback = assStackQuestionRenderer::_renderGeneralFeedback($this->object);
+
+		if (isset($this->is_preview)) {
+
+			//Ensure evaluation has been done
+			if (empty($this->object->getEvaluation())) {
+				$this->object->evaluateQuestion($userSolution);
+			}
+			$specific_feedback = assStackQuestionRenderer::_renderSpecificFeedbackForPreview($this->object);
+		} else {
+			$specific_feedback = assStackQuestionRenderer::_renderSpecificFeedbackForTest($this->object, $userSolution);
+		}
+
+		return $general_feedback . $specific_feedback;
 	}
 
 
