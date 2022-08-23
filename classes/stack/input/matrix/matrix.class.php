@@ -380,7 +380,7 @@ class stack_matrix_input extends stack_input {
      * @param string $in
      * @return array
      */
-    protected function ajax_to_response_array($in) {
+    public function ajax_to_response_array($in) {
         return  $this->maxima_to_response_array($in);
     }
 

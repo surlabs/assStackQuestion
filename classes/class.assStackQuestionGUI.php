@@ -104,14 +104,9 @@ class assStackQuestionGUI extends assQuestionGUI
 			$this->object->questionInitialisation($seed, true);
 		}
 
-		//If no user solution is given but question is not evaluated
-		//Force Evaluate Question
-		if (empty($this->object->getEvaluation())) {
-			$user_solutions = $this->object->getSolutionSubmit();
-			$this->object->setUserResponse($user_solutions);
-
-			$this->object->evaluateQuestion($user_solutions);
-		}
+		//Get user solution from DB
+		$user_solutions = $this->object->getSolutionSubmit();
+		$this->object->setUserResponse($user_solutions);
 
 		//Render Question
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');

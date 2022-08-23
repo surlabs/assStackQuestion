@@ -149,7 +149,7 @@ class stack_textarea_input extends stack_input {
         return implode("\n", $values);
     }
 
-    protected function ajax_to_response_array($in) {
+    public function ajax_to_response_array($in) {
         $in = explode('<br>', $in);
         $in = implode("\n", $in);
         return array($this->name => $in);
@@ -280,4 +280,43 @@ class stack_textarea_input extends stack_input {
 
         return stack_string('teacheranswershow', array('value' => $value, 'display' => $display));
     }
+
+	public function render_ilias_test($user_response, $fieldname, $readonly) {
+		// Note that at the moment, $this->boxHeight and $this->boxWidth are only
+		// used as minimums. If the current input is bigger, the box is expanded.
+
+		if ($this->errors) {
+			return $this->render_error($this->errors);
+		}
+
+		$attributes = array(
+			'name' => $fieldname,
+			'id'   => $fieldname,
+			'autocapitalize' => 'none',
+			'spellcheck'     => 'false',
+			'class'     => 'maxima-list',
+		);
+
+		if ($this->is_blank_response($user_response)) {
+			$current = $this->maxima_to_raw_input($this->parameters['syntaxHint']);
+		} else {
+			$current = implode("\n", $user_response);
+		}
+
+		// Sort out size of text area.
+		$rows = stack_utils::list_to_array($current, false);
+		$attributes['rows'] = max(5, count($rows) + 1);
+
+		$boxwidth = $this->parameters['boxWidth'];
+		foreach ($rows as $row) {
+			$boxwidth = max($boxwidth, strlen($row) + 5);
+		}
+		$attributes['cols'] = $boxwidth;
+
+		if ($readonly) {
+			$attributes['readonly'] = 'readonly';
+		}
+
+		return html_writer::tag('textarea', htmlspecialchars($current), $attributes);
+	}
 }

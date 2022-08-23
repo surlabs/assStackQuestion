@@ -458,6 +458,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	public function getUserQuestionResult($active_id, $pass)
 	{
 		// TODO: Implement getUserQuestionResult() method.
+		require_once './Modules/TestQuestionPool/classes/class.ilUserQuestionResult.php';
+
+		$result = new ilUserQuestionResult($this, $active_id, $pass);
+		$points = (float)$this->calculateReachedPoints($active_id, $pass);
+		$max_points = (float)$this->getMaximumPoints();
+		$result->setReachedPercentage(($points / $max_points) * 100);
+
+		return $result;
 	}
 
 	public function getAvailableAnswerOptions($index = null)

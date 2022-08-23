@@ -187,7 +187,7 @@ class stack_varmatrix_input extends stack_input {
         return $cs->ast_to_string(null, self::$tostringparams);
     }
 
-    protected function ajax_to_response_array($in) {
+    public function ajax_to_response_array($in) {
         $in = explode('<br>', $in);
         $in = implode("\n", $in);
         return array($this->name => $in);

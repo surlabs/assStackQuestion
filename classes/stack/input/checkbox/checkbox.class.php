@@ -141,7 +141,7 @@ class stack_checkbox_input extends stack_dropdown_input {
         return $response;
     }
 
-    protected function ajax_to_response_array($in) {
+    public function ajax_to_response_array($in) {
         if (((string) $in) === '') {
             return array();
         }

@@ -463,7 +463,7 @@ class stack_equiv_input extends stack_input {
         return $feedback;
     }
 
-    protected function ajax_to_response_array($in) {
+    public function ajax_to_response_array($in) {
         $in = explode('<br>', $in);
         $in = implode("\n", $in);
         return array($this->name => $in);

@@ -1383,11 +1383,11 @@ abstract class stack_input {
      *
      * The matrix type is different.  The javascript creates a single Maxima expression,
      * and we need to split this up into an array of individual elements.
-     *
+     * FAU Make Public
      * @param string $in
      * @return array
      */
-    protected function ajax_to_response_array($in) {
+    public function ajax_to_response_array($in) {
         return array($this->name => $in);
     }
 

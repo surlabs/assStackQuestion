@@ -20,6 +20,27 @@ include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/as
 class assStackQuestionRenderer
 {
 
+	public static function renderQuestionTextForPreview(){
+
+	}
+
+	public static function renderQuestionTextForTestView(){
+
+	}
+
+	public static function renderQuestionTextForTestResults(){
+
+	}
+
+	public static function renderSpecificFeedbackForPreview(){
+
+	}
+
+
+	public static function renderSpecificFeedbackForTestView(){
+
+	}
+
 	/* ILIAS REQUIRED METHODS RENDER BEGIN */
 
 	/**
@@ -77,7 +98,7 @@ class assStackQuestionRenderer
 					if (array_key_exists('xqcas_prt_' . $prt_name . '_errors', $user_solution)) {
 						$errors = $user_solution['xqcas_prt_' . $prt_name . '_errors'];
 					}
-					$specific_feedback_text = str_replace("[[feedback:{$prt_name}]]", stack_maths::process_display_castext($feedback).'</br>'.stack_maths::process_display_castext($errors), $specific_feedback_text);
+					$specific_feedback_text = str_replace("[[feedback:{$prt_name}]]", stack_maths::process_display_castext($feedback) . '</br>' . stack_maths::process_display_castext($errors), $specific_feedback_text);
 				}
 				return $specific_feedback_text;
 			}
@@ -136,7 +157,15 @@ class assStackQuestionRenderer
 			$question_text = $user_solutions_from_db['question_text'];
 			if (isset($user_solutions_from_db['inputs'])) {
 				foreach ($user_solutions_from_db['inputs'] as $input_name => $input) {
-					$correct_solution[$input_name] = $input['correct_value'];
+					$teacher_solution =  $input['correct_value'];
+
+					//TEXTAREAS EQUIV, User response from DB tuning
+					if (is_a($input, 'stack_textarea_input') or is_a($input, 'stack_equiv_input')) {
+						$teacher_solution = substr($teacher_solution, 1, -1);
+						$teacher_solution = explode(',', $teacher_solution);
+						$teacher_solution = implode("\n", $teacher_solution);
+					}
+					$correct_solution[$input_name] = $teacher_solution;
 				}
 			}
 		}
@@ -207,7 +236,16 @@ class assStackQuestionRenderer
 				$ta_value = $question->getTeacherAnswerForInput($input_name);
 
 				$field_name = 'xqcas_' . $question->getId() . '_' . $input_name;
-				$state = $question->getInputState($input_name, array($input_name => $user_solutions_from_db['inputs'][$input_name]['value']));
+				$user_response_from_db = $user_solutions_from_db['inputs'][$input_name]['value'];
+
+				//TEXTAREAS EQUIV, User response from DB tuning
+				if (is_a($input, 'stack_textarea_input') or is_a($input, 'stack_equiv_input')) {
+					$user_response_from_db = substr($user_response_from_db, 1, -1);
+					$user_response_from_db = explode(',', $user_response_from_db);
+					$user_response_from_db = implode("\n", $user_response_from_db);
+				}
+
+				$state = $question->getInputState($input_name, array($input_name => $user_response_from_db));
 
 				$validation_button = '';
 				//Do not show validation in some inputs
