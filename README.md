@@ -60,14 +60,12 @@ cdn.mathjax.org or downloaded to your own web server. It has to be configured in
 
 First Installation of the plugin
 --------------------------------
-1. Copy the assStackQuestion directory to your ILIAS installation at the followin path
-(create subdirectories, if neccessary):
-Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion
-
-2. Go to Administration > Plugins
-3. Choose action "Update" for the assStackQuestion plugin
-4. Choose action "Activate" for the assStackQuestion plugin
-5. Choose action "Refresh Languages" for the assStackQuestion plugin
+1. Create subdirectories, if necessary for Customizing/global/plugins/Modules/TestQuestionPool/Questions/
+2. In Customizing/global/plugins/Modules/TestQuestionPool/Questions/ execute git clone https://github.com/ilifau/assStackQuestion.git
+3. Go to Administration > Plugins
+4. Choose action "Update" for the assStackQuestion plugin
+5. Choose action "Activate" for the assStackQuestion plugin
+6. Choose action "Refresh Languages" for the assStackQuestion plugin
 
 Configuration and test of the plugin
 ------------------------------------
