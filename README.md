@@ -1,11 +1,11 @@
-Copyright 2017 Institut fuer Lern-Innovation,Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3 or later, see LICENSE
+Copyright 2022 Institut fuer Lern-Innovation,Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3 or later, see LICENSE
 
 Includes a modified core part of STACK version 3.3
 Copyright 2012 University of Birmingham
 licensed under GPLv3 or later, see classes/stack/COPYING.txt
 http://stack.bham.ac.uk
 
-ILIAS STACK Question Type Plugin.
+ILIAS STACK Question Type Plugin. for ILIAS 7.12+
 ================================
 
 - Author: Jesus Copado <jesus.copado@fim.uni-erlangen.de>, Fred Neumann <fred.neumann@fim.uni-erlangen.de>
@@ -82,18 +82,23 @@ input you can evaluate your answer (in self assessment mode) or move to the next
 
 Version History
 ===============
-
-* The stable version 3.4.x for **ILIAS 7** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias7**
+* The stable version 3.4.4 for **ILIAS >= 7.12** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias713**
+* The stable version 3.4.3 for **ILIAS < 7.12** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias7**
 * The stable version 3.2.x for **ILIAS 6** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias6**
 * The stable version 3.1.x for **ILIAS 5.4** with new feedback styles is found in the Github branch **master-ilias54**
 * The stable version 3.0.x for **ILIAS 5.3** with new functionalities from STACK such a new input types is found in the Github branch **master-ilias53**
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is found in the GitHub branch **master-ilias52**
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is found in the GitHub branch **master**
 
-Version 3.4.4 (2022-08-22) only for ILIAS 7.12+
+NEW BRANCH MASTER-ILIAS713
 ----------------------------------------
-Solves Conflict with new fromXML Method definition in assQuestion.
-**Do not install this version in lower ILIAS Version Platforms, as fromXML definition is different in those versions.**
+Version 3.4.4 (2022-08-22) only for ILIAS 7.12+
+-----------------------------------
+* **Use this version on ILIAS 7.12+ Platforms, for previous ILIAS Versions use Branch master-ilias7**
+* The fromXML method from assQuestion in the ILIAS Core has changed its definition on this commit:
+* https://github.com/ILIAS-eLearning/ILIAS/commit/1576ff04a6039ce40386e707583a012b1606026a
+* This forces the creation (and maintenance) of two different branches, one for ILIAS < 7.12 versions (master-ilias7) and a new one (master-ilias713), where fromXML implements the new definition.
+* We deeply apologize for the inconvenience of changing the branch on a non-major Version.
 
 Version 3.4.2 (2022-02-11) for ILIAS 7 and ILIAS 6
 ----------------------------------------
