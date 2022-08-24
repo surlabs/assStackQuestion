@@ -20,6 +20,8 @@ defined('MOODLE_INTERNAL') || die();
 //require_once($CFG->libdir . '/filterlib.php');
 //fau.
 
+include_once('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutputfilterbase.class.php');
+
 /**
  * STACK maths output methods for using MathJax.
  *

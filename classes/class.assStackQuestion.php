@@ -274,8 +274,17 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		$this->tas = array();
 		//For some reason we should initialize lasttime for new questions, it seems not been donE in assQuestion Constructor
 		$this->setLastChange(time());
+
 		//Initialize some STACK required parameters
-		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
+		require_once __DIR__ .'/utils/class.assStackQuestionInitialization.php';
+
+		require_once(__DIR__ . '/stack/input/factory.class.php');
+		require_once(__DIR__ . '/stack/cas/keyval.class.php');
+		require_once(__DIR__ . '/stack/cas/castext.class.php');
+		require_once(__DIR__ . '/stack/cas/cassecurity.class.php');
+		require_once(__DIR__ . '/stack/potentialresponsetree.class.php');
+		require_once(__DIR__ . '/locallib.php');
+		require_once(__DIR__ . '/stack/cas/secure_loader.class.php');
 	}
 
 	//assQuestion abstract methods
@@ -1051,6 +1060,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		$standard_question = array();
 
 		//load options
+		require_once __DIR__ . '/model/configuration/class.assStackQuestionConfig.php';
 		$standard_options = assStackQuestionConfig::_getStoredSettings('options');
 		$options_array = array();
 
