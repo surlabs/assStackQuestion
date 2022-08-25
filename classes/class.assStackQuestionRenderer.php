@@ -138,7 +138,7 @@ class assStackQuestionRenderer
 
 				$prt_status = (float)$user_solution_from_db['xqcas_prt_' . $prt_name . '_status'];
 
-				if ($prt_status == 1.0) {
+				if ($prt_status == $question->getPoints()) {
 					$prt_feedback .= $question->prt_correct_instantiated;
 					$format = '2';
 				} elseif ($prt_status <= 0.0) {
@@ -291,8 +291,7 @@ class assStackQuestionRenderer
 	 * @return string
 	 * @throws stack_exception
 	 */
-	public
-	static function _renderQuestionTest(assStackQuestion $question, int $active_id, int $pass, bool $user_solutions, bool $show_specific_inline_feedback, bool $is_question_postponed = false): string
+	public static function _renderQuestionTest(assStackQuestion $question, int $active_id, int $pass, bool $user_solutions, bool $show_specific_inline_feedback, bool $is_question_postponed = false): string
 	{
 		if (empty($user_solutions_from_db = $question->getTestOutputSolutions($active_id, $pass))) {
 			//Render question from scratch
@@ -370,8 +369,7 @@ class assStackQuestionRenderer
 	 * @return string
 	 * @throws stack_exception
 	 */
-	public
-	static function _renderQuestion(assStackQuestion $question, bool $show_inline_feedback = false, bool $show_best_solution = false, int $active_id = null, int $pass = null): string
+	public static function _renderQuestion(assStackQuestion $question, bool $show_inline_feedback = false, bool $show_best_solution = false, int $active_id = null, int $pass = null): string
 	{
 		global $DIC;
 
@@ -432,7 +430,7 @@ class assStackQuestionRenderer
 			$field_name = 'xqcas_' . $question->getId() . '_' . $name;
 			$state = $question->getInputState($name, $response);
 			if (is_a($state, 'stack_input_state')) {
-				if ($input->get_parameter('showValidation') != 0) {
+				if (($input->get_parameter('showValidation') != 0) AND !is_a($input, 'stack_boolean_input')) {
 					//Input and Validation Button
 					if (!$show_best_solution) {
 						//Do not show validation in some inputs
@@ -458,6 +456,7 @@ class assStackQuestionRenderer
 						$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, false, $ta_value), $question_text);
 						$question_text = str_replace("[[validation:{$name}]]", '</br>', $question_text);
 					} else {
+						$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, false, $ta_value), $question_text);
 						$question_text = str_replace("[[validation:{$name}]]", '</br>', $question_text);
 					}
 				}
@@ -478,9 +477,9 @@ class assStackQuestionRenderer
 
 			if ($show_inline_feedback) {
 
-				if ($prt_results->_score == 0) {
+				if ($prt_results->_score <= 0) {
 					$feedback .= $question->prt_incorrect_instantiated;
-				} elseif ($prt_results->_score == 1) {
+				} elseif ($prt_results->_score >= 1) {
 					$feedback .= $question->prt_correct_instantiated;
 				} else {
 					$feedback .= $question->prt_partially_correct_instantiated;
@@ -586,7 +585,7 @@ class assStackQuestionRenderer
 		$feedback_array = array();
 
 		if ($feedback_bits) {
-			$format = null;
+			$format = "1";
 			foreach ($feedback_bits as $bit) {
 				$feedback_array[] = $bit->feedback;
 				if (!is_null($bit->format)) {

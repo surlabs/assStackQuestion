@@ -226,6 +226,7 @@ class stack_matrix_input extends stack_input {
         $answer->get_valid();
 
         $caslines = array();
+		var_dump($valid);
         return array($valid, $errors, $notes, $answer, $caslines);
     }
 

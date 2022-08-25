@@ -1667,6 +1667,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		// Invalid if any input is invalid, ...
 		foreach ($this->inputs as $name => $input) {
 			if (stack_input::INVALID == $this->getInputState($name, $response)->status) {
+				$this->runtime_errors[] = $this->getInputState($name, $response)->errors;
 				return true;
 			}
 		}
@@ -1675,6 +1676,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		foreach ($this->prts as $index => $prt) {
 			$result = $this->getPrtResult($index, $response, false);
 			if ($result->errors) {
+				$this->runtime_errors[] = $result->errors;
 				return true;
 			}
 		}
@@ -1698,7 +1700,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		if ($this->isAnyPartInvalid($response)) {
 			// There will already be a more specific validation error displayed.
 			//TODO text variable
-			return 'Some parts are invalid';
+			$error_message = '';
+			foreach($this->runtime_errors as $error){
+				$error_message .= $error.'</br>';
+			}
+			return $error_message;
 
 		} else if ($this->isAnyInputBlank($response)) {
 			return stack_string('pleaseananswerallparts');
