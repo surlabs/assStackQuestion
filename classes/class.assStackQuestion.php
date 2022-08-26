@@ -276,7 +276,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		$this->setLastChange(time());
 
 		//Initialize some STACK required parameters
-		require_once __DIR__ .'/utils/class.assStackQuestionInitialization.php';
+		require_once __DIR__ . '/utils/class.assStackQuestionInitialization.php';
 
 		require_once(__DIR__ . '/stack/input/factory.class.php');
 		require_once(__DIR__ . '/stack/cas/keyval.class.php');
@@ -633,8 +633,15 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 						if ($parameter_name == 'inputType') {
 							continue;
 						}
-						$parameters[$parameter_name] = $all_parameters[$parameter_name];
+						//MATRIX WORKAROUND
+						//force not use mustVerify
+						if ($parameter_name == 'sameType') {
+							$parameters[$parameter_name] = false;
+						} else {
+							$parameters[$parameter_name] = $all_parameters[$parameter_name];
+						}
 					}
+					//var_dump($parameters);exit;
 					//SET INPUTS
 					$this->inputs[$name] = stack_input_factory::make($input_data['type'], $input_data['name'], $input_data['tans'], $this->options, $parameters);
 				}
@@ -1408,6 +1415,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			$prt_partially_correct = $this->prepareCASText($this->prt_partially_correct, $session);
 			$prt_incorrect = $this->prepareCASText($this->prt_incorrect, $session);
 
+			// 7. The General feedback.
+			$general_feedback = $this->prepareCASText($this->general_feedback, $session);
+
+
 			// Now instantiate the session.
 			if ($session->get_valid()) {
 				$session->instantiate();
@@ -1438,6 +1449,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			$this->prt_correct_instantiated = $prt_correct->get_display_castext();
 			$this->prt_partially_correct_instantiated = $prt_partially_correct->get_display_castext();
 			$this->prt_incorrect_instantiated = $prt_incorrect->get_display_castext();
+			$this->general_feedback = $general_feedback->get_display_castext();
+
 			$this->session = $session_to_keep;
 			$this->addQuestionVarsToSession($session);
 
@@ -1701,14 +1714,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			// There will already be a more specific validation error displayed.
 			//TODO text variable
 			$error_message = '';
-			foreach($this->runtime_errors as $error){
-				$error_message .= $error.'</br>';
+			foreach ($this->runtime_errors as $error) {
+				$error_message .= $error . '</br>';
 			}
 			return $error_message;
 
 		} else if ($this->isAnyInputBlank($response)) {
 			return stack_string('pleaseananswerallparts');
-
 		}
 	}
 

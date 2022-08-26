@@ -60,7 +60,7 @@ function checkUserResponse($question_id, $input_name, $user_response)
 			try {
 				$teacher_answer = $question->getTas($input_name)->get_value();
 			} catch (stack_exception $e) {
-				return $e;
+				return $e->getMessage();
 			}
 		} else {
 			return "not properly evaluated";
@@ -70,6 +70,9 @@ function checkUserResponse($question_id, $input_name, $user_response)
 	}
 
 	try {
+		if (is_a($input = $question->inputs[$input_name], 'stack_matrix_input')) {
+			$user_response = $input->maxima_to_response_array($user_response[$input_name]);
+		}
 		$status = $question->inputs[$input_name]->validate_student_response($user_response, $question->options, $teacher_answer, $question->getSecurity());
 	} catch (stack_exception $e) {
 		return $e->getMessage();

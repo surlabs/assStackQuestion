@@ -198,7 +198,6 @@ class assStackQuestionGUI extends assQuestionGUI
 				}
 			}
 		}
-		$this->object->setUserResponse($user_solution);
 
 		//Initialise the question
 		if (!$this->object->isInstantiated()) {
@@ -232,9 +231,25 @@ class assStackQuestionGUI extends assQuestionGUI
 			$this->object->questionInitialisation($variant, true);
 		}
 
+		$response = array();
+		foreach ($this->object->inputs as $input_name => $input) {
+			//Check [] for textareas and equivalence inputs
+			if (is_a($input_name, 'stack_textarea_input') or is_a($input_name, 'stack_equiv_input')) {
+				$user_solution[$input_name] = '[' . $user_solution[$input_name] . ']';
+			}
+			$response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
+		}
+
+		$this->object->setUserResponse(assStackQuestionUtils::compute_response($this->object, $response));
+
+		//Ensure evaluation has been done
+		if (empty($this->object->getEvaluation())) {
+			$this->object->evaluateQuestion($this->object->getUserResponse());
+		}
+
 		//Render question Preview
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
-		$question_preview = assStackQuestionRenderer::_renderQuestionPreview($this->object, $showInlineFeedback);
+		$question_preview = assStackQuestionRenderer::_renderQuestionTextForPreview($this->object);
 
 		//Tab management
 		$tabs = $DIC->tabs();
@@ -277,9 +292,10 @@ class assStackQuestionGUI extends assQuestionGUI
 			if (empty($this->object->getEvaluation())) {
 				$this->object->evaluateQuestion($userSolution);
 			}
-			$specific_feedback = assStackQuestionRenderer::_renderSpecificFeedbackForPreview($this->object);
+
+			$specific_feedback = assStackQuestionRenderer::_renderFeedbackForPreview($this->object, 'specific');
 		} else {
-			$specific_feedback = assStackQuestionRenderer::_renderSpecificFeedbackForTest($this->object, $userSolution);
+			$specific_feedback = assStackQuestionRenderer::_renderFeedbackForTest($this->object, $userSolution, 'specific');
 		}
 
 		return $general_feedback . $specific_feedback;

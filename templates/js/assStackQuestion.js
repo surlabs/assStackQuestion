@@ -50,6 +50,7 @@ il.assStackQuestion = new function () {
 	 * Send the current panel state per ajax
 	 */
 	this.validate = function (event) {
+
 		var name = "";
 		if (event.target.name === undefined) {
 			name = event.target.getAttribute('name');
@@ -64,8 +65,7 @@ il.assStackQuestion = new function () {
 		var i = name.indexOf('_');
 		var question_id = name.substr(0, i);
 		var input_name = name.substr(i + 1);
-		var is_matrix = $('#xqcas_' + question_id + '_' + input_name + '_sub_0_0').html();
-
+		var is_matrix = $('#xqcas_' + question_id + '_' + input_name + '_sub_0_0').val();
 		if (typeof is_matrix === "string") {
 			var rows = $('#xqcas_input_matrix_height_' + input_name).html();
 			var columns = $('#xqcas_input_matrix_width_' + input_name).html();

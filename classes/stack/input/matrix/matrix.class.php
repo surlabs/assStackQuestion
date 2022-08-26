@@ -226,7 +226,6 @@ class stack_matrix_input extends stack_input {
         $answer->get_valid();
 
         $caslines = array();
-		var_dump($valid);
         return array($valid, $errors, $notes, $answer, $caslines);
     }
 
@@ -284,7 +283,8 @@ class stack_matrix_input extends stack_input {
                     $val = '';
                 }
                 $name = $fieldname.'_sub_'.$i.'_'.$j;
-                $xhtml .= '<td><input type="text" name="'.$name.'" value="'.$val.'" size="'.
+				//FAU id aso
+                $xhtml .= '<td><input type="text" name="'.$name.'"id="'.$name.'" value="'.$val.'" size="'.
                         $this->parameters['boxWidth'].'"'.$attr.'></td>';
             }
 

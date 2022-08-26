@@ -280,46 +280,31 @@ class assStackQuestionUtils
 		return $new_user_response_array;
 	}
 
-
 	/**
-	 * Creates stack_options from an assStackQuestionOptions object.
-	 * @param assStackQuestionOptions $ilias_options
-	 */
-	public static function _createOptions(assStackQuestionOptions $ilias_options)
-	{
-		$parameters = array( // Array of public class settings for this class.
-			'display' => array('type' => 'list', 'value' => 'LaTeX', 'strict' => true, 'values' => array('LaTeX', 'MathML', 'String'), 'caskey' => 'OPT_OUTPUT', 'castype' => 'string',), 'multiplicationsign' => array('type' => 'list', 'value' => $ilias_options->getMultiplicationSign(), 'strict' => true, 'values' => array('dot', 'cross', 'none'), 'caskey' => 'make_multsgn', 'castype' => 'fun',), 'complexno' => array('type' => 'list', 'value' => $ilias_options->getComplexNumbers(), 'strict' => true, 'values' => array('i', 'j', 'symi', 'symj'), 'caskey' => 'make_complexJ', 'castype' => 'fun',), 'inversetrig' => array('type' => 'list', 'value' => $ilias_options->getInverseTrig(), 'strict' => true, 'values' => array('cos-1', 'acos', 'arccos'), 'caskey' => 'make_arccos', 'castype' => 'fun',), 'floats' => array('type' => 'boolean', 'value' => 1, 'strict' => true, 'values' => array(), 'caskey' => 'OPT_NoFloats', 'castype' => 'ex',), 'sqrtsign' => array('type' => 'boolean', 'value' => $ilias_options->getSqrtSign(), 'strict' => true, 'values' => array(), 'caskey' => 'sqrtdispflag', 'castype' => 'ex',), 'simplify' => array('type' => 'boolean', 'value' => $ilias_options->getQuestionSimplify(), 'strict' => true, 'values' => array(), 'caskey' => 'simp', 'castype' => 'ex',), 'assumepos' => array('type' => 'boolean', 'value' => $ilias_options->getAssumePositive(), 'strict' => true, 'values' => array(), 'caskey' => 'assume_pos', 'castype' => 'ex',),);
-
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionStackFactory.php';
-		$stack_factory = new assStackQuestionStackFactory();
-
-		return $stack_factory->get("options", $parameters);
-	}
-
-	/**
-	 * @param $array .
+	 * @param array $response_array
+	 * @param stack_input[] $inputs
 	 * @return bool
 	 */
-	public static function _isArrayEmpty($array, $inputs)
+	public static function _isEmptyResponse(array $response_array, array $inputs): bool
 	{
-		//If array is not empty returns it, otherwise return FALSE;
-		foreach ($array as $input_name => $value) {
-			if ($value != '' and $value != '[]') {
-				return FALSE;
-			}
-			//Check emptyanswer
-			if ($value == "") {
-				$input = $inputs[$input_name];
-				if (is_a($input, "assStackQuestionInput")) {
-					$options = $input->getOptions();
-					if (strpos($options, "allowempty") !== FALSE) {
-						return FALSE;
+		if (empty($response_array)) {
+			return true;
+		}
+
+		foreach ($response_array as $entry_name => $response_value) {
+			if (array_key_exists($entry_name, $inputs)) {
+				if (strlen($response_value) == 0) {
+					//Check allowempty
+					if ($inputs[$entry_name]->get_extra_option('allowempty')) {
+						return false;
 					}
+				} else {
+					return false;
 				}
 			}
 		}
 
-		return TRUE;
+		return true;
 	}
 
 	/**
@@ -784,7 +769,7 @@ class assStackQuestionUtils
 			$string = '';
 			foreach ($extra_options as $option_name => $status) {
 				if ($status === true) {
-					$string .= $option_name.',';
+					$string .= $option_name . ',';
 				}
 			}
 			return substr($string, 0, -1);
@@ -833,5 +818,80 @@ class assStackQuestionUtils
 			$value2 = '';
 		}
 		return ((string)$value1) === ((string)$value2);
+	}
+
+	/**
+	 * Create the actual response data. The response data in the test case may
+	 * include expressions in terms of the question variables.
+	 * @param assStackQuestion $question the question - with $question->session initialised.
+	 * @return array the responses to send.
+	 */
+	public static function compute_response(assStackQuestion $question, $inputs): array
+	{
+		// If the question has simp:false, then the local options should reflect this.
+		// In this case, question authors will need to explicitly simplify their test case constructions.
+		$local_options = clone $question->options;
+
+		// Start with the question variables (note that order matters here).
+		$cas_context = new stack_cas_session2(array(), $local_options, $question->seed);
+		$question->addQuestionVarsToSession($cas_context);
+
+		// Add the correct answer for all inputs.
+		foreach ($question->inputs as $name => $input) {
+			$cs = stack_ast_container::make_from_teacher_source($name . ':' . $input->get_teacher_answer(),
+				'', new stack_cas_security());
+			$cas_context->add_statement($cs);
+		}
+
+		// Turn off simplification - we need test cases to be unsimplified, even if the question option is true.
+		$vars = array();
+		$cs = stack_ast_container::make_from_teacher_source('simp:false', '', new stack_cas_security());
+		$vars[] = $cs;
+		// Now add the expressions we want evaluated.
+		foreach ($inputs as $name => $value) {
+			// Check input still exits, could have been deleted in a question.
+			if ('' !== $value && array_key_exists($name, $question->inputs)) {
+				$val = 'testresponse_' . $name . ':' . $value;
+				$input = $question->inputs[$name];
+				// Except if the input simplifies, then so should the generated testcase.
+				// The input will simplify again.
+				// We may need to create test cases which will generate errors, such as makelist.
+				if ($input->get_extra_option('simp')) {
+					$val = 'testresponse_' . $name . ':ev(' . $value . ',simp)';
+				}
+				$cs = stack_ast_container::make_from_teacher_source($val, '', new stack_cas_security());
+				if ($cs->get_valid()) {
+					$vars[] = $cs;
+				}
+			}
+		}
+		$cas_context->add_statements($vars);
+		if ($cas_context->get_valid()) {
+			$cas_context->instantiate();
+		}
+
+		$response = array();
+		foreach ($inputs as $name => $notused) {
+			$var = $cas_context->get_by_key('testresponse_' . $name, true);
+			$computed_input = '';
+			if ($var !== null && $var->is_correctly_evaluated()) {
+				$computed_input = $var->get_value();
+			}
+			// In the case we start with an invalid input, and hence don't send it to the CAS.
+			// We want the response to constitute the raw invalid input.
+			// This permits invalid expressions in the inputs, and to compute with valid expressions.
+			if ('' == $computed_input) {
+				$computed_input = $inputs[$name];
+			} else {
+				// 4.3. means the logic_nouns_sort is done through parse trees.
+				$computed_input = $cas_context->get_by_key('testresponse_' . $name)->get_dispvalue();
+			}
+			if (array_key_exists($name, $question->inputs)) {
+				// Remove things like apostrophies in test case inputs so we don't create an invalid student input.
+				// 4.3. changes this.
+				$response = array_merge($response, $question->inputs[$name]->maxima_to_response_array($computed_input));
+			}
+		}
+		return $response;
 	}
 }
