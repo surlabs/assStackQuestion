@@ -111,15 +111,19 @@ class assStackQuestionRenderer
 			foreach (stack_utils::extract_placeholders($question_text, 'feedback') as $prt_name) {
 
 				$evaluation = $question->getEvaluation();
-
+				$format = '1';
 				$prt_feedback = '';
 
 				switch ($evaluation['points'][$prt_name]['status']) {
 					case 'correct':
 						$prt_feedback .= $question->prt_correct_instantiated;
+						$format = '2';
+
 						break;
 					case 'incorrect':
 						$prt_feedback .= $question->prt_incorrect_instantiated;
+						$format = '3';
+
 						break;
 					case 'partially_correct':
 						$prt_feedback .= $question->prt_partially_correct_instantiated;
@@ -138,9 +142,10 @@ class assStackQuestionRenderer
 
 					$prt_state = $evaluation['prts'][$prt_name];
 
-					$prt_feedback .= self::renderPRTFeedbackForPreview($prt_state);
+					$prt_feedback .= self::renderPRTFeedback($prt_state);
 
 				}
+				$question_text = assStackQuestionUtils::_getFeedbackStyledText($question_text, 'feedback_default');
 
 				//Replace Placeholders
 				$question_text = assStackQuestionUtils::_replacePlaceholders($prt_name, $question_text, $prt_feedback);
@@ -207,168 +212,6 @@ class assStackQuestionRenderer
 	}
 
 	/**
-	 * @param assStackQuestion $question
-	 * @param bool $show_inline_feedback
-	 * @param bool $show_best_solution
-	 * @param int|null $active_id
-	 * @param int|null $pass
-	 * @return string
-	 * @throws stack_exception
-	 */
-	public static function _renderQuestion(assStackQuestion $question, bool $show_inline_feedback = false, bool $show_best_solution = false, int $active_id = null, int $pass = null): string
-	{
-		global $DIC;
-
-		if ($active_id !== null and $pass !== null) {
-			//QUESTION
-			$response = $question->getUserResponse();
-		} else {
-			//Render Preview Version
-			if (!$show_best_solution) {
-				//QUESTION
-				$response = $question->getUserResponse();
-			} else {
-				//BEST SOLUTION
-				$response = $question->getCorrectResponse();
-			}
-		}
-
-		$question_text = $question->question_text_instantiated;
-		// Replace inputs.
-		$inputs_to_validate = array();
-
-		// Get the list of placeholders before format_text.
-		$original_input_placeholders = array_unique(stack_utils::extract_placeholders($question_text, 'input'));
-		sort($original_input_placeholders);
-
-		$original_feedback_placeholders = array_unique(stack_utils::extract_placeholders($question_text, 'feedback'));
-		sort($original_feedback_placeholders);
-
-		// Now format the question-text.
-		$question_text = stack_maths::process_display_castext($question_text);
-
-		// Get the list of placeholders after format_text.
-		$formatted_input_placeholders = stack_utils::extract_placeholders($question_text, 'input');
-		sort($formatted_input_placeholders);
-		$formatted_feedback_placeholders = stack_utils::extract_placeholders($question_text, 'feedback');
-		sort($formatted_feedback_placeholders);
-
-		//Add MathJax (Ensure MathJax is loaded)
-		include_once "./Services/Administration/classes/class.ilSetting.php";
-		$mathJaxSetting = new ilSetting("MathJax");
-		$DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
-
-		// We need to check that if the list has changed.
-		// Have we lost some placeholders entirely?
-		// Duplicates may have been removed by multi-lang,
-		// No duplicates should remain.
-		if ($formatted_input_placeholders !== $original_input_placeholders ||
-			$formatted_feedback_placeholders !== $original_feedback_placeholders) {
-			throw new stack_exception('Inconsistent placeholders. Possibly due to multi-lang filter not being active.');
-		}
-
-		$input_number = 1;
-		foreach ($question->inputs as $name => $input) {
-			// Get the actual value of the teacher's answer at this point.
-			$ta_value = $question->getTeacherAnswerForInput($name);
-
-			//$field_name = 'q' . $question->getId() . ':' . $input_number . '_' . $name;
-			$field_name = 'xqcas_' . $question->getId() . '_' . $name;
-			$state = $question->getInputState($name, $response);
-			if (is_a($state, 'stack_input_state')) {
-				if (($input->get_parameter('showValidation') != 0) and !is_a($input, 'stack_boolean_input')) {
-					//Input and Validation Button
-					if (!$show_best_solution) {
-						//Do not show validation in some inputs
-						$validation_button = '';
-						if (!is_a($input, 'stack_radio_input') && !is_a($input, 'stack_dropdown_input') && !is_a($input, 'stack_checkbox_input')) {
-							$validation_button = self::_renderValidationButton($question->getId(), $name);
-						}
-						$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, false, $ta_value) . ' ' . $validation_button, $question_text);
-					} else {
-						$field_name = 'xqcas_solution_' . $question->getId() . '_' . $name;
-						$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, true, $ta_value), $question_text);
-					}
-
-					//Validation tags
-					if (!$show_best_solution) {
-						$ilias_validation = '<div id="validation_xqcas_' . $question->getId() . '_' . $name . '"></div><div class="xqcas_input_validation"><div id="validation_xqcas_' . $question->getId() . '_' . $name . '"></div></div>';
-						$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
-					} else {
-						$question_text = str_replace("[[validation:{$name}]]", '</br>', $question_text);
-					}
-				} else {
-					if (!$show_best_solution) {
-						$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, false, $ta_value), $question_text);
-						$question_text = str_replace("[[validation:{$name}]]", '</br>', $question_text);
-					} else {
-						$question_text = str_replace("[[input:{$name}]]", ' ' . $input->render($state, $field_name, false, $ta_value), $question_text);
-						$question_text = str_replace("[[validation:{$name}]]", '</br>', $question_text);
-					}
-				}
-			}
-
-			$input_number++;
-		}
-
-		// Replace PRTs.
-		foreach ($question->prts as $index => $prt) {
-
-			$feedback = '';
-			$prt_results = $question->getPrtResult($index, $response, true);
-
-			if ($show_inline_feedback) {
-
-				if ($prt_results->_score <= 0) {
-					$feedback .= $question->prt_incorrect_instantiated;
-				} elseif ($prt_results->_score >= 1) {
-					$feedback .= $question->prt_correct_instantiated;
-				} else {
-					$feedback .= $question->prt_partially_correct_instantiated;
-				}
-
-				$feedback .= '<div>' . self::_prtFeedbackDisplay($index, $prt_results, $prt->get_feedbackstyle()) . '</div>';
-
-			} else {
-				// The behaviour name test here is a hack. The trouble is that interactive
-				// behaviour or adaptivemulipart does not show feedback if the input
-				// is invalid, but we want to show the CAS errors from the PRT.
-				$feedback = html_writer::nonempty_tag('span', $prt_results->errors, array('class' => 'stackprtfeedback stackprtfeedback-' . $name));
-			}
-
-			$points = $prt_results->_score * $prt_results->_weight;
-
-			$question_text = str_replace("[[feedback:{$index}]]", $feedback, $question_text);
-		}
-
-		//Validation
-		//Button Validation
-		$jsconfig = new stdClass();
-		$jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
-
-		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
-		$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
-
-		//General Validation Errors
-		if (!assStackQuestionUtils::_isEmptyResponse($question->getUserResponse(), $question->inputs)) {
-			$validation_error = $question->getValidationError($question->getUserResponse());
-
-			//Show validation error only if an answer was given
-			if ($validation_error) {
-				$question_text .= '</br>' . $validation_error;
-			}
-		}
-
-		//Show validation error only if an answer was given
-		if ($validation_error and !empty($response)) {
-			$question_text .= '</br>' . $validation_error;
-		}
-
-		return assStackQuestionUtils::_getLatex($question_text);
-	}
-
-
-	/**
 	 * Uses Evaluation Object -> Preview
 	 * Renders the Feedback in a CAStext
 	 * Including all feedback placeholders
@@ -383,15 +226,17 @@ class assStackQuestionRenderer
 		foreach (stack_utils::extract_placeholders($text_to_replace, 'feedback') as $prt_name) {
 
 			$evaluation = $question->getEvaluation();
-
+			$format = '1';
 			$prt_feedback = '';
 
 			switch ($evaluation['points'][$prt_name]['status']) {
 				case 'correct':
 					$prt_feedback .= $question->prt_correct_instantiated;
+					$format = '2';
 					break;
 				case 'incorrect':
 					$prt_feedback .= $question->prt_incorrect_instantiated;
+					$format = '3';
 					break;
 				case 'partially_correct':
 					$prt_feedback .= $question->prt_partially_correct_instantiated;
@@ -411,7 +256,7 @@ class assStackQuestionRenderer
 				$prt_state = $evaluation['prts'][$prt_name];
 
 				//Manage LaTeX explicitly
-				$prt_feedback .= assStackQuestionUtils::_getLatex(self::renderPRTFeedbackForPreview($prt_state));
+				$prt_feedback .= assStackQuestionUtils::_getLatex(self::renderPRTFeedback($prt_state));
 			}
 
 			//Replace Placeholders
@@ -440,6 +285,7 @@ class assStackQuestionRenderer
 
 		foreach (stack_utils::extract_placeholders($text_to_replace, 'feedback') as $prt_name) {
 
+			$evaluation = $question->getEvaluation();
 			$prt_feedback = '';
 			$format = "1";
 
@@ -466,28 +312,32 @@ class assStackQuestionRenderer
 						$prt_feedback .= '';
 				}
 
-				if (isset($user_solution_from_db['xqcas_prt_' . $prt_name . '_feedback'])) {
+				//Errors & Feedback
+				//Ensure evaluation has been done
+				if (!isset($user_solution_from_db['xqcas_prt_' . $prt_name . '_feedback']) or !is_a($evaluation['prts'][$prt_name], 'stack_potentialresponse_tree_state')) {
 
-					//Substitute Variables in Feedback text
-					$prt_feedback .= self::substituteVariablesInFeedback(null, $user_solution_from_db['xqcas_prt_' . $prt_name . '_feedback'], $format, 'test');
+					$prt_feedback .= 'WARNING: No evaluation state for prt: ' . $prt_name . '</br>';
 
-					//Ensure LaTeX is properly render
-					$prt_feedback = stack_maths::process_display_castext($prt_feedback, null);
+				} else {
 
-					//Replace Temporal Style Placeholders
-					$prt_feedback = self::replaceFeedbackPlaceHolders($prt_feedback);
+					$prt_state = $evaluation['prts'][$prt_name];
+
+					//Manage LaTeX explicitly
+					$prt_feedback .= assStackQuestionUtils::_getLatex(self::renderPRTFeedback($prt_state));
 				}
+
+				//Replace Placeholders
+				$text_to_replace = assStackQuestionUtils::_replacePlaceholders($prt_name, $text_to_replace, $prt_feedback);
+
 			}
-
-			$text_to_replace = stack_utils::replace_feedback_placeholders($text_to_replace, $prt_feedback);
 		}
-
 		//Use General Feedback Style for the whole Specific Feedback Text
 		return assStackQuestionUtils::_getFeedbackStyledText($text_to_replace, 'feedback_default');
 
 	}
 
-	public static function renderSpecificFeedbackForTestResults()
+	public
+	static function renderSpecificFeedbackForTestResults()
 	{
 
 	}
@@ -582,82 +432,6 @@ class assStackQuestionRenderer
 		return assStackQuestionUtils::_getLatex($question_text);
 	}
 
-
-	/**
-	 * @param assStackQuestion $question
-	 * @param int $active_id
-	 * @param int $pass
-	 * @param bool $user_solutions
-	 * @param bool $show_specific_inline_feedback
-	 * @param bool $is_question_postponed
-	 * @return string
-	 * @throws stack_exception
-	 */
-	public static function _renderQuestionTest(assStackQuestion $question, int $active_id, int $pass, bool $user_solutions, bool $show_specific_inline_feedback, bool $is_question_postponed = false): string
-	{
-		if (empty($user_solutions_from_db = $question->getTestOutputSolutions($active_id, $pass))) {
-			//Render question from scratch
-			return self::_renderQuestion($question, $show_specific_inline_feedback, false, $active_id, $pass);
-		} else {
-			//Question has been already evaluated, use DB Data
-			$question_text = $user_solutions_from_db['question_text'];
-
-			//Replace Input placeholders
-			foreach ($question->inputs as $input_name => $input) {
-
-				// Get the actual value of the teacher's answer at this point.
-				$ta_value = $question->getTeacherAnswerForInput($input_name);
-
-				$field_name = 'xqcas_' . $question->getId() . '_' . $input_name;
-				$user_response_from_db = $user_solutions_from_db['inputs'][$input_name]['value'];
-
-				//TEXTAREAS EQUIV, User response from DB tuning
-				if (is_a($input, 'stack_textarea_input') or is_a($input, 'stack_equiv_input')) {
-					$user_response_from_db = substr($user_response_from_db, 1, -1);
-					$user_response_from_db = explode(',', $user_response_from_db);
-					$user_response_from_db = implode("\n", $user_response_from_db);
-				}
-
-				$state = $question->getInputState($input_name, array($input_name => $user_response_from_db));
-
-				$validation_button = '';
-				//Do not show validation in some inputs
-				if (!is_a($input, 'stack_radio_input') && !is_a($input, 'stack_dropdown_input') && !is_a($input, 'stack_checkbox_input')) {
-					$validation_button = self::_renderValidationButton($question->getId(), $input_name);
-				}
-
-				if ($input->get_parameter('showValidation') != 0) {
-					$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, false, $ta_value) .
-						' ' . $validation_button, $question_text);
-					$ilias_validation =
-						'<div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">'
-						. $user_solutions_from_db['inputs'][$input_name]['validation_display'] .
-						'</div><div class="xqcas_input_validation"><div id="validation_xqcas_'
-						. $question->getId() . '_' . $input_name . '"></div></div>';
-					$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
-				} else {
-					$question_text = str_replace("[[input:{$input_name}]]", ' ' . $input->render($state, $field_name, false, $ta_value), $question_text);
-				}
-			}
-
-			//Replace PRT placeholders
-			foreach ($question->prts as $prt_name => $prt) {
-				$question_text = str_replace("[[feedback:{$prt_name}]]", $user_solutions_from_db['prts'][$prt_name]['feedback'] . $user_solutions_from_db['prts'][$prt_name]['errors'], $question_text);
-			}
-
-			//Validation
-			//Button Validation
-			global $DIC;
-			$jsconfig = new stdClass();
-			$jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
-
-			$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
-			$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
-
-			return assStackQuestionUtils::_getLatex($question_text);
-		}
-	}
-
 	/* ILIAS REQUIRED METHODS RENDER END */
 
 	/* OTHER RENDER METHODS BEGIN */
@@ -673,8 +447,7 @@ class assStackQuestionRenderer
 	 * @return string
 	 * @throws stack_exception
 	 */
-	public
-	static function _prtFeedbackDisplay(string $name, stack_potentialresponse_tree_state $result, $feedback_style): string
+	public static function _prtFeedbackDisplay(string $name, stack_potentialresponse_tree_state $result, $feedback_style): string
 	{
 		$feedback = '';
 		$feedback_bits = $result->get_feedback();
@@ -709,8 +482,7 @@ class assStackQuestionRenderer
 	 * @param string $input_name
 	 * @return string the HTML code of the button of validation for this input.
 	 */
-	public
-	static function _renderValidationButton(string $question_id, string $input_name): string
+	public static function _renderValidationButton(string $question_id, string $input_name): string
 	{
 		return "<button style=\"height:1.8em;\" class=\"xqcas\" name=\"cmd[xqcas_" . $question_id . '_' . $input_name . "]\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></button>";
 	}
@@ -723,7 +495,7 @@ class assStackQuestionRenderer
 	 * @param stack_potentialresponse_tree_state $prt_state
 	 * @return string HTML Code with the rendered PRT feedback
 	 */
-	protected static function renderPRTFeedbackForPreview(stack_potentialresponse_tree_state $prt_state): string
+	protected static function renderPRTFeedback(stack_potentialresponse_tree_state $prt_state): string
 	{
 		$feedback = '';
 		$feedback_bits = $prt_state->get_feedback();

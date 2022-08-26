@@ -130,9 +130,9 @@ class assStackQuestionGUI extends assQuestionGUI
 
 				//TEXTAREAS EQUIV, User response from DB tuning
 				if (is_a($input, 'stack_textarea_input') or is_a($input, 'stack_equiv_input')) {
-					$user_solution = substr($user_solution, 1, -1);
-					$user_solution = explode(',', $user_solution);
-					$user_solution = implode("\n", $user_solution);
+					$user_solution[$input_name] = substr($user_solution[$input_name], 1, -1);
+					$user_solution[$input_name] = explode(',', $user_solution[$input_name]);
+					$user_solution[$input_name] = implode("\n", $user_solution[$input_name]);
 				}
 			}
 		}
