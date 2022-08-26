@@ -61,9 +61,9 @@ class assStackQuestionUtils
 		return $text1 . '\]';
 	}
 
-	public static function _replacePlaceholders($text, $replacement = '')
+	public static function _replacePlaceholders($prt_name, $text, $replacement = '')
 	{
-		return preg_replace('/\[\[feedback:(.*?)\]\]/', $replacement, $text);
+		return preg_replace('/\[\[feedback:(' . $prt_name . ')\]\]/', $replacement, $text);
 	}
 
 	/**

@@ -941,17 +941,23 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	 * @param ilAssQuestionPreviewSession $previewSession
 	 * @return float
 	 */
-	public function calculateReachedPointsFromPreviewSession(ilAssQuestionPreviewSession $previewSession)
+	public function calculateReachedPointsFromPreviewSession(ilAssQuestionPreviewSession $previewSession): float
 	{
 		$points = 0.0;
 
-		foreach ($this->prts as $index => $prt) {
+		if (!empty($this->getEvaluation())) {
 
-			$prt_result = $this->getPrtResult($index, $previewSession->getParticipantsSolution(), true);
-			$points += $prt_result->_score * $prt_result->_weight;
+			foreach (array_keys($this->prts) as $prt_name) {
+				$prt_points = $this->getEvaluation()['points'][$prt_name]['prt_points'];
+				$points = $points + $prt_points;
+			}
+
+			if ($points > $this->getMaximumPoints()) {
+				ilUtil::sendFailure("Error,  more points given than MAX Points", true);
+				$points = $this->getMaximumPoints();
+			}
 
 		}
-
 		return $points;
 	}
 
@@ -1020,6 +1026,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		try {
 
 			$evaluation_data = array();
+			$total_weight = 0.0;
+
 			foreach ($this->prts as $prt_name => $prt) {
 
 				if (!$this->hasNecessaryPrtInputs($prt, $user_response, true)) {
@@ -1032,10 +1040,48 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 				//PRT Results
 				$evaluation_data['prts'][$prt_name] = $this->prts[$prt_name]->evaluate_response($this->session, $this->options, $prt_input, $this->seed);
+
+				//Sum weights
+				$total_weight = $total_weight + (float)$evaluation_data['prts'][$prt_name]->_weight;
+
 				//Accept valid
 				//if ($evaluation_data['prts'][$prt_name]->_valid) {
-				$evaluation_data['points'][$prt_name] = ($evaluation_data['prts'][$prt_name]->_score * $evaluation_data['prts'][$prt_name]->_weight * $this->getPoints());
 				//}
+			}
+
+			$points_obtained = 0.0;
+
+			//Calculate Points per PRT
+			foreach (array_keys($this->prts) as $prt_name) {
+
+				//Calculate prt value in points
+				$relative_prt_weight_in_points = (((float)$evaluation_data['prts'][$prt_name]->_weight / $total_weight) * $this->getMaximumPoints());
+				$relative_prt_points = ((float)$evaluation_data['prts'][$prt_name]->_score * $relative_prt_weight_in_points);
+
+				//PRT Weight in Points
+				$evaluation_data['points'][$prt_name]['prt_weight'] = $relative_prt_weight_in_points;
+
+				//PRT Received points
+				$evaluation_data['points'][$prt_name]['prt_points'] = $relative_prt_points;
+
+				//Set Feedback type
+				if ($relative_prt_points <= 0.0) {
+					$evaluation_data['points'][$prt_name]['status'] = 'incorrect';
+				} elseif ($relative_prt_points == $relative_prt_weight_in_points) {
+					$evaluation_data['points'][$prt_name]['status'] = 'correct';
+				} elseif ($relative_prt_points < $relative_prt_weight_in_points) {
+					$evaluation_data['points'][$prt_name]['status'] = 'partially_correct';
+				} else {
+					$evaluation_data['points'][$prt_name]['status'] = null;
+					ilUtil::sendFailure('Error calculating PRT points in evaluateQuestion', true);
+				}
+
+				//Count points
+				$points_obtained = $points_obtained + $relative_prt_points;
+			}
+
+			if ($points_obtained > $this->getMaximumPoints()) {
+				ilUtil::sendFailure('Error calculating points in evaluateQuestion, trying to give more than existing, set to Max Points.', true);
 			}
 
 			//Manage Inputs and Validation
@@ -1416,7 +1462,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			$prt_incorrect = $this->prepareCASText($this->prt_incorrect, $session);
 
 			// 7. The General feedback.
-			$general_feedback = $this->prepareCASText($this->general_feedback, $session);
+			if (isset($this->general_feedback)) {
+				$general_feedback = $this->prepareCASText($this->general_feedback, $session);
+			} else {
+				$general_feedback = $this->prepareCASText('', $session);
+			}
 
 
 			// Now instantiate the session.
@@ -1493,12 +1543,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 	/**
 	 * Helper method used by initialise_question_from_seed.
+	 * And Render Specific PRT Feedback (not initialised by default)
 	 * prepare_cas_text($text, $session) method from Moodle
 	 * @param string $text a textual part of the question that is CAS text.
 	 * @param stack_cas_session2 $session the question's CAS session.
 	 * @return stack_cas_text|false the CAS text version of $text.
 	 */
-	protected function prepareCASText(string $text, stack_cas_session2 $session): stack_cas_text
+	public function prepareCASText(string $text, stack_cas_session2 $session): stack_cas_text
 	{
 		try {
 			$cas_text = new stack_cas_text($text, $session, $this->seed);

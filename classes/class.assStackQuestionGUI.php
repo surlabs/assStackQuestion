@@ -249,7 +249,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Render question Preview
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
-		$question_preview = assStackQuestionRenderer::_renderQuestionTextForPreview($this->object);
+		$question_preview = assStackQuestionRenderer::_renderQuestionText($this->object);
 
 		//Tab management
 		$tabs = $DIC->tabs();
@@ -293,9 +293,9 @@ class assStackQuestionGUI extends assQuestionGUI
 				$this->object->evaluateQuestion($userSolution);
 			}
 
-			$specific_feedback = assStackQuestionRenderer::_renderFeedbackForPreview($this->object, 'specific');
+			$specific_feedback = assStackQuestionRenderer::_renderFeedbackForPreview($this->object);
 		} else {
-			$specific_feedback = assStackQuestionRenderer::_renderFeedbackForTest($this->object, $userSolution, 'specific');
+			$specific_feedback = assStackQuestionRenderer::_renderFeedbackForTest($this->object, $userSolution);
 		}
 
 		return $general_feedback . $specific_feedback;

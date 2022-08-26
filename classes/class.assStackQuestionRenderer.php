@@ -23,12 +23,13 @@ class assStackQuestionRenderer
 	/* QUESTION TEXT RENDERING */
 
 	/**
-	 * Renders the question text for the question preview, forcing feedback
+	 * Renders the question text as a CASText
+	 * Replaces input, validation & feedback placeholders
 	 * @param assStackQuestion $question
 	 * @param bool $show_inline_feedback
 	 * @return string
 	 */
-	public static function _renderQuestionTextForPreview(assStackQuestion $question, bool $show_inline_feedback = true): string
+	public static function _renderQuestionText(assStackQuestion $question, bool $show_inline_feedback = true): string
 	{
 		global $DIC;
 
@@ -82,7 +83,7 @@ class assStackQuestionRenderer
 												<div class="xqcas_input_validation">
 													<div id="validation_xqcas_' . $question->getId() . '_' . $name . '"></div> 
 												</div>' .
-											'<div id="xqcas_input_matrix_width_' . $name . '" style="visibility: hidden">' . $input->getWidth() . '</div>
+							'<div id="xqcas_input_matrix_width_' . $name . '" style="visibility: hidden">' . $input->getWidth() . '</div>
 											<div id="xqcas_input_matrix_height_' . $name . '" style="visibility: hidden">' . $input->getHeight() . '</div>';
 					} else {
 						$ilias_validation = '<div id="validation_xqcas_' . $question->getId() . '_' . $name . '"></div>
@@ -99,6 +100,7 @@ class assStackQuestionRenderer
 					'Error rendering input: ' . $name,
 					$question_text);
 			}
+
 			if ($input->requires_validation()) {
 				$inputs_to_validate[] = $name;
 			}
@@ -112,16 +114,18 @@ class assStackQuestionRenderer
 
 				$prt_feedback = '';
 
-				//Standard Feedback
-				$prt_points_obtained = (float)$evaluation['points'][$prt_name];
-				$prt_points_max = (float)$question->prts[$prt_name]->get_value();
-
-				if ($prt_points_obtained == $prt_points_max) {
-					$prt_feedback .= $question->prt_correct_instantiated;
-				} elseif ($prt_points_obtained <= 0) {
-					$prt_feedback .= $question->prt_incorrect_instantiated;
-				} else {
-					$prt_feedback .= $question->prt_partially_correct_instantiated;
+				switch ($evaluation['points'][$prt_name]['status']) {
+					case 'correct':
+						$prt_feedback .= $question->prt_correct_instantiated;
+						break;
+					case 'incorrect':
+						$prt_feedback .= $question->prt_incorrect_instantiated;
+						break;
+					case 'partially_correct':
+						$prt_feedback .= $question->prt_partially_correct_instantiated;
+						break;
+					default:
+						$prt_feedback .= '';
 				}
 
 				//Errors & Feedback
@@ -138,7 +142,8 @@ class assStackQuestionRenderer
 
 				}
 
-				$question_text = stack_utils::replace_feedback_placeholders($question_text, $prt_feedback);
+				//Replace Placeholders
+				$question_text = assStackQuestionUtils::_replacePlaceholders($prt_name, $question_text, $prt_feedback);
 			}
 		} else {
 			//Hide all feedback placeholders
@@ -164,7 +169,6 @@ class assStackQuestionRenderer
 				$question_text .= '</br>' . $validation_error;
 			}
 		}
-
 
 		return assStackQuestionUtils::_getLatex($question_text);
 	}
@@ -372,17 +376,10 @@ class assStackQuestionRenderer
 	 * @param string $mode specific|text
 	 * @return string HTML Code with the rendered specific feedback text
 	 */
-	public static function _renderFeedbackForPreview(assStackQuestion $question, string $mode): string
+	public static function _renderFeedbackForPreview(assStackQuestion $question): string
 	{
-		if ($mode == 'specific') {
-			//Specific feedback
-			$text_to_replace = $question->specific_feedback_instantiated;
-		} elseif ($mode == 'text') {
-			//Text feedback
-			$text_to_replace = $question->question_text_instantiated;
-		} else {
-			return 'ERROR: No mode given for feedback in preview';
-		}
+		//Specific feedback
+		$text_to_replace = $question->specific_feedback_instantiated;
 
 		foreach (stack_utils::extract_placeholders($text_to_replace, 'feedback') as $prt_name) {
 
@@ -390,16 +387,18 @@ class assStackQuestionRenderer
 
 			$prt_feedback = '';
 
-			//Standard Feedback
-			$prt_points_obtained = (float)$evaluation['points'][$prt_name];
-			$prt_points_max = (float)$question->prts[$prt_name]->get_value();
-
-			if ($prt_points_obtained == $prt_points_max) {
-				$prt_feedback .= $question->prt_correct_instantiated;
-			} elseif ($prt_points_obtained <= 0) {
-				$prt_feedback .= $question->prt_incorrect_instantiated;
-			} else {
-				$prt_feedback .= $question->prt_partially_correct_instantiated;
+			switch ($evaluation['points'][$prt_name]['status']) {
+				case 'correct':
+					$prt_feedback .= $question->prt_correct_instantiated;
+					break;
+				case 'incorrect':
+					$prt_feedback .= $question->prt_incorrect_instantiated;
+					break;
+				case 'partially_correct':
+					$prt_feedback .= $question->prt_partially_correct_instantiated;
+					break;
+				default:
+					$prt_feedback .= '';
 			}
 
 			//Errors & Feedback
@@ -412,19 +411,17 @@ class assStackQuestionRenderer
 
 				$prt_state = $evaluation['prts'][$prt_name];
 
-				$prt_feedback .= self::renderPRTFeedbackForPreview($prt_state);
-
+				//Manage LaTeX explicitly
+				$prt_feedback .= assStackQuestionUtils::_getLatex(self::renderPRTFeedbackForPreview($prt_state));
 			}
 
-			$text_to_replace = stack_utils::replace_feedback_placeholders($text_to_replace, $prt_feedback);
+			//Replace Placeholders
+			$text_to_replace = assStackQuestionUtils::_replacePlaceholders($prt_name, $text_to_replace, $prt_feedback);
 		}
 
 		//Use General Feedback Style for the whole Speficic Feedback Text
-		if ($mode == 'specific') {
-			return assStackQuestionUtils::_getFeedbackStyledText($text_to_replace, 'feedback_default');
-		} else {
-			return $text_to_replace;
-		}
+		return assStackQuestionUtils::_getFeedbackStyledText($text_to_replace, 'feedback_default');
+
 	}
 
 	/**
