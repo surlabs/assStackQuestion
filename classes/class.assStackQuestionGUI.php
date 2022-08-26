@@ -105,14 +105,65 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 		//Get user solution from DB
-		$user_solutions = $this->object->getSolutionSubmit();
-		$this->object->setUserResponse($user_solutions);
+		if (empty($user_solution_from_db = $this->object->getTestOutputSolutions($active_id, $pass))) {
+			//Ensure evaluation has been done
+			if (empty($this->object->getEvaluation())) {
+				$this->object->evaluateQuestion(array_keys($this->object->inputs));
+			}
+
+			//Render question from scratch
+			$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
+			try {
+				//Return question output
+				$question_output = assStackQuestionRenderer::_renderQuestionText($this->object, $show_specific_inline_feedback);
+				return $this->outQuestionPage('', $is_question_postponed, $active_id, $question_output, $show_specific_inline_feedback);
+			} catch (stack_exception $e) {
+				return $e->getMessage();
+			}
+		} else {
+
+			$user_solution = array();
+			//Get user solution from DB
+			foreach ($this->object->inputs as $input_name => $input) {
+
+				$user_solution[$input_name] = $user_solution_from_db['inputs'][$input_name]['value'];
+
+				//TEXTAREAS EQUIV, User response from DB tuning
+				if (is_a($input, 'stack_textarea_input') or is_a($input, 'stack_equiv_input')) {
+					$user_solution = substr($user_solution, 1, -1);
+					$user_solution = explode(',', $user_solution);
+					$user_solution = implode("\n", $user_solution);
+				}
+			}
+		}
+
+		$response = array();
+		foreach ($this->object->inputs as $input_name => $input) {
+			//Check [] for textareas and equivalence inputs
+			if (is_a($input_name, 'stack_textarea_input') or is_a($input_name, 'stack_equiv_input')) {
+				$user_solution[$input_name] = '[' . $user_solution[$input_name] . ']';
+			}
+
+			//Do not send to maxima Matrix
+			if (!is_a($input, 'stack_matrix_input')) {
+				$response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
+			}else{
+				$response[$input_name] =$user_solution[$input_name];
+			}
+		}
+
+		$this->object->setUserResponse(assStackQuestionUtils::compute_response($this->object, $response));
+
+		//Ensure evaluation has been done
+		if (empty($this->object->getEvaluation())) {
+			$this->object->evaluateQuestion($this->object->getUserResponse());
+		}
 
 		//Render Question
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
 		try {
-			$question_output = assStackQuestionRenderer::_renderQuestionTest($this->object, $active_id, $pass, $user_post_solutions, $show_specific_inline_feedback, $is_question_postponed);
-
+			//$question_output = assStackQuestionRenderer::_renderQuestionTest($this->object, $active_id, $pass, $user_post_solutions, $show_specific_inline_feedback, $is_question_postponed);
+			$question_output = assStackQuestionRenderer::_renderQuestionText($this->object, $show_specific_inline_feedback);
 			//Return question output
 			return $this->outQuestionPage('', $is_question_postponed, $active_id, $question_output, $show_specific_inline_feedback);
 		} catch (stack_exception $e) {
@@ -233,10 +284,13 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		$response = array();
 		foreach ($this->object->inputs as $input_name => $input) {
+
 			//Check [] for textareas and equivalence inputs
+			//TODO Really checking? $input_name??
 			if (is_a($input_name, 'stack_textarea_input') or is_a($input_name, 'stack_equiv_input')) {
 				$user_solution[$input_name] = '[' . $user_solution[$input_name] . ']';
 			}
+
 			$response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
 		}
 

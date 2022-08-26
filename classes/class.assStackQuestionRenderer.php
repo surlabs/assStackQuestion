@@ -373,7 +373,6 @@ class assStackQuestionRenderer
 	 * Renders the Feedback in a CAStext
 	 * Including all feedback placeholders
 	 * @param assStackQuestion $question
-	 * @param string $mode specific|text
 	 * @return string HTML Code with the rendered specific feedback text
 	 */
 	public static function _renderFeedbackForPreview(assStackQuestion $question): string
@@ -432,20 +431,12 @@ class assStackQuestionRenderer
 	 * Used also for Test Results
 	 * @param assStackQuestion $question
 	 * @param array $user_solution_from_db
-	 * @param string $mode specific|text
 	 * @return string HTML Code with the rendered specific feedback text
 	 */
-	public static function _renderFeedbackForTest(assStackQuestion $question, array $user_solution_from_db, string $mode): string
+	public static function _renderFeedbackForTest(assStackQuestion $question, array $user_solution_from_db): string
 	{
-		if ($mode == 'specific') {
-			//Specific feedback
-			$text_to_replace = $question->specific_feedback_instantiated;
-		} elseif ($mode == 'text') {
-			//Text feedback
-			$text_to_replace = $question->question_text_instantiated;
-		} else {
-			return 'ERROR: No mode given for feedback in preview';
-		}
+		//Specific feedback
+		$text_to_replace = $question->specific_feedback_instantiated;
 
 		foreach (stack_utils::extract_placeholders($text_to_replace, 'feedback') as $prt_name) {
 
@@ -455,16 +446,24 @@ class assStackQuestionRenderer
 			//Ensure points obtained are known
 			if (isset($user_solution_from_db['xqcas_prt_' . $prt_name . '_status'])) {
 
-				$prt_status = (float)$user_solution_from_db['xqcas_prt_' . $prt_name . '_status'];
+				//$prt_status = (float)$user_solution_from_db['xqcas_prt_' . $prt_name . '_status'];
 
-				if ($prt_status == $question->getPoints()) {
-					$prt_feedback .= $question->prt_correct_instantiated;
-					$format = '2';
-				} elseif ($prt_status <= 0.0) {
-					$prt_feedback .= $question->prt_incorrect_instantiated;
-					$format = '3';
-				} else {
-					$prt_feedback .= $question->prt_partially_correct_instantiated;
+				$evaluation = $question->getEvaluation();
+
+				switch ($evaluation['points'][$prt_name]['status']) {
+					case 'correct':
+						$prt_feedback .= $question->prt_correct_instantiated;
+						$format = '2';
+						break;
+					case 'incorrect':
+						$prt_feedback .= $question->prt_incorrect_instantiated;
+						$format = '3';
+						break;
+					case 'partially_correct':
+						$prt_feedback .= $question->prt_partially_correct_instantiated;
+						break;
+					default:
+						$prt_feedback .= '';
 				}
 
 				if (isset($user_solution_from_db['xqcas_prt_' . $prt_name . '_feedback'])) {
@@ -483,12 +482,9 @@ class assStackQuestionRenderer
 			$text_to_replace = stack_utils::replace_feedback_placeholders($text_to_replace, $prt_feedback);
 		}
 
-		//Use General Feedback Style for the whole Speficic Feedback Text
-		if ($mode == 'specific') {
-			return assStackQuestionUtils::_getFeedbackStyledText($text_to_replace, 'feedback_default');
-		} else {
-			return $text_to_replace;
-		}
+		//Use General Feedback Style for the whole Specific Feedback Text
+		return assStackQuestionUtils::_getFeedbackStyledText($text_to_replace, 'feedback_default');
+
 	}
 
 	public static function renderSpecificFeedbackForTestResults()

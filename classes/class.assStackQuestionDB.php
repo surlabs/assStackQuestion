@@ -1362,8 +1362,8 @@ class assStackQuestionDB
 			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name);
 
 			//Save points
-			if (isset($question->getEvaluation()['points'][$prt_name])) {
-				self::_addPointsToPRTDBEntry($question, $active_id, $pass, $prt_name, $question->getEvaluation()['points'][$prt_name], $authorized);
+			if (isset($question->getEvaluation()['points'][$prt_name]['prt_points'])) {
+				self::_addPointsToPRTDBEntry($question, $active_id, $pass, $prt_name, $question->getEvaluation()['points'][$prt_name]['prt_points'], $authorized);
 			}
 
 			$entered_values++;
@@ -1381,7 +1381,7 @@ class assStackQuestionDB
 			$entered_values++;
 
 			//value1 = xqcas_input_*_status, $value2 = status
-			$obtained_points = (float)$question->getEvaluation()['points'][$prt_name];
+			$obtained_points = (float)$question->getEvaluation()['points'][$prt_name]['prt_points'];
 			$max_prt_points = (float)$question->prts[$prt_name]->get_value();
 			$fraction = $obtained_points / $max_prt_points;
 			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status', (string)$fraction);
