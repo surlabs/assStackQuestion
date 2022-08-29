@@ -68,7 +68,8 @@ class assStackQuestionRenderer
 					if (!is_a($input, 'stack_radio_input') &&
 						!is_a($input, 'stack_dropdown_input') &&
 						!is_a($input, 'stack_checkbox_input') &&
-						!is_a($input, 'stack_boolean_input')) {
+						!is_a($input, 'stack_boolean_input') &&
+						$show_inline_feedback) {
 						$validation_button = self::_renderValidationButton($question->getId(), $name);
 					}
 
@@ -178,14 +179,52 @@ class assStackQuestionRenderer
 		return assStackQuestionUtils::_getLatex($question_text);
 	}
 
-	public static function renderQuestionTextForTestView()
+	public static function _renderQuestionTextForTestResults(assStackQuestion $question, string $active_id, string $pass): string
 	{
+		$student_solutions = $question->getTestOutputSolutions($active_id, $pass);
+		$question_text = $student_solutions['question_text'];
 
-	}
+		// Get the list of placeholders before format_text.
+		$input_placeholders = array_unique(stack_utils::extract_placeholders($question_text, 'input'));
+		sort($input_placeholders);
+		$feedback_placeholders = array_unique(stack_utils::extract_placeholders($question_text, 'feedback'));
+		sort($feedback_placeholders);
 
-	public static function renderQuestionTextForTestResults()
-	{
+		// Now format the question-text.
+		$question_text = stack_maths::process_display_castext($question_text);
 
+		//Add MathJax (Ensure MathJax is loaded)
+		global $DIC;
+		include_once "./Services/Administration/classes/class.ilSetting.php";
+		$mathJaxSetting = new ilSetting("MathJax");
+		$DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
+
+		//Inputs Replacement
+		foreach ($input_placeholders as $name) {
+
+			$field_name = 'xqcas_' . $question->getId() . '_' . $name;
+			//Input Placeholders
+			$question_text = str_replace("[[input:{$name}]]", assStackQuestionUtils::_getLatex($student_solutions['inputs'][$name]['display']), $question_text);
+		}
+
+		//Replace Validation placeholders
+		foreach ($input_placeholders as $name) {
+			$question_text = str_replace("[[validation:{$name}]]", '', $question_text);
+		}
+
+		//Hide all feedback placeholders
+		foreach ($feedback_placeholders as $prt_name) {
+			$question_text = str_replace("[[feedback:{$prt_name}]]", '', $question_text);
+		}
+
+		//Validation
+		$jsconfig = new stdClass();
+		$jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
+
+		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
+		$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
+
+		return assStackQuestionUtils::_getLatex($question_text);
 	}
 
 	/* GENERAL + SPECIFIC FEEDBACK RENDERING */
@@ -207,7 +246,7 @@ class assStackQuestionRenderer
 
 			return assStackQuestionUtils::_getLatex($general_feedback_text->get_display_castext());
 		} catch (stack_exception $e) {
-			return $general_feedback_text->get_errors();
+			return $e->getMessage();
 		}
 	}
 
@@ -336,145 +375,121 @@ class assStackQuestionRenderer
 
 	}
 
-	public
-	static function renderSpecificFeedbackForTestResults()
-	{
-
-	}
-
 	/* BEST SOLUTION RENDERING */
 
-	public
-	static function renderBestSolutionForPreview()
-	{
-
-	}
-
-	public
-	static function renderBestSolutionForTestView()
-	{
-
-	}
-
-	public
-	static function renderBestSolutionForTestResults()
-	{
-
-	}
-
-	/* ILIAS REQUIRED METHODS RENDER BEGIN */
-
 	/**
+	 * Renders a correct solution with validation for Preview and Test
+	 * Uses the instanced question
+	 * doesn't modify the question structure
 	 * @param assStackQuestion $question
-	 * @param int $active_id
-	 * @param int|null $pass
-	 * @param bool $graphicalOutput
-	 * @param bool $result_output
-	 * @param bool $show_question_only
-	 * @param bool $show_feedback
-	 * @param bool $show_correct_solution
-	 * @param bool $show_manual_scoring
-	 * @param bool $show_question_text
 	 * @return string
-	 * @throws stack_exception
 	 */
-	public static function _renderQuestionSolution(assStackQuestion $question, int $active_id, int $pass = null, bool $graphicalOutput = false, bool $result_output = false, bool $show_question_only = true, bool $show_feedback = false, bool $show_correct_solution = false, bool $show_manual_scoring = false, bool $show_question_text = true): string
+	public static function _renderBestSolution(assStackQuestion $question): string
 	{
-		$correct_solution = array();
+		$input_correct_array = $question->getCorrectResponse();
+		$question_text = $question->question_text_instantiated;
 
-		if ($active_id === 0 and $pass === 0) {
+		// Get the list of placeholders before format_text.
+		$input_placeholders = array_unique(stack_utils::extract_placeholders($question_text, 'input'));
+		sort($input_placeholders);
+		$feedback_placeholders = array_unique(stack_utils::extract_placeholders($question_text, 'feedback'));
+		sort($feedback_placeholders);
 
-			//Preview Mode
-			$question_text = $question->question_text_instantiated;
-			$correct_solution = $question->getCorrectResponse();
+		// Now format the question-text.
+		$question_text = stack_maths::process_display_castext($question_text);
 
-		} else {
-			//Test Mode
-			$user_solutions_from_db = $question->getTestOutputSolutions($active_id, $pass);
+		//Add MathJax (Ensure MathJax is loaded)
+		global $DIC;
+		include_once "./Services/Administration/classes/class.ilSetting.php";
+		$mathJaxSetting = new ilSetting("MathJax");
+		$DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
 
-			$question_text = $user_solutions_from_db['question_text'];
-			if (isset($user_solutions_from_db['inputs'])) {
-				foreach ($user_solutions_from_db['inputs'] as $input_name => $input) {
-					$teacher_solution = $input['correct_value'];
+		//Inputs Replacement
+		foreach ($input_placeholders as $name) {
+			$field_name = 'xqcas_' . $question->getId() . '_' . $name . '_solution';
 
-					//TEXTAREAS EQUIV, User response from DB tuning
-					if (isset($question->inputs[$input_name]) && (is_a($question->inputs[$input_name], 'stack_textarea_input') or is_a($question->inputs[$input_name], 'stack_equiv_input'))) {
-						$teacher_solution = substr($teacher_solution, 1, -1);
-						$teacher_solution = explode(',', $teacher_solution);
-						$teacher_solution = implode("\n", $teacher_solution);
-					}
-					$correct_solution[$input_name] = $teacher_solution;
-				}
-			}
+			//Matrix has a different syntax
+			$state = $question->getInputState($name, $input_correct_array, false, false);
+
+			//Input Placeholders
+			$question_text = str_replace("[[input:{$name}]]",
+				$question->inputs[$name]->render($state, $field_name, true, $input_correct_array),
+				$question_text);
 		}
 
-		//Replace Input placeholders
-		foreach ($question->inputs as $input_name => $input) {
-
-			// Get the actual value of the teacher's answer at this point.
-			$teacher_answer_input = $input;
-
-			$correct_state = $teacher_answer_input->validate_student_response($correct_solution, $question->options, $correct_solution[$input_name], $question->getSecurity(), false);
-
-			$field_name = 'xqcas_solution_' . $question->getId() . '_' . $input_name;
-
-			$question_text = str_replace("[[input:{$input_name}]]", '&nbsp' . $input->render($correct_state, $field_name, true, $correct_solution[$input_name]), $question_text);
-			$question_text = str_replace("[[validation:{$input_name}]]", '</br>', $question_text);
-
+		//Replace Validation placeholders
+		foreach ($input_placeholders as $name) {
+			$question_text = str_replace("[[validation:{$name}]]", '', $question_text);
 		}
 
-		//Replace PRT placeholders
-		foreach ($question->prts as $prt_name => $prt) {
-			$question_text = str_replace("[[feedback:{$prt_name}]]", $user_solutions_from_db['prts'][$prt_name]['feedback'] . $user_solutions_from_db['prts'][$prt_name]['errors'], $question_text);
+		//Hide all feedback placeholders
+		foreach ($feedback_placeholders as $prt_name) {
+			$question_text = str_replace("[[feedback:{$prt_name}]]", '', $question_text);
 		}
 
-		//Return question text
+		//Validation
+		$jsconfig = new stdClass();
+		$jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
+
+		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
+		$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
+
 		return assStackQuestionUtils::_getLatex($question_text);
 	}
 
-	/* ILIAS REQUIRED METHODS RENDER END */
-
-	/* OTHER RENDER METHODS BEGIN */
-
-
-	/* INPUT RENDER END */
-
 	/**
-	 * Generates the display of the PRT feedback
-	 * @param string $name
-	 * @param stack_potentialresponse_tree_state $result
-	 * @param $feedback_style
+	 * Renders the best solution for test results without instancing the question
+	 * @param assStackQuestion $question
+	 * @param string $active_id
+	 * @param string $pass
 	 * @return string
-	 * @throws stack_exception
 	 */
-	public static function _prtFeedbackDisplay(string $name, stack_potentialresponse_tree_state $result, $feedback_style): string
+	public static function renderBestSolutionForTestResults(assStackQuestion $question, string $active_id, string $pass): string
 	{
-		$feedback = '';
-		$feedback_bits = $result->get_feedback();
+		$student_solutions = $question->getTestOutputSolutions($active_id, $pass);
+		$question_text = $student_solutions['question_text'];
 
-		if ($feedback_bits) {
-			$feedback = array();
-			$format = null;
-			foreach ($feedback_bits as $bit) {
-				$feedback[] = $bit->feedback;
-				if (!is_null($bit->format)) {
-					if (is_null($format)) {
-						$format = $bit->format;
-					}
-					if ($bit->format != $format) {
-						throw new stack_exception('Inconsistent feedback formats found in PRT ' . $name);
-					}
-				}
-			}
+		// Get the list of placeholders before format_text.
+		$input_placeholders = array_unique(stack_utils::extract_placeholders($question_text, 'input'));
+		sort($input_placeholders);
+		$feedback_placeholders = array_unique(stack_utils::extract_placeholders($question_text, 'feedback'));
+		sort($feedback_placeholders);
 
-			$feedback = $result->substitue_variables_in_feedback(implode(' ', $feedback));
-			$feedback = stack_maths::process_display_castext($feedback, null);
+		//Add MathJax (Ensure MathJax is loaded)
+		global $DIC;
+		include_once "./Services/Administration/classes/class.ilSetting.php";
+		$mathJaxSetting = new ilSetting("MathJax");
+		$DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
+
+		//Inputs Replacement
+		foreach ($input_placeholders as $name) {
+
+			$field_name = 'xqcas_' . $question->getId() . '_' . $name . '_solution';
+			//Input Placeholders
+			$question_text = str_replace("[[input:{$name}]]", assStackQuestionUtils::_getLatex($student_solutions['inputs'][$name]['correct_display']), $question_text);
 		}
 
-		//TODO Generate the standard PRT feedback for a particular score.
-		//$standard_feedback = $this->standard_prt_feedback($qa, $question, $result, $feedbackstyle);
-		return $feedback;
+		//Replace Validation placeholders
+		foreach ($input_placeholders as $name) {
+			$question_text = str_replace("[[validation:{$name}]]", '', $question_text);
+		}
+
+		//Hide all feedback placeholders
+		foreach ($feedback_placeholders as $prt_name) {
+			$question_text = str_replace("[[feedback:{$prt_name}]]", '', $question_text);
+		}
+
+		//Validation
+		$jsconfig = new stdClass();
+		$jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
+
+		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
+		$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
+		// Now format the question-text.
+		return stack_maths::process_display_castext($question_text);
 	}
+
+	/* OTHER RENDER METHODS BEGIN */
 
 	/**
 	 * Returns the button for current input field.

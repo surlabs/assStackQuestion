@@ -147,8 +147,8 @@ class assStackQuestionGUI extends assQuestionGUI
 			//Do not send to maxima Matrix
 			if (!is_a($input, 'stack_matrix_input')) {
 				$response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
-			}else{
-				$response[$input_name] =$user_solution[$input_name];
+			} else {
+				$response[$input_name] = $user_solution[$input_name];
 			}
 		}
 
@@ -173,56 +173,57 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	/**
 	 * Returns question view with correct response filled in
-	 * @param int $active_id
-	 * @param int $pass
-	 * @param bool $graphicalOutput
-	 * @param bool $result_output
-	 * @param bool $show_question_only
-	 * @param bool $show_feedback
-	 * @param bool $show_correct_solution
-	 * @param bool $show_manual_scoring
+	 * @param integer $active_id The active user id
+	 * @param integer|null $pass The test pass
+	 * @param boolean $graphicalOutput Show visual feedback for right/wrong answers
+	 * @param boolean $result_output Show the reached points for parts of the question
+	 * @param boolean $show_question_only Show the question without the ILIAS content around
+	 * @param boolean $show_feedback Show the question feedback
+	 * @param boolean $show_correct_solution Show the correct solution instead of the user solution
+	 * @param boolean $show_manual_scoring Show specific information for the manual scoring output
 	 * @param bool $show_question_text
 	 * @return string
 	 */
 	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true): string
 	{
-		//Question initialization
-		if (is_null($pass)) {
-			include_once /** @lang text */
-			"./Modules/Test/classes/class.ilObjTest.php";
-			$pass = ilObjTest::_getPass($active_id);
-		}
-
-		//Question initialization
-		$seed = assStackQuestionDB::_getSeedForTestPass($this->object, $active_id, $pass);
-
+		//Llama dos veces, una para el texto y otra para la best solution
 		if (!$this->object->isInstantiated()) {
-			$this->object->questionInitialisation($seed, true);
-		}
+			//Not in preview, not in test run, we are in Test Results
+			//Check for PASS
 
-		//If no user solution is given but question is not evaluated
-		//Force Evaluate Question
-		if (empty($this->object->getEvaluation())) {
-			if (empty($this->object->getSolutionSubmit())) {
-				//Preview Mode
-				$user_solutions = $this->object->getUserResponse();
-			} else {
-				//Test Mode
-				$user_solutions = $this->object->getSolutionSubmit();
+			require_once './Modules/Test/classes/class.ilObjTest.php';
+			if (!ilObjTest::_getUsePreviousAnswers($active_id, true)) {
+				if (is_null($pass)) {
+					$pass = ilObjTest::_getPass($active_id);
+				}
+			}
+			//Return Solution output for Test Results
+			//Raw replacement from tst_solution instead of instancing and evaluate question
+			if(!$show_correct_solution){
+				//TEXT
+				$solution_output = assStackQuestionRenderer::_renderQuestionTextForTestResults($this->object, $active_id, $pass);
+			}else{
+				//SOLUTION
+				$solution_output = assStackQuestionRenderer::renderBestSolutionForTestResults($this->object, $active_id, $pass);
 			}
 
-			$this->object->evaluateQuestion($user_solutions);
+			if (!$show_question_only) {
+				// get page object output
+				$solution_output = $this->getILIASPage($solution_output);
+			}
+
+			return $solution_output;
 		}
 
-		//Render Solution
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
-		$solution_output = assStackQuestionRenderer::_renderQuestionSolution($this->object, $active_id, $pass, $graphicalOutput, $result_output, $show_question_only, $show_feedback, $show_correct_solution, $show_manual_scoring, $show_question_text);
+		$solution_output = assStackQuestionRenderer::_renderBestSolution($this->object);
 
 		//Return Solution output
 		if (!$show_question_only) {
 			// get page object output
 			$solution_output = $this->getILIASPage($solution_output);
 		}
+
 		return $solution_output;
 	}
 
@@ -488,104 +489,114 @@ class assStackQuestionGUI extends assQuestionGUI
 		$prt_placeholders = stack_utils::extract_placeholders($this->object->getQuestion() . $this->object->specific_feedback, 'feedback');
 		foreach ($prt_placeholders as $prt_name) {
 
-			$prt_from_post_array[$prt_name]['value'] = ((isset($_POST['prt_' . $prt_name . '_value']) and $_POST['prt_' . $prt_name . '_value'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_value'])) : '');
-			$prt_from_post_array[$prt_name]['auto_simplify'] = ((isset($_POST['prt_' . $prt_name . '_simplify']) and $_POST['prt_' . $prt_name . '_simplify'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_simplify'])) : '');
-			$prt_from_post_array[$prt_name]['feedback_variables'] = ((isset($_POST['prt_' . $prt_name . '_feedback_variables']) and $_POST['prt_' . $prt_name . '_feedback_variables'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_feedback_variables'])) : '');
-			$prt_from_post_array[$prt_name]['first_node_name'] = ((isset($_POST['prt_' . $prt_name . '_first_node']) and $_POST['prt_' . $prt_name . '_first_node'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_first_node'])) : '');
-			//Look for node info
-			foreach ($this->object->prts[$prt_name]->get_nodes_summary() as $node_id => $node) {
-
-				$prefix = 'prt_' . $prt_name . '_node_' . $node_id;
-
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_next_node'] = ((isset($_POST[$prefix . '_pos_next']) and $_POST[$prefix . '_pos_next'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_pos_next'])) : -1);
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_next_node'] = ((isset($_POST[$prefix . '_neg_next']) and $_POST[$prefix . '_neg_next'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_neg_next'])) : -1);
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['answer_test'] = ((isset($_POST[$prefix . '_answer_test']) and $_POST[$prefix . '_answer_test'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_answer_test'])) : '');
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['sans'] = ((isset($_POST[$prefix . '_student_answer']) and $_POST[$prefix . '_student_answer'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_student_answer'])) : '');
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['tans'] = ((isset($_POST[$prefix . '_teacher_answer']) and $_POST[$prefix . '_teacher_answer'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_teacher_answer'])) : '');
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['test_options'] = ((isset($_POST[$prefix . '_options']) and $_POST[$prefix . '_options'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_options'])) : '');
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['quiet'] = ((isset($_POST[$prefix . '_quiet']) and $_POST[$prefix . '_quiet'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_quiet'])) : '');
-
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_score'] = ((isset($_POST[$prefix . '_pos_score']) and $_POST[$prefix . '_pos_score'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_score'])) : '');
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_score_mode'] = ((isset($_POST[$prefix . '_pos_mod']) and $_POST[$prefix . '_pos_mod'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_mod'])) : '');
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_penalty'] = ((isset($_POST[$prefix . '_pos_penalty']) and $_POST[$prefix . '_pos_penalty'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_penalty'])) : '');
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_answer_note'] = ((isset($_POST[$prefix . '_pos_answernote']) and $_POST[$prefix . '_pos_answernote'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_answernote'])) : '');
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_feedback'] = ((isset($_POST[$prefix . '_pos_specific_feedback']) and $_POST[$prefix . '_pos_specific_feedback'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST[$prefix . '_pos_specific_feedback'], false))) : '');
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_feedback_format'] = ((isset($_POST[$prefix . '_pos_feedback_class']) and $_POST[$prefix . '_pos_feedback_class'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_pos_feedback_class'])) : '');
-
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_score'] = ((isset($_POST[$prefix . '_neg_score']) and $_POST[$prefix . '_neg_score'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_score'])) : '');
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_score_mode'] = ((isset($_POST[$prefix . '_neg_mod']) and $_POST[$prefix . '_neg_mod'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_mod'])) : '');
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_penalty'] = ((isset($_POST[$prefix . '_neg_penalty']) and $_POST[$prefix . '_neg_penalty'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_penalty'])) : '');
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_answer_note'] = ((isset($_POST[$prefix . '_neg_answernote']) and $_POST[$prefix . '_neg_answernote'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_answernote'])) : '');
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_feedback'] = ((isset($_POST[$prefix . '_neg_specific_feedback']) and $_POST[$prefix . '_neg_specific_feedback'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST[$prefix . '_neg_specific_feedback'], false))) : '');
-				$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_feedback_format'] = ((isset($_POST[$prefix . '_neg_feedback_class']) and $_POST[$prefix . '_neg_feedback_class'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_neg_feedback_class'])) : '');
-
-			}
-			$prt_data = $prt_from_post_array[$prt_name];
-			$nodes = array();
-
-			foreach ($prt_data['nodes'] as $node_name => $node_data) {
-
-				$sans = stack_ast_container::make_from_teacher_source('PRSANS' . $node_name . ':' . $node_data['sans'], '', new stack_cas_security());
-				$tans = stack_ast_container::make_from_teacher_source('PRTANS' . $node_name . ':' . $node_data['tans'], '', new stack_cas_security());
-
-				//Penalties management, penalties are not an ILIAS Feature
-				if (is_null($node_data['false_penalty']) || $node_data['false_penalty'] === '') {
-					$false_penalty = 0;
-				} else {
-					$false_penalty = $node_data['false_penalty'];
-				}
-
-				if (is_null(($node_data['true_penalty']) || $node_data['true_penalty'] === '')) {
-					$true_penalty = 0;
-				} else {
-					$true_penalty = $node_data['true_penalty'];
-				}
-
-				try {
-					//Create Node and add it to the
-
-					$node = new stack_potentialresponse_node($sans, $tans, $node_data['answer_test'], $node_data['test_options'], (bool)$node_data['quiet'], '', (int)$node_name, $node_data['sans'], $node_data['tans']);
-
-					$node->add_branch(0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty, $node_data['false_next_node'], $node_data['false_feedback'], $node_data['false_feedback_format'], $node_data['false_answer_note']);
-					$node->add_branch(1, $node_data['true_score_mode'], $node_data['true_score'], $true_penalty, $node_data['true_next_node'], $node_data['true_feedback'], $node_data['true_feedback_format'], $node_data['true_answer_note']);
-
-					$nodes[$node_name] = $node;
-				} catch (stack_exception $e) {
-					ilUtil::sendFailure($e, true);
-				}
-			}
-
-			if ($prt_data['feedback_variables']) {
-				try {
-					$feedback_variables = new stack_cas_keyval($prt_data['feedback_variables']);
-					$feedback_variables = $feedback_variables->get_session();
-				} catch (stack_exception $e) {
-					ilUtil::sendFailure($e, true);
-				}
+			//Is new? Then load Standard PRT
+			if (!isset($this->object->prts[$prt_name])) {
+				$this->object->loadStandardPRT($prt_name);
+				ilUtil::sendSuccess('New PRT: ' . $prt_name . ' Created', true);
 			} else {
-				$feedback_variables = null;
-			}
 
-			foreach ($prt_from_post_array as $prt_name => $prt_data) {
-				$total_value += $prt_data['value'];
-			}
+				//LOAD STORED DATA
+				$prt_from_post_array[$prt_name]['value'] = ((isset($_POST['prt_' . $prt_name . '_value']) and $_POST['prt_' . $prt_name . '_value'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_value'])) : '');
+				$prt_from_post_array[$prt_name]['auto_simplify'] = ((isset($_POST['prt_' . $prt_name . '_simplify']) and $_POST['prt_' . $prt_name . '_simplify'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_simplify'])) : '');
+				$prt_from_post_array[$prt_name]['feedback_variables'] = ((isset($_POST['prt_' . $prt_name . '_feedback_variables']) and $_POST['prt_' . $prt_name . '_feedback_variables'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_feedback_variables'])) : '');
+				$prt_from_post_array[$prt_name]['first_node_name'] = ((isset($_POST['prt_' . $prt_name . '_first_node']) and $_POST['prt_' . $prt_name . '_first_node'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_first_node'])) : '');
 
-			if ($prt_from_post_array && $grade_all && $total_value < 0.0000001) {
+				//Look for node info
+				foreach ($this->object->prts[$prt_name]->get_nodes_summary() as $node_id => $node) {
+
+					$prefix = 'prt_' . $prt_name . '_node_' . $node_id;
+
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_next_node'] = ((isset($_POST[$prefix . '_pos_next']) and $_POST[$prefix . '_pos_next'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_pos_next'])) : -1);
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_next_node'] = ((isset($_POST[$prefix . '_neg_next']) and $_POST[$prefix . '_neg_next'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_neg_next'])) : -1);
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['answer_test'] = ((isset($_POST[$prefix . '_answer_test']) and $_POST[$prefix . '_answer_test'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_answer_test'])) : '');
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['sans'] = ((isset($_POST[$prefix . '_student_answer']) and $_POST[$prefix . '_student_answer'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_student_answer'])) : '');
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['tans'] = ((isset($_POST[$prefix . '_teacher_answer']) and $_POST[$prefix . '_teacher_answer'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_teacher_answer'])) : '');
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['test_options'] = ((isset($_POST[$prefix . '_options']) and $_POST[$prefix . '_options'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_options'])) : '');
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['quiet'] = ((isset($_POST[$prefix . '_quiet']) and $_POST[$prefix . '_quiet'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_quiet'])) : '');
+
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_score'] = ((isset($_POST[$prefix . '_pos_score']) and $_POST[$prefix . '_pos_score'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_score'])) : '');
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_score_mode'] = ((isset($_POST[$prefix . '_pos_mod']) and $_POST[$prefix . '_pos_mod'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_mod'])) : '');
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_penalty'] = ((isset($_POST[$prefix . '_pos_penalty']) and $_POST[$prefix . '_pos_penalty'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_penalty'])) : '');
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_answer_note'] = ((isset($_POST[$prefix . '_pos_answernote']) and $_POST[$prefix . '_pos_answernote'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_answernote'])) : '');
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_feedback'] = ((isset($_POST[$prefix . '_pos_specific_feedback']) and $_POST[$prefix . '_pos_specific_feedback'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST[$prefix . '_pos_specific_feedback'], false))) : '');
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['true_feedback_format'] = ((isset($_POST[$prefix . '_pos_feedback_class']) and $_POST[$prefix . '_pos_feedback_class'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_pos_feedback_class'])) : '');
+
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_score'] = ((isset($_POST[$prefix . '_neg_score']) and $_POST[$prefix . '_neg_score'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_score'])) : '');
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_score_mode'] = ((isset($_POST[$prefix . '_neg_mod']) and $_POST[$prefix . '_neg_mod'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_mod'])) : '');
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_penalty'] = ((isset($_POST[$prefix . '_neg_penalty']) and $_POST[$prefix . '_neg_penalty'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_penalty'])) : '');
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_answer_note'] = ((isset($_POST[$prefix . '_neg_answernote']) and $_POST[$prefix . '_neg_answernote'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_answernote'])) : '');
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_feedback'] = ((isset($_POST[$prefix . '_neg_specific_feedback']) and $_POST[$prefix . '_neg_specific_feedback'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST[$prefix . '_neg_specific_feedback'], false))) : '');
+					$prt_from_post_array[$prt_name]['nodes'][$node_id]['false_feedback_format'] = ((isset($_POST[$prefix . '_neg_feedback_class']) and $_POST[$prefix . '_neg_feedback_class'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_neg_feedback_class'])) : '');
+
+				}
+
+				$prt_data = $prt_from_post_array[$prt_name];
+				$nodes = array();
+
+				foreach ($prt_data['nodes'] as $node_name => $node_data) {
+
+					$sans = stack_ast_container::make_from_teacher_source('PRSANS' . $node_name . ':' . $node_data['sans'], '', new stack_cas_security());
+					$tans = stack_ast_container::make_from_teacher_source('PRTANS' . $node_name . ':' . $node_data['tans'], '', new stack_cas_security());
+
+					//Penalties management, penalties are not an ILIAS Feature
+					if (is_null($node_data['false_penalty']) || $node_data['false_penalty'] === '') {
+						$false_penalty = 0;
+					} else {
+						$false_penalty = $node_data['false_penalty'];
+					}
+
+					if (is_null(($node_data['true_penalty']) || $node_data['true_penalty'] === '')) {
+						$true_penalty = 0;
+					} else {
+						$true_penalty = $node_data['true_penalty'];
+					}
+
+					try {
+						//Create Node and add it to the
+
+						$node = new stack_potentialresponse_node($sans, $tans, $node_data['answer_test'], $node_data['test_options'], (bool)$node_data['quiet'], '', (int)$node_name, $node_data['sans'], $node_data['tans']);
+
+						$node->add_branch(0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty, $node_data['false_next_node'], $node_data['false_feedback'], $node_data['false_feedback_format'], $node_data['false_answer_note']);
+						$node->add_branch(1, $node_data['true_score_mode'], $node_data['true_score'], $true_penalty, $node_data['true_next_node'], $node_data['true_feedback'], $node_data['true_feedback_format'], $node_data['true_answer_note']);
+
+						$nodes[$node_name] = $node;
+					} catch (stack_exception $e) {
+						ilUtil::sendFailure($e, true);
+					}
+				}
+
+				if ($prt_data['feedback_variables']) {
+					try {
+						$feedback_variables = new stack_cas_keyval($prt_data['feedback_variables']);
+						$feedback_variables = $feedback_variables->get_session();
+					} catch (stack_exception $e) {
+						ilUtil::sendFailure($e, true);
+					}
+				} else {
+					$feedback_variables = null;
+				}
+
+				foreach ($prt_from_post_array as $prt_name => $prt_data) {
+					$total_value += $prt_data['value'];
+				}
+
+				if ($prt_from_post_array && $grade_all && $total_value < 0.0000001) {
+					try {
+						throw new stack_exception('There is an error authoring your question. ' .
+							'The $totalvalue, the marks available for the question, must be positive in question ' .
+							$this->object->getTitle());
+					} catch (stack_exception $e) {
+						ilUtil::sendFailure($e, true);
+					}
+				}
+
+				$prt_value = $prt_data['value'];
+
 				try {
-					throw new stack_exception('There is an error authoring your question. ' .
-						'The $totalvalue, the marks available for the question, must be positive in question ' .
-						$this->object->getTitle());
+					$this->object->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt_data['auto_simplify'], $prt_value, $feedback_variables, $nodes, (string)$prt_data['first_node_name'], 1);
 				} catch (stack_exception $e) {
 					ilUtil::sendFailure($e, true);
 				}
-			}
-
-			$prt_value = $prt_data['value'];
-
-			try {
-				$this->object->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt_data['auto_simplify'], $prt_value, $feedback_variables, $nodes, (string)$prt_data['first_node_name'], 1);
-			} catch (stack_exception $e) {
-				ilUtil::sendFailure($e, true);
 			}
 		}
 	}

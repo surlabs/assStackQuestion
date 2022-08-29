@@ -242,9 +242,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	//questionbase attributes
 
 	/**
-	 * @var string question general feedback.
+	 * @var string|null question general feedback.
 	 */
-	public string $general_feedback;
+	public $general_feedback;
 
 	/* STACK CORE ATTRIBUTES END */
 
@@ -633,15 +633,15 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 						if ($parameter_name == 'inputType') {
 							continue;
 						}
-						//MATRIX WORKAROUND
-						//force not use mustVerify
+						//sameType WORKAROUND
+						//TODO. forcing not use sameType as temporal workaraound for malformed answer feedback
 						if ($parameter_name == 'sameType') {
 							$parameters[$parameter_name] = false;
 						} else {
 							$parameters[$parameter_name] = $all_parameters[$parameter_name];
 						}
 					}
-					//var_dump($parameters);exit;
+
 					//SET INPUTS
 					$this->inputs[$name] = stack_input_factory::make($input_data['type'], $input_data['name'], $input_data['tans'], $this->options, $parameters);
 				}
@@ -1055,7 +1055,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			foreach (array_keys($this->prts) as $prt_name) {
 
 				//Calculate prt value in points
-				$relative_prt_weight_in_points = (((float)$evaluation_data['prts'][$prt_name]->_weight / $total_weight) * $this->getMaximumPoints());
+				if ($total_weight != 0.0) {
+					$relative_prt_weight_in_points = (((float)$evaluation_data['prts'][$prt_name]->_weight / $total_weight) * $this->getMaximumPoints());
+				} else {
+					ilUtil::sendFailure("PRT: " . $prt_name . " Value invalid", true);
+					$relative_prt_weight_in_points = 0.0;
+				}
+
 				$relative_prt_points = ((float)$evaluation_data['prts'][$prt_name]->_score * $relative_prt_weight_in_points);
 
 				//PRT Weight in Points
@@ -1140,9 +1146,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		$this->question_note = '';
 
 		//We add the feedback for the first prt to the specific feedback section.
-		$this->specific_feedback = '[[feedback:prt1]]';
-		$this->specific_feedback_format = 1;
-
 		$this->prt_correct = $standard_options['options_prt_correct'];
 		$this->prt_correct_format = 1;
 		$this->prt_partially_correct = $standard_options['options_prt_partially_correct'];
@@ -1159,6 +1162,73 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		$this->loadStandardInput('ans1');
 		$this->setQuestion('[[input:ans1]] [[validation:ans1]]');
 
+		//load standard PRT
+		$this->loadStandardPRT('prt1');
+		$this->specific_feedback = ('[[feedback:prt1]]');
+		$this->specific_feedback_format = 1;
+
+		//load seeds
+		$this->deployed_seeds = array();
+
+		$this->setPoints(1);
+
+		//load extra info
+		$this->general_feedback = '';
+		$this->penalty = 0.0;
+		$this->hidden = false;
+	}
+
+	/**
+	 * @throws stack_exception
+	 */
+	public function loadStandardInput(string $input_name)
+	{
+		//Ensure input doesn't exists
+		if (!isset($this->inputs[$input_name])) {
+			//load standard input
+			$standard_input = assStackQuestionConfig::_getStoredSettings('inputs');
+
+			$required_parameters = stack_input_factory::get_parameters_used();
+
+			$all_parameters = array(
+				'boxWidth' => $standard_input['input_box_size'],
+				'strictSyntax' => $standard_input['input_strict_syntax'],
+				'insertStars' => $standard_input['input_insert_stars'],
+				'syntaxHint' => $standard_input['input_syntax_hint'],
+				'syntaxAttribute' => $standard_input['input_syntax_attribute'],
+				'forbidWords' => $standard_input['input_forbidden_words'],
+				'allowWords' => $standard_input['input_allow_words'],
+				'forbidFloats' => $standard_input['input_forbid_float'],
+				'lowestTerms' => $standard_input['input_require_lowest_terms'],
+				'sameType' => $standard_input['input_check_answer_type'],
+				'mustVerify' => $standard_input['input_must_verify'],
+				'showValidation' => $standard_input['input_show_validation'],
+				'options' => $standard_input['input_extra_options'],
+			);
+
+			$parameters = array();
+			foreach ($required_parameters[$standard_input['input_type']] as $parameter_name) {
+				if ($parameter_name == 'inputType') {
+					continue;
+				}
+				$parameters[$parameter_name] = $all_parameters[$parameter_name];
+			}
+
+			//Create Input
+			$input = stack_input_factory::make($standard_input['input_type'], $input_name, 1, $this->options, $parameters);
+			//Load input to the question.
+			$this->inputs[$input_name] = $input;
+		} else {
+			ilUtil::sendInfo('The new input ' . $input_name . ' was already created', true);
+		}
+	}
+
+	/**
+	 * @param string $prt_name
+	 * @return void
+	 */
+	public function loadStandardPRT(string $prt_name)
+	{
 		//load PRTs and PRT nodes
 		$standard_prt = assStackQuestionConfig::_getStoredSettings('prts');
 
@@ -1216,64 +1286,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 		$prt_value = 1.0;
 		try {
-			$this->prts['prt1'] = new stack_potentialresponse_tree('prt1', '', (bool)$standard_prt['prt_simplify'], $prt_value, $feedback_variables, $nodes, '1', 1);
+			$this->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$standard_prt['prt_simplify'], $prt_value, $feedback_variables, $nodes, '1', 1);
 		} catch (stack_exception $e) {
 			ilUtil::sendFailure($e->getMessage(), true);
-		}
-
-		//load seeds
-		$this->deployed_seeds = array();
-
-		$this->setPoints(1);
-
-		//load extra info
-		$this->general_feedback = '';
-		$this->penalty = 0.0;
-		$this->hidden = false;
-	}
-
-	/**
-	 * @throws stack_exception
-	 */
-	public function loadStandardInput(string $input_name)
-	{
-		//Ensure input doesn't exists
-		if (!isset($this->inputs[$input_name])) {
-			//load standard input
-			$standard_input = assStackQuestionConfig::_getStoredSettings('inputs');
-
-			$required_parameters = stack_input_factory::get_parameters_used();
-
-			$all_parameters = array(
-				'boxWidth' => $standard_input['input_box_size'],
-				'strictSyntax' => $standard_input['input_strict_syntax'],
-				'insertStars' => $standard_input['input_insert_stars'],
-				'syntaxHint' => $standard_input['input_syntax_hint'],
-				'syntaxAttribute' => $standard_input['input_syntax_attribute'],
-				'forbidWords' => $standard_input['input_forbidden_words'],
-				'allowWords' => $standard_input['input_allow_words'],
-				'forbidFloats' => $standard_input['input_forbid_float'],
-				'lowestTerms' => $standard_input['input_require_lowest_terms'],
-				'sameType' => $standard_input['input_check_answer_type'],
-				'mustVerify' => $standard_input['input_must_verify'],
-				'showValidation' => $standard_input['input_show_validation'],
-				'options' => $standard_input['input_extra_options'],
-			);
-
-			$parameters = array();
-			foreach ($required_parameters[$standard_input['input_type']] as $parameter_name) {
-				if ($parameter_name == 'inputType') {
-					continue;
-				}
-				$parameters[$parameter_name] = $all_parameters[$parameter_name];
-			}
-
-			//Create Input
-			$input = stack_input_factory::make($standard_input['input_type'], $input_name, 1, $this->options, $parameters);
-			//Load input to the question.
-			$this->inputs[$input_name] = $input;
-		} else {
-			ilUtil::sendInfo('The new input ' . $input_name . ' was already created', true);
 		}
 	}
 
@@ -1496,6 +1511,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 				$s = stack_string('runtimefielderr', array('field' => stack_string('questionnote'), 'err' => $note_text->get_errors()));
 				$this->runtime_errors[$s] = true;
 			}
+
+
 			$this->prt_correct_instantiated = $prt_correct->get_display_castext();
 			$this->prt_partially_correct_instantiated = $prt_partially_correct->get_display_castext();
 			$this->prt_incorrect_instantiated = $prt_incorrect->get_display_castext();
@@ -1672,7 +1689,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	 * @param bool $raw_input the response in raw form. Needs converting to Maxima format by the input.
 	 * @return stack_input_state|bool the result of calling validate_student_response() on the input.
 	 */
-	public function getInputState(string $name, array $response, bool $raw_input = false)
+	public function getInputState(string $name, array $response, bool $raw_input = false, bool $sets_question_object = true)
 	{
 		try {
 			$this->validateCache($response);
@@ -1694,8 +1711,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 			//Validate student response
 			if (array_key_exists($name, $this->inputs)) {
-				$this->setInputStates($this->inputs[$name]->validate_student_response($response, $this->options, $teacher_answer, $this->security, false), $name);
-				return $this->getInputStates($name);
+				if ($sets_question_object) {
+					$this->setInputStates($this->inputs[$name]->validate_student_response($response, $this->options, $teacher_answer, $this->security, false), $name);
+					return $this->getInputStates($name);
+				}else{
+					return $this->inputs[$name]->validate_student_response($response, $this->options, $teacher_answer, $this->security, false);
+				}
 			}
 
 			return true;

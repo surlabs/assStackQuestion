@@ -38,8 +38,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		// control flow
 		$ctrl = $DIC->ctrl();
 		$cmd = $ctrl->getCmd($this, "configure");
-		switch ($cmd)
-		{
+		switch ($cmd) {
 			case 'configure';
 			case 'showConnectionSettings':
 			case 'saveConnectionSettings':
@@ -96,12 +95,10 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		$tabs->activateTab($a_active);
 
-		switch ($a_active)
-		{
+		switch ($a_active) {
 			case 'show_connection_settings':
 				$tabs->addSubTab('basic_connection_settings', $this->plugin_object->txt('basic_connection_settings'), $ctrl->getLinkTarget($this, 'showConnectionSettings'));
-				if ($this->config->get('platform_type') == 'server')
-				{
+				if ($this->config->get('platform_type') == 'server') {
 					$tabs->addSubTab('server_configuration', $this->plugin_object->txt('server_configuration'), $ctrl->getLinkTarget($this, 'showServerList'));
 				}
 				break;
@@ -197,31 +194,24 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		$this->plugin_object->includeClass("model/configuration/class.assStackQuestionServer.php");
 
-		if (isset($_POST['server_id']))
-		{
+		if (isset($_POST['server_id'])) {
 			$server_ids = (array)$_POST['server_id'];
-		} elseif (isset($_GET['server_id']))
-		{
+		} elseif (isset($_GET['server_id'])) {
 			$server_ids = (array)$_GET['server_id'];
 		}
 
-		if (empty($server_ids))
-		{
+		if (empty($server_ids)) {
 			ilUtil::sendFailure($this->plugin_object->txt('no_server_selected'), true);
-		} else
-		{
-			foreach ($server_ids as $server_id)
-			{
+		} else {
+			foreach ($server_ids as $server_id) {
 				$server = assStackQuestionServer::getServerById($server_id);
 				$server->setActive($active);
 			}
 			assStackQuestionServer::saveServers();
 
-			if (count($server_ids) == 1)
-			{
+			if (count($server_ids) == 1) {
 				ilUtil::sendSuccess($this->plugin_object->txt($active ? 'server_activated' : 'server_deactivated'), true);
-			} else
-			{
+			} else {
 				ilUtil::sendSuccess($this->plugin_object->txt($active ? 'servers_activated' : 'servers_deactivated'), true);
 			}
 		}
@@ -234,16 +224,13 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		$this->plugin_object->includeClass("model/configuration/class.assStackQuestionServer.php");
 
-		if (isset($_POST['server_id']))
-		{
+		if (isset($_POST['server_id'])) {
 			$server_ids = (array)$_POST['server_id'];
-		} elseif (isset($_GET['server_id']))
-		{
+		} elseif (isset($_GET['server_id'])) {
 			$server_ids = (array)$_GET['server_id'];
 		}
 
-		if (empty($server_ids))
-		{
+		if (empty($server_ids)) {
 			ilUtil::sendFailure($this->plugin_object->txt('no_server_selected'), true);
 			$DIC->ctrl()->redirect($this, 'showServerList');
 		}
@@ -254,8 +241,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$gui->setConfirm($DIC->language()->txt('delete'), 'deleteServers');
 		$gui->setCancel($DIC->language()->txt('cancel'), 'showServerList');
 
-		foreach ($server_ids as $server_id)
-		{
+		foreach ($server_ids as $server_id) {
 			$server = assStackQuestionServer::getServerById($server_id);
 			$gui->addItem('server_id[]', $server_id, $server->getAddress());
 		}
@@ -360,10 +346,8 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$clear_cache_button->setCommand("clearCache");
 		$toolbar->addButtonInstance($clear_cache_button);
 
-		if ($a_run)
-		{
-			if ($this->config->get('platform_type') == 'server')
-			{
+		if ($a_run) {
+			if ($this->config->get('platform_type') == 'server') {
 				ilUtil::sendInfo($this->plugin_object->txt('srv_address') . ':<br/>' . assStackQuestionConfig::_getServerAddress());
 			}
 
@@ -371,17 +355,14 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 			$this->plugin_object->includeClass("model/configuration/class.assStackQuestionHealthcheck.php");
 			$healthcheck_object = new assStackQuestionHealthcheck($this->plugin_object);
 
-			try
-			{
+			try {
 				$healthcheck_data = $healthcheck_object->doHealthcheck();
-			} catch (Exception $e)
-			{
+			} catch (Exception $e) {
 				ilUtil::sendFailure($e->getMessage());
 				$healthcheck_data = false;
 			}
 
-			if ($healthcheck_data)
-			{
+			if ($healthcheck_data) {
 				//Show healthcheck
 				$this->plugin_object->includeClass("GUI/configuration/class.assStackQuestionHealthcheckGUI.php");
 				$healthcheck_gui_object = new assStackQuestionHealthcheckGUI($this->plugin_object, $healthcheck_data);
@@ -428,19 +409,19 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		//IF MANUAL SELECTION ACTIVATED UNCOMMENT THIS
 		$platform_type = new ilSelectInputGUI($this->plugin_object->txt('platform_type'), 'platform_type');
-		$platform_type->setOptions(array("win" => $this->plugin_object->txt('windows'), "unix" => $this->plugin_object->txt('unix'), //"unix-optimised" => $this->plugin_object->txt('unix_optimised'),
-			"server" => $this->plugin_object->txt('server')));
+		$platform_type->setOptions(array("server" => $this->plugin_object->txt('server')));
 		$platform_type->setInfo($this->plugin_object->txt('platform_type_info'));
 		$platform_type->setValue($connection_data['platform_type']);
 		$form->addItem($platform_type);
 
 
 		//Maxima version
-		$maxima_version = new ilSelectInputGUI($this->plugin_object->txt('maxima_version'), 'maxima_version');
-		$maxima_version->setOptions(array('5.23.2' => '5.23.2', '5.25.1' => '5.25.1', '5.26.0' => '5.26.0', '5.27.0' => '5.27.0', '5.28.0' => '5.28.0', '5.30.0' => '5.30.0', '5.31.1' => '5.31.1', '5.31.2' => '5.31.2', '5.31.3' => '5.31.3', '5.32.0' => '5.32.0', '5.32.1' => '5.32.1', '5.33.0' => '5.33.0', '5.34.0' => '5.34.0', '5.34.1' => '5.34.1', '5.35.1' => '5.35.1', '5.35.1.2' => '5.35.1.2', '5.36.0' => '5.36.0', '5.36.1' => '5.36.1', '5.37.3' => '5.37.3', '5.38.0' => '5.38.0', '5.38.1' => '5.38.1', '5.39.0' => '5.39.0', '5.40.0' => '5.40.0', '5.41.0' => '5.41.0', 'default' => 'default'));
-		$maxima_version->setInfo($this->plugin_object->txt('maxima_version_info'));
-		$maxima_version->setValue($connection_data['maxima_version']);
-		$form->addItem($maxima_version);
+		//$maxima_version = new ilSelectInputGUI($this->plugin_object->txt('maxima_version'), 'maxima_version');
+		//$maxima_version->setOptions(array('5.23.2' => '5.23.2', '5.25.1' => '5.25.1', '5.26.0' => '5.26.0', '5.27.0' => '5.27.0', '5.28.0' => '5.28.0', '5.30.0' => '5.30.0', '5.31.1' => '5.31.1', '5.31.2' => '5.31.2', '5.31.3' => '5.31.3', '5.32.0' => '5.32.0', '5.32.1' => '5.32.1', '5.33.0' => '5.33.0', '5.34.0' => '5.34.0', '5.34.1' => '5.34.1', '5.35.1' => '5.35.1', '5.35.1.2' => '5.35.1.2', '5.36.0' => '5.36.0', '5.36.1' => '5.36.1', '5.37.3' => '5.37.3', '5.38.0' => '5.38.0', '5.38.1' => '5.38.1', '5.39.0' => '5.39.0', '5.40.0' => '5.40.0', '5.41.0' => '5.41.0', 'default' => 'default'));
+		//$maxima_version->setInfo($this->plugin_object->txt('maxima_version_info'));
+		//$maxima_version->setValue($connection_data['maxima_version']);
+		//
+		//$form->addItem($maxima_version);
 
 		//CAS connection timeout
 		$cas_connection_timeout = new ilTextInputGUI($this->plugin_object->txt('cas_connection_timeout'), 'cas_connection_timeout');
@@ -464,16 +445,14 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$cas_result_caching->setValue('db');
 		$form->addItem($cas_result_caching);
 
-		if ($connection_data['platform_type'] == 'win')
-		{
+		if ($connection_data['platform_type'] == 'win') {
 
 			//Maxima command
 			$maxima_command = new ilTextInputGUI($this->plugin_object->txt('maxima_command'), 'maxima_command');
 			$maxima_command->setInfo($this->plugin_object->txt('maxima_command_info'));
 			$maxima_command->setValue($connection_data['maxima_command']);
 			$form->addItem($maxima_command);
-		} elseif ($connection_data['platform_type'] == 'server')
-		{
+		} elseif ($connection_data['platform_type'] == 'server') {
 			$link = $DIC->ctrl()->getLinkTarget($this, 'showServerList');
 			$maxima_command = new ilNonEditableValueGUI($this->plugin_object->txt('maxima_command'), '');
 			$maxima_command->setValue($this->plugin_object->txt('maxima_command_server'));
@@ -481,8 +460,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 			$form->addItem($maxima_command);
 		}
 
-		if ($connection_data['platform_type'] == 'win' OR $connection_data['platform_type'] == 'server')
-		{
+		if ($connection_data['platform_type'] == 'win' or $connection_data['platform_type'] == 'server') {
 			//Plot command
 			$plot_command = new ilTextInputGUI($this->plugin_object->txt('plot_command'), 'plot_command');
 			$plot_command->setInfo($this->plugin_object->txt('plot_command_info'));
@@ -529,13 +507,11 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$connection_data = assStackQuestionConfig::_getStoredSettings('connection');
 
 		//Instant validation
-		if ($connection_data['platform_type'] == 'server')
-		{
+		if ($connection_data['platform_type'] == 'server') {
 			$instant_validation = new ilCheckboxInputGUI($this->plugin_object->txt('instant_validation'), 'instant_validation');
 			$instant_validation->setInfo($this->plugin_object->txt("instant_validation_info"));
 			$instant_validation->setChecked($display_data['instant_validation']);
-		} else
-		{
+		} else {
 			$instant_validation = new ilCheckboxInputGUI($this->plugin_object->txt('instant_validation'), 'instant_validation');
 			$instant_validation->setInfo($this->plugin_object->txt("instant_validation_info"));
 			$instant_validation->setChecked(FALSE);
@@ -677,19 +653,19 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$input_strict_syntax->setChecked($inputs_data['input_strict_syntax']);
 		$form->addItem($input_strict_syntax);
 
-        //Input insert stars
-        $input_insert_stars = new ilSelectInputGUI($this->plugin_object->txt('input_insert_stars'), 'input_insert_stars');
-        $input_insert_stars->setOptions(array(
-            "0" => $this->plugin_object->txt('input_stars_no_stars'),
-            "1" => $this->plugin_object->txt('input_stars_implied'),
-            "2" => $this->plugin_object->txt('input_stars_singlechar'),
-            "3" => $this->plugin_object->txt('input_stars_spaces'),
-            "4" => $this->plugin_object->txt('input_stars_implied_spaces'),
-            "5" => $this->plugin_object->txt('input_type_implied_spaces_single')));
+		//Input insert stars
+		$input_insert_stars = new ilSelectInputGUI($this->plugin_object->txt('input_insert_stars'), 'input_insert_stars');
+		$input_insert_stars->setOptions(array(
+			"0" => $this->plugin_object->txt('input_stars_no_stars'),
+			"1" => $this->plugin_object->txt('input_stars_implied'),
+			"2" => $this->plugin_object->txt('input_stars_singlechar'),
+			"3" => $this->plugin_object->txt('input_stars_spaces'),
+			"4" => $this->plugin_object->txt('input_stars_implied_spaces'),
+			"5" => $this->plugin_object->txt('input_type_implied_spaces_single')));
 
-        $input_insert_stars->setInfo($this->plugin_object->txt("input_insert_stars_info"));
-        $input_insert_stars->setValue((int)$inputs_data['input_insert_stars']);
-        $form->addItem($input_insert_stars);
+		$input_insert_stars->setInfo($this->plugin_object->txt("input_insert_stars_info"));
+		$input_insert_stars->setValue((int)$inputs_data['input_insert_stars']);
+		$form->addItem($input_insert_stars);
 
 		//Input forbid float
 		$input_forbid_float = new ilCheckboxInputGUI($this->plugin_object->txt('input_forbid_float'), 'input_forbid_float');
@@ -783,8 +759,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$answertests = stack_ans_test_controller::get_available_ans_tests();
 		$answertestchoices = array();
 
-		foreach ($answertests as $test => $string)
-		{
+		foreach ($answertests as $test => $string) {
 			$answertestchoices[$test] = stack_string($string);
 		}
 		$answer_test->setOptions($answertestchoices);
@@ -872,13 +847,11 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		$this->plugin_object->includeClass("model/configuration/class.assStackQuestionServer.php");
 
-		if (isset($a_server_id) && $a_server_id > 0)
-		{
+		if (isset($a_server_id) && $a_server_id > 0) {
 			$server = assStackQuestionServer::getServerById($a_server_id);
 			$title = $this->plugin_object->txt('edit_server');
 			$ctrl->setParameter($this, 'server_id', $a_server_id);
-		} else
-		{
+		} else {
 			$server = assStackQuestionServer::getDefaultServer();
 			$title = $this->plugin_object->txt('add_server');
 		}
@@ -889,8 +862,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		// purpose
 		$options = [];
-		foreach (assStackQuestionServer::getPurposes() as $purpose)
-		{
+		foreach (assStackQuestionServer::getPurposes() as $purpose) {
 			$options[$purpose] = $this->plugin_object->txt('srv_purpose_' . $purpose);
 		}
 		$purpose = new ilSelectInputGUI($this->plugin_object->txt('srv_purpose'), 'purpose');
@@ -953,12 +925,10 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$feedback_stylesheet_id->setValue($feedback_data['feedback_stylesheet_id']);
 		$form->addItem($feedback_stylesheet_id);
 
-		if (strlen($stylesheet_active))
-		{
+		if (strlen($stylesheet_active)) {
 			$query = "SELECT style_id, characteristic FROM style_char WHERE type = 'text_block' AND style_id = '" . $stylesheet_active . "' ";
 			$result = $db->query($query);
-			while ($row = $db->fetchAssoc($result))
-			{
+			while ($row = $db->fetchAssoc($result)) {
 				$styles_array[$row["characteristic"]] = $row["characteristic"];
 			}
 		}
@@ -1035,8 +1005,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$healthcheck_object = new assStackQuestionHealthcheck($this->plugin_object);
 		$cache_is_clear = $healthcheck_object->clearCache();
 
-		if ($cache_is_clear)
-		{
+		if ($cache_is_clear) {
 			ilUtil::sendSuccess($this->plugin_object->txt('cache_successfully_deleted'));
 		}
 
@@ -1050,18 +1019,14 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 	public function saveConnectionSettings()
 	{
-		try
-		{
+		try {
 			$ok = $this->config->saveConnectionSettings();
-			if ($ok)
-			{
+			if ($ok) {
 				ilUtil::sendSuccess($this->plugin_object->txt('config_connection_changed_message'));
-			} else
-			{
+			} else {
 				ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 			}
-		} catch (Exception $exception)
-		{
+		} catch (Exception $exception) {
 			ilUtil::sendFailure($exception->getMessage());
 		}
 		$this->showConnectionSettings();
@@ -1070,11 +1035,9 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function saveDisplaySettings()
 	{
 		$ok = $this->config->saveDisplaySettings();
-		if ($ok)
-		{
+		if ($ok) {
 			ilUtil::sendSuccess($this->plugin_object->txt('config_display_changed_message'));
-		} else
-		{
+		} else {
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showDisplaySettings();
@@ -1083,11 +1046,9 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function saveDefaultOptionsSettings()
 	{
 		$ok = $this->config->saveDefaultOptionsSettings();
-		if ($ok)
-		{
+		if ($ok) {
 			ilUtil::sendSuccess($this->plugin_object->txt('config_options_changed_message'));
-		} else
-		{
+		} else {
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showDefaultOptionsSettings();
@@ -1096,11 +1057,9 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function saveDefaultInputsSettings()
 	{
 		$ok = $this->config->saveDefaultInputsSettings();
-		if ($ok)
-		{
+		if ($ok) {
 			ilUtil::sendSuccess($this->plugin_object->txt('config_inputs_changed_message'));
-		} else
-		{
+		} else {
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showDefaultInputsSettings();
@@ -1109,11 +1068,9 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function saveDefaultPRTsSettings()
 	{
 		$ok = $this->config->saveDefaultPRTsSettings();
-		if ($ok)
-		{
+		if ($ok) {
 			ilUtil::sendSuccess($this->plugin_object->txt('config_prts_changed_message'));
-		} else
-		{
+		} else {
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showDefaultPRTsSettings();
@@ -1123,13 +1080,10 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	{
 		global $DIC, $tpl;
 		$form = $this->getServerSettingsForm($_GET['server_id']);
-		if ($form->checkInput())
-		{
-			if (isset($_GET['server_id']))
-			{
+		if ($form->checkInput()) {
+			if (isset($_GET['server_id'])) {
 				$server = assStackQuestionServer::getServerById($_GET['server_id']);
-			} else
-			{
+			} else {
 				$server = assStackQuestionServer::getDefaultServer();
 			}
 			$server->setPurpose($form->getInput('purpose'));
@@ -1139,8 +1093,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 			ilUtil::sendSuccess($this->plugin_object->txt('server_saved'), true);
 			$DIC->ctrl()->redirect($this, 'showServerList');
-		} else
-		{
+		} else {
 			$form->setValuesByPost();
 			$tpl->setContent($form->getHTML());
 		}
@@ -1149,11 +1102,9 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function saveFeedbackStylesSettings()
 	{
 		$ok = $this->config->saveFeedbackStyleSettings();
-		if ($ok)
-		{
+		if ($ok) {
 			ilUtil::sendSuccess($this->plugin_object->txt('config_feedback_styles_changed_message'));
-		} else
-		{
+		} else {
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showFeedbackStylesSettings();
@@ -1167,11 +1118,9 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function setDefaultSettingsForConnection()
 	{
 		$ok = $this->config->setDefaultSettingsForConnection();
-		if ($ok)
-		{
+		if ($ok) {
 			ilUtil::sendSuccess($this->plugin_object->txt('config_default_connection_message'));
-		} else
-		{
+		} else {
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showConnectionSettings();
@@ -1180,11 +1129,9 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function setDefaultSettingsForDisplay()
 	{
 		$ok = $this->config->setDefaultSettingsForDisplay();
-		if ($ok)
-		{
+		if ($ok) {
 			ilUtil::sendSuccess($this->plugin_object->txt('config_default_display_message'));
-		} else
-		{
+		} else {
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showDisplaySettings();
@@ -1193,11 +1140,9 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function setDefaultSettingsForOptions()
 	{
 		$ok = $this->config->setDefaultSettingsForOptions();
-		if ($ok)
-		{
+		if ($ok) {
 			ilUtil::sendSuccess($this->plugin_object->txt('config_default_options_message'));
-		} else
-		{
+		} else {
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showDefaultOptionsSettings();
@@ -1206,11 +1151,9 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function setDefaultSettingsForInputs()
 	{
 		$ok = $this->config->setDefaultSettingsForInputs();
-		if ($ok)
-		{
+		if ($ok) {
 			ilUtil::sendSuccess($this->plugin_object->txt('config_default_inputs_message'));
-		} else
-		{
+		} else {
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showDefaultInputsSettings();
@@ -1219,11 +1162,9 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function setDefaultSettingsForPRTs()
 	{
 		$ok = $this->config->setDefaultSettingsForPRTs();
-		if ($ok)
-		{
+		if ($ok) {
 			ilUtil::sendSuccess($this->plugin_object->txt('config_default_prts_message'));
-		} else
-		{
+		} else {
 			ilUtil::sendFailure($this->plugin_object->txt('config_error_message'));
 		}
 		$this->showDefaultPRTsSettings();
@@ -1235,8 +1176,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	 */
 	public function setRTESupport(ilTextAreaInputGUI $field)
 	{
-		if (empty($this->rte_tags))
-		{
+		if (empty($this->rte_tags)) {
 			$this->initRTESupport();
 		}
 		$field->setUseRte(true);
@@ -1255,8 +1195,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	 */
 	public function getRTETags()
 	{
-		if (empty($this->rte_tags))
-		{
+		if (empty($this->rte_tags)) {
 			$this->initRTESupport();
 		}
 
@@ -1276,8 +1215,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		$this->required_tags = array("a", "blockquote", "br", "cite", "code", "div", "em", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "img", "li", "ol", "p", "pre", "span", "strike", "strong", "sub", "sup", "table", "caption", "thead", "th", "td", "tr", "u", "ul", "i", "b", "gap");
 
-		if (serialize($this->rte_tags) != serialize(($this->required_tags)))
-		{
+		if (serialize($this->rte_tags) != serialize(($this->required_tags))) {
 
 			$this->rte_tags = $this->required_tags;
 			//TODO change this uncomment
