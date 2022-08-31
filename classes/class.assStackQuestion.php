@@ -1019,9 +1019,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 	/**
 	 * @param array $user_response
-	 * @return void
+	 * @return bool
 	 */
-	public function evaluateQuestion(array $user_response): void
+	public function evaluateQuestion(array $user_response): bool
 	{
 		try {
 
@@ -1031,8 +1031,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			foreach ($this->prts as $prt_name => $prt) {
 
 				if (!$this->hasNecessaryPrtInputs($prt, $user_response, true)) {
-					ilUtil::sendFailure('The PRT ' . $prt_name . ' wasnt evaluated because not all inputs were answered.');
-					continue;
+					ilUtil::sendFailure('The PRT ' . $prt_name . ' wasnt evaluated because not all inputs were answered.', true);
+					return false;
 				}
 
 				//User answers for PRT Evaluation
@@ -1108,6 +1108,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			ilUtil::sendFailure($e, true);
 
 		}
+
+		return true;
 	}
 
 	/**
@@ -1496,7 +1498,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			}
 
 			// Finally, store only those values really needed for later.
-			$this->question_text_instantiated = $question_text->get_display_castext();
+			$this->question_text_instantiated = assStackQuestionUtils::_getLatex($question_text->get_display_castext());
 			if ($question_text->get_errors()) {
 				$s = stack_string('runtimefielderr', array('field' => stack_string('questiontext'), 'err' => $question_text->get_errors()));
 				$this->runtime_errors[$s] = true;

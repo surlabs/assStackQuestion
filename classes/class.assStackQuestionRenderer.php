@@ -68,8 +68,8 @@ class assStackQuestionRenderer
 					if (!is_a($input, 'stack_radio_input') &&
 						!is_a($input, 'stack_dropdown_input') &&
 						!is_a($input, 'stack_checkbox_input') &&
-						!is_a($input, 'stack_boolean_input') &&
-						$show_inline_feedback) {
+						!is_a($input, 'stack_boolean_input')
+						) {
 						$validation_button = self::_renderValidationButton($question->getId(), $name);
 					}
 
