@@ -46,7 +46,7 @@ il.instant_validation = new function () {
 		config = a_config;
 		texts = a_texts;
 
-		$('tr#xqcas_question_display input[type="text"]').keyup(function (event) {
+		$('.ilc_question_Standard input[type="text"]').keyup(function (event) {
 			delay(function () {
 				var name = event.target.name;
 				name = name.replace(/xqcas_/, '', name);

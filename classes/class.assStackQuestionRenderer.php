@@ -34,6 +34,7 @@ class assStackQuestionRenderer
 		global $DIC;
 
 		$question_text = $question->question_text_instantiated;
+		$instant_validation = (bool)stack_utils::get_config()->ajaxvalidation;
 
 		// Replace inputs.
 		$inputs_to_validate = array();
@@ -69,8 +70,10 @@ class assStackQuestionRenderer
 						!is_a($input, 'stack_dropdown_input') &&
 						!is_a($input, 'stack_checkbox_input') &&
 						!is_a($input, 'stack_boolean_input')
-						) {
-						$validation_button = self::_renderValidationButton($question->getId(), $name);
+					) {
+						if (!$instant_validation) {
+							$validation_button = self::_renderValidationButton($question->getId(), $name);
+						}
 					}
 
 					//Input Placeholders
@@ -159,12 +162,19 @@ class assStackQuestionRenderer
 		}
 
 		//Validation
-		//Button Validation
 		$jsconfig = new stdClass();
-		$jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
 
-		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
-		$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
+		if ($instant_validation) {
+			//Instant Validation
+			$jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/instant_validation.php";
+			$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/instant_validation.js');
+			$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.instant_validation.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
+		} else {
+			//Button Validation
+			$jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
+			$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
+			$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
+		}
 
 		//General Validation Errors
 		if (!assStackQuestionUtils::_isEmptyResponse($question->getUserResponse(), $question->inputs)) {

@@ -1716,7 +1716,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 				if ($sets_question_object) {
 					$this->setInputStates($this->inputs[$name]->validate_student_response($response, $this->options, $teacher_answer, $this->security, false), $name);
 					return $this->getInputStates($name);
-				}else{
+				} else {
 					return $this->inputs[$name]->validate_student_response($response, $this->options, $teacher_answer, $this->security, false);
 				}
 			}
@@ -2555,6 +2555,39 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			ilUtil::sendFailure($e, true);
 			return array();
 		}
+	}
+
+	/**
+	 * Collects all text in the question which could contain media objects
+	 * These were created with the Rich Text Editor
+	 * The collection is needed to delete unused media objects
+	 */
+	protected function getRTETextWithMediaObjects(): string
+	{
+
+		// question text, suggested solutions etc
+		$collected = parent::getRTETextWithMediaObjects();
+
+		if (isset($this->options)) {
+			$collected .= $this->specific_feedback;
+			$collected .= $this->prt_correct;
+			$collected .= $this->prt_partially_correct;
+			$collected .= $this->prt_incorrect;
+		}
+
+		if (isset($this->extra_info)) {
+			$collected .= $this->general_feedback;
+		}
+
+		foreach ($this->prts as $prt) {
+			foreach ($prt->getNodes() as $node) {
+				$node_feedback =$node->getFeedbackFromNode();
+				$collected .= $node_feedback['true_feedback'];
+				$collected .=  $node_feedback['false_feedback'];
+			}
+		}
+
+		return $collected;
 	}
 
 	/* QUESTIONTYPE METHODS END */

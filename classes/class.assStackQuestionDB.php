@@ -200,6 +200,7 @@ class assStackQuestionDB
 
 		//If there is a result returns array, otherwise returns false.
 		while ($row = $db->fetchAssoc($res)) {
+			include_once("./Services/RTE/classes/class.ilRTE.php");
 
 			$prt_node_name = $row['node_name'];
 			$ilias_prts_nodes[$prt_node_name] = (int)$row['id'];
@@ -476,16 +477,16 @@ class assStackQuestionDB
 				"id" => array("integer", $db->nextId('xqcas_options')),
 				"question_id" => array("integer", $question->getId()),
 				"question_variables" => array("clob", $question->question_variables),
-				"specific_feedback" => array("clob", $question->specific_feedback),
+				"specific_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($question->specific_feedback)),
 				"specific_feedback_format" => array("integer", 1),
 				"question_note" => array("text", $question->question_note),
 				"question_simplify" => array("integer", $question->options->get_option('simplify')),
 				"assume_positive" => array("integer", $question->options->get_option('assumepos')),
-				"prt_correct" => array("clob", $question->prt_correct),
+				"prt_correct" => array("clob", ilRTE::_replaceMediaObjectImageSrc($question->prt_correct)),
 				"prt_correct_format" => array("integer", 1),
-				"prt_partially_correct" => array("clob", $question->prt_partially_correct),
+				"prt_partially_correct" => array("clob", ilRTE::_replaceMediaObjectImageSrc($question->prt_partially_correct)),
 				"prt_partially_correct_format" => array("integer", 1),
-				"prt_incorrect" => array("clob", $question->prt_incorrect),
+				"prt_incorrect" => array("clob", ilRTE::_replaceMediaObjectImageSrc($question->prt_incorrect)),
 				"prt_incorrect_format" => array("integer", 1),
 				"multiplication_sign" => array("text", $question->options->get_option('multiplicationsign') == null ? "dot" : $question->options->get_option('multiplicationsign')),
 				"sqrt_sign" => array("integer", $question->options->get_option('sqrtsign')),
@@ -505,16 +506,16 @@ class assStackQuestionDB
 				array(
 					"question_id" => array("integer", $question->getId()),
 					"question_variables" => array("clob", $question->question_variables),
-					"specific_feedback" => array("clob", $question->specific_feedback),
+					"specific_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($question->specific_feedback)),
 					"specific_feedback_format" => array("integer", 1),
 					"question_note" => array("text", $question->question_note),
 					"question_simplify" => array("integer", $question->options->get_option('simplify')),
 					"assume_positive" => array("integer", $question->options->get_option('assumepos')),
-					"prt_correct" => array("clob", $question->prt_correct),
+					"prt_correct" => array("clob", ilRTE::_replaceMediaObjectImageSrc($question->prt_correct)),
 					"prt_correct_format" => array("integer", 1),
-					"prt_partially_correct" => array("clob", $question->prt_partially_correct),
+					"prt_partially_correct" => array("clob", ilRTE::_replaceMediaObjectImageSrc($question->prt_partially_correct)),
 					"prt_partially_correct_format" => array("integer", 1),
-					"prt_incorrect" => array("clob", $question->prt_incorrect),
+					"prt_incorrect" => array("clob", ilRTE::_replaceMediaObjectImageSrc($question->prt_incorrect)),
 					"prt_incorrect_format" => array("integer", 1),
 					"multiplication_sign" => array("text", $question->options->get_option('multiplicationsign') == null ? "dot" : $question->options->get_option('multiplicationsign')),
 					"sqrt_sign" => array("integer", $question->options->get_option('sqrtsign')),
@@ -686,14 +687,14 @@ class assStackQuestionDB
 				"true_penalty" => array("text", $feedback_info['true_penalty']),
 				"true_next_node" => array("text", $branches_info->truenextnode),
 				"true_answer_note" => array("text", $branches_info->truenote),
-				"true_feedback" => array("clob", $feedback_info['true_feedback']),
+				"true_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['true_feedback'])),
 				"true_feedback_format" => array("integer", (int)$feedback_info['true_feedback_format']),
 				"false_score_mode" => array("text", $branches_info->falsescoremode),
 				"false_score" => array("text", $branches_info->falsescore),
 				"false_penalty" => array("text", $feedback_info['false_penalty']),
 				"false_next_node" => array("text", $branches_info->falsenextnode),
 				"false_answer_note" => array("text", $branches_info->falsenote),
-				"false_feedback" => array("clob", $feedback_info['false_feedback']),
+				"false_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['false_feedback'])),
 				"false_feedback_format" => array("integer", (int)$feedback_info['false_feedback_format']),
 			));
 		} else {
@@ -715,14 +716,14 @@ class assStackQuestionDB
 					"true_penalty" => array("text", $feedback_info['true_penalty']),
 					"true_next_node" => array("text", $branches_info->truenextnode),
 					"true_answer_note" => array("text", $branches_info->truenote),
-					"true_feedback" => array("clob", $feedback_info['true_feedback']),
+					"true_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['true_feedback'])),
 					"true_feedback_format" => array("integer", (int)$feedback_info['true_feedback_format']),
 					"false_score_mode" => array("text", $branches_info->falsescoremode),
 					"false_score" => array("text", $branches_info->falsescore),
 					"false_penalty" => array("text", $feedback_info['false_penalty']),
 					"false_next_node" => array("text", $branches_info->falsenextnode),
 					"false_answer_note" => array("text", $branches_info->falsenote),
-					"false_feedback" => array("clob", $feedback_info['false_feedback']),
+					"false_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($feedback_info['false_feedback'])),
 					"false_feedback_format" => array("integer", (int)$feedback_info['false_feedback_format']),
 				)
 			);

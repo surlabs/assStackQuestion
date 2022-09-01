@@ -199,10 +199,10 @@ class assStackQuestionGUI extends assQuestionGUI
 			}
 			//Return Solution output for Test Results
 			//Raw replacement from tst_solution instead of instancing and evaluate question
-			if(!$show_correct_solution){
+			if (!$show_correct_solution) {
 				//TEXT
 				$solution_output = assStackQuestionRenderer::_renderQuestionTextForTestResults($this->object, $active_id, $pass);
-			}else{
+			} else {
 				//SOLUTION
 				$solution_output = assStackQuestionRenderer::renderBestSolutionForTestResults($this->object, $active_id, $pass);
 			}
@@ -422,17 +422,17 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->object->question_variables = ((isset($_POST['options_question_variables']) and $_POST['options_question_variables'] != null) ? trim(ilUtil::secureString($_POST['options_question_variables'], false)) : '');
 		$this->object->question_note = ((isset($_POST['options_question_note']) and $_POST['options_question_note'] != null) ? trim(ilUtil::secureString($_POST['options_question_note'], false)) : '');
 
-		$this->object->specific_feedback = ((isset($_POST['options_specific_feedback']) and $_POST['options_specific_feedback'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST['options_specific_feedback'], false))) : '');
+		$this->object->specific_feedback = ((isset($_POST['options_specific_feedback']) and $_POST['options_specific_feedback'] != null) ? ilUtil::stripSlashes($_POST['options_specific_feedback'], true, $this->getRTETags()) : '');
 		$this->object->specific_feedback_format = 1;
 
-		$this->object->prt_correct = ((isset($_POST['options_prt_correct']) and $_POST['options_prt_correct'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST['options_prt_correct'], false))) : '');
+		$this->object->prt_correct = ((isset($_POST['options_prt_correct']) and $_POST['options_prt_correct'] != null) ? ilUtil::stripSlashes($_POST['options_prt_correct'], true, $this->getRTETags()) : '');
 		$this->object->prt_correct_format = 1;
-		$this->object->prt_partially_correct = ((isset($_POST['options_prt_partially_correct']) and $_POST['options_prt_partially_correct'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST['options_prt_partially_correct'], false))) : '');
+		$this->object->prt_partially_correct = ((isset($_POST['options_prt_partially_correct']) and $_POST['options_prt_partially_correct'] != null) ? ilUtil::stripSlashes($_POST['options_prt_partially_correct'], true, $this->getRTETags()) : '');
 		$this->object->prt_partially_correct_format = 1;
-		$this->object->prt_incorrect = ((isset($_POST['options_prt_incorrect']) and $_POST['options_prt_incorrect'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST['options_prt_incorrect'], false))) : '');
+		$this->object->prt_incorrect = ((isset($_POST['options_prt_incorrect']) and $_POST['options_prt_incorrect'] != null) ? ilUtil::stripSlashes($_POST['options_prt_incorrect'], true, $this->getRTETags()) : '');
 		$this->object->prt_incorrect_format = 1;
 
-		$this->object->general_feedback = ((isset($_POST['options_how_to_solve']) and $_POST['options_how_to_solve'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST['options_how_to_solve'], false))) : '');
+		$this->object->general_feedback = ((isset($_POST['options_how_to_solve']) and $_POST['options_how_to_solve'] != null) ? ilUtil::stripSlashes($_POST['options_how_to_solve'], true, $this->getRTETags()) : '');
 
 		//TODO
 		//$this->object->variants_selection_seed = ?;
@@ -556,8 +556,8 @@ class assStackQuestionGUI extends assQuestionGUI
 
 						$node = new stack_potentialresponse_node($sans, $tans, $node_data['answer_test'], $node_data['test_options'], (bool)$node_data['quiet'], '', (int)$node_name, $node_data['sans'], $node_data['tans']);
 
-						$node->add_branch(0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty, $node_data['false_next_node'], $node_data['false_feedback'], $node_data['false_feedback_format'], $node_data['false_answer_note']);
-						$node->add_branch(1, $node_data['true_score_mode'], $node_data['true_score'], $true_penalty, $node_data['true_next_node'], $node_data['true_feedback'], $node_data['true_feedback_format'], $node_data['true_answer_note']);
+						$node->add_branch(0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty, $node_data['false_next_node'], ilUtil::stripSlashes($node_data['false_feedback'], true, $this->getRTETags()), $node_data['false_feedback_format'], $node_data['false_answer_note']);
+						$node->add_branch(1, $node_data['true_score_mode'], $node_data['true_score'], $true_penalty, $node_data['true_next_node'], ilUtil::stripSlashes($node_data['true_feedback'], true, $this->getRTETags()), $node_data['true_feedback_format'], $node_data['true_answer_note']);
 
 						$nodes[$node_name] = $node;
 					} catch (stack_exception $e) {

@@ -101,7 +101,7 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
-Version 6.8.4 for ILIAS 7.12+ (Beta)
+Version 6.8.6 for ILIAS 7.12+ (Beta)
 ----------------------------------------
 - This STACK for ILIAS plugin version requires a Maxima Server with the maxima version 2021120900. Other versions may trigger validation errors.
 - **This version includes DBUpdate steps which change values in the xqcas_prts and xqcas_prt_nodes tables, please, backup these tables before update.**
@@ -119,3 +119,4 @@ Version 6.8.4 for ILIAS 7.12+ (Beta)
 - New attributes added to the question (not yet customisable): assume real, logic symbol, stack version and compiled cache to stack_options  and syntax attribute for stack_inputs
 - **The extremely rare and not replicable issue with question variants in test must be solved with this version, as the seed management in test function has been completely redesigned. **
 - Questions exported from a platform with a stack plugin version < 6.2 won't be imported using the ILIAS format, as the import/export functions has been adapted to the new assStackQuestion structure. Funding is needed to allow compatibility with previous versions. You can always use the MoodleXML format for that purpose.
+- Instant Validation is now active, as well as image in Texts Management.

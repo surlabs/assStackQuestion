@@ -17,12 +17,13 @@ require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/as
 
 header('Content-type: application/json; charset=utf-8');
 echo json_encode(checkUserResponse($_REQUEST['question_id'], $_REQUEST['input_name'], $_REQUEST['input_value']));
-
 exit;
 
 /**
  * Gets the students answer and send it to maxima in order to get the validation.
- * @param string $student_answer
+ * @param $question_id
+ * @param $input_name
+ * @param $user_response
  * @return string the Validation message.
  */
 function checkUserResponse($question_id, $input_name, $user_response)
@@ -59,7 +60,7 @@ function checkUserResponse($question_id, $input_name, $user_response)
 			try {
 				$teacher_answer = $question->getTas($input_name)->get_value();
 			} catch (stack_exception $e) {
-				return $e;
+				return $e->getMessage();
 			}
 		} else {
 			return "not properly evaluated";
@@ -69,9 +70,12 @@ function checkUserResponse($question_id, $input_name, $user_response)
 	}
 
 	try {
+		if (is_a($input = $question->inputs[$input_name], 'stack_matrix_input')) {
+			$user_response = $input->maxima_to_response_array($user_response[$input_name]);
+		}
 		$status = $question->inputs[$input_name]->validate_student_response($user_response, $question->options, $teacher_answer, $question->getSecurity());
 	} catch (stack_exception $e) {
-		return $e;
+		return $e->getMessage();
 	}
 
 	$result = array('input' => $user_response, 'status' => $status->status, 'message' => $question->inputs[$input_name]->render_validation($status, $input_name));
