@@ -1115,6 +1115,12 @@ class assStackQuestionAuthoringGUI
 	 */
 	public function manageErrorMessages()
 	{
+
+		//Check Maxima Connection
+		if (!$this->getQuestionGUI()->object->checkMaximaConnection()) {
+			ilUtil::sendFailure($this->getPlugin()->txt('hc_connection_status_display_error'), true);
+		}
+
 		// If exists error messages stored in session
 		$session_error_message = "";
 		$session_info_message = "";

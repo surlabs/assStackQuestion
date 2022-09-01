@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
  * GPLv2, see LICENSE
@@ -251,6 +252,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	/* ILIAS REQUIRED METHODS BEGIN */
 
 	/**
+	 * @return string ILIAS question type name
+	 */
+	public function getQuestionType(): string
+	{
+		return "assStackQuestion";
+	}
+
+	/**
 	 * CONSTRUCTOR.
 	 * @param string $title
 	 * @param string $comment
@@ -277,7 +286,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 		//Initialize some STACK required parameters
 		require_once __DIR__ . '/utils/class.assStackQuestionInitialization.php';
-
 		require_once(__DIR__ . '/stack/input/factory.class.php');
 		require_once(__DIR__ . '/stack/cas/keyval.class.php');
 		require_once(__DIR__ . '/stack/cas/castext.class.php');
@@ -290,6 +298,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	//assQuestion abstract methods
 
 	/**
+	 * Saves evaluation to user response in Test into tst_solutions
 	 * @param int $active_id
 	 * @param null $pass
 	 * @param bool $authorized
@@ -354,6 +363,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	}
 
 	/**
+	 * Calculates points reached in Test
 	 * @param int $active_id
 	 * @param null $pass
 	 * @param bool $authorized_solution
@@ -386,21 +396,15 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		return array_sum($points);
 	}
 
-	/**
-	 * @return string ILIAS question type name
-	 */
-	public function getQuestionType(): string
-	{
-		return "assStackQuestion";
-	}
 
 	/**
+	 * Duplicates the question in the same directory
 	 * @param bool $for_test
 	 * @param string $title
 	 * @param string $author
 	 * @param string $owner
 	 * @param null $test_obj_id
-	 * @return int|null
+	 * @return int|null the duplicated question id
 	 */
 	public function duplicate($for_test = true, $title = "", $author = "", $owner = "", $test_obj_id = null): ?int
 	{
@@ -453,14 +457,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	}
 
 	/**
-	 * Copies an assStackQuestion object
+	 * Copies an assStackQuestion object into the Clipboard
 	 *
 	 * @param integer $target_questionpool_id
 	 * @param string $title
 	 *
 	 * @return void|integer Id of the clone or nothing.
 	 */
-	function copyObject($target_questionpool_id, $title = "")
+	function copyObject(int $target_questionpool_id, string $title = "")
 	{
 		if ($this->id <= 0) {
 			// The question has not been saved. It cannot be duplicated
@@ -489,6 +493,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	}
 
 	/**
+	 * Copies the question into a question pool
 	 * @param $targetParentId
 	 * @param string $targetQuestionTitle
 	 * @return int
@@ -532,19 +537,41 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 	//iQuestionCondition methods
 
-	public function getOperators($expression)
+	/**
+	 * Get all available operations for a specific question
+	 *
+	 * @param $expression
+	 *
+	 * @return array
+	 * @internal param string $expression_type
+	 */
+	public function getOperators($expression): array
 	{
-		// TODO: Implement getOperators() method.
+		require_once "./Modules/TestQuestionPool/classes/class.ilOperatorsExpressionMapping.php";
+
+		return ilOperatorsExpressionMapping::getOperatorsByExpression($expression);
 	}
 
-	public function getExpressionTypes()
+	/**
+	 * Get all available expression types for a specific question
+	 *
+	 * @return array
+	 */
+	public function getExpressionTypes(): array
 	{
-		// TODO: Implement getExpressionTypes() method.
+		return array(iQuestionCondition::PercentageResultExpression);
 	}
 
-	public function getUserQuestionResult($active_id, $pass)
+	/**
+	 * Get the user solution for a question by active_id and the test pass
+	 *
+	 * @param int $active_id
+	 * @param int $pass
+	 *
+	 * @return ilUserQuestionResult
+	 */
+	public function getUserQuestionResult($active_id, $pass): ilUserQuestionResult
 	{
-		// TODO: Implement getUserQuestionResult() method.
 		require_once './Modules/TestQuestionPool/classes/class.ilUserQuestionResult.php';
 
 		$result = new ilUserQuestionResult($this, $active_id, $pass);
@@ -555,14 +582,71 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		return $result;
 	}
 
+	/**
+	 * If index is null, the function returns an array with all anwser options
+	 * Else it returns the specific answer option
+	 *
+	 * @param null|int $index
+	 *
+	 * @return array|ASS_AnswerSimple
+	 */
 	public function getAvailableAnswerOptions($index = null)
 	{
-		// TODO: Implement getAvailableAnswerOptions() method.
+		return array();
 	}
 
-	/* ILIAS REQUIRED METHODS END */
+	/**
+	 * @param ilAssQuestionPreviewSession $previewSession
+	 * @return void
+	 */
+	protected function savePreviewData(ilAssQuestionPreviewSession $previewSession)
+	{
+		$submittedAnswer = $this->getSolutionSubmit();
+		if (!empty($submittedAnswer)) {
+			$previewSession->setParticipantsSolution($submittedAnswer);
+		}
+	}
 
-	/* ILIAS  OVERWRITTEN METHODS BEGIN */
+	/**
+	 * @param array $valuePairs
+	 * @return array $indexedValues
+	 */
+	public function fetchIndexedValuesFromValuePairs(array $valuePairs): array
+	{
+		return $valuePairs;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function validateSolutionSubmit(): bool
+	{
+		return true;
+	}
+
+	/**
+	 * Removes an existing solution without removing the variables (specific for STACK question: don't delete seeds)
+	 * Called by resetting user answer
+	 * @param int $activeId
+	 * @param int $pass
+	 * @return int
+	 */
+	public function removeExistingSolutions($activeId, $pass): int
+	{
+		global $DIC;
+		$ilDB = $DIC->database();
+
+		$query = /** @lang text */
+			"
+			DELETE FROM tst_solutions
+			WHERE active_fi = " . $ilDB->quote($activeId, 'integer') . "
+			AND question_fi = " . $ilDB->quote($this->getId(), 'integer') . "
+			AND pass = " . $ilDB->quote($pass, 'integer') . "
+			AND value1 not like '%_seed'
+		";
+
+		return $ilDB->manipulate($query);
+	}
 
 	//assQuestion
 
@@ -610,10 +694,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		//Load the specific assStackQuestion data from DB
 		$this->getPlugin()->includeClass('class.assStackQuestionDB.php');
 
-		//TODO Check Maxima Connection
-
 		$options_from_db_array = assStackQuestionDB::_readOptions($this->getId());
-
 		if ($options_from_db_array === -1) {
 
 			//NEW QUESTION, LOAD STANDARD INFORMATION FROM CONFIGURATION
@@ -670,7 +751,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 				//Adjust syntax Hint for Textareas
 				//Firstline shown as irstlin
-				/*
 				if ($input_data['type'] == 'equiv' || $input_data['type'] == 'textarea') {
 					if (strlen($input_data['syntax_hint']) and !str_starts_with($input_data['syntax_hint'], '[')) {
 						$input_data['syntax_hint'] = '[' . $input_data['syntax_hint'] . ']';
@@ -678,10 +758,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 					if (strlen($input_data['tans']) and !str_starts_with($input_data['tans'], '[')) {
 						$input_data['tans'] = '[' . $input_data['tans'] . ']';
 					}
-					if (strlen($input_data['sans']) and !str_starts_with($input_data['sans'], '[')) {
-						$input_data['sans'] = '[' . $input_data['sans'] . ']';
-					}
-				}*/
+				}
 
 				$all_parameters = array(
 					'boxWidth' => $input_data['box_size'],
@@ -832,7 +909,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 			//load seeds
 			$deployed_seeds = assStackQuestionDB::_readDeployedVariants($question_id);
-			$this->deployed_seeds = array_values($deployed_seeds);
+
+			//Needs deployed seeds as key for initialisation
+			$depured_deployed_seeds = array();
+			foreach ($deployed_seeds as $deployed_seed) {
+				$depured_deployed_seeds[$deployed_seed] = $deployed_seed;
+			}
+			$this->deployed_seeds = $depured_deployed_seeds;
 
 			//load extra info
 			$extra_info = assStackQuestionDB::_readExtraInformation($question_id);
@@ -879,6 +962,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	}
 
 	/**
+	 * Transforms tst_solutions DB entries into
+	 * something the plugin understands
 	 * @param int $activeId
 	 * @param int $pass
 	 * @return array
@@ -1064,7 +1149,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 	/**
 	 * Saves the STACK related parameters of the questions
-	 * @return mixed|void
+	 * @return void
 	 */
 	public function saveAdditionalQuestionDataToDb()
 	{
@@ -1077,14 +1162,23 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	}
 
 	/**
+	 * Checks if question has minimum requirements
 	 * @return bool
 	 */
 	function isComplete(): bool
 	{
-		return true;
+		if (strlen($this->title)
+			&& $this->author
+			&& $this->question
+			&& $this->getMaximumPoints() > 0
+		) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
+	 * Deletes the question from the DB
 	 * @param int $question_id
 	 */
 	public function delete($question_id)
@@ -1102,6 +1196,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	/* ILIAS SPECIFIC METHODS BEGIN */
 
 	/**
+	 * Evaluates the question
 	 * @param array $user_response
 	 * @return bool
 	 */
@@ -1413,19 +1508,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		$this->setPrtResults(array());
 	}
 
-	/**
-	 * @return bool do any of the inputs in this question require the student validate the input.
-	 */
-	protected function anyInputsRequireValidation(): bool
-	{
-		foreach ($this->inputs as $input) {
-			if ($input->requires_validation()) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	/* make_behaviour() not required as behaviours are only Moodle relevant */
 
 	/**
@@ -1433,15 +1515,16 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	 * Transferred to ILIAS as questionInitialisation();
 	 * @param int|null $variant
 	 * @param bool $force_variant
+	 * @param bool $deployed_seeds_view true only in authoring mode / deployed seeds view
 	 */
-	public function questionInitialisation(?int $variant, bool $force_variant = false)
+	public function questionInitialisation(?int $variant, bool $force_variant = false, bool $deployed_seeds_view = false)
 	{
 		//Initialize Options
 		$this->options = new stack_options();
 
 		// @codingStandardsIgnoreStart
 		// Work out the right seed to use.
-		if (is_null($this->seed)) {
+		if (is_null($this->seed) or $deployed_seeds_view) {
 			if ($force_variant) {
 				$this->seed = $variant;
 			} else if (!$this->hasRandomVariants()) {
@@ -1569,11 +1652,16 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 				$general_feedback = $this->prepareCASText('', $session);
 			}
 
-
 			// Now instantiate the session.
 			if ($session->get_valid()) {
-				$session->instantiate();
+				try {
+					$session->instantiate();
+				} catch (Exception $e) {
+					//Maxima is not running, show information to the user.
+					ilUtil::sendFailure($this->getPlugin()->txt('hc_connection_status_display_error'), 1);
+				}
 			}
+
 			if ($session->get_errors()) {
 				// In previous versions we threw an exception here.
 				// Upgrade and import stops errors being caught during validation when the question was edited or deployed.
@@ -1665,8 +1753,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			return false;
 		}
 	}
-
-	/* apply_attempt_state(question_attempt_step $step) not required as attempts are only Moodle relevant */
 
 	/**
 	 * adapt_inputs() method in Moodle
@@ -2675,4 +2761,17 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	}
 
 	/* QUESTIONTYPE METHODS END */
+
+	/**
+	 * @return bool
+	 */
+	public function checkMaximaConnection(): bool
+	{
+		try {
+			list($message, $genuinedebug, $result) = stack_connection_helper::stackmaxima_genuine_connect();
+			return true;
+		} catch (Exception $e) {
+			return false;
+		}
+	}
 }

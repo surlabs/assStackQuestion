@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (c) 2021 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
+ * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
  * GPLv2, see LICENSE
  */
 
@@ -10,7 +10,7 @@
  * STACK Question GUI
  *
  * @author Jesus Copado <jesus.copado@fau.de>
- * @version    $Id: 4.0$$
+ * @version    $Id: 7.0$$
  * @ingroup    ModulesTestQuestionPool
  * @ilCtrl_isCalledBy assStackQuestionGUI: ilObjQuestionPoolGUI, ilObjTestGUI, ilQuestionEditGUI, ilTestExpressPageObjectGUI
  * @ilCtrl_Calls assStackQuestionGUI: ilFormPropertyDispatchGUI
@@ -250,31 +250,46 @@ class assStackQuestionGUI extends assQuestionGUI
 				}
 			}
 		}
+		//Seed management
+		if (isset($_REQUEST['fixed_seed'])) {
+			$seed = $_REQUEST['fixed_seed'];
+			$_SESSION['q_seed_for_preview_' . $this->object->getId() . ''] = $seed;
+		} else {
+			if (isset($_SESSION['q_seed_for_preview_' . $this->object->getId() . ''])) {
+				$seed = $_SESSION['q_seed_for_preview_' . $this->object->getId() . ''];
+			} else {
+				$seed = -1;
+			}
+		}
 
 		//Initialise the question
 		if (!$this->object->isInstantiated()) {
 
-			//Variant management
-			if (isset($_SESSION['q_seed_for_preview_' . $this->object->getId() . ''])) {
-				//We do have already a seed
-				$variant = (int)$_SESSION['q_seed_for_preview_' . $this->object->getId() . ''];
+			if (isset($_REQUEST['fixed_seed'])) {
+				$variant = $_REQUEST['fixed_seed'];
 			} else {
-				//We need a seed
-				if (!$this->object->hasRandomVariants()) {
-					// Randomisation not used.
-					$variant = 1;
-				} else if (!empty($this->object->deployed_seeds)) {
-					//If there are variants
-					//Choose between deployed seeds
-					$chosen_seed = array_rand($this->object->deployed_seeds);
-					//Set random selected seed
-					$variant = (int)$chosen_seed;
+				//Variant management
+				if (isset($_SESSION['q_seed_for_preview_' . $this->object->getId() . ''])) {
+					//We do have already a seed
+					$variant = (int)$_SESSION['q_seed_for_preview_' . $this->object->getId() . ''];
 				} else {
-					//Complete randomisation
-					if ($this->object->hasRandomVariants()) {
-						$variant = rand(1111111111, 9999999999);
-					} else {
+					//We need a seed
+					if (!$this->object->hasRandomVariants()) {
+						// Randomisation not used.
 						$variant = 1;
+					} else if (!empty($this->object->deployed_seeds)) {
+						//If there are variants
+						//Choose between deployed seeds
+						$chosen_seed = array_rand($this->object->deployed_seeds);
+						//Set random selected seed
+						$variant = (int)$chosen_seed;
+					} else {
+						//Complete randomisation
+						if ($this->object->hasRandomVariants()) {
+							$variant = rand(1111111111, 9999999999);
+						} else {
+							$variant = 1;
+						}
 					}
 				}
 			}

@@ -418,6 +418,13 @@ class assStackQuestionRenderer
 		foreach ($input_placeholders as $name) {
 			$field_name = 'xqcas_' . $question->getId() . '_' . $name . '_solution';
 
+			//TEXTAREAS EQUIV, User response from DB tuning
+			if (is_a($question->inputs[$name], 'stack_textarea_input') or is_a($question->inputs[$name], 'stack_equiv_input')) {
+				$input_correct_array[$name] = substr($input_correct_array[$name], 1, -1);
+				$input_correct_array[$name] = explode(',', $input_correct_array[$name]);
+				$input_correct_array[$name] = implode("\n", $input_correct_array[$name]);
+			}
+
 			//Matrix has a different syntax
 			$state = $question->getInputState($name, $input_correct_array, false, false);
 
