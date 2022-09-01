@@ -121,7 +121,7 @@ class assStackQuestionAuthoringGUI
 
 		//Save basic data of the question
 		if (!$this->getQuestionGUI()->object->options) {
-			$this->getQuestionGUI()->object->saveToDb("", "", TRUE);
+			$this->getQuestionGUI()->object->saveToDb("");
 		}
 
 		$question_text = $this->getForm()->getItemByPostVar('question');

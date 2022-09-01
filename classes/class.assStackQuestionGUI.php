@@ -397,7 +397,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		require_once("./Services/RTE/classes/class.ilRTE.php");
 
 		//Question Text - Reload it with RTE (already loaded in writeQuestionGenericPostData())
-		$question_text = ((isset($_POST['options_question_simplify']) and $_POST['question'] != null) ? trim(ilUtil::secureString($_POST['question'], false)) : '');
+		$question_text = ((isset($_POST['question']) and $_POST['question'] != null) ? ilUtil::stripSlashes($_POST['question'], true, $this->getRTETags()) : '');
 		$this->object->setQuestion(ilRTE::_replaceMediaObjectImageSrc($question_text, 1));
 
 		//stack_options

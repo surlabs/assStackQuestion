@@ -452,6 +452,84 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		return $clone->id;
 	}
 
+	/**
+	 * Copies an assStackQuestion object
+	 *
+	 * @param integer $target_questionpool_id
+	 * @param string $title
+	 *
+	 * @return void|integer Id of the clone or nothing.
+	 */
+	function copyObject($target_questionpool_id, $title = "")
+	{
+		if ($this->id <= 0) {
+			// The question has not been saved. It cannot be duplicated
+			return;
+		}
+		// duplicate the question in database
+		$clone = $this;
+		include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
+
+		$original_id = assQuestion::_getOriginalId($this->id);
+		$clone->id = -1;
+		$source_questionpool_id = $this->getObjId();
+		$clone->setObjId($target_questionpool_id);
+		if ($title) {
+			$clone->setTitle($title);
+		}
+		$clone->saveToDb("", TRUE);
+		// copy question page content
+		$clone->copyPageOfQuestion($original_id);
+		// copy XHTML media objects
+		$clone->copyXHTMLMediaObjectsOfQuestion($original_id);
+
+		$clone->onCopy($source_questionpool_id, $original_id, $clone->getObjId(), $clone->getId());
+
+		return $clone->id;
+	}
+
+	/**
+	 * @param $targetParentId
+	 * @param string $targetQuestionTitle
+	 * @return int
+	 */
+	public function createNewOriginalFromThisDuplicate($targetParentId, $targetQuestionTitle = "")
+	{
+		if ($this->id <= 0) {
+			// The question has not been saved. It cannot be duplicated
+			return;
+		}
+
+		include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
+
+		$sourceQuestionId = $this->id;
+		$sourceParentId = $this->getObjId();
+
+		// duplicate the question in database
+		$clone = $this;
+		$clone->id = -1;
+
+		$clone->setObjId($targetParentId);
+
+		if ($targetQuestionTitle) {
+			$clone->setTitle($targetQuestionTitle);
+		}
+
+		$clone->simpleSaveToDb();
+
+		$clone->beforeCopy($clone->getId());
+		$clone->saveToDb();
+
+		// copy question page content
+		$clone->copyPageOfQuestion($sourceQuestionId);
+		// copy XHTML media objects
+		$clone->copyXHTMLMediaObjectsOfQuestion($sourceQuestionId);
+
+		$clone->onCopy($sourceParentId, $sourceQuestionId, $clone->getObjId(), $clone->getId());
+
+		return $clone->id;
+	}
+
 	//iQuestionCondition methods
 
 	public function getOperators($expression)
@@ -972,10 +1050,16 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	 */
 	public function saveToDb($original_id = "")
 	{
-		$this->saveQuestionDataToDb($original_id);
-		$this->saveAdditionalQuestionDataToDb();
+		if ($this->getTitle() != "" and $this->getAuthor() != "" and $this->getQuestion() != "") {
+			$this->saveQuestionDataToDb($original_id);
+			$this->saveAdditionalQuestionDataToDb();
 
-		parent::saveToDb($original_id);
+			parent::saveToDb($original_id);
+		} else {
+			ilUtil::sendFailure($this->getPlugin()->txt('error_fields_missing'), 1);
+
+			return FALSE;
+		}
 	}
 
 	/**
@@ -2581,9 +2665,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 		foreach ($this->prts as $prt) {
 			foreach ($prt->getNodes() as $node) {
-				$node_feedback =$node->getFeedbackFromNode();
+				$node_feedback = $node->getFeedbackFromNode();
 				$collected .= $node_feedback['true_feedback'];
-				$collected .=  $node_feedback['false_feedback'];
+				$collected .= $node_feedback['false_feedback'];
 			}
 		}
 
