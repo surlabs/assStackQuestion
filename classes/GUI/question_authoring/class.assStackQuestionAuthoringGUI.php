@@ -611,11 +611,12 @@ class assStackQuestionAuthoringGUI
 
 		//Paste node
 		if (isset($_SESSION["copy_node"])) {
-			$paste_node = new ilButtonFormProperty($this->getPlugin()->txt('paste_node'), 'paste_node_in_' . $prt->getPRTName());
+			$paste_node = new ilButtonFormProperty($this->getPlugin()->txt('paste_node'), 'paste_node_in_' . $prt_name);
 			$paste_node->setAction('paste_node_in_' . $prt_name);
 			$paste_node->setCommand('save');
 			$settings_column->addFormProperty($paste_node);
 		}
+
 		//Paste prt
 		if (isset($_SESSION["copy_prt"])) {
 			$paste_prt = new ilButtonFormProperty($this->getPlugin()->txt('paste_prt'), 'paste_prt');
@@ -724,9 +725,9 @@ class assStackQuestionAuthoringGUI
 		$prt_feedback_variables_info_text .= $this->addInfoTooltip("cas_expression");
 		$prt_feedback_variables->setInfo($prt_feedback_variables_info_text);
 
-		$delete_prt = new ilButtonFormProperty($this->getPlugin()->txt('delete_prt'), 'delete_full_prt_' . $prt_name);
-		$delete_prt->setAction('delete_full_prt_' . $prt_name);
-		$delete_prt->setCommand('save');
+		//$delete_prt = new ilButtonFormProperty($this->getPlugin()->txt('delete_prt'), 'delete_full_prt_' . $prt_name);
+		//$delete_prt->setAction('delete_full_prt_' . $prt_name);
+		//$delete_prt->setCommand('save');
 
 		//Set value of parts in case there are parts.
 		$prt_value->setValue($prt->get_value());
@@ -742,7 +743,7 @@ class assStackQuestionAuthoringGUI
 		$settings->addFormProperty($prt_value);
 		$settings->addFormProperty($prt_simplify);
 		$settings->addFormProperty($prt_feedback_variables);
-		$settings->addFormProperty($delete_prt);
+		//$settings->addFormProperty($delete_prt);
 
 		$part->addPart($settings);
 

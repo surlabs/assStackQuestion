@@ -9,11 +9,11 @@ $id = "xqcas";
  
 // code version; must be changed for all code changes
 
-$version = "6.8.6";
+$version = "6.9";
  
 // ilias min and max version; must always reflect the versions that should
 // run with the plugin
-$ilias_min_version = "7.0";
+$ilias_min_version = "7.12";
 $ilias_max_version = "7.999";
  
 // optional, but useful: Add one or more responsible persons and a contact email

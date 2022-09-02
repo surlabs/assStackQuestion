@@ -9,7 +9,7 @@
  * All DB Stuff will be placed here
  *
  * @author Jesus Copado <jesus.copado@fau.de>
- * @version $Id: 5.6$
+ * @version $Id: 6.9$
  *
  */
 class assStackQuestionDB
@@ -1103,7 +1103,7 @@ class assStackQuestionDB
 	 * @param string $node_name
 	 * @return bool
 	 */
-	private static function _deleteStackPrtNodes(int $question_id, string $prt_name = '', string $node_name = ''): bool
+	public static function _deleteStackPrtNodes(int $question_id, string $prt_name = '', string $node_name = ''): bool
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -1452,8 +1452,7 @@ class assStackQuestionDB
 	 * @param string $input_name
 	 * @return void
 	 */
-	public
-	static function _saveModelAnswerIntoDB(assStackQuestion $question, int $active_id, int $pass, string $input_name, string $input_value, string $input_display)
+	public static function _saveModelAnswerIntoDB(assStackQuestion $question, int $active_id, int $pass, string $input_name, string $input_value, string $input_display)
 	{
 		try {
 			//value1 = xqcas_input_*_model_answer, value2 = teacher answer for this question input in raw format but initialised
@@ -1471,8 +1470,7 @@ class assStackQuestionDB
 	 * @return assStackQuestion[]
 	 * @throws stack_exception
 	 */
-	public
-	static function _getAllQuestionsFromPool(int $question_id, int $q_type_id): array
+	public static function _getAllQuestionsFromPool(int $question_id, int $q_type_id): array
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -1501,8 +1499,7 @@ class assStackQuestionDB
 	 * @return assStackQuestion[]
 	 * @throws stack_exception
 	 */
-	public
-	static function _getAllQuestionsFromTest(int $question_id, int $q_type_id): array
+	public static function _getAllQuestionsFromTest(int $question_id, int $q_type_id): array
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -1526,5 +1523,123 @@ class assStackQuestionDB
 		}
 
 		return $questions_array;
+	}
+
+	/**
+	 * Manages the copy PRT function from Authoring interface
+	 * @param string $original_question_id
+	 * @param string $original_prt_name
+	 * @param string $original_node_id
+	 * @param string $new_question_id
+	 * @param string $new_prt_name
+	 * @param string $new_node_name
+	 * @return bool
+	 */
+	public static function _copyPRTFunction(string $original_question_id, string $original_prt_name, string $new_question_id, string $new_prt_name): bool
+	{
+		//Manage PRTS
+		$prts = self::_readPRTs($original_question_id);
+		$db_original_prt = $prts[$original_prt_name];
+
+		global $DIC;
+
+		//CREATE PRT WITH ORIGINAL PRT STATS IN NEW QUESTION
+		$DIC->database()->insert("xqcas_prts", array(
+			"id" => array("integer", $DIC->database()->nextId('xqcas_prts')),
+			"question_id" => array("integer", (int)$new_question_id),
+			"name" => array("text", $new_prt_name),
+			"value" => array("text", $db_original_prt['value']),
+			"auto_simplify" => array("integer", (int)$db_original_prt['auto_simplify']),
+			"feedback_variables" => array("clob", $db_original_prt['feedback_variables']),
+			"first_node_name" => array("text", $db_original_prt['first_node_name']),
+		));
+
+		//Manage Nodes
+		$db_original_nodes = self::_readPRTNodes($original_question_id, $original_prt_name);
+		foreach ($db_original_nodes as $node_id => $node) {
+
+			//CREATE NODE WITH ORIGINAL NODE STATS IN NEW QUESTION PRT
+			$DIC->database()->insert("xqcas_prt_nodes", array(
+				"id" => array("integer", $DIC->database()->nextId('xqcas_prt_nodes')),
+				"question_id" => array("integer", (int)$new_question_id),
+				"prt_name" => array("text", $new_prt_name),
+				"node_name" => array("text", $node_id),
+				"answer_test" => array("text", $node['answer_test']),
+				"sans" => array("text", $node['sans']),
+				"tans" => array("text", $node['tans']),
+				"test_options" => array("text", $node['test_options']),
+				"quiet" => array("integer", (int)$node['quiet']),
+				"true_score_mode" => array("text", $node['true_score_mode']),
+				"true_score" => array("text", $node['true_score']),
+				"true_penalty" => array("text", $node['true_penalty']),
+				"true_next_node" => array("text", $node['true_next_node']),
+				"true_answer_note" => array("text", $new_prt_name . '-' . $node_id . '-T'),
+				"true_feedback" => array("clob", $node['true_feedback']),
+				"true_feedback_format" => array("integer", (int)$node['true_feedback_format']),
+				"false_score_mode" => array("text", $node['false_score_mode']),
+				"false_score" => array("text", $node['false_score']),
+				"false_penalty" => array("text", $node['false_penalty']),
+				"false_next_node" => array("text", $node['false_next_node']),
+				"false_answer_note" => array("text", $new_prt_name . '-' . $node_id . '-F'),
+				"false_feedback" => array("clob", $node['false_feedback']),
+				"false_feedback_format" => array("integer", (int)$node['false_feedback_format']),
+			));
+		}
+
+		unset($_SESSION['copy_prt']);
+		ilUtil::sendInfo($DIC->language()->txt("qpl_qst_xqcas_prt_paste"), true);
+
+		return true;
+	}
+
+	/**
+	 * Manages the copy node function from Authoring interface
+	 * @param string $original_question_id
+	 * @param string $original_prt_name
+	 * @param string $original_node_id
+	 * @param string $new_question_id
+	 * @param string $new_prt_name
+	 * @param string $new_node_name
+	 * @return bool
+	 */
+	public static function _copyNodeFunction(string $original_question_id, string $original_prt_name, string $original_node_id, string $new_question_id, string $new_prt_name, string $new_node_name): bool
+	{
+
+		$nodes = self::_readPRTNodes($original_question_id, $original_prt_name);
+		$db_original_node = $nodes[$original_node_id];
+
+		global $DIC;
+
+		//CREATE NODE WITH ORIGINAL NODE STATS IN NEW QUESTION PRT
+		$DIC->database()->insert("xqcas_prt_nodes", array(
+			"id" => array("integer", $DIC->database()->nextId('xqcas_prt_nodes')),
+			"question_id" => array("integer", (int)$new_question_id),
+			"prt_name" => array("text", $new_prt_name),
+			"node_name" => array("text", $new_node_name),
+			"answer_test" => array("text", $db_original_node['answer_test']),
+			"sans" => array("text", $db_original_node['sans']),
+			"tans" => array("text", $db_original_node['tans']),
+			"test_options" => array("text", $db_original_node['test_options']),
+			"quiet" => array("integer", (int)$db_original_node['quiet']),
+			"true_score_mode" => array("text", $db_original_node['true_score_mode']),
+			"true_score" => array("text", $db_original_node['true_score']),
+			"true_penalty" => array("text", $db_original_node['true_penalty']),
+			"true_next_node" => array("text", "-1"),
+			"true_answer_note" => array("text", $new_prt_name . '-' . $new_node_name . '-T'),
+			"true_feedback" => array("clob", $db_original_node['true_feedback']),
+			"true_feedback_format" => array("integer", (int)$db_original_node['true_feedback_format']),
+			"false_score_mode" => array("text", $db_original_node['false_score_mode']),
+			"false_score" => array("text", $db_original_node['false_score']),
+			"false_penalty" => array("text", $db_original_node['false_penalty']),
+			"false_next_node" => array("text", "-1"),
+			"false_answer_note" => array("text", $new_prt_name . '-' . $new_node_name . '-F'),
+			"false_feedback" => array("clob", $db_original_node['false_feedback']),
+			"false_feedback_format" => array("integer", (int)$db_original_node['false_feedback_format']),
+		));
+
+		unset($_SESSION['copy_node']);
+		ilUtil::sendInfo($DIC->language()->txt("qpl_qst_xqcas_node_paste"), true);
+
+		return true;
 	}
 }

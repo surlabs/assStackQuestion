@@ -10,7 +10,7 @@
  * STACK Question GUI
  *
  * @author Jesus Copado <jesus.copado@fau.de>
- * @version    $Id: 7.0$$
+ * @version    $Id: 6.9$$
  * @ingroup    ModulesTestQuestionPool
  * @ilCtrl_isCalledBy assStackQuestionGUI: ilObjQuestionPoolGUI, ilObjTestGUI, ilQuestionEditGUI, ilTestExpressPageObjectGUI
  * @ilCtrl_Calls assStackQuestionGUI: ilFormPropertyDispatchGUI
@@ -18,11 +18,6 @@
  */
 class assStackQuestionGUI extends assQuestionGUI
 {
-	/* ILIAS CORE ATTRIBUTES BEGIN */
-
-	/* ILIAS CORE ATTRIBUTES END */
-
-	/* ILIAS VERSION SPECIFIC ATTRIBUTES BEGIN */
 
 	/**
 	 * @var ilassStackQuestionPlugin
@@ -48,10 +43,6 @@ class assStackQuestionGUI extends assQuestionGUI
 	 * @var array
 	 */
 	private array $is_preview;
-
-	/* ILIAS VERSION SPECIFIC ATTRIBUTES END */
-
-	/* ILIAS REQUIRED METHODS BEGIN */
 
 	/**
 	 * assStackQuestionGUI constructor.
@@ -88,6 +79,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	}
 
 	/**
+	 * Returns the HTML for the Test View
 	 * @param $active_id
 	 * @param $pass
 	 * @param $is_question_postponed
@@ -106,11 +98,13 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Get user solution from DB
 		if (empty($user_solution_from_db = $this->object->getTestOutputSolutions($active_id, $pass))) {
+
 			//Ensure evaluation has been done
 			if (empty($this->object->getEvaluation())) {
 				$this->object->evaluateQuestion(array_keys($this->object->inputs));
 			}
 
+			//No user Solution
 			//Render question from scratch
 			$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
 			try {
@@ -120,12 +114,15 @@ class assStackQuestionGUI extends assQuestionGUI
 			} catch (stack_exception $e) {
 				return $e->getMessage();
 			}
+
 		} else {
 
+			//Use user solution from DB
 			$user_solution = array();
 			//Get user solution from DB
 			foreach ($this->object->inputs as $input_name => $input) {
 
+				//first adaptation of the user solution only if user solution is present
 				$user_solution[$input_name] = $user_solution_from_db['inputs'][$input_name]['value'];
 
 				//TEXTAREAS EQUIV, User response from DB tuning
@@ -137,6 +134,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			}
 		}
 
+		//Second adaptation of the user solution
 		$response = array();
 		foreach ($this->object->inputs as $input_name => $input) {
 			//Check [] for textareas and equivalence inputs
@@ -152,6 +150,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			}
 		}
 
+		//Set the user response
 		$this->object->setUserResponse(assStackQuestionUtils::compute_response($this->object, $response));
 
 		//Ensure evaluation has been done
@@ -228,6 +227,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	}
 
 	/**
+	 * Returns the HTML for the question Preview
 	 * @param bool $show_question_only
 	 * @param bool $showInlineFeedback
 	 * @return string HTML
@@ -265,6 +265,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		//Initialise the question
 		if (!$this->object->isInstantiated()) {
 
+			//if fixed_seed is activate, we are in preview forcing the use of a certain seed for this session
 			if (isset($_REQUEST['fixed_seed'])) {
 				$variant = $_REQUEST['fixed_seed'];
 			} else {
@@ -339,6 +340,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	}
 
 	/**
+	 * Returns the HTML for the specific feedback output
 	 * @param $userSolution
 	 * @return string HTML Code with the rendered specific feedback text including the general feedback
 	 */
@@ -370,11 +372,6 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		return $general_feedback . $specific_feedback;
 	}
-
-
-	/* ILIAS REQUIRED METHODS END */
-
-	/* ILIAS OVERWRITTEN METHODS BEGIN */
 
 	/**
 	 * Evaluates a posted edit form and writes the form data in the question object
@@ -700,72 +697,128 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 	}
 
-	/* ILIAS GUI COMMANDS METHODS END */
-
-	/* METHODS TO REDESIGN BEGIN */
 
 	/**
-	 * old deletionManagement()
 	 * Called by writePostData
-	 * Not only delete unused objects but handles also the copy/paste of nodes.
+	 * handles the copy/paste of PRT/nodes.
 	 * Access the DB
 	 * TODO
 	 */
-	public function questionCheck(): void
+	public function questionCheck(): bool
 	{
-		//TODO
+
+		global $DIC;
+		$lng = $DIC->language();
+
+		if (is_array($_POST['cmd']['save'])) {
+
+			//PRT OPERATIONS
+			foreach ($this->object->prts as $prt_name => $prt) {
+
+				//PRT Copy
+				if (isset($_POST['cmd']['save']['copy_prt_' . $prt_name])) {
+					//Set prt name and question id into session
+					$_SESSION['copy_prt'] = $this->object->getId() . "_" . $prt_name;
+
+					ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_prt_copied_to_clipboard"), true);
+					return true;
+				}
+
+				//PRT Paste
+				if (isset($_POST['cmd']['save']['paste_prt'])) {
+
+					$raw_data = explode("_", $_SESSION['copy_prt']);
+					$original_question_id = $raw_data[0];
+					$original_prt_name = $raw_data[1];
+
+					//Generate the new prt name,
+					$generated_prt_name = "prt" . (string)rand(20, 1000);
+
+					if (assStackQuestionDB::_copyPRTFunction($original_question_id, $original_prt_name, $this->object->getId(), $generated_prt_name)) {
+
+						//Include placeholder in specific feedback
+						$current_specific_feedback = $this->object->specific_feedback;
+						$new_specific_feedback = "<p>" . $current_specific_feedback . "[[feedback:" . $generated_prt_name . "]]</p>";
+						$_POST["options_specific_feedback"] = $new_specific_feedback;
+
+						return true;
+					} else {
+						return false;
+					}
+
+				}
+
+			}
+
+			//NODE OPERATIONS
+			foreach ($prt->getNodes() as $node_name => $node) {
+
+				//Delete node
+				if (isset($_POST['cmd']['save']['delete_prt_' . $prt_name . '_node_' . $node->nodeid])) {
+
+					if (sizeof($prt->getNodes()) < 2) {
+						ilUtil::sendFailure($this->object->getPlugin()->txt('deletion_error_not_enought_prt_nodes'));
+						return false;
+					}
+
+					if ((int)$prt->getFirstNode() == (int)$node_name) {
+						ilUtil::sendFailure($this->object->getPlugin()->txt('deletion_error_first_node'));
+						return false;
+					}
+
+					assStackQuestionDB::_deleteStackPrtNodes($this->object->getId(), $prt_name, $node->nodeid);
+
+					//Actualize current question values
+					$new_nodes = $prt->getNodes();
+					unset($new_nodes[$node_name]);
+
+					$prt->setNodes($new_nodes);
+					$this->object->prts[$prt_name] = $prt;
+
+					ilUtil::sendSuccess("nodes deleted", true);
+					return true;
+				}
+
+				//Copy Node
+				if (isset($_POST['cmd']['save']['copy_prt_' . $prt_name . '_node_' . $node->nodeid])) {
+					//Set node into session
+					$_SESSION['copy_node'] = $this->object->getId() . "_" . $prt_name . "_" . $node->nodeid;
+
+					ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_node_copied_to_clipboard"), true);
+					return true;
+				}
+
+				//Paste Node
+				if (isset($_POST['cmd']['save']['paste_node_in_' . $prt_name])) {
+
+					//Do node paste here
+					$raw_data = explode("_", $_SESSION['copy_node']);
+					$original_question_id = $raw_data[0];
+					$original_prt_name = $raw_data[1];
+					$original_node_name = $raw_data[2];
+
+					//Check the new node name,
+					//We set as id the following to the current bigger node id
+					$max = 0;
+					foreach ($prt->getNodes() as $temp_node_name => $temp_node) {
+						(int)$temp_node_name > $max ? $max = (int)$temp_node_name : "";
+					}
+					$new_node_name = $max + 1;
+
+					if (assStackQuestionDB::_copyNodeFunction($original_question_id, $original_prt_name, $original_node_name, $this->object->getId(), $prt_name, $new_node_name)) {
+						return true;
+					} else {
+						return false;
+					}
+				}
+			}
+
+		}
+
+		return false;
 	}
 
 
-	public function checkPRTForDeletion(assStackQuestionPRT $prt)
-	{
-		echo "checkPRTForDeletion";
-
-		if (is_array($this->object->getPotentialResponsesTrees())) {
-			if (sizeof($this->object->getPotentialResponsesTrees()) < 2) {
-				$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_not_enought_prts'));
-
-				return TRUE;
-			}
-		}
-
-
-		return FALSE;
-	}
-
-	public function checkPRTNodeForDeletion(assStackQuestionPRT $prt, assStackQuestionPRTNode $node)
-	{
-		echo "checkPRTNodeForDeletion";
-
-		if (is_array($prt->getPRTNodes())) {
-			if (sizeof($prt->getPRTNodes()) < 2) {
-				$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_not_enought_prt_nodes'));
-
-				return TRUE;
-			}
-		}
-
-
-		if ((int)$prt->getFirstNodeName() == (int)$node->getNodeName()) {
-			$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_first_node'));
-
-			return TRUE;
-		}
-
-		foreach ($prt->getPRTNodes() as $prt_node) {
-			if ($prt_node->getTrueNextNode() == $node->getNodeName() or $prt_node->getFalseNextNode() == $node->getNodeName()) {
-				$this->object->setErrors($this->object->getPlugin()->txt('deletion_error_connected_node'));
-
-				return TRUE;
-			}
-		}
-
-		return FALSE;
-	}
-
-
-
-	/* METHODS TO REDESIGN END */
 
 	/* RTE, Javascript, Ajax, jQuery etc. METHODS BEGIN */
 
@@ -775,7 +828,6 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function enableDisableInfo()
 	{
-		echo "enableDisableInfo";
 
 		if (isset($_SESSION['show_input_info_fields_in_form'])) {
 			if ($_SESSION['show_input_info_fields_in_form'] == TRUE) {
@@ -843,12 +895,6 @@ class assStackQuestionGUI extends assQuestionGUI
 		$field->addButton("pastelatex");
 		$field->setRTESupport($this->object->getId(), "qpl", $this->rte_module);
 	}
-
-
-
-	/* RTE, Javascript, Ajax, jQuery etc. METHODS END */
-
-	/* TABS MANAGEMENT BEGIN */
 
 	/**
 	 * Sets the ILIAS tabs for this question type
@@ -930,6 +976,10 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	}
 
+	/**
+	 * For Learning Module Rendering
+	 * @return void
+	 */
 	public function getLearningModuleTabs()
 	{
 		global $DIC;
@@ -973,10 +1023,10 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	}
 
-	/* TABS MANAGEMENT END */
-
-	/* IMPORT / EXPORT TO MOODLE BEGIN */
-
+	/**
+	 * Redirects to the import from MoodleXML Form
+	 * @return void
+	 */
 	public function importQuestionFromMoodleForm()
 	{
 		global $DIC;
@@ -1019,6 +1069,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	}
 
 	/**
+	 * Actually runs the Importing of questions
 	 * @return void
 	 */
 	public function importQuestionFromMoodle()
@@ -1034,13 +1085,13 @@ class assStackQuestionGUI extends assQuestionGUI
 		if (file_exists($_FILES["questions_xml"]["tmp_name"])) {
 			$xml_file = $_FILES["questions_xml"]["tmp_name"];
 		} else {
-			$this->object->setErrors($this->plugin->txt('error_import_question_in_test'), true);
+			ilUtil::sendFailure($this->plugin->txt('error_import_question_in_test'), true);
 			return;
 		}
 
 		//CHECK FOR NOT ALLOW IMPROT QUESTIONS DIRECTLY IN TESTS
 		if (isset($_GET['calling_test'])) {
-			$this->object->setErrors($this->plugin->txt('error_import_question_in_test'), true);
+			ilUtil::sendFailure($this->plugin->txt('error_import_question_in_test'), true);
 		} else {
 			//Include import class and prepare object
 			$this->plugin->includeClass('model/import/MoodleXML/class.assStackQuestionMoodleImport.php');
@@ -1052,6 +1103,10 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 	}
 
+	/**
+	 * Redirects to the export from MoodleXML Form
+	 * @return void
+	 */
 	public function exportQuestiontoMoodleForm()
 	{
 		global $DIC;
@@ -1098,6 +1153,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	}
 
 	/**
+	 * Actually runs the export to MoodleXML
 	 * @return void
 	 */
 	public function exportQuestionToMoodle()
@@ -1141,10 +1197,11 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 	}
 
-	/* IMPORT / EXPORT TO MOODLE END */
 
-	/* DEPLOYED SEEDS METHODS BEGIN */
-
+	/**
+	 * Redirects to the Deployed Seeds Tabs
+	 * @return void
+	 */
 	public function deployedSeedsManagement()
 	{
 		global $DIC;
@@ -1174,6 +1231,10 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->tpl->setVariable("QUESTION_DATA", $deployed_seeds_gui->showDeployedSeedsPanel());
 	}
 
+	/**
+	 * Deploys new seed in the Deployed Seeds Tabs
+	 * @return void
+	 */
 	public function createNewDeployedSeed()
 	{
 		global $DIC;
@@ -1196,6 +1257,9 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->deployedSeedsManagement();
 	}
 
+	/*
+	 * Deletes a deployed seed
+	 */
 	public function deleteDeployedSeed()
 	{
 		global $DIC;
@@ -1221,10 +1285,6 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		$this->deployedSeedsManagement();
 	}
-
-	/* DEPLOYED SEEDS METHODS END */
-
-	/* SCORING METHODS BEGIN */
 
 	/**
 	 * This function is called when scoring tab is activated.
@@ -1288,9 +1348,6 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->scoringManagementPanel();
 	}
 
-	/* SCORING METHODS END */
-
-	/* UNIT TESTS COMMANDS BEGIN */
 
 	/**
 	 * Command for run testcases
@@ -1547,9 +1604,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->showUnitTests();
 	}
 
-	/* UNIT TESTS COMMANDS END */
-
-	/* GETTERS AND SETTERS BEGIN */
+	/* GETTERS AND SETTERS */
 
 	/**
 	 * @return ilassStackQuestionPlugin
@@ -1622,7 +1677,5 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->is_preview = $is_preview;
 	}
 
-
-	/* GETTERS AND SETTERS END */
 
 }
