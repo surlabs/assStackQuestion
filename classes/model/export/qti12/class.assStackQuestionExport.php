@@ -28,6 +28,9 @@ class assStackQuestionExport extends assQuestionExport
 	{
 		global $ilias;
 
+		//get Question Array
+		$question_array = assStackQuestionUtils::_questionToArray($this->object);
+
 		include_once("./Services/Xml/classes/class.ilXmlWriter.php");
 		$a_xml_writer = new ilXmlWriter;
 
@@ -74,119 +77,16 @@ class assStackQuestionExport extends assQuestionExport
 		$a_xml_writer->xmlElement("fieldentry", NULL, $this->object->getPoints());
 		$a_xml_writer->xmlEndTag("qtimetadatafield");
 
-		//OPTIONS
+		//QUESTION
 		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "options");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->options)));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		//INPUTS
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "inputs");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->inputs)));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		//PRTS
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "prts");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->prts)));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		//SEEDS
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "seeds");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->deployed_seeds)));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		//TESTS
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "tests");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->getUnitTests())));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		//EXTRA INFO
-
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "question_variables");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->question_variables)));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "question_note");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->question_note)));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "specific_feedback");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->specific_feedback)));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "specific_feedback_format");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->specific_feedback_format)));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "prt_correct");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->prt_correct)));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "prt_correct_format");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->prt_correct_format)));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "prt_partially_correct");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->prt_partially_correct)));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "prt_partially_correct_format");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->prt_partially_correct_format)));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "prt_incorrect");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->prt_incorrect)));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "prt_incorrect_format");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->prt_incorrect_format)));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "stack_version");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->stack_version)));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "general_feedback");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->general_feedback)));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "penalty");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->getPenalty())));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "variants_selection_seeds");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->variants_selection_seed)));
-		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
-		$a_xml_writer->xmlElement("fieldlabel", NULL, "hidden");
-		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($this->object->getHidden())));
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "stack_question");
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($question_array)));
 		$a_xml_writer->xmlEndTag("qtimetadatafield");
 
 		$a_xml_writer->xmlEndTag("qtimetadata");
 		$a_xml_writer->xmlEndTag("itemmetadata");
 
-		// PART I: qti presentation
+		//QTI presentation
 		$attrs = array(
 			"label" => $this->object->getTitle()
 		);
@@ -615,5 +515,61 @@ class assStackQuestionExport extends assQuestionExport
 			return $excelfile;
 		}
 	}
+	/**
+	 * Add an RTE text
+	 * This will change the media references and wrap the text in CDATA
+	 * @param ilXmlWriter    XML writer
+	 * @param string        text to add
+	 * @param string        tag for the element
+	 * @param array        attributes
+	 */
+	private static function _addRTEText($a_xml_writer, $a_text, $a_tag = 'text', $a_attr = null)
+	{
+		$text = preg_replace('/src=".*\/mobs\/mm_([0-9]+)\/([^"]+)"/', 'src="@@PLUGINFILE@@/$2"', $a_text);
 
+		$text = '<![CDATA[' . $text . ']]>';
+
+		$a_xml_writer->xmlElement($a_tag, NULL, $text, false, false);
+	}
+
+
+	/**
+	 * Add media files as <file> elements
+	 * @param ilXmlWriter        XML writer
+	 * @param array            name => content
+	 * @param string            tag for the element
+	 */
+	private static function _addRTEMedia($a_xml_writer, $a_media, $a_tag = 'file')
+	{
+		foreach ($a_media as $name => $content) {
+			$attr = array('name' => $name, 'path' => '/', 'encoding' => 'base64');
+			$a_xml_writer->xmlElement('file', $attr, base64_encode($content), false, false);
+		}
+	}
+
+	/**
+	 * Get the media files used in an RTE text
+	 * @param string        text to analyze
+	 * @param assStackQuestion question
+	 * @return    array        name => file content
+	 */
+	private static function _getRTEMedia($a_text, $stack_question = ""): array
+	{
+		$media = array();
+		$matches = array();
+		preg_match_all('/src=".*\/mobs\/mm_([0-9]+)\/([^"]+)"/', $a_text, $matches);
+
+		for ($i = 0; $i < count($matches[0]); $i++) {
+			$id = $matches[1][$i];
+			$name = $matches[2][$i];
+
+			$new_match = explode('?', $name);
+
+			if (is_file(ilUtil::getWebspaceDir() . "/mobs/mm_" . $id . '/' . $new_match[0])) {
+				$media[$new_match[0]] = file_get_contents(ilUtil::getWebspaceDir() . "/mobs/mm_" . $id . '/' . $new_match[0]);
+			}
+		}
+
+		return $media;
+	}
 } 

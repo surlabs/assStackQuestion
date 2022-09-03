@@ -40,10 +40,6 @@ class assStackQuestionImport extends assQuestionImport
 	 */
 	public function fromXML(&$item, $questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping)
 	{
-		if (!is_string($item->getMetadataEntry('stack_version'))) {
-			ilUtil::sendFailure('The question pool you are importing is too old, please, use the MoodleXML format or re-export the questions on a platform using at least branch stack_for_ilias7', true);
-			return;
-		}
 
 		global $DIC;
 		$ilUser = $DIC['ilUser'];
@@ -72,57 +68,9 @@ class assStackQuestionImport extends assQuestionImport
 
 		$this->object->saveQuestionDataToDb();
 
-		//OPTIONS
-		$options = unserialize(base64_decode($item->getMetadataEntry('options')));
-		if (is_a($options, 'stack_options')) {
-			$this->object->options = $options;
-		}
-
-		//inputs
-		$inputs = unserialize(base64_decode($item->getMetadataEntry('inputs')));
-		if (is_array($inputs)) {
-			$this->object->inputs = $inputs;
-		}
-
-		//prts
-		$prts = unserialize(base64_decode($item->getMetadataEntry('prts')));
-		if (is_array($prts)) {
-			$this->object->prts = $prts;
-		}
-
-		//deployed seeds
-		$seeds = unserialize(base64_decode($item->getMetadataEntry('seeds')));
-		if (is_array($seeds)) {
-			$this->object->deployed_seeds = $seeds;
-		}
-
-		//unit tests
-		$tests = unserialize(base64_decode($item->getMetadataEntry('tests')));
-		if (is_array($tests)) {
-			$this->object->setUnitTests($tests);
-		}
-
-		//load Data stored in options but not part of the session options
-		$this->object->question_variables = unserialize(base64_decode($item->getMetadataEntry('question_variables')));
-		$this->object->question_note = unserialize(base64_decode($item->getMetadataEntry('question_note')));
-
-		$this->object->specific_feedback = unserialize(base64_decode($item->getMetadataEntry('specific_feedback')));
-		$this->object->specific_feedback_format = unserialize(base64_decode($item->getMetadataEntry('specific_feedback_format')));
-
-		$this->object->prt_correct = $this->processNonAbstractedImageReferences(unserialize(base64_decode($item->getMetadataEntry('prt_correct'))), $item->getIliasSourceNic());
-		$this->object->prt_correct_format = unserialize(base64_decode($item->getMetadataEntry('prt_correct_format')));
-		$this->object->prt_partially_correct = $this->processNonAbstractedImageReferences(unserialize(base64_decode($item->getMetadataEntry('prt_partially_correct'))), $item->getIliasSourceNic());
-		$this->object->prt_partially_correct_format = unserialize(base64_decode($item->getMetadataEntry('prt_partially_correct_format')));
-		$this->object->prt_incorrect = $this->processNonAbstractedImageReferences(unserialize(base64_decode($item->getMetadataEntry('prt_incorrect'))), $item->getIliasSourceNic());
-		$this->object->prt_incorrect_format = unserialize(base64_decode($item->getMetadataEntry('prt_incorrect_format')));
-
-		$this->object->general_feedback = unserialize(base64_decode($item->getMetadataEntry('general_feedback')));
-		$this->object->setPenalty(unserialize(base64_decode($item->getMetadataEntry('penalty'))));
-		$this->object->variants_selection_seed = unserialize(base64_decode($item->getMetadataEntry('variants_selection_seed')));
-		$this->object->setHidden(unserialize(base64_decode($item->getMetadataEntry('hidden'))));
-
-		//stack version
-		$this->object->stack_version = unserialize(base64_decode($item->getMetadataEntry('stack_version')));
+		//question
+		$stack_question = unserialize(base64_decode($item->getMetadataEntry('stack_question')));
+		$this->object = assStackQuestionUtils::_arrayToQuestion($stack_question,$this->object);
 
 		// Don't save the question additionally to DB before media object handling
 		// this would create double rows for options, prts etc.
