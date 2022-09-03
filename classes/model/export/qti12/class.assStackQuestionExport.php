@@ -8,7 +8,7 @@
  * STACK Question EXPORT OF QUESTIONS to ILIAS
  *
  * @author Jesus Copado <jesus.copado@fau.de>
- * @version $Id: 5.7$
+ * @version $Id: 7.0$
  *
  */
 include_once "./Modules/TestQuestionPool/classes/export/qti12/class.assQuestionExport.php";
@@ -54,22 +54,26 @@ class assStackQuestionExport extends assQuestionExport
 
 		// add ILIAS specific metadata
 		$a_xml_writer->xmlStartTag("itemmetadata");
+
 		$a_xml_writer->xmlStartTag("qtimetadata");
+
 		$a_xml_writer->xmlStartTag("qtimetadatafield");
 		$a_xml_writer->xmlElement("fieldlabel", NULL, "ILIAS_VERSION");
 		$a_xml_writer->xmlElement("fieldentry", NULL, $ilias->getSetting("ilias_version"));
 		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
 		$a_xml_writer->xmlStartTag("qtimetadatafield");
 		$a_xml_writer->xmlElement("fieldlabel", NULL, "QUESTIONTYPE");
 		$a_xml_writer->xmlElement("fieldentry", NULL, $this->object->getQuestionType());
 		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
 		$a_xml_writer->xmlStartTag("qtimetadatafield");
 		$a_xml_writer->xmlElement("fieldlabel", NULL, "AUTHOR");
 		$a_xml_writer->xmlElement("fieldentry", NULL, $this->object->getAuthor());
 		$a_xml_writer->xmlEndTag("qtimetadatafield");
-		$a_xml_writer->xmlStartTag("qtimetadatafield");
 
 		// additional content editing information
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
 		$this->addAdditionalContentEditingModeInformation($a_xml_writer);
 		$this->addGeneralMetadata($a_xml_writer);
 

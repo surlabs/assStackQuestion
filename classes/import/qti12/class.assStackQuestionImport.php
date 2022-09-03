@@ -5,23 +5,18 @@
  */
 
 /**
- * STACK Question IMPORT OF QUESTIONS from ILIAS
- *
- * @author Jesus Copado <jesus.copado@fau.de>
- * @version $Id: 5.7$
- *
- */
-require_once './Services/MediaObjects/classes/class.ilObjMediaObject.php';
-require_once './Modules/TestQuestionPool/classes/import/qti12/class.assQuestionImport.php';
-
-/**
  * STACK Question IMPORT OF QUESTIONS from an ILIAS file
  *
  * @author Jesus Copado <jesus.copado@ili.fau.de>
- * @version    $Id: 6.0$$
+ * @version    $Id: 7.0$
  * @ingroup    ModulesTestQuestionPool
  *
  */
+
+require_once './Services/MediaObjects/classes/class.ilObjMediaObject.php';
+require_once './Modules/TestQuestionPool/classes/import/qti12/class.assQuestionImport.php';
+
+
 class assStackQuestionImport extends assQuestionImport
 {
 	/** @var assStackQuestion */
