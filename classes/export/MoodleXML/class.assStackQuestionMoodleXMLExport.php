@@ -310,8 +310,7 @@ class assStackQuestionMoodleXMLExport
 	 * @param assStackQuestion question
 	 * @return    array        name => file content
 	 */
-	private
-	function getRTEMedia($a_text, $stack_question = "")
+	private function getRTEMedia($a_text, $stack_question = ""): array
 	{
 		$media = array();
 		$matches = array();

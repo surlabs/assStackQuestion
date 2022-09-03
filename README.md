@@ -118,3 +118,4 @@ Version 6.9 for ILIAS 7.12+ (Release Candidate)
   - Check answer type is currently not evaluated
   - Best solution in Test results is not shown properly
   - Instant validation for textareas not working properly
+  - MatrixParents always set to []

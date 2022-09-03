@@ -752,6 +752,7 @@ class assStackQuestionUtils
 				return 'dropdown';
 			default:
 				ilUtil::sendFailure('Input type not found', true);
+				return '';
 		}
 	}
 
@@ -894,4 +895,284 @@ class assStackQuestionUtils
 		}
 		return $response;
 	}
+
+	/**
+	 * Collects the data of a assStackQuestion into an array
+	 * @param assStackQuestion $question
+	 * @return array
+	 */
+	public static function _questionToArray(assStackQuestion $question): array
+	{
+
+		global $ilias;
+		$array = array();
+		$plugin = $question->getPlugin();
+
+		/**
+		 * question_type
+		 * question_id
+		 * question_title
+		 * question_author
+		 * question_text
+		 *
+		 * ilias_version
+		 * plugin_version
+		 *
+		 * question_options[]
+		 * inputs[]
+		 * prts[]
+		 * deployed_variants[]
+		 * extra_info[]
+		 * unit_tests[]
+		 */
+
+		$array['question_type'] = $question->getQuestionType();
+		$array['question_id'] = $question->getId();
+		$array['question_title'] = $question->getTitle();
+		$array['question_author'] = $question->getAuthor();
+		$array['question_text'] = $question->getQuestion();
+
+		$array['ilias_version'] = $ilias->getSetting("ilias_version");
+		$array['plugin_version'] = $plugin->getVersion();
+
+		//OPTIONS
+		$array['options'] = assStackQuestionDB::_readOptions($question->getId());
+
+		//INPUTS
+		$array['inputs'] = assStackQuestionDB::_readInputs($question->getId());
+
+		//PRTS
+		$array['prts'] = assStackQuestionDB::_readPRTs($question->getId());
+
+		//DEPLOYED VARIANTS
+		$array['deployed_variants'] = assStackQuestionDB::_readDeployedVariants($question->getId());
+
+		//EXTRA INFORMATION
+		$array['extra_information'] = assStackQuestionDB::_readExtraInformation($question->getId());
+
+		//UNIT TEXT
+		$array['unit_tests'] = assStackQuestionDB::_readUnitTests($question->getId());
+
+		return $array;
+	}
+
+	/**
+	 * Sets the array's data into assStackQuestion
+	 * @param array $array
+	 * @param assStackQuestion $question
+	 * @return assStackQuestion
+	 */
+	public static function _arrayToQuestion(array $array, assStackQuestion $question): assStackQuestion
+	{
+		$question_id = $question->getId();
+
+		//load options
+		try {
+			$options = new stack_options($array['options']['options']);
+			//SET OPTIONS
+			$question->options = $options;
+		} catch (stack_exception $e) {
+			ilUtil::sendFailure($e->getMessage(), true);
+		}
+
+		//load Data stored in options but not part of the session options
+		$question->question_variables = $array['options']['ilias_options']['question_variables'];
+		$question->question_note = $array['options']['ilias_options']['question_note'];
+
+		$question->specific_feedback = $array['options']['ilias_options']['specific_feedback'];
+		$question->specific_feedback_format = $array['options']['ilias_options']['specific_feedback_format'];
+
+		$question->prt_correct = $array['options']['ilias_options']['prt_correct'];
+		$question->prt_correct_format = $array['options']['ilias_options']['prt_correct_format'];
+		$question->prt_partially_correct = $array['options']['ilias_options']['prt_partially_correct'];
+		$question->prt_partially_correct_format = $array['options']['ilias_options']['prt_partially_correct_format'];
+		$question->prt_incorrect = $array['options']['ilias_options']['prt_incorrect'];
+		$question->prt_incorrect_format = $array['options']['ilias_options']['prt_incorrect_format'];
+
+		$question->variants_selection_seed = $array['options']['ilias_options']['variants_selection_seed'];
+
+		//stack version
+		if (isset($array['plugin_version'])) {
+			$question->stack_version = $array['plugin_version'];
+		} else {
+			//Stack version TODO CONFIG
+			$question->stack_version = '2021120900';
+		}
+
+		//load inputs
+		$inputs_from_array = $array['inputs'];
+		$required_parameters = stack_input_factory::get_parameters_used();
+
+		//load only those inputs appearing in the question text
+		foreach (stack_utils::extract_placeholders($question->getQuestion(), 'input') as $input_name) {
+
+			$input_data = $inputs_from_array['inputs'][$input_name];
+			$input_type = $input_data['type'];
+
+			//Adjust syntax Hint for Textareas
+			//Firstline shown as irstlin
+			/*
+			if ($input_data['type'] == 'equiv' || $input_data['type'] == 'textarea') {
+				if (strlen($input_data['syntax_hint']) and !str_starts_with($input_data['syntax_hint'], '[')) {
+					$input_data['syntax_hint'] = '[' . $input_data['syntax_hint'] . ']';
+				}
+				if (strlen($input_data['tans']) and !str_starts_with($input_data['tans'], '[')) {
+					$input_data['tans'] = '[' . $input_data['tans'] . ']';
+				}
+			}*/
+
+			$all_parameters = array(
+				'boxWidth' => $input_data['box_size'],
+				'strictSyntax' => $input_data['strict_syntax'],
+				'insertStars' => $input_data['insert_stars'],
+				'syntaxHint' => $input_data['syntax_hint'],
+				'syntaxAttribute' => $input_data['syntax_attribute'],
+				'forbidWords' => $input_data['forbid_words'],
+				'allowWords' => $input_data['allow_words'],
+				'forbidFloats' => $input_data['forbid_float'],
+				'lowestTerms' => $input_data['require_lowest_terms'],
+				'sameType' => $input_data['check_answer_type'],
+				'mustVerify' => $input_data['must_verify'],
+				'showValidation' => $input_data['show_validation'],
+				'options' => $input_data['options'],
+			);
+
+			$parameters = array();
+			foreach ($required_parameters[$input_type] as $parameter_name) {
+				if ($parameter_name == 'inputType') {
+					continue;
+				}
+				$parameters[$parameter_name] = $all_parameters[$parameter_name];
+			}
+
+			//SET INPUTS
+			$question->inputs[$input_name] = stack_input_factory::make($input_data['type'], $input_data['name'], $input_data['tans'], $question->options, $parameters);
+		}
+
+		//load PRTs and PRT nodes
+		$prt_from_array = $array['prts'];;
+
+		//Values
+		$total_value = 0;
+
+		//in ILIAS all attempts are graded
+		$grade_all = true;
+
+		foreach ($prt_from_array as $prt_name => $prt_data) {
+			$total_value += $prt_data['value'];
+		}
+
+		if ($prt_from_array && $grade_all && $total_value < 0.0000001) {
+			try {
+				throw new stack_exception('There is an error authoring your question. ' .
+					'The $totalvalue, the marks available for the question, must be positive in question ' .
+					$question->getTitle());
+			} catch (stack_exception $e) {
+				ilUtil::sendFailure($e);
+				$total_value = 1.0;
+			}
+		}
+
+		//get PRT and PRT Nodes from DB
+
+		$prt_names = self::_getPRTNamesFromQuestion($question->getQuestion(), $array['options']['ilias_options']['specific_feedback'], $prt_from_array);
+
+		if (!empty($prt_names)) {
+			foreach ($prt_names as $prt_name) {
+
+				$prt_data = $prt_from_array[$prt_name];
+				$nodes = array();
+
+				if (isset($prt_data['nodes']) and !empty($prt_data['nodes'])) {
+					foreach ($prt_data['nodes'] as $node_name => $node_data) {
+
+						$sans = stack_ast_container::make_from_teacher_source('PRSANS' . $node_name . ':' . $node_data['sans'], '', new stack_cas_security());
+						$tans = stack_ast_container::make_from_teacher_source('PRTANS' . $node_name . ':' . $node_data['tans'], '', new stack_cas_security());
+
+						//Penalties management, penalties are not an ILIAS Feature
+						if (is_null($node_data['false_penalty']) || $node_data['false_penalty'] === '') {
+							$false_penalty = 0;
+						} else {
+							$false_penalty = $node_data['false_penalty'];
+						}
+
+						if (is_null(($node_data['true_penalty']) || $node_data['true_penalty'] === '')) {
+							$true_penalty = 0;
+						} else {
+							$true_penalty = $node_data['true_penalty'];
+						}
+
+						try {
+							//Create Node and add it to the
+							$node = new stack_potentialresponse_node($sans, $tans, $node_data['answer_test'], $node_data['test_options'], (bool)$node_data['quiet'], '', (int)$node_name, $node_data['sans'], $node_data['tans']);
+
+							$node->add_branch(0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty, $node_data['false_next_node'], $node_data['false_feedback'], $node_data['false_feedback_format'], $node_data['false_answer_note']);
+							$node->add_branch(1, $node_data['true_score_mode'], $node_data['true_score'], $true_penalty, $node_data['true_next_node'], $node_data['true_feedback'], $node_data['true_feedback_format'], $node_data['true_answer_note']);
+
+							$nodes[$node_name] = $node;
+						} catch (stack_exception $e) {
+							ilUtil::sendFailure($e->getMessage(), true);
+						}
+					}
+				} else {
+					break;
+				}
+
+				if ($prt_data['feedback_variables']) {
+					try {
+						$feedback_variables = new stack_cas_keyval($prt_data['feedback_variables']);
+						$feedback_variables = $feedback_variables->get_session();
+					} catch (stack_exception $e) {
+						ilUtil::sendFailure($e->getMessage(), true);
+					}
+				} else {
+					$feedback_variables = null;
+				}
+
+				if ($total_value == 0) {
+					//TODO Non gradable question
+					$prt_value = 0.0;
+				} else {
+					$prt_value = $prt_data['value'];
+				}
+
+				try {
+					$question->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt_data['auto_simplify'], $prt_value, $feedback_variables, $nodes, (string)$prt_data['first_node_name'], 1);
+				} catch (stack_exception $e) {
+					ilUtil::sendFailure($e, true);
+				}
+			}
+		}
+
+		//load seeds
+		$deployed_seeds = $array['deployed_variants'];
+
+		//Needs deployed seeds as key for initialisation
+		$depured_deployed_seeds = array();
+		foreach ($deployed_seeds as $deployed_seed) {
+			$depured_deployed_seeds[$deployed_seed] = $deployed_seed;
+		}
+		$question->deployed_seeds = $depured_deployed_seeds;
+
+		//load extra info
+		$extra_info = $array['extra_information'];
+		if (is_array($extra_info)) {
+			$question->general_feedback = $extra_info['general_feedback'];
+			$question->penalty = (float)$extra_info['penalty'];
+			$question->hidden = (bool)$extra_info['hidden'];
+		} else {
+			$question->general_feedback = '';
+			$question->penalty = 0.0;
+			$question->hidden = false;
+		}
+
+		//load unit tests
+		$unit_tests = $array['unit_tests'];
+		$question->setUnitTests($unit_tests);
+
+		//Returns question
+		return $question;
+	}
+
+
 }
