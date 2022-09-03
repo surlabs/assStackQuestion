@@ -1050,7 +1050,7 @@ class assStackQuestionUtils
 		}
 
 		//load PRTs and PRT nodes
-		$prt_from_array = $array['prts'];;
+		$prt_from_array = $array['prts'];
 
 		//Values
 		$total_value = 0;
@@ -1074,13 +1074,8 @@ class assStackQuestionUtils
 		}
 
 		//get PRT and PRT Nodes from DB
+			foreach ($prt_from_array as $prt_name => $prt_data) {
 
-		$prt_names = self::_getPRTNamesFromQuestion($question->getQuestion(), $array['options']['ilias_options']['specific_feedback'], $prt_from_array);
-
-		if (!empty($prt_names)) {
-			foreach ($prt_names as $prt_name) {
-
-				$prt_data = $prt_from_array[$prt_name];
 				$nodes = array();
 
 				if (isset($prt_data['nodes']) and !empty($prt_data['nodes'])) {
@@ -1142,7 +1137,7 @@ class assStackQuestionUtils
 					ilUtil::sendFailure($e, true);
 				}
 			}
-		}
+
 
 		//load seeds
 		$deployed_seeds = $array['deployed_variants'];

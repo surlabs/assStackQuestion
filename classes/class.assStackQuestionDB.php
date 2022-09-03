@@ -6,10 +6,10 @@
 
 /**
  * STACK Question DB Manager Class
- * All DB Stuff will be placed here
+ * All DB Stuff is placed here
  *
  * @author Jesus Copado <jesus.copado@fau.de>
- * @version $Id: 6.9$
+ * @version $Id: 7.0$
  *
  */
 class assStackQuestionDB
