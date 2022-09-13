@@ -1,5 +1,5 @@
 
-STACK_FOR_ILIAS7 v6.9 RELEASE CANDIDATE
+STACK_FOR_ILIAS7 v7.0
 ================================
 
 Copyright 2022 Institut fuer Lern-Innovation,Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3 or later, see LICENSE
@@ -93,29 +93,33 @@ input you can evaluate your answer (in self assessment mode) or move to the next
 Version History
 ===============
 
-* The release candidate version 6.9 for **ILIAS 7.12+** with the STACK Core version 4.3.9 can be found in the Github branch **stack_for_ilias7**
-* The stable version 3.4.x for **ILIAS 7** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias7**
+* The stable version 7.0 for **ILIAS 7.13+** with the STACK Core version 4.3.9 can be found in the Github branch **stack_for_ilias7**
+* The stable version 3.5 for **ILIAS > 7.12** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias713**
+* The stable version 3.4.3 for **ILIAS <= 7.12** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias7**
 * The stable version 3.2.x for **ILIAS 6** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias6**
 * The stable version 3.1.x for **ILIAS 5.4** is no longer maintained
 * The stable version 3.0.x for **ILIAS 5.3** is no longer maintained
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
-Version 6.9 for ILIAS 7.12+ (Release Candidate)
+Version 7.0 (New Core!!) for ILIAS 7.13+ (Stable)
 ----------------------------------------
-- This version hasn't been tested in any Productive Platform.
-- ILI will test it in September 2022, after a successful update test, the plugin will be set as Stable.
-- This STACK for ILIAS plugin version requires a Maxima Server with the maxima version 2021120900. Other versions may trigger validation errors.
-- **This version includes DBUpdate steps which change values in the xqcas_prts and xqcas_prt_nodes tables, please, backup these tables before update.**
+This version has been declared stable on 2022.09.14
+Its main functionalities has been tested by the University of Erlangen and the Helmut Schmidt University.
+Some bugfixing may be expected when its use become more extensive. Please keep you ILIAS platform up to date
+- **This STACK for ILIAS plugin version requires a Maxima Server with the maxima version 2021120900. Other versions may trigger validation errors or not show the question at all**
 - Ensure you clear the cache after updating.
 - **Ensure you use the --no-plugins mode on ILIAS Setup if STACK is installed**
+- Update of this plugin is currently only Manual on plugins administration.
 - **Changes in this Version**
 - 95% Percent of the changes on this version were made to the backend, so do not expect many user interface changes.
 - The plugin structure has been fully reworked to adapt it to STACK and ILIAS needs.
 - The core from STACK plugin Version for Moodle (4.3.9 December 2021) has been included.
 - Known issues:
+  - Unit Tests are currently not available. Unit Tests created will remain in its current state until time for this at the moment non-extensive used feature has been fund and found.
   - firstline extra option is not working properly for equivalence reasoning evaluation, validation is properly done, but evaluation doesn't
   - Check answer type is currently not evaluated
   - Best solution in Test results is not shown properly
   - Instant validation for textareas not working properly
   - MatrixParents always set to []
+  - Question Images may not be rendered in Feedback
