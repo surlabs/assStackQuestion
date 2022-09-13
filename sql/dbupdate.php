@@ -641,6 +641,7 @@ if ($db->tableExists('xqcas_configuration')) {
 ?>
 <#40>
 <?php
+
 //modify all prts with 0 as node names, no longer supported.
 /* NOT ACTIVATED
 
