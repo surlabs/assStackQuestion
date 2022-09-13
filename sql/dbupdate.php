@@ -642,6 +642,8 @@ if ($db->tableExists('xqcas_configuration')) {
 <#40>
 <?php
 //modify all prts with 0 as node names, no longer supported.
+/* NOT ACTIVATED
+
 global $DIC;
 $db = $DIC->database();
 
@@ -756,7 +758,7 @@ if (array_key_exists('prt_pos_answernote', $existing_entries)) {
 }
 if (array_key_exists('prt_neg_answernote', $existing_entries)) {
 	$db->replace("xqcas_configuration", array('parameter_name' => array('text', 'prt_neg_answernote'), 'value' => array('text', 'prt1-1-F'), 'group_name' => array('text', 'prts')), array());
-}
+}*/
 ?>
 <#41>
 <?php
@@ -832,6 +834,9 @@ if ($db->tableExists('xqcas_configuration')) {
 ?>
 <#42>
 <?php
+/*
+ * New Test Seed Management
+ */
 global $DIC;
 $db = $DIC->database();
 if (!$db->tableExists('xqcas_test_seeds')) {
