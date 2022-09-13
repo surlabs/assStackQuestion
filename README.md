@@ -97,7 +97,7 @@ Version 3.5 (2022-09-13) for ILIAS 7.13+
 * **Use this version on ILIAS 7.13+ Platforms, for previous ILIAS Versions use Branch master-ilias7**
 * The fromXML method from assQuestion in the ILIAS Core has changed its definition on this commit:
 * https://github.com/ILIAS-eLearning/ILIAS/commit/1576ff04a6039ce40386e707583a012b1606026a
-* This forces the creation (and maintenance) of two different branches, one for ILIAS < 7.12 versions (master-ilias7) and a new one (master-ilias713), where fromXML implements the new definition.
+* We opted to create and maintain two different branches, one for ILIAS < 7.12 versions (master-ilias7) and a new one (master-ilias713), where fromXML implements the new definition.
 * We deeply apologize for the inconvenience of changing the branch on a non-major Version.
 * **
 * **Question Pool & Tests Import & Export**
