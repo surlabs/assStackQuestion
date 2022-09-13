@@ -22,7 +22,7 @@ class assStackQuestionExport extends assQuestionExport
 	 * @return string The QTI xml representation of the question
 	 * @access public
 	 */
-	function toXML($a_include_header = true, $a_include_binary = true, $a_shuffle = false, $test_output = false, $force_image_references = false)
+	function toXML2($a_include_header = true, $a_include_binary = true, $a_shuffle = false, $test_output = false, $force_image_references = false)
 	{
 		global $ilias;
 
@@ -132,11 +132,9 @@ class assStackQuestionExport extends assQuestionExport
 		$feedback_allcorrect = $this->object->feedbackOBJ->getGenericFeedbackExportPresentation(
 			$this->object->getId(), true
 		);
-
 		$feedback_onenotcorrect = $this->object->feedbackOBJ->getGenericFeedbackExportPresentation(
 			$this->object->getId(), false
 		);
-
 		$attrs = array(
 			"ident" => "Correct",
 			"view" => "All"
@@ -173,8 +171,6 @@ class assStackQuestionExport extends assQuestionExport
 			$a_xml_writer->xmlEndTag("flow_mat");
 			$a_xml_writer->xmlEndTag("itemfeedback");
 		}
-
-
 */
 		$a_xml_writer->xmlEndTag("flow");
 		$a_xml_writer->xmlEndTag("presentation");
@@ -182,6 +178,122 @@ class assStackQuestionExport extends assQuestionExport
 		$a_xml_writer->xmlEndTag("questestinterop");
 
 		$xml = $a_xml_writer->xmlDumpMem(FALSE);
+		if (!$a_include_header) {
+			$pos = strpos($xml, "?>");
+			$xml = substr($xml, $pos + 2);
+		}
+		return $xml;
+	}
+
+
+	/**
+	 * Returns a QTI xml representation of the question
+	 *
+	 * @return string The QTI xml representation of the question
+	 * @access public
+	 */
+	function toXML($a_include_header = true, $a_include_binary = true, $a_shuffle = false, $test_output = false, $force_image_references = false)
+	{
+		global $ilias;
+
+		//get Question Array
+		$question_array = assStackQuestionUtils::_questionToArray($this->object);
+
+		include_once("./Services/Xml/classes/class.ilXmlWriter.php");
+		$a_xml_writer = new ilXmlWriter;
+
+		// set xml header
+		$a_xml_writer->xmlHeader();
+		$a_xml_writer->xmlStartTag("questestinterop");
+		$attrs = array(
+			"ident" => "il_" . IL_INST_ID . "_qst_" . $this->object->getId(),
+			"title" => $this->object->getTitle(),
+			"maxattempts" => $this->object->getNrOfTries()
+		);
+		$a_xml_writer->xmlStartTag("item", $attrs);
+
+		// add question description
+		$a_xml_writer->xmlElement("qticomment", NULL, $this->object->getComment());
+
+		// add estimated working time
+		$workingtime = $this->object->getEstimatedWorkingTime();
+		$duration = sprintf("P0Y0M0DT%dH%dM%dS", $workingtime["h"], $workingtime["m"], $workingtime["s"]);
+		$a_xml_writer->xmlElement("duration", NULL, $duration);
+
+		// add ILIAS specific metadata
+		$a_xml_writer->xmlStartTag("itemmetadata");
+
+		$a_xml_writer->xmlStartTag("qtimetadata");
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "ILIAS_VERSION");
+		$a_xml_writer->xmlElement("fieldentry", NULL, $ilias->getSetting("ilias_version"));
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "QUESTIONTYPE");
+		$a_xml_writer->xmlElement("fieldentry", NULL, $this->object->getQuestionType());
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "AUTHOR");
+		$a_xml_writer->xmlElement("fieldentry", NULL, $this->object->getAuthor());
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+		// additional content editing information
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$this->addAdditionalContentEditingModeInformation($a_xml_writer);
+		$this->addGeneralMetadata($a_xml_writer);
+
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "POINTS");
+		$a_xml_writer->xmlElement("fieldentry", NULL, $this->object->getPoints());
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+		//QUESTION
+		$a_xml_writer->xmlStartTag("qtimetadatafield");
+		$a_xml_writer->xmlElement("fieldlabel", NULL, "stack_question");
+		$a_xml_writer->xmlElement("fieldentry", NULL, base64_encode(serialize($question_array)));
+		$a_xml_writer->xmlEndTag("qtimetadatafield");
+
+		$a_xml_writer->xmlEndTag("qtimetadata");
+		$a_xml_writer->xmlEndTag("itemmetadata");
+
+		//QTI presentation
+		$attrs = array(
+			"label" => $this->object->getTitle()
+		);
+		$a_xml_writer->xmlStartTag("presentation", $attrs);
+		// add flow to presentation
+		$a_xml_writer->xmlStartTag("flow");
+
+		$question_text = $this->object->getQuestion() ?: '&nbsp;';
+		$this->object->addQTIMaterial($a_xml_writer, $question_text);
+
+		if (isset($this->object->prts) and is_array($this->object->prts)) {
+			foreach ($this->object->prts as $prt) {
+				foreach ($prt->getNodes() as $node) {
+					$feedback = $node->getFeedbackFromNode();
+
+					$this->object->addQTIMaterial($a_xml_writer, $feedback['true_feedback']);
+					$this->object->addQTIMaterial($a_xml_writer, $feedback['false_feedback']);
+				}
+			}
+		}
+
+		$this->object->addQTIMaterial($a_xml_writer, $this->object->specific_feedback);
+
+		$this->object->addQTIMaterial($a_xml_writer, $this->object->prt_correct);
+		$this->object->addQTIMaterial($a_xml_writer, $this->object->prt_partially_correct);
+		$this->object->addQTIMaterial($a_xml_writer, $this->object->prt_incorrect);
+
+		$this->object->addQTIMaterial($a_xml_writer, $this->object->general_feedback);
+
+		$a_xml_writer->xmlEndTag("flow");
+		$a_xml_writer->xmlEndTag("presentation");
+		$a_xml_writer->xmlEndTag("item");
+		$a_xml_writer->xmlEndTag("questestinterop");
+
+		$xml = $a_xml_writer->xmlDumpMem(false);
 		if (!$a_include_header) {
 			$pos = strpos($xml, "?>");
 			$xml = substr($xml, $pos + 2);
