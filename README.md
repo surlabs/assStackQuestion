@@ -1,5 +1,5 @@
 
-STACK_FOR_ILIAS7 v7.0
+STACK FOR ILIAS7
 ================================
 
 Copyright 2022 Institut fuer Lern-Innovation,Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3 or later, see LICENSE

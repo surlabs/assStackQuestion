@@ -16,7 +16,7 @@ include_once /** @lang text */
  * STACK Question OBJECT
  *
  * @author Jesus Copado <jesus.copado@fau.de>
- * @version $Id: 6.9$
+ * @version $Id: 7.0$
  * @ingroup    ModulesTestQuestionPool
  *
  */

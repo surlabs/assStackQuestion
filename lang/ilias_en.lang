@@ -457,7 +457,7 @@ feedback_default_info#:#Select the feedback style for feedback messages in STACK
 nodes_feedback#:#Feedback from Nodes
 config_prts_changed_message#:#Changes have been applied
 input_stars_no_stars#:#Don't insert stars
-input_stars_implied#:#Insert stars for implied multiplication only
+input_stars_implied#:#Insert stars for implied multiplication only.
 input_stars_singlechar#:#Insert stars assuming single-character variable names
 input_stars_spaces#:#Insert stars for spaces only
 input_stars_implied_spaces#:#Insert stars for implied multiplication and for spaces
