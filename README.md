@@ -103,7 +103,7 @@ Version 3.5 (2022-09-13) for ILIAS 7.13+
 * **Question Pool & Tests Import & Export**
 * The overwritten fromXML & toXML functions of this branch has been adapted to the new stack_for_ilias7 Version where the whole backend of the plugin has been redesigned, to fit the new STACK Core needs. 
 * This includes Export/Import functions, which won't support older files. This means, all those ILIAS7 Platforms up to date (>7.12) using this branch, will be able to create compatible export files for future releases, and vice-versa, and those files won't be compatible with older platforms.
-* Please inform the teachers before update to this Version 3.5, you can still use the current default Version 3.4.4 if you decide to keep the older files format, remember that STACK supports the import and export questions in bulk also with the MoodleXML Format.
+* Please inform the teachers about this topic, you can also use the current default Version 3.4.4 if you decide to keep the older files format, remember that STACK supports the import and export questions in bulk also with the MoodleXML Format.
 
 Version 3.4.2 (2022-02-11) for ILIAS 7 and ILIAS 6
 ----------------------------------------
