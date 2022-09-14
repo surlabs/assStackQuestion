@@ -117,11 +117,11 @@ Some bugfixing may be expected when its use become more extensive. Please keep y
 - The core from STACK plugin Version for Moodle (4.3.9 December 2021) has been included.
 * **Use this version on ILIAS 7.13+ Platforms, for previous ILIAS Versions use Branch master-ilias7**
 *** 
-**Question Pool & Tests Import & Export**
-* The redesign of the plugin structure included the ILIAS Import and Export functionalities. **Old Question pools and Tests Import files won't work (ILIAS 5.4, 6 and master-ilias7)** They need to be re-exported from an ILIAS stack_for_ilias_7 or master-ilias713 platform. In both branches the new Export/Import Structure is implemented.
-* For older versions, please, upload your ILIAS Platform to 7.
-* Please inform the teachers about this update.
-***
+**Question Pool & Tests Import & Export** 
+* The redesign of the plugin structure included the ILIAS Import and Export functionalities. **Old Question pools and Tests Import files won't work (ILIAS 5.4, 6 and master-ilias7)** They need to be re-exported from an ILIAS stack_for_ilias_7 or master-ilias713 platform. In both branches the new Export/Import Structure is implemented. 
+* For older versions, please, upload your ILIAS Platform to 7. 
+* Please inform the teachers about this update. 
+*** 
 **Known issues**
   - Unit Tests are currently not available. Unit Tests created will remain in its current state until time for this at the moment non-extensive used feature has been fund and found.
   - firstline extra option is not working properly for equivalence reasoning evaluation, validation is properly done, but evaluation doesn't
