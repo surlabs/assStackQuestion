@@ -520,11 +520,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			$clone->setTitle($targetQuestionTitle);
 		}
 
-		$clone->simpleSaveToDb();
-
-		$clone->beforeCopy($clone->getId());
 		$clone->saveToDb();
-
 		// copy question page content
 		$clone->copyPageOfQuestion($sourceQuestionId);
 		// copy XHTML media objects
