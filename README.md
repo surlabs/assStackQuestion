@@ -123,3 +123,5 @@ Some bugfixing may be expected when its use become more extensive. Please keep y
   - Instant validation for textareas not working properly
   - MatrixParents always set to []
   - Question Images may not be rendered in Feedback
+  - Notes inputs are currently unavailable
+  - Feedback in Tests not rendered properly

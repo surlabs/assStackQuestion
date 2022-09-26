@@ -185,6 +185,8 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true): string
 	{
+		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
+
 		//Llama dos veces, una para el texto y otra para la best solution
 		if (!$this->object->isInstantiated()) {
 			//Not in preview, not in test run, we are in Test Results
@@ -214,7 +216,6 @@ class assStackQuestionGUI extends assQuestionGUI
 			return $solution_output;
 		}
 
-		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
 		$solution_output = assStackQuestionRenderer::_renderBestSolution($this->object);
 
 		//Return Solution output
