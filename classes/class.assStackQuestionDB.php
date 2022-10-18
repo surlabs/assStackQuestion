@@ -1593,6 +1593,56 @@ class assStackQuestionDB
 	}
 
 	/**
+	 * Manages the add node function from Authoring interface
+	 * @param string $original_question_id
+	 * @param string $original_prt_name
+	 * @param string $original_node_id
+	 * @param string $new_question_id
+	 * @param string $new_prt_name
+	 * @param string $new_node_name
+	 * @return bool
+	 */
+	public static function _addNodeFunction(string $question_id, string $prt_name, string $new_node_name): bool
+	{
+
+		$standard_prt = assStackQuestionConfig::_getStoredSettings('prts');
+
+		global $DIC;
+
+		//CREATE NODE WITH ORIGINAL NODE STATS IN NEW QUESTION PRT
+		$DIC->database()->insert("xqcas_prt_nodes", array(
+			"id" => array("integer", $DIC->database()->nextId('xqcas_prt_nodes')),
+			"question_id" => array("integer", (int)$question_id),
+			"prt_name" => array("text", $prt_name),
+			"node_name" => array("text", $new_node_name),
+			"answer_test" => array("text", $standard_prt['prt_node_answer_test']),
+			"sans" => array("text", ""),
+			"tans" => array("text", ""),
+			"test_options" => array("text", $standard_prt['prt_node_options']),
+			"quiet" => array("integer", (int)$standard_prt['prt_node_quiet']),
+			"true_score_mode" => array("text", $standard_prt['prt_pos_mod']),
+			"true_score" => array("text", $standard_prt['prt_pos_score']),
+			"true_penalty" => array("text", $standard_prt['prt_pos_penalty']),
+			"true_next_node" => array("text", "-1"),
+			"true_answer_note" => array("text", $prt_name . '-' . $new_node_name . '-T'),
+			"true_feedback" => array("clob", ""),
+			"true_feedback_format" => array("integer", 1),
+			"false_score_mode" => array("text", $standard_prt['prt_neg_mod']),
+			"false_score" => array("text", $standard_prt['prt_neg_score']),
+			"false_penalty" => array("text", $standard_prt['prt_neg_penalty']),
+			"false_next_node" => array("text", "-1"),
+			"false_answer_note" => array("text", $prt_name . '-' . $new_node_name . '-F'),
+			"false_feedback" => array("clob", ""),
+			"false_feedback_format" => array("integer", 1),
+		));
+
+		unset($_SESSION['copy_node']);
+		ilUtil::sendInfo($DIC->language()->txt("qpl_qst_xqcas_node_paste"), true);
+
+		return true;
+	}
+
+	/**
 	 * Manages the copy node function from Authoring interface
 	 * @param string $original_question_id
 	 * @param string $original_prt_name

@@ -624,13 +624,18 @@ class assStackQuestionAuthoringGUI
 			$paste_prt->setCommand('save');
 			$settings_column->addFormProperty($paste_prt);
 		} else {
-			//Copy prt#
+			//Copy prt
 			$copy_prt = new ilButtonFormProperty($this->getPlugin()->txt('copy_prt'), 'copy_prt_' . $prt_name);
 			$copy_prt->setAction('copy_prt_' . $prt_name);
 			$copy_prt->setCommand('save');
 			$settings_column->addFormProperty($copy_prt);
 		}
 
+		//Add Node
+		$add_node_to_prt = new ilButtonFormProperty($this->getPlugin()->txt('add_node'), 'add_node_to_' . $prt_name);
+		$add_node_to_prt->setAction('add_node_to_' . $prt_name);
+		$add_node_to_prt->setCommand('save');
+		$settings_column->addFormProperty($add_node_to_prt);
 
 		$settings_column->addFormProperty($this->getSettingsPart($prt, 12));
 		//Add node pos neg part
@@ -767,7 +772,7 @@ class assStackQuestionAuthoringGUI
 				if ($prt->getFirstNode() == $node_name) {
 					$first_node = $node;
 					unset($q_nodes[$node_name]);
-					array_unshift($q_nodes, $node);
+					array_unshift($q_nodes, $first_node);
 				}
 			}
 		}
@@ -912,7 +917,7 @@ class assStackQuestionAuthoringGUI
 		$common_node_part->addFormProperty($node_options);
 		$common_node_part->addFormProperty($node_quiet);
 
-		if ($prt->get_name() != 'new_prt' and $node->nodeid != $prt->get_name() . '_new_node') {
+		if ($node->nodeid !== $prt->get_name() . '_new_node') {
 			$delete_node = new ilButtonFormProperty($this->getPlugin()->txt('delete_node'), 'delete_prt_' . $prt->get_name() . '_node_' . $node->nodeid);
 			$delete_node->setAction('delete_prt_' . $prt->get_name() . '_node_' . $node->nodeid);
 			$delete_node->setCommand('save');
@@ -941,7 +946,7 @@ class assStackQuestionAuthoringGUI
 	 * @param stack_potentialresponse_node $node
 	 * @return ilMultipartFormPart
 	 */
-	public function getNodePositivePart(stack_potentialresponse_tree $prt, stack_potentialresponse_node $node)
+	public function getNodePositivePart(stack_potentialresponse_tree $prt, stack_potentialresponse_node $node): ilMultipartFormPart
 	{
 		//Create part and set parameters for customisation
 		$positive_part = new ilMultipartFormPart($this->getPlugin()->txt('node_pos_title'));
@@ -1013,7 +1018,7 @@ class assStackQuestionAuthoringGUI
 		$positive_part->addFormProperty($node_pos_mode);
 		$positive_part->addFormProperty($node_pos_score);
 		$positive_part->addFormProperty($node_pos_penalty);
-		if ($node->nodeid != $prt->get_name() . '_new_node' and $prt->get_name() != 'new_prt') {
+		if ($node->nodeid !== $prt->get_name() . '_new_node') {
 			$positive_part->addFormProperty($node_pos_next_node);
 		}
 		$positive_part->addFormProperty($node_pos_answernote);
@@ -1029,7 +1034,7 @@ class assStackQuestionAuthoringGUI
 	 * @param stack_potentialresponse_node $node
 	 * @return ilMultipartFormPart
 	 */
-	public function getNodeNegativePart(stack_potentialresponse_tree $prt, stack_potentialresponse_node $node)
+	public function getNodeNegativePart(stack_potentialresponse_tree $prt, stack_potentialresponse_node $node): ilMultipartFormPart
 	{
 		//Create part and set parameters for customisation
 		$negative_part = new ilMultipartFormPart($this->getPlugin()->txt('node_neg_title'));
@@ -1100,7 +1105,7 @@ class assStackQuestionAuthoringGUI
 		$negative_part->addFormProperty($node_neg_mode);
 		$negative_part->addFormProperty($node_neg_score);
 		$negative_part->addFormProperty($node_neg_penalty);
-		if ($node->nodeid != $prt->get_name() . '_new_node' and $prt->get_name() != 'new_prt') {
+		if ($node->nodeid !== $prt->get_name() . '_new_node') {
 			$negative_part->addFormProperty($node_neg_next_node);
 		}
 		$negative_part->addFormProperty($node_neg_answernote);

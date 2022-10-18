@@ -93,14 +93,22 @@ input you can evaluate your answer (in self assessment mode) or move to the next
 Version History
 ===============
 
-* The stable version 7.0 for **ILIAS 7.13+** with the STACK Core version 4.3.9 can be found in the Github branch **stack_for_ilias7**
-* The stable version 3.5 for **ILIAS > 7.12** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias713**
+* The stable version 7.0.x for **ILIAS 7.13+** with the STACK Core version 4.3.9 can be found in the Github branch **stack_for_ilias7**
+* The stable version 3.5 for **ILIAS 7.13+** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias713**
 * The stable version 3.4.3 for **ILIAS <= 7.12** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias7**
 * The stable version 3.2.x for **ILIAS 6** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias6**
 * The stable version 3.1.x for **ILIAS 5.4** is no longer maintained
 * The stable version 3.0.x for **ILIAS 5.3** is no longer maintained
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
+
+Version 7.0.1 Bugfixing (I) 2022.10.18
+----------------------------------------
+- Some changes were added to the authoring interface.
+- First node in each potential response tree now shows the copy and delete function properly.
+- Adding a node to a certain potential response tree is again possible
+  - Instead of a new tab, authors can use the new Add Node button to add nodes to the current prt.
+  - Addition and deletion of PRT is still done by adding / deleting the feedback placeholder in the question text or the specific feedback section.
 
 Version 7.0 (New Core!!) for ILIAS 7.13+ (Stable)
 ----------------------------------------

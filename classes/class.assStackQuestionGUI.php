@@ -749,69 +749,87 @@ class assStackQuestionGUI extends assQuestionGUI
 
 				}
 
-			}
+				//NODE OPERATIONS
+				foreach ($prt->getNodes() as $node_name => $node) {
 
-			//NODE OPERATIONS
-			foreach ($prt->getNodes() as $node_name => $node) {
+					//Add Node
+					if (isset($_POST['cmd']['save']['add_node_to_' . $prt_name])) {
 
-				//Delete node
-				if (isset($_POST['cmd']['save']['delete_prt_' . $prt_name . '_node_' . $node->nodeid])) {
+						//Check the new node name,
+						//We set as id the following to the current bigger node id
+						$max = 0;
+						foreach ($prt->getNodes() as $temp_node_name => $temp_node) {
+							(int)$temp_node_name > $max ? $max = (int)$temp_node_name : "";
+						}
+						$new_node_name = $max + 1;
 
-					if (sizeof($prt->getNodes()) < 2) {
-						ilUtil::sendFailure($this->object->getPlugin()->txt('deletion_error_not_enought_prt_nodes'));
-						return false;
+						if (assStackQuestionDB::_addNodeFunction($this->object->getId(), $prt_name, $new_node_name)) {
+							return true;
+						} else {
+							return false;
+						}
 					}
 
-					if ((int)$prt->getFirstNode() == (int)$node_name) {
-						ilUtil::sendFailure($this->object->getPlugin()->txt('deletion_error_first_node'));
-						return false;
-					}
+					//Delete node
+					if (isset($_POST['cmd']['save']['delete_prt_' . $prt_name . '_node_' . $node->nodeid])) {
 
-					assStackQuestionDB::_deleteStackPrtNodes($this->object->getId(), $prt_name, $node->nodeid);
+						if (sizeof($prt->getNodes()) < 2) {
+							ilUtil::sendFailure($this->object->getPlugin()->txt('deletion_error_not_enought_prt_nodes'));
+							return false;
+						}
 
-					//Actualize current question values
-					$new_nodes = $prt->getNodes();
-					unset($new_nodes[$node_name]);
+						if ((int)$prt->getFirstNode() == (int)$node_name) {
+							ilUtil::sendFailure($this->object->getPlugin()->txt('deletion_error_first_node'));
+							return false;
+						}
 
-					$prt->setNodes($new_nodes);
-					$this->object->prts[$prt_name] = $prt;
+						assStackQuestionDB::_deleteStackPrtNodes($this->object->getId(), $prt_name, $node->nodeid);
 
-					ilUtil::sendSuccess("nodes deleted", true);
-					return true;
-				}
+						//Actualize current question values
+						$new_nodes = $prt->getNodes();
+						unset($new_nodes[$node_name]);
 
-				//Copy Node
-				if (isset($_POST['cmd']['save']['copy_prt_' . $prt_name . '_node_' . $node->nodeid])) {
-					//Set node into session
-					$_SESSION['copy_node'] = $this->object->getId() . "_" . $prt_name . "_" . $node->nodeid;
+						$prt->setNodes($new_nodes);
+						$this->object->prts[$prt_name] = $prt;
 
-					ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_node_copied_to_clipboard"), true);
-					return true;
-				}
-
-				//Paste Node
-				if (isset($_POST['cmd']['save']['paste_node_in_' . $prt_name])) {
-
-					//Do node paste here
-					$raw_data = explode("_", $_SESSION['copy_node']);
-					$original_question_id = $raw_data[0];
-					$original_prt_name = $raw_data[1];
-					$original_node_name = $raw_data[2];
-
-					//Check the new node name,
-					//We set as id the following to the current bigger node id
-					$max = 0;
-					foreach ($prt->getNodes() as $temp_node_name => $temp_node) {
-						(int)$temp_node_name > $max ? $max = (int)$temp_node_name : "";
-					}
-					$new_node_name = $max + 1;
-
-					if (assStackQuestionDB::_copyNodeFunction($original_question_id, $original_prt_name, $original_node_name, $this->object->getId(), $prt_name, $new_node_name)) {
+						ilUtil::sendSuccess("nodes deleted", true);
 						return true;
-					} else {
-						return false;
+					}
+
+					//Copy Node
+					if (isset($_POST['cmd']['save']['copy_prt_' . $prt_name . '_node_' . $node->nodeid])) {
+						//Set node into session
+						$_SESSION['copy_node'] = $this->object->getId() . "_" . $prt_name . "_" . $node->nodeid;
+
+						ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_node_copied_to_clipboard"), true);
+						return true;
+					}
+
+					//Paste Node
+					if (isset($_POST['cmd']['save']['paste_node_in_' . $prt_name])) {
+
+						//Do node paste here
+						$raw_data = explode("_", $_SESSION['copy_node']);
+						$original_question_id = $raw_data[0];
+						$original_prt_name = $raw_data[1];
+						$original_node_name = $raw_data[2];
+
+						//Check the new node name,
+						//We set as id the following to the current bigger node id
+						$max = 0;
+						foreach ($prt->getNodes() as $temp_node_name => $temp_node) {
+							(int)$temp_node_name > $max ? $max = (int)$temp_node_name : "";
+						}
+						$new_node_name = $max + 1;
+
+						if (assStackQuestionDB::_copyNodeFunction($original_question_id, $original_prt_name, $original_node_name, $this->object->getId(), $prt_name, $new_node_name)) {
+							return true;
+						} else {
+							return false;
+						}
 					}
 				}
+
 			}
 
 		}

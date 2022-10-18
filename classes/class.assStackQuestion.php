@@ -1403,9 +1403,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 	/**
 	 * @param string $prt_name
-	 * @return void
+	 * @param bool $return_standard_node
+	 * @return void || stack_potentialresponse_node
 	 */
-	public function loadStandardPRT(string $prt_name)
+	public function loadStandardPRT(string $prt_name, bool $return_standard_node = false)
 	{
 		//load PRTs and PRT nodes
 		$standard_prt = assStackQuestionConfig::_getStoredSettings('prts');
@@ -1454,6 +1455,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 			$node->add_branch(0, $standard_prt['prt_neg_mod'], $standard_prt['prt_neg_score'], $false_penalty, -1, '', 1, $standard_prt['prt_neg_answernote']);
 			$node->add_branch(1, $standard_prt['prt_pos_mod'], $standard_prt['prt_pos_score'], $true_penalty, -1, '', 1, $standard_prt['prt_pos_answernote']);
+
+			if ($return_standard_node) {
+				return $node;
+			}
 
 			$nodes[1] = $node;
 		} catch (stack_exception $e) {

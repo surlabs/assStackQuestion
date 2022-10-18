@@ -176,6 +176,7 @@ class assStackQuestionMoodleImport
 
 		//question variables
 		if (isset($question->questionvariables->text)) {
+			//SecureString doesn't allow to include "<"
 			$this->getQuestion()->question_variables = ilUtil::secureString((string)$question->questionvariables->text);
 		}
 
@@ -316,11 +317,12 @@ class assStackQuestionMoodleImport
 			$invalid_node = false;
 
 			//Check for non "0" nodes
+			/*
 			foreach ($prt->node as $xml_node) {
 				if ($xml_node->name == '0') {
 					$invalid_node = true;
 				}
-			}
+			}*/
 
 			foreach ($prt->node as $xml_node) {
 				//Check for non "0" nodes
@@ -376,16 +378,18 @@ class assStackQuestionMoodleImport
 					//If certain nodes point node 0 as next node (not usual)
 					//The next node will now be -1, so, end of the prt.
 					//If we are already in node 1, we cannot point ourselves
-					if ($true_next_node == '-1') {
-						$true_next_node = -1;
-					} else {
-						$true_next_node = $true_next_node + 1;
-					}
+					if ($invalid_node) {
+						if ($true_next_node == '-1') {
+							$true_next_node = -1;
+						} else {
+							$true_next_node = $true_next_node + 1;
+						}
 
-					if ($false_next_node == '-1') {
-						$false_next_node = -1;
-					} else {
-						$false_next_node = $false_next_node + 1;
+						if ($false_next_node == '-1') {
+							$false_next_node = -1;
+						} else {
+							$false_next_node = $false_next_node + 1;
+						}
 					}
 
 					//Check for non "0" answer notes
