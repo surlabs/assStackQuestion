@@ -97,6 +97,15 @@ class assStackQuestionRenderer
 					}
 
 					$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
+				} else {
+					//Input Placeholders
+					$question_text = str_replace("[[input:{$name}]]",
+						$input->render($state, $field_name, false, $ta_value),
+						$question_text);
+
+					$question_text = str_replace("[[validation:{$name}]]",
+						'',
+						$question_text);
 				}
 			} else {
 				//Show malformed input error
@@ -194,6 +203,11 @@ class assStackQuestionRenderer
 		$student_solutions = $question->getTestOutputSolutions($active_id, $pass);
 		$question_text = $student_solutions['question_text'];
 
+		//Question initialization
+		if (!$question->isInstantiated()) {
+			$question->questionInitialisation((int)$student_solutions['seed'], true);
+		}
+
 		// Get the list of placeholders before format_text.
 		$input_placeholders = array_unique(stack_utils::extract_placeholders($question_text, 'input'));
 		sort($input_placeholders);
@@ -212,9 +226,12 @@ class assStackQuestionRenderer
 		//Inputs Replacement
 		foreach ($input_placeholders as $name) {
 
+			$input_object = $question->inputs[$name];
+			$input_state = $input_object->validate_student_response(array($name => $student_solutions['inputs'][$name]['value']), $question->options, $input_object->get_teacher_answer(), $question->getSecurity());
+
 			$field_name = 'xqcas_' . $question->getId() . '_' . $name;
 			//Input Placeholders
-			$question_text = str_replace("[[input:{$name}]]", assStackQuestionUtils::_getLatex($student_solutions['inputs'][$name]['display']), $question_text);
+			$question_text = str_replace("[[input:{$name}]]", $question->inputs[$name]->render($input_state, $field_name, true, $student_solutions['inputs'][$name]['correct_value']), $question_text);
 		}
 
 		//Replace Validation placeholders
@@ -329,33 +346,34 @@ class assStackQuestionRenderer
 	 */
 	public static function _renderFeedbackForTest(assStackQuestion $question, array $user_solution_from_db): string
 	{
+		//TST Solutions formatted entries
+		$user_solution_from_db = assStackQuestionUtils::_fromTSTSolutionsToSTACK($user_solution_from_db, $question->getId(), $question->inputs, $question->prts);
+
 		//Specific feedback
 		$text_to_replace = $question->specific_feedback_instantiated;
 
 		foreach (stack_utils::extract_placeholders($text_to_replace, 'feedback') as $prt_name) {
 
-			$evaluation = $question->getEvaluation();
 			$prt_feedback = '';
 			$format = "1";
 
 			//Ensure points obtained are known
-			if (isset($user_solution_from_db['xqcas_prt_' . $prt_name . '_status'])) {
+			if (isset($user_solution_from_db['prts'][$prt_name])) {
 
-				//$prt_status = (float)$user_solution_from_db['xqcas_prt_' . $prt_name . '_status'];
+				$prt_info = $user_solution_from_db['prts'][$prt_name];
 
-				$evaluation = $question->getEvaluation();
-
-				switch ($evaluation['points'][$prt_name]['status']) {
-					case 'correct':
-						$prt_feedback .= $question->prt_correct_instantiated;
+				//General PRT Feedback
+				switch ($prt_info['status']) {
+					case '1':
+						$prt_feedback .= '<p>' . $question->prt_correct_instantiated . '</p>';
 						$format = '2';
 						break;
-					case 'incorrect':
-						$prt_feedback .= $question->prt_incorrect_instantiated;
+					case '0':
+						$prt_feedback .= '<p>' . $question->prt_incorrect_instantiated . '</p>';
 						$format = '3';
 						break;
-					case 'partially_correct':
-						$prt_feedback .= $question->prt_partially_correct_instantiated;
+					case '0.5':
+						$prt_feedback .= '<p>' . $question->prt_partially_correct_instantiated . '</p>';
 						break;
 					default:
 						$prt_feedback .= '';
@@ -363,16 +381,12 @@ class assStackQuestionRenderer
 
 				//Errors & Feedback
 				//Ensure evaluation has been done
-				if (!isset($user_solution_from_db['xqcas_prt_' . $prt_name . '_feedback']) or !is_a($evaluation['prts'][$prt_name], 'stack_potentialresponse_tree_state')) {
+				if (isset($prt_info['feedback'])) {
 
-					$prt_feedback .= 'WARNING: No evaluation state for prt: ' . $prt_name . '</br>';
+					$prt_feedback .= assStackQuestionUtils::_getLatex($prt_info['feedback']);
 
 				} else {
-
-					$prt_state = $evaluation['prts'][$prt_name];
-
-					//Manage LaTeX explicitly
-					$prt_feedback .= assStackQuestionUtils::_getLatex(self::renderPRTFeedback($prt_state));
+					$prt_feedback = '';
 				}
 
 				//Replace Placeholders

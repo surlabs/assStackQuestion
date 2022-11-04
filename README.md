@@ -102,6 +102,13 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
+Version 7.0.2 Bugfixing (II) 2022.11.04
+----------------------------------------
+- User Solutions and Best solutions in Test Results are now again presented as non editable fields filled in with the user responses and best solutions
+- Specific feedback in Test Run is now properly rendered
+- Solved #35476 HTML Lost at MoodleXML Importing
+- Solved #35477 Input not shown validation option is se to do not show validation.
+
 Version 7.0.1 Bugfixing (I) 2022.10.18
 ----------------------------------------
 - Some changes were added to the authoring interface.

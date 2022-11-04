@@ -166,7 +166,8 @@ class assStackQuestionMoodleImport
 		//set standard question fields as current.
 		$this->getQuestion()->setTitle(ilUtil::secureString($question_title));
 		$this->getQuestion()->setPoints(ilUtil::secureString($points));
-		$this->getQuestion()->setQuestion(ilUtil::secureString($question_text));
+		//If we do secure strings, html is lost
+		$this->getQuestion()->setQuestion($question_text);
 		$this->getQuestion()->setLifecycle(ilAssQuestionLifecycle::getDraftInstance());
 
 		//Save current values, to set the Id properly.

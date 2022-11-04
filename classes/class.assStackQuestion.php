@@ -968,90 +968,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	public function getTestOutputSolutions($activeId, $pass): array
 	{
 		$solution = parent::getTestOutputSolutions($activeId, $pass);
-		$parsed_user_response_from_db = array();
 
-		foreach ($solution as $solution_entry) {
-
-			//Question text
-			if ($solution_entry['value1'] == 'xqcas_text_' . $this->getId()) {
-				$parsed_user_response_from_db['question_text'] = $solution_entry['value2'];
-			}
-
-			//question note
-			if ($solution_entry['value1'] == 'xqcas_solution_' . $this->getId()) {
-				$parsed_user_response_from_db['question_note'] = $solution_entry['value2'];
-			}
-
-			//General feedback
-			if ($solution_entry['value1'] == 'xqcas_general_feedback_' . $this->getId()) {
-				$parsed_user_response_from_db['general_feedback'] = $solution_entry['value2'];
-			}
-
-			//Seed
-			if ($solution_entry['value1'] == 'xqcas_question_' . $this->getId() . '_seed') {
-				$parsed_user_response_from_db['seed'] = $solution_entry['value2'];
-			}
-
-			foreach ($this->inputs as $input_name => $input) {
-
-				//User response value
-				if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_value') {
-					$parsed_user_response_from_db['inputs'][$input_name]['value'] = $solution_entry['value2'];
-				}
-
-				//User response display
-				if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_display') {
-					$parsed_user_response_from_db['inputs'][$input_name]['display'] = $solution_entry['value2'];
-				}
-
-				//correct answer value
-				if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_model_answer') {
-					$parsed_user_response_from_db['inputs'][$input_name]['correct_value'] = $solution_entry['value2'];
-				}
-
-				//correct answer display
-				if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_model_answer_display') {
-					$parsed_user_response_from_db['inputs'][$input_name]['correct_display'] = $solution_entry['value2'];
-				}
-
-				//Input validation
-				if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_validation_display') {
-					$parsed_user_response_from_db['inputs'][$input_name]['validation_display'] = $solution_entry['value2'];
-				}
-			}
-
-			foreach ($this->prts as $prt_name => $prt) {
-
-				//PRT name
-				if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_name') {
-					$parsed_user_response_from_db['prts'][$prt_name]['name'] = $solution_entry['value2'];
-					$parsed_user_response_from_db['prts'][$prt_name]['points'] = $solution_entry['points'];
-				}
-
-				//PRT errors
-				if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_errors') {
-					$parsed_user_response_from_db['prts'][$prt_name]['errors'] = $solution_entry['value2'];
-				}
-
-				//PRT feedback
-				if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_feedback') {
-					$parsed_user_response_from_db['prts'][$prt_name]['feedback'] = $solution_entry['value2'];
-				}
-
-				//PRT status
-				if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_status') {
-					$parsed_user_response_from_db['prts'][$prt_name]['status'] = $solution_entry['value2'];
-				}
-
-				//PRT answer notes
-				if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_answernote') {
-					$parsed_user_response_from_db['prts'][$prt_name]['answer_notes'] = $solution_entry['value2'];
-				}
-
-			}
-		}
+		$parsed_user_response_from_db = assStackQuestionUtils::_fromTSTSolutionsToSTACK($solution, $this->getId(), $this->inputs, $this->prts);
 
 		$this->setUserResponse($parsed_user_response_from_db);
+
 		return $parsed_user_response_from_db;
 	}
 
