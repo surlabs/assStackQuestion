@@ -97,6 +97,8 @@ class assStackQuestionRenderer
 					}
 
 					$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
+					//$question_text = str_replace("[[validation:{$name}]]", $input->render_validation($state, $field_name), $question_text);
+
 				} else {
 					//Input Placeholders
 					$question_text = str_replace("[[input:{$name}]]",

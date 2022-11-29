@@ -785,13 +785,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 						if ($parameter_name == 'inputType') {
 							continue;
 						}
-						//sameType WORKAROUND
-						//TODO. forcing not use sameType as temporal workaraound for malformed answer feedback
-						if ($parameter_name == 'sameType') {
-							$parameters[$parameter_name] = false;
-						} else {
-							$parameters[$parameter_name] = $all_parameters[$parameter_name];
-						}
+						$parameters[$parameter_name] = $all_parameters[$parameter_name];
 					}
 
 					//SET INPUTS
@@ -1443,7 +1437,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 	public function questionInitialisation(?int $variant, bool $force_variant = false, bool $deployed_seeds_view = false)
 	{
 		//Initialize Options
-		$this->options = new stack_options();
+		if (!is_a($this->options, 'stack_options')) {
+			$this->options = new stack_options();
+		}
 
 		// @codingStandardsIgnoreStart
 		// Work out the right seed to use.

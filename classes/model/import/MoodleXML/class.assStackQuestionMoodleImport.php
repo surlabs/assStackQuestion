@@ -177,8 +177,7 @@ class assStackQuestionMoodleImport
 
 		//question variables
 		if (isset($question->questionvariables->text)) {
-			//SecureString doesn't allow to include "<"
-			$this->getQuestion()->question_variables = ilUtil::secureString((string)$question->questionvariables->text);
+			$this->getQuestion()->question_variables = assStackQuestionUtils::_debugText((string)$question->questionvariables->text);
 		}
 
 		//specific feedback
@@ -326,16 +325,11 @@ class assStackQuestionMoodleImport
 			}*/
 
 			foreach ($prt->node as $xml_node) {
-				//Check for non "0" nodes
-				if ($invalid_node) {
-					$new_node_name = ((int)$xml_node->name) + 1;
-					$node_name = ilUtil::secureString((string)$new_node_name);
-				} else {
-					$node_name = ilUtil::secureString((string)$xml_node->name);
-				}
 
-				$raw_sans = ilUtil::secureString((string)$xml_node->sans);
-				$raw_tans = ilUtil::secureString((string)$xml_node->tans);
+				$node_name = ilUtil::secureString((string)$xml_node->name);
+
+				$raw_sans = assStackQuestionUtils::_debugText((string)$xml_node->sans);
+				$raw_tans = assStackQuestionUtils::_debugText((string)$xml_node->tans);
 
 				$sans = stack_ast_container::make_from_teacher_source('PRSANS' . $node_name . ':' . $raw_sans, '', new stack_cas_security());
 				$tans = stack_ast_container::make_from_teacher_source('PRTANS' . $node_name . ':' . $raw_tans, '', new stack_cas_security());
@@ -421,7 +415,7 @@ class assStackQuestionMoodleImport
 			$feedback_variables = null;
 			if ((string)$prt->feedbackvariables->text) {
 				try {
-					$feedback_variables = new stack_cas_keyval(ilUtil::secureString((string)$prt->feedbackvariables->text));
+					$feedback_variables = new stack_cas_keyval(assStackQuestionUtils::_debugText((string)$prt->feedbackvariables->text));
 					$feedback_variables = $feedback_variables->get_session();
 				} catch (stack_exception $e) {
 					$this->error_log[] = $this->getQuestion()->getTitle() . ': ' . $e;

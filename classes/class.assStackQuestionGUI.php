@@ -421,7 +421,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$options['sqrtsign'] = ((isset($_POST['options_sqrt_sign']) and $_POST['options_sqrt_sign'] != null) ? (int)trim(ilUtil::secureString($_POST['options_sqrt_sign'])) : '');
 		$options['complexno'] = ((isset($_POST['options_complex_numbers']) and $_POST['options_complex_numbers'] != null) ? trim(ilUtil::secureString($_POST['options_complex_numbers'])) : '');
 		$options['inversetrig'] = ((isset($_POST['options_inverse_trigonometric']) and $_POST['options_inverse_trigonometric'] != null) ? trim(ilUtil::secureString($_POST['options_inverse_trigonometric'])) : '');
-		$options['matrixparens'] = ((isset($_POST['options_matrix_parens']) and $_POST['options_matrix_parens'] != null) ? trim(ilUtil::secureString($_POST['options_matrix_parens'])) : '');
+		$options['matrixparens'] = ((isset($_POST['options_matrix_parens']) and $_POST['options_matrix_parens'] != null) ? $_POST['options_matrix_parens'] : '');
 
 		try {
 			$options = new stack_options($options);
@@ -432,8 +432,8 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 		//Load data sent as options but not part of the session options
-		$this->object->question_variables = ((isset($_POST['options_question_variables']) and $_POST['options_question_variables'] != null) ? trim(ilUtil::secureString($_POST['options_question_variables'], false)) : '');
-		$this->object->question_note = ((isset($_POST['options_question_note']) and $_POST['options_question_note'] != null) ? trim(ilUtil::secureString($_POST['options_question_note'], false)) : '');
+		$this->object->question_variables = ((isset($_POST['options_question_variables']) and $_POST['options_question_variables'] != null) ? assStackQuestionUtils::_debugText($_POST['options_question_variables']) : '');
+		$this->object->question_note = ((isset($_POST['options_question_note']) and $_POST['options_question_note'] != null) ? ilUtil::secureString($_POST['options_question_note']) : '');
 
 		$this->object->specific_feedback = ((isset($_POST['options_specific_feedback']) and $_POST['options_specific_feedback'] != null) ? ilUtil::stripSlashes($_POST['options_specific_feedback'], true, $this->getRTETags()) : '');
 		$this->object->specific_feedback_format = 1;
@@ -511,7 +511,7 @@ class assStackQuestionGUI extends assQuestionGUI
 				//LOAD STORED DATA
 				$prt_from_post_array[$prt_name]['value'] = ((isset($_POST['prt_' . $prt_name . '_value']) and $_POST['prt_' . $prt_name . '_value'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_value'])) : '');
 				$prt_from_post_array[$prt_name]['auto_simplify'] = ((isset($_POST['prt_' . $prt_name . '_simplify']) and $_POST['prt_' . $prt_name . '_simplify'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_simplify'])) : '');
-				$prt_from_post_array[$prt_name]['feedback_variables'] = ((isset($_POST['prt_' . $prt_name . '_feedback_variables']) and $_POST['prt_' . $prt_name . '_feedback_variables'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_feedback_variables'])) : '');
+				$prt_from_post_array[$prt_name]['feedback_variables'] = ((isset($_POST['prt_' . $prt_name . '_feedback_variables']) and $_POST['prt_' . $prt_name . '_feedback_variables'] != null) ? assStackQuestionUtils::_debugText($_POST['prt_' . $prt_name . '_feedback_variables']) : '');
 				$prt_from_post_array[$prt_name]['first_node_name'] = ((isset($_POST['prt_' . $prt_name . '_first_node']) and $_POST['prt_' . $prt_name . '_first_node'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_first_node'])) : '');
 
 				//Look for node info

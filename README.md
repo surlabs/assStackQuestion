@@ -102,6 +102,12 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
+Version 7.0.3 Bugfixing (III) 2022.11.29
+----------------------------------------
+- Solved issue importing variables using the "<" symbol, now are automatically replaced by "< " when importing from Moodle and ILIAS.
+- Matrix Parenthesis option is active again.
+- Check answer type option for inputs is active again.
+
 Version 7.0.2 Bugfixing (II) 2022.11.04
 ----------------------------------------
 - User Solutions and Best solutions in Test Results are now again presented as non editable fields filled in with the user responses and best solutions
