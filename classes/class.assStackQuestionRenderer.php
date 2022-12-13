@@ -383,7 +383,8 @@ class assStackQuestionRenderer
 
 				//Errors & Feedback
 				//Ensure evaluation has been done
-				if (isset($prt_info['feedback'])) {
+				//#35924
+				if (isset($prt_info['feedback']) and is_string($prt_info['feedback'])) {
 
 					$prt_feedback .= assStackQuestionUtils::_getLatex($prt_info['feedback']);
 
@@ -499,7 +500,13 @@ class assStackQuestionRenderer
 
 			$field_name = 'xqcas_' . $question->getId() . '_' . $name . '_solution';
 			//Input Placeholders
-			$question_text = str_replace("[[input:{$name}]]", assStackQuestionUtils::_getLatex($student_solutions['inputs'][$name]['correct_display']), $question_text);
+			//#35924 $student_solutions['inputs'][$name]['correct_display'] being null
+			if (is_string($student_solutions['inputs'][$name]['correct_display'])) {
+				$student_solution_input = $student_solutions['inputs'][$name]['correct_display'];
+			} else {
+				$student_solution_input = "Error Rendering Input, question might be malformed";
+			}
+			$question_text = str_replace("[[input:{$name}]]", assStackQuestionUtils::_getLatex($student_solution_input), $question_text);
 		}
 
 		//Replace Validation placeholders

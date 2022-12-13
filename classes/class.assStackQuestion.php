@@ -1589,7 +1589,15 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 			}
 
 			// Finally, store only those values really needed for later.
-			$this->question_text_instantiated = assStackQuestionUtils::_getLatex($question_text->get_display_castext());
+			//#35924 $question_text->get_display_castext() being null
+			if (is_string($question_text->get_display_castext())) {
+				$question_text_text = $question_text->get_display_castext();
+			} else {
+				$question_text_text = "Error Rendering Text, question might be malformed";
+			}
+
+			$this->question_text_instantiated = assStackQuestionUtils::_getLatex($question_text_text);
+
 			if ($question_text->get_errors()) {
 				$s = stack_string('runtimefielderr', array('field' => stack_string('questiontext'), 'err' => $question_text->get_errors()));
 				$this->runtime_errors[$s] = true;
