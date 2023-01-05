@@ -259,6 +259,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 		return "assStackQuestion";
 	}
 
+	/*Used in Feedback Button on Question List at non started Test*/
+	public function getAnswers()
+	{
+		return array();
+	}
+
 	/**
 	 * CONSTRUCTOR.
 	 * @param string $title

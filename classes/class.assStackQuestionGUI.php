@@ -347,6 +347,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function getSpecificFeedbackOutput($userSolution): string
 	{
+
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
 
 		//Include content Style

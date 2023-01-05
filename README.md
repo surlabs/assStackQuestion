@@ -102,6 +102,11 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
+Version 7.0.5 Bugfixing (IV) 2023.01.05
+----------------------------------------
+- Solved an Error when trying to access the ILIAS feedback tab of a STACK question  from the question List in a non-started Test object
+- Solved a bug where Feedback is not presented to the user in Test Results
+
 Version 7.0.3 Bugfixing (III) 2022.11.29
 ----------------------------------------
 - Solved issue importing variables using the "<" symbol, now are automatically replaced by "< " when importing from Moodle and ILIAS.

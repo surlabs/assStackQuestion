@@ -241,9 +241,18 @@ class assStackQuestionRenderer
 			$question_text = str_replace("[[validation:{$name}]]", '', $question_text);
 		}
 
-		//Hide all feedback placeholders
+		//Show all feedback placeholders
 		foreach ($feedback_placeholders as $prt_name) {
-			$question_text = str_replace("[[feedback:{$prt_name}]]", '', $question_text);
+			$question_text = str_replace("[[feedback:{$prt_name}]]", $student_solutions['prts'][$prt_name]["feedback"], $question_text);
+		}
+
+		//Check for Feedback in specific Feedback section and attach it to the end of the question
+		$specific_feedback = $question->specific_feedback;
+		$feedback_placeholders_specific_feedback = array_unique(stack_utils::extract_placeholders($specific_feedback, 'feedback'));
+		sort($feedback_placeholders_specific_feedback);
+
+		foreach ($feedback_placeholders_specific_feedback as $prt_name) {
+			$question_text .= '</br>'.$student_solutions['prts'][$prt_name]["feedback"];
 		}
 
 		//Validation
@@ -348,6 +357,7 @@ class assStackQuestionRenderer
 	 */
 	public static function _renderFeedbackForTest(assStackQuestion $question, array $user_solution_from_db): string
 	{
+		var_dump($user_solution_from_db);exit;
 		//TST Solutions formatted entries
 		$user_solution_from_db = assStackQuestionUtils::_fromTSTSolutionsToSTACK($user_solution_from_db, $question->getId(), $question->inputs, $question->prts);
 
