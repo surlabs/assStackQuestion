@@ -747,7 +747,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 			$new_inputs = array();
 
-			//load only those inputs `pl appearing in the question text
+			//load only those inputs appearing in the question text
 			foreach (stack_utils::extract_placeholders($this->getQuestion(), 'input') as $name) {
 
 				$input_data = $inputs_from_db_array['inputs'][$name];
