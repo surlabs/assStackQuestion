@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE 
+ * Copyright (c) 2023 Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
 
 // alphanumerical ID of the plugin; never change this
@@ -17,7 +17,7 @@ $ilias_min_version = "7.13";
 $ilias_max_version = "7.999";
  
 // optional, but useful: Add one or more responsible persons and a contact email
-$responsible = "Jesus Copado";
-$responsible_mail = "jesus.copado@fau.de";
+$responsible = "Jesús Copado Mejías";
+$responsible_mail = "jcopado@surlabs.es";
 
 ?>
