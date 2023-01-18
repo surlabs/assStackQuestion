@@ -4,7 +4,6 @@
  * GPLv3, see LICENSE
  */
 
-
 // alphanumerical ID of the plugin; never change this
 $id = "xqcas";
  
