@@ -102,6 +102,10 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
+Version 7.0.5 Bugfixing (IV) 2023.01.27
+----------------------------------------
+- Solved issue in fresh instalation regardiing default server settings
+
 Version 7.0.5 Bugfixing (IV) 2023.01.05
 ----------------------------------------
 - Solved an Error when trying to access the ILIAS feedback tab of a STACK question  from the question List in a non-started Test object

@@ -239,6 +239,7 @@ if (!$db->fetchAssoc($result)) {
 	}
 }
 
+
 //Check if display entries in DB have been created, otherwise create it.
 $query = 'SELECT * FROM xqcas_configuration WHERE group_name = "display"';
 $result = $db->query($query);
