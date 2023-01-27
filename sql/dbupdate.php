@@ -233,11 +233,12 @@ $query = 'SELECT * FROM xqcas_configuration WHERE group_name = "connection"';
 $result = $db->query($query);
 if (!$db->fetchAssoc($result)) {
 	//Default values for connection
-	$connection_default_values = array('platform_type' => 'unix', 'maxima_version' => '5.31.2', 'cas_connection_timeout' => '5', 'cas_result_caching' => 'db', 'maxima_command' => '', 'plot_command' => '', 'cas_debugging' => '0');
+	$connection_default_values = array('platform_type' => 'server', 'maxima_version' => '5.31.2', 'cas_connection_timeout' => '5', 'cas_result_caching' => 'db', 'maxima_command' => '', 'plot_command' => '', 'cas_debugging' => '0');
 	foreach ($connection_default_values as $paremeter_name => $value) {
 		$db->insert("xqcas_configuration", array('parameter_name' => array('text', $paremeter_name), 'value' => array('clob', $value), 'group_name' => array('text', 'connection')));
 	}
 }
+
 
 //Check if display entries in DB have been created, otherwise create it.
 $query = 'SELECT * FROM xqcas_configuration WHERE group_name = "display"';
