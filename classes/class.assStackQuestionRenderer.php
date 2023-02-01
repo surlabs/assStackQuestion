@@ -357,7 +357,6 @@ class assStackQuestionRenderer
 	 */
 	public static function _renderFeedbackForTest(assStackQuestion $question, array $user_solution_from_db): string
 	{
-		var_dump($user_solution_from_db);exit;
 		//TST Solutions formatted entries
 		$user_solution_from_db = assStackQuestionUtils::_fromTSTSolutionsToSTACK($user_solution_from_db, $question->getId(), $question->inputs, $question->prts);
 
