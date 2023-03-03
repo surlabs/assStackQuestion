@@ -157,7 +157,8 @@ class assStackQuestionRenderer
 
 					$prt_state = $evaluation['prts'][$prt_name];
 
-					$prt_feedback .= self::renderPRTFeedback($prt_state);
+                    //Manage LaTeX explicitly
+                    $prt_feedback .= assStackQuestionUtils::_getLatex(self::renderPRTFeedback($prt_state));
 
 				}
 				$question_text = assStackQuestionUtils::_getFeedbackStyledText($question_text, 'feedback_default');
@@ -372,6 +373,7 @@ class assStackQuestionRenderer
 			if (isset($user_solution_from_db['prts'][$prt_name])) {
 
 				$prt_info = $user_solution_from_db['prts'][$prt_name];
+                $prt_info_feedback = $user_solution_from_db['prt_feedback'][$prt_name] ?? '';
 
 				//General PRT Feedback
 				switch ($prt_info['status']) {
@@ -393,13 +395,7 @@ class assStackQuestionRenderer
 				//Errors & Feedback
 				//Ensure evaluation has been done
 				//#35924
-				if (isset($prt_info['feedback']) and is_string($prt_info['feedback'])) {
-
-					$prt_feedback .= assStackQuestionUtils::_getLatex($prt_info['feedback']);
-
-				} else {
-					$prt_feedback = '';
-				}
+                $prt_feedback .= assStackQuestionUtils::_getLatex($prt_info_feedback);
 
 				//Replace Placeholders
 				$text_to_replace = assStackQuestionUtils::_replacePlaceholders($prt_name, $text_to_replace, $prt_feedback);
@@ -600,7 +596,7 @@ class assStackQuestionRenderer
 	 * @param string $mode
 	 * @return string
 	 */
-	protected static function substituteVariablesInFeedback(?stack_potentialresponse_tree_state $prt_state, $feedback, string $format, string $mode): string
+	public static function substituteVariablesInFeedback(?stack_potentialresponse_tree_state $prt_state, $feedback, string $format, string $mode): string
 	{
 		if ($mode == 'preview') {
 			switch ($format) {
@@ -621,7 +617,11 @@ class assStackQuestionRenderer
 					break;
 				default:
 					//By default, add no style
-					$feedback = $prt_state->substitue_variables_in_feedback(implode(' ', $feedback));
+                    if (is_array($feedback)) {
+                        $feedback = $prt_state->substitue_variables_in_feedback(implode(' ', $feedback)) ?? implode(' ', $feedback);
+                    } else {
+                        $feedback = $prt_state->substitue_variables_in_feedback($feedback) ?? $feedback;
+                    }
 					break;
 			}
 		} elseif ($mode == 'test') {
@@ -642,7 +642,12 @@ class assStackQuestionRenderer
 					$feedback = "[[feedback_plot_feedback]]" . $feedback . "[[feedback_plot_feedback_close]]";
 					break;
 				default:
-					//By default, add no style
+                    //By default, add no style
+                    if (is_array($feedback)) {
+                        $feedback = $prt_state->substitue_variables_in_feedback(implode(' ', $feedback)) ?? implode(' ', $feedback);
+                    } else {
+                        $feedback = $prt_state->substitue_variables_in_feedback($feedback) ?? $feedback;
+                    }
 					break;
 			}
 		}
