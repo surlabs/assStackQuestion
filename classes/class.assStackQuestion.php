@@ -1153,6 +1153,17 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
 			//Calculate Points per PRT
 			foreach (array_keys($this->prts) as $prt_name) {
+                //#36863
+                $feedback_entries_array = $evaluation_data['prts'][$prt_name]->get_feedback();
+                $feedback_array = array();
+                foreach ($feedback_entries_array as $feedback_entry){
+                    if(is_a($feedback_entry,'stack_prt_feedback_element')){
+                        $feedback_array[] = $feedback_entry->feedback;
+                    }
+                }
+
+                $rendered_feedback = $evaluation_data['prts'][$prt_name]->substitue_variables_in_feedback(implode(' ', $feedback_array));
+                $evaluation_data['prt_feedback'][$prt_name] = $rendered_feedback;
 
 				//Calculate prt value in points
 				if ($total_weight != 0.0) {

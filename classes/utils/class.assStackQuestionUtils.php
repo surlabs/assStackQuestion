@@ -1245,7 +1245,7 @@ class assStackQuestionUtils
 
 				//PRT feedback
 				if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_feedback') {
-					$parsed_user_response_from_db['prts'][$prt_name]['feedback'] = $solution_entry['value2'];
+					$parsed_user_response_from_db['prt_feedback'][$prt_name] = $solution_entry['value2'];
 				}
 
 				//PRT status

@@ -102,9 +102,16 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
+Version 7.0.6 Bugfixing (V) 2023.03.04
+----------------------------------------
+- Solved #36872 about importing styled feedback from MoodleXML
+- Solved #36578 about no not answered extra options for Radio Inputs
+- Solved #36864 about CASText in Feedback not being properly rendered in Tests.
+- 
+
 Version 7.0.5 Bugfixing (IV) 2023.01.27
 ----------------------------------------
-- Solved issue in fresh instalation regardiing default server settings
+- Solved issue in fresh instalation regarding default server settings
 
 Version 7.0.5 Bugfixing (IV) 2023.01.05
 ----------------------------------------

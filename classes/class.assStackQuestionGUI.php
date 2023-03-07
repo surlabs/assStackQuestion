@@ -305,11 +305,17 @@ class assStackQuestionGUI extends assQuestionGUI
 
 			//Check [] for textareas and equivalence inputs
 			//TODO Really checking? $input_name??
-			if (is_a($input_name, 'stack_textarea_input') or is_a($input_name, 'stack_equiv_input')) {
+			if (is_a($input, 'stack_textarea_input') or is_a($input, 'stack_equiv_input')) {
 				$user_solution[$input_name] = '[' . $user_solution[$input_name] . ']';
 			}
 
-			$response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
+            if (is_a($input, 'stack_dropdown_input') or is_a($input, 'stack_checkbox_input') or is_a($input, 'stack_radio_input')) {
+                if (!$input->notanswered) {
+                    $response[$input_name] = $input->response_to_contents($user_solution);
+                }
+            } else {
+                $response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
+            }
 		}
 
 		$this->object->setUserResponse(assStackQuestionUtils::compute_response($this->object, $response));
