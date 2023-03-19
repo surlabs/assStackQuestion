@@ -240,7 +240,13 @@ class assStackQuestionMoodleImport
 		$options['complexno'] = ilUtil::secureString((string)$question->complexno);
 		$options['inversetrig'] = ilUtil::secureString((string)$question->inversetrig);
 		$options['matrixparens'] = ilUtil::secureString((string)$question->matrixparens);
-		$options['logicsymbol'] = ilUtil::secureString((string)$question->logicsymbol);
+
+        //Logic symbol 0 error
+        if ((string)$question->logicsymbol == '0') {
+            $options['logicsymbol'] = 'lang';
+        } else {
+            $options['logicsymbol'] = ilUtil::secureString((string)$question->logicsymbol);
+        }
 
 		//load options
 		try {
