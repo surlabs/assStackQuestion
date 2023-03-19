@@ -108,7 +108,7 @@ Version 7.0.6 Bugfixing (V) 2023.03.04
 - Solved #36578 about no not answered extra options for Radio Inputs
 - Solved #36864 about CASText in Feedback not being properly rendered in Tests.
 - Solved logic symbol error in MoodleXML import/export
-
+- Solved linux and windows local configuration errors, beware this configuration, as it has not been properly tested by the maintainer.
 Version 7.0.5 Bugfixing (IV) 2023.01.27
 ----------------------------------------
 - Solved issue in fresh instalation regarding default server settings
