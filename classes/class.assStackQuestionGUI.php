@@ -243,10 +243,12 @@ class assStackQuestionGUI extends assQuestionGUI
 		$user_solution = array();
 		//Debug the PreviewSession Data
 		if (is_object($this->getPreviewSession())) {
-            $raw_participants_solution = (array)$this->getPreviewSession()->getParticipantsSolution();
+            $raw_participants_solution = (array) $this->getPreviewSession()->getParticipantsSolution();
             foreach ($raw_participants_solution as $key => $value) {
                 if (version_compare(phpversion(), '8.0.0', '<')) {
-
+                    if (substr($key, 0, 13) !== 'xqcas_solution') {
+                        $user_solution[$key] = $value;
+                    }
                 } else {
                     if (!str_starts_with($key, 'xqcas_solution')) {
                         $user_solution[$key] = $value;
