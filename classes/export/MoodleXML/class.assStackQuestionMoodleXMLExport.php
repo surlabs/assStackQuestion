@@ -154,7 +154,12 @@ class assStackQuestionMoodleXMLExport
 
 			$a_xml_writer->xmlElement("matrixparens", NULL, $options->get_option('matrixparens'));
 
-			$a_xml_writer->xmlElement("logicsymbol", NULL, $options->get_option('logicsymbol'));
+            //Logic symbol 0 error
+            if ((string)$options->get_option('logicsymbol') == '0') {
+                $a_xml_writer->xmlElement("logicsymbol", NULL, 'lang');
+            } else {
+                $a_xml_writer->xmlElement("logicsymbol", NULL, $options->get_option('logicsymbol'));
+            }
 
 			//Inputs
 			if (sizeof($question->inputs)) {

@@ -409,7 +409,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		//IF MANUAL SELECTION ACTIVATED UNCOMMENT THIS
 		$platform_type = new ilSelectInputGUI($this->plugin_object->txt('platform_type'), 'platform_type');
-		$platform_type->setOptions(array("server" => $this->plugin_object->txt('server')));
+        $platform_type->setOptions(array("server" => $this->plugin_object->txt('server'), "win" => $this->plugin_object->txt('windows'), "linux" => $this->plugin_object->txt('unix')));
 		$platform_type->setInfo($this->plugin_object->txt('platform_type_info'));
 		$platform_type->setValue($connection_data['platform_type']);
 		$form->addItem($platform_type);
