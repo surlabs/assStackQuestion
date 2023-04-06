@@ -5,7 +5,6 @@
  * @author Jesús Copado Mejías <stack@surlabs.es>
  * @version $Id: 7.1$
  */
-/*
 // fim: [debug] optionally set error before initialisation
 error_reporting(E_ALL);
 ini_set("display_errors", "on");
@@ -24,7 +23,6 @@ require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/as
 header('Content-type: application/json; charset=utf-8');
 echo json_encode(checkUserResponse($_REQUEST['question_id'], $_REQUEST['input_name'], $_REQUEST['input_value']));
 exit;
-*/
 /**
  * Gets the students answer and send it to maxima in order to get the validation.
  * @param $question_id

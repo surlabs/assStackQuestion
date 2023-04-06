@@ -1,13 +1,18 @@
 
 STACK FOR ILIAS7
 ================================
+Copyright 2023 Laboratorio de Soluciones del Sur, Sociedad Limitada
 
-Copyright 2022 Institut fuer Lern-Innovation,Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3 or later, see LICENSE
+This plugin version has been developed by Jesús Copado and the SURLABS's Team
+
+Copyright 2014 Institut fuer Lern-Innovation,Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3 or later, see LICENSE
+
+This plugin was developed by Jesús Copado with Fred Neumann's support at the University of Erlangen between 2014 and 2022
+
+Copyright 2012 University of Birmingham
 
 Includes a modified version of the stack folder of the Moodle Plugin STACK version 4.3.9
 https://github.com/maths/moodle-qtype_stack/ created by Chris Sangwin.
-
-Copyright 2012 University of Birmingham
 licensed under GPLv3 or later, see classes/stack/COPYING.txt
 http://stack.bham.ac.uk
 
@@ -102,6 +107,14 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
+Version 7.1.0 Installation & Configuration improvements
+----------------------------------------
+In preparation to the ILIAS8 version, this plugin version solves all composer / install warnings & errors as the whole stack core classes has been adapted to ILIAS needs.
+
+**It solves also, the following bug reports**
+- 
+
+
 Version 7.0.6 Bugfixing (V) 2023.03.04
 ----------------------------------------
 - Solved #36872 about importing styled feedback from MoodleXML
@@ -109,7 +122,8 @@ Version 7.0.6 Bugfixing (V) 2023.03.04
 - Solved #36864 about CASText in Feedback not being properly rendered in Tests.
 - Solved logic symbol error in MoodleXML import/export
 - Solved linux and windows local configuration errors, beware this configuration, as it has not been properly tested by the maintainer.
-Version 7.0.5 Bugfixing (IV) 2023.01.27
+
+- Version 7.0.5 Bugfixing (IV) 2023.01.27
 ----------------------------------------
 - Solved issue in fresh instalation regarding default server settings
 

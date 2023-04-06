@@ -50,7 +50,6 @@ class assStackQuestionScoring
 
 		//Get max weight of the PRT
 		foreach ($this->getPotentialresponseTrees() as $prt_name => $prt) {
-            var_dump($prt);exit;
 			$max_weight += $prt->get_value();
 		}
 

@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
 
 // alphanumerical ID of the plugin; never change this
@@ -9,7 +9,7 @@ $id = "xqcas";
  
 // code version; must be changed for all code changes
 
-$version = "7.0.6";
+$version = "7.1.0";
  
 // ilias min and max version; must always reflect the versions that should
 // run with the plugin
