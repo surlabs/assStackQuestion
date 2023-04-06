@@ -1988,7 +1988,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $prt = $this->prts[$index];
             $prt_input = array();
             foreach ($this->getCached('required')[$prt->get_name()] as $name) {
+
                 $state = $this->getInputState($name, $response);
+
                 $input_states[$name] = $state;
                 if (stack_input::SCORE == $state->status || ($accept_valid && stack_input::VALID == $state->status)) {
                     $val = $state->contentsmodified;

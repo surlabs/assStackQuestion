@@ -261,8 +261,8 @@ class stack_matrix_input extends stack_input {
         }
         // Build the html table to contain these values.
         $xhtml = '<div class="' . $matrixbrackets . '"><table class="matrixtable" id="' . $fieldname .
-                '_container" style="display:inline; vertical-align: middle;" ' .
-                'cellpadding="1" cellspacing="0"><tbody>';
+            '_container" style="display:inline; vertical-align: middle;" ' .
+            'cellpadding="1" cellspacing="0"><tbody>';
         for ($i = 0; $i < $this->height; $i++) {
             $xhtml .= '<tr>';
             if ($i == 0) {
@@ -282,9 +282,9 @@ class stack_matrix_input extends stack_input {
                     $val = '';
                 }
                 $name = $fieldname.'_sub_'.$i.'_'.$j;
-				//FAU id aso
+                //FAU id aso
                 $xhtml .= '<td><input type="text" name="'.$name.'"id="'.$name.'" value="'.$val.'" size="'.
-                        $this->parameters['boxWidth'].'"'.$attr.'></td>';
+                    $this->parameters['boxWidth'].'"'.$attr.'></td>';
             }
 
             if ($i == 0) {
@@ -458,35 +458,35 @@ class stack_matrix_input extends stack_input {
         return $out;
     }
 
-	/**
-	 * @return mixed
-	 */
-	public function getWidth()
-	{
-		return $this->width;
-	}
+    /**
+     * @return mixed
+     */
+    public function getWidth()
+    {
+        return $this->width;
+    }
 
-	/**
-	 * @param mixed $width
-	 */
-	public function setWidth($width): void
-	{
-		$this->width = $width;
-	}
+    /**
+     * @param mixed $width
+     */
+    public function setWidth($width): void
+    {
+        $this->width = $width;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getHeight()
-	{
-		return $this->height;
-	}
+    /**
+     * @return mixed
+     */
+    public function getHeight()
+    {
+        return $this->height;
+    }
 
-	/**
-	 * @param mixed $height
-	 */
-	public function setHeight($height): void
-	{
-		$this->height = $height;
-	}
+    /**
+     * @param mixed $height
+     */
+    public function setHeight($height): void
+    {
+        $this->height = $height;
+    }
 }

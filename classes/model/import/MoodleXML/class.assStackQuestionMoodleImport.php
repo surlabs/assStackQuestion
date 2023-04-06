@@ -522,7 +522,7 @@ class assStackQuestionMoodleImport
 
 			$temp = ilUtil::ilTempnam();
 			file_put_contents($temp, base64_decode($src));
-			$media_object = ilObjMediaObject::_saveTempFileAsMediaObject($name, $temp, false);
+			$media_object = ilObjMediaObject::_saveTempFileAsMediaObject($name, $temp, true);
 			@unlink($temp);
 
 			$this->media_objects[$media_object->getId()] = $media_object;

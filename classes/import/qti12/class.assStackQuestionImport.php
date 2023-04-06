@@ -94,7 +94,7 @@ class assStackQuestionImport extends assQuestionImport
 
 				$GLOBALS['ilLog']->write(__METHOD__ . ': import mob from dir: ' . $importfile);
 
-				$media_object = ilObjMediaObject::_saveTempFileAsMediaObject(basename($importfile), $importfile, FALSE);
+				$media_object = ilObjMediaObject::_saveTempFileAsMediaObject(basename($importfile), $importfile, true);
 				ilObjMediaObject::_saveUsage($media_object->getId(), "qpl:html", $this->object->getId());
 
 				$question_text = str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $question_text);

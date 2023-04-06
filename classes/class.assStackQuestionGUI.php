@@ -98,10 +98,6 @@ class assStackQuestionGUI extends assQuestionGUI
 		//Get user solution from DB
 		if (empty($user_solution_from_db = $this->object->getTestOutputSolutions($active_id, $pass))) {
 
-			//Ensure evaluation has been done
-			if (empty($this->object->getEvaluation())) {
-				$this->object->evaluateQuestion(array_keys($this->object->inputs));
-			}
 
 			//No user Solution
 			//Render question from scratch
@@ -136,26 +132,30 @@ class assStackQuestionGUI extends assQuestionGUI
 		//Second adaptation of the user solution
 		$response = array();
 		foreach ($this->object->inputs as $input_name => $input) {
-			//Check [] for textareas and equivalence inputs
-			if (is_a($input_name, 'stack_textarea_input') or is_a($input_name, 'stack_equiv_input')) {
-				$user_solution[$input_name] = '[' . $user_solution[$input_name] . ']';
-			}
+            //Check [] for textareas and equivalence inputs
+            if (is_a($input_name, 'stack_textarea_input') or is_a($input_name, 'stack_equiv_input')) {
+                $user_solution[$input_name] = '[' . $user_solution[$input_name] . ']';
+            }
 
-			//Do not send to maxima Matrix
-			if (!is_a($input, 'stack_matrix_input')) {
-				$response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
-			} else {
-				$response[$input_name] = $user_solution[$input_name];
-			}
-		}
+            //Do not send to maxima Matrix
+            if (is_a($input, 'stack_matrix_input')) {
+                $response[$input_name] = $user_solution[$input_name];
+                $computed_response = assStackQuestionUtils::compute_response($this->object, $response);
+                unset($computed_response[$input_name . '_val']);
+                $this->object->setUserResponse($computed_response);
+            } else {
+                $response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
+                $this->object->setUserResponse(assStackQuestionUtils::compute_response($this->object, $response));
+            }
 
-		//Set the user response
-		$this->object->setUserResponse(assStackQuestionUtils::compute_response($this->object, $response));
+            //Ensure evaluation has been done
+            if (empty($this->object->getEvaluation())) {
+                //var_Dump($user_solution, $this->object->getUserResponse());exit;
+                $this->object->evaluateQuestion($this->object->getUserResponse());
+            }
+        }
 
-		//Ensure evaluation has been done
-		if (empty($this->object->getEvaluation())) {
-			$this->object->evaluateQuestion($this->object->getUserResponse());
-		}
+
 
 		//Render Question
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
