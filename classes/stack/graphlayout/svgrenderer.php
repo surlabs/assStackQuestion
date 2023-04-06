@@ -24,8 +24,6 @@
  */
 
 
-defined('MOODLE_INTERNAL') || die();
-
 
 /**
  * Displays a {@link stack_abstract_graph} as SVG.

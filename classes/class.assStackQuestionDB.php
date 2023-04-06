@@ -1,15 +1,15 @@
 <?php
 /**
- * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
 
 /**
  * STACK Question DB Manager Class
  * All DB Stuff is placed here
  *
- * @author Jesus Copado <jesus.copado@fau.de>
- * @version $Id: 7.0$
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
  *
  */
 class assStackQuestionDB
@@ -574,7 +574,7 @@ class assStackQuestionDB
 						"check_answer_type" => array("integer", $input->get_parameter('sameType') !== null ? $input->get_parameter('sameType') : ''),
 						"must_verify" => array("integer", $input->get_parameter('mustVerify') !== null ? $input->get_parameter('mustVerify') : ''),
 						"show_validation" => array("integer", $input->get_parameter('showValidation') !== null ? $input->get_parameter('showValidation') : ''),
-						"options" => array("clob", assStackQuestionUtils::_serializeExtraOptions($input->get_parameter('options')) !== null ? assStackQuestionUtils::_serializeExtraOptions($input->get_parameter('options')) : ''),
+						"options" => array("clob", assStackQuestionUtils::_serializeExtraOptions($input->get_extra_options()) !== null ? assStackQuestionUtils::_serializeExtraOptions($input->get_extra_options()) : ''),
 					)
 				);
 			}
@@ -992,7 +992,7 @@ class assStackQuestionDB
 			"check_answer_type" => array("integer", $input->get_parameter('sameType') !== null ? $input->get_parameter('sameType') : ''),
 			"must_verify" => array("integer", $input->get_parameter('mustVerify') !== null ? $input->get_parameter('mustVerify') : ''),
 			"show_validation" => array("integer", $input->get_parameter('showValidation') !== null ? $input->get_parameter('showValidation') : ''),
-			"options" => array("clob", assStackQuestionUtils::_serializeExtraOptions($input->get_parameter('options')) !== null ? assStackQuestionUtils::_serializeExtraOptions($input->get_parameter('options')) : ''),
+			"options" => array("clob", assStackQuestionUtils::_serializeExtraOptions($input->get_extra_options()) !== null ? assStackQuestionUtils::_serializeExtraOptions($input->get_extra_options()) : ''),
 		));
 
 		return true;
@@ -1375,9 +1375,9 @@ class assStackQuestionDB
 
 			//value1 = xqcas_input_*_feedback, $value2 = feedback given by CAS
 			$feedback = '';
-            if (isset($question->getEvaluation()['prt_feedback'][$prt_name])) {
-                $feedback = $question->getEvaluation()['prt_feedback'][$prt_name];
-            }
+			foreach ($prt->get_feedback() as $feedback_element) {
+				$feedback .= $feedback_element->feedback . ' ';
+			}
 			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_feedback', $feedback);
 			$entered_values++;
 

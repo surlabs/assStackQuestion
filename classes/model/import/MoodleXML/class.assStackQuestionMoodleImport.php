@@ -1,14 +1,14 @@
 <?php
 /**
- * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
 
 /**
  * STACK Question Import from MoodleXML
  *
- * @author Jesus Copado <jesus.copado@fau.de>
- * @version $Id: 7.0$
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
  *
  */
 require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
@@ -167,7 +167,7 @@ class assStackQuestionMoodleImport
 		$this->getQuestion()->setTitle(ilUtil::secureString($question_title));
 		$this->getQuestion()->setPoints(ilUtil::secureString($points));
 		//If we do secure strings, html is lost
-		$this->getQuestion()->setQuestion(ilUtil::prepareTextareaOutput($question_text, true));
+		$this->getQuestion()->setQuestion($question_text);
 		$this->getQuestion()->setLifecycle(ilAssQuestionLifecycle::getDraftInstance());
 
 		//Save current values, to set the Id properly.
@@ -188,14 +188,14 @@ class assStackQuestionMoodleImport
 				$mapping = $this->getMediaObjectsFromXML($question->specificfeedback->file);
 				$specific_feedback = $this->replaceMediaObjectReferences($specific_feedback, $mapping);
 			}
-			$this->getQuestion()->specific_feedback = ilUtil::prepareTextareaOutput($specific_feedback, true);
+			$this->getQuestion()->specific_feedback = ilUtil::secureString($specific_feedback);
 
 			$this->getQuestion()->specific_feedback_format = 1;
 		}
 
 		//question note
 		if (isset($question->questionnote->text)) {
-			$this->getQuestion()->question_note = ilUtil::prepareTextareaOutput((string)$question->questionnote->text, true);
+			$this->getQuestion()->question_note = ilUtil::secureString((string)$question->questionnote->text);
 		}
 
 		//prt correct feedback
@@ -204,7 +204,7 @@ class assStackQuestionMoodleImport
 			$mapping = $this->getMediaObjectsFromXML($question->prtcorrect->file);
 			$prt_correct = $this->replaceMediaObjectReferences($prt_correct, $mapping);
 		}
-		$this->getQuestion()->prt_correct = ilUtil::prepareTextareaOutput($prt_correct, true);
+		$this->getQuestion()->prt_correct = ilUtil::secureString($prt_correct);
 
 		$this->getQuestion()->prt_correct_format = 1;
 
@@ -214,7 +214,7 @@ class assStackQuestionMoodleImport
 			$mapping = $this->getMediaObjectsFromXML($question->prtpartiallycorrect->file);
 			$prt_partially_correct = $this->replaceMediaObjectReferences($prt_partially_correct, $mapping);
 		}
-		$this->getQuestion()->prt_partially_correct = ilUtil::prepareTextareaOutput($prt_partially_correct, true);
+		$this->getQuestion()->prt_partially_correct = ilUtil::secureString($prt_partially_correct);
 
 		$this->getQuestion()->prt_partially_correct_format = 1;
 
@@ -224,7 +224,7 @@ class assStackQuestionMoodleImport
 			$mapping = $this->getMediaObjectsFromXML($question->prtincorrect->file);
 			$prt_incorrect = $this->replaceMediaObjectReferences($prt_incorrect, $mapping);
 		}
-		$this->getQuestion()->prt_incorrect = ilUtil::prepareTextareaOutput($prt_incorrect, true);
+		$this->getQuestion()->prt_incorrect = ilUtil::secureString($prt_incorrect);
 		$this->getQuestion()->prt_incorrect_format = 1;
 
 		//variants selection seeds
@@ -240,13 +240,7 @@ class assStackQuestionMoodleImport
 		$options['complexno'] = ilUtil::secureString((string)$question->complexno);
 		$options['inversetrig'] = ilUtil::secureString((string)$question->inversetrig);
 		$options['matrixparens'] = ilUtil::secureString((string)$question->matrixparens);
-
-        //Logic symbol 0 error
-        if ((string)$question->logicsymbol == '0') {
-            $options['logicsymbol'] = 'lang';
-        } else {
-            $options['logicsymbol'] = ilUtil::secureString((string)$question->logicsymbol);
-        }
+		$options['logicsymbol'] = ilUtil::secureString((string)$question->logicsymbol);
 
 		//load options
 		try {
@@ -402,8 +396,8 @@ class assStackQuestionMoodleImport
 						$false_answer_note = $xml_node->falseanswernote;
 					}
 
-					$node->add_branch(0, ilUtil::secureString((string)$xml_node->falsescoremode), ilUtil::secureString((string)$xml_node->falsescore), $false_penalty, ilUtil::secureString((string)$false_next_node), ilUtil::prepareTextareaOutput($false_feedback, true), 1, ilUtil::secureString((string)$false_answer_note));
-					$node->add_branch(1, ilUtil::secureString((string)$xml_node->truescoremode), ilUtil::secureString((string)$xml_node->truescore), $true_penalty, ilUtil::secureString((string)$true_next_node), ilUtil::prepareTextareaOutput($true_feedback, true), 1, ilUtil::secureString((string)$true_answer_note));
+					$node->add_branch(0, ilUtil::secureString((string)$xml_node->falsescoremode), ilUtil::secureString((string)$xml_node->falsescore), $false_penalty, ilUtil::secureString((string)$false_next_node), ilUtil::secureString($false_feedback), 1, ilUtil::secureString((string)$false_answer_note));
+					$node->add_branch(1, ilUtil::secureString((string)$xml_node->truescoremode), ilUtil::secureString((string)$xml_node->truescore), $true_penalty, ilUtil::secureString((string)$true_next_node), ilUtil::secureString($true_feedback), 1, ilUtil::secureString((string)$true_answer_note));
 
 					$nodes[$node_name] = $node;
 
@@ -528,7 +522,7 @@ class assStackQuestionMoodleImport
 
 			$temp = ilUtil::ilTempnam();
 			file_put_contents($temp, base64_decode($src));
-			$media_object = ilObjMediaObject::_saveTempFileAsMediaObject($name, $temp, true);
+			$media_object = ilObjMediaObject::_saveTempFileAsMediaObject($name, $temp, false);
 			@unlink($temp);
 
 			$this->media_objects[$media_object->getId()] = $media_object;

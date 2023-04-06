@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * A basic text-field input.
@@ -23,8 +22,8 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class stack_matrix_input extends stack_input {
-    protected $width;
-    protected $height;
+    public $width;
+    public $height;
 
     protected $extraoptions = array(
         'nounits' => false,

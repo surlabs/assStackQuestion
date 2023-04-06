@@ -1,16 +1,15 @@
 <?php
-
 /**
- * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
 
 
 /**
  * STACK Question GUI
  *
- * @author Jesus Copado <jesus.copado@fau.de>
- * @version    $Id: 6.9$$
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
  * @ingroup    ModulesTestQuestionPool
  * @ilCtrl_isCalledBy assStackQuestionGUI: ilObjQuestionPoolGUI, ilObjTestGUI, ilQuestionEditGUI, ilTestExpressPageObjectGUI
  * @ilCtrl_Calls assStackQuestionGUI: ilFormPropertyDispatchGUI
@@ -49,33 +48,33 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function __construct($id = -1)
 	{
-		parent::__construct();
+        parent::__construct();
 
-		//Initialize plugin object
-		require_once './Services/Component/classes/class.ilPlugin.php';
-		try {
-			$plugin = ilPlugin::getPluginObject(IL_COMP_MODULE, 'TestQuestionPool', 'qst', 'assStackQuestion');
-			if (!is_a($plugin, 'ilassStackQuestionPlugin')) {
-				ilUtil::sendFailure('Not ilassStackQuestionPlugin object', true);
-			} else {
-				$this->setPlugin($plugin);
-			}
-		} catch (ilPluginException $e) {
-			ilUtil::sendFailure($e, true);
-		}
+        //Initialize plugin object
+        require_once './Services/Component/classes/class.ilPlugin.php';
+        try {
+            $plugin = ilPlugin::getPluginObject(IL_COMP_MODULE, 'TestQuestionPool', 'qst', 'assStackQuestion');
+            if (!is_a($plugin, 'ilassStackQuestionPlugin')) {
+                ilUtil::sendFailure('Not ilassStackQuestionPlugin object', true);
+            } else {
+                $this->setPlugin($plugin);
+            }
+        } catch (ilPluginException $e) {
+            ilUtil::sendFailure($e, true);
+        }
 
-		//Initialize and loads the Stack question from DB
-		$this->object = new assStackQuestion();
+        //Initialize and loads the Stack question from DB
+        $this->object = new assStackQuestion();
 
-		if ($id >= 0) {
-			try {
-				$this->object->loadFromDb($id);
-			} catch (stack_exception $e) {
-				ilUtil::sendFailure($e, true);
-			}
-		}
-		//Initialize some STACK required parameters
-		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
+        if ($id >= 0) {
+            try {
+                $this->object->loadFromDb($id);
+            } catch (stack_exception $e) {
+                ilUtil::sendFailure($e, true);
+            }
+        }
+        //Initialize some STACK required parameters
+        include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
 	}
 
 	/**
@@ -244,12 +243,16 @@ class assStackQuestionGUI extends assQuestionGUI
 		$user_solution = array();
 		//Debug the PreviewSession Data
 		if (is_object($this->getPreviewSession())) {
-			$raw_participants_solution = (array)$this->getPreviewSession()->getParticipantsSolution();
-			foreach ($raw_participants_solution as $key => $value) {
-				if (!str_starts_with($key, 'xqcas_solution')) {
-					$user_solution[$key] = $value;
-				}
-			}
+            $raw_participants_solution = (array)$this->getPreviewSession()->getParticipantsSolution();
+            foreach ($raw_participants_solution as $key => $value) {
+                if (version_compare(phpversion(), '8.0.0', '<')) {
+
+                } else {
+                    if (!str_starts_with($key, 'xqcas_solution')) {
+                        $user_solution[$key] = $value;
+                    }
+                }
+            }
 		}
 		//Seed management
 		if (isset($_REQUEST['fixed_seed'])) {
@@ -305,17 +308,11 @@ class assStackQuestionGUI extends assQuestionGUI
 
 			//Check [] for textareas and equivalence inputs
 			//TODO Really checking? $input_name??
-			if (is_a($input, 'stack_textarea_input') or is_a($input, 'stack_equiv_input')) {
+			if (is_a($input_name, 'stack_textarea_input') or is_a($input_name, 'stack_equiv_input')) {
 				$user_solution[$input_name] = '[' . $user_solution[$input_name] . ']';
 			}
 
-            if (is_a($input, 'stack_dropdown_input') or is_a($input, 'stack_checkbox_input') or is_a($input, 'stack_radio_input')) {
-                if (!$input->notanswered) {
-                    $response[$input_name] = $input->response_to_contents($user_solution);
-                }
-            } else {
-                $response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
-            }
+			$response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
 		}
 
 		$this->object->setUserResponse(assStackQuestionUtils::compute_response($this->object, $response));
@@ -627,7 +624,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 *
 	 * @param ilPropertyFormGUI $form
 	 */
-	public function populateTaxonomyFormSection(ilPropertyFormGUI $form)
+	public function populateTaxonomyFormSection(ilPropertyFormGUI $form):void
 	{
 		parent::populateTaxonomyFormSection($form);
 	}
@@ -926,7 +923,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 * Sets the ILIAS tabs for this question type
 	 * called from ilObjTestGUI and ilObjQuestionPoolGUI
 	 */
-	public function setQuestionTabs()
+	public function setQuestionTabs():void
 	{
 		global $DIC, $rbacsystem;
 
@@ -1332,7 +1329,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Create GUI object
 		$this->plugin->includeClass('GUI/question_authoring/class.assStackQuestionScoringGUI.php');
-		$scoring_gui = new assStackQuestionScoringGUI($this->plugin, $this->object->getId(), $this->object->getPoints());
+		$scoring_gui = new assStackQuestionScoringGUI($this->plugin, $this->object, $this->object->getPoints());
 
 		//Add CSS
 		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_scoring_management.css'));

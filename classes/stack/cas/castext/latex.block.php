@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
 
 // Latex blocks correspond to {@content@} -syntax and ouput the content evaluated in CAS in LaTeX-form.
 // The node referenced by this block is expected to be an instance of DOMText.

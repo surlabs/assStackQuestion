@@ -1,14 +1,14 @@
 <?php
 /**
- * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
 
 /**
  * STACK Question IMPORT OF QUESTIONS from an ILIAS file
  *
- * @author Jesus Copado <jesus.copado@ili.fau.de>
- * @version    $Id: 7.0$
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
  * @ingroup    ModulesTestQuestionPool
  *
  */
@@ -33,7 +33,7 @@ class assStackQuestionImport extends assQuestionImport
 	 * @param array $import_mapping An array containing references to included ILIAS objects
 	 * @access public
 	 */
-	public function fromXML(&$item, $questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping)
+    public function fromXML(&$item, $questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping)
 	{
 
 		global $DIC;
@@ -94,7 +94,7 @@ class assStackQuestionImport extends assQuestionImport
 
 				$GLOBALS['ilLog']->write(__METHOD__ . ': import mob from dir: ' . $importfile);
 
-				$media_object =& ilObjMediaObject::_saveTempFileAsMediaObject(basename($importfile), $importfile, FALSE);
+				$media_object = ilObjMediaObject::_saveTempFileAsMediaObject(basename($importfile), $importfile, FALSE);
 				ilObjMediaObject::_saveUsage($media_object->getId(), "qpl:html", $this->object->getId());
 
 				$question_text = str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $question_text);
@@ -148,5 +148,7 @@ class assStackQuestionImport extends assQuestionImport
 		} else {
 			$import_mapping[$item->getIdent()] = array("pool" => $this->object->getId(), "test" => 0);
 		}
+
+        return $import_mapping;
 	}
 }

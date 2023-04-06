@@ -1,16 +1,16 @@
 <?php
 /**
- * Copyright (c) 2017 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
+
 include_once('./Services/Table/classes/class.ilTable2GUI.php');
 
 /**
  * STACK Question Unit tests Table GUI
  *
- * @author Fred Neumann <fred.neumann@ili.fau.de>
- * @author Jesus Copado <jesus.copado@ili.fau.de>
- * @version $Id: 2.4$
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
  * @ingroup    ModulesTestQuestionPool
  *
  */
@@ -70,7 +70,7 @@ class assStackQuestionTestTableGUI extends ilTable2GUI
 	/**
 	 * Get selectable columns
 	 */
-	public function getSelectableColumns()
+	public function getSelectableColumns():array
 	{
 		return array();
 	}
