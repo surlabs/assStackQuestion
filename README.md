@@ -111,8 +111,8 @@ Version 7.1.0 Installation & Configuration improvements
 ----------------------------------------
 In preparation to the ILIAS8 version, this plugin version solves all composer / install warnings & errors as the whole stack core classes has been adapted to ILIAS needs.
 
-**It solves also, the following bug reports**
-- 
+**It solves also, the following errors**
+- logic symbol error in MoodleXML format when importing questions in Moodle
 
 
 Version 7.0.6 Bugfixing (V) 2023.03.04

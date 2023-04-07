@@ -155,7 +155,7 @@ class assStackQuestionMoodleXMLExport
 
 			$a_xml_writer->xmlElement("matrixparens", NULL, $options->get_option('matrixparens'));
 
-			$a_xml_writer->xmlElement("logicsymbol", NULL, $options->get_option('logicsymbol'));
+			$a_xml_writer->xmlElement("logicsymbol", NULL, 'lang');
 
 			//Inputs
 			if (sizeof($question->inputs)) {
