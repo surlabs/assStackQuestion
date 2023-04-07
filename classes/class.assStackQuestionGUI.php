@@ -111,53 +111,39 @@ class assStackQuestionGUI extends assQuestionGUI
 			}
 
 		} else {
+            //Use user solution from DB
+            $user_solution = array();
+            //Get user solution from DB
+            foreach ($this->object->inputs as $input_name => $input) {
 
-			//Use user solution from DB
-			$user_solution = array();
-			//Get user solution from DB
-			foreach ($this->object->inputs as $input_name => $input) {
+                //first adaptation of the user solution only if user solution is present
+                $user_solution[$input_name] = $user_solution_from_db['inputs'][$input_name]['value'];
 
-				//first adaptation of the user solution only if user solution is present
-				$user_solution[$input_name] = $user_solution_from_db['inputs'][$input_name]['value'];
+                if (is_a($input, 'stack_textarea_input')
+                    or is_a($input, 'stack_equiv_input')
+                    or is_a($input, 'stack_matrix_input')) {
 
-				//TEXTAREAS EQUIV, User response from DB tuning
-				if (is_a($input, 'stack_textarea_input') or is_a($input, 'stack_equiv_input')) {
-					$user_solution[$input_name] = substr($user_solution[$input_name], 1, -1);
-					$user_solution[$input_name] = explode(',', $user_solution[$input_name]);
-					$user_solution[$input_name] = implode("\n", $user_solution[$input_name]);
-				}
-			}
-		}
+                    $response = $input->maxima_to_response_array($user_solution[$input_name]);
 
-		//Second adaptation of the user solution
-		$response = array();
-		foreach ($this->object->inputs as $input_name => $input) {
-            //Check [] for textareas and equivalence inputs
-            if (is_a($input_name, 'stack_textarea_input') or is_a($input_name, 'stack_equiv_input')) {
-                $user_solution[$input_name] = '[' . $user_solution[$input_name] . ']';
-            }
-
-            //Do not send to maxima Matrix
-            if (is_a($input, 'stack_matrix_input')) {
-                $response[$input_name] = $user_solution[$input_name];
-                $computed_response = assStackQuestionUtils::compute_response($this->object, $response);
-                unset($computed_response[$input_name . '_val']);
-                $this->object->setUserResponse($computed_response);
-            } else {
-                $response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
-                $this->object->setUserResponse(assStackQuestionUtils::compute_response($this->object, $response));
-            }
-
-            //Ensure evaluation has been done
-            if (empty($this->object->getEvaluation())) {
-                //var_Dump($user_solution, $this->object->getUserResponse());exit;
-                $this->object->evaluateQuestion($this->object->getUserResponse());
+                    //clean solution
+                    foreach (array_keys($response) as $array_key) {
+                        if (strpos($array_key, '_val')) {
+                            unset($response[$array_key]);
+                        }
+                    }
+                    $user_solution = $response;
+                }
             }
         }
 
+        $this->object->setUserResponse($user_solution);
 
+        //Ensure evaluation has been done
+        if (empty($this->object->getEvaluation())) {
+            $this->object->evaluateQuestion($this->object->getUserResponse());
+        }
 
-		//Render Question
+        //Render Question
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
 		try {
 			//$question_output = assStackQuestionRenderer::_renderQuestionTest($this->object, $active_id, $pass, $user_post_solutions, $show_specific_inline_feedback, $is_question_postponed);
@@ -308,16 +294,24 @@ class assStackQuestionGUI extends assQuestionGUI
 		$response = array();
 		foreach ($this->object->inputs as $input_name => $input) {
 
-			//Check [] for textareas and equivalence inputs
-			//TODO Really checking? $input_name??
-			if (is_a($input_name, 'stack_textarea_input') or is_a($input_name, 'stack_equiv_input')) {
-				$user_solution[$input_name] = '[' . $user_solution[$input_name] . ']';
-			}
+            //Do not send matrix to maxima
+            if (is_a($input, 'stack_matrix_input')
+                or is_a($input, 'stack_textarea_input')
+                or is_a($input, 'stack_equiv_input')) {
+                //clean solution
+                foreach (array_keys($user_solution) as $array_key){
+                    if (strpos($array_key, '_solution_')) {
+                        unset($user_solution[$array_key]);
+                    }
+                }
+                $this->object->setUserResponse($user_solution);
+            } else {
+                $response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
+                $this->object->setUserResponse(assStackQuestionUtils::compute_response($this->object, $response));
+            }
 
-			$response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
-		}
+        }
 
-		$this->object->setUserResponse(assStackQuestionUtils::compute_response($this->object, $response));
 
 		//Ensure evaluation has been done
 		if (empty($this->object->getEvaluation())) {

@@ -48,7 +48,7 @@ class stack_equiv_input extends stack_input {
         // Sets the value of the assume_real variable, which affects how we deal with complex numbers.
         'assume_real' => false,
         // Sets the value of the stack_calculus variable, which affects how we deal with calulus in arguments.
-        'calculus' => false
+        'calculus' => false,
     );
 
     public function render(stack_input_state $state, $fieldname, $readonly, $tavalue) {
@@ -68,12 +68,7 @@ class stack_equiv_input extends stack_input {
             }
             // Put the first line of the value of the teacher's answer in the input.
             if (trim($this->parameters['syntaxHint']) == 'firstline') {
-                $values = stack_utils::list_to_array($tavalue, false);
-                if (array_key_exists(0, $values) && !is_null($values[0])) {
-                    $cs = stack_ast_container::make_from_teacher_source($values[0]);
-                    $cs->get_valid();
-                    $current = $cs->get_inputform();
-                }
+                $current = '';
             }
             // Remove % characters, e.g. %pi should be printed just as "pi".
             $current = str_replace('%', '', $current);
@@ -116,9 +111,9 @@ class stack_equiv_input extends stack_input {
     /**
      * Transforms the student's response input into an array.
      * Most return the same as went in.
-     * ILI-FAU
+     *
      * @param array|string $in
-     * @return string
+     * @return array
      */
     public function response_to_contents($response) {
         $contents = array();
@@ -138,9 +133,19 @@ class stack_equiv_input extends stack_input {
 
     protected function caslines_to_answer($caslines, $secrules = false) {
         $vals = array();
+        // We don't use full "inputform" here as we need to keep stacklet and stackeq as is.
+        $params = array('checkinggroup' => true,
+            'qmchar' => false,
+            'pmchar' => 1,
+            'nosemicolon' => true,
+            'keyless' => true,
+            'dealias' => false, // This is needed to stop pi->%pi etc.
+            'nounify' => 1,
+            'nontuples' => false
+        );
         foreach ($caslines as $line) {
             if ($line->get_valid()) {
-                $vals[] = $line->get_evaluationform();
+                $vals[] = $line->ast_to_string(null, $params);
             } else {
                 // This is an empty place holder for an invalid expression.
                 $vals[] = 'EMPTYCHAR';
@@ -244,7 +249,7 @@ class stack_equiv_input extends stack_input {
     }
 
     /**
-     * This function constructs any the display variable for validation.
+     * This function constructs the display of validation feedback to students.
      * For many input types this is simply the complete answer.
      * For text areas and equivalence reasoning this is a more complex arrangement of lines.
      *
@@ -455,7 +460,7 @@ class stack_equiv_input extends stack_input {
                     array('class' => 'alert alert-danger stackinputerror'));
         }
 
-        if ($this->get_parameter('showValidation', 1) == 1 && !($state->lvars === '' or $state->lvars === '[]')) {
+        if ($this->get_parameter('showValidation', 1) == 1 && !($state->lvars === '' || $state->lvars === '[]')) {
             $feedback .= $this->tag_listofvariables($state->lvars);
         }
 
