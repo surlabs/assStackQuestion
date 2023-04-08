@@ -243,7 +243,7 @@ class assStackQuestionUnitTests
 		$localoptions = clone $this->getQuestion()->getStackQuestion()->getOptions();
 
 		// Start with the question variables (note that order matters here).
-		$cascontext = new stack_cas_session2(null, $localoptions, $this->getQuestion()->getStackQuestion()->getSeed());
+		$cascontext = new stack_cas_session(null, $localoptions, $this->getQuestion()->getStackQuestion()->getSeed());
 		$this->getQuestion()->getStackQuestion()->addQuestionVarsToSession($cascontext);
 
 		// Turn off simplification - we *always* need test cases to be unsimplified, even if the question option is true.

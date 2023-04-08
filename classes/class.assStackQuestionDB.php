@@ -1,15 +1,15 @@
 <?php
 /**
- * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
 
 /**
  * STACK Question DB Manager Class
  * All DB Stuff is placed here
  *
- * @author Jesus Copado <jesus.copado@fau.de>
- * @version $Id: 7.0$
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
  *
  */
 class assStackQuestionDB
@@ -574,7 +574,7 @@ class assStackQuestionDB
 						"check_answer_type" => array("integer", $input->get_parameter('sameType') !== null ? $input->get_parameter('sameType') : ''),
 						"must_verify" => array("integer", $input->get_parameter('mustVerify') !== null ? $input->get_parameter('mustVerify') : ''),
 						"show_validation" => array("integer", $input->get_parameter('showValidation') !== null ? $input->get_parameter('showValidation') : ''),
-						"options" => array("clob", assStackQuestionUtils::_serializeExtraOptions($input->get_parameter('options')) !== null ? assStackQuestionUtils::_serializeExtraOptions($input->get_parameter('options')) : ''),
+                        "options" => array("clob", $input->get_parameter('options') !== null ? $input->get_parameter('options') : ''),
 					)
 				);
 			}
@@ -730,36 +730,50 @@ class assStackQuestionDB
 		}
 	}
 
-	/**
-	 * @param assStackQuestion $question
-	 * @param string $purpose
-	 * @return bool
-	 */
-	private static function _saveStackSeeds(assStackQuestion $question, string $purpose = ''): bool
+    /**
+     * @param assStackQuestion $question
+     * @param string $purpose
+     * @param int|null $added_seed
+     * @return bool
+     */
+	public static function _saveStackSeeds(assStackQuestion $question, string $purpose = '', int $added_seed = null): bool
 	{
 		global $DIC;
 		$db = $DIC->database();
 
 		$question_id = $question->getId();
 		$deployed_seeds_from_db = self::_readDeployedVariants($question_id);
-		foreach ($question->deployed_seeds as $id => $seed) {
-			if (!array_key_exists($id, $deployed_seeds_from_db) or empty($deployed_seeds_from_db) or $purpose == 'import') {
-				//CREATE
-				$db->insert('xqcas_deployed_seeds',
-					array('id' => array('integer', $db->nextId('xqcas_deployed_seeds')),
-						'question_id' => array('integer', $question_id),
-						'seed' => array('integer', $seed)
-					));
-			} else {
-				//UPDATE
-				$db->replace('xqcas_deployed_seeds',
-					array('id' => array('integer', $id)),
-					array(
-						'question_id' => array('integer', $question_id),
-						'seed' => array('integer', $seed)
-					));
-			}
-		}
+
+        //add one
+        if (!array_key_exists($added_seed, $deployed_seeds_from_db) and $purpose == 'add') {
+            $db->insert('xqcas_deployed_seeds',
+                array('id' => array('integer', $db->nextId('xqcas_deployed_seeds')),
+                    'question_id' => array('integer', $question_id),
+                    'seed' => array('integer', $added_seed)
+                ));
+        } else {
+
+            //mass operations
+            foreach ($question->deployed_seeds as $id => $seed) {
+                if (!array_key_exists($seed, $deployed_seeds_from_db) or empty($deployed_seeds_from_db) or $purpose == 'import') {
+                    //create
+                    $db->insert('xqcas_deployed_seeds',
+                        array('id' => array('integer', $db->nextId('xqcas_deployed_seeds')),
+                            'question_id' => array('integer', $question_id),
+                            'seed' => array('integer', $seed)
+                        ));
+                } else {
+                    //UPDATE
+                    $db->replace('xqcas_deployed_seeds',
+                        array('id' => array('integer', $id)),
+                        array(
+                            'question_id' => array('integer', $question_id),
+                            'seed' => array('integer', $seed)
+                        ));
+                }
+            }
+        }
+
 		return true;
 	}
 
@@ -992,7 +1006,7 @@ class assStackQuestionDB
 			"check_answer_type" => array("integer", $input->get_parameter('sameType') !== null ? $input->get_parameter('sameType') : ''),
 			"must_verify" => array("integer", $input->get_parameter('mustVerify') !== null ? $input->get_parameter('mustVerify') : ''),
 			"show_validation" => array("integer", $input->get_parameter('showValidation') !== null ? $input->get_parameter('showValidation') : ''),
-			"options" => array("clob", assStackQuestionUtils::_serializeExtraOptions($input->get_parameter('options')) !== null ? assStackQuestionUtils::_serializeExtraOptions($input->get_parameter('options')) : ''),
+			"options" => array("clob", assStackQuestionUtils::_serializeExtraOptions($input->get_extra_options()) !== null ? assStackQuestionUtils::_serializeExtraOptions($input->get_extra_options()) : ''),
 		));
 
 		return true;
@@ -1134,11 +1148,16 @@ class assStackQuestionDB
 	 * @param string $seed_id
 	 * @return bool
 	 */
-	private static function _deleteStackSeeds(int $question_id, string $seed_id = ''): bool
+	public static function _deleteStackSeeds(int $question_id, string $seed_id = '', int $delete_seed = null): bool
 	{
 		global $DIC;
 		$db = $DIC->database();
-		if ($seed_id == '') {
+        if ($delete_seed !== null) {
+            //delete only seed name in that question
+            $query = /** @lang text */
+                'DELETE FROM xqcas_deployed_seeds WHERE question_id = ' . $db->quote($question_id, 'integer').' and seed = '. $db->quote($delete_seed, 'integer');
+
+        } elseif ($seed_id == '') {
 			//delete all seeds of the question
 			$query = /** @lang text */
 				'DELETE FROM xqcas_deployed_seeds WHERE question_id = ' . $db->quote($question_id, 'integer');
@@ -1375,9 +1394,9 @@ class assStackQuestionDB
 
 			//value1 = xqcas_input_*_feedback, $value2 = feedback given by CAS
 			$feedback = '';
-            if (isset($question->getEvaluation()['prt_feedback'][$prt_name])) {
-                $feedback = $question->getEvaluation()['prt_feedback'][$prt_name];
-            }
+			foreach ($prt->get_feedback() as $feedback_element) {
+				$feedback .= $feedback_element->feedback . ' ';
+			}
 			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_feedback', $feedback);
 			$entered_values++;
 

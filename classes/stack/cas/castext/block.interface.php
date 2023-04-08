@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
 
 // Interface/base class for the blocks. For each block found by the castext-processor an instance of
 // this kind of a class will be created, so feel free to store state.
@@ -26,7 +25,6 @@ defined('MOODLE_INTERNAL') || die();
 // @copyright  2012 University of Birmingham
 // @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
-defined('MOODLE_INTERNAL') || die();
 
 abstract class stack_cas_castext_block {
 

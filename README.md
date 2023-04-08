@@ -1,13 +1,18 @@
 
 STACK FOR ILIAS7
 ================================
+Copyright 2023 Laboratorio de Soluciones del Sur, Sociedad Limitada
 
-Copyright 2022 Institut fuer Lern-Innovation,Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3 or later, see LICENSE
+This plugin version has been developed by Jesús Copado and the SURLABS's Team
+
+Copyright 2014 Institut fuer Lern-Innovation,Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3 or later, see LICENSE
+
+This plugin was developed by Jesús Copado with Fred Neumann's support at the University of Erlangen between 2014 and 2022
+
+Copyright 2012 University of Birmingham
 
 Includes a modified version of the stack folder of the Moodle Plugin STACK version 4.3.9
 https://github.com/maths/moodle-qtype_stack/ created by Chris Sangwin.
-
-Copyright 2012 University of Birmingham
 licensed under GPLv3 or later, see classes/stack/COPYING.txt
 http://stack.bham.ac.uk
 
@@ -102,6 +107,27 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
+Version 7.1.0 Installation improvements, Legacy Import files,  Extra options tuning
+----------------------------------------
+
+**It solves the following errors**
+- ILIAS Question Pools and Test created in older plugin versions are again valid to ve imported in current ILIAS installations
+- #32052, #30682, #37150? **Solves all composer / install warnings & errors.**
+- #29446 **firstline** option for equivalence reasoning inputs is now properly validated and evaluated, firstline as syntaxhint still not working
+- #37100 Dropdown inputs are now properly saved in previews.
+- #37111 variables are no longer returned in a computer form after checking.
+- #37107 **nonotanswered** extra options works again in radio inputs
+- #37106 LaTeX in feedback is now properly rendered
+- #36787 double seeds entered when adding seeds, seeds backend has been adapted to the new backend (2021).
+- #35855 Warning is again shown when randomisation is present in a question without question note.
+- #32708 standard matrix brackets are properly set in new questions
+- #36980 pictures in feedback are not properly imported in ILIAS format
+- #36989 Feedback of moodleXML exports now doesn't disappears
+- #35709 Text error in feedback in german version
+- #23393 False error message when plot2d option
+- logic symbol error in MoodleXML format when importing questions in Moodle
+
+
 Version 7.0.6 Bugfixing (V) 2023.03.04
 ----------------------------------------
 - Solved #36872 about importing styled feedback from MoodleXML
@@ -109,7 +135,8 @@ Version 7.0.6 Bugfixing (V) 2023.03.04
 - Solved #36864 about CASText in Feedback not being properly rendered in Tests.
 - Solved logic symbol error in MoodleXML import/export
 - Solved linux and windows local configuration errors, beware this configuration, as it has not been properly tested by the maintainer.
-Version 7.0.5 Bugfixing (IV) 2023.01.27
+
+- Version 7.0.5 Bugfixing (IV) 2023.01.27
 ----------------------------------------
 - Solved issue in fresh instalation regarding default server settings
 

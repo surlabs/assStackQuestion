@@ -1,17 +1,16 @@
 <?php
-
 /**
- * Copyright (c) 2014 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
+
 require_once("./Services/Component/classes/class.ilPluginConfigGUI.php");
 
 /**
  * STACK Question plugin config GUI
  *
- * @author Fred Neumann <fred.neumann@ili.fau.de>
- * @author Jesus Copado <jesus.copado@ili.fau.de>
- * @version $Id$
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
  *
  */
 class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
@@ -20,7 +19,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	protected $config;
 
 
-	/** @var ilassStackQuestionPlugin */
+	/** @var ilPlugin */
 	protected $plugin_object = null;
 
 	/**
@@ -409,7 +408,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
 		//IF MANUAL SELECTION ACTIVATED UNCOMMENT THIS
 		$platform_type = new ilSelectInputGUI($this->plugin_object->txt('platform_type'), 'platform_type');
-        $platform_type->setOptions(array("server" => $this->plugin_object->txt('server'), "win" => $this->plugin_object->txt('windows'), "linux" => $this->plugin_object->txt('unix')));
+		$platform_type->setOptions(array("server" => $this->plugin_object->txt('server')));
 		$platform_type->setInfo($this->plugin_object->txt('platform_type_info'));
 		$platform_type->setValue($connection_data['platform_type']);
 		$form->addItem($platform_type);

@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
 
 // JSXGraph block essentially repeats the functionality of the JSXGraph filter
 // in Moodle but limits the use to authors thus negating the primary security
@@ -102,8 +101,14 @@ class stack_cas_castext_jsxgraph extends stack_cas_castext_block {
         // Empty tags seem to be an issue.
         $this->get_node()->convert_to_text(html_writer::tag('div', '', $attributes));
 
-        $PAGE->requires->js_amd_inline('require(["qtype_stack/jsxgraph","qtype_stack/jsxgraphcore-lazy","core/yui"], '
-            . 'function(stack_jxg, JXG, Y){Y.use("mathjax",function(){'.$code.'});});');
+        global $DIC;
+        $DIC->globalScreen()->layout()->meta()->addJs('../../../../templates/js/jsxgraphcore.js');
+        $DIC->globalScreen()->layout()->meta()->addOnLoadCode('<script>'.$code.'</script>');
+
+        //$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestionJSXGraph.find_input_id(' . $divid . ')');
+
+        //$PAGE->requires->js_amd_inline('require(["qtype_stack/jsxgraph","qtype_stack/jsxgraphcore-lazy","core/yui"], '
+        //    . 'function(stack_jxg, JXG, Y){Y.use("mathjax",function(){'.$code.'});});');
 
         // Up the graph number to generate unique names.
         self::$countgraphs = self::$countgraphs + 1;

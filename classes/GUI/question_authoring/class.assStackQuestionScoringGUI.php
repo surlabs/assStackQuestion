@@ -1,16 +1,14 @@
 <?php
 /**
- * Copyright (c) 2014 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
-require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 
 /**
  * STACK Question scoring GUI class
  *
- * @author Fred Neumann <fred.neumann@ili.fau.de>
- * @author Jesus Copado <jesus.copado@ili.fau.de>
- * @version $Id: 2.0$
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
  * @ingroup    ModulesTestQuestionPool
  *
  */
@@ -21,54 +19,51 @@ class assStackQuestionScoringGUI
 	 * Plugin instance for templates and language management
 	 * @var ilassStackQuestionPlugin
 	 */
-	private $plugin;
+	private ilassStackQuestionPlugin $plugin;
 
 	/**
 	 * @var ilTemplate for showing the scoring panel
 	 */
-	private $template;
+	private ilTemplate $template;
 
 	/**
-	 * @var mixed array with the potential response trees.
+	 * @var assStackQuestion Question.
 	 */
-	private $potentialresponse_trees;
+	private assStackQuestion $question;
 
-	/**
-	 * @var float question points
-	 */
-	private $question_points;
+    /**
+     * @var ?float Question points.
+     */
+    private ?float $question_points;
 
-	/**
-	 * @param $plugin ilassStackQuestionPlugin
-	 * @param $question_id int	question id
-	 * @param $question_points float question points value
-	 */
-	function __construct($plugin, $question_id, $question_points)
-	{
-		//Set plugin and template
-		$this->setPlugin($plugin);
-		$this->setTemplate($this->getPlugin()->getTemplate('tpl.il_as_qpl_xqcas_scoring_panel.html'));
+    /**
+     * @var stack_potentialresponse_tree[] Question PRTs.
+     */
+    private array $potentialresponse_trees;
 
-		//Set PRT by question_id calling the object class
-		$this->getPlugin()->includeClass('model/question_authoring/class.assStackQuestionScoring.php');
-		$this->getPlugin()->includeClass('model/ilias_object/class.assStackQuestionPRT.php');
-		$this->object = new assStackQuestionScoring(assStackQuestionPRT::_read($question_id));
-		$this->setPotentialresponseTrees($this->object->getPotentialresponseTrees());
-
-		//Set question points by ID
-		$this->setQuestionPoints((float)$question_points);
-	}
-
+    /**
+     * @param ilassStackQuestionPlugin $plugin
+     * @param assStackQuestion $question
+     * @param $question_points
+     */
+    public function __construct(ilassStackQuestionPlugin $plugin, assStackQuestion $question, $question_points)
+    {
+        $this->setPlugin($plugin);
+        $this->setQuestion($question);
+        $this->setTemplate($this->getPlugin()->getTemplate('tpl.il_as_qpl_xqcas_scoring_panel.html'));
+        $this->setQuestionPoints($question_points);
+        $this->setPotentialresponseTrees($question->prts);
+    }
 
 	/**
 	 * ### MAIN METHOD OF THIS CLASS ###
 	 * Creates and returns the scoring panel
-	 * @return HTML
+	 * @return string
 	 */
-	public function showScoringPanel($new_question_points = '')
-	{
+	public function showScoringPanel($new_question_points = ''): string
+    {
 		//Step #1: Get points per PRT and set the strcuture as PRT
-		$this->setPotentialresponseTrees($this->object->reScalePotentialresponseTrees($this->getQuestionPoints()));
+		$this->setPotentialresponseTrees($this->reScalePotentialresponseTrees($this->getQuestion()->getPoints()));
 		//Step #2: Fill form and general data in the scoring template
 		$this->fillGeneralData($new_question_points);
 		//Step #3: Fill specific PRT data
@@ -77,12 +72,40 @@ class assStackQuestionScoringGUI
 		if (is_float($new_question_points)) {
 			//Set new points and get the new structure for comparison
 			$this->setQuestionPoints($new_question_points);
-			$this->setPotentialresponseTrees($this->object->reScalePotentialresponseTrees($this->getQuestionPoints()));
+			$this->setPotentialresponseTrees($this->reScalePotentialresponseTrees($this->getQuestionPoints()));
 			$this->fillPRTspecific('new');
 		}
 		//Step #5: Return HTML
 		return $this->getTemplate()->get();
 	}
+
+    public function reScalePotentialresponseTrees($question_points)
+    {
+        //Set variables
+        $this->setQuestionPoints($question_points);
+        $max_weight = 0.0;
+        $structure = array();
+
+        //Get max weight of$prt the PRT
+        foreach ($this->getPotentialresponseTrees() as $prt_name => $prt) {
+            $max_weight += $prt->get_value();
+        }
+
+        //fill the structure
+        foreach ($this->getPotentialresponseTrees() as $prt_name => $prt) {
+            $prt_max_weight = $prt->get_value();
+            $prt_max_points = ($prt_max_weight / $max_weight) * $this->getQuestionPoints();
+            $structure[$prt_name]['max_points'] = $prt_max_points;
+            foreach ($prt->get_nodes_summary() as $node_name => $node) {
+                $structure[$prt_name][$node_name]['true_mode'] = $node->truescoremode;
+                $structure[$prt_name][$node_name]['true_value'] = ($node->truescore * $prt_max_points);
+                $structure[$prt_name][$node_name]['false_mode'] = $node->falsescoremode;
+                $structure[$prt_name][$node_name]['false_value'] = ($node->falsescore * $prt_max_points);
+            }
+        }
+
+        return $structure;
+    }
 
 	/*
 	 * FILL TEMPLATE METHODS
@@ -214,68 +237,86 @@ class assStackQuestionScoringGUI
 	 * GETTERS AND SETTERS
 	 */
 
-	/**
-	 * @param \ilassStackQuestionPlugin $plugin
-	 */
-	public function setPlugin($plugin)
-	{
-		$this->plugin = $plugin;
-	}
 
-	/**
-	 * @return \ilassStackQuestionPlugin
-	 */
-	public function getPlugin()
-	{
-		return $this->plugin;
-	}
+    /**
+     * @return ilassStackQuestionPlugin
+     */
+    public function getPlugin(): ilassStackQuestionPlugin
+    {
+        return $this->plugin;
+    }
 
-	/**
-	 * @param mixed $potentialresponse_trees
-	 */
-	public function setPotentialresponseTrees($potentialresponse_trees)
-	{
-		$this->potentialresponse_trees = $potentialresponse_trees;
-	}
+    /**
+     * @param ilassStackQuestionPlugin $plugin
+     */
+    public function setPlugin(ilassStackQuestionPlugin $plugin): void
+    {
+        $this->plugin = $plugin;
+    }
 
-	/**
-	 * @return mixed
-	 */
-	public function getPotentialresponseTrees()
-	{
-		return $this->potentialresponse_trees;
-	}
+    /**
+     * @return ilTemplate
+     */
+    public function getTemplate(): ilTemplate
+    {
+        return $this->template;
+    }
 
-	/**
-	 * @param \ilTemplate $template
-	 */
-	public function setTemplate($template)
-	{
-		$this->template = $template;
-	}
+    /**
+     * @param ilTemplate $template
+     */
+    public function setTemplate(ilTemplate $template): void
+    {
+        $this->template = $template;
+    }
 
-	/**
-	 * @return \ilTemplate
-	 */
-	public function getTemplate()
-	{
-		return $this->template;
-	}
+    /**
+     * @return assStackQuestion
+     */
+    public function getQuestion(): assStackQuestion
+    {
+        return $this->question;
+    }
 
-	/**
-	 * @param float $question_points
-	 */
-	public function setQuestionPoints($question_points)
-	{
-		$this->question_points = $question_points;
-	}
+    /**
+     * @param assStackQuestion $question
+     */
+    public function setQuestion(assStackQuestion $question): void
+    {
+        $this->question = $question;
+    }
 
-	/**
-	 * @return float
-	 */
-	public function getQuestionPoints()
-	{
-		return $this->question_points;
-	}
+    /**
+     * @return float|null
+     */
+    public function getQuestionPoints(): ?float
+    {
+        return $this->question_points;
+    }
+
+    /**
+     * @param float|null $question_points
+     */
+    public function setQuestionPoints(?float $question_points): void
+    {
+        $this->question_points = $question_points;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPotentialresponseTrees(): array
+    {
+        return $this->potentialresponse_trees;
+    }
+
+    /**
+     * @param array $potentialresponse_trees
+     */
+    public function setPotentialresponseTrees(array $potentialresponse_trees): void
+    {
+        $this->potentialresponse_trees = $potentialresponse_trees;
+    }
+
 
 } 

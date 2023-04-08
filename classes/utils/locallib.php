@@ -1,4 +1,10 @@
 <?php
+/**
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
+ */
 // This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
@@ -14,9 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/stack/mathsoutput/mathsoutput.class.php');
 include_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/exceptions/class.assStackQuestionException.php');
 
 /**
@@ -40,7 +44,7 @@ class stack_exception extends assStackQuestionException
 function stack_ouput_castext($castext)
 {
 	return format_text(stack_maths::process_display_castext($castext),
-		FORMAT_HTML, array('noclean' => true));
+		1, array('noclean' => true));
 }
 
 /**
@@ -240,7 +244,7 @@ function qtype_stack_setup_question_test_page($question)
 {
 	global $PAGE;
 
-	$seed = optional_param('seed', null, PARAM_INT);
+	$seed = optional_param('seed', null, 1);
 	$urlparams = array('questionid' => $question->id);
 	if (!is_null($seed) && $question->has_random_variants()) {
 		$urlparams['seed'] = $seed;
@@ -248,13 +252,13 @@ function qtype_stack_setup_question_test_page($question)
 
 	// Were we given a particular context to run the question in?
 	// This affects things like filter settings, or forced theme or language.
-	if ($cmid = optional_param('cmid', 0, PARAM_INT)) {
+	if ($cmid = optional_param('cmid', 0, 1)) {
 		$cm = get_coursemodule_from_id(false, $cmid);
 		require_login($cm->course, false, $cm);
 		$context = context_module::instance($cmid);
 		$urlparams['cmid'] = $cmid;
 
-	} else if ($courseid = optional_param('courseid', 0, PARAM_INT)) {
+	} else if ($courseid = optional_param('courseid', 0, 1)) {
 		require_login($courseid);
 		$context = context_course::instance($courseid);
 		$urlparams['courseid'] = $courseid;

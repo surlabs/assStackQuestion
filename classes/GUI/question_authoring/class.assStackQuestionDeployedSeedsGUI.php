@@ -1,15 +1,16 @@
 <?php
 /**
- * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
+
 require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 
 /**
  * STACK Question deployed seeds authoring GUI class
  *
- * @author Jesus Copado <jesus.copado@ili.fau.de>
- * @version $Id: 3.9$
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
  *
  * @ilCtrl_isCalledBy assStackQuestionDeployedSeedsGUI: ilObjQuestionPoolGUI
  */

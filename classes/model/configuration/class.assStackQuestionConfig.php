@@ -1,16 +1,15 @@
 <?php
-
 /**
- * Copyright (c) 2014 Institut fÃ¼r Lern-Innovation, Friedrich-Alexander-UniversitÃ¤t Erlangen-NÃ¼rnberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
+
 
 /**
  * STACK Question plugin config class
  *
- * @author Fred Neumann <fred.neumann@ili.fau.de>
- * @author Jesus Copado <jesus.copado@ili.fau.de>
- * @version $Id 1.6$
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
  *
  */
 class assStackQuestionConfig

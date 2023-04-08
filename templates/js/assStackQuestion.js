@@ -39,7 +39,7 @@ il.assStackQuestion = new function () {
 	this.init = function (a_config, a_texts) {
 		config = a_config;
 		texts = a_texts;
-
+		$('#ilAssQuestionPreview > form > div.ilc_question_Standard > p:nth-child(1) > button').click(self.validate);
 		$('button.xqcas').click(self.validate);
 		//$('form > div.ilc_question_Standard > button').click(self.validate);
 		$('#ilc_Page > div.ilc_question_Standard > button').click(self.validate);
@@ -50,7 +50,6 @@ il.assStackQuestion = new function () {
 	 * Send the current panel state per ajax
 	 */
 	this.validate = function (event) {
-
 		var name = "";
 		if (event.target.name === undefined) {
 			name = event.target.getAttribute('name');

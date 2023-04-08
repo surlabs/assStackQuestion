@@ -36,7 +36,6 @@
  * 'pmchar'                  If defined prints +- marks directly if present as #pm#.
  */
 
-defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/../cas/cassecurity.class.php');
 
