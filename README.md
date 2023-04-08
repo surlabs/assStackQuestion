@@ -122,6 +122,9 @@ Version 7.1.0 Installation & Configuration improvements, Extra options tuning
 - #35855 Warning is again shown when randomisation is present in a question without question note.
 - #32708 standard matrix brackets are properly set in new questions
 - #36980 pictures in feedback are not properly imported in ILIAS format
+- #36989 Feedback of moodleXML exports now doesn't disappears
+- #35709 Text error in feedback in german version
+- #23393 False error message when plot2d option
 - logic symbol error in MoodleXML format when importing questions in Moodle
 
 
