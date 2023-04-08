@@ -3,7 +3,7 @@ STACK FOR ILIAS7
 ================================
 Copyright 2023 Laboratorio de Soluciones del Sur, Sociedad Limitada
 
-This plugin version has been developed by Jesús Copado and the SURLABS's Team
+This plugin version has been developed by Jesús Copado and the SURLABS' Team
 
 Copyright 2014 Institut fuer Lern-Innovation,Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3 or later, see LICENSE
 
@@ -16,16 +16,9 @@ https://github.com/maths/moodle-qtype_stack/ created by Chris Sangwin.
 licensed under GPLv3 or later, see classes/stack/COPYING.txt
 http://stack.bham.ac.uk
 
-ILIAS STACK Question Type Plugin.
-================================
-
-- Author: Jesus Copado <jesus.copado@fau.de>
+- Author: Jesus Copado Mejias <jcopado@surlabs.es>
 - Forum: http://www.ilias.de/docu/goto_docu_frm_3474_2766.html
 - Bug Reports: http://www.ilias.de/mantis (Choose project "ILIAS plugins" and filter by category "STACK Question Type")
-
-This plugin is an ILIAS port of STACK, developed by Chris Sangwin. It provides a test question type
-for mathematical questions that are calculated by a the Computer Algebra System (CAS) Maxima.
-See the original STACK documentation at https://stack.maths.ed.ac.uk/demo/
 
 Additional Software Requirements
 --------------------------------
@@ -66,7 +59,7 @@ cdn.mathjax.org or downloaded to your own web server. It has to be configured in
 First Installation of the plugin
 --------------------------------
 1. Create subdirectories, if necessary for Customizing/global/plugins/Modules/TestQuestionPool/Questions/
-2. In Customizing/global/plugins/Modules/TestQuestionPool/Questions/ execute git clone https://github.com/ilifau/assStackQuestion.git
+2. In Customizing/global/plugins/Modules/TestQuestionPool/Questions/ execute git clone https://github.com/surlabs/assStackQuestion.git
 3. Go to Administration > Plugins
 4. Choose action "Update" for the assStackQuestion plugin
 5. Choose action "Activate" for the assStackQuestion plugin
@@ -100,19 +93,19 @@ Version History
 
 * The stable version 7.0.x for **ILIAS 7.13+** with the STACK Core version 4.3.9 can be found in the Github branch **stack_for_ilias7**
 * The stable version 3.5 for **ILIAS 7.13+** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias713**
-* The stable version 3.4.3 for **ILIAS <= 7.12** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias7**
-* The stable version 3.2.x for **ILIAS 6** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias6**
+* The stable version 3.4.3 for **ILIAS <= 7.12** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias7** will enter on only security issues mode in June 2023.
+* The stable version 3.2.x for **ILIAS 6** is on only-security-issues maintenance mode.
 * The stable version 3.1.x for **ILIAS 5.4** is no longer maintained
 * The stable version 3.0.x for **ILIAS 5.3** is no longer maintained
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
-Version 7.1.0 Installation improvements, Legacy Import files,  Extra options tuning
+Version 7.1.0 (2023.04.09) Installation improvements, Legacy Import files,  Extra options tuning
 ----------------------------------------
+- ILIAS Question Pools and Test created in older plugin versions (<master-ilias713) are again valid to ve imported in current ILIAS installations. some legacy code was included back due to this feature
 
 **It solves the following errors**
-- ILIAS Question Pools and Test created in older plugin versions are again valid to ve imported in current ILIAS installations
-- #32052, #30682, #37150? **Solves all composer / install warnings & errors.**
+- #32052, #30682, #37150? **Solves all composer / install warnings & errors.** --no-plugins is no longer required at cli setup commands
 - #29446 **firstline** option for equivalence reasoning inputs is now properly validated and evaluated, firstline as syntaxhint still not working
 - #37100 Dropdown inputs are now properly saved in previews.
 - #37111 variables are no longer returned in a computer form after checking.
@@ -181,18 +174,15 @@ Some bugfixing may be expected when its use become more extensive. Please keep y
 - The core from STACK plugin Version for Moodle (4.3.9 December 2021) has been included.
 * **Use this version on ILIAS 7.13+ Platforms, for previous ILIAS Versions use Branch master-ilias7**
 *** 
-**Question Pool & Tests Import & Export** 
-* The redesign of the plugin structure included the ILIAS Import and Export functionalities. **Old Question pools and Tests Import files won't work (ILIAS 5.4, 6 and master-ilias7)** They need to be re-exported from an ILIAS stack_for_ilias_7 or master-ilias713 platform. In both branches the new Export/Import Structure is implemented. 
-* For older versions, please, upload your ILIAS Platform to 7. 
-* Please inform the teachers about this update. 
+**Question Pool & Tests Import & Export**
+From STACK version 7.1, older pools and test can be again be imported in STACK v7.x platforms.
 *** 
 **Known issues**
   - Unit Tests are currently not available. Unit Tests created will remain in its current state until time for this at the moment non-extensive used feature has been fund and found.
-  - firstline extra option is not working properly for equivalence reasoning evaluation, validation is properly done, but evaluation doesn't
+  - firstline syntax hint is not properly rendered in equivalence reasoning inputs.
   - Check answer type is currently not evaluated
   - Best solution in Test results is not shown properly
   - Instant validation for textareas not working properly
-  - MatrixParents always set to []
   - Question Images may not be rendered in Feedback
   - Notes inputs are currently unavailable
   - Feedback in Tests not rendered properly
