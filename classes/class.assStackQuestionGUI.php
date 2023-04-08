@@ -305,6 +305,10 @@ class assStackQuestionGUI extends assQuestionGUI
                     }
                 }
                 $this->object->setUserResponse($user_solution);
+            } elseif (is_a($input, 'stack_dropdown_input')
+                or is_a($input, 'stack_radio_input')
+                or is_a($input, 'stack_checkbox_input')) {
+                $this->object->setUserResponse($user_solution);
             } else {
                 $response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
                 $this->object->setUserResponse(assStackQuestionUtils::compute_response($this->object, $response));

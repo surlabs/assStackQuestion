@@ -1609,22 +1609,22 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 $s = stack_string('runtimefielderr', array('field' => stack_string('questiontext'), 'err' => $question_text->get_errors()));
                 $this->runtime_errors[$s] = true;
             }
-            $this->specific_feedback_instantiated = $feedback_text->get_display_castext();
+            $this->specific_feedback_instantiated = assStackQuestionUtils::_getLatex($feedback_text->get_display_castext());
             if ($feedback_text->get_errors()) {
                 $s = stack_string('runtimefielderr', array('field' => stack_string('specificfeedback'), 'err' => $feedback_text->get_errors()));
                 $this->runtime_errors[$s] = true;
             }
-            $this->question_note_instantiated = $note_text->get_display_castext();
+            $this->question_note_instantiated = assStackQuestionUtils::_getLatex($note_text->get_display_castext());
             if ($note_text->get_errors()) {
                 $s = stack_string('runtimefielderr', array('field' => stack_string('questionnote'), 'err' => $note_text->get_errors()));
                 $this->runtime_errors[$s] = true;
             }
 
 
-            $this->prt_correct_instantiated = $prt_correct->get_display_castext();
-            $this->prt_partially_correct_instantiated = $prt_partially_correct->get_display_castext();
-            $this->prt_incorrect_instantiated = $prt_incorrect->get_display_castext();
-            $this->general_feedback = $general_feedback->get_display_castext();
+            $this->prt_correct_instantiated = assStackQuestionUtils::_getLatex($prt_correct->get_display_castext());
+            $this->prt_partially_correct_instantiated = assStackQuestionUtils::_getLatex($prt_partially_correct->get_display_castext());
+            $this->prt_incorrect_instantiated = assStackQuestionUtils::_getLatex($prt_incorrect->get_display_castext());
+            $this->general_feedback = assStackQuestionUtils::_getLatex($general_feedback->get_display_castext());
 
             $this->session = $session_to_keep;
             $this->addQuestionVarsToSession($session);

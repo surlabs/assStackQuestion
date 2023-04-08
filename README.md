@@ -107,12 +107,15 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
-Version 7.1.0 Installation & Configuration improvements
+Version 7.1.0 Installation & Configuration improvements, Extra options tuning
 ----------------------------------------
-In preparation to the ILIAS8 version, this plugin version solves all composer / install warnings & errors as the whole stack core classes has been adapted to ILIAS needs.
 
-**It solves also, the following errors**
-- #29446 **firstline** option for equivalence reasoning inputs not working
+**It solves the following errors**
+- #32052, #30682, #37150? **Solves all composer / install warnings & errors.**
+- #29446 **firstline** option for equivalence reasoning inputs is now properly validated and evaluated, firstline as syntaxhint still not working
+- #37100 Dropdown inputs are now properly saved in previews.
+- #37107 **nonotanswered** extra options works again in radio inputs
+- #37106 LaTeX in feedback is now properly rendered
 - logic symbol error in MoodleXML format when importing questions in Moodle
 
 
