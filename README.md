@@ -116,6 +116,10 @@ Version 7.1.0 Installation & Configuration improvements, Extra options tuning
 - #37100 Dropdown inputs are now properly saved in previews.
 - #37107 **nonotanswered** extra options works again in radio inputs
 - #37106 LaTeX in feedback is now properly rendered
+- #36787 double seeds entered when adding seeds, seeds backend has been adapted to the new backend (2021).
+- #35855 Warning is again shown when randomisation is present in a question without question note.
+- #32708 standard matrix brackets are properly set in new questions
+- 
 - logic symbol error in MoodleXML format when importing questions in Moodle
 
 

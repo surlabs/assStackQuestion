@@ -696,6 +696,11 @@ class assStackQuestionGUI extends assQuestionGUI
 		//Reform authoring interface
 		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/ilMultipartFormProperty.js');
 
+        //35855 ensure warning if shown if no question note is added when randomised
+        if(assStackQuestionUtils::_showRandomisationWarning($this->object)){
+            ilUtil::sendInfo(stack_string('questionnotempty'));
+        }
+
 		//Returns Question Authoring form
 		if (!$check_only) {
 			$this->tpl->setVariable("QUESTION_DATA", $authoring_gui->showAuthoringPanel());
@@ -1271,11 +1276,8 @@ class assStackQuestionGUI extends assQuestionGUI
 		$seed = (int)$_POST['deployed_seed'];
 		$question_id = (int)$_POST['question_id'];
 
-		$this->plugin->includeClass('model/ilias_object/class.assStackQuestionDeployedSeed.php');
-		$deployed_seed = new assStackQuestionDeployedSeed('', $question_id, $seed);
-		if (!$deployed_seed->save()) {
-			ilUtil::sendFailure($this->plugin->txt('dsm_not_allowed_seed'), true);
-		}
+        //save seed
+        assStackQuestionDB::_saveStackSeeds($this->object,'add',$seed);
 
 		$this->deployedSeedsManagement();
 	}
@@ -1293,18 +1295,12 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->getQuestionTemplate();
 
 		//New seed creation
-		$seed = $_POST['deployed_seed'];
-		$question_id = $_POST['question_id'];
+		$seed = (int)$_POST['deployed_seed'];
+		$question_id = (int)$_POST['question_id'];
 
-		$this->plugin->includeClass('model/ilias_object/class.assStackQuestionDeployedSeed.php');
-		$deployed_seeds = assStackQuestionDeployedSeed::_read($question_id);
-		foreach ($deployed_seeds as $deployed_seed) {
-			if ($deployed_seed->getSeed() == $seed) {
-				$deployed_seed->delete();
-				ilUtil::sendSuccess($this->plugin->txt('dsm_deployed_seed_deleted'));
-				break;
-			}
-		}
+        //delete seed
+        assStackQuestionDB::_deleteStackSeeds($question_id,'',$seed);
+
 
 		$this->deployedSeedsManagement();
 	}

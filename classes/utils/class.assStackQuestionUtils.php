@@ -1263,5 +1263,19 @@ class assStackQuestionUtils
 		return $parsed_user_response_from_db;
 	}
 
+    public static function _showRandomisationWarning(assStackQuestion $question): bool
+    {
+        $found_random = false;
+        if ('' == $question->question_note) {
+            foreach (stack_cas_security::get_all_with_feature('random') as $random_id) {
+                if (!(false === strpos($question->question_variables, $random_id))) {
+                    $found_random = true;
+                    break;
+                }
+            }
+        }
+        return $found_random;
+    }
+
 
 }

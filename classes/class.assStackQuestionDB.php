@@ -730,36 +730,50 @@ class assStackQuestionDB
 		}
 	}
 
-	/**
-	 * @param assStackQuestion $question
-	 * @param string $purpose
-	 * @return bool
-	 */
-	private static function _saveStackSeeds(assStackQuestion $question, string $purpose = ''): bool
+    /**
+     * @param assStackQuestion $question
+     * @param string $purpose
+     * @param int|null $added_seed
+     * @return bool
+     */
+	public static function _saveStackSeeds(assStackQuestion $question, string $purpose = '', int $added_seed = null): bool
 	{
 		global $DIC;
 		$db = $DIC->database();
 
 		$question_id = $question->getId();
 		$deployed_seeds_from_db = self::_readDeployedVariants($question_id);
-		foreach ($question->deployed_seeds as $id => $seed) {
-			if (!array_key_exists($id, $deployed_seeds_from_db) or empty($deployed_seeds_from_db) or $purpose == 'import') {
-				//CREATE
-				$db->insert('xqcas_deployed_seeds',
-					array('id' => array('integer', $db->nextId('xqcas_deployed_seeds')),
-						'question_id' => array('integer', $question_id),
-						'seed' => array('integer', $seed)
-					));
-			} else {
-				//UPDATE
-				$db->replace('xqcas_deployed_seeds',
-					array('id' => array('integer', $id)),
-					array(
-						'question_id' => array('integer', $question_id),
-						'seed' => array('integer', $seed)
-					));
-			}
-		}
+
+        //add one
+        if (!array_key_exists($added_seed, $deployed_seeds_from_db) and $purpose == 'add') {
+            $db->insert('xqcas_deployed_seeds',
+                array('id' => array('integer', $db->nextId('xqcas_deployed_seeds')),
+                    'question_id' => array('integer', $question_id),
+                    'seed' => array('integer', $added_seed)
+                ));
+        } else {
+
+            //mass operations
+            foreach ($question->deployed_seeds as $id => $seed) {
+                if (!array_key_exists($seed, $deployed_seeds_from_db) or empty($deployed_seeds_from_db) or $purpose == 'import') {
+                    //create
+                    $db->insert('xqcas_deployed_seeds',
+                        array('id' => array('integer', $db->nextId('xqcas_deployed_seeds')),
+                            'question_id' => array('integer', $question_id),
+                            'seed' => array('integer', $seed)
+                        ));
+                } else {
+                    //UPDATE
+                    $db->replace('xqcas_deployed_seeds',
+                        array('id' => array('integer', $id)),
+                        array(
+                            'question_id' => array('integer', $question_id),
+                            'seed' => array('integer', $seed)
+                        ));
+                }
+            }
+        }
+
 		return true;
 	}
 
@@ -1134,11 +1148,16 @@ class assStackQuestionDB
 	 * @param string $seed_id
 	 * @return bool
 	 */
-	private static function _deleteStackSeeds(int $question_id, string $seed_id = ''): bool
+	public static function _deleteStackSeeds(int $question_id, string $seed_id = '', int $delete_seed = null): bool
 	{
 		global $DIC;
 		$db = $DIC->database();
-		if ($seed_id == '') {
+        if ($delete_seed !== null) {
+            //delete only seed name in that question
+            $query = /** @lang text */
+                'DELETE FROM xqcas_deployed_seeds WHERE question_id = ' . $db->quote($question_id, 'integer').' and seed = '. $db->quote($delete_seed, 'integer');
+
+        } elseif ($seed_id == '') {
 			//delete all seeds of the question
 			$query = /** @lang text */
 				'DELETE FROM xqcas_deployed_seeds WHERE question_id = ' . $db->quote($question_id, 'integer');
