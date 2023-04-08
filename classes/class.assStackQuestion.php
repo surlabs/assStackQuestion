@@ -2467,7 +2467,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     public function setUserResponse(array $user_response, $input_name = false)
     {
         if ($input_name) {
-            $this->user_response[$input_name] = $user_response;
+            $this->user_response[$input_name] = $user_response[$input_name];
         } else {
             $this->user_response = $user_response;
         }

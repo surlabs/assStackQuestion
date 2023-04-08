@@ -111,15 +111,17 @@ Version 7.1.0 Installation & Configuration improvements, Extra options tuning
 ----------------------------------------
 
 **It solves the following errors**
+- ILIAS Question Pools and Test created in older plugin versions are again valid to ve imported in current ILIAS installations
 - #32052, #30682, #37150? **Solves all composer / install warnings & errors.**
 - #29446 **firstline** option for equivalence reasoning inputs is now properly validated and evaluated, firstline as syntaxhint still not working
 - #37100 Dropdown inputs are now properly saved in previews.
+- #37111 variables are no longer returned in a computer form after checking.
 - #37107 **nonotanswered** extra options works again in radio inputs
 - #37106 LaTeX in feedback is now properly rendered
 - #36787 double seeds entered when adding seeds, seeds backend has been adapted to the new backend (2021).
 - #35855 Warning is again shown when randomisation is present in a question without question note.
 - #32708 standard matrix brackets are properly set in new questions
-- 
+- #36980 pictures in feedback are not properly imported in ILIAS format
 - logic symbol error in MoodleXML format when importing questions in Moodle
 
 

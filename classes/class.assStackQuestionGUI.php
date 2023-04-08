@@ -311,7 +311,7 @@ class assStackQuestionGUI extends assQuestionGUI
                 $this->object->setUserResponse($user_solution);
             } else {
                 $response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
-                $this->object->setUserResponse(assStackQuestionUtils::compute_response($this->object, $response));
+                $this->object->setUserResponse($response,$input_name);
             }
 
         }
