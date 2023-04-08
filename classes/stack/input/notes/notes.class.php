@@ -186,7 +186,7 @@ class stack_notes_input extends stack_input {
             $render .= html_writer::tag('p', $contents[0]);
         }
         $render .= html_writer::tag('p', stack_string('studentValidation_notes'), array('class' => 'stackinputnotice'));
-        return format_text(stack_maths::process_display_castext($render));
+        return stack_maths::process_display_castext($render);
     }
 
     public function summarise_response($name, $state, $response) {
@@ -197,5 +197,4 @@ class stack_notes_input extends stack_input {
         }
         return $name . ': ' . $val . ' [' . $state->status . ']';
     }
-
 }
