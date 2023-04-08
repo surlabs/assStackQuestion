@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL')|| die();
 
 // Way to load in whatever CAS code one wants without having to deal
 // with validation, intended to be used with caching of large logic blocks

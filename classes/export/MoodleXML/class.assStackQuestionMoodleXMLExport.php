@@ -1,16 +1,17 @@
 <?php
 /**
- * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
+
 require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 
 /**
  * STACK Question MoodleXML Export
  * This class provides an XML compatible with Moodle for STACK questions created in ILIAS.
  *
- * @author Jesus Copado <jesus.copado@ili.fau.de>
- * @version    $Id: 6.4$
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
  * @ingroup    ModulesTestQuestionPool
  *
  */
@@ -63,7 +64,7 @@ class assStackQuestionMoodleXMLExport
 		$a_xml_writer->xmlStartTag("quiz");
 
 		foreach ($this->getStackQuestions() as $question_id => $question) {
-			$a_xml_writer->xmlComment(" question: " . $question_id . " ");
+			//$a_xml_writer->xmlComment(" question: " . $question_id . " ");
 
 			$a_xml_writer->xmlStartTag("question", array("type" => "stack"));
 			//QUESTION
@@ -154,12 +155,7 @@ class assStackQuestionMoodleXMLExport
 
 			$a_xml_writer->xmlElement("matrixparens", NULL, $options->get_option('matrixparens'));
 
-            //Logic symbol 0 error
-            if ((string)$options->get_option('logicsymbol') == '0') {
-                $a_xml_writer->xmlElement("logicsymbol", NULL, 'lang');
-            } else {
-                $a_xml_writer->xmlElement("logicsymbol", NULL, $options->get_option('logicsymbol'));
-            }
+			$a_xml_writer->xmlElement("logicsymbol", NULL, 'lang');
 
 			//Inputs
 			if (sizeof($question->inputs)) {

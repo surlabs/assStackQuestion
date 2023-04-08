@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
 
 // The foreach block does just what one would expect. One gives them a list or
 // a set and and they will repeat their contents and add a define block

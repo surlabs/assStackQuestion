@@ -1,16 +1,16 @@
 <?php
 /**
- * Copyright (c) 2014 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
+
 require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 
 /**
  * STACK Question Unit tests GUI class
  *
- * @author Fred Neumann <fred.neumann@ili.fau.de>
- * @author Jesus Copado <jesus.copado@ili.fau.de>
- * @version $Id: 1.8$
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
  * @ingroup    ModulesTestQuestionPool
  *
  * @ilCtrl_isCalledBy assStackQuestionTestGUI: ilObjQuestionPoolGUI

@@ -31,8 +31,6 @@
 
 require_once(__DIR__ . '/../../../../../config.php');
 require_once(__DIR__ . '/graph.php');
-require_login();
-require_capability('moodle/site:config', context_system::instance());
 
 $PAGE->set_url('/prt.php');
 $PAGE->set_context(context_system::instance());

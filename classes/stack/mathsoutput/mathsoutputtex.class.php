@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/filterlib.php');
-require_once($CFG->dirroot . '/filter/tex/filter.php');
-require_once(__DIR__ . '/mathsoutputfilterbase.class.php');
+//SURLABS
+//require_once($CFG->libdir . '/filterlib.php');
+//require_once(__DIR__ . '/filter/maths/filter.php');
+//require_once(__DIR__ . '/mathsoutputfilterbase.class.php');
 
 
 /**

@@ -1,14 +1,14 @@
 <?php
 /**
- * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
 
 /**
  * STACK Question EXPORT OF QUESTIONS to ILIAS
  *
- * @author Jesus Copado <jesus.copado@fau.de>
- * @version $Id: 7.0$
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
  *
  */
 include_once "./Modules/TestQuestionPool/classes/export/qti12/class.assQuestionExport.php";
@@ -364,7 +364,8 @@ class assStackQuestionExport extends assQuestionExport
 				$username = (!is_null($userdata) && ilExcelUtils::_convert_text($userdata->getName())) ? ilExcelUtils::_convert_text($userdata->getName()) : "ID $active_id";
 				if (array_key_exists($username, $usernames)) {
 					$usernames[$username]++;
-					$username .= " ($i)";
+                    $i = '';
+                    $username .= " ($i)";
 				} else {
 					$usernames[$username] = 1;
 				}

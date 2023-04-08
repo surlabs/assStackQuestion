@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL')|| die();
 
 // Ast container and related functions, which replace "cas strings".
 //
@@ -25,7 +24,7 @@ require_once(__DIR__ . '/parsingrules/parsingrule.factory.php');
 require_once(__DIR__ . '/cassecurity.class.php');
 require_once(__DIR__ . '/ast.container.silent.class.php');
 require_once(__DIR__ . '/evaluatable_object.interfaces.php');
-require_once(__DIR__ . '/../../locallib.php');
+require_once(__DIR__ . '/../../utils/locallib.php');
 require_once(__DIR__ . '/../utils.class.php');
 require_once(__DIR__ . '/../maximaparser/utils.php');
 require_once(__DIR__ . '/../maximaparser/corrective_parser.php');

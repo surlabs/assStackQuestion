@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
 
 // Define blocks allow one to (re)define variables in the middle of castext.
 // They are meant for writing out for-blocks but no one says that you could not use them.

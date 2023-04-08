@@ -1,9 +1,9 @@
 <?php
-
 /**
- * Copyright (c) 2014 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE 
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
+
 require_once "./Modules/TestQuestionPool/classes/class.ilQuestionsPlugin.php";
 
 /**
@@ -17,19 +17,23 @@ require_once "./Modules/TestQuestionPool/classes/class.ilQuestionsPlugin.php";
 class ilassStackQuestionPlugin extends ilQuestionsPlugin
 {
 
-    final function getPluginName()
+    final function getPluginName(): string
     {
         return "assStackQuestion";
     }
 
-    final function getQuestionType()
+    final function getQuestionType(): string
     {
         return "assStackQuestion";
     }
 
-    final function getQuestionTypeTranslation()
+    final function getQuestionTypeTranslation(): string
     {
         return $this->txt($this->getQuestionType());
+    }
+
+    protected function readEventListening(): void
+    {
     }
 
 }

@@ -1,16 +1,15 @@
 <?php
-
 /**
- * Copyright (c) 2014 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
+
 
 /**
  * Class with STATIC METHODS used in the whole STACK Question
  *
- * @author Fred Neumann <fred.neumann@ili.fau.de>
- * @author Jesus Copado <jesus.copado@ili.fau.de>
- * @version $Id 1.6$
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
  *
  */
 class assStackQuestionUtils
@@ -1245,7 +1244,7 @@ class assStackQuestionUtils
 
 				//PRT feedback
 				if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_feedback') {
-					$parsed_user_response_from_db['prt_feedback'][$prt_name] = $solution_entry['value2'];
+					$parsed_user_response_from_db['prts'][$prt_name]['feedback'] = $solution_entry['value2'];
 				}
 
 				//PRT status
@@ -1263,6 +1262,20 @@ class assStackQuestionUtils
 
 		return $parsed_user_response_from_db;
 	}
+
+    public static function _showRandomisationWarning(assStackQuestion $question): bool
+    {
+        $found_random = false;
+        if ('' == $question->question_note) {
+            foreach (stack_cas_security::get_all_with_feature('random') as $random_id) {
+                if (!(false === strpos($question->question_variables, $random_id))) {
+                    $found_random = true;
+                    break;
+                }
+            }
+        }
+        return $found_random;
+    }
 
 
 }

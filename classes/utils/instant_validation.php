@@ -1,4 +1,10 @@
 <?php
+/**
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
+ */
 
 // fim: [debug] optionally set error before initialisation
 error_reporting(E_ALL);

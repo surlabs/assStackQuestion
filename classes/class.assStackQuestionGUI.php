@@ -1,16 +1,15 @@
 <?php
-
 /**
- * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
 
 
 /**
  * STACK Question GUI
  *
- * @author Jesus Copado <jesus.copado@fau.de>
- * @version    $Id: 6.9$$
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
  * @ingroup    ModulesTestQuestionPool
  * @ilCtrl_isCalledBy assStackQuestionGUI: ilObjQuestionPoolGUI, ilObjTestGUI, ilQuestionEditGUI, ilTestExpressPageObjectGUI
  * @ilCtrl_Calls assStackQuestionGUI: ilFormPropertyDispatchGUI
@@ -49,33 +48,33 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function __construct($id = -1)
 	{
-		parent::__construct();
+        parent::__construct();
 
-		//Initialize plugin object
-		require_once './Services/Component/classes/class.ilPlugin.php';
-		try {
-			$plugin = ilPlugin::getPluginObject(IL_COMP_MODULE, 'TestQuestionPool', 'qst', 'assStackQuestion');
-			if (!is_a($plugin, 'ilassStackQuestionPlugin')) {
-				ilUtil::sendFailure('Not ilassStackQuestionPlugin object', true);
-			} else {
-				$this->setPlugin($plugin);
-			}
-		} catch (ilPluginException $e) {
-			ilUtil::sendFailure($e, true);
-		}
+        //Initialize plugin object
+        require_once './Services/Component/classes/class.ilPlugin.php';
+        try {
+            $plugin = ilPlugin::getPluginObject(IL_COMP_MODULE, 'TestQuestionPool', 'qst', 'assStackQuestion');
+            if (!is_a($plugin, 'ilassStackQuestionPlugin')) {
+                ilUtil::sendFailure('Not ilassStackQuestionPlugin object', true);
+            } else {
+                $this->setPlugin($plugin);
+            }
+        } catch (ilPluginException $e) {
+            ilUtil::sendFailure($e, true);
+        }
 
-		//Initialize and loads the Stack question from DB
-		$this->object = new assStackQuestion();
+        //Initialize and loads the Stack question from DB
+        $this->object = new assStackQuestion();
 
-		if ($id >= 0) {
-			try {
-				$this->object->loadFromDb($id);
-			} catch (stack_exception $e) {
-				ilUtil::sendFailure($e, true);
-			}
-		}
-		//Initialize some STACK required parameters
-		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
+        if ($id >= 0) {
+            try {
+                $this->object->loadFromDb($id);
+            } catch (stack_exception $e) {
+                ilUtil::sendFailure($e, true);
+            }
+        }
+        //Initialize some STACK required parameters
+        include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
 	}
 
 	/**
@@ -99,10 +98,6 @@ class assStackQuestionGUI extends assQuestionGUI
 		//Get user solution from DB
 		if (empty($user_solution_from_db = $this->object->getTestOutputSolutions($active_id, $pass))) {
 
-			//Ensure evaluation has been done
-			if (empty($this->object->getEvaluation())) {
-				$this->object->evaluateQuestion(array_keys($this->object->inputs));
-			}
 
 			//No user Solution
 			//Render question from scratch
@@ -116,49 +111,39 @@ class assStackQuestionGUI extends assQuestionGUI
 			}
 
 		} else {
+            //Use user solution from DB
+            $user_solution = array();
+            //Get user solution from DB
+            foreach ($this->object->inputs as $input_name => $input) {
 
-			//Use user solution from DB
-			$user_solution = array();
-			//Get user solution from DB
-			foreach ($this->object->inputs as $input_name => $input) {
+                //first adaptation of the user solution only if user solution is present
+                $user_solution[$input_name] = $user_solution_from_db['inputs'][$input_name]['value'];
 
-				//first adaptation of the user solution only if user solution is present
-				$user_solution[$input_name] = $user_solution_from_db['inputs'][$input_name]['value'];
+                if (is_a($input, 'stack_textarea_input')
+                    or is_a($input, 'stack_equiv_input')
+                    or is_a($input, 'stack_matrix_input')) {
 
-				//TEXTAREAS EQUIV, User response from DB tuning
-				if (is_a($input, 'stack_textarea_input') or is_a($input, 'stack_equiv_input')) {
-					$user_solution[$input_name] = substr($user_solution[$input_name], 1, -1);
-					$user_solution[$input_name] = explode(',', $user_solution[$input_name]);
-					$user_solution[$input_name] = implode("\n", $user_solution[$input_name]);
-				}
-			}
-		}
+                    $response = $input->maxima_to_response_array($user_solution[$input_name]);
 
-		//Second adaptation of the user solution
-		$response = array();
-		foreach ($this->object->inputs as $input_name => $input) {
-			//Check [] for textareas and equivalence inputs
-			if (is_a($input_name, 'stack_textarea_input') or is_a($input_name, 'stack_equiv_input')) {
-				$user_solution[$input_name] = '[' . $user_solution[$input_name] . ']';
-			}
+                    //clean solution
+                    foreach (array_keys($response) as $array_key) {
+                        if (strpos($array_key, '_val')) {
+                            unset($response[$array_key]);
+                        }
+                    }
+                    $user_solution = $response;
+                }
+            }
+        }
 
-			//Do not send to maxima Matrix
-			if (!is_a($input, 'stack_matrix_input')) {
-				$response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
-			} else {
-				$response[$input_name] = $user_solution[$input_name];
-			}
-		}
+        $this->object->setUserResponse($user_solution);
 
-		//Set the user response
-		$this->object->setUserResponse(assStackQuestionUtils::compute_response($this->object, $response));
+        //Ensure evaluation has been done
+        if (empty($this->object->getEvaluation())) {
+            $this->object->evaluateQuestion($this->object->getUserResponse());
+        }
 
-		//Ensure evaluation has been done
-		if (empty($this->object->getEvaluation())) {
-			$this->object->evaluateQuestion($this->object->getUserResponse());
-		}
-
-		//Render Question
+        //Render Question
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
 		try {
 			//$question_output = assStackQuestionRenderer::_renderQuestionTest($this->object, $active_id, $pass, $user_post_solutions, $show_specific_inline_feedback, $is_question_postponed);
@@ -244,12 +229,18 @@ class assStackQuestionGUI extends assQuestionGUI
 		$user_solution = array();
 		//Debug the PreviewSession Data
 		if (is_object($this->getPreviewSession())) {
-			$raw_participants_solution = (array)$this->getPreviewSession()->getParticipantsSolution();
-			foreach ($raw_participants_solution as $key => $value) {
-				if (!str_starts_with($key, 'xqcas_solution')) {
-					$user_solution[$key] = $value;
-				}
-			}
+            $raw_participants_solution = (array) $this->getPreviewSession()->getParticipantsSolution();
+            foreach ($raw_participants_solution as $key => $value) {
+                if (version_compare(phpversion(), '8.0.0', '<')) {
+                    if (substr($key, 0, 13) !== 'xqcas_solution') {
+                        $user_solution[$key] = $value;
+                    }
+                } else {
+                    if (!str_starts_with($key, 'xqcas_solution')) {
+                        $user_solution[$key] = $value;
+                    }
+                }
+            }
 		}
 		//Seed management
 		if (isset($_REQUEST['fixed_seed'])) {
@@ -302,23 +293,27 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		$response = array();
 		foreach ($this->object->inputs as $input_name => $input) {
-
-			//Check [] for textareas and equivalence inputs
-			//TODO Really checking? $input_name??
-			if (is_a($input, 'stack_textarea_input') or is_a($input, 'stack_equiv_input')) {
-				$user_solution[$input_name] = '[' . $user_solution[$input_name] . ']';
-			}
-
-            if (is_a($input, 'stack_dropdown_input') or is_a($input, 'stack_checkbox_input') or is_a($input, 'stack_radio_input')) {
-                if (!$input->notanswered) {
-                    $response[$input_name] = $input->response_to_contents($user_solution);
+            //Do not send matrix to maxima
+            if (is_a($input, 'stack_matrix_input')
+                or is_a($input, 'stack_textarea_input')
+                or is_a($input, 'stack_equiv_input')) {
+                //clean solution
+                foreach (array_keys($user_solution) as $array_key){
+                    if (strpos($array_key, '_solution_')) {
+                        unset($user_solution[$array_key]);
+                    }
                 }
+                $this->object->setUserResponse($user_solution);
+            } elseif (is_a($input, 'stack_dropdown_input')
+                or is_a($input, 'stack_radio_input')
+                or is_a($input, 'stack_checkbox_input')) {
+                $this->object->setUserResponse($user_solution);
             } else {
                 $response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
+                $this->object->setUserResponse($response,$input_name);
             }
-		}
+        }
 
-		$this->object->setUserResponse(assStackQuestionUtils::compute_response($this->object, $response));
 
 		//Ensure evaluation has been done
 		if (empty($this->object->getEvaluation())) {
@@ -627,7 +622,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 *
 	 * @param ilPropertyFormGUI $form
 	 */
-	public function populateTaxonomyFormSection(ilPropertyFormGUI $form)
+	public function populateTaxonomyFormSection(ilPropertyFormGUI $form):void
 	{
 		parent::populateTaxonomyFormSection($form);
 	}
@@ -698,6 +693,11 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Reform authoring interface
 		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/ilMultipartFormProperty.js');
+
+        //35855 ensure warning if shown if no question note is added when randomised
+        if(assStackQuestionUtils::_showRandomisationWarning($this->object)){
+            ilUtil::sendInfo(stack_string('questionnotempty'));
+        }
 
 		//Returns Question Authoring form
 		if (!$check_only) {
@@ -926,7 +926,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 * Sets the ILIAS tabs for this question type
 	 * called from ilObjTestGUI and ilObjQuestionPoolGUI
 	 */
-	public function setQuestionTabs()
+	public function setQuestionTabs():void
 	{
 		global $DIC, $rbacsystem;
 
@@ -1274,11 +1274,8 @@ class assStackQuestionGUI extends assQuestionGUI
 		$seed = (int)$_POST['deployed_seed'];
 		$question_id = (int)$_POST['question_id'];
 
-		$this->plugin->includeClass('model/ilias_object/class.assStackQuestionDeployedSeed.php');
-		$deployed_seed = new assStackQuestionDeployedSeed('', $question_id, $seed);
-		if (!$deployed_seed->save()) {
-			ilUtil::sendFailure($this->plugin->txt('dsm_not_allowed_seed'), true);
-		}
+        //save seed
+        assStackQuestionDB::_saveStackSeeds($this->object,'add',$seed);
 
 		$this->deployedSeedsManagement();
 	}
@@ -1296,18 +1293,12 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->getQuestionTemplate();
 
 		//New seed creation
-		$seed = $_POST['deployed_seed'];
-		$question_id = $_POST['question_id'];
+		$seed = (int)$_POST['deployed_seed'];
+		$question_id = (int)$_POST['question_id'];
 
-		$this->plugin->includeClass('model/ilias_object/class.assStackQuestionDeployedSeed.php');
-		$deployed_seeds = assStackQuestionDeployedSeed::_read($question_id);
-		foreach ($deployed_seeds as $deployed_seed) {
-			if ($deployed_seed->getSeed() == $seed) {
-				$deployed_seed->delete();
-				ilUtil::sendSuccess($this->plugin->txt('dsm_deployed_seed_deleted'));
-				break;
-			}
-		}
+        //delete seed
+        assStackQuestionDB::_deleteStackSeeds($question_id,'',$seed);
+
 
 		$this->deployedSeedsManagement();
 	}
@@ -1332,7 +1323,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Create GUI object
 		$this->plugin->includeClass('GUI/question_authoring/class.assStackQuestionScoringGUI.php');
-		$scoring_gui = new assStackQuestionScoringGUI($this->plugin, $this->object->getId(), $this->object->getPoints());
+		$scoring_gui = new assStackQuestionScoringGUI($this->plugin, $this->object, $this->object->getPoints());
 
 		//Add CSS
 		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_scoring_management.css'));

@@ -1,16 +1,16 @@
 <?php
 /**
- * Copyright (c) 2014 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
+
 require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 
 /**
  * STACK Question scoring management class
  *
- * @author Fred Neumann <fred.neumann@ili.fau.de>
- * @author Jesus Copado <jesus.copado@ili.fau.de>
- * @version $Id: 2.0$
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
  * @ingroup    ModulesTestQuestionPool
  *
  */
@@ -18,7 +18,7 @@ class assStackQuestionScoring
 {
 
 	/**
-	 * @var mixed array with the potential response trees.
+	 * @var stack_potentialresponse_tree[]
 	 */
 	private $potentialresponse_trees;
 
@@ -29,7 +29,7 @@ class assStackQuestionScoring
 
 
 	/**
-	 * @param $potentialresponse_trees array of assStackQuestionPRT
+	 * @param $potentialresponse_trees
 	 */
 	function __construct($potentialresponse_trees)
 	{
@@ -50,7 +50,7 @@ class assStackQuestionScoring
 
 		//Get max weight of the PRT
 		foreach ($this->getPotentialresponseTrees() as $prt_name => $prt) {
-			$max_weight += $prt->getPRTValue();
+			$max_weight += $prt->get_value();
 		}
 
 		//fill the structure
@@ -70,7 +70,7 @@ class assStackQuestionScoring
 	}
 
 	/**
-	 * @param mixed $potentialresponse_trees
+	 * @param $potentialresponse_trees
 	 */
 	public function setPotentialresponseTrees($potentialresponse_trees)
 	{
@@ -78,7 +78,6 @@ class assStackQuestionScoring
 	}
 
 	/**
-	 * @return mixed
 	 */
 	public function getPotentialresponseTrees()
 	{

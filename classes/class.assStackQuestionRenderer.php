@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright (c) 2022 Institut fuer Lern-Innovation, Friedrich-Alexander-Universitaet Erlangen-Nuernberg
- * GPLv2, see LICENSE
+ * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
+ * GPLv3, see LICENSE
  */
 
 /**
@@ -9,8 +9,8 @@
  * All rendering is processed here
  * GUI classes call this renderer after initialisation od assStackQuestion
  *
- * @author Jesus Copado <jesus.copado@fau.de>
- * @version $Id: 4.0$
+ * @author Jesús Copado Mejías <stack@surlabs.es>
+ * @version $Id: 7.1$
  *
  */
 
@@ -60,7 +60,7 @@ class assStackQuestionRenderer
 			$ta_value = $question->getTas($name);
 
 			$field_name = 'xqcas_' . $question->getId() . '_' . $name;
-			$state = $question->getInputStates($name);
+			$state = $question->getInputState($name, $question->getUserResponse());
 			if (is_a($state, 'stack_input_state')) {
 				if (($input->get_parameter('showValidation') != 0)) {
 
@@ -157,8 +157,7 @@ class assStackQuestionRenderer
 
 					$prt_state = $evaluation['prts'][$prt_name];
 
-                    //Manage LaTeX explicitly
-                    $prt_feedback .= assStackQuestionUtils::_getLatex(self::renderPRTFeedback($prt_state));
+					$prt_feedback .= self::renderPRTFeedback($prt_state);
 
 				}
 				$question_text = assStackQuestionUtils::_getFeedbackStyledText($question_text, 'feedback_default');
@@ -373,7 +372,6 @@ class assStackQuestionRenderer
 			if (isset($user_solution_from_db['prts'][$prt_name])) {
 
 				$prt_info = $user_solution_from_db['prts'][$prt_name];
-                $prt_info_feedback = $user_solution_from_db['prt_feedback'][$prt_name] ?? '';
 
 				//General PRT Feedback
 				switch ($prt_info['status']) {
@@ -395,7 +393,13 @@ class assStackQuestionRenderer
 				//Errors & Feedback
 				//Ensure evaluation has been done
 				//#35924
-                $prt_feedback .= assStackQuestionUtils::_getLatex($prt_info_feedback);
+				if (isset($prt_info['feedback']) and is_string($prt_info['feedback'])) {
+
+					$prt_feedback .= assStackQuestionUtils::_getLatex($prt_info['feedback']);
+
+				} else {
+					$prt_feedback = '';
+				}
 
 				//Replace Placeholders
 				$text_to_replace = assStackQuestionUtils::_replacePlaceholders($prt_name, $text_to_replace, $prt_feedback);
@@ -439,13 +443,6 @@ class assStackQuestionRenderer
 		//Inputs Replacement
 		foreach ($input_placeholders as $name) {
 			$field_name = 'xqcas_' . $question->getId() . '_' . $name . '_solution';
-
-			//TEXTAREAS EQUIV, User response from DB tuning
-			if (is_a($question->inputs[$name], 'stack_textarea_input') or is_a($question->inputs[$name], 'stack_equiv_input')) {
-				$input_correct_array[$name] = substr($input_correct_array[$name], 1, -1);
-				$input_correct_array[$name] = explode(',', $input_correct_array[$name]);
-				$input_correct_array[$name] = implode("\n", $input_correct_array[$name]);
-			}
 
 			//Matrix has a different syntax
 			$state = $question->getInputState($name, $input_correct_array, false, false);
@@ -596,7 +593,7 @@ class assStackQuestionRenderer
 	 * @param string $mode
 	 * @return string
 	 */
-	public static function substituteVariablesInFeedback(?stack_potentialresponse_tree_state $prt_state, $feedback, string $format, string $mode): string
+	protected static function substituteVariablesInFeedback(?stack_potentialresponse_tree_state $prt_state, $feedback, string $format, string $mode): string
 	{
 		if ($mode == 'preview') {
 			switch ($format) {
@@ -617,11 +614,7 @@ class assStackQuestionRenderer
 					break;
 				default:
 					//By default, add no style
-                    if (is_array($feedback)) {
-                        $feedback = $prt_state->substitue_variables_in_feedback(implode(' ', $feedback)) ?? implode(' ', $feedback);
-                    } else {
-                        $feedback = $prt_state->substitue_variables_in_feedback($feedback) ?? $feedback;
-                    }
+					$feedback = $prt_state->substitue_variables_in_feedback(implode(' ', $feedback));
 					break;
 			}
 		} elseif ($mode == 'test') {
@@ -642,12 +635,7 @@ class assStackQuestionRenderer
 					$feedback = "[[feedback_plot_feedback]]" . $feedback . "[[feedback_plot_feedback_close]]";
 					break;
 				default:
-                    //By default, add no style
-                    if (is_array($feedback)) {
-                        $feedback = $prt_state->substitue_variables_in_feedback(implode(' ', $feedback)) ?? implode(' ', $feedback);
-                    } else {
-                        $feedback = $prt_state->substitue_variables_in_feedback($feedback) ?? $feedback;
-                    }
+					//By default, add no style
 					break;
 			}
 		}

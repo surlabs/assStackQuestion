@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
 
 // Comments blocks allow you to include comments in question text.
 // This could be achieved with an [[ if test='false' ]] etc. but having comments as logically
@@ -22,7 +21,6 @@ defined('MOODLE_INTERNAL') || die();
 //
 // @copyright  2017 University of Edinburgh.
 // @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
-require_once("block.interface.php");
 
 class stack_cas_castext_comment extends stack_cas_castext_block {
 
