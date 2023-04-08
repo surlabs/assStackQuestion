@@ -293,7 +293,6 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		$response = array();
 		foreach ($this->object->inputs as $input_name => $input) {
-
             //Do not send matrix to maxima
             if (is_a($input, 'stack_matrix_input')
                 or is_a($input, 'stack_textarea_input')
@@ -313,7 +312,6 @@ class assStackQuestionGUI extends assQuestionGUI
                 $response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
                 $this->object->setUserResponse($response,$input_name);
             }
-
         }
 
 

@@ -107,7 +107,7 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
-Version 7.1.0 Installation & Configuration improvements, Extra options tuning
+Version 7.1.0 Installation improvements, Legacy Import files,  Extra options tuning
 ----------------------------------------
 
 **It solves the following errors**
