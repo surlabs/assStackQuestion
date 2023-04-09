@@ -183,6 +183,4 @@ From STACK version 7.1, older pools and test can be again be imported in STACK v
   - Check answer type is currently not evaluated
   - Best solution in Test results is not shown properly
   - Instant validation for textareas not working properly
-  - Question Images may not be rendered in Feedback
-  - Notes inputs are currently unavailable
   - Feedback in Tests not rendered properly
