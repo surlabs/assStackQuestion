@@ -366,7 +366,21 @@ class assStackQuestionMoodleImport
 						$true_feedback = '';
 					}
 
-					$node->add_branch(0, ilUtil::secureString((string)$xml_node->falsescoremode), ilUtil::secureString((string)$xml_node->falsescore), $false_penalty, ilUtil::secureString((string)$false_next_node), ilUtil::secureString($false_feedback), 1, ilUtil::secureString((string)$false_answer_note));
+
+                    //Check for non "0" next nodes
+                    $true_next_node = $xml_node->truenextnode;
+                    $false_next_node = $xml_node->falsenextnode;
+
+                    //Check for non "0" answer notes
+                    if ($invalid_node) {
+                        $true_answer_note = $prt_name . '-' . $node_name . '-T';
+                        $false_answer_note = $prt_name . '-' . $node_name . '-F';
+                    } else {
+                        $true_answer_note = $xml_node->trueanswernote;
+                        $false_answer_note = $xml_node->falseanswernote;
+                    }
+
+                    $node->add_branch(0, ilUtil::secureString((string)$xml_node->falsescoremode), ilUtil::secureString((string)$xml_node->falsescore), $false_penalty, ilUtil::secureString((string)$false_next_node), ilUtil::secureString($false_feedback), 1, ilUtil::secureString((string)$false_answer_note));
 					$node->add_branch(1, ilUtil::secureString((string)$xml_node->truescoremode), ilUtil::secureString((string)$xml_node->truescore), $true_penalty, ilUtil::secureString((string)$true_next_node), ilUtil::secureString($true_feedback), 1, ilUtil::secureString((string)$true_answer_note));
 
 					$nodes[$node_name] = $node;
