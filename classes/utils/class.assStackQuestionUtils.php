@@ -400,7 +400,7 @@ class assStackQuestionUtils
 	 * @param $text string The raw text
 	 * @return string
 	 */
-	public static function _getLatex(string $text): string
+	public static function _getLatex($text): string
 	{
 		/*
 		 * Step 1 check current platform's LaTeX delimiters
