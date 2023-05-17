@@ -248,8 +248,8 @@ class assStackQuestionImport extends assQuestionImport
                         $false_answer_note = $xml_node->getFalseAnswerNote();
                         $true_answer_note = $xml_node->getTrueAnswerNote();
 
-                        $node->add_branch(0, ilUtil::secureString((string)$xml_node->getFalseScoreMode()), ilUtil::secureString((string)$xml_node->getFalseScore()), $false_penalty, ilUtil::secureString((string)$false_next_node), ilUtil::secureString($false_feedback), 1, ilUtil::secureString((string)$false_answer_note));
-                        $node->add_branch(1, ilUtil::secureString((string)$xml_node->getTrueScoreMode()), ilUtil::secureString((string)$xml_node->getTrueScore()), $true_penalty, ilUtil::secureString((string)$true_next_node), ilUtil::secureString($true_feedback), 1, ilUtil::secureString((string)$true_answer_note));
+                        $node->add_branch(0, ilUtil::secureString((string)$xml_node->getFalseScoreMode()), ilUtil::secureString((string)$xml_node->getFalseScore()), $false_penalty, ilUtil::secureString((string)$false_next_node), ilUtil::secureString($false_feedback, false), 1, ilUtil::secureString((string)$false_answer_note));
+                        $node->add_branch(1, ilUtil::secureString((string)$xml_node->getTrueScoreMode()), ilUtil::secureString((string)$xml_node->getTrueScore()), $true_penalty, ilUtil::secureString((string)$true_next_node), ilUtil::secureString($true_feedback, false), 1, ilUtil::secureString((string)$true_answer_note));
 
                         $nodes[$node_name] = $node;
 
@@ -341,7 +341,7 @@ class assStackQuestionImport extends assQuestionImport
 
                 $GLOBALS['ilLog']->write(__METHOD__ . ': import mob from dir: ' . $importfile);
 
-                $media_object = ilObjMediaObject::_saveTempFileAsMediaObject(basename($importfile), $importfile, false);
+                $media_object =& ilObjMediaObject::_saveTempFileAsMediaObject(basename($importfile), $importfile, FALSE);
                 ilObjMediaObject::_saveUsage($media_object->getId(), "qpl:html", $this->object->getId());
 
                 $question_text = str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $question_text);
