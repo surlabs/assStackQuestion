@@ -991,7 +991,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         $results = array();
         foreach ($db_values as $index => $value)
         {
-            //$value['question_fi'] = "8013";
             if ($value['value1'] == 'xqcas_text_' . $value['question_fi'])
             {
                 $results['question_text'] = $value['value2'];
