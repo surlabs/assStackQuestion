@@ -970,6 +970,101 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return $parsed_user_response_from_db;
     }
 
+    public function getOldTestOutputSolutions ($activeId, $pass): array
+    {
+        $solution = parent::getTestOutputSolutions($activeId, $pass);
+
+        $parsed_user_response_from_db = $this->fromDBToReadableFormat($solution);
+
+        return $parsed_user_response_from_db;
+    }
+
+    /**
+     * Get raw data from DB and transforms it into a readable by
+     * STACK Question plugin format.
+     * @param array $db_values
+     * @return array
+     */
+    private function fromDBToReadableFormat(array $db_values): array
+    {
+        //Prepare array;
+        $results = array();
+        foreach ($db_values as $index => $value)
+        {
+            if ($value['value1'] == 'xqcas_text_' . $value['question_fi'])
+            {
+                $results['question_text'] = $value['value2'];
+                $results['id'] = $value['question_fi'];
+                $results['points'] = (float)$value['points'];
+
+                unset($db_values[$index]);
+            } elseif ($value['value1'] == 'xqcas_solution_' . $value['question_fi'])
+            {
+                $results['question_note'] = $value['value2'];
+                unset($db_values[$index]);
+            } elseif ($value['value1'] == 'xqcas_general_feedback_' . $value['question_fi'])
+            {
+                $results['general_feedback'] = $value['value2'];
+                unset($db_values[$index]);
+            } else
+            {
+                foreach ($this->prts as $prt_name => $prt)
+                {
+                    if ($value['value1'] == 'xqcas_prt_' . $prt_name . '_name')
+                    {
+                        $results['prt'][$prt_name]['points'] = $value['points'];
+                        unset($db_values[$index]);
+                    } elseif ($value['value1'] == 'xqcas_prt_' . $prt_name . '_errors')
+                    {
+                        $results['prt'][$prt_name]['errors'] = $value['value2'];
+                        unset($db_values[$index]);
+                    } elseif ($value['value1'] == 'xqcas_prt_' . $prt_name . '_feedback')
+                    {
+                        $results['prt'][$prt_name]['feedback'] = $value['value2'];
+                        unset($db_values[$index]);
+                    } elseif ($value['value1'] == 'xqcas_prt_' . $prt_name . '_status')
+                    {
+                        $results['prt'][$prt_name]['status']['value'] = $value['value2'];
+                        unset($db_values[$index]);
+                    } elseif ($value['value1'] == 'xqcas_prt_' . $prt_name . '_status_message')
+                    {
+                        $results['prt'][$prt_name]['status']['message'] = $value['value2'];
+                        unset($db_values[$index]);
+                    } elseif ($value['value1'] == 'xqcas_prt_' . $prt_name . '_answernote')
+                    {
+                        $results['prt'][$prt_name]['answernote'] = $value['value2'];
+                        unset($db_values[$index]);
+                    } else
+                    {
+                        foreach ($this->inputs as $input_name => $input)
+                        {
+                            if ($value['value1'] == 'xqcas_prt_' . $prt_name . '_value_' . $input_name)
+                            {
+                                $results['prt'][$prt_name]['response'][$input_name]['value'] = $value['value2'];
+                                unset($db_values[$index]);
+                            } elseif ($value['value1'] == 'xqcas_prt_' . $prt_name . '_display_' . $input_name)
+                            {
+                                $results['prt'][$prt_name]['response'][$input_name]['display'] = $value['value2'];
+                                unset($db_values[$index]);
+                            } elseif ($value['value1'] == 'xqcas_prt_' . $prt_name . '_model_answer_' . $input_name)
+                            {
+                                $results['prt'][$prt_name]['response'][$input_name]['model_answer'] = $value['value2'];
+                                unset($db_values[$index]);
+                            } elseif ($value['value1'] == 'xqcas_prt_' . $prt_name . '_model_answer_display_' . $input_name)
+                            {
+                                $results['prt'][$prt_name]['response'][$input_name]['model_answer_display'] = $value['value2'];
+                                unset($db_values[$index]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $results;
+    }
+
+
     //Import and Export
 
     /**

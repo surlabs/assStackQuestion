@@ -100,6 +100,14 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
+Version 7.1.2 (2023.05.17) non stack_for_ilias7 test results test
+----------------------------------------
+- #37301 Detailed Test results from non stack_for_ilias7 test runs are again shown
+- #37289 only server option after update
+- #37210 equations not being properly evaluated when terms are flipped
+- #37321 Notes input user results are shown again in Test and Test results
+- merged PR from gohu
+
 Version 7.1.0 (2023.04.09) Installation improvements, Legacy Import files,  Extra options tuning
 ----------------------------------------
 - ILIAS Question Pools and Test created in older plugin versions (<master-ilias713) are again valid to ve imported in current ILIAS installations. some legacy code was included back due to this feature

@@ -1346,8 +1346,26 @@ class assStackQuestionDB
 			//Ensure only input data is stored
 			if (array_key_exists($input_name, $question->inputs)) {
 				//value1 = xqcas_input_*_value, value2 = raw student answer for this question input
-				$question->saveCurrentSolution($active_id, $pass, 'xqcas_input_' . $input_name . '_value', $input_state->contentsmodified);
-				$entered_values++;
+                //#37321 - Notes result change to real user input value
+                if (isset($question->inputs[$input_name]) && is_a(
+                        $question->inputs[$input_name],
+                        "stack_notes_input"
+                    )) {
+                    $question->saveCurrentSolution(
+                        $active_id,
+                        $pass,
+                        'xqcas_input_' . $input_name . '_value',
+                        $input_state->__get("contents")[0]
+                    );
+                } else {
+                    $question->saveCurrentSolution(
+                        $active_id,
+                        $pass,
+                        'xqcas_input_' . $input_name . '_value',
+                        $input_state->contentsmodified
+                    );
+                }
+                $entered_values++;
 
 				//value1 = xqcas_input_*_display, value2 = student answer displayed for this question input after validation
 				$question->saveCurrentSolution($active_id, $pass, 'xqcas_input_' . $input_name . '_display', $input_state->contentsdisplayed);

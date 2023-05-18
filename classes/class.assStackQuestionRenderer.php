@@ -203,6 +203,27 @@ class assStackQuestionRenderer
 	public static function _renderQuestionTextForTestResults(assStackQuestion $question, string $active_id, string $pass): string
 	{
 		$student_solutions = $question->getTestOutputSolutions($active_id, $pass);
+
+        //Old Test
+        if (!isset($student_solutions['inputs'])) {
+            $old_student_solutions = $question->getOldTestOutputSolutions($active_id, $pass);
+
+            if (isset($old_student_solutions["prt"])) {
+                foreach ($old_student_solutions["prt"] as $prt_name => $prt_info) {
+                    if (isset($prt_info["response"])) {
+                        foreach ($prt_info["response"] as $input_name => $input_info) {
+                            $old_student_solutions["inputs"][$input_name]['value'] = $input_info['value'];
+                            $old_student_solutions["inputs"][$input_name]['display'] = $input_info['display'];
+                            $old_student_solutions["inputs"][$input_name]['validation_display'] = $input_info['display'];
+                            $old_student_solutions["inputs"][$input_name]['correct_value'] = $input_info['model_answer'];
+                            $old_student_solutions["inputs"][$input_name]['correct_display'] = $input_info['model_answer_display'];
+                        }
+                    }
+                }
+            }
+            $student_solutions = $old_student_solutions;
+        }
+
 		$question_text = $student_solutions['question_text'];
 
 		//Question initialization
@@ -342,7 +363,6 @@ class assStackQuestionRenderer
 
 		//Use General Feedback Style for the whole Speficic Feedback Text
 		return assStackQuestionUtils::_getFeedbackStyledText($text_to_replace, 'feedback_default');
-
 	}
 
 	/**
@@ -640,7 +660,11 @@ class assStackQuestionRenderer
 			}
 		}
 
-		return $feedback;
+        if (is_string($feedback)) {
+            return $feedback;
+        } else {
+            return '';
+        }
 	}
 
 	/**
