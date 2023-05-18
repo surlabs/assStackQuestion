@@ -104,6 +104,8 @@ Version 7.1.2 (2023.05.17) non stack_for_ilias7 test results test
 ----------------------------------------
 - #37301 Detailed Test results from non stack_for_ilias7 test runs are again shown
 - #37289 only server option after update
+- #37210 equations not being properly evaluated when terms are flipped
+- #37321 Notes input user results are shown again in Test and Test results
 - merged PR from gohu
 
 Version 7.1.0 (2023.04.09) Installation improvements, Legacy Import files,  Extra options tuning
