@@ -224,6 +224,22 @@ class assStackQuestionRenderer
             $student_solutions = $old_student_solutions;
         }
 
+
+        if (isset($student_solutions['inputs']) && is_array($student_solutions['inputs'])) {
+            foreach ($student_solutions['inputs'] as $input_name => $input_info) {
+                if (isset($question->inputs[$input_name]) && is_a(
+                        $question->inputs[$input_name],
+                        'stack_dropdown_input'
+                    )
+                    or is_a($question->inputs[$input_name], 'stack_radio_input')
+                    or is_a($question->inputs[$input_name], 'stack_checkbox_input')) {
+                    $student_solutions['inputs'][$input_name]['value'] = $question->inputs[$input_name]->maxima_to_response_array(
+                        $student_solutions['inputs'][$input_name]['value']
+                    );
+                }
+            }
+        }
+
 		$question_text = $student_solutions['question_text'];
 
 		//Question initialization

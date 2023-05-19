@@ -661,8 +661,8 @@ $string['Bad_assignment']   = 'When listing the values of a variable you should 
 
 
 // Answer tests.
-
 $string['stackOptions_AnsTest_values_AlgEquiv']            = "AlgEquiv";
+$string['stackOptions_AnsTest_values_AlgEquivNouns']       = "AlgEquivNouns";
 $string['stackOptions_AnsTest_values_EqualComAss']         = "EqualComAss";
 $string['stackOptions_AnsTest_values_CasEqual']            = "CasEqual";
 $string['stackOptions_AnsTest_values_SameType']            = "SameType";
@@ -674,6 +674,7 @@ $string['stackOptions_AnsTest_values_FacForm']             = "FacForm";
 $string['stackOptions_AnsTest_values_SingleFrac']          = "SingleFrac";
 $string['stackOptions_AnsTest_values_PartFrac']            = "PartFrac";
 $string['stackOptions_AnsTest_values_CompSquare']          = "CompletedSquare";
+$string['stackOptions_AnsTest_values_PropLogic']           = "PropositionalLogic";
 $string['stackOptions_AnsTest_values_Equiv']               = "EquivReasoning";
 $string['stackOptions_AnsTest_values_EquivFirst']          = "EquivFirst";
 $string['stackOptions_AnsTest_values_SigFigsStrict']       = "SigFigsStrict";
@@ -695,7 +696,7 @@ $string['stackOptions_AnsTest_values_Diff']                = "Diff";
 $string['stackOptions_AnsTest_values_Int']                 = "Int";
 $string['stackOptions_AnsTest_values_String']              = "String";
 $string['stackOptions_AnsTest_values_StringSloppy']        = "StringSloppy";
-$string['stackOptions_AnsTest_values_RegExp']              = "RegExp";
+$string['stackOptions_AnsTest_values_SRegExp']             = "SRegExp";
 
 $string['AT_NOTIMPLEMENTED']        = 'This answer test has not been implemented. ';
 $string['TEST_FAILED']              = 'The answer test failed to execute correctly: please alert your teacher. {$a->errors}';

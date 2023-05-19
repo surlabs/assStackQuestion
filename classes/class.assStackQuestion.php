@@ -989,8 +989,20 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     {
         //Prepare array;
         $results = array();
+
+        /*
+        if(isset($db_values[0])){
+            if(isset($db_values[0]['value1'])){
+                $question_id = $this->oldTestImportIdFinder($db_values[0]['value1'], 'xqcas_text_');
+            }
+        }
+        else{
+            $question_id = $this->getId();
+        }*/
+
         foreach ($db_values as $index => $value)
         {
+            //if ($value['value1'] == 'xqcas_text_' . $question_id)
             if ($value['value1'] == 'xqcas_text_' . $value['question_fi'])
             {
                 $results['question_text'] = $value['value2'];
@@ -1005,6 +1017,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             } elseif ($value['value1'] == 'xqcas_general_feedback_' . $value['question_fi'])
             {
                 $results['general_feedback'] = $value['value2'];
+                unset($db_values[$index]);
+            } elseif ($value['value1'] == 'xqcas_question_' . $value['question_fi']. '_seed')
+            {
+                $results['seed'] = $value['value2'];
                 unset($db_values[$index]);
             } else
             {
@@ -1062,6 +1078,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
 
         return $results;
+    }
+
+    function oldTestImportIdFinder($string, $starts_with) {
+        if (substr($string, 0, strlen($starts_with)) === $starts_with) {
+            return substr($string, strlen($starts_with));
+        }
+        return $this->getId();
     }
 
 
