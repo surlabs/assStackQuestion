@@ -266,7 +266,14 @@ class assStackQuestionRenderer
 		foreach ($input_placeholders as $name) {
 
 			$input_object = $question->inputs[$name];
-			$input_state = $input_object->validate_student_response(array($name => $student_solutions['inputs'][$name]['value']), $question->options, $input_object->get_teacher_answer(), $question->getSecurity());
+
+            if(is_a($question->inputs[$name],'stack_checkbox_input')){
+
+                $input_state = $input_object->validate_student_response($student_solutions['inputs'][$name]['value'], $question->options, $input_object->get_teacher_answer(), $question->getSecurity());
+            }else{
+
+                $input_state = $input_object->validate_student_response(array($name => $student_solutions['inputs'][$name]['value']), $question->options, $input_object->get_teacher_answer(), $question->getSecurity());
+            }
 
 			$field_name = 'xqcas_' . $question->getId() . '_' . $name;
 			//Input Placeholders
