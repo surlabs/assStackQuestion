@@ -132,7 +132,7 @@ class assStackQuestionGUI extends assQuestionGUI
                         }
                     }
 
-                    $user_solution = $response;
+                    $user_solution = array_merge($user_solution, $response);
                 } elseif (is_a($input, 'stack_dropdown_input')
                     or is_a($input, 'stack_radio_input')
                     or is_a($input, 'stack_checkbox_input')) {

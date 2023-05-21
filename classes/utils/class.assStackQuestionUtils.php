@@ -291,6 +291,9 @@ class assStackQuestionUtils
 		}
 
 		foreach ($response_array as $entry_name => $response_value) {
+            if(is_a($inputs[$entry_name],'stack_matrix_input')){
+                return false;
+            }
 			if (array_key_exists($entry_name, $inputs)) {
 				if (strlen($response_value) == 0) {
 					//Check allowempty
