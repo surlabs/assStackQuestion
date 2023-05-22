@@ -100,9 +100,15 @@ Version History
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
-Version 7.1.4 (2023.05.22) Matrix refinement
+Version 7.1.5 (2023.05.22) Validation for user results in test results
 ----------------------------------------
-- Matrix are now properly evaluated in preview and tests
+- Validation now is shown in Test results' user results
+- The following input types doesn't show test results properly
+- matrix, dropdown, checkbox, radio
+- We continue working on the issues, in order to have all of them solved as soon as possible
+
+Version 7.1.4 (2023.05.21) Checkbox
+----------------------------------------
 - Checkboxes user selection is again kept and properly evaluated in test
 
 Version 7.1.3 (2023.05.19) PropLogic && Dropdown test results

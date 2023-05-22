@@ -200,7 +200,10 @@ class assStackQuestionRenderer
 		return assStackQuestionUtils::_getLatex($question_text);
 	}
 
-	public static function _renderQuestionTextForTestResults(assStackQuestion $question, string $active_id, string $pass): string
+    /**
+     * @throws stack_exception
+     */
+    public static function _renderQuestionTextForTestResults(assStackQuestion $question, string $active_id, string $pass): string
 	{
 		$student_solutions = $question->getTestOutputSolutions($active_id, $pass);
 
@@ -267,22 +270,16 @@ class assStackQuestionRenderer
 
 			$input_object = $question->inputs[$name];
 
-            if(is_a($question->inputs[$name],'stack_checkbox_input')){
-
-                $input_state = $input_object->validate_student_response($student_solutions['inputs'][$name]['value'], $question->options, $input_object->get_teacher_answer(), $question->getSecurity());
-            }else{
-
-                $input_state = $input_object->validate_student_response(array($name => $student_solutions['inputs'][$name]['value']), $question->options, $input_object->get_teacher_answer(), $question->getSecurity());
-            }
+            $input_state = $input_object->validate_student_response(array($name => $student_solutions['inputs'][$name]['value']), $question->options, $input_object->get_teacher_answer(), $question->getSecurity());
 
 			$field_name = 'xqcas_' . $question->getId() . '_' . $name;
 			//Input Placeholders
 			$question_text = str_replace("[[input:{$name}]]", $question->inputs[$name]->render($input_state, $field_name, true, $student_solutions['inputs'][$name]['correct_value']), $question_text);
-		}
+        }
 
 		//Replace Validation placeholders
 		foreach ($input_placeholders as $name) {
-			$question_text = str_replace("[[validation:{$name}]]", '', $question_text);
+			$question_text = str_replace("[[validation:{$name}]]", $student_solutions['inputs'][$name]['display'], $question_text);
 		}
 
 		//Show all feedback placeholders
