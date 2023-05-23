@@ -121,9 +121,9 @@ class assStackQuestionRenderer
 			}
 		}
 
-		if ($show_inline_feedback and !assStackQuestionUtils::_isEmptyResponse($question->getUserResponse(), $question->inputs)) {
+		if (!assStackQuestionUtils::_isEmptyResponse($question->getUserResponse(), $question->inputs)) {
 			//Feedback Replacements
-			foreach (stack_utils::extract_placeholders($question_text, 'feedback') as $prt_name) {
+			foreach ($question->prts as $prt_name => $prt_info) {
 
 				$evaluation = $question->getEvaluation();
 				$format = '1';

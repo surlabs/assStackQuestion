@@ -74,7 +74,7 @@ class stack_matrix_input extends stack_input {
      * @return string any error messages describing validation failures. An empty
      *      string if the input is valid - at least according to this test.
      */
-    protected function is_blank_response($contents) {
+    public function is_blank_response($contents) {
         $allblank = true;
         foreach ($contents as $row) {
             foreach ($row as $val) {

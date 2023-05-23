@@ -186,7 +186,7 @@ class stack_checkbox_input extends stack_dropdown_input {
      * @return string any error messages describing validation failures. An empty
      *      string if the input is valid - at least according to this test.
      */
-    protected function is_blank_response($contents) {
+    public function is_blank_response($contents) {
         $allblank = true;
         foreach ($contents as $val) {
             if (!('' == trim($val)) && !('0' == trim($val))) {

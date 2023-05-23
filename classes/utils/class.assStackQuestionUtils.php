@@ -290,10 +290,17 @@ class assStackQuestionUtils
 			return true;
 		}
 
-		foreach ($response_array as $entry_name => $response_value) {
-            if(is_a($inputs[$entry_name],'stack_matrix_input')){
-                return false;
+        foreach($inputs as $input_name => $input){
+            if(is_a($input,'stack_matrix_input') || is_a($input,'stack_checkbox_input') || is_a($input,'stack_dropdown_input')){
+                $special_inputs_blank = $input->is_blank_response($input->response_to_contents($response_array));
+                if($special_inputs_blank === true){
+                    return true;
+                }
             }
+        }
+
+		foreach ($response_array as $entry_name => $response_value) {
+
 			if (array_key_exists($entry_name, $inputs)) {
 				if (strlen($response_value) == 0) {
 					//Check allowempty
