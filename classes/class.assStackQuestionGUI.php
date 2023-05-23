@@ -132,10 +132,16 @@ class assStackQuestionGUI extends assQuestionGUI
                         }
                     }
 
-                    $user_solution = $response;
+                    if(isset($user_solution[$input_name])){
+                        unset($user_solution[$input_name]);
+                    }
+
+                    $user_solution = array_merge($user_solution, $response);
+                } elseif (is_a($input, 'stack_checkbox_input')) {
+                    $response = $input->maxima_to_response_array($user_solution[$input_name]);
+                    $user_solution = array_merge($user_solution, $response);
                 } elseif (is_a($input, 'stack_dropdown_input')
-                    or is_a($input, 'stack_radio_input')
-                    or is_a($input, 'stack_checkbox_input')) {
+                    or is_a($input, 'stack_radio_input')) {
                     $response = $input->maxima_to_response_array($user_solution[$input_name]);
                     $user_solution[$input_name] = $response[$input_name];
                 }

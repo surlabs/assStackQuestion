@@ -200,7 +200,10 @@ class assStackQuestionRenderer
 		return assStackQuestionUtils::_getLatex($question_text);
 	}
 
-	public static function _renderQuestionTextForTestResults(assStackQuestion $question, string $active_id, string $pass): string
+    /**
+     * @throws stack_exception
+     */
+    public static function _renderQuestionTextForTestResults(assStackQuestion $question, string $active_id, string $pass): string
 	{
 		$student_solutions = $question->getTestOutputSolutions($active_id, $pass);
 
@@ -224,12 +227,58 @@ class assStackQuestionRenderer
             $student_solutions = $old_student_solutions;
         }
 
+        //Question initialization
+        if (!$question->isInstantiated()) {
+            $question->questionInitialisation((int)$student_solutions['seed'], true);
+        }
+
+        $user_solution = array();
+
+        if (isset($student_solutions['inputs']) && is_array($student_solutions['inputs'])) {
+
+            foreach ($student_solutions['inputs'] as $input_name => $input_info) {
+
+                if (isset($question->inputs[$input_name]) && is_a(
+                        $question->inputs[$input_name],
+                        'stack_matrix_input'
+                    )) {
+                    $response = $question->inputs[$input_name]->maxima_to_response_array(
+                        $input_info['value']
+                    );
+
+                    //clean solution
+                    foreach (array_keys($response) as $array_key) {
+                        if (strpos($array_key, '_val')) {
+                            unset($response[$array_key]);
+                        }
+                    }
+
+                    $user_solution = array_merge($user_solution, $response);
+                } elseif (isset($question->inputs[$input_name]) && is_a(
+                        $question->inputs[$input_name],
+                        'stack_checkbox_input'
+                    )) {
+                    $response = $question->inputs[$input_name]->maxima_to_response_array(
+                        $input_info['value']
+                    );
+                    $user_solution = array_merge($user_solution, $response);
+                } elseif (isset($question->inputs[$input_name]) && is_a(
+                        $question->inputs[$input_name],
+                        'stack_dropdown_input'
+                    )
+                    or is_a($question->inputs[$input_name], 'stack_radio_input')) {
+                    $response = $question->inputs[$input_name]->maxima_to_response_array(
+                        $input_info['value']
+                    );
+                    $user_solution[$input_name] = $response[$input_name];
+                }else{
+                    $user_solution[$input_name] = $input_info['value'];
+                }
+            }
+        }
+
 		$question_text = $student_solutions['question_text'];
 
-		//Question initialization
-		if (!$question->isInstantiated()) {
-			$question->questionInitialisation((int)$student_solutions['seed'], true);
-		}
 
 		// Get the list of placeholders before format_text.
 		$input_placeholders = array_unique(stack_utils::extract_placeholders($question_text, 'input'));
@@ -250,17 +299,15 @@ class assStackQuestionRenderer
 		foreach ($input_placeholders as $name) {
 
 			$input_object = $question->inputs[$name];
-			$input_state = $input_object->validate_student_response(array($name => $student_solutions['inputs'][$name]['value']), $question->options, $input_object->get_teacher_answer(), $question->getSecurity());
+
+            $input_state = $input_object->validate_student_response($user_solution, $question->options, $input_object->get_teacher_answer(), $question->getSecurity());
 
 			$field_name = 'xqcas_' . $question->getId() . '_' . $name;
 			//Input Placeholders
 			$question_text = str_replace("[[input:{$name}]]", $question->inputs[$name]->render($input_state, $field_name, true, $student_solutions['inputs'][$name]['correct_value']), $question_text);
-		}
+            $question_text = str_replace("[[validation:{$name}]]", $input_object->render_validation($input_state, $name), $question_text);
+        }
 
-		//Replace Validation placeholders
-		foreach ($input_placeholders as $name) {
-			$question_text = str_replace("[[validation:{$name}]]", '', $question_text);
-		}
 
 		//Show all feedback placeholders
 		foreach ($feedback_placeholders as $prt_name) {
