@@ -619,7 +619,7 @@ class assStackQuestionRenderer
 	 * @param stack_potentialresponse_tree_state $prt_state
 	 * @return string HTML Code with the rendered PRT feedback
 	 */
-	protected static function renderPRTFeedback(stack_potentialresponse_tree_state $prt_state): string
+	public static function renderPRTFeedback(stack_potentialresponse_tree_state $prt_state): string
 	{
 		$feedback = '';
 		$feedback_bits = $prt_state->get_feedback();
