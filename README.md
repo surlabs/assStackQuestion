@@ -3,6 +3,8 @@ STACK FOR ILIAS7
 ================================
 Copyright 2023 Laboratorio de Soluciones del Sur, Sociedad Limitada
 
+**Note: this repository is moved to https://github.com/surlabs/assStackQuestion and will be further maintained there. Please update your remotes.**
+
 This plugin version has been developed by Jesús Copado and the SURLABS' Team
 
 Copyright 2014 Institut fuer Lern-Innovation,Friedrich-Alexander-Universitaet Erlangen-Nuernberg, GPLv3 or later, see LICENSE
