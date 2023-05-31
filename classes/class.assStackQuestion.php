@@ -1255,7 +1255,15 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 $prt_input = $this->getPrtInput($prt_name, $user_response, true);
 
                 //PRT Results
-                $evaluation_data['prts'][$prt_name] = $this->prts[$prt_name]->evaluate_response($this->session, $this->options, $prt_input, $this->seed);
+                if (is_array($prt_input) && !empty($prt_input)) {
+                    $evaluation_data['prts'][$prt_name] = $this->prts[$prt_name]->evaluate_response(
+                        $this->session, $this->options, $prt_input, $this->seed
+                    );
+                } else {
+                    $evaluation_data['prts'][$prt_name] = new stack_potentialresponse_tree_state(
+                        $this->prts[$prt_name]->get_value(), false, 0, 0
+                    );
+                }
 
                 //Sum weights
                 $total_weight = $total_weight + (float)$evaluation_data['prts'][$prt_name]->_weight;
@@ -1264,7 +1272,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 //if ($evaluation_data['prts'][$prt_name]->_valid) {
                 //}
             }
-
             $points_obtained = 0.0;
 
             //Calculate Points per PRT

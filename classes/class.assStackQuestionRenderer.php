@@ -121,9 +121,9 @@ class assStackQuestionRenderer
 			}
 		}
 
-		if ($show_inline_feedback and !assStackQuestionUtils::_isEmptyResponse($question->getUserResponse(), $question->inputs)) {
+		if (!assStackQuestionUtils::_isEmptyResponse($question->getUserResponse(), $question->inputs)) {
 			//Feedback Replacements
-			foreach (stack_utils::extract_placeholders($question_text, 'feedback') as $prt_name) {
+			foreach ($question->prts as $prt_name => $prt_info) {
 
 				$evaluation = $question->getEvaluation();
 				$format = '1';
@@ -619,7 +619,7 @@ class assStackQuestionRenderer
 	 * @param stack_potentialresponse_tree_state $prt_state
 	 * @return string HTML Code with the rendered PRT feedback
 	 */
-	protected static function renderPRTFeedback(stack_potentialresponse_tree_state $prt_state): string
+	public static function renderPRTFeedback(stack_potentialresponse_tree_state $prt_state): string
 	{
 		$feedback = '';
 		$feedback_bits = $prt_state->get_feedback();

@@ -584,7 +584,7 @@ abstract class stack_input {
      * @return boolean
      *
      */
-    protected function is_blank_response($contents) {
+    public function is_blank_response($contents) {
         $allblank = true;
         foreach ($contents as $val) {
             if (!('' === trim($val) || 'EMPTYANSWER' == $val)) {
