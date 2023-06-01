@@ -76,9 +76,9 @@ composer du
 - Instant validation for textareas not working properly
 
 # Version History
-* The stable version 7.0.x for **ILIAS 7.13+** with the STACK Core version 4.3.9 can be found in the Github branch **stack_for_ilias7**
-* The stable version 3.5 for **ILIAS 7.13+** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias713**
-* The stable version 3.4.3 for **ILIAS <= 7.12** with the STACK Core version 4.2.2 can be found in the Github branch **master-ilias7** is on only security issues mode.
+* The stable version 7.0.x for **ILIAS 7.13+** with the STACK Core version 4.3.9 can be found in the Github branch **ilias7_stack2021**
+* The stable version 3.5 for **ILIAS 7.13+** with the STACK Core version 4.2.2 can be found in the Github branch **ilias7_stack2019** is on only security issues mode.
+* The stable version 3.4.3 for **ILIAS <= 7.12** with the STACK Core version 4.2.2 can be found in the Github branch **ilias7_stack2019_old** is on only security issues mode.
 * The stable version 3.2.x for **ILIAS 6** is no longer maintained.
 * The stable version 3.1.x for **ILIAS 5.4** is no longer maintained
 * The stable version 3.0.x for **ILIAS 5.3** is no longer maintained
