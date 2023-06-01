@@ -6,7 +6,7 @@ Welcome to the official repository for [STACK for ILIAS](https://stackforilias.c
 
 STACK is the world-leading open-source online assessment system for mathematics and STEM and the most powerful STEM learning tool available in ILIAS
 
-> **Note STACK for ILIAS is from 01.06.2023 officially maintained on the **SURLABS** repository. Original ILIFAU repository has been archived, please change your git remote to the new one in order to keep using the plugin.**
+> **Note** STACK for ILIAS is from 01.06.2023 officially maintained on the **SURLABS** repository. Original ILIFAU repository has been archived, please change your git remote to the new one in order to keep using the plugin.
 
 ## Installation & Update
 
