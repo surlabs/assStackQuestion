@@ -45,7 +45,9 @@ git checkout stack_for_ilias7
 ```bash
 composer du
 ```
+***
 **Please ensure you don't ignore plugins on composer.json**
+***
 4. Go to Administration > Plugins
 5. Choose action "Install" or "Update" for the assStackQuestion plugin
 6. Choose action "Activate" for the assStackQuestion plugin
