@@ -61,7 +61,7 @@ composer du
 **Please, repeat this sequence everytime you update STACK**
 
 # Authors
-* This plugin includes the STACK core classes developed by Chris Sangwin, Matti Harjula and Tim Hunt for its Moodle question type plugin version 4.3.9 (2021).
+* This plugin includes the STACK core classes developed by Chris Sangwin, with support of Matti Harjula and Tim Hunt for its Moodle question type plugin version 4.3.9 (2021).
 * This plugin was developed by Jesús Copado with Fred Neumann's support at the University of Erlangen between 2014 and 2022
 * This plugin is currently maintained by Jesús Copado through its Software development studio [SURLABS](https://surlabs.es)
 
