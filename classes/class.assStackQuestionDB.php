@@ -738,38 +738,49 @@ class assStackQuestionDB
      */
 	public static function _saveStackSeeds(assStackQuestion $question, string $purpose = '', int $added_seed = null): bool
 	{
-		global $DIC;
-		$db = $DIC->database();
+        global $DIC;
+        $db = $DIC->database();
 
-		$question_id = $question->getId();
-		$deployed_seeds_from_db = self::_readDeployedVariants($question_id);
+        $question_id = $question->getId();
+        $deployed_seeds_from_db = self::_readDeployedVariants($question_id);
 
-        //add one
-        if (!array_key_exists($added_seed, $deployed_seeds_from_db) and $purpose == 'add') {
-            $db->insert('xqcas_deployed_seeds',
-                array('id' => array('integer', $db->nextId('xqcas_deployed_seeds')),
-                    'question_id' => array('integer', $question_id),
-                    'seed' => array('integer', $added_seed)
-                ));
-        } else {
-
-            //mass operations
-            foreach ($question->deployed_seeds as $id => $seed) {
-                if (!array_key_exists($seed, $deployed_seeds_from_db) or empty($deployed_seeds_from_db) or $purpose == 'import') {
-                    //create
-                    $db->insert('xqcas_deployed_seeds',
-                        array('id' => array('integer', $db->nextId('xqcas_deployed_seeds')),
-                            'question_id' => array('integer', $question_id),
-                            'seed' => array('integer', $seed)
-                        ));
-                } else {
-                    //UPDATE
-                    $db->replace('xqcas_deployed_seeds',
-                        array('id' => array('integer', $id)),
-                        array(
-                            'question_id' => array('integer', $question_id),
-                            'seed' => array('integer', $seed)
-                        ));
+        //Avoid duplicated seed at saving questions
+        if ($purpose != 'save_full_question') {
+            if (!array_key_exists($added_seed, $deployed_seeds_from_db) and $purpose == 'add') {
+                $db->insert(
+                    'xqcas_deployed_seeds',
+                    array(
+                        'id' => array('integer', $db->nextId('xqcas_deployed_seeds')),
+                        'question_id' => array('integer', $question_id),
+                        'seed' => array('integer', $added_seed)
+                    )
+                );
+            } else {
+                //mass operations
+                foreach ($question->deployed_seeds as $id => $seed) {
+                    if (!array_key_exists(
+                            $seed, $deployed_seeds_from_db
+                        ) or empty($deployed_seeds_from_db) or $purpose == 'import') {
+                        //create
+                        $db->insert(
+                            'xqcas_deployed_seeds',
+                            array(
+                                'id' => array('integer', $db->nextId('xqcas_deployed_seeds')),
+                                'question_id' => array('integer', $question_id),
+                                'seed' => array('integer', $seed)
+                            )
+                        );
+                    } else {
+                        //UPDATE
+                        $db->replace(
+                            'xqcas_deployed_seeds',
+                            array('id' => array('integer', $id)),
+                            array(
+                                'question_id' => array('integer', $question_id),
+                                'seed' => array('integer', $seed)
+                            )
+                        );
+                    }
                 }
             }
         }

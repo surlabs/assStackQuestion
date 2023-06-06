@@ -93,7 +93,9 @@ composer du
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
-## Version 7.2.0 (2023.05.28)
+## Version 7.2.1 (2023.05.28)
+- Deployed Seeds no longer duplicates after question saving
+## Version 7.2.0
 - Test Results are properly shown for all input types
 - Validation now is shown in Test results' user results
 - PropLogic answer type has been added
