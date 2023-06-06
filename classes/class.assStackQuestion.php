@@ -1192,7 +1192,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     {
         $this->getPlugin()->includeClass('class.assStackQuestionDB.php');
         try {
-            assStackQuestionDB::_saveStackQuestion($this, 'save_full_question');
+            assStackQuestionDB::_saveStackQuestion($this);
         } catch (stack_exception $e) {
             ilUtil::sendFailure($e);
         }

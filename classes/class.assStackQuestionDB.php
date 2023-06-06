@@ -745,7 +745,7 @@ class assStackQuestionDB
         $deployed_seeds_from_db = self::_readDeployedVariants($question_id);
 
         //Avoid duplicated seed at saving questions
-        if ($purpose != 'save_full_question') {
+        if ($DIC->ctrl()->getCmd() != 'save') {
             if (!array_key_exists($added_seed, $deployed_seeds_from_db) and $purpose == 'add') {
                 $db->insert(
                     'xqcas_deployed_seeds',
