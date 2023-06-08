@@ -31,7 +31,6 @@ class stack_ans_test_controller {
               'AlgEquiv'             => 'stackOptions_AnsTest_values_AlgEquiv',
               'AlgEquivNouns'        => 'stackOptions_AnsTest_values_AlgEquivNouns',
               'EqualComAss'          => 'stackOptions_AnsTest_values_EqualComAss',
-              'EqualComAssRules'     => 'stackOptions_AnsTest_values_EqualComAssRules',
               'CasEqual'             => 'stackOptions_AnsTest_values_CasEqual',
               'SameType'             => 'stackOptions_AnsTest_values_SameType',
               'SubstEquiv'           => 'stackOptions_AnsTest_values_SubstEquiv',
