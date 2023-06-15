@@ -93,7 +93,7 @@ composer du
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
-## Version 7.2.2 (2023.06.15)
+## Version 7.2.5 (2023.06.15)
 - Feedback is properly rendered in Test run and Test results when Plots are present in the question or specific feedback fields
 - Variables in Feedback are now properly rendered in Test run and Test results
 - Check answer type related issues are now solved.
