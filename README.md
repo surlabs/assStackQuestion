@@ -93,6 +93,9 @@ composer du
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
+## Version 7.2.2 (2023.06.15)
+- Feedback is properly rendered in Test run and Test results when Plots are present in the question or specific feedback fields
+- Variables in Feedback are now properly rendered in Test run and Test results
 ## Version 7.2.1 (2023.06.06)
 - Deployed Seeds no longer duplicates after question saving
 ## Version 7.2.0 (2023.05.28)
