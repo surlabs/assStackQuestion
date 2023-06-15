@@ -96,6 +96,7 @@ composer du
 ## Version 7.2.2 (2023.06.15)
 - Feedback is properly rendered in Test run and Test results when Plots are present in the question or specific feedback fields
 - Variables in Feedback are now properly rendered in Test run and Test results
+- Check answer type related issues are now solved.
 ## Version 7.2.1 (2023.06.06)
 - Deployed Seeds no longer duplicates after question saving
 ## Version 7.2.0 (2023.05.28)

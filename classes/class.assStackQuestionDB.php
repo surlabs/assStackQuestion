@@ -114,7 +114,8 @@ class assStackQuestionDB
 			$inputs[$input_name]['allow_words'] = $row['allow_words'];
 			$inputs[$input_name]['forbid_float'] = (bool)$row['forbid_float'];
 			$inputs[$input_name]['require_lowest_terms'] = (bool)$row['require_lowest_terms'];
-			$inputs[$input_name]['check_answer_type'] = (bool)$row['check_answer_type'];
+            //Ensure check answer type is false to avoid wrong error messages
+			$inputs[$input_name]['check_answer_type'] = false;
 			$inputs[$input_name]['must_verify'] = (bool)$row['must_verify'];
 			$inputs[$input_name]['show_validation'] = $row['show_validation'];
 			$inputs[$input_name]['options'] = $row['options'];
