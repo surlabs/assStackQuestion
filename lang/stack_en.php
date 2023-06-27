@@ -837,6 +837,16 @@ $string['equiv_ANDOR']                   = 'and/or confusion!';
 $string['equiv_MISSINGVAR']              = 'Missing assignments';
 $string['equiv_ASSUMEPOSVARS']           = 'Assume +ve vars';
 $string['equiv_ASSUMEPOSREALVARS']       = 'Assume +ve real vars';
+$string['equiv_LET']                     = 'Let';
+// We could localise the strings below using \vee, \wedge etc.
+$string['equiv_AND']                     = 'and';
+$string['equiv_OR']                      = 'or';
+$string['equiv_NOT']                     = 'not';
+$string['equiv_NAND']                    = 'nand';
+$string['equiv_NOR']                     = 'nor';
+$string['equiv_XOR']                     = 'xor';
+$string['equiv_XNOR']                    = 'xnor';
+$string['equiv_IMPLIES']                 = 'implies';
 
 //fim: #41 Validation message change
 $string['studentValidation_yourLastAnswer']     = ' interpreted as: {$a}';

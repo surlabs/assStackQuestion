@@ -197,7 +197,7 @@ class assStackQuestionRenderer
 			}
 		}
 
-		return assStackQuestionUtils::_getLatex($question_text);
+		return assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy($question_text));
 	}
 
     /**
@@ -314,7 +314,7 @@ class assStackQuestionRenderer
             $prt_state = $question->getPrtResult($prt_name, $user_solution, true);
 
             //Manage LaTeX explicitly
-            $rendered = assStackQuestionUtils::_getLatex(self::renderPRTFeedback($prt_state, $question));
+            $rendered = assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state, $question)));
             if(is_string($rendered)){
                 $question_text = str_replace("[[feedback:{$prt_name}]]", $rendered, $question_text);
             }else{
@@ -330,7 +330,7 @@ class assStackQuestionRenderer
 		foreach ($feedback_placeholders_specific_feedback as $prt_name) {
             $prt_state = $question->getPrtResult($prt_name, $user_solution, true);
 
-            $question_text .= '</br>'.assStackQuestionUtils::_getLatex(self::renderPRTFeedback($prt_state, $question));
+            $question_text .= '</br>'.assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state, $question)));
 		}
 
 		//Validation
@@ -340,7 +340,7 @@ class assStackQuestionRenderer
 		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
 		$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
 
-		return assStackQuestionUtils::_getLatex($question_text);
+		return assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy($question_text));
 	}
 
 	/* GENERAL + SPECIFIC FEEDBACK RENDERING */
@@ -360,7 +360,7 @@ class assStackQuestionRenderer
 				$question->runtime_errors[$general_feedback_text->get_errors()] = true;
 			}
 
-			return assStackQuestionUtils::_getLatex($general_feedback_text->get_display_castext());
+			return assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy($general_feedback_text->get_display_castext()));
 		} catch (stack_exception $e) {
 			return $e->getMessage();
 		}
@@ -411,7 +411,7 @@ class assStackQuestionRenderer
 				$prt_state = $evaluation['prts'][$prt_name];
 
 				//Manage LaTeX explicitly
-				$prt_feedback .= assStackQuestionUtils::_getLatex(self::renderPRTFeedback($prt_state));
+				$prt_feedback .= assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state)));
 			}
 
 			//Replace Placeholders
@@ -481,7 +481,7 @@ class assStackQuestionRenderer
                     $prt_state = $question->getPrtResult($prt_name, $user_answer, true);
 
                     //Manage LaTeX explicitly
-                    $prt_feedback .= assStackQuestionUtils::_getLatex(self::renderPRTFeedback($prt_state));
+                    $prt_feedback .= assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state)));
 
 				} else {
                     $prt_feedback .= '';
@@ -556,7 +556,7 @@ class assStackQuestionRenderer
 		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
 		$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
 
-		return assStackQuestionUtils::_getLatex($question_text);
+		return assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy($question_text));
 	}
 
 	/**
@@ -594,7 +594,7 @@ class assStackQuestionRenderer
 			} else {
 				$student_solution_input = "Error Rendering Input, question might be malformed";
 			}
-			$question_text = str_replace("[[input:{$name}]]", assStackQuestionUtils::_getLatex($student_solution_input), $question_text);
+			$question_text = str_replace("[[input:{$name}]]", assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy($student_solution_input)), $question_text);
 		}
 
 		//Replace Validation placeholders
