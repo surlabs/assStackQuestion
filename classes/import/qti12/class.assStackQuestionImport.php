@@ -227,18 +227,20 @@ class assStackQuestionImport extends assQuestionImport
                         //Create Node and add it to the
                         $node = new stack_potentialresponse_node($sans, $tans, ilUtil::secureString((string)$xml_node->getAnswerTest()), ilUtil::secureString((string)$xml_node->getTestOptions()), (bool)(string)$xml_node->getQuiet(), '', (int)$node_name, $raw_sans, $raw_tans);
 
-                        //manage images in true feedback
+                        //manage images in false feedback
                         if (isset($xml_node->falsefeedback->text)) {
-                            $false_feedback = (string)$xml_node->falsefeedback->text;
-
+                            $false_feedback = (string) $xml_node->falsefeedback->text;
+                        } elseif ($xml_node->getFalseFeedback() !== null) {
+                            $false_feedback = $xml_node->getFalseFeedback();
                         } else {
                             $false_feedback = '';
                         }
 
                         //manage images in true feedback
                         if (isset($xml_node->truefeedback->text)) {
-                            $true_feedback = (string)$xml_node->truefeedback->text;
-
+                            $true_feedback = (string) $xml_node->truefeedback->text;
+                        } elseif ($xml_node->getTrueFeedback() !== null) {
+                            $true_feedback = $xml_node->getTrueFeedback();
                         } else {
                             $true_feedback = '';
                         }
@@ -341,7 +343,9 @@ class assStackQuestionImport extends assQuestionImport
 
                 $GLOBALS['ilLog']->write(__METHOD__ . ': import mob from dir: ' . $importfile);
 
-                $media_object =& ilObjMediaObject::_saveTempFileAsMediaObject(basename($importfile), $importfile, FALSE);
+                $import_basename = basename($importfile);
+                $compiled_media_object =ilObjMediaObject::_saveTempFileAsMediaObject($import_basename, $importfile, FALSE);
+                $media_object =& $compiled_media_object;
                 ilObjMediaObject::_saveUsage($media_object->getId(), "qpl:html", $this->object->getId());
 
                 $question_text = str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $question_text);
