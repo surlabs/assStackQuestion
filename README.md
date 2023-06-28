@@ -99,6 +99,7 @@ composer du
 - Solves #36721 Generic feedback in test results
 - Solves #37402 Wrong "not a matrix error message" when matrix
 - Solves #36723 Open intervals not being properly rendered in validation
+- Solves #37257 Node feedback lost when importing from version 3.4 to version 7.2
 - Logical operators in Truth Tables Headers are now properly rendered
 ## Version 7.2.6 (2023.06.16)
 - Solves #37456 about extra feedback options not being properly shown in Test results
