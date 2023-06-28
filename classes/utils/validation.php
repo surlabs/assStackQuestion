@@ -82,7 +82,7 @@ function checkUserResponse($question_id, $input_name, $user_response)
 		return $e->getMessage();
 	}
 
-	$result = array('input' => $user_response, 'status' => $status->status, 'message' => $question->inputs[$input_name]->render_validation($status, $input_name));
+	$result = array('input' => $user_response, 'status' => $status->status, 'message' => stack_maxima_latex_tidy($question->inputs[$input_name]->render_validation($status, $input_name)));
 
 	return $result['message'];
 }
