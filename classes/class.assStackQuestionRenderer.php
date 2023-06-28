@@ -96,8 +96,8 @@ class assStackQuestionRenderer
 												</div>';
 					}
 
-					$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
-					//$question_text = str_replace("[[validation:{$name}]]", $input->render_validation($state, $field_name), $question_text);
+					//$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
+					$question_text = str_replace("[[validation:{$name}]]", $input->render_validation($state, $field_name), $question_text);
 
 				} else {
 					//Input Placeholders
@@ -157,7 +157,10 @@ class assStackQuestionRenderer
 
 					$prt_state = $evaluation['prts'][$prt_name];
 
-					$prt_feedback .= self::renderPRTFeedback($prt_state);
+                    if (is_a($prt_state, 'stack_potentialresponse_tree_state')) {
+                        $prt_state->set_cas_context($question->getSession(),$question->getSeed(),true);
+                        $prt_feedback .= self::renderPRTFeedback($prt_state);
+                    }
 
 				}
 				$question_text = assStackQuestionUtils::_getFeedbackStyledText($question_text, 'feedback_default');
@@ -541,7 +544,11 @@ class assStackQuestionRenderer
 
 		//Replace Validation placeholders
 		foreach ($input_placeholders as $name) {
-			$question_text = str_replace("[[validation:{$name}]]", '', $question_text);
+            if(is_a($question->inputs[$name],'stack_matrix_input')){
+                $question_text = str_replace("[[validation:{$name}]]", "", $question_text);
+            }else{
+                $question_text = str_replace("[[validation:{$name}]]", $question->inputs[$name]->render_validation($state, $name), $question_text);
+            }
 		}
 
 		//Hide all feedback placeholders
@@ -614,6 +621,8 @@ class assStackQuestionRenderer
 		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
 		$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
 		// Now format the question-text.
+
+
 		return stack_maths::process_display_castext($question_text);
 	}
 
@@ -659,7 +668,8 @@ class assStackQuestionRenderer
             }
         }
 
-        if ($question !== null) {
+        $format = '1';
+        if ($question !== null and isset($prt_state->_score)) {
             $score = $prt_state->_score;
             if ($score == 1) {
                 $feedback .= $question->prt_correct_instantiated . '<br>';

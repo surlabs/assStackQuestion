@@ -202,7 +202,9 @@ class assStackQuestionGUI extends assQuestionGUI
 				$solution_output = assStackQuestionRenderer::_renderQuestionTextForTestResults($this->object, $active_id, $pass);
 			} else {
 				//SOLUTION
-				$solution_output = assStackQuestionRenderer::renderBestSolutionForTestResults($this->object, $active_id, $pass);
+                $general_feedback = assStackQuestionRenderer::_renderGeneralFeedback($this->object);
+
+                $solution_output = $general_feedback . assStackQuestionRenderer::renderBestSolutionForTestResults($this->object, $active_id, $pass);
 			}
 
 			if (!$show_question_only) {
@@ -213,7 +215,15 @@ class assStackQuestionGUI extends assQuestionGUI
 			return $solution_output;
 		}
 
-		$solution_output = assStackQuestionRenderer::_renderBestSolution($this->object);
+        if (!$show_correct_solution) {
+            //TEXT
+            $solution_output = assStackQuestionRenderer::_renderBestSolution($this->object);
+        } else {
+            //SOLUTION
+            $general_feedback = assStackQuestionRenderer::_renderGeneralFeedback($this->object);
+
+            $solution_output = $general_feedback . assStackQuestionRenderer::_renderBestSolution($this->object);
+        }
 
 		//Return Solution output
 		if (!$show_question_only) {
@@ -371,7 +381,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			$DIC->globalScreen()->layout()->meta()->addCss(ilObjStyleSheet::getContentStylePath((int)$style_id));
 		}
 
-		$general_feedback = assStackQuestionRenderer::_renderGeneralFeedback($this->object);
+		//$general_feedback = assStackQuestionRenderer::_renderGeneralFeedback($this->object);
 
 		if (isset($this->is_preview)) {
 
@@ -385,8 +395,9 @@ class assStackQuestionGUI extends assQuestionGUI
 			$specific_feedback = assStackQuestionRenderer::_renderFeedbackForTest($this->object, $userSolution);
 		}
 
-		return $general_feedback . $specific_feedback;
-	}
+		//return $general_feedback . $specific_feedback;
+        return $specific_feedback;
+    }
 
 	/**
 	 * Evaluates a posted edit form and writes the form data in the question object
