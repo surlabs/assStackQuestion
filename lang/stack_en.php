@@ -708,7 +708,7 @@ $string['AT_EmptyTA']               = 'Attempted to execute an answer test with 
 
 
 $string['ATAlgEquiv_SA_not_expression'] = 'Your answer should be an expression, not an equation, inequality, list, set or matrix. ';
-$string['ATAlgEquiv_SA_not_matrix']     = 'Your answer should be a matrix, but is not. ';
+$string['ATAlgEquiv_SA_not_matrix']     = '';
 $string['ATAlgEquiv_SA_not_list']       = 'Your answer should be a list, but is not.  Note that the syntax to enter a list is to enclose the comma separated values with square brackets. ';
 $string['ATAlgEquiv_SA_not_set']        = 'Your answer should be a set, but is not.  Note that the syntax to enter a set is to enclose the comma separated values with curly brackets. ';
 $string['ATAlgEquiv_SA_not_equation']   = 'Your answer should be an equation, but is not. ';

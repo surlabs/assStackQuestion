@@ -469,7 +469,7 @@ $string['AT_MissingOptions']        = 'Fehlende Option bei der Antwortüberprüf
 $string['AT_InvalidOptions']        = 'Das Optionsfeld ist ungültig. {$a->errors}';
 
 $string['ATAlgEquiv_SA_not_expression'] = 'Ihre Antwort sollte ein Ausdruck und keine Gleichung/Ungleichung/Liste/Menge/Matrix sein. ';
-$string['ATAlgEquiv_SA_not_matrix']     = 'Ihre Anwort sollte eine Matrix sein, ist es aber nicht. ';
+$string['ATAlgEquiv_SA_not_matrix']     = '';
 $string['ATAlgEquiv_SA_not_list']       = 'Ihre Antwort sollte eine Liste sein, ist es aber nicht. Beachten sie die Syntax: In einer Liste wird die Auflistung der Elemente (jeweils durch Kommata getrennt) mit geschweiften Klammern eingeschlossen. ';
 $string['ATAlgEquiv_SA_not_set']        = 'Ihre Antwort sollte eine Menge sein, ist es aber nicht. Beachten sie die Syntax: In einer Menge wird die Auflistung der Elemente (jeweils durch Kommata getrennt) mit geschweiften Klammern eingeschlossen. ';
 $string['ATAlgEquiv_SA_not_equation']   = 'Ihre Anwort sollte eine Gleichung sein, ist es aber nicht. ';
