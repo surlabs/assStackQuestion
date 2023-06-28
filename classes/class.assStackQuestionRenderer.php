@@ -659,19 +659,16 @@ class assStackQuestionRenderer
             }
         }
 
-        if($question !== null){
+        if ($question !== null) {
             $score = $prt_state->_score;
-            if($score== 1){
+            if ($score == 1) {
                 $feedback .= $question->prt_correct_instantiated . '<br>';
                 $format = '2';
-
-            }elseif($score== 0){
+            } elseif ($score == 0) {
                 $feedback .= $question->prt_incorrect_instantiated . '<br>';
                 $format = '3';
-
-            }else{
+            } else {
                 $feedback .= $question->prt_partially_correct_instantiated . '<br>';
-
             }
         }
 
