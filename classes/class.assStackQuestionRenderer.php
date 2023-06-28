@@ -645,35 +645,35 @@ class assStackQuestionRenderer
 		$feedback_array = array();
 
 		if ($feedback_bits) {
-			$format = "1";
-			foreach ($feedback_bits as $bit) {
-				$feedback_array[] = $bit->feedback;
-				if (!is_null($bit->format)) {
-					if (is_null($format)) {
-						$format = $bit->format;
-					}
-					if ($bit->format != $format) {
-						ilutil::sendFailure('Inconsistent feedback formats found in PRT ', true);
-					}
-				}
-			}
-
-            if($question !== null){
-                $score = $prt_state->_score;
-                if($score== 1){
-                    $feedback .= $question->prt_correct_instantiated . '<br>';
-                    $format = '2';
-
-                }elseif($score== 0){
-                    $feedback .= $question->prt_incorrect_instantiated . '<br>';
-                    $format = '3';
-
-                }else{
-                    $feedback .= $question->prt_partially_correct_instantiated . '<br>';
-
+            $format = "1";
+            foreach ($feedback_bits as $bit) {
+                $feedback_array[] = $bit->feedback;
+                if (!is_null($bit->format)) {
+                    if (is_null($format)) {
+                        $format = $bit->format;
+                    }
+                    if ($bit->format != $format) {
+                        ilutil::sendFailure('Inconsistent feedback formats found in PRT ', true);
+                    }
                 }
             }
+        }
 
+        if($question !== null){
+            $score = $prt_state->_score;
+            if($score== 1){
+                $feedback .= $question->prt_correct_instantiated . '<br>';
+                $format = '2';
+
+            }elseif($score== 0){
+                $feedback .= $question->prt_incorrect_instantiated . '<br>';
+                $format = '3';
+
+            }else{
+                $feedback .= $question->prt_partially_correct_instantiated . '<br>';
+
+            }
+        }
 
 			//Substitute Variables in Feedback text
 			$feedback .= self::substituteVariablesInFeedback($prt_state, $feedback_array, $format, 'preview');
@@ -683,7 +683,7 @@ class assStackQuestionRenderer
 
 			//Replace Temporal Placeholders
 			$feedback = assStackQuestionUtils::_getFeedbackStyledText($feedback, $format);
-		}
+
 
 		return self::replaceFeedbackPlaceHolders($feedback);
 	}

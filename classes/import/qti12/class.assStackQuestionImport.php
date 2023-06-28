@@ -227,7 +227,7 @@ class assStackQuestionImport extends assQuestionImport
                         //Create Node and add it to the
                         $node = new stack_potentialresponse_node($sans, $tans, ilUtil::secureString((string)$xml_node->getAnswerTest()), ilUtil::secureString((string)$xml_node->getTestOptions()), (bool)(string)$xml_node->getQuiet(), '', (int)$node_name, $raw_sans, $raw_tans);
 
-                        //manage images in false feedback
+                        //manage images in false feedback 37259
                         if (isset($xml_node->falsefeedback->text)) {
                             $false_feedback = (string) $xml_node->falsefeedback->text;
                         } elseif ($xml_node->getFalseFeedback() !== null) {
@@ -236,7 +236,7 @@ class assStackQuestionImport extends assQuestionImport
                             $false_feedback = '';
                         }
 
-                        //manage images in true feedback
+                        //manage images in true feedback 37259
                         if (isset($xml_node->truefeedback->text)) {
                             $true_feedback = (string) $xml_node->truefeedback->text;
                         } elseif ($xml_node->getTrueFeedback() !== null) {
