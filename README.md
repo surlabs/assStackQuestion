@@ -97,7 +97,7 @@ composer du
 - Solves #37393 Matrix Validation & Feedback in Tests
 - Solves #37318 Default feedback for locked answer view
 - Solves #36721 Generic feedback in test results
-- Solves #37402 Wrong "not a matrix error" when matrix
+- Solves #37402 Wrong "not a matrix error message" when matrix
 - Solves #36723 Open intervals not being properly rendered in validation
 - Logical operators in Truth Tables Headers are now properly rendered
 ## Version 7.2.6 (2023.06.16)
