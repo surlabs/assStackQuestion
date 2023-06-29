@@ -317,7 +317,12 @@ class assStackQuestionRenderer
             $prt_state = $question->getPrtResult($prt_name, $user_solution, true);
 
             //Manage LaTeX explicitly
-            $rendered = assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state, $question)));
+            if (is_a($prt_state, 'stack_potentialresponse_tree_state')) {
+                $prt_state->set_cas_context($question->getSession(),$question->getSeed(),true);
+                $rendered = assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state, $question)));
+            }else{
+                $rendered = '';
+            }
             if(is_string($rendered)){
                 $question_text = str_replace("[[feedback:{$prt_name}]]", $rendered, $question_text);
             }else{
@@ -332,8 +337,12 @@ class assStackQuestionRenderer
 
 		foreach ($feedback_placeholders_specific_feedback as $prt_name) {
             $prt_state = $question->getPrtResult($prt_name, $user_solution, true);
-
-            $question_text .= '</br>'.assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state, $question)));
+            if (is_a($prt_state, 'stack_potentialresponse_tree_state')) {
+                $prt_state->set_cas_context($question->getSession(),$question->getSeed(),true);
+                $question_text .= '</br>'.assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state, $question)));
+            }else{
+                $question_text .= '</br>';
+            }
 		}
 
 		//Validation
@@ -414,7 +423,7 @@ class assStackQuestionRenderer
 				$prt_state = $evaluation['prts'][$prt_name];
 
 				//Manage LaTeX explicitly
-				$prt_feedback .= assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state)));
+				$prt_feedback .= assStackQuestionUtils::_getLatex(self::renderPRTFeedback($prt_state));
 			}
 
 			//Replace Placeholders
@@ -484,7 +493,12 @@ class assStackQuestionRenderer
                     $prt_state = $question->getPrtResult($prt_name, $user_answer, true);
 
                     //Manage LaTeX explicitly
-                    $prt_feedback .= assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state)));
+                    if (is_a($prt_state, 'stack_potentialresponse_tree_state')) {
+                        $prt_state->set_cas_context($question->getSession(),$question->getSeed(),true);
+                        $prt_feedback .= assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state)));
+                    }else{
+                        $prt_feedback .= '';
+                    }
 
 				} else {
                     $prt_feedback .= '';
@@ -509,8 +523,11 @@ class assStackQuestionRenderer
 	 * @param assStackQuestion $question
 	 * @return string
 	 */
-	public static function _renderBestSolution(assStackQuestion $question): string
+	public static function _renderBestSolution(assStackQuestion $question, $test = false): string
 	{
+        if($test){
+            exit;
+        }
 		$input_correct_array = $question->getCorrectResponse();
 		$question_text = $question->question_text_instantiated;
 
@@ -547,7 +564,9 @@ class assStackQuestionRenderer
             if(is_a($question->inputs[$name],'stack_matrix_input')){
                 $question_text = str_replace("[[validation:{$name}]]", "", $question_text);
             }else{
-                $question_text = str_replace("[[validation:{$name}]]", $question->inputs[$name]->render_validation($state, $name), $question_text);
+                $question_text = str_replace("[[validation:{$name}]]", "", $question_text);
+                //error s() render validation
+                //$question_text = str_replace("[[validation:{$name}]]", $question->inputs[$name]->render_validation($state, $name), $question_text);
             }
 		}
 
@@ -668,7 +687,6 @@ class assStackQuestionRenderer
             }
         }
 
-        $format = '1';
         if ($question !== null and isset($prt_state->_score)) {
             $score = $prt_state->_score;
             if ($score == 1) {
@@ -680,18 +698,16 @@ class assStackQuestionRenderer
             } else {
                 $feedback .= $question->prt_partially_correct_instantiated . '<br>';
             }
+
+            //Substitute Variables in Feedback text
+            $feedback .= self::substituteVariablesInFeedback($prt_state, $feedback_array, $format, 'preview');
+
+            //Ensure LaTeX is properly render
+            $feedback = stack_maths::process_display_castext($feedback, null);
+
+            //Replace Temporal Placeholders
+            $feedback = assStackQuestionUtils::_getFeedbackStyledText($feedback, $format);
         }
-
-			//Substitute Variables in Feedback text
-			$feedback .= self::substituteVariablesInFeedback($prt_state, $feedback_array, $format, 'preview');
-
-			//Ensure LaTeX is properly render
-			$feedback = stack_maths::process_display_castext($feedback, null);
-
-			//Replace Temporal Placeholders
-			$feedback = assStackQuestionUtils::_getFeedbackStyledText($feedback, $format);
-
-
 		return self::replaceFeedbackPlaceHolders($feedback);
 	}
 
