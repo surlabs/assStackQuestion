@@ -6,10 +6,10 @@
 
 $id = "xqcas";
  
-$version = "7.2.8";
+$version = "7.99.1";
 
-$ilias_min_version = "7.13";
-$ilias_max_version = "7.999";
+$ilias_min_version = "8.0";
+$ilias_max_version = "8.999";
  
 $responsible = "Jesús Copado Mejías";
 $responsible_mail = "jcopado@surlabs.es";

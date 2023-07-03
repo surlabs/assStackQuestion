@@ -807,7 +807,7 @@ class assStackQuestionDB
 				array('id' => array('integer', $extra_info_from_db['id'])),
 				array(
 					'question_id' => array('integer', $question_id),
-					'general_feedback' => array('clob', $question->general_feedback),
+					'general_feedback' => array('clob', $question->getGeneralFeedback()),
 					'penalty' => array('string', (string)$question->getPenalty()),
 					'hidden' => array('integer', $question->getHidden())
 				));
@@ -816,7 +816,7 @@ class assStackQuestionDB
 			$db->insert('xqcas_extra_info',
 				array('id' => array('integer', $db->nextId('xqcas_extra_info')),
 					'question_id' => array('integer', $question_id),
-					'general_feedback' => array('clob', $question->general_feedback),
+					'general_feedback' => array('clob', $question->getGeneralFeedback()),
 					'penalty' => array('string', (string)$question->getPenalty()),
 					'hidden' => array('integer', $question->getHidden())
 				));
@@ -1345,9 +1345,9 @@ class assStackQuestionDB
 		//Save question text instantiated
 		$question->saveCurrentSolution($active_id, $pass, 'xqcas_text_' . $question->getId(), $question->question_text_instantiated, $authorized);
 		//Save question note
-		$question->saveCurrentSolution($active_id, $pass, 'xqcas_solution_' . $question->getId(), $question->question_note_instantiated, $authorized);
+		$question->saveCurrentSolution($active_id, $pass, 'xqcas_solution_' . $question->getId(), $question->getQuestionNoteInstantiated(), $authorized);
 		//Save general feedback
-		$question->saveCurrentSolution($active_id, $pass, 'xqcas_general_feedback_' . $question->getId(), $question->general_feedback, $authorized);
+		$question->saveCurrentSolution($active_id, $pass, 'xqcas_general_feedback_' . $question->getId(), $question->getGeneralFeedback(), $authorized);
 		//Save Seed
 		$question->saveCurrentSolution($active_id, $pass, 'xqcas_question_' . $question->getId() . '_seed', $question->seed);
 

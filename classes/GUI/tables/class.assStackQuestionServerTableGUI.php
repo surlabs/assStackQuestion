@@ -9,7 +9,7 @@
  * STACK Question server Table GUI
  *
  * @author Jesús Copado Mejías <stack@surlabs.es>
- * @version $Id: 7.1$
+ * @version $Id: 8.0$
  * @ingroup    ModulesTestQuestionPool
  *
  */
@@ -31,7 +31,10 @@ class assStackQuestionServerTableGUI extends ilTable2GUI
 
 		$this->lng = $DIC->language();
 		$this->ctrl = $DIC->ctrl();
-		$this->plugin = $a_parent_obj->getPluginObject();
+
+        /** @var ilComponentFactory $component_factory */
+        $component_factory = $DIC["component.factory"];
+        $this->plugin = $component_factory->getPlugin('xqcas');
 
 		$this->setId('assStackQuestionServers');
 		$this->setPrefix('assStackQuestionServers');
@@ -58,8 +61,6 @@ class assStackQuestionServerTableGUI extends ilTable2GUI
         $this->addMultiCommand('deactivateServers', $this->lng->txt('deactivate'));
         $this->addMultiCommand('confirmDeleteServers', $this->lng->txt('delete'));
 
-        $this->plugin->includeClass('model/configuration/class.assStackQuestionServer.php');
-
         $data = [];
         foreach (assStackQuestionServer::getServers() as $server)
         {
@@ -72,7 +73,7 @@ class assStackQuestionServerTableGUI extends ilTable2GUI
 	/**
 	 * @param array $a_set
 	 */
-	public function fillRow($a_set)
+	public function fillRow($a_set): void
 	{
 	    global $DIC;
 

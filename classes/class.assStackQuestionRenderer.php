@@ -96,8 +96,8 @@ class assStackQuestionRenderer
 												</div>';
 					}
 
-					$question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
-					//$question_text = str_replace("[[validation:{$name}]]", $input->render_validation($state, $field_name), $question_text);
+                    $question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
+                    //$question_text = str_replace("[[validation:{$name}]]", $input->render_validation($state, $field_name), $question_text);
 
 				} else {
 					//Input Placeholders
@@ -180,13 +180,13 @@ class assStackQuestionRenderer
 
 		if ($instant_validation) {
 			//Instant Validation
-			$jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/instant_validation.php";
+			$jsconfig->validate_url = ILIAS_HTTP_PATH . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/instant_validation.php";
 			$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/instant_validation.js');
 			$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.instant_validation.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
 		} else {
 			//Button Validation
-			$jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
-			$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
+			$jsconfig->validate_url = ILIAS_HTTP_PATH . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
+            $DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
 			$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
 		}
 
@@ -210,6 +210,10 @@ class assStackQuestionRenderer
 	{
 		$student_solutions = $question->getTestOutputSolutions($active_id, $pass);
 
+        if (empty($student_solutions)) {
+            return "_renderQuestionTextForTestResults ERROR";
+        }
+
         //Old Test
         if (!isset($student_solutions['inputs'])) {
             $old_student_solutions = $question->getOldTestOutputSolutions($active_id, $pass);
@@ -232,7 +236,11 @@ class assStackQuestionRenderer
 
         //Question initialization
         if (!$question->isInstantiated()) {
-            $question->questionInitialisation((int)$student_solutions['seed'], true);
+            if(isset($student_solutions['seed'])){
+                $question->questionInitialisation((int)$student_solutions['seed'], true);
+            }else{
+                $question->questionInitialisation(0);
+            }
         }
 
         $user_solution = array();
@@ -317,6 +325,7 @@ class assStackQuestionRenderer
             $prt_state = $question->getPrtResult($prt_name, $user_solution, true);
 
             //Manage LaTeX explicitly
+            $rendered = assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state, $question)));
             if (is_a($prt_state, 'stack_potentialresponse_tree_state')) {
                 $prt_state->set_cas_context($question->getSession(),$question->getSeed(),true);
                 $rendered = assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state, $question)));
@@ -337,17 +346,13 @@ class assStackQuestionRenderer
 
 		foreach ($feedback_placeholders_specific_feedback as $prt_name) {
             $prt_state = $question->getPrtResult($prt_name, $user_solution, true);
-            if (is_a($prt_state, 'stack_potentialresponse_tree_state')) {
-                $prt_state->set_cas_context($question->getSession(),$question->getSeed(),true);
-                $question_text .= '</br>'.assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state, $question)));
-            }else{
-                $question_text .= '</br>';
-            }
+
+            $question_text .= '</br>'.assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state, $question)));
 		}
 
 		//Validation
 		$jsconfig = new stdClass();
-		$jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
+		$jsconfig->validate_url = ILIAS_HTTP_PATH . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
 
 		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
 		$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
@@ -366,7 +371,7 @@ class assStackQuestionRenderer
 	public static function _renderGeneralFeedback(assStackQuestion $question): string
 	{
 		try {
-			$general_feedback_text = new stack_cas_text($question->general_feedback, $question->session, $question->seed);
+			$general_feedback_text = new stack_cas_text($question->getGeneralFeedback(), $question->getSession(), $question->getSeed());
 
 			if ($general_feedback_text->get_errors()) {
 				$question->runtime_errors[$general_feedback_text->get_errors()] = true;
@@ -388,7 +393,7 @@ class assStackQuestionRenderer
 	public static function _renderFeedbackForPreview(assStackQuestion $question): string
 	{
 		//Specific feedback
-		$text_to_replace = $question->specific_feedback_instantiated;
+		$text_to_replace = $question->getSpecificFeedbackInstantiated();
 
 		foreach (stack_utils::extract_placeholders($text_to_replace, 'feedback') as $prt_name) {
 
@@ -423,7 +428,7 @@ class assStackQuestionRenderer
 				$prt_state = $evaluation['prts'][$prt_name];
 
 				//Manage LaTeX explicitly
-				$prt_feedback .= assStackQuestionUtils::_getLatex(self::renderPRTFeedback($prt_state));
+				$prt_feedback .= assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state)));
 			}
 
 			//Replace Placeholders
@@ -493,12 +498,7 @@ class assStackQuestionRenderer
                     $prt_state = $question->getPrtResult($prt_name, $user_answer, true);
 
                     //Manage LaTeX explicitly
-                    if (is_a($prt_state, 'stack_potentialresponse_tree_state')) {
-                        $prt_state->set_cas_context($question->getSession(),$question->getSeed(),true);
-                        $prt_feedback .= assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state)));
-                    }else{
-                        $prt_feedback .= '';
-                    }
+                    $prt_feedback .= assStackQuestionUtils::_getLatex(self::renderPRTFeedback($prt_state));
 
 				} else {
                     $prt_feedback .= '';
@@ -523,11 +523,8 @@ class assStackQuestionRenderer
 	 * @param assStackQuestion $question
 	 * @return string
 	 */
-	public static function _renderBestSolution(assStackQuestion $question, $test = false): string
+	public static function _renderBestSolution(assStackQuestion $question): string
 	{
-        if($test){
-            exit;
-        }
 		$input_correct_array = $question->getCorrectResponse();
 		$question_text = $question->question_text_instantiated;
 
@@ -564,9 +561,7 @@ class assStackQuestionRenderer
             if(is_a($question->inputs[$name],'stack_matrix_input')){
                 $question_text = str_replace("[[validation:{$name}]]", "", $question_text);
             }else{
-                $question_text = str_replace("[[validation:{$name}]]", "", $question_text);
-                //error s() render validation
-                //$question_text = str_replace("[[validation:{$name}]]", $question->inputs[$name]->render_validation($state, $name), $question_text);
+                $question_text = str_replace("[[validation:{$name}]]", $question->inputs[$name]->render_validation($state, $name), $question_text);
             }
 		}
 
@@ -577,7 +572,7 @@ class assStackQuestionRenderer
 
 		//Validation
 		$jsconfig = new stdClass();
-		$jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
+		$jsconfig->validate_url = ILIAS_HTTP_PATH . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
 
 		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
 		$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
@@ -595,7 +590,12 @@ class assStackQuestionRenderer
 	public static function renderBestSolutionForTestResults(assStackQuestion $question, string $active_id, string $pass): string
 	{
 		$student_solutions = $question->getTestOutputSolutions($active_id, $pass);
-		$question_text = $student_solutions['question_text'];
+
+        if (empty($student_solutions)) {
+            return "renderBestSolutionForTestResults ERROR";
+        }
+
+        $question_text = $student_solutions['question_text'];
 
 		// Get the list of placeholders before format_text.
 		$input_placeholders = array_unique(stack_utils::extract_placeholders($question_text, 'input'));
@@ -620,7 +620,7 @@ class assStackQuestionRenderer
 			} else {
 				$student_solution_input = "Error Rendering Input, question might be malformed";
 			}
-			$question_text = str_replace("[[input:{$name}]]", assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy($student_solution_input)), $question_text);
+			$question_text = str_replace("[[input:{$name}]]", assStackQuestionUtils::_getLatex($student_solution_input), $question_text);
 		}
 
 		//Replace Validation placeholders
@@ -635,13 +635,11 @@ class assStackQuestionRenderer
 
 		//Validation
 		$jsconfig = new stdClass();
-		$jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
+		$jsconfig->validate_url = ILIAS_HTTP_PATH . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
 
 		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
 		$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
 		// Now format the question-text.
-
-
 		return stack_maths::process_display_castext($question_text);
 	}
 
@@ -668,46 +666,51 @@ class assStackQuestionRenderer
 	 */
 	public static function renderPRTFeedback(stack_potentialresponse_tree_state $prt_state, $question = null): string
 	{
-		$feedback = '';
-		$feedback_bits = $prt_state->get_feedback();
-		$feedback_array = array();
+        $feedback = '';
+        $feedback_bits = $prt_state->get_feedback();
+        $feedback_array = array();
 
 		if ($feedback_bits) {
-            $format = "1";
-            foreach ($feedback_bits as $bit) {
-                $feedback_array[] = $bit->feedback;
-                if (!is_null($bit->format)) {
-                    if (is_null($format)) {
-                        $format = $bit->format;
-                    }
-                    if ($bit->format != $format) {
-                        ilutil::sendFailure('Inconsistent feedback formats found in PRT ', true);
-                    }
+			$format = "1";
+			foreach ($feedback_bits as $bit) {
+				$feedback_array[] = $bit->feedback;
+				if (!is_null($bit->format)) {
+					if (is_null($format)) {
+						$format = $bit->format;
+					}
+					if ($bit->format != $format) {
+						ilutil::sendFailure('Inconsistent feedback formats found in PRT ', true);
+					}
+				}
+			}
+
+            if($question !== null){
+                $score = $prt_state->_score;
+                if($score== 1){
+                    $feedback .= $question->prt_correct_instantiated . '<br>';
+                    $format = '2';
+
+                }elseif($score== 0){
+                    $feedback .= $question->prt_incorrect_instantiated . '<br>';
+                    $format = '3';
+
+                }else{
+                    $feedback .= $question->prt_partially_correct_instantiated . '<br>';
+
                 }
             }
-        }
 
-        if ($question !== null and isset($prt_state->_score)) {
-            $score = $prt_state->_score;
-            if ($score == 1) {
-                $feedback .= $question->prt_correct_instantiated . '<br>';
-                $format = '2';
-            } elseif ($score == 0) {
-                $feedback .= $question->prt_incorrect_instantiated . '<br>';
-                $format = '3';
-            } else {
-                $feedback .= $question->prt_partially_correct_instantiated . '<br>';
-            }
 
-            //Substitute Variables in Feedback text
-            $feedback .= self::substituteVariablesInFeedback($prt_state, $feedback_array, $format, 'preview');
+			//Substitute Variables in Feedback text
+			$feedback .= self::substituteVariablesInFeedback($prt_state, $feedback_array, $format, 'preview');
 
-            //Ensure LaTeX is properly render
-            $feedback = stack_maths::process_display_castext($feedback, null);
+			//Ensure LaTeX is properly render
+			$feedback = stack_maths::process_display_castext($feedback, null);
 
-            //Replace Temporal Placeholders
-            $feedback = assStackQuestionUtils::_getFeedbackStyledText($feedback, $format);
-        }
+			//Replace Temporal Placeholders
+			$feedback = assStackQuestionUtils::_getFeedbackStyledText($feedback, $format);
+		}
+
 		return self::replaceFeedbackPlaceHolders($feedback);
 	}
 

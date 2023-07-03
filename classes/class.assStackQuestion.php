@@ -15,7 +15,7 @@ include_once /** @lang text */
  * STACK Question OBJECT
  *
  * @author Jesús Copado Mejías <stack@surlabs.es>
- * @version $Id: 7.1$
+ * @version $Id: 8.0$
  * @ingroup    ModulesTestQuestionPool
  *
  */
@@ -277,9 +277,30 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         parent::__construct($title, $comment, $author, $owner, $question);
 
         // init the plugin object
-        require_once "./Services/Component/classes/class.ilPlugin.php";
         try {
-            $this->setPlugin(ilPlugin::getPluginObject(IL_COMP_MODULE, "TestQuestionPool", "qst", "assStackQuestion"));
+            global $DIC;
+
+            /** @var ilComponentRepository $component_repository */
+            $component_repository = $DIC["component.repository"];
+
+            $info = null;
+            try {
+                $plugin_name = 'assStackQuestion';
+                $info = $component_repository->getPluginByName($plugin_name);
+            } catch (InvalidArgumentException $e) {
+            }
+
+            /** @var ilComponentFactory $component_factory */
+            $component_factory = $DIC["component.factory"];
+
+            /** @var ilQuestionsPlugin $plugin_obj */
+            $plugin_obj = $component_factory->getPlugin($info->getId());
+
+            if (!is_null($info) && $info->isActive()) {
+                $this->setPlugin($plugin_obj);
+            }else{
+                echo "plugin obj";exit;
+            }
         } catch (ilPluginException $e) {
             ilUtil::sendFailure($e, true);
         }
@@ -290,6 +311,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         $this->setLastChange(time());
 
         //Initialize some STACK required parameters
+        /*
         require_once __DIR__ . '/utils/class.assStackQuestionInitialization.php';
         require_once(__DIR__ . '/stack/input/factory.class.php');
         require_once(__DIR__ . '/stack/cas/keyval.class.php');
@@ -297,7 +319,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         require_once(__DIR__ . '/stack/cas/cassecurity.class.php');
         require_once(__DIR__ . '/stack/potentialresponsetree.class.php');
         require_once(__DIR__ . '/utils/locallib.php');
-        require_once(__DIR__ . '/stack/cas/secure_loader.class.php');
+        require_once(__DIR__ . '/stack/cas/secure_loader.class.php');*/
     }
 
     //assQuestion abstract methods
@@ -411,7 +433,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param null $test_obj_id
      * @return int|null the duplicated question id
      */
-    public function duplicate($for_test = true, $title = "", $author = "", $owner = "", $testObjId = null)
+    public function duplicate(bool $for_test = true, string $title = "", string $author = "", string $owner = "", $testObjId = null): int
     {
         if ($this->id <= 0) {
             // The question has not been saved. It cannot be duplicated
@@ -652,7 +674,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param integer $question_id A unique key which defines the question in the database
      * @throws stack_exception
      */
-    public function loadFromDb($question_id)
+    public function loadFromDb(int $question_id): void
     {
         global $DIC;
 
@@ -662,31 +684,30 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         $data = $db->fetchAssoc($result);
         $this->setId($question_id);
-        $this->setTitle($data["title"]);
-        $this->setComment($data["description"]);
-        $this->setSuggestedSolution($data["solution_hint"]);
-        $this->setOriginalId($data["original_id"]);
+        $this->setTitle($data["title"] ?? '');
+        $this->setComment($data["description"] ?? '');
+        $this->setSuggestedSolution($data["solution_hint"] ?? '');
+        if(isset($data["original_id"])){
+            $this->setOriginalId($data["original_id"]);
+        }
         $this->setObjId($data["obj_fi"]);
-        $this->setAuthor($data["author"]);
-        $this->setOwner($data["owner"]);
+        $this->setAuthor($data["author"] ?? '');
+        $this->setOwner($data["owner"] ?? '');
         $this->setPoints($data["points"]);
-        $this->lastChange = $data['tstamp'];
+        $this->lastChange = $data['tstamp'] ?? '';
 
         //set question text
-        $this->setQuestion($data["question_text"]);
+        $this->setQuestion($data["question_text"] ?? '');
 
         try {
-            $this->setLifecycle(ilAssQuestionLifecycle::getInstance($data['lifecycle']));
+            $this->setLifecycle(ilAssQuestionLifecycle::getInstance($data['lifecycle'] ?? ''));
         } catch (ilTestQuestionPoolInvalidArgumentException $e) {
             $this->setLifecycle(ilAssQuestionLifecycle::getDraftInstance());
         }
 
         require_once("./Services/RTE/classes/class.ilRTE.php");
-        $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data["question_text"], 1));
-        $this->setEstimatedWorkingTime(substr($data["working_time"], 0, 2), substr($data["working_time"], 3, 2), substr($data["working_time"], 6, 2));
-
-        //Load the specific assStackQuestion data from DB
-        $this->getPlugin()->includeClass('class.assStackQuestionDB.php');
+        $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data["question_text"] ?? '', 1));
+        //$this->setEstimatedWorkingTime(substr($data["working_time"], 0, 2), substr($data["working_time"], 3, 2), substr($data["working_time"], 6, 2));
 
         $options_from_db_array = assStackQuestionDB::_readOptions($this->getId());
         if ($options_from_db_array === -1) {
@@ -740,58 +761,60 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
             //load only those inputs appearing in the question text
             foreach (stack_utils::extract_placeholders($this->getQuestion(), 'input') as $name) {
+                if (isset($inputs_from_db_array['inputs'][$name])) {
+                    $input_data = $inputs_from_db_array['inputs'][$name];
 
-                $input_data = $inputs_from_db_array['inputs'][$name];
+                    //Adjust syntax Hint for Textareas
+                    //Firstline shown as irstlin
 
-                //Adjust syntax Hint for Textareas
-                //Firstline shown as irstlin
-
-                /*
-                 * str_starts_with NOT available until ilias8
-				if ($input_data['type'] == 'equiv' || $input_data['type'] == 'textarea') {
-					if (strlen($input_data['syntax_hint']) and !str_starts_with($input_data['syntax_hint'], '[')) {
-						$input_data['syntax_hint'] = '[' . $input_data['syntax_hint'] . ']';
-					}
-					if (strlen($input_data['tans']) and !str_starts_with($input_data['tans'], '[')) {
-						$input_data['tans'] = '[' . $input_data['tans'] . ']';
-					}
-				}*/
-
-                $all_parameters = array(
-                    'boxWidth' => $input_data['box_size'],
-                    'strictSyntax' => $input_data['strict_syntax'],
-                    'insertStars' => $input_data['insert_stars'],
-                    'syntaxHint' => $input_data['syntax_hint'],
-                    'syntaxAttribute' => $input_data['syntax_attribute'],
-                    'forbidWords' => $input_data['forbid_words'],
-                    'allowWords' => $input_data['allow_words'],
-                    'forbidFloats' => $input_data['forbid_float'],
-                    'lowestTerms' => $input_data['require_lowest_terms'],
-                    'sameType' => $input_data['check_answer_type'],
-                    'mustVerify' => $input_data['must_verify'],
-                    'showValidation' => $input_data['show_validation'],
-                    'options' => $input_data['options'],
-                );
-
-                $parameters = array();
-
-                //We collect the non-existing inputs present in the question text
-                //We take care about them later
-                //Otherwise we proceed we normal loading
-                if ($input_data == null) {
-                    $new_inputs[$name] = '';
-                } else {
-                    foreach ($required_parameters[$input_data['type']] as $parameter_name) {
-                        if ($parameter_name == 'inputType') {
-                            continue;
+                    /*
+                     * str_starts_with NOT available until ilias8
+                    if ($input_data['type'] == 'equiv' || $input_data['type'] == 'textarea') {
+                        if (strlen($input_data['syntax_hint']) and !str_starts_with($input_data['syntax_hint'], '[')) {
+                            $input_data['syntax_hint'] = '[' . $input_data['syntax_hint'] . ']';
                         }
-                        $parameters[$parameter_name] = $all_parameters[$parameter_name];
+                        if (strlen($input_data['tans']) and !str_starts_with($input_data['tans'], '[')) {
+                            $input_data['tans'] = '[' . $input_data['tans'] . ']';
+                        }
+                    }*/
+
+                    $all_parameters = array(
+                        'boxWidth' => $input_data['box_size'],
+                        'strictSyntax' => $input_data['strict_syntax'],
+                        'insertStars' => $input_data['insert_stars'],
+                        'syntaxHint' => $input_data['syntax_hint'],
+                        'syntaxAttribute' => $input_data['syntax_attribute'],
+                        'forbidWords' => $input_data['forbid_words'],
+                        'allowWords' => $input_data['allow_words'],
+                        'forbidFloats' => $input_data['forbid_float'],
+                        'lowestTerms' => $input_data['require_lowest_terms'],
+                        'sameType' => $input_data['check_answer_type'],
+                        'mustVerify' => $input_data['must_verify'],
+                        'showValidation' => $input_data['show_validation'],
+                        'options' => $input_data['options'],
+                    );
+
+                    $parameters = array();
+
+                    //We collect the non-existing inputs present in the question text
+                    //We take care about them later
+                    //Otherwise we proceed we normal loading
+                    if ($input_data == null) {
+                        $new_inputs[$name] = '';
+                    } else {
+                        foreach ($required_parameters[$input_data['type']] as $parameter_name) {
+                            if ($parameter_name == 'inputType') {
+                                continue;
+                            }
+                            $parameters[$parameter_name] = $all_parameters[$parameter_name];
+                        }
+
+                        //SET INPUTS
+                        $this->inputs[$name] = stack_input_factory::make(
+                            $input_data['type'], $input_data['name'], $input_data['tans'], $this->options, $parameters
+                        );
                     }
-
-                    //SET INPUTS
-                    $this->inputs[$name] = stack_input_factory::make($input_data['type'], $input_data['name'], $input_data['tans'], $this->options, $parameters);
                 }
-
             }
 
             //If an input placeholder has appeared in the text, but it is not in the DB
@@ -828,72 +851,90 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
             //get PRT and PRT Nodes from DB
 
-            $this->getPlugin()->includeClass('utils/class.assStackQuestionUtils.php');
             $prt_names = assStackQuestionUtils::_getPRTNamesFromQuestion($this->getQuestion(), $options_from_db_array['ilias_options']['specific_feedback'], $prt_from_db_array);
 
             if (!empty($prt_names)) {
                 foreach ($prt_names as $prt_name) {
+                    if (isset($prt_from_db_array[$prt_name]) and !empty($prt_from_db_array[$prt_name])) {
+                        $prt_data = $prt_from_db_array[$prt_name];
+                        $nodes = array();
 
-                    $prt_data = $prt_from_db_array[$prt_name];
-                    $nodes = array();
+                        if (isset($prt_data['nodes']) and !empty($prt_data['nodes'])) {
+                            foreach ($prt_data['nodes'] as $node_name => $node_data) {
+                                $sans = stack_ast_container::make_from_teacher_source(
+                                    'PRSANS' . $node_name . ':' . $node_data['sans'], '', new stack_cas_security()
+                                );
+                                $tans = stack_ast_container::make_from_teacher_source(
+                                    'PRTANS' . $node_name . ':' . $node_data['tans'], '', new stack_cas_security()
+                                );
 
-                    if (isset($prt_data['nodes']) and !empty($prt_data['nodes'])) {
-                        foreach ($prt_data['nodes'] as $node_name => $node_data) {
+                                //Penalties management, penalties are not an ILIAS Feature
+                                if (is_null($node_data['false_penalty']) || $node_data['false_penalty'] === '') {
+                                    $false_penalty = 0;
+                                } else {
+                                    $false_penalty = $node_data['false_penalty'];
+                                }
 
-                            $sans = stack_ast_container::make_from_teacher_source('PRSANS' . $node_name . ':' . $node_data['sans'], '', new stack_cas_security());
-                            $tans = stack_ast_container::make_from_teacher_source('PRTANS' . $node_name . ':' . $node_data['tans'], '', new stack_cas_security());
+                                if (is_null(($node_data['true_penalty']) || $node_data['true_penalty'] === '')) {
+                                    $true_penalty = 0;
+                                } else {
+                                    $true_penalty = $node_data['true_penalty'];
+                                }
 
-                            //Penalties management, penalties are not an ILIAS Feature
-                            if (is_null($node_data['false_penalty']) || $node_data['false_penalty'] === '') {
-                                $false_penalty = 0;
-                            } else {
-                                $false_penalty = $node_data['false_penalty'];
+                                try {
+                                    //Create Node and add it to the
+                                    $node = new stack_potentialresponse_node(
+                                        $sans, $tans, $node_data['answer_test'], $node_data['test_options'],
+                                        (bool) $node_data['quiet'], '', (int) $node_name, $node_data['sans'],
+                                        $node_data['tans']
+                                    );
+
+                                    $node->add_branch(
+                                        0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty,
+                                        $node_data['false_next_node'], $node_data['false_feedback'],
+                                        $node_data['false_feedback_format'], $node_data['false_answer_note']
+                                    );
+                                    $node->add_branch(
+                                        1, $node_data['true_score_mode'], $node_data['true_score'], $true_penalty,
+                                        $node_data['true_next_node'], $node_data['true_feedback'],
+                                        $node_data['true_feedback_format'], $node_data['true_answer_note']
+                                    );
+
+                                    $nodes[$node_name] = $node;
+                                } catch (stack_exception $e) {
+                                    ilUtil::sendFailure($e->getMessage(), true);
+                                }
                             }
+                        } else {
+                            break;
+                        }
 
-                            if (is_null(($node_data['true_penalty']) || $node_data['true_penalty'] === '')) {
-                                $true_penalty = 0;
-                            } else {
-                                $true_penalty = $node_data['true_penalty'];
-                            }
-
+                        if ($prt_data['feedback_variables']) {
                             try {
-                                //Create Node and add it to the
-                                $node = new stack_potentialresponse_node($sans, $tans, $node_data['answer_test'], $node_data['test_options'], (bool)$node_data['quiet'], '', (int)$node_name, $node_data['sans'], $node_data['tans']);
-
-                                $node->add_branch(0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty, $node_data['false_next_node'], $node_data['false_feedback'], $node_data['false_feedback_format'], $node_data['false_answer_note']);
-                                $node->add_branch(1, $node_data['true_score_mode'], $node_data['true_score'], $true_penalty, $node_data['true_next_node'], $node_data['true_feedback'], $node_data['true_feedback_format'], $node_data['true_answer_note']);
-
-                                $nodes[$node_name] = $node;
+                                $feedback_variables = new stack_cas_keyval($prt_data['feedback_variables']);
+                                $feedback_variables = $feedback_variables->get_session();
                             } catch (stack_exception $e) {
                                 ilUtil::sendFailure($e->getMessage(), true);
                             }
+                        } else {
+                            $feedback_variables = null;
                         }
-                    } else {
-                        break;
-                    }
 
-                    if ($prt_data['feedback_variables']) {
+                        if ($total_value == 0) {
+                            //TODO Non gradable question
+                            $prt_value = 0.0;
+                        } else {
+                            $prt_value = $prt_data['value'];
+                        }
+
                         try {
-                            $feedback_variables = new stack_cas_keyval($prt_data['feedback_variables']);
-                            $feedback_variables = $feedback_variables->get_session();
+                            $this->prts[$prt_name] = new stack_potentialresponse_tree(
+                                $prt_name, '', (bool) $prt_data['auto_simplify'], $prt_value, $feedback_variables,
+                                $nodes, (string) $prt_data['first_node_name'], 1
+                            );
                         } catch (stack_exception $e) {
-                            ilUtil::sendFailure($e->getMessage(), true);
+                            ilUtil::sendFailure($e, true);
                         }
-                    } else {
-                        $feedback_variables = null;
-                    }
-
-                    if ($total_value == 0) {
-                        //TODO Non gradable question
-                        $prt_value = 0.0;
-                    } else {
-                        $prt_value = $prt_data['value'];
-                    }
-
-                    try {
-                        $this->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt_data['auto_simplify'], $prt_value, $feedback_variables, $nodes, (string)$prt_data['first_node_name'], 1);
-                    } catch (stack_exception $e) {
-                        ilUtil::sendFailure($e, true);
                     }
                 }
             }
@@ -937,16 +978,17 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function getSolutionSubmit(): array
     {
-        //RETURN DATA FROM POST
+        //RETURN DATA FROM
+        /** @var ILIAS\HTTP\Wrapper\SuperGlobalDropInReplacement $_POST */
         $user_response_from_post = $_POST;
-        unset($user_response_from_post["formtimestamp"]);
-        unset($user_response_from_post["cmd"]);
+        //unset($user_response_from_post["formtimestamp"]);
+        //unset($user_response_from_post["cmd"]);
 
-        $user_solutions = assStackQuestionUtils::_adaptUserResponseTo($user_response_from_post, $this->getId(), "only_input_names");
+        $user_solutions = assStackQuestionUtils::_adaptUserResponseTo($user_response_from_post, $this);
 
         //Debug
         if (isset($user_solutions['test_player_navigation_url'])) {
-            unset($user_solutions['test_player_navigation_url']);
+            //unset($user_solutions['test_player_navigation_url']);
         }
 
         return $user_solutions;
@@ -959,7 +1001,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param int $pass
      * @return array
      */
-    public function getTestOutputSolutions($activeId, $pass): array
+    public function getTestOutputSolutions(int $activeId, int $pass): array
     {
         $solution = parent::getTestOutputSolutions($activeId, $pass);
 
@@ -1102,17 +1144,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param integer $question_counter A reference to a question counter to count the questions of an imported question pool
      * @param array $import_mapping An array containing references to included ILIAS objects
      */
-    public function fromXML(
-        &$item,
-        &$questionpool_id,
-        &$tst_id,
-        &$tst_object,
-        &$question_counter,
-        &$import_mapping,
-        array $solutionhints = []
-    )
+    public function fromXML($item, int $questionpool_id, ?int $tst_id, &$tst_object, int &$question_counter, array $import_mapping, array &$solutionhints = []): array
     {
-        $this->getPlugin()->includeClass('import/qti12/class.assStackQuestionImport.php');
         $import = new assStackQuestionImport($this);
         return $import->fromXML($item, $questionpool_id, $tst_id, $tst_object, $question_counter, $import_mapping);
 
@@ -1130,7 +1163,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function toXML($a_include_header = true, $a_include_binary = true, $a_shuffle = false, $test_output = false, $force_image_references = false): string
     {
-        $this->getPlugin()->includeClass('model/export/qti12/class.assStackQuestionExport.php');
         $export = new assStackQuestionExport($this);
 
         return $export->toXML($a_include_header, $a_include_binary, $a_shuffle, $test_output, $force_image_references);
@@ -1175,10 +1207,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     public function saveToDb($original_id = ""): void
     {
         if ($this->getTitle() != "" and $this->getAuthor() != "" and $this->getQuestion() != "") {
-            $this->saveQuestionDataToDb($this->getOriginalId());
+            $this->saveQuestionDataToDb((int)$original_id);
             $this->saveAdditionalQuestionDataToDb();
 
-            parent::saveToDb($this->getOriginalId());
+            parent::saveToDb();
         } else {
             ilUtil::sendFailure($this->getPlugin()->txt('error_fields_missing'), 1);
         }
@@ -1190,7 +1222,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function saveAdditionalQuestionDataToDb()
     {
-        $this->getPlugin()->includeClass('class.assStackQuestionDB.php');
         try {
             assStackQuestionDB::_saveStackQuestion($this);
         } catch (stack_exception $e) {
@@ -1218,12 +1249,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * Deletes the question from the DB
      * @param int $question_id
      */
-    public function delete($question_id)
+    public function delete(int $question_id): void
     {
         //delete general question data
         parent::delete($question_id);
 
-        $this->getPlugin()->includeClass('class.assStackQuestionDB.php');
         //delete stack specific question data
         assStackQuestionDB::_deleteStackQuestion($question_id);
     }
@@ -1475,8 +1505,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
 
         //get PRT and PRT Nodes from DB
-
-        $this->getPlugin()->includeClass('utils/class.assStackQuestionUtils.php');
 
         $nodes = array();
 
@@ -2806,7 +2834,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $collected .= $this->prt_incorrect;
         }
 
-        if (isset($this->extra_info)) {
+        if (isset($this->general_feedback)) {
             $collected .= $this->general_feedback;
         }
 
@@ -2835,4 +2863,390 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             return false;
         }
     }
+
+    /**
+     * @return string
+     */
+    public function getStackVersion(): string
+    {
+        return $this->stack_version;
+    }
+
+    /**
+     * @param string $stack_version
+     */
+    public function setStackVersion(string $stack_version): void
+    {
+        $this->stack_version = $stack_version;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getQuestionVariables(): ?string
+    {
+        return $this->question_variables;
+    }
+
+    /**
+     * @param string|null $question_variables
+     */
+    public function setQuestionVariables(?string $question_variables): void
+    {
+        $this->question_variables = $question_variables;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getQuestionNote(): ?string
+    {
+        return $this->question_note;
+    }
+
+    /**
+     * @param string|null $question_note
+     */
+    public function setQuestionNote(?string $question_note): void
+    {
+        $this->question_note = $question_note;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getSpecificFeedback(): ?string
+    {
+        return $this->specific_feedback;
+    }
+
+    /**
+     * @param string|null $specific_feedback
+     */
+    public function setSpecificFeedback(?string $specific_feedback): void
+    {
+        $this->specific_feedback = $specific_feedback;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getSpecificFeedbackFormat(): ?int
+    {
+        return $this->specific_feedback_format;
+    }
+
+    /**
+     * @param int|null $specific_feedback_format
+     */
+    public function setSpecificFeedbackFormat(?int $specific_feedback_format): void
+    {
+        $this->specific_feedback_format = $specific_feedback_format;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPrtCorrect(): ?string
+    {
+        return $this->prt_correct;
+    }
+
+    /**
+     * @param string|null $prt_correct
+     */
+    public function setPrtCorrect(?string $prt_correct): void
+    {
+        $this->prt_correct = $prt_correct;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getPrtCorrectFormat(): ?int
+    {
+        return $this->prt_correct_format;
+    }
+
+    /**
+     * @param int|null $prt_correct_format
+     */
+    public function setPrtCorrectFormat(?int $prt_correct_format): void
+    {
+        $this->prt_correct_format = $prt_correct_format;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPrtPartiallyCorrect(): ?string
+    {
+        return $this->prt_partially_correct;
+    }
+
+    /**
+     * @param string|null $prt_partially_correct
+     */
+    public function setPrtPartiallyCorrect(?string $prt_partially_correct): void
+    {
+        $this->prt_partially_correct = $prt_partially_correct;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getPrtPartiallyCorrectFormat(): ?int
+    {
+        return $this->prt_partially_correct_format;
+    }
+
+    /**
+     * @param int|null $prt_partially_correct_format
+     */
+    public function setPrtPartiallyCorrectFormat(?int $prt_partially_correct_format): void
+    {
+        $this->prt_partially_correct_format = $prt_partially_correct_format;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPrtIncorrect(): ?string
+    {
+        return $this->prt_incorrect;
+    }
+
+    /**
+     * @param string|null $prt_incorrect
+     */
+    public function setPrtIncorrect(?string $prt_incorrect): void
+    {
+        $this->prt_incorrect = $prt_incorrect;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getPrtIncorrectFormat(): ?int
+    {
+        return $this->prt_incorrect_format;
+    }
+
+    /**
+     * @param int|null $prt_incorrect_format
+     */
+    public function setPrtIncorrectFormat(?int $prt_incorrect_format): void
+    {
+        $this->prt_incorrect_format = $prt_incorrect_format;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getVariantsSelectionSeed(): ?string
+    {
+        return $this->variants_selection_seed;
+    }
+
+    /**
+     * @param string|null $variants_selection_seed
+     */
+    public function setVariantsSelectionSeed(?string $variants_selection_seed): void
+    {
+        $this->variants_selection_seed = $variants_selection_seed;
+    }
+
+    /**
+     * @return array
+     */
+    public function getInputs(): array
+    {
+        return $this->inputs;
+    }
+
+    /**
+     * @param array $inputs
+     */
+    public function setInputs(array $inputs): void
+    {
+        $this->inputs = $inputs;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPrts(): array
+    {
+        return $this->prts;
+    }
+
+    /**
+     * @param array $prts
+     */
+    public function setPrts(array $prts): void
+    {
+        $this->prts = $prts;
+    }
+
+    /**
+     * @return stack_options
+     */
+    public function getOptions(): stack_options
+    {
+        return $this->options;
+    }
+
+    /**
+     * @param stack_options $options
+     */
+    public function setOptions(stack_options $options): void
+    {
+        $this->options = $options;
+    }
+
+    /**
+     * @return array
+     */
+    public function getDeployedSeeds(): array
+    {
+        return $this->deployed_seeds;
+    }
+
+    /**
+     * @param array $deployed_seeds
+     */
+    public function setDeployedSeeds(array $deployed_seeds): void
+    {
+        $this->deployed_seeds = $deployed_seeds;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getQuestionTextInstantiated(): ?string
+    {
+        return $this->question_text_instantiated;
+    }
+
+    /**
+     * @param string|null $question_text_instantiated
+     */
+    public function setQuestionTextInstantiated(?string $question_text_instantiated): void
+    {
+        $this->question_text_instantiated = $question_text_instantiated;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getSpecificFeedbackInstantiated(): ?string
+    {
+        return $this->specific_feedback_instantiated;
+    }
+
+    /**
+     * @param string|null $specific_feedback_instantiated
+     */
+    public function setSpecificFeedbackInstantiated(?string $specific_feedback_instantiated): void
+    {
+        $this->specific_feedback_instantiated = $specific_feedback_instantiated;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPrtCorrectInstantiated(): ?string
+    {
+        return $this->prt_correct_instantiated;
+    }
+
+    /**
+     * @param string|null $prt_correct_instantiated
+     */
+    public function setPrtCorrectInstantiated(?string $prt_correct_instantiated): void
+    {
+        $this->prt_correct_instantiated = $prt_correct_instantiated;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPrtPartiallyCorrectInstantiated(): ?string
+    {
+        return $this->prt_partially_correct_instantiated;
+    }
+
+    /**
+     * @param string|null $prt_partially_correct_instantiated
+     */
+    public function setPrtPartiallyCorrectInstantiated(?string $prt_partially_correct_instantiated): void
+    {
+        $this->prt_partially_correct_instantiated = $prt_partially_correct_instantiated;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPrtIncorrectInstantiated(): ?string
+    {
+        return $this->prt_incorrect_instantiated;
+    }
+
+    /**
+     * @param string|null $prt_incorrect_instantiated
+     */
+    public function setPrtIncorrectInstantiated(?string $prt_incorrect_instantiated): void
+    {
+        $this->prt_incorrect_instantiated = $prt_incorrect_instantiated;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRuntimeErrors(): array
+    {
+        return $this->runtime_errors;
+    }
+
+    /**
+     * @param array $runtime_errors
+     */
+    public function setRuntimeErrors(array $runtime_errors): void
+    {
+        $this->runtime_errors = $runtime_errors;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCompiledCache(): array
+    {
+        return $this->compiled_cache;
+    }
+
+    /**
+     * @param array $compiled_cache
+     */
+    public function setCompiledCache(array $compiled_cache): void
+    {
+        $this->compiled_cache = $compiled_cache;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getGeneralFeedback(): ?string
+    {
+        return $this->general_feedback;
+    }
+
+    /**
+     * @param string|null $general_feedback
+     */
+    public function setGeneralFeedback(?string $general_feedback): void
+    {
+        $this->general_feedback = $general_feedback;
+    }
+
+
 }

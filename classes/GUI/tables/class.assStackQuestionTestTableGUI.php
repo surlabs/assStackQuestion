@@ -10,7 +10,7 @@ include_once('./Services/Table/classes/class.ilTable2GUI.php');
  * STACK Question Unit tests Table GUI
  *
  * @author Jesús Copado Mejías <stack@surlabs.es>
- * @version $Id: 7.1$
+ * @version $Id: 8.0$
  * @ingroup    ModulesTestQuestionPool
  *
  */
@@ -247,7 +247,7 @@ class assStackQuestionTestTableGUI extends ilTable2GUI
 	/**
 	 * @param assStackQuestionTestExpected $prt_data
 	 */
-	public function fillRow($prt_data)
+	public function fillRow($prt_data): void
 	{
 		if ($this->mode)
 		{

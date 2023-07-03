@@ -148,7 +148,8 @@ class ilColumnsFormPropertyGUI extends ilMultipartFormPropertyGUI
 				}
 
 				//Fill property
-				$form_property->insert($this->getTemplate());
+                $template = $this->getTemplate();
+                $form_property->insert($template);
 				$this->getTemplate()->setCurrentBlock('prop_container');
 
 				//Set width

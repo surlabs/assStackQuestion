@@ -187,7 +187,9 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
         if ($settings->platform == 'linux-optimised') {
             $cmd = $settings->maximacommandopt;
         } else if ($settings->platform == 'server') {
-            $cmd = $settings->maximacommandserver;
+            if(isset($settings->maximacommandserver)){
+                $cmd = $settings->maximacommandserver;
+            }
         }
         if ('' === trim($cmd)) {
             $cmd = $this->guess_maxima_command($path);
@@ -197,7 +199,11 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
         $this->command        = $cmd;
         $this->initcommand    = $initcommand;
         $this->timeout        = $settings->castimeout;
-        $this->serveruserpass = $settings->serveruserpass;
+
+        if (isset($settings->serveruserpass)) {
+            $this->serveruserpass = $settings->serveruserpass;
+        }
+
         $this->debug          = $debuglog;
         if (strpos($CFG->wwwroot, '_') !== false) {
             $this->wwwroothasunderscores = true;

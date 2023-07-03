@@ -83,8 +83,8 @@ class assStackQuestionMoodleXMLExport
 
 			//General feedback
 			$a_xml_writer->xmlStartTag("generalfeedback", array("format" => "html"));
-			$media = $this->getRTEMedia($question->general_feedback);
-			$this->addRTEText($a_xml_writer, $question->general_feedback);
+			$media = $this->getRTEMedia($question->getGeneralFeedback());
+			$this->addRTEText($a_xml_writer, $question->getGeneralFeedback());
 			$this->addRTEMedia($a_xml_writer, $media);
 			$a_xml_writer->xmlEndTag("generalfeedback");
 

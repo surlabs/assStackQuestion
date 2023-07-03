@@ -561,12 +561,12 @@ class assStackQuestionUtils
 		return $new_text;
 	}
 
-	public static function _adaptUserResponseTo($user_response, $question_id, $format)
+	public static function _adaptUserResponseTo(ILIAS\HTTP\Wrapper\SuperGlobalDropInReplacement $user_response, assStackQuestion $question)
 	{
 		$adapted_user_response = array();
-		foreach ($user_response as $input_name => $input_value) {
-			if ($format == "only_input_names") {
-				$adapted_user_response[str_replace("xqcas_" . $question_id . "_", "", $input_name)] = ilUtil::stripScriptHTML($input_value);
+		foreach ($question->getInputs() as $input_name => $input) {
+			if ($user_response->offsetExists("xqcas_" . $question->getId() . "_".$input_name) !== null) {
+				$adapted_user_response[$input_name] = $user_response->offsetGet("xqcas_" . $question->getId() . "_".$input_name);
 			}
 		}
 		return $adapted_user_response;
@@ -626,7 +626,7 @@ class assStackQuestionUtils
 					}
 				default:
 					//Use specific feedback style
-					$style_assigned = $config_options[$a_format];
+					$style_assigned = $config_options['feedback_default'];
 
 					return '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">' . $a_text . '</div>';
 			}

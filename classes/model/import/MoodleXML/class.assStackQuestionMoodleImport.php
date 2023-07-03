@@ -66,11 +66,9 @@ class assStackQuestionMoodleImport
 		$this->setFirstQuestion($first_question_id);
 
 		//Creation of the first question.
-		$this->getPlugin()->includeClass('class.assStackQuestion.php');
 		$this->setQuestion($question);
 
 		//Initialization and load of stack wrapper classes
-		$this->getPlugin()->includeClass('utils/class.assStackQuestionInitialization.php');
 	}
 
 	/* MAIN METHODS BEGIN */
@@ -108,7 +106,6 @@ class assStackQuestionMoodleImport
 
 				//Save standard question data
 				$this->getQuestion()->saveQuestionDataToDb();
-				$this->getPlugin()->includeClass('class.assStackQuestionDB.php');
 				try {
 					//Save STACK Parameters forcing insert.
 					if (assStackQuestionDB::_saveStackQuestion($this->getQuestion(), 'import')) {

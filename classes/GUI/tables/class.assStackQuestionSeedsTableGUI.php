@@ -59,6 +59,7 @@ class assStackQuestionSeedsTableGUI extends ilTable2GUI
 
 	public function prepareData($deployed_seeds)
 	{
+        $data = array();
 		foreach ($deployed_seeds as $seed)
 		{
 			$row['seed'] = $seed['seed'];
@@ -72,7 +73,7 @@ class assStackQuestionSeedsTableGUI extends ilTable2GUI
 	/**
 	 * @param assStackQuestionDeployedSeed $deployed_seed
 	 */
-    protected function fillRow($deployed_seed)
+    protected function fillRow($deployed_seed): void
 	{
 		$this->tpl->setCurrentBlock('column');
 		$this->tpl->setVariable('CONTENT', $deployed_seed['seed']);

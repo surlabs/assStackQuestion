@@ -342,7 +342,7 @@ class stack_cas_configuration
         //make_upload_directory('stack/tmp');
         global $CFG;
         if (!is_dir($CFG->dataroot . '/stack')) {
-            mkdir($CFG->dataroot . '/stack', 0700, true);
+            mkdir($CFG->dataroot . '/stack', 0755, true);
             mkdir($CFG->dataroot . '/stack/logs');
             mkdir($CFG->dataroot . '/stack/plots');
             mkdir($CFG->dataroot . '/stack/tmp');

@@ -57,7 +57,6 @@ class assStackQuestionDeployedSeedsGUI
 		$this->setQuestionId($question_id);
 
 		//Get deployed seeds for current question
-		$this->getPlugin()->includeClass('class.assStackQuestionDB.php');
 		$variants = assStackQuestionDB::_readDeployedVariants($this->getQuestionId());
 
 		$this->setDeployedSeeds($variants);

@@ -75,8 +75,9 @@ class maxima_parser_utils {
         $muccachelimit = get_config('qtype_stack', 'parsercacheinputlength');
 
         //fau: comment this cache section until we find a solution
-		/*
+
         $cache = null;
+        /*
         if ($cachekey && $muccachelimit && strlen($code) >= $muccachelimit) {
             $cache = cache::make('qtype_stack', 'parsercache');
             $ast = $cache->get($cachekey);

@@ -644,7 +644,7 @@ $string['assumepositive_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Au
 $string['ATAlgEquiv_SA_not_equation'] = 'Ihre Anwort sollte eine Gleichung sein, ist es aber nicht.';
 $string['ATAlgEquiv_SA_not_inequality'] = 'Ihre Anwort sollte eine Ungleichung sein, ist es aber nicht.';
 $string['ATAlgEquiv_SA_not_list'] = 'Ihre Antwort sollte eine Liste sein, ist es aber nicht. Beachten Sie die Syntax: In einer Liste wird die Auflistung der Elemente (jeweils durch Kommata getrennt) mit geschweiften Klammern eingeschlossen.';
-$string['ATAlgEquiv_SA_not_matrix'] = 'Ihre Anwort sollte eine Matrix sein, ist es aber nicht.';
+$string['ATAlgEquiv_SA_not_matrix'] = '';
 $string['ATAlgEquiv_SA_not_set'] = 'Ihre Antwort sollte eine Menge sein, ist es aber nicht. Beachten Sie die Syntax: In einer Menge wird die Auflistung der Elemente (jeweils durch Kommata getrennt) mit geschweiften Klammern eingeschlossen.';
 $string['ATAlgEquiv_TA_not_equation'] = 'Ihre Antwort ist eine Gleichung, aber der Ausdruck, mit dem verglichen wird, ist es nicht. Vielleicht haben Sie etwas wie "y=2*x+1" getippt, aber es sollte nur "2*x+1" eingegeben werden.';
 $string['ATCompSquare_false'] = '';

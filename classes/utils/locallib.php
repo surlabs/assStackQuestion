@@ -126,7 +126,8 @@ function get_stack_maxima_latex_replacements()
 			'!BOOLTRUE!' => stack_string('true'),
 			'!BOOLFALSE!' => stack_string('false'),
             'leftrightarrow' => '\leftrightarrow',
-		];
+            'leftrightarrow' => '\leftrightarrow',
+        ];
 	}
 	return $replacements[$lang];
 }

@@ -62,6 +62,7 @@ class assStackQuestionAuthoringGUI
 		$toolbar = new ilToolbarGUI();
 		include_once('./Services/UIComponent/Button/classes/class.ilButton.php');
 
+        /*
 		$show_info_button = ilButton::getInstance();
 		$show_info_button->setCaption($this->getPlugin()->txt("enable_disable_info"), FALSE);
 		$show_info_button->setId("enable_disable_info");
@@ -71,7 +72,7 @@ class assStackQuestionAuthoringGUI
 		$show_link_button->setCaption($this->getPlugin()->txt("auth_guide_name"), FALSE);
 		$show_link_button->setId("auth_guide_name");
 		$toolbar->addButtonInstance($show_link_button);
-
+*/
 		$this->getTemplate()->setVariable("TOOLBAR", $toolbar->getHTML());
 
 		//Set form
@@ -91,13 +92,6 @@ class assStackQuestionAuthoringGUI
 
 	public function showAuthoringPanel()
 	{
-		//Initialization
-		$this->getPlugin()->includeClass('utils/FormProperties/class.ilMultipartFormPropertyGUI.php');
-		$this->getPlugin()->includeClass('utils/FormProperties/class.ilMultipartFormPart.php');
-		$this->getPlugin()->includeClass('utils/FormProperties/class.ilAccordionFormPropertyGUI.php');
-		$this->getPlugin()->includeClass('utils/FormProperties/class.ilColumnsFormPropertyGUI.php');
-		$this->getPlugin()->includeClass('utils/FormProperties/class.ilTabsFormPropertyGUI.php');
-		$this->getPlugin()->includeClass('utils/FormProperties/class.ilButtonFormPropertyGUI.php');
 
 		//https://mantis.ilias.de/view.php?id=25290
 		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
@@ -381,25 +375,25 @@ class assStackQuestionAuthoringGUI
 		$this->getQuestionGUI()->setRTESupport($how_to_solve);
 
 		//Set value if exists if not default values
-		if ($this->new_question) {
-			$options_question_simplify->setChecked((int)$this->default["options_question_simplify"]);
-			$options_assume_positive->setChecked((int)$this->default["options_assume_positive"]);
+		if (isset($this->new_question) and $this->new_question === true) {
+			$options_question_simplify->setChecked((int)$this->default["options_question_simplify"] ?? false);
+			$options_assume_positive->setChecked((int)$this->default["options_assume_positive"] ?? false);
 			$options_prt_correct->setValue($this->default["options_prt_correct"]);
 			$options_prt_partially_correct->setValue($this->default["options_prt_partially_correct"]);
 			$options_prt_incorrect->setValue($this->default["options_prt_incorrect"]);
 			$options_multiplication_sign->setValue($this->default["options_multiplication_sign"]);
-			$options_sqrt_sign->setChecked((int)$this->default["options_sqrt_sign"]);
+			$options_sqrt_sign->setChecked((int)$this->default["options_sqrt_sign"] ?? false);
 			$options_complex_numbers->setValue($this->default["options_complex_numbers"]);
 			$options_inverse_trigonometric->setValue($this->default["options_inverse_trigonometric"]);
-			$options_matrix_parens->setValue($this->default["options_matrix_parens"]);
+			$options_matrix_parens->setValue($this->default["options_matrix_parens"] ?? false);
 		} else {
-			$options_question_simplify->setChecked($options->get_option('simplify'));
-			$options_assume_positive->setChecked((int)$options->get_option('assumepos'));
+			$options_question_simplify->setChecked($options->get_option('simplify') ?? false);
+			$options_assume_positive->setChecked((int)$options->get_option('assumepos') ?? false);
 			$options_prt_correct->setValue($this->getQuestionGUI()->object->prt_correct);
 			$options_prt_partially_correct->setValue($this->getQuestionGUI()->object->prt_partially_correct);
 			$options_prt_incorrect->setValue($this->getQuestionGUI()->object->prt_incorrect);
 			$options_multiplication_sign->setValue($options->get_option('multiplicationsign'));
-			$options_sqrt_sign->setChecked($options->get_option('sqrtsign'));
+			$options_sqrt_sign->setChecked($options->get_option('sqrtsign') ?? false);
 			$options_complex_numbers->setValue($options->get_option('complexno'));
 			$options_inverse_trigonometric->setValue($options->get_option('inversetrig'));
 			$options_matrix_parens->setValue($options->get_option('matrixparens'));
@@ -506,34 +500,34 @@ class assStackQuestionAuthoringGUI
 		$input_options->setInfo($input_options_info_text);
 
 		//Set value if exists if not default values
-		if ($this->new_question) {
+        if (isset($this->new_question) and $this->new_question === true) {
 			$input_type->setValue($this->default["input_type"]);
 			//$input_model_answer->setValue($this->default[""]);
 			$input_box_size->setValue($this->default["input_box_size"]);
-			$input_strict_syntax->setChecked((int)$this->default["input_strict_syntax"]);
+			$input_strict_syntax->setChecked((int)$this->default["input_strict_syntax"] ?? false);
 			$input_insert_stars->setValue((int)$this->default["input_insert_stars"]);
 			$input_syntax_hint->setValue($this->default["input_syntax_hint"]);
 			$input_forbidden_words->setValue($this->default["input_forbidden_words"]);
 			$input_allow_words->setValue($this->default["input_allow_words"]);
-			$input_forbid_float->setChecked((int)$this->default["input_forbid_float"]);
-			$input_require_lowest_terms->setChecked((int)$this->default["input_require_lowest_terms"]);
-			$input_check_answer_type->setChecked((int)$this->default["input_check_answer_type"]);
-			$input_must_verify->setChecked((int)$this->default["input_must_verify"]);
+			$input_forbid_float->setChecked((int)$this->default["input_forbid_float"] ?? false);
+			$input_require_lowest_terms->setChecked((int)$this->default["input_require_lowest_terms"] ?? false);
+			$input_check_answer_type->setChecked((int)$this->default["input_check_answer_type"] ?? false);
+			$input_must_verify->setChecked((int)$this->default["input_must_verify"] ?? false);
 			$input_show_validation->setValue((int)$this->default["input_show_validation"]);
 			$input_options->setValue($this->default["input_extra_options"]);
 		} else {
 			$input_type->setValue(assStackQuestionUtils::_getInputType($input));
 			$input_model_answer->setValue($input->get_teacher_answer());
 			$input_box_size->setValue($input->get_parameter('boxWidth'));
-			$input_strict_syntax->setChecked($input->get_parameter('strictSyntax'));
+			$input_strict_syntax->setChecked($input->get_parameter('strictSyntax') ?? false);
 			$input_insert_stars->setValue($input->get_parameter('insertStars'));
 			$input_syntax_hint->setValue($input->get_parameter('syntaxHint'));
 			$input_forbidden_words->setValue($input->get_parameter('forbidWords'));
 			$input_allow_words->setValue($input->get_parameter('allowWords'));
-			$input_forbid_float->setChecked($input->get_parameter('forbidFloats'));
-			$input_require_lowest_terms->setChecked($input->get_parameter('lowestTerms'));
-			$input_check_answer_type->setChecked($input->get_parameter('sameType'));
-			$input_must_verify->setChecked($input->get_parameter('mustVerify'));
+			$input_forbid_float->setChecked($input->get_parameter('forbidFloats') ?? false);
+			$input_require_lowest_terms->setChecked($input->get_parameter('lowestTerms') ?? false);
+			$input_check_answer_type->setChecked($input->get_parameter('sameType') ?? false);
+			$input_must_verify->setChecked($input->get_parameter('mustVerify') ?? false);
 			$input_show_validation->setValue($input->get_parameter('showValidation'));
 			$input_options->setValue($input->get_parameter('options'));
 		}
@@ -592,7 +586,7 @@ class assStackQuestionAuthoringGUI
 		$prt_name_input->setRequired(TRUE);
 
 		//If new question, name first prt directly as prt1
-		if ($this->new_question == TRUE) {
+        if (isset($this->new_question) and $this->new_question === true) {
 			$prt_name_input->setValue("prt1");
 		} else {
 			$prt_name_input->setValue($prt_name);
@@ -657,7 +651,6 @@ class assStackQuestionAuthoringGUI
 	public function getGraphicalPart(stack_potentialresponse_tree $prt)
 	{
 		//Graph Creation procedure
-		$this->getPlugin()->includeClass('stack/graphlayout/graph.php');
 		$graph = new stack_abstract_graph();
 		$first_node_name = $prt->getFirstNode();
 		$nodes = array();
@@ -737,7 +730,7 @@ class assStackQuestionAuthoringGUI
 		//Set value of parts in case there are parts.
 		$prt_value->setValue($prt->get_value());
 		//Set value if exists if not default values
-		if ($this->new_question) {
+        if (isset($this->new_question) and $this->new_question === true) {
 			$prt_simplify->setValue($this->default["prt_simplify"]);
 		} else {
 			$prt_simplify->setValue($prt->isSimplify());
@@ -867,7 +860,6 @@ class assStackQuestionAuthoringGUI
 		//Creation of Form properties
 		$answer_test = new ilSelectInputGUI($this->getPlugin()->txt('prt_node_answer_test'), 'prt_' . $prt->get_name() . '_node_' . $node->nodeid . '_answer_test');
 		// Prepare answer test types.
-		$this->getPlugin()->includeClass('stack/answertest/controller.class.php');
 		$answertests = stack_ans_test_controller::get_available_ans_tests();
 		$answertestchoices = array();
 		foreach ($answertests as $test => $string) {
@@ -897,7 +889,7 @@ class assStackQuestionAuthoringGUI
 		$node_quiet->setOptions(array(true => $lng->txt('yes'), false => $lng->txt('no'),));
 		$node_quiet->setInfo($this->getPlugin()->txt('prt_node_quiet_info'));
 
-		if ($this->new_question) {
+        if (isset($this->new_question) and $this->new_question === true) {
 			$answer_test->setValue($this->default["prt_node_answer_test"]);
 			//$node_student_answer->setValue($this->default[""]);
 			//$node_teacher_answer->setValue($this->default[""]);
@@ -991,7 +983,7 @@ class assStackQuestionAuthoringGUI
 		$this->getQuestionGUI()->setRTESupport($node_pos_specific_feedback);
 
 		//Set value if exists if not default values
-		if ($this->new_question) {
+        if (isset($this->new_question) and $this->new_question === true) {
 			$node_pos_mode->setValue($this->default["prt_pos_mod"]);
 			$node_pos_score->setValue($this->default["prt_pos_score"]);
 			$node_pos_penalty->setValue($this->default["prt_pos_penalty"]);
@@ -1079,7 +1071,7 @@ class assStackQuestionAuthoringGUI
 		$this->getQuestionGUI()->setRTESupport($node_neg_specific_feedback);
 
 		//Set value if exists if not default values
-		if ($this->new_question) {
+        if (isset($this->new_question) and $this->new_question === true) {
 			$node_neg_mode->setValue($this->default["prt_neg_mod"]);
 			$node_neg_score->setValue($this->default["prt_neg_score"]);
 			$node_neg_penalty->setValue($this->default["prt_neg_penalty"]);

@@ -117,9 +117,9 @@ class stack_cas_keyval {
         $vallist = array();
         // Update the types and values for future insert-stars and other logic.
         $config = stack_utils::get_config();
-        if ($config->caspreparse == 'true') {
+        //if ($config->caspreparse == 'true') {
             $vallist = maxima_parser_utils::identify_identifier_values($ast, $this->security->get_context());
-        }
+        //}
         if (isset($vallist['% TIMEOUT %'])) {
             $this->errors[] = stack_string('stackCas_overlyComplexSubstitutionGraphOrRandomisation');
             $this->valid = false;

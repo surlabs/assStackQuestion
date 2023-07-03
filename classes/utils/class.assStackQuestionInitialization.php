@@ -8,7 +8,7 @@
  * This class provides all the global variables needed within the stack folder
  *
  * @author Jesús Copado Mejías <stack@surlabs.es>
- * @version $Id: 7.1$
+ * @version $Id: 8.0$
  * @ingroup    ModulesTestQuestionPool
  *
  */
@@ -16,18 +16,21 @@
 /**
  * Simulating moodles global configuration
  */
+
+use ILIAS\Filesystem\Filesystems;
+
+global $DIC;
+
 $CFG = new stdClass;
 // the base url of the installation (without script)
-$CFG->wwwroot = ilUtil::_getHttpPath();
+$CFG->wwwroot = ILIAS_HTTP_PATH;
 // the server path of the installation
 $CFG->dirroot = realpath(dirname(__FILE__) . '/../..');
 // the data directory of the plugin
-$CFG->dataroot = realpath(ilUtil::getWebspaceDir('filesystem')) . '/xqcas';
-$CFG->dataurl = ilUtil::_getHttpPath() . "/" . ILIAS_WEB_DIR . "/" . CLIENT_ID . "/xqcas";
+$CFG->dataroot = ILIAS_WEB_DIR . "/" . CLIENT_ID . "/xqcas";
+$CFG->dataurl = ILIAS_HTTP_PATH . "/" . ILIAS_WEB_DIR . "/" . CLIENT_ID . "/xqcas";
 $GLOBALS['CFG'] =& $CFG;
 
-define('PARAM_RAW', 'raw');
-define('MOODLE_INTERNAL', '1');
 
 include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/locallib.php';
 include_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/exceptions/class.assStackQuestionException.php');
@@ -135,6 +138,7 @@ if (!function_exists('get_config')) {
             $configs->maximacommand = "maxima";
         } else {
             $configs->maximacommand = $saved_config['maxima_command'];
+            $configs->maximacommandserver = $saved_config['maxima_command'];
         }
         //Plot command - If blank: gnuplot
         if (!$saved_config['plot_command']) {
@@ -179,10 +183,13 @@ if (!function_exists('get_config')) {
         $configs->matrixparens = "[";
 
         //assume_real variable in maxima
-        $configs->assumereal = $saved_config['options_assume_real'];
+        if (isset($saved_config['options_assume_real'])) {
+            $configs->assumereal = $saved_config['options_assume_real'];
+        }
         //assume_real variable in maxima
-        $configs->logicsymbol = $saved_config['options_logic_symbol'];
-
+        if (isset($saved_config['options_logic_symbol'])) {
+            $configs->logicsymbol = $saved_config['options_logic_symbol'];
+        }
         /*
          * DEFAULT INPUTS CONFIGURATION
          */
@@ -207,7 +214,7 @@ if (!function_exists('get_config')) {
         //Show validation button
         $configs->inputshowvalidation = $saved_config['input_show_validation'];
 
-        $configs->maximalocalfolder = ilUtil::getWebspaceDir('filesystem') . '/xqcas/stack';
+        $configs->maximalocalfolder = realpath(ILIAS_WEB_DIR . '/' . CLIENT_NAME . '/xqcas');
         $configs->stackmaximaversion = "2021120900";
         $configs->version = "2021120900";
 

@@ -4,46 +4,43 @@
  * GPLv3, see LICENSE
  */
 
+use ILIAS\HTTP\Wrapper\SuperGlobalDropInReplacement;
 
 /**
  * STACK Question plugin config class
  *
  * @author Jesús Copado Mejías <stack@surlabs.es>
- * @version $Id: 7.1$
+ * @version $Id: 8.0$
  *
  */
 class assStackQuestionConfig
 {
-	/** @var assStackQuestionServer */
-	protected static $server;
+    protected ?ilPlugin $plugin = null;
+    protected static ?assStackQuestionServer $server = null;
+    protected array $settings = array();
 
-	/** @var array */
-	protected $settings;
-
-
-	public function __construct($plugin_object = "")
+    /**
+     * @param ilPlugin|null $plugin
+     */
+	public function __construct(ilPlugin $plugin = null)
 	{
-		$this->plugin_object = $plugin_object;
+		$this->plugin = $plugin;
 	}
-
-	/*
-	 * GET SETTINGS FROM DATABASE
-	 */
-
 
 	/**
 	 * Get a configuration setting
 	 * @param $name
 	 * @return mixed
 	 */
-	public function get($name)
+	public function get($name = null)
 	{
-		if (!isset($this->settings))
-		{
-			$this->settings = self::_getStoredSettings('all');
-		}
+        if ($name != 'all' and isset($this->settings[$name])) {
+            return $this->settings[$name];
+        } else {
+            $this->settings = self::_getStoredSettings('all');
+            return $this->settings;
+        }
 
-		return $this->settings[$name];
 	}
 
 	/**
@@ -139,9 +136,10 @@ class assStackQuestionConfig
 	 * SAVE SETTINGS TO DATABASE
 	*/
 
-	/**
-	 * Saves new connection to maxima settings to the DB
-	 */
+    /**
+     * Saves new connection to maxima settings to the DB
+     * @throws stack_exception
+     */
 	public function saveConnectionSettings()
 	{
 		global $CFG;
@@ -447,16 +445,50 @@ class assStackQuestionConfig
 	 */
 
 	/**
-	 * @return array|mixed|string //The data sent by post
+	 * @return array The data sent by post
 	 */
-	public function getAdminInput()
+	public function getAdminInput(): array
 	{
-		//https://mantis.ilias.de/view.php?id=25290
-		$data = ilUtil::stripSlashesRecursive($_POST, FALSE);
-		//Clean array
-		unset($data['cmd']);
+        $values = array();
+        /** @var ILIAS\HTTP\Wrapper\SuperGlobalDropInReplacement $_POST */
 
-		return $data;
+        if ($_POST->offsetExists('platform_type')) {
+            $values['platform_type'] = $_POST->offsetGet('platform_type');
+        } else {
+            $values['platform_type'] = null;
+        }
+
+        if ($_POST->offsetExists('cas_connection_timeout')) {
+            $values['maxima_version'] = $_POST->offsetGet('maxima_version');
+        } else {
+            $values['maxima_version'] = null;
+        }
+
+        if ($_POST->offsetExists('cas_connection_timeout')) {
+            $values['cas_connection_timeout'] = $_POST->offsetGet('cas_connection_timeout');
+        } else {
+            $values['cas_connection_timeout'] = null;
+        }
+
+        if ($_POST->offsetExists('plot_command')) {
+            $values['plot_command'] = $_POST->offsetGet('plot_command');
+        } else {
+            $values['plot_command'] = null;
+        }
+
+        if ($_POST->offsetExists('cas_maxima_libraries')) {
+            $values['cas_maxima_libraries'] = $_POST->offsetGet('cas_maxima_libraries');
+        } else {
+            $values['cas_maxima_libraries'] = null;
+        }
+
+        //cas_result_caching
+        $values['cas_result_caching'] = 'db';
+
+        //cas_result_caching
+        $values['cas_debugging'] = '0';
+
+		return $values;
 	}
 
 	/*
