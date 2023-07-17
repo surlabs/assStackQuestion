@@ -93,7 +93,7 @@ composer du
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 * 
-## Version 7.2.8 (2023.06.29)
+## Version 7.2.10 (2023.07.17)
 - Solves #37393 Matrix Validation & Feedback in Tests
 - Solves #37318 Default feedback for locked answer view
 - Solves #36721 Generic feedback in test results
@@ -101,6 +101,7 @@ composer du
 - Solves #36723 Open intervals not being properly rendered in validation
 - Solves #37257 Node feedback lost when importing from version 3.4 to version 7.2
 - Logical operators in Truth Tables Headers are now properly rendered
+- Solves PRT Feedback rendering in Preview and Tests
 ## Version 7.2.6 (2023.06.16)
 - Solves #37456 about extra feedback options not being properly shown in Test results
 ## Version 7.2.5 (2023.06.15)
