@@ -159,7 +159,15 @@ class assStackQuestionRenderer
 
                     if (is_a($prt_state, 'stack_potentialresponse_tree_state')) {
                         $prt_state->set_cas_context($question->getSession(),$question->getSeed(),true);
-                        $prt_feedback .= self::renderPRTFeedback($prt_state);
+                        $render = self::renderPRTFeedback($prt_state);
+                        if(strlen($render)){
+                            $prt_feedback .= self::renderPRTFeedback($prt_state);
+                        }else{
+                            foreach ($prt_state->get_feedback() as $feedback){
+                                $prt_feedback .= $feedback->feedback;
+                            }
+
+                        }
                     }
 
 				}
