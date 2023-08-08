@@ -557,7 +557,6 @@ class assStackQuestionGUI extends assQuestionGUI
                 global $tpl;
                 $tpl->setOnScreenMessage('success', 'New PRT: ' . $prt_name . ' Created', true);
             } else {
-
 				//LOAD STORED DATA
 				$prt_from_post_array[$prt_name]['value'] = ((isset($_POST['prt_' . $prt_name . '_value']) and $_POST['prt_' . $prt_name . '_value'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_value'])) : '');
 				$prt_from_post_array[$prt_name]['auto_simplify'] = ((isset($_POST['prt_' . $prt_name . '_simplify']) and $_POST['prt_' . $prt_name . '_simplify'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_simplify'])) : '');
