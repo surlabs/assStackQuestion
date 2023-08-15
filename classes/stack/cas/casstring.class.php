@@ -1643,16 +1643,17 @@ class stack_cas_casstring
         $fltfmt = $fltfmt['fltfmt'];
 
         //Fau: Changes to stack_validate calls to delete forbidfloats, FINALLY NOT
-        $this->casstring = 'stack_validate([' . $starredanswer . '], ' . $forbidfloats . ', ' . $lowestterms . ',' . $tans . ')';
+        // expr, LowestTerms, TAns, fltfmt, chkopt
+        $this->casstring = 'stack_validate([' . $starredanswer . '], ' . $lowestterms . ',' . $tans .', ' . $fltfmt . ', 1' . ')';
         if ($validationmethod == 'typeless') {
-            // Note, we don't pass in the teacher's as this option is ignored by the typeless validation.
-            $this->casstring = 'stack_validate_typeless([' . $starredanswer . '], ' . $forbidfloats .', '. $lowestterms . ', false, ' . $fltfmt . ')';
+            //expr, LowestTerms, TAns, fltfmt, chkopt=1, Equiv
+            $this->casstring = 'stack_validate_typeless([' . $starredanswer . '], ' .  $lowestterms . ', ' . $tans .', ' . $fltfmt . ', 1' . ', false' . ')';
         }
         if ($validationmethod == 'numerical') {
-            $this->casstring = 'stack_validate_typeless([' . $starredanswer . '],' . $forbidfloats .', '. $lowestterms . ', false, ' . $fltfmt . ')';
+            $this->casstring = 'stack_validate_typeless([' . $starredanswer . '], ' .  $lowestterms . ', ' . $tans . ', ' . $fltfmt . ', 1' . ', false' . ')';
         }
         if ($validationmethod == 'equiv') {
-            $this->casstring = 'stack_validate_typeless([' . $starredanswer . '], ' . $forbidfloats . ', ' . $lowestterms . ', Equiv,'. $fltfmt.')';
+            $this->casstring = 'stack_validate_typeless([' . $starredanswer . '], ' .  $lowestterms . ', ' . $tans . ', ' . $fltfmt . ', 1' . ', Equiv' . ')';
         }
         if ($validationmethod == 'units') {
             // Note, we don't pass in forbidfloats as this option is ignored by the units validation.

@@ -117,13 +117,14 @@ class stack_ast_container extends stack_ast_container_silent implements cas_late
         }
         $validationmethod = $this->validationcontext['validationmethod'];
 
-		$vcmd = 'stack_validate(['.$starredanswer.'], '.$lowestterms.','.$tans.','.$fltfmt.')';
+        // expr, LowestTerms, TAns, fltfmt, chkopt
+        $vcmd = 'stack_validate(['.$starredanswer.'], '.$lowestterms.','.$tans.','.$fltfmt. ',1' . ')';
         if ($validationmethod == 'typeless') {
-            // Note, we don't pass in the teacher's as this option is ignored by the typeless validation.
-            $vcmd = 'stack_validate_typeless(['.$starredanswer.'], '.$lowestterms.', false,'.$fltfmt.')';
+            //expr, LowestTerms, TAns, fltfmt, chkopt=1, Equiv
+            $vcmd = 'stack_validate_typeless([' . $starredanswer . '], ' .  $lowestterms . ', ' . $tans .', ' . $fltfmt . ', 1' . ', false' . ')';
         }
         if ($validationmethod == 'equiv') {
-            $vcmd = 'stack_validate_typeless(['.$starredanswer.'], '.$lowestterms.', true,'.$fltfmt.')';
+            $vcmd = 'stack_validate_typeless([' . $starredanswer . '], ' .  $lowestterms . ', ' . $tans .', ' . $fltfmt . ', 1' . ', true' . ')';
         }
         if ($validationmethod == 'units') {
             // Note, we don't pass in forbidfloats as this option is ignored by the units validation.
