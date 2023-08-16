@@ -1741,7 +1741,6 @@ class assStackQuestionDB
 		unset($_SESSION['copy_node']);
         global $tpl;
         $tpl->setOnScreenMessage('info', $DIC->language()->txt("qpl_qst_xqcas_node_paste"), true);
-
 		return true;
 	}
 }

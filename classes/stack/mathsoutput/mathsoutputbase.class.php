@@ -176,7 +176,6 @@ abstract class stack_maths_output {
 			global $DIC, $tpl;
 			$lng = $DIC->language();
             $tpl->setOnScreenMessage('info', $lng->txt("qpl_qst_xqcas_update_to_version_3_2"), true);
-
 		}
 		include_once './Services/MathJax/classes/class.ilMathJax.php';
 		//ilMathJax::getInstance()->insertLatexImages cannot render \( delimiters so we change it to [tex]

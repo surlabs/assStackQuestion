@@ -124,7 +124,6 @@ class assStackQuestionMoodleImport
 				}
                 global $DIC, $tpl;
                 $tpl->setOnScreenMessage('failure', 'Error message for malformed questions: ' . $this->getQuestion()->getTitle() . ' ' . $error_message, true);
-
 				//Purge media objects as we didn't import the question
 				$this->purgeMediaObjects();
 				//Delete Question

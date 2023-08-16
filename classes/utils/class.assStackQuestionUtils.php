@@ -752,6 +752,7 @@ class assStackQuestionUtils
 	 * @param $input
 	 * @return string
 	 */
+<<<<<<< HEAD
     public static function _getInputType($input): string
     {
         switch ($input) {
@@ -789,6 +790,44 @@ class assStackQuestionUtils
                 return '';
         }
     }
+=======
+	public static function _getInputType($input): string
+	{
+		switch ($input) {
+			case is_a($input, 'stack_algebraic_input'):
+				return 'algebraic';
+			case is_a($input, 'stack_boolean_input'):
+				return 'boolean';
+			case is_a($input, 'stack_checkbox_input'):
+				return 'checkbox';
+			case is_a($input, 'stack_equiv_input'):
+				return 'equiv';
+			case is_a($input, 'stack_matrix_input'):
+				return 'matrix';
+			case is_a($input, 'stack_notes_input'):
+				return 'notes';
+			case is_a($input, 'stack_numerical_input'):
+				return 'numerical';
+			case is_a($input, 'stack_radio_input'):
+				return 'radio';
+			case is_a($input, 'stack_singlechar_input'):
+				return 'singlechar';
+			case is_a($input, 'stack_string_input'):
+				return 'string';
+			case is_a($input, 'stack_textarea_input'):
+				return 'textarea';
+			case is_a($input, 'stack_units_input'):
+				return 'units';
+			case is_a($input, 'stack_varmatrix_input'):
+				return 'varmatrix';
+			case is_a($input, 'stack_dropdown_input'):
+				return 'dropdown';
+			default:
+                ilassStackQuestionPlugin::sendFailure('Input type not found', true);
+				return '';
+		}
+	}
+>>>>>>> 637ed0e (Replaced all ilutil::send* calls with ilassStackQuestionPlugin equivalents)
 
 	/**
 	 * Called by assStackQuestionDB _readInputs
@@ -1006,8 +1045,12 @@ class assStackQuestionUtils
 			//SET OPTIONS
 			$question->options = $options;
 		} catch (stack_exception $e) {
+<<<<<<< HEAD
             global $tpl;
             $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
+=======
+            ilassStackQuestionPlugin::sendFailure($e->getMessage(), true);
+>>>>>>> 637ed0e (Replaced all ilutil::send* calls with ilassStackQuestionPlugin equivalents)
 		}
 
 		//load Data stored in options but not part of the session options
@@ -1103,8 +1146,12 @@ class assStackQuestionUtils
 					'The $totalvalue, the marks available for the question, must be positive in question ' .
 					$question->getTitle());
 			} catch (stack_exception $e) {
+<<<<<<< HEAD
                 global $tpl;
                 $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
+=======
+                ilassStackQuestionPlugin::sendFailure($e);
+>>>>>>> 637ed0e (Replaced all ilutil::send* calls with ilassStackQuestionPlugin equivalents)
 				$total_value = 1.0;
 			}
 		}
@@ -1142,8 +1189,12 @@ class assStackQuestionUtils
 
 							$nodes[$node_name] = $node;
 						} catch (stack_exception $e) {
+<<<<<<< HEAD
                             global $tpl;
                             $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
+=======
+                            ilassStackQuestionPlugin::sendFailure($e->getMessage(), true);
+>>>>>>> 637ed0e (Replaced all ilutil::send* calls with ilassStackQuestionPlugin equivalents)
 						}
 					}
 				} else {
@@ -1155,8 +1206,12 @@ class assStackQuestionUtils
 						$feedback_variables = new stack_cas_keyval($prt_data['feedback_variables']);
 						$feedback_variables = $feedback_variables->get_session();
 					} catch (stack_exception $e) {
+<<<<<<< HEAD
                         global $tpl;
                         $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
+=======
+                        ilassStackQuestionPlugin::sendFailure($e->getMessage(), true);
+>>>>>>> 637ed0e (Replaced all ilutil::send* calls with ilassStackQuestionPlugin equivalents)
 					}
 				} else {
 					$feedback_variables = null;
@@ -1172,8 +1227,12 @@ class assStackQuestionUtils
 				try {
 					$question->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt_data['auto_simplify'], $prt_value, $feedback_variables, $nodes, (string)$prt_data['first_node_name'], 1);
 				} catch (stack_exception $e) {
+<<<<<<< HEAD
                     global $tpl;
                     $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
+=======
+                    ilassStackQuestionPlugin::sendFailure($e, true);
+>>>>>>> 637ed0e (Replaced all ilutil::send* calls with ilassStackQuestionPlugin equivalents)
 				}
 			}
 
