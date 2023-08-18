@@ -558,20 +558,32 @@ class assStackQuestionRenderer
 			//Matrix has a different syntax
 			$state = $question->getInputState($name, $input_correct_array, false, false);
 
-			//Input Placeholders
-			$question_text = str_replace("[[input:{$name}]]",
-				$question->inputs[$name]->render($state, $field_name, true, $input_correct_array),
-				$question_text);
+            //Input Placeholders
+            if (isset($question->inputs[$name])) {
+                $question_text = str_replace(
+                    "[[input:{$name}]]",
+                    $question->inputs[$name]->render($state, $field_name, true, $input_correct_array),
+                    $question_text
+                );
+                //Replace Validation placeholders
+                if (is_a($question->inputs[$name], 'stack_matrix_input')) {
+                    $question_text = str_replace("[[validation:{$name}]]", "", $question_text);
+                } else {
+                    $question_text = str_replace(
+                        "[[validation:{$name}]]", $question->inputs[$name]->render_validation($state, $name),
+                        $question_text
+                    );
+                }
+            } else {
+                $question_text = str_replace(
+                    "[[input:{$name}]]",
+                    "error input not created in db",
+                    $question_text
+                );
+            }
+
 		}
 
-		//Replace Validation placeholders
-		foreach ($input_placeholders as $name) {
-            if(is_a($question->inputs[$name],'stack_matrix_input')){
-                $question_text = str_replace("[[validation:{$name}]]", "", $question_text);
-            }else{
-                $question_text = str_replace("[[validation:{$name}]]", $question->inputs[$name]->render_validation($state, $name), $question_text);
-            }
-		}
 
 		//Hide all feedback placeholders
 		foreach ($feedback_placeholders as $prt_name) {
@@ -674,6 +686,7 @@ class assStackQuestionRenderer
 	 */
 	public static function renderPRTFeedback(stack_potentialresponse_tree_state $prt_state, $question = null): string
 	{
+        global $tpl;
         $feedback = '';
         $feedback_bits = $prt_state->get_feedback();
         $feedback_array = array();
@@ -687,7 +700,7 @@ class assStackQuestionRenderer
 						$format = $bit->format;
 					}
 					if ($bit->format != $format) {
-						ilutil::sendFailure('Inconsistent feedback formats found in PRT ', true);
+                        $tpl->setOnScreenMessage('failure', 'Inconsistent feedback formats found in PRT ', true);
 					}
 				}
 			}
