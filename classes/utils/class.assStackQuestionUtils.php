@@ -729,43 +729,43 @@ class assStackQuestionUtils
 	 * @param $input
 	 * @return string
 	 */
-	public static function _getInputType($input): string
-	{
-		switch ($input) {
-			case is_a($input, 'stack_algebraic_input'):
-				return 'algebraic';
-			case is_a($input, 'stack_boolean_input'):
-				return 'boolean';
-			case is_a($input, 'stack_checkbox_input'):
-				return 'checkbox';
-			case is_a($input, 'stack_equiv_input'):
-				return 'equiv';
-			case is_a($input, 'stack_matrix_input'):
-				return 'matrix';
-			case is_a($input, 'stack_notes_input'):
-				return 'notes';
-			case is_a($input, 'stack_numerical_input'):
-				return 'numerical';
-			case is_a($input, 'stack_radio_input'):
-				return 'radio';
-			case is_a($input, 'stack_singlechar_input'):
-				return 'singlechar';
-			case is_a($input, 'stack_string_input'):
-				return 'string';
-			case is_a($input, 'stack_textarea_input'):
-				return 'textarea';
-			case is_a($input, 'stack_units_input'):
-				return 'units';
-			case is_a($input, 'stack_varmatrix_input'):
-				return 'varmatrix';
-			case is_a($input, 'stack_dropdown_input'):
-				return 'dropdown';
-			default:
+    public static function _getInputType($input): string
+    {
+        switch ($input) {
+            case is_a($input, 'stack_string_input'):
+                return 'string';
+            case is_a($input, 'stack_boolean_input'):
+                return 'boolean';
+            case is_a($input, 'stack_checkbox_input'):
+                return 'checkbox';
+            case is_a($input, 'stack_equiv_input'):
+                return 'equiv';
+            case is_a($input, 'stack_matrix_input'):
+                return 'matrix';
+            case is_a($input, 'stack_notes_input'):
+                return 'notes';
+            case is_a($input, 'stack_numerical_input'):
+                return 'numerical';
+            case is_a($input, 'stack_radio_input'):
+                return 'radio';
+            case is_a($input, 'stack_singlechar_input'):
+                return 'singlechar';
+            case is_a($input, 'stack_textarea_input'):
+                return 'textarea';
+            case is_a($input, 'stack_units_input'):
+                return 'units';
+            case is_a($input, 'stack_varmatrix_input'):
+                return 'varmatrix';
+            case is_a($input, 'stack_dropdown_input'):
+                return 'dropdown';
+            case is_a($input, 'stack_algebraic_input'):
+                return 'algebraic';
+            default:
                 global $tpl;
-                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
-				return '';
-		}
-	}
+                $tpl->setOnScreenMessage('failure', 'Input type not found', true);
+                return '';
+        }
+    }
 
 	/**
 	 * Called by assStackQuestionDB _readInputs
