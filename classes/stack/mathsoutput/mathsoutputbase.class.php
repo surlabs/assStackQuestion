@@ -173,9 +173,9 @@ abstract class stack_maths_output {
 
 		//fau: #37 Use ILIAS Insert LaTeX images and add alert if text has been changed
 		if ($old_text != $text) {
-			global $DIC;
+			global $DIC, $tpl;
 			$lng = $DIC->language();
-			ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_update_to_version_3_2"), TRUE);
+            $tpl->setOnScreenMessage('info', $lng->txt("qpl_qst_xqcas_update_to_version_3_2"), true);
 
 		}
 		include_once './Services/MathJax/classes/class.ilMathJax.php';

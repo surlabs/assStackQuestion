@@ -434,7 +434,8 @@ class assStackQuestionStackFactory
 			return new stack_potentialresponse_tree($ilias_PRT->getPRTName(), "", (boolean)$ilias_PRT->getAutoSimplify(), $ilias_PRT->getPRTValue(), $stack_feedback_variables->get_session(), $stack_nodes, $ilias_PRT->getFirstNodeName());
 		} catch (stack_exception $e)
 		{
-			ilUtil::sendFailure($e->getMessage(), TRUE);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 		}
 	}
 

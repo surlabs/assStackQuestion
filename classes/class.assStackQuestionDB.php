@@ -591,7 +591,7 @@ class assStackQuestionDB
 	 */
 	private static function _saveStackPRTs(assStackQuestion $question, string $purpose = ''): bool
 	{
-		global $DIC;
+		global $DIC, $tpl;
 		$db = $DIC->database();
 
 		$question_id = $question->getId();
@@ -646,7 +646,7 @@ class assStackQuestionDB
 						if (isset($prt_ids[$prt_name]['nodes'][$node_name])) {
 							self::_saveStackPRTNodes($node, $question_id, $prt_name, $prt_ids[$prt_name]['nodes'][$node_name]);
 						} else {
-							ilUtil::sendFailure('question:' . $question_id . $prt_name . $node_name);
+                            $tpl->setOnScreenMessage('failure', 'question:' . $question_id . $prt_name . $node_name, true);
 						}
 					}
 				}
@@ -826,7 +826,7 @@ class assStackQuestionDB
 
 	private static function _saveStackUnitTests(assStackQuestion $question, string $purpose): bool
 	{
-		global $DIC;
+		global $DIC, $tpl;
 		$db = $DIC->database();
 
 		$question_id = $question->getId();
@@ -880,7 +880,7 @@ class assStackQuestionDB
 							if (isset($input['value'])) {
 								self::_saveStackUnitTestInput($question_id, $testcase_name, $input_name, $input['value'], $testcase_input_ids[$input_name]);
 							} else {
-								ilUtil::sendFailure('question test inputs:' . $question_id . $testcase_name . $input_name, true);
+                                $tpl->setOnScreenMessage('failure', 'question test inputs:' . $question_id . $testcase_name . $input_name, true);
 							}
 						}
 					}
@@ -897,7 +897,7 @@ class assStackQuestionDB
 							if (isset($expected['score']) and isset($expected['penalty']) and isset($expected['answer_note'])) {
 								self::_saveStackUnitTestExpected($question_id, $testcase_name, $prt_name, $expected, $testcase_expected_ids[$prt_name]);
 							} else {
-								ilUtil::sendFailure('question test expected:' . $question_id . $testcase_name . $prt_name, true);
+                                $tpl->setOnScreenMessage('failure', 'question test expected:' . $question_id . $testcase_name . $prt_name, true);
 							}
 						}
 					}
@@ -1275,7 +1275,7 @@ class assStackQuestionDB
 		$seed = 0;
 
 		//Does this question uses randomisation?
-		global $DIC;
+		global $DIC, $tpl;
 		$db = $DIC->database();
 		$question_id = $question->getId();
 		//Search for a seed in DB
@@ -1295,7 +1295,7 @@ class assStackQuestionDB
 				if ($seed_found === 0) {
 					$seed_found = $seed;
 				} else {
-					ilUtil::sendFailure("ERROR: Trying to create a new seed where there is already one assigned", true);
+                    $tpl->setOnScreenMessage('failure', "ERROR: Trying to create a new seed where there is already one assigned", true);
 					return 0;
 				}
 			}
@@ -1399,7 +1399,8 @@ class assStackQuestionDB
 					$entered_values++;
 
 				} catch (stack_exception $e) {
-					ilUtil::sendFailure($e, true);
+                    global $tpl;
+                    $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 				}
 
 			}
@@ -1511,7 +1512,8 @@ class assStackQuestionDB
 			$question->saveCurrentSolution($active_id, $pass, 'xqcas_input_' . $input_name . '_model_answer_display', $input_display);
 
 		} catch (stack_exception $e) {
-			ilUtil::sendFailure($e, true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 		}
 	}
 
@@ -1636,8 +1638,8 @@ class assStackQuestionDB
 		}
 
 		unset($_SESSION['copy_prt']);
-		ilUtil::sendInfo($DIC->language()->txt("qpl_qst_xqcas_prt_paste"), true);
-
+        global $tpl;
+        $tpl->setOnScreenMessage('info', $DIC->language()->txt("qpl_qst_xqcas_prt_paste"), true);
 		return true;
 	}
 
@@ -1686,8 +1688,8 @@ class assStackQuestionDB
 		));
 
 		unset($_SESSION['copy_node']);
-		ilUtil::sendInfo($DIC->language()->txt("qpl_qst_xqcas_node_paste"), true);
-
+        global $tpl;
+        $tpl->setOnScreenMessage('info', $DIC->language()->txt("qpl_qst_xqcas_node_paste"), true);
 		return true;
 	}
 
@@ -1737,7 +1739,8 @@ class assStackQuestionDB
 		));
 
 		unset($_SESSION['copy_node']);
-		ilUtil::sendInfo($DIC->language()->txt("qpl_qst_xqcas_node_paste"), true);
+        global $tpl;
+        $tpl->setOnScreenMessage('info', $DIC->language()->txt("qpl_qst_xqcas_node_paste"), true);
 
 		return true;
 	}

@@ -78,7 +78,8 @@ class assStackQuestionGUI extends assQuestionGUI
                 echo "plugin obj";exit;
             }
         } catch (ilPluginException $e) {
-            ilUtil::sendFailure($e, true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
         }
 
 
@@ -89,7 +90,8 @@ class assStackQuestionGUI extends assQuestionGUI
             try {
                 $this->object->loadFromDb($id);
             } catch (stack_exception $e) {
-                ilUtil::sendFailure($e, true);
+                global $tpl;
+                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             }
         }
         //Initialize some STACK required parameters
@@ -470,7 +472,8 @@ class assStackQuestionGUI extends assQuestionGUI
 			//SET OPTIONS
 			$this->object->options = $options;
 		} catch (stack_exception $e) {
-			ilUtil::sendFailure($e, true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 		}
 
 		//Load data sent as options but not part of the session options
@@ -516,7 +519,7 @@ class assStackQuestionGUI extends assQuestionGUI
 				'options' => ((isset($_POST[$input_name . '_input_options']) and $_POST[$input_name . '_input_options'] != null) ? trim(ilUtil::secureString($_POST[$input_name . '_input_options'])) : ''),
 			);
 
-			$teacher_answer = ilUtil::secureString($_POST[$input_name . '_input_model_answer']);
+			$teacher_answer = stripslashes($_POST[$input_name . '_input_model_answer']);
 
 			$parameters = array();
 			foreach ($required_parameters[$type] as $parameter_name) {
@@ -547,8 +550,9 @@ class assStackQuestionGUI extends assQuestionGUI
 			//Is new? Then load Standard PRT
 			if (!isset($this->object->prts[$prt_name])) {
 				$this->object->loadStandardPRT($prt_name);
-				ilUtil::sendSuccess('New PRT: ' . $prt_name . ' Created', true);
-			} else {
+                global $tpl;
+                $tpl->setOnScreenMessage('success', 'New PRT: ' . $prt_name . ' Created', true);
+            } else {
 
 				//LOAD STORED DATA
 				$prt_from_post_array[$prt_name]['value'] = ((isset($_POST['prt_' . $prt_name . '_value']) and $_POST['prt_' . $prt_name . '_value'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_value'])) : '');
@@ -616,7 +620,8 @@ class assStackQuestionGUI extends assQuestionGUI
 
 						$nodes[$node_name] = $node;
 					} catch (stack_exception $e) {
-						ilUtil::sendFailure($e, true);
+                        global $tpl;
+                        $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 					}
 				}
 
@@ -625,7 +630,8 @@ class assStackQuestionGUI extends assQuestionGUI
 						$feedback_variables = new stack_cas_keyval($prt_data['feedback_variables']);
 						$feedback_variables = $feedback_variables->get_session();
 					} catch (stack_exception $e) {
-						ilUtil::sendFailure($e, true);
+                        global $tpl;
+                        $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 					}
 				} else {
 					$feedback_variables = null;
@@ -641,7 +647,8 @@ class assStackQuestionGUI extends assQuestionGUI
 							'The $totalvalue, the marks available for the question, must be positive in question ' .
 							$this->object->getTitle());
 					} catch (stack_exception $e) {
-						ilUtil::sendFailure($e, true);
+                        global $tpl;
+                        $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 					}
 				}
 
@@ -650,7 +657,8 @@ class assStackQuestionGUI extends assQuestionGUI
 				try {
 					$this->object->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt_data['auto_simplify'], $prt_value, $feedback_variables, $nodes, (string)$prt_data['first_node_name'], 1);
 				} catch (stack_exception $e) {
-					ilUtil::sendFailure($e, true);
+                    global $tpl;
+                    $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 				}
 			}
 		}
@@ -736,6 +744,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
         //35855 ensure warning if shown if no question note is added when randomised
         if(assStackQuestionUtils::_showRandomisationWarning($this->object)){
+
             ilUtil::sendInfo(stack_string('questionnotempty'));
         }
 
@@ -755,7 +764,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function questionCheck(): bool
 	{
 
-		global $DIC;
+		global $DIC, $tpl;
 		$lng = $DIC->language();
 
 		if (is_array($_POST['cmd']['save'])) {
@@ -821,12 +830,12 @@ class assStackQuestionGUI extends assQuestionGUI
 					if (isset($_POST['cmd']['save']['delete_prt_' . $prt_name . '_node_' . $node->nodeid])) {
 
 						if (sizeof($prt->getNodes()) < 2) {
-							ilUtil::sendFailure($this->object->getPlugin()->txt('deletion_error_not_enought_prt_nodes'));
+                            $tpl->setOnScreenMessage('failure', $this->object->getPlugin()->txt('deletion_error_not_enought_prt_nodes'), true);
 							return false;
 						}
 
 						if ((int)$prt->getFirstNode() == (int)$node_name) {
-							ilUtil::sendFailure($this->object->getPlugin()->txt('deletion_error_first_node'));
+                            $tpl->setOnScreenMessage('failure', $this->object->getPlugin()->txt('deletion_error_first_node'), true);
 							return false;
 						}
 
@@ -1095,14 +1104,14 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function importQuestionFromMoodleForm()
 	{
-		global $DIC;
+		global $DIC, $tpl;
 
 		$lng = $DIC->language();
 		$tabs = $DIC->tabs();
 
 		//#25145
 		if (isset($_REQUEST["test_ref_id"])) {
-			ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_import_in_test_error"), TRUE);
+            $tpl->setOnScreenMessage('failure', $lng->txt("qpl_qst_xqcas_import_in_test_error"), true);
 			$DIC->ctrl()->redirect($this, 'editQuestion');
 		}
 
@@ -1140,7 +1149,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function importQuestionFromMoodle()
 	{
-		global $DIC;
+		global $DIC, $tpl;
 		$tabs = $DIC->tabs();
 
 		//Set all parameters required
@@ -1151,13 +1160,13 @@ class assStackQuestionGUI extends assQuestionGUI
 		if (file_exists($_FILES["questions_xml"]["tmp_name"])) {
 			$xml_file = $_FILES["questions_xml"]["tmp_name"];
 		} else {
-			ilUtil::sendFailure($this->plugin->txt('error_import_question_in_test'), true);
+            $tpl->setOnScreenMessage('failure', $this->plugin->txt('error_import_question_in_test'), true);
 			return;
 		}
 
 		//CHECK FOR NOT ALLOW IMPROT QUESTIONS DIRECTLY IN TESTS
 		if (isset($_GET['calling_test'])) {
-			ilUtil::sendFailure($this->plugin->txt('error_import_question_in_test'), true);
+            $tpl->setOnScreenMessage('failure', $this->plugin->txt('error_import_question_in_test'), true);
 		} else {
 			//Include import class and prepare object
 
@@ -1224,7 +1233,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function exportQuestionToMoodle()
 	{
-		global $DIC;
+		global $DIC, $tpl;
 		$tabs = $DIC->tabs();
 		$lng = $DIC->language();
 
@@ -1255,11 +1264,12 @@ class assStackQuestionGUI extends assQuestionGUI
 				$export_to_moodle->toMoodleXML();
 
 			} catch (stack_exception $e) {
-				ilUtil::sendFailure($e, true);
+                global $tpl;
+                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 			}
 
 		} else {
-			ilUtil::sendFailure($lng->txt('qpl_qst_xqcas_error_exporting_to_moodle_question_id'), true);
+            $tpl->setOnScreenMessage('failure', $lng->txt('qpl_qst_xqcas_error_exporting_to_moodle_question_id'), true);
 		}
 	}
 

@@ -302,7 +302,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 echo "plugin obj";exit;
             }
         } catch (ilPluginException $e) {
-            ilUtil::sendFailure($e, true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
         }
 
         //Initialise some parameters
@@ -687,9 +688,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         $this->setTitle($data["title"] ?? '');
         $this->setComment($data["description"] ?? '');
         $this->setSuggestedSolution($data["solution_hint"] ?? '');
-        if(isset($data["original_id"])){
-            $this->setOriginalId($data["original_id"]);
-        }
+        $this->setOriginalId($data["original_id"]);
         $this->setObjId($data["obj_fi"]);
         $this->setAuthor($data["author"] ?? '');
         $this->setOwner($data["owner"] ?? '');
@@ -725,7 +724,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 //SET OPTIONS
                 $this->options = $options;
             } catch (stack_exception $e) {
-                ilUtil::sendFailure($e, true);
+                global $tpl;
+                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             }
 
             //load Data stored in options but not part of the session options
@@ -844,7 +844,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                         'The $totalvalue, the marks available for the question, must be positive in question ' .
                         $this->getTitle());
                 } catch (stack_exception $e) {
-                    ilUtil::sendFailure($e);
+                    global $tpl;
+                    $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
                     $total_value = 1.0;
                 }
             }
@@ -902,7 +903,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
                                     $nodes[$node_name] = $node;
                                 } catch (stack_exception $e) {
-                                    ilUtil::sendFailure($e->getMessage(), true);
+                                    global $tpl;
+                                    $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
                                 }
                             }
                         } else {
@@ -914,7 +916,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                                 $feedback_variables = new stack_cas_keyval($prt_data['feedback_variables']);
                                 $feedback_variables = $feedback_variables->get_session();
                             } catch (stack_exception $e) {
-                                ilUtil::sendFailure($e->getMessage(), true);
+                                global $tpl;
+                                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
                             }
                         } else {
                             $feedback_variables = null;
@@ -933,7 +936,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                                 $nodes, (string) $prt_data['first_node_name'], 1
                             );
                         } catch (stack_exception $e) {
-                            ilUtil::sendFailure($e, true);
+                            global $tpl;
+                            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
                         }
                     }
                 }
@@ -1187,7 +1191,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             }
 
             if ($points > $this->getMaximumPoints()) {
-                ilUtil::sendFailure("Error,  more points given than MAX Points", true);
+                global $tpl;
+                $tpl->setOnScreenMessage('failure', "Error,  more points given than MAX Points", true);
                 $points = $this->getMaximumPoints();
             }
 
@@ -1212,7 +1217,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
             parent::saveToDb();
         } else {
-            ilUtil::sendFailure($this->getPlugin()->txt('error_fields_missing'), 1);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $this->getPlugin()->txt('error_fields_missing'), true);
         }
     }
 
@@ -1225,7 +1231,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         try {
             assStackQuestionDB::_saveStackQuestion($this);
         } catch (stack_exception $e) {
-            ilUtil::sendFailure($e);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
         }
     }
 
@@ -1269,6 +1276,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function evaluateQuestion(array $user_response): bool
     {
+        global $tpl;
+
         try {
 
             $evaluation_data = array();
@@ -1277,7 +1286,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             foreach ($this->prts as $prt_name => $prt) {
 
                 if (!$this->hasNecessaryPrtInputs($prt, $user_response, true)) {
-                    ilUtil::sendFailure('The PRT ' . $prt_name . ' wasnt evaluated because not all inputs were answered.', true);
+                    global $tpl;
+                    $tpl->setOnScreenMessage('failure', 'The PRT ' . $prt_name . ' wasnt evaluated because not all inputs were answered.', true);
                     return false;
                 }
 
@@ -1311,7 +1321,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 if ($total_weight != 0.0) {
                     $relative_prt_weight_in_points = (((float)$evaluation_data['prts'][$prt_name]->_weight / $total_weight) * $this->getMaximumPoints());
                 } else {
-                    ilUtil::sendFailure("PRT: " . $prt_name . " Value invalid", true);
+                    $tpl->setOnScreenMessage('failure', "PRT: " . $prt_name . " Value invalid", true);
                     $relative_prt_weight_in_points = 0.0;
                 }
 
@@ -1332,7 +1342,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                     $evaluation_data['points'][$prt_name]['status'] = 'partially_correct';
                 } else {
                     $evaluation_data['points'][$prt_name]['status'] = null;
-                    ilUtil::sendFailure('Error calculating PRT points in evaluateQuestion', true);
+                    $tpl->setOnScreenMessage('failure', 'Error calculating PRT points in evaluateQuestion', true);
                 }
 
                 //Count points
@@ -1340,7 +1350,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             }
 
             if ($points_obtained > $this->getMaximumPoints()) {
-                ilUtil::sendFailure('Error calculating points in evaluateQuestion, trying to give more than existing, set to Max Points.', true);
+                $tpl->setOnScreenMessage('failure', 'Error calculating points in evaluateQuestion, trying to give more than existing, set to Max Points.', true);
             }
 
             //Manage Inputs and Validation
@@ -1358,7 +1368,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         } catch (stack_exception $e) {
 
-            ilUtil::sendFailure($e, true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 
         }
 
@@ -1394,7 +1405,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             //Set Options
             $this->options = $options;
         } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
         }
 
         $this->question_variables = '';
@@ -1500,7 +1512,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                     'The $totalvalue, the marks available for the question, must be positive in question ' .
                     $this->getTitle());
             } catch (stack_exception $e) {
-                ilUtil::sendFailure($e->getMessage(), true);
+                global $tpl;
+                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             }
         }
 
@@ -1537,7 +1550,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
             $nodes[1] = $node;
         } catch (stack_exception $e) {
-            ilUtil::sendFailure($e->getMessage(), true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
         }
 
         $feedback_variables = null;
@@ -1546,7 +1560,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         try {
             $this->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$standard_prt['prt_simplify'], $prt_value, $feedback_variables, $nodes, '1', 1);
         } catch (stack_exception $e) {
-            ilUtil::sendFailure($e->getMessage(), true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
         }
     }
 
@@ -1736,8 +1751,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 try {
                     $session->instantiate();
                 } catch (Exception $e) {
+                    global $tpl;
                     //Maxima is not running, show information to the user.
-                    ilUtil::sendFailure($this->getPlugin()->txt('hc_connection_status_display_error'), 1);
+                    $tpl->setOnScreenMessage('failure', $this->getPlugin()->txt('hc_connection_status_display_error'), true);
                 }
             }
 
@@ -1815,7 +1831,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $this->setInstantiated(true);
 
         } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
         }
     }
 
@@ -1836,7 +1853,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             }
             return $cas_text;
         } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             return false;
         }
     }
@@ -1861,7 +1879,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 }
             }
         } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
         }
     }
 
@@ -1880,7 +1899,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             }
             return $hint_text;
         } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             return false;
         }
     }
@@ -1906,7 +1926,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
             return new stack_cas_text($feedback);
         } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             return false;
         }
     }
@@ -1981,7 +2002,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             return true;
 
         } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             return false;
         }
     }
@@ -2156,7 +2178,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
             return $prt_input;
         } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             return false;
         }
     }
@@ -2280,7 +2303,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             }
             return true;
         } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             return false;
         }
     }
@@ -2811,7 +2835,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
             return $cc;
         } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             return array();
         }
     }
