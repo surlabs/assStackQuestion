@@ -731,8 +731,8 @@ class assStackQuestionUtils
 	public static function _getInputType($input): string
 	{
 		switch ($input) {
-			case is_a($input, 'stack_algebraic_input'):
-				return 'algebraic';
+            case is_a($input, 'stack_string_input'):
+                return 'string';
 			case is_a($input, 'stack_boolean_input'):
 				return 'boolean';
 			case is_a($input, 'stack_checkbox_input'):
@@ -749,8 +749,6 @@ class assStackQuestionUtils
 				return 'radio';
 			case is_a($input, 'stack_singlechar_input'):
 				return 'singlechar';
-			case is_a($input, 'stack_string_input'):
-				return 'string';
 			case is_a($input, 'stack_textarea_input'):
 				return 'textarea';
 			case is_a($input, 'stack_units_input'):
@@ -759,6 +757,8 @@ class assStackQuestionUtils
 				return 'varmatrix';
 			case is_a($input, 'stack_dropdown_input'):
 				return 'dropdown';
+            case is_a($input, 'stack_algebraic_input'):
+                return 'algebraic';
 			default:
 				ilUtil::sendFailure('Input type not found', true);
 				return '';
