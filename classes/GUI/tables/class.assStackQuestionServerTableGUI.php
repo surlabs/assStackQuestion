@@ -18,13 +18,13 @@ class assStackQuestionServerTableGUI extends ilTable2GUI
     /** @var ilassStackQuestionPlugin $plugin */
     var $plugin;
 
-
-	/**
-	 * Constructor
-	 * @param   ilassStackQuestionConfigGUI $a_parent_obj
-	 * @param   string $a_parent_cmd
-	 * @return
-	 */
+    /**
+     * Constructor
+     * @param ilassStackQuestionConfigGUI $a_parent_obj
+     * @param string                      $a_parent_cmd
+     * @throws ilCtrlException
+     * @throws ilException
+     */
 	public function __construct($a_parent_obj, $a_parent_cmd)
 	{
 		global $DIC;
