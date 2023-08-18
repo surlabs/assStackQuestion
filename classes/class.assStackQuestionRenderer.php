@@ -159,9 +159,9 @@ class assStackQuestionRenderer
 
                     if (is_a($prt_state, 'stack_potentialresponse_tree_state')) {
                         $prt_state->set_cas_context($question->getSession(),$question->getSeed(),true);
-                        $render = self::renderPRTFeedback($prt_state);
+                        $render = self::renderPRTFeedback($prt_state, $question);
                         if(strlen($render)){
-                            $prt_feedback .= self::renderPRTFeedback($prt_state);
+                            $prt_feedback .= self::renderPRTFeedback($prt_state, $question);
                         }else{
                             foreach ($prt_state->get_feedback() as $feedback){
                                 $prt_feedback .= $feedback->feedback;
@@ -436,7 +436,7 @@ class assStackQuestionRenderer
 				$prt_state = $evaluation['prts'][$prt_name];
 
 				//Manage LaTeX explicitly
-				$prt_feedback .= assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state)));
+				$prt_feedback .= assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state, $question)));
 			}
 
 			//Replace Placeholders
@@ -506,7 +506,7 @@ class assStackQuestionRenderer
                     $prt_state = $question->getPrtResult($prt_name, $user_answer, true);
 
                     //Manage LaTeX explicitly
-                    $prt_feedback .= assStackQuestionUtils::_getLatex(self::renderPRTFeedback($prt_state));
+                    $prt_feedback .= assStackQuestionUtils::_getLatex(self::renderPRTFeedback($prt_state, $question));
 
 				} else {
                     $prt_feedback .= '';
