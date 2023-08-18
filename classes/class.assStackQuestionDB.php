@@ -495,7 +495,7 @@ class assStackQuestionDB
 				"inverse_trig" => array("text", $question->options->get_option('inversetrig')),
 				"variants_selection_seed" => array("text", $question->variants_selection_seed),
 				"matrix_parens" => array("text", $question->options->get_option('matrixparens')),
-				"assume_real" => array("text", $question->options->get_option('assumereal')),
+				"assume_real" => array("int", (int)$question->options->get_option('assumereal')),
 				"logic_symbol" => array("text", $question->options->get_option('logicsymbol')),
 				"stack_version" => array("text", $question->stack_version)
 			));
@@ -524,7 +524,7 @@ class assStackQuestionDB
 					"inverse_trig" => array("text", $question->options->get_option('inversetrig')),
 					"variants_selection_seed" => array("text", $question->variants_selection_seed),
 					"matrix_parens" => array("text", $question->options->get_option('matrixparens')),
-					"assume_real" => array("text", $question->options->get_option('assumereal')),
+					"assume_real" => array("int", (int)$question->options->get_option('assumereal')),
 					"logic_symbol" => array("text", $question->options->get_option('logicsymbol')),
 					"stack_version" => array("text", $question->stack_version)
 				));
@@ -567,7 +567,7 @@ class assStackQuestionDB
 						"strict_syntax" => array("integer", $input->get_parameter('strictSyntax') !== null ? $input->get_parameter('strictSyntax') : ''),
 						"insert_stars" => array("integer", $input->get_parameter('insertStars') !== null ? $input->get_parameter('insertStars') : ''),
 						"syntax_hint" => array("text", $input->get_parameter('syntaxHint') !== null ? $input->get_parameter('syntaxHint') : ''),
-						"syntax_attribute" => array("text", $input->get_parameter('syntaxAttribute') !== null ? $input->get_parameter('syntaxAttribute') : ''),
+						"syntax_attribute" => array("int", (int)$input->get_parameter('syntaxAttribute') !== null ? (int)$input->get_parameter('syntaxAttribute') : 0),
 						"forbid_words" => array("text", $input->get_parameter('forbidWords') !== null ? $input->get_parameter('forbidWords') : ''),
 						"allow_words" => array("text", $input->get_parameter('allowWords') !== null ? $input->get_parameter('allowWords') : ''),
 						"forbid_float" => array("integer", $input->get_parameter('forbidFloats') !== null ? $input->get_parameter('forbidFloats') : ''),
@@ -1010,7 +1010,7 @@ class assStackQuestionDB
 			"strict_syntax" => array("integer", $input->get_parameter('strictSyntax') !== null ? $input->get_parameter('strictSyntax') : ''),
 			"insert_stars" => array("integer", $input->get_parameter('insertStars') !== null ? $input->get_parameter('insertStars') : ''),
 			"syntax_hint" => array("text", $input->get_parameter('syntaxHint') !== null ? $input->get_parameter('syntaxHint') : ''),
-			"syntax_attribute" => array("text", $input->get_parameter('syntaxAttribute') !== null ? $input->get_parameter('syntaxAttribute') : ''),
+			"syntax_attribute" => array("int", (int)$input->get_parameter('syntaxAttribute') !== null ? (int)$input->get_parameter('syntaxAttribute') : ''),
 			"forbid_words" => array("text", $input->get_parameter('forbidWords') !== null ? $input->get_parameter('forbidWords') : ''),
 			"allow_words" => array("text", $input->get_parameter('allowWords') !== null ? $input->get_parameter('allowWords') : ''),
 			"forbid_float" => array("integer", $input->get_parameter('forbidFloats') !== null ? $input->get_parameter('forbidFloats') : ''),
