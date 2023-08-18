@@ -744,8 +744,8 @@ class assStackQuestionGUI extends assQuestionGUI
 
         //35855 ensure warning if shown if no question note is added when randomised
         if(assStackQuestionUtils::_showRandomisationWarning($this->object)){
-
-            ilUtil::sendInfo(stack_string('questionnotempty'));
+            global $tpl;
+            $tpl->setOnScreenMessage('info', stack_string('questionnotempty'), true);
         }
 
 		//Returns Question Authoring form
@@ -776,8 +776,8 @@ class assStackQuestionGUI extends assQuestionGUI
 				if (isset($_POST['cmd']['save']['copy_prt_' . $prt_name])) {
 					//Set prt name and question id into session
 					$_SESSION['copy_prt'] = $this->object->getId() . "_" . $prt_name;
-
-					ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_prt_copied_to_clipboard"), true);
+                    global $tpl;
+                    $tpl->setOnScreenMessage('info', $lng->txt("qpl_qst_xqcas_prt_copied_to_clipboard"), true);
 					return true;
 				}
 
@@ -848,7 +848,8 @@ class assStackQuestionGUI extends assQuestionGUI
 						$prt->setNodes($new_nodes);
 						$this->object->prts[$prt_name] = $prt;
 
-						ilUtil::sendSuccess("nodes deleted", true);
+                        global $tpl;
+                        $tpl->setOnScreenMessage('success', "Knoten gelöscht", true);
 						return true;
 					}
 
@@ -856,8 +857,8 @@ class assStackQuestionGUI extends assQuestionGUI
 					if (isset($_POST['cmd']['save']['copy_prt_' . $prt_name . '_node_' . $node->nodeid])) {
 						//Set node into session
 						$_SESSION['copy_node'] = $this->object->getId() . "_" . $prt_name . "_" . $node->nodeid;
-
-						ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_node_copied_to_clipboard"), true);
+                        global $tpl;
+                        $tpl->setOnScreenMessage('info', $lng->txt("qpl_qst_xqcas_node_copied_to_clipboard"), true);
 						return true;
 					}
 
