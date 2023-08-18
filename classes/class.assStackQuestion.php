@@ -800,7 +800,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                     //We take care about them later
                     //Otherwise we proceed we normal loading
                     if ($input_data == null) {
-                        $new_inputs[$name] = '';
+
                     } else {
                         foreach ($required_parameters[$input_data['type']] as $parameter_name) {
                             if ($parameter_name == 'inputType') {
@@ -814,6 +814,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                             $input_data['type'], $input_data['name'], $input_data['tans'], $this->options, $parameters
                         );
                     }
+                }else{
+                    $new_inputs[$name] = '';
                 }
             }
 
