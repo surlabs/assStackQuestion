@@ -58,7 +58,7 @@ class stack_cas_castext_jsxgraph extends stack_cas_castext_block {
             $iter = $iter->nextsibling;
         }
 
-        $divid  = "stack-jsxgraph-" . self::$countgraphs;
+        $divid  = "stackjsxgraph" . self::$countgraphs;
 
         // Input ref prefixes.
         // We could simply expose the prefix Moodle uses and let the author work
@@ -87,8 +87,8 @@ class stack_cas_castext_jsxgraph extends stack_cas_castext_block {
         // someone else. 1+2*n probably, or we could just write all the preamble
         // on the same line and make the offset always be the same?
         $code = '"use strict";try{if(document.getElementById("' . $divid . '")){' . $code . '}} '
-            . 'catch(err) {console.log("STACK JSXGraph error in \"' . $divid
-            . '\", (note a slight varying offset in the error position due to possible input references):");'
+            . 'catch(err) {console.log("STACK JSXGraph error in ' . $divid
+            . ', (note a slight varying offset in the error position due to possible input references):");'
             . 'console.log(err);}';
 
         $width  = $this->get_node()->get_parameter('width', '500px');
@@ -99,21 +99,18 @@ class stack_cas_castext_jsxgraph extends stack_cas_castext_block {
         $attributes = array('class' => 'jxgbox', 'style' => $style, 'id' => $divid);
 
         // Empty tags seem to be an issue.
-        $this->get_node()->convert_to_text(html_writer::tag('div', '', $attributes));
-
         global $DIC;
-        $DIC->globalScreen()->layout()->meta()->addJs('../../../../templates/js/jsxgraphcore.js');
-        $DIC->globalScreen()->layout()->meta()->addOnLoadCode('<script>'.$code.'</script>');
 
-        //$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestionJSXGraph.find_input_id(' . $divid . ')');
+        $DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/jsxgraphcore.js');
+        $DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/jsxstack.js');
 
-        //$PAGE->requires->js_amd_inline('require(["qtype_stack/jsxgraph","qtype_stack/jsxgraphcore-lazy","core/yui"], '
-        //    . 'function(stack_jxg, JXG, Y){Y.use("mathjax",function(){'.$code.'});});');
+        $DIC->globalScreen()->layout()->meta()->addCss('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/jsxgraph.css');
 
+        $code=str_replace('divid',$divid,$code);
+        $this->get_node()->convert_to_text(html_writer::tag('div', '', $attributes).'<br clear="all">'.html_entity_decode('<script>'.$code.'</script>'));
         // Up the graph number to generate unique names.
         self::$countgraphs = self::$countgraphs + 1;
     }
-
     public function validate_extract_attributes() {
         // There are currently no CAS evaluated attributes.
         return array();

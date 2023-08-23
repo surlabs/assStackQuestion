@@ -530,11 +530,8 @@ class assStackQuestionRenderer
 	 * @param assStackQuestion $question
 	 * @return string
 	 */
-	public static function _renderBestSolution(assStackQuestion $question, $test = false): string
+	public static function _renderBestSolution(assStackQuestion $question): string
 	{
-        if($test){
-            echo "_renderBestSolution";exit;
-        }
 		$input_correct_array = $question->getCorrectResponse();
 		$question_text = $question->question_text_instantiated;
 

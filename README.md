@@ -92,7 +92,11 @@ composer du
 * The stable version 3.0.x for **ILIAS 5.3** is no longer maintained
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
-* 
+## Version 7.3.0 (2023.08.23)
+- JSXGraph inclusion:
+- Rendering of JSXGraph blocks in STACK Questions
+- Binding of JSX elements to STACK inputs
+- Two way binding of JSX ements to STACK inputs
 ## Version 7.2.10 (2023.07.17)
 - Solves #37393 Matrix Validation & Feedback in Tests
 - Solves #37318 Default feedback for locked answer view

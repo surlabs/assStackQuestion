@@ -412,6 +412,15 @@ class assStackQuestionUtils
 	 */
 	public static function _getLatex($text): string
 	{
+        $matches = [];
+        preg_match_all('/<script>(.*?)<\/script>/s', $text, $matches);
+        $scriptBlocks = $matches[0];
+        $scriptContents = $matches[1];
+
+        foreach ($scriptBlocks as $index => $block) {
+            $text = str_replace($block, "##SCRIPTBLOCK{$index}##", $text);
+        }
+
 		/*
 		 * Step 1 check current platform's LaTeX delimiters
 		 */
@@ -440,6 +449,7 @@ class assStackQuestionUtils
 			default:
 
 		}
+
 		/*
 		 * Step 2 Replace $$ from STACK and all other LaTeX delimiter to the current platform's delimiter.
 		 */
@@ -471,6 +481,10 @@ class assStackQuestionUtils
 		$text = str_replace("{", "&#123;", $text);
 		$text = str_replace("}", "&#125;", $text);
 		$text = str_replace("\\", "&#92;", $text);
+
+        foreach ($scriptBlocks as $index => $block) {
+            $text = str_replace("##SCRIPTBLOCK{$index}##", $block, $text);
+        }
 
 		/*
 		 * Step 3 User ilMathJax::getInstance()->insertLatexImages to deliver the LaTeX code.
