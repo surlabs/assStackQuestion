@@ -861,3 +861,22 @@ if (!$db->tableExists('xqcas_test_seeds')) {
 	}
 }
 ?>
+<#43>
+<?php
+global $DIC;
+$db = $DIC->database();
+
+//Create feedback styles
+if ($db->tableExists('xqcas_configuration')) {
+    $existing_entries = array();
+
+    $result = $db->query('SELECT * FROM xqcas_configuration WHERE group_name = "display"');
+    while ($row = $db->fetchAssoc($result)) {
+        $existing_entries[$row["parameter_name"]] = "";
+    }
+
+    if (!array_key_exists("allow_jsx_graph", $existing_entries)) {
+        $db->insert("xqcas_configuration", array('parameter_name' => array('text', "allow_jsx_graph"), 'value' => array('clob', ''), 'group_name' => array('text', 'display')));
+    }
+}
+?>

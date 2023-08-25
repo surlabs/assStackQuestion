@@ -531,6 +531,12 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$replace_dollars->setChecked($display_data['replace_dollars']);
 		$form->addItem($replace_dollars);
 
+        //JSXGraph activation
+        $jsx_graph_activated = new ilCheckboxInputGUI($this->plugin_object->txt('allow_jsx_graph'), 'allow_jsx_graph');
+        $jsx_graph_activated->setInfo($this->plugin_object->txt('allow_jsx_graph_info'));
+        $jsx_graph_activated->setChecked($display_data['allow_jsx_graph']);
+        $form->addItem($jsx_graph_activated);
+
 		$form->setTitle($this->plugin_object->txt('display_settings'));
 		$form->addCommandButton("saveDisplaySettings", $this->plugin_object->txt("save"));
 		$form->addCommandButton("showDisplaySettings", $this->plugin_object->txt("cancel"));

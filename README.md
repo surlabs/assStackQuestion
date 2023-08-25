@@ -96,7 +96,7 @@ composer du
 - JSXGraph inclusion:
 - Rendering of JSXGraph blocks in STACK Questions
 - Binding of JSX elements to STACK inputs
-- Two way binding of JSX ements to STACK inputs
+- Two way binding of JSX elements to STACK inputs
 ## Version 7.2.10 (2023.07.17)
 - Solves #37393 Matrix Validation & Feedback in Tests
 - Solves #37318 Default feedback for locked answer view

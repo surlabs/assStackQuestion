@@ -466,3 +466,5 @@ input_stars_spaces#:#Sternchen nur für Leerzeichen einfügen
 input_stars_implied_spaces#:#Sternchen für implizierte Multiplikation und für Leerzeichen einfügen
 input_type_implied_spaces_single#:#Sternchen einfügen, indem von Variablennamen mit nur einem Zeichen ausgegangen wird, implizierte und für Leerzeichen
 add_node#:#Knoten hinzufügen
+allow_jsx_graph#:#JSXGraph Rendering aktivieren
+allow_jsx_graph_info#:#Wenn Sie diese Option aktivieren, erlauben Sie STACK-Fragenautoren, JavaScript-Codeblöcke innerhalb der STACK-Fragen einzufügen. Bitte beachten Sie, dass dieser Code während der Ausführung der Fragen ausgeführt wird. Vorsicht: Die Ausführung von JavaScript kann ein potentielles Sicherheitsrisiko darstellen.

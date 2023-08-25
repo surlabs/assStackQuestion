@@ -463,3 +463,5 @@ input_stars_spaces#:#Insert stars for spaces only
 input_stars_implied_spaces#:#Insert stars for implied multiplication and for spaces
 input_type_implied_spaces_single#:#Insert stars assuming single-character variables, implied and for spaces
 add_node#:#Add Node
+allow_jsx_graph#:#Allow JSXGraph Rendering
+allow_jsx_graph_info#:#By activating this option, you will allow STACK question authors to include JavaScript code blocks within the STACK questions. Please note that this code will be executed during the execution of the questions. Caution: Allowing JavaScript execution may pose a potential security risk.
