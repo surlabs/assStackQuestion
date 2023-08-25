@@ -1158,9 +1158,12 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function exportQuestiontoMoodleForm()
 	{
+
 		global $DIC;
 		$tabs = $DIC->tabs();
 		$lng = $DIC->language();
+
+        ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_page_editor_compatibility_info"),true);
 
 		//Set all parameters required
 		$tabs->activateTab('edit_properties');

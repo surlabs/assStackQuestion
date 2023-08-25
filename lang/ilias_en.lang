@@ -465,3 +465,4 @@ input_type_implied_spaces_single#:#Insert stars assuming single-character variab
 add_node#:#Add Node
 allow_jsx_graph#:#Allow JSXGraph Rendering
 allow_jsx_graph_info#:#By activating this option, you will allow STACK question authors to include JavaScript code blocks within the STACK questions. Please note that this code will be executed during the execution of the questions. Caution: Allowing JavaScript execution may pose a potential security risk.
+page_editor_compatibility_info#:#Please be aware that any edits made via the ILIAS page editor for stack-questions will not be exportable to the moodle-xml-format. This functionality is specifically designed for the ILIAS context. Ensure you familiarize yourself with this limitation, especially if you plan to use or export content outside of ILIAS.

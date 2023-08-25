@@ -92,11 +92,15 @@ composer du
 * The stable version 3.0.x for **ILIAS 5.3** is no longer maintained
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
-## Version 7.3.0 (2023.08.23)
-- JSXGraph inclusion:
+* 
+## Version 7.3.2 (2023.08.25)
+- JSXGraph inclusion
 - Rendering of JSXGraph blocks in STACK Questions
 - Binding of JSX elements to STACK inputs
 - Two way binding of JSX elements to STACK inputs
+- New Setting: JSXGraph activation: Platform global enable/disable JSXGraph rendering.
+- Information message on MoodleXML Export regarding ILIAS Page content.
+
 ## Version 7.2.10 (2023.07.17)
 - Solves #37393 Matrix Validation & Feedback in Tests
 - Solves #37318 Default feedback for locked answer view
@@ -106,14 +110,11 @@ composer du
 - Solves #37257 Node feedback lost when importing from version 3.4 to version 7.2
 - Logical operators in Truth Tables Headers are now properly rendered
 - Solves PRT Feedback rendering in Preview and Tests
-## Version 7.2.6 (2023.06.16)
 - Solves #37456 about extra feedback options not being properly shown in Test results
-## Version 7.2.5 (2023.06.15)
 - Feedback is properly rendered in Test run and Test results when Plots are present in the question or specific feedback fields
 - Variables in Feedback are now properly rendered in Test run and Test results
 - Check answer type related issues are now solved.
 - Deployed Seeds no longer duplicates after question saving
-## Version 7.2.0 (2023.05.28)
 - Test Results are properly shown for all input types
 - Validation now is shown in Test results' user results
 - PropLogic answer type has been added
@@ -123,7 +124,6 @@ composer du
 
 ## Version 7.1.0 (2023.04.09) Installation improvements, Legacy Import files,  Extra options tuning
 - ILIAS Question Pools and Test created in older plugin versions (<master-ilias713) are again valid to ve imported in current ILIAS installations. some legacy code was included back due to this feature
-
 **It solves the following errors**
 - #32052, #30682, #37150? **Solves all composer / install warnings & errors.** --no-plugins is no longer required at cli setup commands
 - #29446 **firstline** option for equivalence reasoning inputs is now properly validated and evaluated, firstline as syntaxhint still not working
@@ -147,33 +147,21 @@ composer du
 - Solved #36864 about CASText in Feedback not being properly rendered in Tests.
 - Solved logic symbol error in MoodleXML import/export
 - Solved linux and windows local configuration errors, beware this configuration, as it has not been properly tested by the maintainer.
-
-### Version 7.0.5 Bugfixing (IV) 2023.01.27
 - Solved issue in fresh instalation regarding default server settings
-
-### Version 7.0.5 Bugfixing (IV) 2023.01.05
 - Solved an Error when trying to access the ILIAS feedback tab of a STACK question  from the question List in a non-started Test object
 - Solved a bug where Feedback is not presented to the user in Test Results
-
-### Version 7.0.3 Bugfixing (III) 2022.11.29
 - Solved issue importing variables using the "<" symbol, now are automatically replaced by "< " when importing from Moodle and ILIAS.
 - Matrix Parenthesis option is active again.
 - Check answer type option for inputs is active again.
-
-### Version 7.0.2 Bugfixing (II) 2022.11.04
 - User Solutions and Best solutions in Test Results are now again presented as non editable fields filled in with the user responses and best solutions
 - Specific feedback in Test Run is now properly rendered
 - Solved #35476 HTML Lost at MoodleXML Importing
 - Solved #35477 Input not shown validation option is se to do not show validation.
-
-### Version 7.0.1 Bugfixing (I) 2022.10.18
 - Some changes were added to the authoring interface.
 - First node in each potential response tree now shows the copy and delete function properly.
 - Adding a node to a certain potential response tree is again possible
   - Instead of a new tab, authors can use the new Add Node button to add nodes to the current prt.
   - Addition and deletion of PRT is still done by adding / deleting the feedback placeholder in the question text or the specific feedback section.
-
-## Version 7.0 (New Core!!) for ILIAS 7.13+ (Stable)
 This version has been declared stable on 2022.09.14
 Its main functionalities has been tested by the University of Erlangen and the Helmut Schmidt University.
 Some bugfixing may be expected when its use become more extensive. Please keep you ILIAS platform up to date
