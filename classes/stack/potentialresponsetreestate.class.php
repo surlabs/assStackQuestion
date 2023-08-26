@@ -148,11 +148,12 @@ class stack_potentialresponse_tree_state {
      * Store the CAS context, so we can use it later if we want to output the
      * feedback.
      * @param stack_cas_session2 $cascontext the case context containing the
-     *      feedback variables, sans and tans for each node, etc.
-     * @param int $seed the random seed used.
-     * @param bool $simp
+     *                                       feedback variables, sans and tans for each node, etc.
+     * @param int                $seed       the random seed used.
+     * @param bool               $simp
      */
-    public function set_cas_context(stack_cas_session2 $cascontext, $seed, $simp) {
+    public function set_cas_context(stack_cas_session2 $cascontext, $seed, $simp)
+    {
         $this->cascontext = $cascontext;
         $this->seed = $seed;
         $this->simplify = $simp;
@@ -207,6 +208,7 @@ class stack_potentialresponse_tree_state {
      * Subsitute variables into the feedback text.
      * @param string $feedback the concatenated feedback text.
      * @return string the feedback with question variables substituted.
+     * @throws stack_exception
      */
     public function substitue_variables_in_feedback($feedback) {
         // In this case, we want to get as much castext as possible back to a student.
