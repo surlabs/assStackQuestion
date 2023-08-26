@@ -598,7 +598,7 @@ class assStackQuestionUtils
     {
         $searchString = $input_name . 'Ref';
 
-        $replaceString = '"xqcas_' . $question_id . '_' . $input_name.'"';
+        $replaceString = 'xqcas_' . $question_id . '_' . $input_name;
 
         return str_replace($searchString, $replaceString, $content);
     }
