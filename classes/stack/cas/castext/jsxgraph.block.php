@@ -50,6 +50,9 @@ class stack_cas_castext_jsxgraph extends stack_cas_castext_block {
 
     public function clear() {
         global $PAGE, $CFG;
+        $question_id = $_GET["q_id"];
+        $inputs = assStackQuestionDB::_readInputs($question_id);
+
         // Now is the time to replace the block with the div and the code.
         $code = "";
         $iter = $this->get_node()->firstchild;
@@ -70,7 +73,7 @@ class stack_cas_castext_jsxgraph extends stack_cas_castext_block {
         // The prefix.
         foreach ($this->get_node()->get_parameters() as $key => $value) {
             if (substr($key, 0, 10) === "input-ref-") {
-                $varname = substr($key, 10);
+                $varname = 'xqcas_' . $question_id . '_' . substr($key, 10);
                 $seekcode = "var $value=stack_jxg.find_input_id(divid,'$varname');";
                 $code = "$seekcode\n$code";
             }
@@ -103,11 +106,18 @@ class stack_cas_castext_jsxgraph extends stack_cas_castext_block {
 
         $DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/jsxgraphcore.js');
         $DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/jsxstack.js');
-
         $DIC->globalScreen()->layout()->meta()->addCss('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/jsxgraph.css');
 
-        $code=str_replace('divid',$divid,$code);
-        $this->get_node()->convert_to_text(html_writer::tag('div', '', $attributes).'<br clear="all">'.html_entity_decode('<script>'.$code.'</script>'));
+        $code = str_replace('divid', $divid, $code);
+
+        foreach ($inputs['inputs'] as $input_name => $input) {
+            $code = assStackQuestionUtils::replaceInputRefs($code,$question_id,$input_name);
+        }
+        $this->get_node()->convert_to_text(
+            html_writer::tag('div', '', $attributes) . '<br clear="all">' . html_entity_decode(
+                '<script>' . $code . '</script>'
+            )
+        );
         // Up the graph number to generate unique names.
         self::$countgraphs = self::$countgraphs + 1;
     }

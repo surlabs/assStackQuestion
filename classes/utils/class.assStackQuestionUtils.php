@@ -594,6 +594,15 @@ class assStackQuestionUtils
 		return $adapted_user_response;
 	}
 
+    public static function replaceInputRefs($content, $question_id, $input_name)
+    {
+        $searchString = $input_name . 'Ref';
+
+        $replaceString = '"xqcas_' . $question_id . '_' . $input_name.'"';
+
+        return str_replace($searchString, $replaceString, $content);
+    }
+
 
 	public static function stack_output_castext($castext)
 	{
