@@ -29,7 +29,7 @@ class displaySettings
         if ($connection_data['platform_type'] == 'server') {
             $instant_validation = new ilCheckboxInputGUI($GUI->getPlugin()->txt('instant_validation'), 'instant_validation');
             $instant_validation->setInfo($GUI->getPlugin()->txt("instant_validation_info"));
-            $instant_validation->setChecked($display_data['instant_validation']);
+            $instant_validation->setChecked((bool)$display_data['instant_validation']);
         } else {
             $instant_validation = new ilCheckboxInputGUI($GUI->getPlugin()->txt('instant_validation'), 'instant_validation');
             $instant_validation->setInfo($GUI->getPlugin()->txt("instant_validation_info"));
@@ -48,13 +48,13 @@ class displaySettings
         //Replace dollars
         $replace_dollars = new ilCheckboxInputGUI($GUI->getPlugin()->txt('replace_dollars'), 'replace_dollars');
         $replace_dollars->setInfo($GUI->getPlugin()->txt("replace_dollars_info"));
-        $replace_dollars->setChecked($display_data['replace_dollars']);
+        $replace_dollars->setChecked((bool)$display_data['replace_dollars']);
         $form->addItem($replace_dollars);
 
         //JSXGraph activation
         $jsx_graph_activated = new ilCheckboxInputGUI($GUI->getPlugin()->txt('allow_jsx_graph'), 'allow_jsx_graph');
         $jsx_graph_activated->setInfo($GUI->getPlugin()->txt('allow_jsx_graph_info'));
-        $jsx_graph_activated->setChecked($display_data['allow_jsx_graph']);
+        $jsx_graph_activated->setChecked((bool)$display_data['allow_jsx_graph']);
         $form->addItem($jsx_graph_activated);
 
         $form->setTitle($GUI->getPlugin()->txt('display_settings'));

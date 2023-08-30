@@ -205,7 +205,7 @@ class assStackQuestionConfig
 		//Old settings
 		$saved_display_data = self::_getStoredSettings('display');
 		//New settings
-		$new_display_data = $this->getAdminInput();
+		$new_display_data = $this->getDisplayInput();
 
         //Checkboxes workaround
         if (!array_key_exists('instant_validation', $new_display_data))
@@ -464,7 +464,7 @@ class assStackQuestionConfig
             $values['platform_type'] = null;
         }
 
-        if ($_POST->offsetExists('cas_connection_timeout')) {
+        if ($_POST->offsetExists('maxima_version')) {
             $values['maxima_version'] = $_POST->offsetGet('maxima_version');
         } else {
             $values['maxima_version'] = null;
@@ -496,6 +496,41 @@ class assStackQuestionConfig
 
 		return $values;
 	}
+
+    /**
+     * @return array The data sent by post
+     */
+    public function getDisplayInput(): array
+    {
+        $values = array();
+        /** @var ILIAS\HTTP\Wrapper\SuperGlobalDropInReplacement $_POST */
+
+
+
+
+        if ($_POST->offsetExists('instant_validation')) {
+            $values['instant_validation'] = $_POST->offsetGet('instant_validation');
+        } else {
+            $values['instant_validation'] = null;
+        }
+
+        if ($_POST->offsetExists('replace_dollars')) {
+            $values['replace_dollars'] = $_POST->offsetGet('replace_dollars');
+        } else {
+            $values['replace_dollars'] = null;
+        }
+
+        if ($_POST->offsetExists('allow_jsx_graph')) {
+            $values['allow_jsx_graph'] = $_POST->offsetGet('allow_jsx_graph');
+        } else {
+            $values['allow_jsx_graph'] = null;
+        }
+
+        //cas_result_caching
+        $values['maths_filter'] = 'mathjax';
+
+        return $values;
+    }
 
 	/*
 	 * SET DEFAULT CONFIGURATION
