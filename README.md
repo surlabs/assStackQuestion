@@ -92,14 +92,16 @@ composer du
 * The stable version 3.0.x for **ILIAS 5.3** is no longer maintained
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
-* 
-## Version 7.3.2 (2023.08.25)
+
+## Version 7.3.4 (2023.08.30)
 - JSXGraph inclusion
 - Rendering of JSXGraph blocks in STACK Questions
 - Binding of JSX elements to STACK inputs
 - Two way binding of JSX elements to STACK inputs
 - New Setting: JSXGraph activation: Platform global enable/disable JSXGraph rendering.
 - Information message on MoodleXML Export regarding ILIAS Page content.
+- Solved issue when null format for specific feedback.
+- Solved #36722 Input type String changes to Algebraic input
 
 ## Version 7.2.10 (2023.07.17)
 - Solves #37393 Matrix Validation & Feedback in Tests
