@@ -551,7 +551,6 @@ class assStackQuestionDB
 			$input_ids = self::_readInputs($question_id, true);
 
 			if (!array_key_exists($input_name, $input_ids) or empty($input_ids) or $purpose == 'import') {
-                exit;
 				//CREATE
 				self::_saveInput($question_id, $input);
 			} else {
