@@ -341,6 +341,56 @@ class ilassStackQuestionConfigGUI extends ilObjectGUI
         $this->configureObject();
     }
 
+    public function showOtherSettingsObject()
+    {
+        global $DIC, $tpl;
+
+        try {
+            $this->initTabs('show_other_settings','show_display_settings');
+            $form = displaySettings::_render($this);
+            if (is_a($this->message, 'ILIAS\UI\Component\MessageBox\MessageBox')) {
+                $tpl->setContent($DIC->ui()->renderer()->render($this->message) . $form->getHTML());
+            } else {
+                $tpl->setContent($form->getHTML());
+            }
+        } catch (Exception $e) {
+            $error_message = $DIC->ui()->factory()->messageBox()->failure($e->getMessage().$e->getTraceAsString());
+            $tpl->setContent($DIC->ui()->renderer()->render($error_message));
+        }
+    }
+
+    /**
+     * action: save server settings
+     * show_connection_settings
+     * server_configuration
+     * @return void
+     * @throws ilCtrlException
+     */
+    public function saveDisplaySettingsObject(): void
+    {
+        global $DIC;
+
+        try {
+            $ok = $this->getConfig()->saveDisplaySettings();
+            if ($ok) {
+                $this->message = $DIC->ui()->factory()->messageBox()->success(
+                    $this->getPlugin()->txt('config_connection_changed_message'
+                    ));
+
+            } else {
+                $this->message = $DIC->ui()->factory()->messageBox()->failure(
+                    $this->getPlugin()->txt('config_error_message'
+                    ));
+            }
+        } catch (Exception $e) {
+            $this->message = $DIC->ui()->factory()->messageBox()->failure(
+                $e->getMessage()
+            );
+
+        }
+        $this->showOtherSettingsObject();
+    }
+
     /**
      * @return void
      */

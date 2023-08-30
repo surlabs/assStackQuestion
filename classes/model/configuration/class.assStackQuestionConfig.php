@@ -207,15 +207,21 @@ class assStackQuestionConfig
 		//New settings
 		$new_display_data = $this->getAdminInput();
 
-		//Checkboxes workaround
-		if (!array_key_exists('instant_validation', $new_display_data))
-		{
-			$new_display_data['instant_validation'] = 0;
-		}
-		if (!array_key_exists('replace_dollars', $new_display_data))
-		{
-			$new_display_data['replace_dollars'] = 0;
-		}
+        //Checkboxes workaround
+        if (!array_key_exists('instant_validation', $new_display_data))
+        {
+            $new_display_data['instant_validation'] = 0;
+        }
+        if (!array_key_exists('replace_dollars', $new_display_data))
+        {
+            $new_display_data['replace_dollars'] = 0;
+        }
+        if (!array_key_exists('allow_jsx_graph', $new_display_data))
+        {
+            $new_display_data['allow_jsx_graph'] = 0;
+        }else{
+            $new_display_data['allow_jsx_graph'] = 1;
+        }
 
 		//Save to DB
 		foreach ($saved_display_data as $paremeter_name => $saved_value)
