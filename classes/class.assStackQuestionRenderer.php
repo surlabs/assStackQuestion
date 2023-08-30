@@ -161,7 +161,7 @@ class assStackQuestionRenderer
                         $prt_state->set_cas_context($question->getSession(),$question->getSeed(),true);
                         $render = self::renderPRTFeedback($prt_state, $question);
                         if(strlen($render)){
-                            $prt_feedback .= self::renderPRTFeedback($prt_state, $question);
+                            $prt_feedback .= $render;
                         }else{
                             foreach ($prt_state->get_feedback() as $feedback){
                                 $prt_feedback .= $feedback->feedback;
@@ -703,6 +703,7 @@ class assStackQuestionRenderer
                 $format = '3';
             } else {
                 //$feedback .= $question->prt_partially_correct_instantiated . '<br>';
+                $format = '1';
             }
 
             //Substitute Variables in Feedback text
