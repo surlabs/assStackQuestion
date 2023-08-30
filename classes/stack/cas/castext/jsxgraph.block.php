@@ -50,6 +50,9 @@ class stack_cas_castext_jsxgraph extends stack_cas_castext_block {
 
     public function clear() {
         global $PAGE, $CFG;
+        $question_id = $_GET["q_id"];
+        $inputs = assStackQuestionDB::_readInputs($question_id);
+
         // Now is the time to replace the block with the div and the code.
         $code = "";
         $iter = $this->get_node()->firstchild;
@@ -58,7 +61,7 @@ class stack_cas_castext_jsxgraph extends stack_cas_castext_block {
             $iter = $iter->nextsibling;
         }
 
-        $divid  = "stack-jsxgraph-" . self::$countgraphs;
+        $divid  = "stackjsxgraph" . self::$countgraphs;
 
         // Input ref prefixes.
         // We could simply expose the prefix Moodle uses and let the author work
@@ -70,7 +73,7 @@ class stack_cas_castext_jsxgraph extends stack_cas_castext_block {
         // The prefix.
         foreach ($this->get_node()->get_parameters() as $key => $value) {
             if (substr($key, 0, 10) === "input-ref-") {
-                $varname = substr($key, 10);
+                $varname = 'xqcas_' . $question_id . '_' . substr($key, 10);
                 $seekcode = "var $value=stack_jxg.find_input_id(divid,'$varname');";
                 $code = "$seekcode\n$code";
             }
@@ -87,8 +90,8 @@ class stack_cas_castext_jsxgraph extends stack_cas_castext_block {
         // someone else. 1+2*n probably, or we could just write all the preamble
         // on the same line and make the offset always be the same?
         $code = '"use strict";try{if(document.getElementById("' . $divid . '")){' . $code . '}} '
-            . 'catch(err) {console.log("STACK JSXGraph error in \"' . $divid
-            . '\", (note a slight varying offset in the error position due to possible input references):");'
+            . 'catch(err) {console.log("STACK JSXGraph error in ' . $divid
+            . ', (note a slight varying offset in the error position due to possible input references):");'
             . 'console.log(err);}';
 
         $width  = $this->get_node()->get_parameter('width', '500px');
@@ -99,21 +102,25 @@ class stack_cas_castext_jsxgraph extends stack_cas_castext_block {
         $attributes = array('class' => 'jxgbox', 'style' => $style, 'id' => $divid);
 
         // Empty tags seem to be an issue.
-        $this->get_node()->convert_to_text(html_writer::tag('div', '', $attributes));
-
         global $DIC;
-        $DIC->globalScreen()->layout()->meta()->addJs('../../../../templates/js/jsxgraphcore.js');
-        $DIC->globalScreen()->layout()->meta()->addOnLoadCode('<script>'.$code.'</script>');
 
-        //$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestionJSXGraph.find_input_id(' . $divid . ')');
+        $DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/jsxgraphcore.js');
+        $DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/jsxstack.js');
+        $DIC->globalScreen()->layout()->meta()->addCss('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/jsxgraph.css');
 
-        //$PAGE->requires->js_amd_inline('require(["qtype_stack/jsxgraph","qtype_stack/jsxgraphcore-lazy","core/yui"], '
-        //    . 'function(stack_jxg, JXG, Y){Y.use("mathjax",function(){'.$code.'});});');
+        $code = str_replace('divid', $divid, $code);
 
+        foreach ($inputs['inputs'] as $input_name => $input) {
+            $code = assStackQuestionUtils::replaceInputRefs($code,$question_id,$input_name);
+        }
+        $this->get_node()->convert_to_text(
+            html_writer::tag('div', '', $attributes) . '<br clear="all">' . html_entity_decode(
+                '<script>' . $code . '</script>'
+            )
+        );
         // Up the graph number to generate unique names.
         self::$countgraphs = self::$countgraphs + 1;
     }
-
     public function validate_extract_attributes() {
         // There are currently no CAS evaluated attributes.
         return array();
@@ -137,12 +144,12 @@ class stack_cas_castext_jsxgraph extends stack_cas_castext_block {
 
         foreach ($validunits as $suffix) {
             if (!$widthend && strlen($width) > strlen($suffix) &&
-                    substr($width, -strlen($suffix)) === $suffix) {
+                substr($width, -strlen($suffix)) === $suffix) {
                 $widthend = true;
                 $widthtrim = substr($width, 0, -strlen($suffix));
             }
             if (!$heightend && strlen($height) > strlen($suffix) &&
-                    substr($height, -strlen($suffix)) === $suffix) {
+                substr($height, -strlen($suffix)) === $suffix) {
                 $heightend = true;
                 $heighttrim = substr($height, 0, -strlen($suffix));
             }

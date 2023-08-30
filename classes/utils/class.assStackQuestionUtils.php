@@ -1294,5 +1294,13 @@ class assStackQuestionUtils
         return $found_random;
     }
 
+    public static function replaceInputRefs($content, $question_id, $input_name)
+    {
+        $searchString = $input_name . 'Ref';
+
+        $replaceString = 'xqcas_' . $question_id . '_' . $input_name;
+
+        return str_replace($searchString, $replaceString, $content);
+    }
 
 }
