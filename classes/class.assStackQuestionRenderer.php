@@ -434,7 +434,7 @@ class assStackQuestionRenderer
 			} else {
 
 				$prt_state = $evaluation['prts'][$prt_name];
-
+                $prt_state->set_cas_context($question->getSession(),$question->getSeed(),true);
 				//Manage LaTeX explicitly
 				$prt_feedback .= assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy(self::renderPRTFeedback($prt_state, $question)));
 			}
