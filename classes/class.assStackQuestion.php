@@ -1826,7 +1826,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                         $error_message .= html_writer::tag('li', $key);
                     }
                     $s .= html_writer::tag('ul', $error_message);
-                    $this->question_text_instantiated .= $s;
+                    //$this->question_text_instantiated .= $s;
                 }
             }
 
@@ -2036,7 +2036,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         // Invalid if any input is invalid, ...
         foreach ($this->inputs as $name => $input) {
             if (stack_input::INVALID == $this->getInputState($name, $response)->status) {
-                $this->runtime_errors[] = $this->getInputState($name, $response)->errors;
+                //$this->runtime_errors[] = $this->getInputState($name, $response)->errors;
                 return true;
             }
         }
@@ -2045,7 +2045,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         foreach ($this->prts as $index => $prt) {
             $result = $this->getPrtResult($index, $response, false);
             if ($result->errors) {
-                $this->runtime_errors[] = $result->errors;
+                //$this->runtime_errors[] = $result->errors;
                 return true;
             }
         }
