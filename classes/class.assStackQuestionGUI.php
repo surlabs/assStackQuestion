@@ -1189,7 +1189,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function exportQuestiontoMoodleForm()
 	{
-		global $DIC;
+		global $DIC, $tpl;
 		$tabs = $DIC->tabs();
 		$lng = $DIC->language();
 
@@ -1198,6 +1198,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tabs->activateSubTab('export_to_moodle');
 
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+        $tpl->setOnScreenMessage('info', $lng->txt('qpl_qst_xqcas_page_editor_compatibility_info'), true);
 
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($this->ctrl->getFormAction($this));
