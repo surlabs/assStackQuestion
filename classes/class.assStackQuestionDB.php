@@ -1433,7 +1433,11 @@ class assStackQuestionDB
 			//value1 = xqcas_input_*_status, $value2 = status
 			$obtained_points = (float)$question->getEvaluation()['points'][$prt_name]['prt_points'];
 			$max_prt_points = (float)$question->prts[$prt_name]->get_value();
-			$fraction = $obtained_points / $max_prt_points;
+            if ($max_prt_points != 0.0) {
+                $fraction = $obtained_points / $max_prt_points;
+            } else {
+                $fraction = 0.0;
+            }
 			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status', (string)$fraction);
 			$entered_values++;
 

@@ -93,7 +93,7 @@ composer du
 * The stable version 2.4.x for **ILIAS 5.2 to 5.3** is no longer maintained
 * The stable version 2.3.x for **ILIAS 5.0 to 5.1** is no longer maintained
 
-## Version 7.3.4 (2023.08.30)
+## Version 7.3.5 (2023.09.12)
 - JSXGraph inclusion
 - Rendering of JSXGraph blocks in STACK Questions
 - Binding of JSX elements to STACK inputs
@@ -102,7 +102,7 @@ composer du
 - Information message on MoodleXML Export regarding ILIAS Page content.
 - Solved issue when null format for specific feedback.
 - Solved #36722 Input type String changes to Algebraic input
-
+- Question having PRT with no points should now be properly rendered
 ## Version 7.2.10 (2023.07.17)
 - Solves #37393 Matrix Validation & Feedback in Tests
 - Solves #37318 Default feedback for locked answer view
