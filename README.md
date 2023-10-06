@@ -169,7 +169,6 @@ Its main functionalities has been tested by the University of Erlangen and the H
 Some bugfixing may be expected when its use become more extensive. Please keep you ILIAS platform up to date
 - **This STACK for ILIAS plugin version requires a Maxima Server with the maxima version 2021120900. Other versions may trigger validation errors or not show the question at all**
 - Ensure you clear the cache after updating.
-- **Ensure you use the --no-plugins mode on ILIAS Setup if STACK is installed**
 - Update of this plugin is currently only Manual on plugins administration.
 - **Changes in this Version**
 - 95% Percent of the changes on this version were made to the backend, so do not expect many user interface changes.
