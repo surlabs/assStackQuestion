@@ -69,6 +69,10 @@ class assStackQuestionGUI extends assQuestionGUI
         if ($id >= 0) {
             try {
                 $this->object->loadFromDb($id);
+                $this->object->questionInitialisation( $this->object->seed, true);
+                $session = new stack_cas_session2([], $this->object->options, $this->object->seed);
+                $this->object->setSession($session);
+
             } catch (stack_exception $e) {
                 ilUtil::sendFailure($e, true);
             }

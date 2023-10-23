@@ -77,6 +77,9 @@ function checkUserResponse($question_id, $input_name, $user_response)
 		if (is_a($input = $question->inputs[$input_name], 'stack_matrix_input')) {
 			$user_response = $input->maxima_to_response_array($user_response[$input_name]);
 		}
+        if ($question->getCached('statement-qv') !== null) {
+            $question->inputs[$input_name]->add_contextsession( new stack_secure_loader($question->getCached('statement-qv'), 'qv'));
+        }
 		$status = $question->inputs[$input_name]->validate_student_response($user_response, $question->options, $teacher_answer, $question->getSecurity());
 	} catch (stack_exception $e) {
 		return $e->getMessage();

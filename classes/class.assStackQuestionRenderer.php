@@ -311,6 +311,9 @@ class assStackQuestionRenderer
 
 			$input_object = $question->inputs[$name];
 
+            if ($question->getCached('statement-qv') !== null) {
+                $input_object->add_contextsession(new stack_secure_loader($question->getCached('statement-qv'), 'qv'));
+            }
             $input_state = $input_object->validate_student_response($user_solution, $question->options, $input_object->get_teacher_answer(), $question->getSecurity());
 
 			$field_name = 'xqcas_' . $question->getId() . '_' . $name;
