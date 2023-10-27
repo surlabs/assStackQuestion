@@ -1406,46 +1406,48 @@ class assStackQuestionDB
 		}
 
 		//Save PRT information
-		foreach ($question->getEvaluation()['prts'] as $prt_name => $prt) {
+        if (isset($question->getEvaluation()['prts'])) {
+            foreach ($question->getEvaluation()['prts'] as $prt_name => $prt) {
 
-			//value1 = xqcas_input_name, $value2 = input_name
-			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name);
+                //value1 = xqcas_input_name, $value2 = input_name
+                $question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name);
 
-			//Save points
-			if (isset($question->getEvaluation()['points'][$prt_name]['prt_points'])) {
-				self::_addPointsToPRTDBEntry($question, $active_id, $pass, $prt_name, $question->getEvaluation()['points'][$prt_name]['prt_points'], $authorized);
-			}
+                //Save points
+                if (isset($question->getEvaluation()['points'][$prt_name]['prt_points'])) {
+                    self::_addPointsToPRTDBEntry($question, $active_id, $pass, $prt_name, $question->getEvaluation()['points'][$prt_name]['prt_points'], $authorized);
+                }
 
-			$entered_values++;
+                $entered_values++;
 
-			//value1 = xqcas_input_*_errors, $value2 = feedback given by CAS
-			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_errors', $prt->_errors);
-			$entered_values++;
+                //value1 = xqcas_input_*_errors, $value2 = feedback given by CAS
+                $question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_errors', $prt->_errors);
+                $entered_values++;
 
-			//value1 = xqcas_input_*_feedback, $value2 = feedback given by CAS
-			$feedback = '';
-			foreach ($prt->get_feedback() as $feedback_element) {
-				$feedback .= $feedback_element->feedback . ' ';
-			}
-			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_feedback', $feedback);
-			$entered_values++;
+                //value1 = xqcas_input_*_feedback, $value2 = feedback given by CAS
+                $feedback = '';
+                foreach ($prt->get_feedback() as $feedback_element) {
+                    $feedback .= $feedback_element->feedback . ' ';
+                }
+                $question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_feedback', $feedback);
+                $entered_values++;
 
-			//value1 = xqcas_input_*_status, $value2 = status
-			$obtained_points = (float)$question->getEvaluation()['points'][$prt_name]['prt_points'];
-			$max_prt_points = (float)$question->prts[$prt_name]->get_value();
-            if ($max_prt_points != 0.0) {
-                $fraction = $obtained_points / $max_prt_points;
-            } else {
-                $fraction = 0.0;
+                //value1 = xqcas_input_*_status, $value2 = status
+                $obtained_points = (float)$question->getEvaluation()['points'][$prt_name]['prt_points'];
+                $max_prt_points = (float)$question->prts[$prt_name]->get_value();
+                if ($max_prt_points != 0.0) {
+                    $fraction = $obtained_points / $max_prt_points;
+                } else {
+                    $fraction = 0.0;
+                }
+                $question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status', (string)$fraction);
+                $entered_values++;
+
+                //value1 = xqcas_input_*_status_message, $value2 = answernotes
+                $question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_answernote', implode(';', $prt->_answernotes));
+                $entered_values++;
+
             }
-			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status', (string)$fraction);
-			$entered_values++;
-
-			//value1 = xqcas_input_*_status_message, $value2 = answernotes
-			$question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_answernote', implode(';', $prt->_answernotes));
-			$entered_values++;
-
-		}
+        }
 
 		return $entered_values;
 	}
