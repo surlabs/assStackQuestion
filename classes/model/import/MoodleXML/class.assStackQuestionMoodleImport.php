@@ -89,48 +89,53 @@ class assStackQuestionMoodleImport
 		//Step 2: Initialize question in ILIAS
 		$number_of_questions_created = 0;
 
-		foreach ($xml->question as $question) {
 
-			//New list of media objects for each question
-			$this->clearMediaObjects();
+        foreach ($xml->question as $question) {
 
-			//Set current question Id to -1 if we have created already one question, to ensure creation of the others
-			if ($number_of_questions_created > 0) {
-				$this->getQuestion()->setId(-1);
-			}
+            $type = (string)$question->attributes()['type'];
 
-			//Delete predefined inputs and prts
-			$this->getQuestion()->inputs = array();
-			$this->getQuestion()->prts = array();
+            if ($type == 'stack') {
+                //New list of media objects for each question
+                $this->clearMediaObjects();
 
-			//If import process has been successful, save question to DB.
-			if ($this->loadFromMoodleXML($question)) {
+                //Set current question Id to -1 if we have created already one question, to ensure creation of the others
+                if ($number_of_questions_created > 0) {
+                    $this->getQuestion()->setId(-1);
+                }
 
-				//Save standard question data
-				$this->getQuestion()->saveQuestionDataToDb();
-				$this->getPlugin()->includeClass('class.assStackQuestionDB.php');
-				try {
-					//Save STACK Parameters forcing insert.
-					if (assStackQuestionDB::_saveStackQuestion($this->getQuestion(), 'import')) {
-						$this->saveMediaObjectUsages($this->getQuestion()->getId());
-						$number_of_questions_created++;
-					}
-				} catch (stack_exception $e) {
-					$this->error_log[] = 'question was not saved: ' . $this->getQuestion()->getTitle();
-				}
-			} else {
-				//Do not allow not well created questions
-				//Send Error Message
-				$error_message = '';
-				foreach ($this->error_log as $error) {
-					$error_message .= $error . '</br>';
-				}
-				ilUtil::sendFailure('fau Error message for malformed questions: ' . $this->getQuestion()->getTitle() . ' ' . $error_message, true);
-				//Purge media objects as we didn't import the question
-				$this->purgeMediaObjects();
-				//Delete Question
-				$this->getQuestion()->delete($this->getQuestion()->getId());
-			}
+                //Delete predefined inputs and prts
+                $this->getQuestion()->inputs = array();
+                $this->getQuestion()->prts = array();
+
+                //If import process has been successful, save question to DB.
+                if ($this->loadFromMoodleXML($question)) {
+
+                    //Save standard question data
+                    $this->getQuestion()->saveQuestionDataToDb();
+                    $this->getPlugin()->includeClass('class.assStackQuestionDB.php');
+                    try {
+                        //Save STACK Parameters forcing insert.
+                        if (assStackQuestionDB::_saveStackQuestion($this->getQuestion(), 'import')) {
+                            $this->saveMediaObjectUsages($this->getQuestion()->getId());
+                            $number_of_questions_created++;
+                        }
+                    } catch (stack_exception $e) {
+                        $this->error_log[] = 'question was not saved: ' . $this->getQuestion()->getTitle();
+                    }
+                } else {
+                    //Do not allow not well created questions
+                    //Send Error Message
+                    $error_message = '';
+                    foreach ($this->error_log as $error) {
+                        $error_message .= $error . '</br>';
+                    }
+                    ilUtil::sendFailure('fau Error message for malformed questions: ' . $this->getQuestion()->getTitle() . ' ' . $error_message, true);
+                    //Purge media objects as we didn't import the question
+                    $this->purgeMediaObjects();
+                    //Delete Question
+                    $this->getQuestion()->delete($this->getQuestion()->getId());
+                }
+            }
 		}
 	}
 
