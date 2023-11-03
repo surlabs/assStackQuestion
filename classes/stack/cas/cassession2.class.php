@@ -485,14 +485,18 @@ class stack_cas_session2 {
                 $answernotes = array();
                 if (array_key_exists('notes', $results)) {
                     if (array_key_exists('s' . $num, $results['notes'])) {
-                        $answernotes = $results['notes']['s' . $num];
-                    }
+                        // Bug in CAS causes wrong notes and feedback HSLU
+                        if (count($results['notes']['s' . $num]) == 1 && strpos(strval($results['notes']['s' . $num][0]), 'SA_not_expression') === false) {
+                            $answernotes = $results['notes']['s' . $num];
+                        }                    }
                 }
                 $feedback = array();
                 if (array_key_exists('feedback', $results)) {
                     if (array_key_exists('s' . $num, $results['feedback'])) {
-                        $feedback = $results['feedback']['s' . $num];
-                    }
+                        // Bug in CAS causes wrong notes and feedback
+                        if( count($results['feedback']['s' . $num]) == 1 && strpos( strval($results['feedback']['s' . $num][0]), 'SA_not_expression') === false) {
+                            $feedback = $results['feedback']['s' . $num];
+                        }                    }
                 }
                 $statement->set_cas_status($err, $answernotes, $feedback);
             }
