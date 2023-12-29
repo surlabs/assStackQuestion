@@ -66,17 +66,19 @@ class assStackQuestionDeployedSeedsGUI
 
 	/**
 	 * ### MAIN METHOD OF THIS CLASS ###
-	 * @return HTML
+	 * @return
 	 */
 	public function showDeployedSeedsPanel()
 	{
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/GUI/tables/class.assStackQuestionSeedsTableGUI.php';
-		$seeds_table = new assStackQuestionSeedsTableGUI($this->getParentObj(), "deployedSeedsManagement");
-
 		$this->getQuestionNotesForSeeds();
-		$seeds_table->prepareData($this->getDeployedSeeds());
 
-		return $this->getDeployedSeedCreationForm()->getHTML() . $seeds_table->getHTML();
+        $array = array(
+            'deployed_seeds' => $this->getDeployedSeeds(),
+            'question_id' => $this->getQuestionId(),
+            'unit_tests' => $this->getParentObj()->object->getUnitTests(),
+        );
+        $ui = new RandomisationUI($array);
+        return $ui->show(true);
 	}
 
 
@@ -89,7 +91,8 @@ class assStackQuestionDeployedSeedsGUI
 			$this->getParentObj()->object->questionInitialisation($deployed_seed, true, true);
 			$question_note_instantiated = $this->getParentObj()->object->getQuestionNoteInstantiated();
 			$number_of_valid_seeds++;
-			$valid_seeds[$id] = array('seed' => $deployed_seed, 'note' => $question_note_instantiated,'question_id' => $this->getParentObj()->object->getId());
+			$valid_seeds[$id] = array('seed' => $deployed_seed, 'note' => $question_note_instantiated,'question_id' => $this->getParentObj()->object->getId(),
+                'question_text' => $this->getParentObj()->object->question_text_instantiated);
 		}
 
 		$this->setDeployedSeeds($valid_seeds);

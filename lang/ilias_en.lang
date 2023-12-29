@@ -178,7 +178,7 @@ message_question_text#:#Question text
 message_teacher_solution_part#:#The solution is:
 message_error_part#:#The following error(s) were found:
 message_user_response_container#:#The following answers were evaluated:
-dsm_deployed_seeds#:#Deployed seeds
+dsm_deployed_seeds#:#Randomisation and Security
 dsm_question_doesnt_use_randomisation#:#This question doesn't use randomisation so it's not possible create seeds.
 dsm_deployed_seeds_header#:#Deployed seed
 dsm_question_notes_header#:#Question note for the deployed seed
@@ -466,3 +466,21 @@ add_node#:#Add Node
 allow_jsx_graph#:#Allow JSXGraph Rendering
 allow_jsx_graph_info#:#By activating this option, you will allow STACK question authors to include JavaScript code blocks within the STACK questions. Please note that this code will be executed during the execution of the questions. Caution: Allowing JavaScript execution may pose a potential security risk.
 page_editor_compatibility_info#:#Please be aware that any edits made via the ILIAS page editor for stack-questions will not be exportable to the moodle-xml-format. This functionality is specifically designed for the ILIAS context. Ensure you familiarize yourself with this limitation, especially if you plan to use or export content outside of ILIAS.
+ui_author_randomisation_add_standard_test_button_text#:#Add standard test
+ui_author_randomisation_add_standard_test_description#:#This STACK question doesn't contain the standard unit test, where the model answer is set as student answer and full mark is expected. You can automatically add this standard test by clicking the following button.
+ui_author_randomisation_deployed_variants_panel_title#:#Deployed variants for question test runs
+ui_author_randomisation_active_variant_panel_title#:#Active variant for question preview and unit testing
+ui_author_randomisation_show_question_text_action_text#:#Show question text for this variant
+ui_author_randomisation_change_to_random_seed_action_text#:#Change active variant to a random seed
+ui_author_randomisation_run_all_tests_for_active_variant_action_text#:#Run all tests for active variant
+ui_author_randomisation_run_all_tests_for_all_variants_action_text#:#Run all tests for all variants
+ui_author_randomisation_generate_new_variants_action_text#:#Generate new variants
+ui_author_randomisation_delete_deployed_variant_action_text#:#Delete deployed variant
+ui_author_randomisation_set_as_active_variant_action_text#:#Set as active variant for preview and unit testing
+ui_author_randomisation_is_current_active_variant_text#:#Current active variant for preview and unit testing
+ui_author_randomisation_question_and_feedback_variables_text#:#Question and feedback variables for this variant
+ui_author_randomisation_unit_test_status_panel_title#:#Unit test status
+ui_author_randomisation_run_unit_test_action_text#:#Run unit test
+ui_author_randomisation_add_unit_test_action_text#:#Add unit test
+ui_author_randomisation_edit_unit_test_action_text#:#Edit unit test
+ui_author_randomisation_delete_unit_test_action_text#:#Delete unit test
