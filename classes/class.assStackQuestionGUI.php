@@ -1077,7 +1077,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 			$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
 			$tabs->addSubTab('deployed_seeds_management', $this->plugin->txt('dsm_deployed_seeds'), $this->ctrl->getLinkTargetByClass($classname, "deployedSeedsManagement"));
-			$tabs->addSubTab('unit_tests', $this->plugin->txt('ut_title'), $this->ctrl->getLinkTargetByClass($classname, "showUnitTests"));
+			//$tabs->addSubTab('unit_tests', $this->plugin->txt('ut_title'), $this->ctrl->getLinkTargetByClass($classname, "showUnitTests"));
 		}
 
 	}
@@ -1335,7 +1335,6 @@ class assStackQuestionGUI extends assQuestionGUI
         //delete seed
         assStackQuestionDB::_deleteStackSeeds($question_id,'',$seed);
 
-
 		$this->deployedSeedsManagement();
 	}
 
@@ -1401,6 +1400,14 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->scoringManagementPanel();
 	}
 
+    public function showUnitTests()
+    {
+        $this->object->instantiateUnitTests();
+        $unit_test_data = $this->object->getUnitTests();
+
+        $ui = new RandomisationUI([]);
+        $this->tpl->setContent($ui->show(true));
+    }
 
 	/**
 	 * Command for run testcases
@@ -1491,7 +1498,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
 
 		//Returns Deployed seeds form
-		$this->tpl->setVariable("QUESTION_DATA", $unit_test_gui->editTestcaseForm($testcase_name, $this->object->getInputs(), $this->object->getPotentialResponsesTrees()));
+		$this->tpl->setVariable("QUESTION_DATA", $unit_test_gui->editTestcaseForm($testcase_name, $this->object->inputs, $this->object->prts));
 	}
 
 	/**
@@ -1729,6 +1736,17 @@ class assStackQuestionGUI extends assQuestionGUI
 	{
 		$this->is_preview = $is_preview;
 	}
+
+    public function changeActiveVariant()
+    {
+        $ui = new RandomisationUI([]);
+        $this->tpl->setContent($ui->show_form_in_modal());
+    }
+
+    public function editUnitTestUI(){
+        $ui = new RandomisationUI([]);
+        $this->tpl->setContent($ui->show_form_in_modal());
+    }
 
 
 }

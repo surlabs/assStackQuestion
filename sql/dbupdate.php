@@ -880,3 +880,45 @@ if ($db->tableExists('xqcas_configuration')) {
     }
 }
 ?>
+<#44>
+<?php
+global $DIC;
+$db = $DIC->database();
+
+//Add question unit test data
+if ($db->tableExists('xqcas_qtests')) {
+    $seed_column = array('type' => 'integer', 'length' => 8, 'notnull' => true, 'default' => 0);
+    if (!$db->tableColumnExists("xqcas_qtests", "seed")) {
+        $db->addTableColumn("xqcas_qtests", "seed", $seed_column);
+    }
+    $status_column = array('type' => 'text', 'length' => 32, 'notnull' => true);
+    if (!$db->tableColumnExists("xqcas_qtests", "status")) {
+        $db->addTableColumn("xqcas_qtests", "status", $status_column);
+    }
+    $data_column = array('type' => 'clob', 'notnull' => true);
+    if (!$db->tableColumnExists("xqcas_qtests", "data")) {
+        $db->addTableColumn("xqcas_qtests", "data", $data_column);
+    }
+}
+?>
+<#45>
+<?php
+global $DIC;
+$db = $DIC->database();
+
+//Add question deployed seed data
+if ($db->tableExists('xqcas_deployed_seeds')) {
+    $testing_status_column = array('type' => 'text', 'length' => 32, 'notnull' => true);
+    if (!$db->tableColumnExists("xqcas_deployed_seeds", "testing_status")) {
+        $db->addTableColumn("xqcas_deployed_seeds", "testing_status", $testing_status_column);
+    }
+    $data_column = array('type' => 'clob', 'notnull' => true);
+    if (!$db->tableColumnExists("xqcas_deployed_seeds", "data")) {
+        $db->addTableColumn("xqcas_deployed_seeds", "data", $data_column);
+    }
+    $active_column = array('type' => 'integer', 'length' => 8, 'notnull' => true, 'default' => 0);
+    if (!$db->tableColumnExists("xqcas_qtests", "active")) {
+        $db->addTableColumn("xqcas_qtests", "active", $active_column);
+    }
+}
+?>
