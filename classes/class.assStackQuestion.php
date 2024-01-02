@@ -2591,20 +2591,16 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * get_ta_for_input(string $vname) in Moodle
      * Enable the renderer to access the teacher's answer in the session.
      * TODO: should we give the whole thing?
-     * @param string $input_name
+     * @param string $vname variable name.
      * @return string|bool|stack_ast_container[]|stack_ast_container
+     * @throws stack_exception
      */
-    public function getTeacherAnswerForInput(string $input_name): string
+    public function getTeacherAnswerForInput(string $vname): string
     {
-        try {
-            if ($this->getTas($input_name)->is_correctly_evaluated()) {
-                return $this->getTas($input_name);
-            }
-            return true;
-        } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
-            return false;
+        if (isset($this->tas[$vname]) && $this->tas[$vname]->is_correctly_evaluated()) {
+            return $this->tas[$vname]->get_value();
         }
+        return '';
     }
 
     /* classify_response(array $response) not required as it is only Moodle relevant */
