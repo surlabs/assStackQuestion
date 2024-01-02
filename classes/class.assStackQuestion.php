@@ -1846,20 +1846,36 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * get_hint_castext(question_hint $hint) from Moodle
      * Get the castext for a hint, instantiated within the question's session.
      * @param string $hint the hint.
-     * @return stack_cas_text|false the castext.
+     * @throws stack_exception
      */
-    public function getHintCASText(string $hint): stack_cas_text
+    public function getHintCASText(string $hint)
     {
-        try {
-            $hint_text = new stack_cas_text($hint, $this->session, $this->seed);
-            if ($hint_text->get_errors()) {
-                $this->runtime_errors[$hint_text->get_errors()] = true;
-            }
-            return $hint_text;
-        } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
-            return false;
+        // TODO: NO existe hint
+        // These are not currently cached as compiled fragments, maybe they should be.
+        $this->hint = "dummy hint";
+        $hinttext = castext2_evaluatable::make_from_source($hint->hint, 'hint');
+
+        $session = null;
+        if ($this->session === null) {
+            $session = new stack_cas_session2([], $this->options, $this->seed);
+        } else {
+            $session = new stack_cas_session2($this->session->get_session(), $this->options, $this->seed);
         }
+        /* Not using moodle multi lang
+        if (count($this->get_cached('langs')) > 0) {
+            $ml = new stack_multilang();
+            $selected = $ml->pick_lang($this->get_cached('langs'));
+            $session->add_statement(new stack_secure_loader('%_STACK_LANG:' .
+                stack_utils::php_string_to_maxima_string($selected), 'language setting'), false);
+        }*/
+        $session->add_statement($hinttext);
+        $session->instantiate();
+
+        if ($hinttext->get_errors()) {
+            $this->runtime_errors[$hinttext->get_errors()] = true;
+        }
+
+        return $hinttext;
     }
 
     /**
