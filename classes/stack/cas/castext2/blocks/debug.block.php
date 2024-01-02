@@ -15,8 +15,8 @@
 // along with Stateful.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/../block.interface.php');
-require_once(__DIR__ . '/../utils.php');
+//require_once(__DIR__ . '/../block.interface.php');
+//require_once(__DIR__ . '/../utils.php');
 
 class stack_cas_castext2_debug extends stack_cas_castext2_block {
 

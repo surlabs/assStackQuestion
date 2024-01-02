@@ -4801,7 +4801,7 @@ class CTP_Parser {
 
     /* BEGIN initializer code */
 
-     require_once(__DIR__ . '/../CTP_classes.php');
+     //require_once(__DIR__ . '/../CTP_classes.php');
      
     /* END initializer code */
 

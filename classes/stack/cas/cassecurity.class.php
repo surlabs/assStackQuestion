@@ -15,7 +15,7 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/casstring.units.class.php');
+//require_once(__DIR__ . '/casstring.units.class.php');
 
 // CAS identifier related security data-lookups.
 //

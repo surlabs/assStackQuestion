@@ -16,7 +16,7 @@
 
 
 
-require_once(__DIR__ . '/../../maximaparser/utils.php');
+//require_once(__DIR__ . '/../../maximaparser/utils.php');
 
 /**
  * This is a simple key value store that will simply store the shared static strings

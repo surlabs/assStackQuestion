@@ -15,8 +15,8 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/../../utils/locallib.php');
-require_once(__DIR__ . '/../options.class.php');
+//require_once(__DIR__ . '/../../utils/locallib.php');
+//require_once(__DIR__ . '/../options.class.php');
 
 /**
  * This class represents the current state of an input.

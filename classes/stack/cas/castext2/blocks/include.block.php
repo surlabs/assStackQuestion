@@ -16,8 +16,8 @@
 //
 
 
-require_once(__DIR__ . '/../block.interface.php');
-require_once(__DIR__ . '/../utils.php');
+//require_once(__DIR__ . '/../block.interface.php');
+//require_once(__DIR__ . '/../utils.php');
 
 /**
  * This is a block allows one to share content between questions, it

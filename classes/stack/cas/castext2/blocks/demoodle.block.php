@@ -16,8 +16,8 @@
 
 
 global $CFG;
-require_once(__DIR__ . '/../block.interface.php');
-require_once($CFG->libdir . '/weblib.php');
+//require_once(__DIR__ . '/../block.interface.php');
+//require_once($CFG->libdir . '/weblib.php');
 
 
 /**

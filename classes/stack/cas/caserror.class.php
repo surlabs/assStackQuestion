@@ -16,7 +16,7 @@
 
 
 
-require_once(__DIR__ . '/../../vle_specific.php');
+//require_once(__DIR__ . '/../../vle_specific.php');
 
 /**
  * Encapsulates the location of an error happening in CAS with the actual error.

@@ -15,12 +15,12 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/autogen/parser.mbstring.php');
+//require_once(__DIR__ . '/autogen/parser.mbstring.php');
 // Also needs stack_string().
-require_once(__DIR__ . '/../../utils/locallib.php');
-require_once(__DIR__ . '/../utils.class.php');
+//require_once(__DIR__ . '/../../utils/locallib.php');
+//require_once(__DIR__ . '/../utils.class.php');
 
-require_once(__DIR__ . '/MP_classes.php');
+//require_once(__DIR__ . '/MP_classes.php');
 
 // A Maxima parser wrapper that tries to insert missing stars to statements
 // to make them parseable.

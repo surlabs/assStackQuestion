@@ -16,7 +16,7 @@
 
 
 global $CFG;
-require_once(__DIR__ . '/demoodle.block.php');
+//require_once(__DIR__ . '/demoodle.block.php');
 
 
 /**

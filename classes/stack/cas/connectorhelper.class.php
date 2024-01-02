@@ -16,10 +16,10 @@
 
 
 
-require_once(__DIR__ . '/connector.interface.php');
-require_once(__DIR__ . '/connector.class.php');
-require_once(__DIR__ . '/connector.dbcache.class.php');
-require_once(__DIR__ . '/installhelper.class.php');
+//require_once(__DIR__ . '/connector.interface.php');
+//require_once(__DIR__ . '/connector.class.php');
+//require_once(__DIR__ . '/connector.dbcache.class.php');
+//require_once(__DIR__ . '/installhelper.class.php');
 
 
 /**
@@ -55,20 +55,20 @@ abstract class stack_connection_helper {
 
         switch (self::$config->platform) {
             case 'win':
-                require_once(__DIR__ . '/connector.windows.class.php');
+                //require_once(__DIR__ . '/connector.windows.class.php');
                 $connection = new stack_cas_connection_windows(self::$config, $debuglog);
                 break;
             case 'linux':
             case 'linux-optimised':
-                require_once(__DIR__ . '/connector.linux.class.php');
+                //require_once(__DIR__ . '/connector.linux.class.php');
                 $connection = new stack_cas_connection_linux(self::$config, $debuglog);
                 break;
             case 'server':
-                require_once(__DIR__ . '/connector.server.class.php');
+                //require_once(__DIR__ . '/connector.server.class.php');
                 $connection = new stack_cas_connection_server(self::$config, $debuglog);
                 break;
             case 'server-proxy':
-                require_once(__DIR__ . '/connector.server_proxy.class.php');
+                //require_once(__DIR__ . '/connector.server_proxy.class.php');
                 $connection = new stack_cas_connection_server_proxy(self::$config, $debuglog);
                 break;
             case 'tomcat':

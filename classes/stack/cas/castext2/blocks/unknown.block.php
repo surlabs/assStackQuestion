@@ -16,7 +16,7 @@
 //
 
 
-require_once(__DIR__ . '/../block.interface.php');
+//require_once(__DIR__ . '/../block.interface.php');
 
 /**
  * A block to turn unknown block references to something readable.

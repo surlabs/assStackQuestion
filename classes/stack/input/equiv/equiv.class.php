@@ -15,7 +15,7 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/../../utils.class.php');
+//require_once(__DIR__ . '/../../utils.class.php');
 
 /**
  * This is an input that allows reasoning by equivalence.

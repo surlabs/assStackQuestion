@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once(__DIR__ . '/../../cas/castext2/utils.php');
+//require_once(__DIR__ . '/../../cas/castext2/utils.php');
 
 /**
  * Input that is a dropdown list/multiple choice that the teacher

@@ -16,13 +16,13 @@
 
 
 
-require_once(__DIR__ . '/blocks/root.specialblock.php');
-require_once(__DIR__ . '/blocks/commonstring.block.php');
-require_once(__DIR__ . '/blocks/stack_translate.specialblock.php');
-require_once(__DIR__ . '/blocks/ioblock.specialblock.php');
-require_once(__DIR__ . '/blocks/smlt.specialblock.php');
-require_once(__DIR__ . '/blocks/pfs.specialblock.php');
-require_once(__DIR__ . '/block.factory.php');
+//require_once(__DIR__ . '/blocks/root.specialblock.php');
+//require_once(__DIR__ . '/blocks/commonstring.block.php');
+//require_once(__DIR__ . '/blocks/stack_translate.specialblock.php');
+//require_once(__DIR__ . '/blocks/ioblock.specialblock.php');
+//require_once(__DIR__ . '/blocks/smlt.specialblock.php');
+//require_once(__DIR__ . '/blocks/pfs.specialblock.php');
+//require_once(__DIR__ . '/block.factory.php');
 
 /**
  * In certain cases one may wish to collect a specialised processor to

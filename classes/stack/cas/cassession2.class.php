@@ -24,11 +24,11 @@
 // @copyright  2019 Aalto University.
 // @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
-require_once(__DIR__ . '/connectorhelper.class.php');
-require_once(__DIR__ . '/../options.class.php');
-require_once(__DIR__ . '/../utils.class.php');
-require_once(__DIR__ . '/evaluatable_object.interfaces.php');
-require_once(__DIR__ . '/caserror.class.php');
+//require_once(__DIR__ . '/connectorhelper.class.php');
+//require_once(__DIR__ . '/../options.class.php');
+//require_once(__DIR__ . '/../utils.class.php');
+//require_once(__DIR__ . '/evaluatable_object.interfaces.php');
+//require_once(__DIR__ . '/caserror.class.php');
 
 class stack_cas_session2 {
     /**

@@ -15,7 +15,7 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/filter.interface.php');
+//require_once(__DIR__ . '/filter.interface.php');
 
 /**
  * AST filter that simplifies compiled CASText, the aim is to merge

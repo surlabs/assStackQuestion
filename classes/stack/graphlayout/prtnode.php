@@ -23,7 +23,7 @@
  */
 
 
-require_once(__DIR__ . '/graphnode.php');
+//require_once(__DIR__ . '/graphnode.php');
 
 /**
  * Represents a node in a STACK PRT extending {@link stack_abstract_graph}.

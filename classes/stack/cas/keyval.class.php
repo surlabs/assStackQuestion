@@ -15,11 +15,11 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/../maximaparser/utils.php');
-require_once(__DIR__ . '/../maximaparser/MP_classes.php');
-require_once(__DIR__ . '/cassession2.class.php');
-require_once(__DIR__ . '/castext2/utils.php');
-require_once(__DIR__ . '/../utils.class.php');
+//require_once(__DIR__ . '/../maximaparser/utils.php');
+//require_once(__DIR__ . '/../maximaparser/MP_classes.php');
+//require_once(__DIR__ . '/cassession2.class.php');
+//require_once(__DIR__ . '/castext2/utils.php');
+//require_once(__DIR__ . '/../utils.class.php');
 
 /**
  * Class to parse user-entered data into CAS sessions.

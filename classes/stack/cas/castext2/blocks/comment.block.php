@@ -16,7 +16,7 @@
 
 
 
-require_once(__DIR__ . '/../block.interface.php');
+//require_once(__DIR__ . '/../block.interface.php');
 
 
 class stack_cas_castext2_comment extends stack_cas_castext2_block {

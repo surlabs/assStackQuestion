@@ -6268,7 +6268,7 @@ class MP_Parser {
 
     /* BEGIN initializer code */
 
-     require_once(__DIR__ . '/../MP_classes.php');
+     //require_once(__DIR__ . '/../MP_classes.php');
      if (!array_key_exists('letToken', $options)) {
        $options['letToken'] = 'let';
      }

@@ -15,9 +15,9 @@
 // along with Stateful.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/CTP_classes.php');
-require_once(__DIR__ . '/processor.class.php');
-require_once(__DIR__ . '/../../maximaparser/MP_classes.php');
+//require_once(__DIR__ . '/CTP_classes.php');
+//require_once(__DIR__ . '/processor.class.php');
+//require_once(__DIR__ . '/../../maximaparser/MP_classes.php');
 
 abstract class stack_cas_castext2_block {
 

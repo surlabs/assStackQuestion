@@ -15,10 +15,10 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/../../utils/locallib.php');
-require_once(__DIR__ . '/../options.class.php');
-require_once(__DIR__ . '/../cas/cassession2.class.php');
-require_once(__DIR__ . '/inputstate.class.php');
+//require_once(__DIR__ . '/../../utils/locallib.php');
+//require_once(__DIR__ . '/../options.class.php');
+//require_once(__DIR__ . '/../cas/cassession2.class.php');
+//require_once(__DIR__ . '/inputstate.class.php');
 
 /**
  * The base class for inputs in Stack.

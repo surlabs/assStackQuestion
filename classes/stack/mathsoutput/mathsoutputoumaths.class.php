@@ -16,8 +16,8 @@
 
 
 global $CFG;
-//require_once($CFG->libdir . '/filterlib.php');
-require_once(__DIR__ . '/mathsoutputfilterbase.class.php');
+////require_once($CFG->libdir . '/filterlib.php');
+//require_once(__DIR__ . '/mathsoutputfilterbase.class.php');
 
 
 /**
@@ -50,7 +50,7 @@ class stack_maths_output_oumaths extends stack_maths_output_filter_base {
             throw new coding_exception('The OU maths filter is not installed.');
         }
 
-        require_once($CFG->dirroot . '/filter/oumaths/filter.php');
+        //require_once($CFG->dirroot . '/filter/oumaths/filter.php');
         return new filter_oumaths(context_system::instance(), array());
     }
 }

@@ -15,11 +15,11 @@
 // along with STACK.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/../block.interface.php');
-require_once(__DIR__ . '/../../../utils.class.php');
+//require_once(__DIR__ . '/../block.interface.php');
+//require_once(__DIR__ . '/../../../utils.class.php');
 
 // Register a counter.
-require_once(__DIR__ . '/iframe.block.php');
+//require_once(__DIR__ . '/iframe.block.php');
 stack_cas_castext2_iframe::register_counter('///REVEAL_COUNT///');
 
 /**

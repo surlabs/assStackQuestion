@@ -16,7 +16,7 @@
 
 
 //fau: #34 change access to class.
-require_once(dirname(__FILE__) . '/fact_sheets.class.php');
+//require_once(dirname(__FILE__) . '/fact_sheets.class.php');
 //fau.
 
 /**

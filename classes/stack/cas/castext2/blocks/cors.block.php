@@ -15,10 +15,10 @@
 // along with Stateful.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/../block.interface.php');
-require_once(__DIR__ . '/../block.factory.php');
+//require_once(__DIR__ . '/../block.interface.php');
+//require_once(__DIR__ . '/../block.factory.php');
 
-require_once(__DIR__ . '/../../../../vle_specific.php');
+//require_once(__DIR__ . '/../../../../vle_specific.php');
 
 /**
  * Simple block for dealing with CORS content urls.

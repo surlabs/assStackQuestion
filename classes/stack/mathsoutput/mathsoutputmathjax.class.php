@@ -34,7 +34,7 @@ class stack_maths_output_mathjax extends stack_maths_output_filter_base {
 
     protected function make_filter() {
         global $CFG, $PAGE;
-        require_once($CFG->dirroot . '/filter/mathjaxloader/filter.php');
+        //require_once($CFG->dirroot . '/filter/mathjaxloader/filter.php');
         $context = context_system::instance();
         $filter = new filter_mathjaxloader($context, array());
         $filter->setup($PAGE, $context);

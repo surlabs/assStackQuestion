@@ -18,11 +18,11 @@
 
 // This provides helper code for creating the files needed to connect to the CAS.
 
-require_once(__DIR__ . '/../../locallib.php');
-require_once(__DIR__ . '/../utils.class.php');
-require_once(__DIR__ . '/ast.container.class.php');
-require_once(__DIR__ . '/connectorhelper.class.php');
-require_once(__DIR__ . '/cassession2.class.php');
+//require_once(__DIR__ . '/../../locallib.php');
+//require_once(__DIR__ . '/../utils.class.php');
+//require_once(__DIR__ . '/ast.container.class.php');
+//require_once(__DIR__ . '/connectorhelper.class.php');
+//require_once(__DIR__ . '/cassession2.class.php');
 
 
 class stack_cas_configuration {

@@ -22,7 +22,7 @@
 // @copyright  2019 Aalto University.
 // @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
-require_once(__DIR__ . '/evaluatable_object.interfaces.php');
+//require_once(__DIR__ . '/evaluatable_object.interfaces.php');
 
 
 class stack_secure_loader implements cas_evaluatable {

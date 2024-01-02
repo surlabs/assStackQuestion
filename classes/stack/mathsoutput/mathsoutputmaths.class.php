@@ -15,8 +15,8 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 global $CFG;
-require_once($CFG->libdir . '/filterlib.php');
-require_once(__DIR__ . '/mathsoutputfilterbase.class.php');
+//require_once($CFG->libdir . '/filterlib.php');
+//require_once(__DIR__ . '/mathsoutputfilterbase.class.php');
 
 
 /**
@@ -49,7 +49,7 @@ class stack_maths_output_maths extends stack_maths_output_filter_base {
             throw new coding_exception('The OU maths filter is not installed.');
         }
 
-        require_once($CFG->dirroot . '/filter/maths/filter.php');
+        //require_once($CFG->dirroot . '/filter/maths/filter.php');
         return new filter_maths(context_system::instance(), array());
     }
 }

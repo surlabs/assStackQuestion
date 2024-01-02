@@ -15,9 +15,9 @@
 // along with Stateful.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/../block.interface.php');
-require_once(__DIR__ . '/../../ast.container.silent.class.php');
-require_once(__DIR__ . '/../../ast.container.class.php');
+//require_once(__DIR__ . '/../block.interface.php');
+//require_once(__DIR__ . '/../../ast.container.silent.class.php');
+//require_once(__DIR__ . '/../../ast.container.class.php');
 
 class stack_cas_castext2_if extends stack_cas_castext2_block {
 

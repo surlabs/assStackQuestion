@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once(__DIR__ . '/filter.interface.php');
-require_once(__DIR__ . '/../../utils.class.php');
-require_once(__DIR__ . '/201_sig_figs_validation.filter.php');
+//require_once(__DIR__ . '/filter.interface.php');
+//require_once(__DIR__ . '/../../utils.class.php');
+//require_once(__DIR__ . '/201_sig_figs_validation.filter.php');
 
 /**
  * AST filter that examines the decimal places of the leftmost

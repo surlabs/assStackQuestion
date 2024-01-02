@@ -20,8 +20,8 @@
 // @copyright  2015 University of Edinburgh.
 // @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
-require_once(__DIR__ . '/../../utils/locallib.php');
-require_once(__DIR__ . '/../utils.class.php');
+//require_once(__DIR__ . '/../../utils/locallib.php');
+//require_once(__DIR__ . '/../utils.class.php');
 
 class stack_cas_casstring_units {
 

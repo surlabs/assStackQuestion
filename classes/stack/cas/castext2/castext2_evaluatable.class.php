@@ -16,13 +16,13 @@
 
 
 
-require_once(__DIR__ . '/../evaluatable_object.interfaces.php');
-require_once(__DIR__ . '/../cassecurity.class.php');
-require_once(__DIR__ . '/castext2_static_replacer.class.php');
-require_once(__DIR__ . '/utils.php');
-require_once(__DIR__ . '/blocks/root.specialblock.php');
-require_once(__DIR__ . '/blocks/textdownload.block.php');
-require_once(__DIR__ . '/blocks/include.block.php');
+//require_once(__DIR__ . '/../evaluatable_object.interfaces.php');
+//require_once(__DIR__ . '/../cassecurity.class.php');
+//require_once(__DIR__ . '/castext2_static_replacer.class.php');
+//require_once(__DIR__ . '/utils.php');
+//require_once(__DIR__ . '/blocks/root.specialblock.php');
+//require_once(__DIR__ . '/blocks/textdownload.block.php');
+//require_once(__DIR__ . '/blocks/include.block.php');
 
 /**
  * A wrapper class encapsulating castext2 evaluation logic. Push one of

@@ -44,8 +44,8 @@
  */
 
 
-require_once(__DIR__ . '/../cas/cassecurity.class.php');
-require_once(__DIR__ . '/../cas/parsingrules/996_call_modification.filter.php');
+//require_once(__DIR__ . '/../cas/cassecurity.class.php');
+//require_once(__DIR__ . '/../cas/parsingrules/996_call_modification.filter.php');
 
 // @codingStandardsIgnoreStart
 // We ignore coding in this file, because the library is used outside Moodle.

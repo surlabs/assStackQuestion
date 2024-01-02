@@ -15,7 +15,7 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/../algebraic/algebraic.class.php');
+//require_once(__DIR__ . '/../algebraic/algebraic.class.php');
 
 /**
  * A basic text-field input which is always interpreted as a Maxima string.

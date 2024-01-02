@@ -20,10 +20,10 @@ declare(strict_types = 1);
 
 /* CASText2 parser utils */
 
-require_once(__DIR__ . '/CTP_classes.php');
-require_once(__DIR__ . '/processor.class.php');
-require_once(__DIR__ . '/../../utils.class.php');
-require_once(__DIR__ . '/autogen/parser.mbstring.php');
+//require_once(__DIR__ . '/CTP_classes.php');
+//require_once(__DIR__ . '/processor.class.php');
+//require_once(__DIR__ . '/../../utils.class.php');
+//require_once(__DIR__ . '/autogen/parser.mbstring.php');
 
 class castext2_parser_utils {
 

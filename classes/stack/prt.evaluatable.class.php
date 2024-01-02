@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once(__DIR__ . '/cas/evaluatable_object.interfaces.php');
-require_once(__DIR__ . '/cas/castext2/utils.php');
+//require_once(__DIR__ . '/cas/evaluatable_object.interfaces.php');
+//require_once(__DIR__ . '/cas/castext2/utils.php');
 
 /**
  * A wrapper class encapsulating PRT-evaluation logic. Just add

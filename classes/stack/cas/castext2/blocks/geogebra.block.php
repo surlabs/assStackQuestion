@@ -22,11 +22,11 @@
  */
 
 
-require_once(__DIR__ . '/../block.interface.php');
-require_once(__DIR__ . '/../block.factory.php');
+//require_once(__DIR__ . '/../block.interface.php');
+//require_once(__DIR__ . '/../block.factory.php');
 
-require_once(__DIR__ . '/root.specialblock.php');
-require_once(__DIR__ . '/stack_translate.specialblock.php');
+//require_once(__DIR__ . '/root.specialblock.php');
+//require_once(__DIR__ . '/stack_translate.specialblock.php');
 
 class stack_cas_castext2_geogebra extends stack_cas_castext2_block {
     private static $countgraphs = 1;

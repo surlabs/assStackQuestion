@@ -15,7 +15,7 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/filter.interface.php');
+//require_once(__DIR__ . '/filter.interface.php');
 
 /**
  * A chain of filters represeneted as singular filter and returned by

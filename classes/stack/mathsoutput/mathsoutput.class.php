@@ -18,8 +18,8 @@
 // Public API for other parts of STACK to call in order to process equations.
 
 //fau: #32 change the way to call this classes in order to ensure it also works for ILIAS
-require_once(dirname(__DIR__) . '/mathsoutput/mathsoutputbase.class.php');
-require_once(dirname(__DIR__) . '/utils.class.php');
+//require_once(dirname(__DIR__) . '/mathsoutput/mathsoutputbase.class.php');
+//require_once(dirname(__DIR__) . '/utils.class.php');
 //fau.
 
 /**

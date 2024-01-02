@@ -16,8 +16,8 @@
 
 
 //fau: #38 Do not use filterlib and filter system from Moodle
-//require_once($CFG->libdir . '/filterlib.php');
-//require_once($CFG->dirroot . '/filter/tex/filter.php');
+////require_once($CFG->libdir . '/filterlib.php');
+////require_once($CFG->dirroot . '/filter/tex/filter.php');
 //fau.
 
 /**
