@@ -2087,8 +2087,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     public function getCorrectResponse()
     {
         $teacher_answer = array();
+        if ($this->runtime_errors || $this->getCached('units') === null) {
+            return [];
+        }
         foreach ($this->inputs as $name => $input) {
-            $teacher_answer = array_merge($teacher_answer, $input->get_correct_response($this->getTas($name)->get_dispvalue()));
+            $teacher_answer = array_merge($teacher_answer,
+                $input->get_correct_response($this->tas[$name]->get_dispvalue()));
         }
         return $teacher_answer;
     }
