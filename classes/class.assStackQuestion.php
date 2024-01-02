@@ -1615,33 +1615,49 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * INITIALISATION MAIN METHOD
      * initialise_question_from_seed() Method in Moodle
      * Once we know the random seed, we can initialise all the other parts of the question.
+     * @throws stack_exception
      */
     public function initialiseQuestionFromSeed()
     {
-        try {
+        // We can detect a logically faulty question by checking if the cache can
+        // return anything if it can't then we can simply skip to the output of errors.
+        if ($this->getCached('units') !== null) {
             // Build up the question session out of all the bits that need to go into it.
             // 1. question variables.
             $session = new stack_cas_session2([], $this->options, $this->seed);
+
+            // If we are using localisation we should tell the CAS side logic about it.
+            // For castext rendering and other tasks.
+            /* not using moodle multi-lang
+            if (count($this->getCached('langs')) > 0) {
+                $ml = new stack_multilang();
+                $selected = $ml->pick_lang($this->getCached('langs'));
+                $session->add_statement(new stack_secure_loader('%_STACK_LANG:' .
+                    stack_utils::php_string_to_maxima_string($selected), 'language setting'), false);
+            }*/
+
+            // Construct the security object. But first units declaration into the session.
+            $units = (boolean) $this->getCached('units');
+
+            // If we have units we might as well include the units declaration in the session.
+            // To simplify authors work and remove the need to call that long function.
+            // TODO: Maybe add this to the preable to save lines, but for now documented here.
+            if ($units) {
+                $session->add_statement(new stack_secure_loader('stack_unit_si_declare(true)',
+                    'automatic unit declaration'), false);
+            }
+
             if ($this->getCached('preamble-qv') !== null) {
                 $session->add_statement(new stack_secure_loader($this->getCached('preamble-qv'), 'preamble'));
             }
             // Context variables should be first.
             if ($this->getCached('contextvariables-qv') !== null) {
-                $session->add_statement(new stack_secure_loader($this->getCached('contextvariables-qv'), 'qv'));
+                $session->add_statement(new stack_secure_loader($this->getCached('contextvariables-qv'), '/qv'));
             }
             if ($this->getCached('statement-qv') !== null) {
-                $session->add_statement(new stack_secure_loader($this->getCached('statement-qv'), 'qv'));
+                $session->add_statement(new stack_secure_loader($this->getCached('statement-qv'), '/qv'));
             }
 
-            // Construct the security object.
-            $units = (boolean)$this->getCached('units');
-
-            // If we have units we might as well include the units declaration in the session.
-            // To simplify authors work and remove the need to call that long function.
-            // TODO: Maybe add this to the preamble to save lines, but for now documented here.
-            if ($units) {
-                $session->add_statement(stack_ast_container_silent::make_from_teacher_source('stack_unit_si_declare(true)', 'automatic unit declaration'), false);
-            }
             // Note that at this phase the security object has no "words".
             // The student's answer may not contain any of the variable names with which
             // the teacher has defined question variables. Otherwise when it is evaluated
@@ -1650,86 +1666,80 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
             // TODO: shouldn't we also protect variables used in PRT logic? Feedback vars
             // and so on?
-            $forbidden_keys = array();
+            $forbiddenkeys = array();
             if ($this->getCached('forbiddenkeys') !== null) {
-                $forbidden_keys = $this->getCached('forbiddenkeys');
+                $forbiddenkeys = $this->getCached('forbiddenkeys');
             }
-            $this->setSecurity(new stack_cas_security($units, '', '', $forbidden_keys));
-
-            // Add the context to the security, needs some unpacking of the cached.
-            if ($this->getCached('security-context') === null || count($this->getCached('security-context')) === 0) {
-                $this->getSecurity()->set_context([]);
-            } else {
-                // Combine to a single statement to keep the parser cache small.
-                // We need to turn a set of code-fragments into ASTs.
-                $tmp = '[';
-                foreach ($this->getCached('security-context') as $key => $values) {
-                    $tmp .= '[';
-                    $tmp .= implode(',', $values);
-                    $tmp .= '],';
-                }
-                $tmp = mb_substr($tmp, 0, -1);
-                $tmp .= ']';
-                $ast = maxima_parser_utils::parse($tmp)->items[0]->statement->items;
-                $ctx = [];
-                $i = 0;
-                foreach ($this->getCached('security-context') as $key => $values) {
-                    $ctx[$key] = [];
-                    $j = 0;
-                    foreach ($values as $k) {
-                        $ctx[$key][$k] = $ast[$i]->items[$j];
-                        $j = $j + 1;
-                        if ($k === -1 || $k === -2) {
-                            $ctx[$key][$k] = $k;
-                        }
-                    }
-                    $i = $i + 1;
-                }
-                $this->getSecurity()->set_context($ctx);
-            }
+            $this->security = new stack_cas_security($units, '', '', $forbiddenkeys);
 
             // The session to keep. Note we do not need to reinstantiate the teachers answers.
-            $session_to_keep = new stack_cas_session2($session->get_session(), $this->options, $this->seed);
+            $sessiontokeep = new stack_cas_session2($session->get_session(), $this->options, $this->seed);
 
             // 2. correct answer for all inputs.
             foreach ($this->inputs as $name => $input) {
-                $cs = stack_ast_container::make_from_teacher_source($input->get_teacher_answer(), '', $this->getSecurity());
+                $cs = stack_ast_container::make_from_teacher_source($input->get_teacher_answer(),
+                    '', $this->security);
+                $this->tas[$name] = $cs;
                 $session->add_statement($cs);
-                $this->setTas($cs, $name);
             }
 
+            // Check for signs of errors.
+            if ($this->getCached('static-castext-strings') === null) {
+                throw new stack_exception(implode('; ', array_keys($this->runtime_errors)));
+            }
+
+            // 3.0 setup common CASText2 staticreplacer.
+            $static = new castext2_static_replacer($this->getCached('static-castext-strings'));
+
             // 3. CAS bits inside the question text.
-            //Get the question String of the assQuestion object
-            $question_text = $this->prepareCASText($this->getQuestion(), $session);
+            $questiontext = castext2_evaluatable::make_from_compiled($this->getCached('castext-qt'), '/qt', $static);
+            if ($questiontext->requires_evaluation()) {
+                $session->add_statement($questiontext);
+            }
 
             // 4. CAS bits inside the specific feedback.
-            $feedback_text = $this->prepareCASText($this->specific_feedback, $session);
+            $feedbacktext = castext2_evaluatable::make_from_compiled($this->getCached('castext-sf'), '/sf', $static);
+            if ($feedbacktext->requires_evaluation()) {
+                $session->add_statement($feedbacktext);
+            }
+
+            // Add the context to the security, needs some unpacking of the cached.
+            if ($this->getCached('security-context') === null) {
+                $this->security->set_context([]);
+            } else {
+                $this->security->set_context($this->getCached('security-context'));
+            }
+
+            // The session to keep. Note we do not need to reinstantiate the teachers answers.
+            $sessiontokeep = new stack_cas_session2($session->get_session(), $this->options, $this->seed);
 
             // 5. CAS bits inside the question note.
-            $note_text = $this->prepareCASText($this->question_note, $session);
+            $notetext = castext2_evaluatable::make_from_compiled($this->getCached('castext-qn'), '/qn', $static);
+            if ($notetext->requires_evaluation()) {
+                $session->add_statement($notetext);
+            }
 
             // 6. The standard PRT feedback.
-            $prt_correct = $this->prepareCASText($this->prt_correct, $session);
-            $prt_partially_correct = $this->prepareCASText($this->prt_partially_correct, $session);
-            $prt_incorrect = $this->prepareCASText($this->prt_incorrect, $session);
-
-            // 7. The General feedback.
-            if (isset($this->general_feedback)) {
-                $general_feedback = $this->prepareCASText($this->general_feedback, $session);
-            } else {
-                $general_feedback = $this->prepareCASText('', $session);
+            $prtcorrect          = castext2_evaluatable::make_from_compiled($this->getCached('castext-prt-c'),
+                '/pc', $static);
+            $prtpartiallycorrect = castext2_evaluatable::make_from_compiled($this->getCached('castext-prt-pc'),
+                '/pp', $static);
+            $prtincorrect        = castext2_evaluatable::make_from_compiled($this->getCached('castext-prt-ic'),
+                '/pi', $static);
+            if ($prtcorrect->requires_evaluation()) {
+                $session->add_statement($prtcorrect);
+            }
+            if ($prtpartiallycorrect->requires_evaluation()) {
+                $session->add_statement($prtpartiallycorrect);
+            }
+            if ($prtincorrect->requires_evaluation()) {
+                $session->add_statement($prtincorrect);
             }
 
             // Now instantiate the session.
             if ($session->get_valid()) {
-                try {
-                    $session->instantiate();
-                } catch (Exception $e) {
-                    //Maxima is not running, show information to the user.
-                    ilUtil::sendFailure($this->getPlugin()->txt('hc_connection_status_display_error'), 1);
-                }
+                $session->instantiate();
             }
-
             if ($session->get_errors()) {
                 // In previous versions we threw an exception here.
                 // Upgrade and import stops errors being caught during validation when the question was edited or deployed.
@@ -1738,73 +1748,59 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             }
 
             // Finally, store only those values really needed for later.
-            //#35924 $question_text->get_display_castext() being null
-            if (is_string($question_text->get_display_castext())) {
-                $question_text_text = $question_text->get_display_castext();
-            } else {
-                $question_text_text = "Error Rendering Text, question might be malformed";
-            }
-
-            $this->question_text_instantiated = assStackQuestionUtils::_getLatex($question_text_text);
-
-            if ($question_text->get_errors()) {
-                $s = stack_string('runtimefielderr', array('field' => stack_string('questiontext'), 'err' => $question_text->get_errors()));
+            $this->question_text_instantiated        = $questiontext;
+            if ($questiontext->get_errors()) {
+                $s = stack_string('runtimefielderr',
+                    array('field' => stack_string('questiontext'), 'err' => $questiontext->get_errors()));
                 $this->runtime_errors[$s] = true;
             }
-            $this->specific_feedback_instantiated = assStackQuestionUtils::_getLatex($feedback_text->get_display_castext());
-            if ($feedback_text->get_errors()) {
-                $s = stack_string('runtimefielderr', array('field' => stack_string('specificfeedback'), 'err' => $feedback_text->get_errors()));
+            $this->specific_feedback_instantiated    = $feedbacktext;
+            if ($feedbacktext->get_errors()) {
+                $s = stack_string('runtimefielderr',
+                    array('field' => stack_string('specificfeedback'), 'err' => $feedbacktext->get_errors()));
                 $this->runtime_errors[$s] = true;
             }
-            $this->question_note_instantiated = assStackQuestionUtils::_getLatex($note_text->get_display_castext());
-            if ($note_text->get_errors()) {
-                $s = stack_string('runtimefielderr', array('field' => stack_string('questionnote'), 'err' => $note_text->get_errors()));
+            $this->question_note_instantiated        = $notetext;
+            if ($notetext->get_errors()) {
+                $s = stack_string('runtimefielderr',
+                    array('field' => stack_string('questionnote'), 'err' => $notetext->get_errors()));
                 $this->runtime_errors[$s] = true;
             }
-
-
-            $this->prt_correct_instantiated = assStackQuestionUtils::_getLatex($prt_correct->get_display_castext());
-            $this->prt_partially_correct_instantiated = assStackQuestionUtils::_getLatex($prt_partially_correct->get_display_castext());
-            $this->prt_incorrect_instantiated = assStackQuestionUtils::_getLatex($prt_incorrect->get_display_castext());
-            $this->general_feedback = assStackQuestionUtils::_getLatex($general_feedback->get_display_castext());
-
-            $this->session = $session_to_keep;
-            $this->addQuestionVarsToSession($session);
-
-            if ($session_to_keep->get_errors()) {
-                $s = stack_string('runtimefielderr', array('field' => stack_string('questionvariables'), 'err' => $session_to_keep->get_errors(true)));
+            $this->prt_correct_instantiated          = $prtcorrect;
+            $this->prt_partially_correct_instantiated = $prtpartiallycorrect;
+            $this->prt_incorrect_instantiated        = $prtincorrect;
+            $this->session = $sessiontokeep;
+            if ($sessiontokeep->get_errors()) {
+                $s = stack_string('runtimefielderr',
+                    array('field' => stack_string('questionvariables'), 'err' => $sessiontokeep->get_errors(true)));
                 $this->runtime_errors[$s] = true;
-            }
-
-            if ($this->getCached('contextvariables-qv') !== null) {
-                foreach ($this->prts as $prt) {
-                    $prt->add_contextsession(new stack_secure_loader($this->getCached('contextvariables-qv'), 'qv'));
-                }
             }
 
             // Allow inputs to update themselves based on the model answers.
             $this->adaptInputs();
-            if ($this->runtime_errors) {
-                // It is quite possible that questions will, legitimately, throw some kind of error.
-                // For example, if one of the question variables is 1/0.
-                // This should not be a show stopper.
-                if (trim($this->getQuestion()) !== '' && trim($this->question_text_instantiated) === '') {
-                    // Something has gone wrong here, and the student will be shown nothing.
-                    $s = html_writer::tag('span', stack_string('runtimeerror'), array('class' => 'stackruntimeerrror'));
-                    $error_message = '';
-                    foreach ($this->runtime_errors as $key => $val) {
-                        $error_message .= html_writer::tag('li', $key);
-                    }
-                    $s .= html_writer::tag('ul', $error_message);
-                    //$this->question_text_instantiated .= $s;
-                }
+        }
+
+        if ($this->runtime_errors) {
+            // It is quite possible that questions will, legitimately, throw some kind of error.
+            // For example, if one of the question variables is 1/0.
+            // This should not be a show stopper.
+            // Something has gone wrong here, and the student will be shown nothing.
+            $s = html_writer::tag('span', stack_string('runtimeerror'), array('class' => 'stackruntimeerrror'));
+            $errmsg = '';
+            foreach ($this->runtime_errors as $key => $val) {
+                $errmsg .= html_writer::tag('li', $key);
             }
+            $s .= html_writer::tag('ul', $errmsg);
+            // So we have this logic where a raw string needs to turn to a CASText2 object.
+            // As we do not know what it contains we escape it.
+            $this->question_text_instantiated = castext2_evaluatable::make_from_source('[[escape]]' . $s . '[[/escape]]', '/qt');
+            // It is a static string and by calling this we make it look like it was evaluated.
+            $this->question_text_instantiated->requires_evaluation();
 
-            //Question has been properly instantiated
-            $this->setInstantiated(true);
-
-        } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
+            // Do some setup for the features that do not work.
+            $this->security = new stack_cas_security();
+            $this->tas = [];
+            $this->session = new stack_cas_session2([]);
         }
     }
 
@@ -3093,7 +3089,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
     /**
      * Cache management.
-     * get_cached(string $key) method in Moodle
+     * getCached(string $key) method in Moodle
      *
      * Returns named items from the cache and rebuilds it if the cache
      * has been cleared.
