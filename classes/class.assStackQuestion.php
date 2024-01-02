@@ -179,13 +179,19 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     public ?castext2_evaluatable $question_text_instantiated = null;
 
     /**
+     * @var castext2_evaluatable|null instantiated version of question description.
+     * Initialised in start_attempt / apply_attempt_state.
+     */
+    public ?castext2_evaluatable $question_description_instantiated = null;
+
+    /**
      * @var castext2_evaluatable|null instantiated version of specific_feedback.
      * Initialised in start_attempt / apply_attempt_state.
      */
     public ?castext2_evaluatable $specific_feedback_instantiated = null;
 
     /**
-     * @var castext2_evaluatable|null instantiated version of specific_feedback.
+     * @var castext2_evaluatable|null instantiated version of general feedback.
      * Initialised in start_attempt / apply_attempt_state.
      */
     public ?castext2_evaluatable $general_feedback_instantiated = null;
@@ -1928,6 +1934,54 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
 
         return $this->general_feedback_instantiated;
+    }
+
+    /**
+     * Get the castext for the question description, instantiated within the question's session.
+     * @throws stack_exception
+     */
+    public function getQuestionDescriptionCasText(): ?castext2_evaluatable
+    {
+        // Could be that this is instantiated already.
+        if ($this->question_description_instantiated !== null) {
+            return $this->question_description_instantiated;
+        }
+        // We can have a failed question.
+        if ($this->getCached('castext-gf') === null) {
+            $ct = castext2_evaluatable::make_from_compiled('"Broken question."', '/gf',
+                new castext2_static_replacer([])); // This mainly for the bulk-test script.
+            $ct->requires_evaluation(); // Makes it as if it were evaluated.
+            return $ct;
+        }
+
+        $this->question_description_instantiated = castext2_evaluatable::make_from_compiled($this->getCached('castext-qd'),
+            '/gf', new castext2_static_replacer($this->getCached('static-castext-strings')));
+        // Might not require any evaluation anyway.
+        if (!$this->question_description_instantiated->requires_evaluation()) {
+            return $this->question_description_instantiated;
+        }
+
+        // Init a session with question-variables and the related details.
+        $session = new stack_cas_session2([], $this->options, $this->seed);
+        if ($this->getCached('preamble-qv') !== null) {
+            $session->add_statement(new stack_secure_loader($this->getCached('preamble-qv'), 'preamble'));
+        }
+        if ($this->getCached('contextvariables-qv') !== null) {
+            $session->add_statement(new stack_secure_loader($this->getCached('contextvariables-qv'), '/qv'));
+        }
+        if ($this->getCached('statement-qv') !== null) {
+            $session->add_statement(new stack_secure_loader($this->getCached('statement-qv'), '/qv'));
+        }
+
+        // Then add the description code.
+        $session->add_statement($this->question_description_instantiated);
+        $session->instantiate();
+
+        if ($this->question_description_instantiated->get_errors()) {
+            $this->runtime_errors[$this->question_description_instantiated->get_errors()] = true;
+        }
+
+        return $this->question_description_instantiated;
     }
 
     /**
