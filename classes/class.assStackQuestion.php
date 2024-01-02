@@ -4,13 +4,6 @@
  * GPLv3, see LICENSE
  */
 
-//require_once /** @lang text */
-'./Modules/TestQuestionPool/classes/class.assQuestion.php';
-
-// Interface for FormATest
-include_once /** @lang text */
-'./Modules/TestQuestionPool/interfaces/interface.iQuestionCondition.php';
-
 /**
  * STACK Question OBJECT
  *
@@ -512,11 +505,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param string $targetQuestionTitle
      * @return int
      */
-    public function createNewOriginalFromThisDuplicate($targetParentId, $targetQuestionTitle = "")
+    public function createNewOriginalFromThisDuplicate($targetParentId, $targetQuestionTitle = ""): int
     {
         if ($this->id <= 0) {
             // The question has not been saved. It cannot be duplicated
-            return;
+            return -1;
         }
 
         include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
