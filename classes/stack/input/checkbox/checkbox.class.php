@@ -21,6 +21,7 @@
 // @author     Chris Sangwin.
 // @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
+require_once(__DIR__ . '/../dropdown/dropdown.class.php');
 
 class stack_checkbox_input extends stack_dropdown_input {
 
@@ -79,9 +80,8 @@ class stack_checkbox_input extends stack_dropdown_input {
             if ($readonly) {
                 $inputattributes['disabled'] = 'disabled';
             }
-			//ILI-FAU added &nbsp;
             $radiobuttons[] = html_writer::empty_tag('input', $inputattributes) .
-                html_writer::tag('label', '&nbsp;'.$ansid, $labelattributes);
+                html_writer::tag('label', $ansid, $labelattributes);
         }
 
         $result = '';
@@ -139,7 +139,7 @@ class stack_checkbox_input extends stack_dropdown_input {
         return $response;
     }
 
-    public function ajax_to_response_array($in) {
+    protected function ajax_to_response_array($in) {
         if (((string) $in) === '') {
             return array();
         }
@@ -186,7 +186,7 @@ class stack_checkbox_input extends stack_dropdown_input {
      * @return string any error messages describing validation failures. An empty
      *      string if the input is valid - at least according to this test.
      */
-    public function is_blank_response($contents) {
+    protected function is_blank_response($contents) {
         $allblank = true;
         foreach ($contents as $val) {
             if (!('' == trim($val)) && !('0' == trim($val))) {

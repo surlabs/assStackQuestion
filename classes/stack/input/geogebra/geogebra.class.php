@@ -14,42 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
- * A basic text-field input.
- *
- * @copyright  2017 University of Edinburgh
+ * GeoGebra-Input field (algebraic input field with GeoGebra specific features)
+ * derived by algebraic/algebraic.class.php "A basic text-field input."
+ * @copyright  2012 University of Birmingham (algebraic.class.php), 2022 University of Edinburgh(geogebra.class.php)
+ * @author     Tim Lutz
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stack_numerical_input extends stack_input {
+class stack_geogebra_input extends stack_input {
 
-    /**
-     * From STACK 4.1 we are not going to continue to add input options as columns in the database.
-     * This has numerous problems, and is difficult to maintain. Extra options will be in a JSON-like format.
-     * @var array
-     */
     protected $extraoptions = array(
-        'hideanswer' => false,
-        'allowempty' => false,
-        'nounits' => false,
+        'hideanswer' => true,
         'simp' => false,
-        // Forbid variables.  Always true for numerical inputs.
-        'novars' => true,
-        // Is a student required to type in a float?
-        'floatnum' => false,
-        // Is a student required to type in an explicit integer?
-        'intnum' => false,
-        // Is the demoninator of any fractions in the student's answer to be free of surds?
-        'rationalnum' => false,
         'rationalized' => false,
-        // Require min/max number of decimal places?
-        'mindp' => false,
-        'maxdp' => false,
-        // Require min/max number of significant figures?
-        'minsf' => false,
-        'maxsf' => false,
+        'allowempty' => true,
+        'nounits' => false,
         'align' => 'left',
-        'validator' => false
+        'consolidatesubscripts' => false,
+        'checkvars' => 0
     );
 
     public function render(stack_input_state $state, $fieldname, $readonly, $tavalue) {
@@ -67,22 +49,22 @@ class stack_numerical_input extends stack_input {
             'style' => 'width: '.$size.'em',
             'autocapitalize' => 'none',
             'spellcheck'     => 'false',
-            'class'     => 'numerical',
+            'class' => 'geogebra'
         );
         if ($this->extraoptions['align'] === 'right') {
-            $attributes['class'] = 'numerical-right';
+            $attributes['class'] = 'geogebra-right';
         }
 
         $value = $this->contents_to_maxima($state->contents);
-        if ($this->is_blank_response($state->contents)) {
+        if ($value == 'EMPTYANSWER') {
+            // Active empty choices don't result in a syntax hint again (with that option set).
+            $attributes['value'] = '';
+        } else if ($this->is_blank_response($state->contents)) {
             $field = 'value';
             if ($this->parameters['syntaxAttribute'] == '1') {
                 $field = 'placeholder';
             }
             $attributes[$field] = $this->parameters['syntaxHint'];
-        } else if ($value == 'EMPTYANSWER') {
-            // Active empty choices don't result in a syntax hint again (with that option set).
-            $attributes['value'] = '';
         } else {
             $attributes['value'] = $value;
         }
@@ -107,18 +89,18 @@ class stack_numerical_input extends stack_input {
      */
     public static function get_parameters_defaults() {
         return array(
-            'mustVerify'         => true,
-            'showValidation'     => 1,
-            'boxWidth'           => 15,
-            'insertStars'        => 0,
-            'syntaxHint'         => '',
-            'syntaxAttribute'    => 0,
-            'forbidWords'        => '',
-            'allowWords'         => '',
-            'forbidFloats'       => false,
-            'lowestTerms'        => true,
-            'sameType'           => true,
-            'options'            => '');
+          'mustVerify'         => true,
+          'showValidation'     => 0,
+          'boxWidth'           => 15,
+          'insertStars'        => 0,
+          'syntaxHint'         => '',
+          'syntaxAttribute'    => 0,
+          'forbidWords'        => '',
+          'allowWords'         => '',
+          'forbidFloats'       => false,
+          'lowestTerms'        => true,
+          'sameType'           => true,
+          'options'            => '');
     }
 
     /**
@@ -136,7 +118,7 @@ class stack_numerical_input extends stack_input {
     }
 
     /**
-     * @return string the teacher's answer, displayed to the student in the general feedback.
+     * @return string the teacher's answer, displayed to the student in the general feedback. default = hideanswer.
      */
     public function get_teacher_answer_display($value, $display) {
         if ($this->extraoptions['hideanswer']) {
@@ -147,7 +129,7 @@ class stack_numerical_input extends stack_input {
         }
         $cs = stack_ast_container::make_from_teacher_source($value, '', new stack_cas_security());
         $cs->set_nounify(0);
-        $value = $cs->get_inputform(true, 0, true, $this->options->get_option('decimals'));
+        $value = $cs->get_inputform(true, 0, true);
         return stack_string('teacheranswershow', array('value' => '<code>'.$value.'</code>', 'display' => $display));
     }
 }
