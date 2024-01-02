@@ -2073,21 +2073,19 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     /**
      * get_validation_error(array $response)
      * @param array $response
-     * @return array|mixed|string|string[]
+     * @return string
+     * @throws stack_exception
      */
-    public function getValidationError(array $response)
+    public function getValidationError(array $response): string
     {
         if ($this->isAnyPartInvalid($response)) {
             // There will already be a more specific validation error displayed.
-            //TODO text variable
-            $error_message = '';
-            foreach ($this->runtime_errors as $error) {
-                $error_message .= $error . '</br>';
-            }
-            return $error_message;
-
+            //TODO SUR: Add validation error
+            return '';
         } else if ($this->isAnyInputBlank($response)) {
             return stack_string('pleaseananswerallparts');
+        } else {
+            return stack_string('pleasecheckyourinputs');
         }
     }
 
