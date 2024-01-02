@@ -505,7 +505,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param string $targetQuestionTitle
      * @return int
      */
-    public function createNewOriginalFromThisDuplicate($targetParentId, $targetQuestionTitle = ""): int
+    public function createNewOriginalFromThisDuplicate($targetParentId, string $targetQuestionTitle = ""): int
     {
         if ($this->id <= 0) {
             // The question has not been saved. It cannot be duplicated
