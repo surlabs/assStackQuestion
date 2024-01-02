@@ -2278,37 +2278,30 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param string $index the name of the PRT.
      * @param array $response the full response data.
      * @param bool $accept_valid if this is true, then we will grade things even if the corresponding inputs are only VALID, and not SCORE.
-     * @return array|false
+     * @return array
+     * @throws stack_exception
      */
-    protected function getPrtInput(string $index, array $response, bool $accept_valid)
+    protected function getPrtInput(string $index, array $response, bool $accept_valid): array
     {
-        $input_states = array();
-        try {
-            if (!array_key_exists($index, $this->prts)) {
-                $msg = '"' . $this->getTitle() . '" (' . $this->getId() . ') seed = ' . $this->seed . ' and STACK version = ' . $this->stack_version;
-                throw new stack_exception ("get_prt_input called for PRT " . $index . " which does not exist in question " . $msg);
-            }
-            $prt = $this->prts[$index];
-            $prt_input = array();
-            foreach ($this->getCached('required')[$prt->get_name()] as $name) {
-
-                $state = $this->getInputState($name, $response);
-
-                $input_states[$name] = $state;
-                if (stack_input::SCORE == $state->status || ($accept_valid && stack_input::VALID == $state->status)) {
-                    $val = $state->contentsmodified;
-                    if ($state->simp === true) {
-                        $val = 'ev(' . $val . ',simp)';
-                    }
-                    $prt_input[$name] = $val;
-                }
-            }
-
-            return $prt_input;
-        } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
-            return false;
+        if (!array_key_exists($index, $this->prts)) {
+            $msg = '"' . $this->getTitle() . '" (' . $this->getId() . ') seed = ' .
+                $this->getSeed() . ' and STACK version = ' . $this->stack_version;
+            throw new stack_exception ("get_prt_input called for PRT " . $index ." which does not exist in question " . $msg);
         }
+        $prt = $this->prts[$index];
+        $prtinput = array();
+        foreach ($this->getCached('required')[$prt->get_name()] as $name => $ignore) {
+            $state = $this->getInputState($name, $response);
+            if (stack_input::SCORE == $state->status || ($accept_valid && stack_input::VALID == $state->status)) {
+                $val = $state->contentsmodified;
+                if ($state->simp === true) {
+                    $val = 'ev(' . $val . ',simp)';
+                }
+                $prtinput[$name] = $val;
+            }
+        }
+
+        return $prtinput;
     }
 
     /**
