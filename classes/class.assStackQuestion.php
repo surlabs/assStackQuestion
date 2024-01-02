@@ -865,18 +865,15 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                                 $true_penalty = $node_data['true_penalty'];
                             }
 
-                            try {
-                                //Create Node and add it to the
-                                //TODO SAUL: Adaptar al nuevo sistema
-                                $node = new stack_potentialresponse_node($sans, $tans, $node_data['answer_test'], $node_data['test_options'], (bool)$node_data['quiet'], '', (int)$node_name, $node_data['sans'], $node_data['tans']);
+                            //Create Node and add it to the
+                            //TODO SAUL: Adaptar al nuevo sistema de nodos
+                            /*
+                            $node = new stack_potentialresponse_node($sans, $tans, $node_data['answer_test'], $node_data['test_options'], (bool)$node_data['quiet'], '', (int)$node_name, $node_data['sans'], $node_data['tans']);
 
-                                $node->add_branch(0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty, $node_data['false_next_node'], $node_data['false_feedback'], $node_data['false_feedback_format'], $node_data['false_answer_note']);
-                                $node->add_branch(1, $node_data['true_score_mode'], $node_data['true_score'], $true_penalty, $node_data['true_next_node'], $node_data['true_feedback'], $node_data['true_feedback_format'], $node_data['true_answer_note']);
-
-                                $nodes[$node_name] = $node;
-                            } catch (stack_exception $e) {
-                                ilUtil::sendFailure($e->getMessage(), true);
-                            }
+                            $node->add_branch(0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty, $node_data['false_next_node'], $node_data['false_feedback'], $node_data['false_feedback_format'], $node_data['false_answer_note']);
+                            $node->add_branch(1, $node_data['true_score_mode'], $node_data['true_score'], $true_penalty, $node_data['true_next_node'], $node_data['true_feedback'], $node_data['true_feedback_format'], $node_data['true_answer_note']);
+                            */
+                            $nodes[$node_name] = [];
                         }
                     } else {
                         break;
@@ -1511,21 +1508,19 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $true_penalty = $standard_prt['prt_pos_penalty'];
         }
 
-        try {
-            //Create Node and add it to the
-            $node = new stack_potentialresponse_node($sans, $tans, $standard_prt['prt_node_answer_test'], $standard_prt['prt_node_options'], (bool)$standard_prt['prt_node_quiet'], '', 1, 'ans1', '1');
+        //Create Node and add it to the
+        //TODO SAUL: Adaptar al nuevo sistema de nodos
+        /*
+        $node = new stack_potentialresponse_node($sans, $tans, $standard_prt['prt_node_answer_test'], $standard_prt['prt_node_options'], (bool)$standard_prt['prt_node_quiet'], '', 1, 'ans1', '1');
 
-            $node->add_branch(0, $standard_prt['prt_neg_mod'], $standard_prt['prt_neg_score'], $false_penalty, -1, '', 1, $standard_prt['prt_neg_answernote']);
-            $node->add_branch(1, $standard_prt['prt_pos_mod'], $standard_prt['prt_pos_score'], $true_penalty, -1, '', 1, $standard_prt['prt_pos_answernote']);
+        $node->add_branch(0, $standard_prt['prt_neg_mod'], $standard_prt['prt_neg_score'], $false_penalty, -1, '', 1, $standard_prt['prt_neg_answernote']);
+        $node->add_branch(1, $standard_prt['prt_pos_mod'], $standard_prt['prt_pos_score'], $true_penalty, -1, '', 1, $standard_prt['prt_pos_answernote']);
 
-            if ($return_standard_node) {
-                return $node;
-            }
+        if ($return_standard_node) {
+            return $node;
+        }*/
 
-            $nodes[1] = $node;
-        } catch (stack_exception $e) {
-            ilUtil::sendFailure($e->getMessage(), true);
-        }
+        $nodes[1] = [];
 
         $feedback_variables = null;
 
