@@ -593,7 +593,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      *
      * @return array
      */
-    public function getAvailableAnswerOptions($index = null): array
+    public function getAvailableAnswerOptions($index = null)
     {
         return array();
     }
@@ -1266,8 +1266,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
                 //PRT Results
                 if (is_array($prt_input) && !empty($prt_input)) {
+                    // TODO SAUL: Nueva evaluacion
+                    /*
                     $evaluation_data['prts'][$prt_name] = $this->prts[$prt_name]->evaluate_response(
                         $this->session, $this->options, $prt_input, $this->seed
+                    );*/
+                    $evaluation_data['prts'][$prt_name] = new stack_potentialresponse_tree_state(
+                        $this->prts[$prt_name]->get_value(), false, 0, 0
                     );
                 } else {
                     $evaluation_data['prts'][$prt_name] = new stack_potentialresponse_tree_state(
