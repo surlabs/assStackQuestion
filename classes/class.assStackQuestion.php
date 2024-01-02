@@ -591,9 +591,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      *
      * @param null|int $index
      *
-     * @return array|ASS_AnswerSimple
+     * @return array
      */
-    public function getAvailableAnswerOptions($index = null)
+    public function getAvailableAnswerOptions($index = null): array
     {
         return array();
     }
