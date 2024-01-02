@@ -898,7 +898,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                     }
 
                     try {
-                        $this->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt_data['auto_simplify'], $prt_value, $feedback_variables, $nodes, (string)$prt_data['first_node_name'], 1);
+                        //TODO SAUL Adaptar al nuevo sistema de PRT Lite
+                        $this->prts[$prt_name] = new stack_potentialresponse_tree_lite($prt_data, $prt_value);
                     } catch (stack_exception $e) {
                         ilUtil::sendFailure($e, true);
                     }
