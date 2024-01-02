@@ -249,6 +249,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     /* STACK CORE ATTRIBUTES END */
 
     /* ILIAS REQUIRED METHODS BEGIN */
+    /**
+     * @var array|bool|float|ilTemplate|int|int[]|mixed|object|string|null
+     */
+    private $cas_text_processor;
 
     /**
      * @return string ILIAS question type name
@@ -1919,47 +1923,44 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param string $name the name of one of the input elements.
      * @param array $response the response, in Maxima format.
      * @param bool $raw_input the response in raw form. Needs converting to Maxima format by the input.
-     * @return stack_input_state|bool the result of calling validate_student_response() on the input.
+     * @return stack_input_state|string the result of calling validate_student_response() on the input.
+     * @throws stack_exception
      */
-    public function getInputState(string $name, array $response, bool $raw_input = false, bool $sets_question_object = true)
+    public function getInputState(string $name, array $response, bool $raw_input = false)
     {
-        try {
-            $this->validateCache($response);
+        $this->validateCache($response, null);
 
-            if (array_key_exists($name, $this->getInputStates())) {
-                return $this->getInputStates($name);
-            }
-
-            // TODO: we should probably give the whole ast_container to the input.
-            // Direct access to LaTeX and the AST might be handy.
-            $teacher_answer = '';
-
-            //Get Teacher answer
-            if (array_key_exists($name, $this->getTas())) {
-                if ($this->getTas($name)->is_correctly_evaluated()) {
-                    $teacher_answer = $this->getTas($name);
-                }
-            }
-
-            //Validate student response
-            if ($this->getCached('statement-qv') !== null) {
-                $this->inputs[$name]->add_contextsession( new stack_secure_loader($this->getCached('statement-qv'), 'qv'));
-            }
-            if (array_key_exists($name, $this->inputs)) {
-                if ($sets_question_object) {
-                    $this->setInputStates($this->inputs[$name]->validate_student_response($response, $this->options, $teacher_answer, $this->security, false), $name);
-                    return $this->getInputStates($name);
-                } else {
-                    return $this->inputs[$name]->validate_student_response($response, $this->options, $teacher_answer, $this->security, false);
-                }
-            }
-
-            return true;
-
-        } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
-            return false;
+        if (array_key_exists($name, $this->getInputStates())) {
+            return $this->getInputStates($name);
         }
+
+        /* Not using moodle multi lang
+        $lang = null;
+        if ($this->get_cached('langs') !== null && count($this->get_cached('langs')) > 0) {
+            $ml = new stack_multilang();
+            $lang = $ml->pick_lang($this->get_cached('langs'));
+        }*/
+
+        // TODO: we should probably give the whole ast_container to the input.
+        // Direct access to LaTeX and the AST might be handy.
+        $teacheranswer = '';
+        if (array_key_exists($name, $this->tas)) {
+            if ($this->tas[$name]->is_correctly_evaluated()) {
+                $teacheranswer = $this->tas[$name]->get_value();
+            }
+        }
+        if (array_key_exists($name, $this->inputs)) {
+            $qv = [];
+            $qv['preamble-qv']         = $this->getCached('preamble-qv');
+            $qv['contextvariables-qv'] = $this->getCached('contextvariables-qv');
+            $qv['statement-qv']        = $this->getCached('statement-qv');
+
+            $this->input_states[$name] = $this->inputs[$name]->validate_student_response(
+                $response, $this->options, $teacheranswer, $this->security, $raw_input,
+                $this->cas_text_processor, $qv, null);
+            return $this->input_states[$name];
+        }
+        return '';
     }
 
     /**
