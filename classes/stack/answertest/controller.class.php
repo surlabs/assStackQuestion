@@ -31,6 +31,7 @@ class stack_ans_test_controller {
               'AlgEquiv'             => 'stackOptions_AnsTest_values_AlgEquiv',
               'AlgEquivNouns'        => 'stackOptions_AnsTest_values_AlgEquivNouns',
               'EqualComAss'          => 'stackOptions_AnsTest_values_EqualComAss',
+              'EqualComAssRules'     => 'stackOptions_AnsTest_values_EqualComAssRules',
               'CasEqual'             => 'stackOptions_AnsTest_values_CasEqual',
               'SameType'             => 'stackOptions_AnsTest_values_SameType',
               'SubstEquiv'           => 'stackOptions_AnsTest_values_SubstEquiv',
@@ -63,6 +64,7 @@ class stack_ans_test_controller {
               'Int'                  => 'stackOptions_AnsTest_values_Int',
               'String'               => 'stackOptions_AnsTest_values_String',
               'StringSloppy'         => 'stackOptions_AnsTest_values_StringSloppy',
+              'Levenshtein'          => 'stackOptions_AnsTest_values_Levenshtein',
               'SRegExp'              => 'stackOptions_AnsTest_values_SRegExp',
     );
 
@@ -80,7 +82,7 @@ class stack_ans_test_controller {
         'EqualComAssRules'     => array(true, true, false, false),
         'CasEqual'             => array(false, false, false, false),
         'SameType'             => array(false, false, true, false),
-        'SubstEquiv'           => array(false, true, true, false),
+        'SubstEquiv'           => array('optional', true, true, false),
         'SysEquiv'             => array(false, false, true, false),
         'Sets'                 => array(false, false, false, false),
         'Expanded'             => array(false, false, true, false),
@@ -89,8 +91,8 @@ class stack_ans_test_controller {
         'PartFrac'             => array(true, true, true, false),
         'CompSquare'           => array(true, true, true, false),
         'PropLogic'            => array(false, false, true, false),
-        'Equiv'                => array(false, true, false, false),
-        'EquivFirst'           => array(false, true, false, false),
+        'Equiv'                => array('optional', true, false, false),
+        'EquivFirst'           => array('optional', true, false, false),
         'GT'                   => array(false, false, true, false),
         'GTE'                  => array(false, false, true, false),
         'SigFigsStrict'        => array(true, true, true, true),
@@ -110,6 +112,7 @@ class stack_ans_test_controller {
         'Int'                  => array(true, true, false, false),
         'String'               => array(false, false, false, false),
         'StringSloppy'         => array(false, false, false, false),
+        'Levenshtein'          => array(true, true, true, false),
         'SRegExp'              => array(false, false, true, false),
     );
 
@@ -164,6 +167,7 @@ class stack_ans_test_controller {
             case 'UnitsStrict':
             case 'NumDecPlaces':
             case 'NumDecPlacesWrong':
+            case 'Levenshtein':
                 $this->at = new stack_answertest_general_cas($sans, $tans, $anstest, $casoption, $options, $contextsession);
                 break;
 
@@ -284,6 +288,22 @@ class stack_ans_test_controller {
     public static function required_atoptions($atest) {
         $op = self::$pops[$atest];
         return $op[0];
+    }
+
+    /**
+     * Returns a list of the answer tests who do not require test options
+     *
+     * @return array
+     * @access public
+     */
+    public static function get_ans_tests_without_options() {
+        $anstests = array();
+        foreach (self::$pops as $key => $value) {
+            if ($value[0] === false) {
+                $anstests[] = $key;
+            }
+        }
+        return $anstests;
     }
 
     /**
