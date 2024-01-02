@@ -124,7 +124,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     public array $inputs = array();
 
     /**
-     * @var stack_potentialresponse_tree[] STACK specific: responses tree number => ...
+     * @var stack_potentialresponse_tree_lite[] STACK specific: responses tree number => ...
      */
     public array $prts = array();
 
@@ -858,6 +858,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
                             try {
                                 //Create Node and add it to the
+                                //TODO SAUL: Adaptar al nuevo sistema
                                 $node = new stack_potentialresponse_node($sans, $tans, $node_data['answer_test'], $node_data['test_options'], (bool)$node_data['quiet'], '', (int)$node_name, $node_data['sans'], $node_data['tans']);
 
                                 $node->add_branch(0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty, $node_data['false_next_node'], $node_data['false_feedback'], $node_data['false_feedback_format'], $node_data['false_answer_note']);
@@ -1516,7 +1517,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         $prt_value = 1.0;
         try {
-            $this->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$standard_prt['prt_simplify'], $prt_value, $feedback_variables, $nodes, '1', 1);
+            $this->prts[$prt_name] = new stack_potentialresponse_tree_lite($prt_name, '', (bool)$standard_prt['prt_simplify'], $prt_value, $feedback_variables, $nodes, '1', 1);
         } catch (stack_exception $e) {
             ilUtil::sendFailure($e->getMessage(), true);
         }
@@ -2058,14 +2059,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     /* compute_final_grade($responses, $totaltries) not required as it is only Moodle relevant */
 
     /**
-     * has_necessary_prt_inputs(stack_potentialresponse_tree $prt, $response, $acceptvalid)
+     * has_necessary_prt_inputs(stack_potentialresponse_tree_lite $prt, $response, $acceptvalid)
      * Do we have all the necessary inputs to execute one of the potential response trees?
-     * @param stack_potentialresponse_tree $prt the tree in question.
+     * @param stack_potentialresponse_tree_lite $prt the tree in question.
      * @param array $response the response.
      * @param bool $accept_valid if this is true, then we will grade things even if the corresponding inputs are only VALID, and not SCORE.
      * @return bool can this PRT be executed for that response.
      */
-    public function hasNecessaryPrtInputs(stack_potentialresponse_tree $prt, array $response, bool $accept_valid): bool
+    public function hasNecessaryPrtInputs(stack_potentialresponse_tree_lite $prt, array $response, bool $accept_valid): bool
     {
         // Some kind of time-time error in the question, so bail here.
         if ($this->getCached('required') === null) {
@@ -2080,14 +2081,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     }
 
     /**
-     * can_execute_prt(stack_potentialresponse_tree $prt, $response, $acceptvalid) in Moodle
+     * can_execute_prt(stack_potentialresponse_tree_lite $prt, $response, $acceptvalid) in Moodle
      * Do we have all the necessary inputs to execute one of the potential response trees?
-     * @param stack_potentialresponse_tree $prt the tree in question.
+     * @param stack_potentialresponse_tree_lite $prt the tree in question.
      * @param array $response the response.
      * @param bool $accept_valid if this is true, then we will grade things even if the corresponding inputs are only VALID, and not SCORE.
      * @return bool can this PRT be executed for that response.
      */
-    protected function canExecutePrt(stack_potentialresponse_tree $prt, array $response, bool $accept_valid): bool
+    protected function canExecutePrt(stack_potentialresponse_tree_lite $prt, array $response, bool $accept_valid): bool
     {
         // The only way to find out is to actually try evaluating it. This calls
         // has_necessary_prt_inputs, and then does the computation, which ensures
