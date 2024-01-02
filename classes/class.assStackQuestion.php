@@ -3332,17 +3332,17 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     }
 
     /**
-     * @return bool|stack_cas_session2|string
+     * @return castext2_evaluatable
      */
-    public function getQuestionNoteInstantiated()
+    public function getQuestionNoteInstantiated(): ?castext2_evaluatable
     {
         return $this->question_note_instantiated;
     }
 
     /**
-     * @param bool|stack_cas_session2|string $question_note_instantiated
+     * @param ?castext2_evaluatable $question_note_instantiated
      */
-    public function setQuestionNoteInstantiated($question_note_instantiated): void
+    public function setQuestionNoteInstantiated(?castext2_evaluatable $question_note_instantiated): void
     {
         $this->question_note_instantiated = $question_note_instantiated;
     }
@@ -3588,7 +3588,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
 
         foreach ($this->prts as $prt) {
-            foreach ($prt->getNodes() as $node) {
+            foreach ($prt->get_nodes_summary() as $node) {
                 $node_feedback = $node->getFeedbackFromNode();
                 $collected .= $node_feedback['true_feedback'];
                 $collected .= $node_feedback['false_feedback'];
