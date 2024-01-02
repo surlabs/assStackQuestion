@@ -2541,8 +2541,38 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
     /* user_can_edit() not required as it is only Moodle relevant */
 
-    /* get_question_session_keyval_representation() not required as it is only Moodle relevant */
-    //TODO FEATURE SHOW QUESTION VARIABLES USED IN TEST RUN
+    /**
+     * QUESTION TEST EDIT
+     * QUESTION TEST RUN
+     * Get the values of all variables which have a key.  So, function definitions
+     * and assignments are ignored by this method.  Used to display the values of
+     * variables used in a question variant.  Beware that some functions have side
+     * effects in Maxima, e.g. orderless.  If you use these values you may not get
+     * the same results as if you recreate the whole session from $this->questionvariables.
+     *
+     * @throws stack_exception
+     */
+    public function getQuestionSessionKeyvalRepresentation(): string
+    {
+        // After the cached compilation update the session no longer returns these.
+        // So we will build another session just for this.
+        // First we replace the compiled statements with the raw keyval statements.
+        $tmp = $this->session->get_session();
+        $tmp = array_filter($tmp, function($v) {
+            return method_exists($v, 'is_correctly_evaluated');
+        });
+        $kv = new stack_cas_keyval($this->question_variables, $this->options, $this->seed);
+        $kv->get_valid();
+        $session = $kv->get_session();
+        $session->add_statements($tmp);
+        $session->get_valid();
+        if ($session->get_valid()) {
+            $session->instantiate();
+        }
+
+        // We always want the values when this method is called.
+        return $session->get_keyval_representation(true);
+    }
 
     /**
      * add_question_vars_to_session(stack_cas_session2 $session) in Moodle
