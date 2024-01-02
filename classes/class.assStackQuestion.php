@@ -2028,8 +2028,43 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return stack_string('questionnote_missing');
     }
 
-    /* summarise_response(array $response) not required as it is only Moodle relevant */
-    //TODO FEATURE
+    /**
+     * @throws stack_exception
+     */
+    public function summariseResponse(array $response): string
+    {
+        // Provide seed information on student's version via the normal moodle quiz report.
+        $bits = array('Seed: ' . $this->seed);
+        foreach ($this->inputs as $name => $input) {
+            $state = $this->getInputState($name, $response);
+            if (stack_input::BLANK != $state->status) {
+                $bits[] = $input->summarise_response($name, $state, $response);
+            }
+        }
+        // Add in the answer note for this response.
+        foreach ($this->prts as $name => $prt) {
+            $state = $this->getPrtResult($name, $response, false);
+            $note = implode(' | ', array_map('trim', $state->get_answernotes()));
+            $score = '';
+            if (trim($note) == '') {
+                $note = '!';
+            } else {
+                $score = "# = " . $state->get_score();
+                if ($prt->is_formative()) {
+                    $score .= ' [formative]';
+                }
+                $score .= " | ";
+            }
+            if ($state->get_errors()) {
+                $score = '[RUNTIME_ERROR] ' . $score . implode("|", $state->get_errors());
+            }
+            if ($state->get_fverrors()) {
+                $score = '[RUNTIME_FV_ERROR] ' . $score . implode("|", $state->get_fverrors()) . ' | ';
+            }
+            $bits[] = $name . ": " . $score . $note;
+        }
+        return implode('; ', $bits);
+    }
 
     /* summarise_response_data(array $response) not required as it is only Moodle relevant */
     //TODO FEATURE
