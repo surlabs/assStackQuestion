@@ -2365,6 +2365,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     }
 
 
+    /**
+     * @throws stack_exception
+     */
     public function computeFinalGrade($responses, $totaltries) {
         // This method is used by the interactive behaviour to compute the final
         // grade after all the tries are done.
@@ -2398,7 +2401,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 }
 
                 if ($this->canExecutePrt($this->prts[$index], $response, true)) {
-                    $results = $this->getPrtResults($index, $response, true);
+                    $results = $this->getPrtResult($index, $response, true);
 
                     $accumulatedpenalty += $results->get_fractionalpenalty();
                     $frac = $results->get_fraction();
