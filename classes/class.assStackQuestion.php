@@ -1857,12 +1857,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param string $hint the hint.
      * @throws stack_exception
      */
-    public function getHintCASText(string $hint)
+    public function getHintCASText(string $hint): castext2_evaluatable
     {
         // TODO: NO existe hint
         // These are not currently cached as compiled fragments, maybe they should be.
         $this->hint = "dummy hint";
-        $hinttext = castext2_evaluatable::make_from_source($hint->hint, 'hint');
+        $hinttext = castext2_evaluatable::make_from_source($hint, 'hint');
 
         $session = null;
         if ($this->session === null) {
