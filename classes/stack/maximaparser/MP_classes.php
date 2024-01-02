@@ -17,33 +17,44 @@
 
 /*
  * Class defintions for the PHP version of the PEGJS parser.
- * toString functions are mainly to document what the objects parts mean. But
- * you can do some debugging with them.
- * end of the file contains functions the parser uses...
+ * toString functions are mainly to document what the objects parts mean.
+ * But you can do some debugging and unit testing with them.
+ * The end of the file contains functions the parser uses...
  *
- * function toString should return something which is completely correct in Maxima.
+ * The function toString should return something which is completely correct in Maxima.
+ * Some of the paramters change the Maxima sytnax slightly.
  * Known parameter values for toString.
  *
  * 'pretty'                  Used for debug pretty-printing of the statement.
  * 'insertstars_as_red'      All * operators created by insert stars logic will be marked with red.
  * 'fixspaces_as_red_spaces' Similar to above, but for spaces.
  * 'inputform'               Something a user (normally student) would expect to type.
+ *                           (a) %_C(...) is removed.
+ *                           (b) stackeq and stacklet are removed.
+ * 'checkinggroup'           If true then %_C(...) are removed.
  * 'nounify'                 If 0 removes all nouns.
  *                           If defined and 1 nounifies all operators and functions.
  *                           If 2, adds logic nouns.
  * 'dealias'                 If defined unpacks potential aliases.
- * 'qmchar'                  If defined prints question marks directly if present as QMCHAR.
+ * 'qmchar'                  If defined and true prints question marks directly if present as QMCHAR.
  * 'pmchar'                  If defined prints +- marks directly if present as #pm#.
+ * 'decimal'                 If null then '.' else use the string value.
+ * 'listsep'                 If null then ', ' else use the string value.
+ * 'flattree'                Used for debugging of the internals.  Does not print checking groups by design.
  */
 
+defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/../cas/cassecurity.class.php');
+require_once(__DIR__ . '/../cas/parsingrules/996_call_modification.filter.php');
 
 // @codingStandardsIgnoreStart
 // We ignore coding in this file, because the library is used outside Moodle.
 class MP_Node {
     public $parentnode  = null;
     public $position    = null;
+    // Parsers that comments within the statements may place them here.
+    public $comments    = null;
 
     public function __construct() {
         $this->parentnode = null;
@@ -67,8 +78,8 @@ class MP_Node {
     // If it does structural changes it must return false so that the recursion may be repeated on
     // the changed structure.
     // Calling with null function will upgrade parentnodes, but does nothing else.
-    // Which may be necessary in some cases, where modifications are heavy and the paintting
-    // cannot paint fast enough, should you parentnode happen to be null then this might
+    // Which may be necessary in some cases, where modifications are heavy and the painting
+    // cannot paint fast enough, should your parentnode happen to be null then this might
     // have happened we do not do this automatically as most code works without back referencing.
     // One may also declare that invalid subtrees are not to be processed.
     public function callbackRecurse($function = null, $skipinvalid = false) {
@@ -361,7 +372,7 @@ class MP_Node {
         while ($i !== null) {
             if ($i->parentnode instanceof MP_FunctionCall && ($i->parentnode->name instanceof MP_Identifier || $i->parentnode->name instanceof MP_String)) {
                 if ($i->parentnode->name->value === $funname) {
-                    $k = array_search($i, $i->parentnode->arguments);
+                    $k = array_search($i, $i->parentnode->arguments, true);
                     if ($k !== false) {
                         return $k;
                     }
@@ -708,13 +719,20 @@ class MP_Float extends MP_Atom {
         }
 
         if ($this->raw !== null) {
-            return strtoupper($this->raw);
+            $value = strtoupper('' . $this->raw);
+            if ($params !== null && isset($params['decimal'])) {
+                $value = str_replace('.', $params['decimal'], $value);
+            }
+            return $value;
         } else if ($this->value === null) {
             // This is a special output case for type-inference caching.
             return 'stack_unknown_float';
         }
-
-        return strtoupper('' . $this->value);
+        $value = strtoupper('' . $this->value);
+        if ($params !== null && isset($params['decimal'])) {
+            $value = str_replace('.', $params['decimal'], $value);
+        }
+        return $value;
     }
 }
 
@@ -819,7 +837,7 @@ class MP_Identifier extends MP_Atom {
             }
         }
 
-        if ($params !== null && isset($params['qmchar'])) {
+        if ($params !== null && isset($params['qmchar']) && $params['qmchar']) {
             return $indent . str_replace('QMCHAR', '?', $op);
         }
 
@@ -838,7 +856,7 @@ class MP_Identifier extends MP_Atom {
                         && $this->parentnode->parentnode instanceof MP_FunctionCall
                         && $this->parentnode->parentnode->name->toString() === 'ev') {
                     // Assuming that we are not the first argument.
-                    $i = array_search($this->parentnode, $this->parentnode->parentnode->arguments);
+                    $i = array_search($this->parentnode, $this->parentnode->parentnode->arguments, true);
                     if ($i > 0) {
                         return false;
                     }
@@ -856,10 +874,10 @@ class MP_Identifier extends MP_Atom {
                        $this->parentnode instanceof MP_FunctionCall &&
                        $this->parentnode->name !== $this) {
                 // Assignment by reference.
-                $i = array_search($this, $this->parentnode->arguments);
+                $i = array_search($this, $this->parentnode->arguments, true);
                 $indices = stack_cas_security::get_feature($this->parentnode->name->toString(),
                     'writesto');
-                if ($indices !== null && array_search($i, $indices) !== false) {
+                if ($indices !== null && array_search($i, $indices, true) !== false) {
                     return $this->is_global();
                 }
             }
@@ -897,7 +915,7 @@ class MP_Identifier extends MP_Atom {
                 }
                 if (stack_cas_security::get_feature($i->name->value, 'argumentmapstovariable') !== null) {
                     $indices = stack_cas_security::get_feature($i->name->value, 'argumentmapstovariable');
-                    if (array_search(array_search($prev, $i->arguments), $indices) !== false) {
+                    if (array_search(array_search($prev, $i->arguments, true), $indices, true) !== false) {
                         return false;
                     }
                 }
@@ -1041,9 +1059,13 @@ class MP_FunctionCall extends MP_Node {
 
     public function toString($params = null): string {
         $n = $this->name->toString($params);
+        $sep = ',';
+        if ($params !== null && isset($params['listsep'])) {
+            $sep = $params['listsep'];
+        }
 
-        $feat = null;
         if ($params !== null && isset($params['dealias'])) {
+            $feat = null;
             if ($params['dealias'] === true) {
                 $feat = stack_cas_security::get_feature($n, 'aliasvariable');
             }
@@ -1053,6 +1075,7 @@ class MP_FunctionCall extends MP_Node {
         }
 
         if ($params !== null && isset($params['nounify'])) {
+            $feat = null;
             if ($this->name instanceof MP_Identifier || $this->name instanceof MP_String) {
                 if ($params['nounify'] === 0) {
                     $feat = stack_cas_security::get_feature($n, 'nounfunctionfor');
@@ -1123,6 +1146,7 @@ class MP_FunctionCall extends MP_Node {
         }
 
         if ($params !== null && isset($params['flattree'])) {
+            // Flattree does not use continental commas here.
             return '([FunctionCall: ' . $n .'] ' . implode(',', $ar) . ')';
         }
 
@@ -1144,11 +1168,11 @@ class MP_FunctionCall extends MP_Node {
                     // TODO: fix parsing of let.
                     return $prefix .' '. implode('=', $ar);
                 }
-                return $prefix . implode(',', $ar);
+                return $prefix . implode($sep, $ar);
             }
         }
 
-        return $n . '(' . implode(',', $ar) . ')';
+        return $n . '(' . implode($sep, $ar) . ')';
     }
     // Covenience functions that work only after $parentnode has been filled in.
     public function is_definition(): bool {
@@ -1211,8 +1235,29 @@ class MP_Group extends MP_Node {
         }
     }
 
+    public function isSynthetic() {
+        if (count($this->items) < 1 || !array_key_exists(0, $this->items)) {
+            return false;
+        }
+        return $this->items[0] instanceof MP_FunctionCall &&
+            $this->items[0]->name instanceof MP_Atom &&
+            $this->items[0]->name->value === stack_ast_filter_996_call_modification::IDCHECK;
+    }
+    
     public function toString($params = null): string {
         $indent = '';
+
+        // Now establish if we have a "Checking group" added by the 996 filter.
+        if ($this->isSynthetic() && $params !== null) {
+            if ((isset($params['inputform']) && $params['inputform']) ||
+                (isset($params['checkinggroup']) && $params['checkinggroup']) ||
+                (isset($params['flattree']) && $params['flattree'])) {
+
+                $val = end($this->items);
+                return $val->toString($params);
+            }
+        }
+
         if ($params !== null && isset($params['pretty'])) {
             if (is_integer($params['pretty'])) {
                 $indent           = str_pad($indent, $params['pretty']);
@@ -1299,6 +1344,11 @@ class MP_Set extends MP_Node {
     }
 
     public function toString($params = null): string {
+        $sep = ',';
+        if ($params !== null && isset($params['listsep'])) {
+            $sep = $params['listsep'];
+        }
+
         $indent = '';
         if ($params !== null && isset($params['pretty'])) {
             if (is_integer($params['pretty'])) {
@@ -1335,7 +1385,7 @@ class MP_Set extends MP_Node {
             return $indent . '{' . implode(', ', $ar) . '}';
         }
 
-        return '{' . implode(',', $ar) . '}';
+        return '{' . implode($sep, $ar) . '}';
     }
 
     public function replace($node, $with) {
@@ -1387,6 +1437,11 @@ class MP_List extends MP_Node {
     }
 
     public function toString($params = null): string {
+        $sep = ',';
+        if ($params !== null && isset($params['listsep'])) {
+            $sep = $params['listsep'];
+        }
+
         $indent = '';
         if ($params !== null && isset($params['pretty'])) {
             if (is_integer($params['pretty'])) {
@@ -1433,7 +1488,7 @@ class MP_List extends MP_Node {
             return $indent . '[' . implode(', ', $ar) . ']';
         }
 
-        return '[' . implode(',', $ar) . ']';
+        return '[' . implode($sep, $ar) . ']';
     }
 
     public function replace($node, $with) {
@@ -1449,6 +1504,20 @@ class MP_List extends MP_Node {
             }
         }
     }
+
+    public function insertChild(MP_Node $node, $before = null) {
+        if ($before === null) {
+            $this->replace(-1, $node);
+        } else {
+            $i = array_search($before, $this->items, true);
+            $this->items = array_merge(array_slice($this->items, 0, $i), [$node], array_slice($this->items, $i));
+        }
+    }
+
+    public function removeChild(MP_Node $node) {
+        $i = array_search($node, $this->items, true);
+        array_splice($this->items, $i, 1);
+    }
 }
 
 class MP_PrefixOp extends MP_Node {
@@ -1463,7 +1532,7 @@ class MP_PrefixOp extends MP_Node {
 
     public function __clone() {
         $this->rhs = clone $this->rhs;
-        $this->rhs->parent = $this;
+        $this->rhs->parentnode = $this;
     }
 
     public function getChildren() {
@@ -1562,7 +1631,7 @@ class MP_PostfixOp extends MP_Node {
 
     public function __clone() {
         $this->lhs = clone $this->lhs;
-        $this->lhs->parent = $this;
+        $this->lhs->parentnode = $this;
     }
 
     public function getChildren() {
@@ -1603,7 +1672,7 @@ class MP_PostfixOp extends MP_Node {
 
 class MP_Indexing extends MP_Node {
     public $target = null;
-    // This is and identifier or a function call.
+    // This is an identifier or a function call.
     public $indices = null;
     // These are MP_List objects.
     public function __construct($target, $indices) {
@@ -1644,7 +1713,7 @@ class MP_Indexing extends MP_Node {
         $r = $this->target->toString($params);
 
         foreach ($this->indices as $ind) {
-            $r .= $ind->toString($params);
+            $r .= ltrim($ind->toString($params));
         }
 
         return $r;
@@ -2086,6 +2155,11 @@ class MP_Root extends MP_Node {
         return $this->items;
     }
 
+    public function removeChild(MP_Node $node) {
+        $i = array_search($node, $this->items, true);
+        array_splice($this->items, $i, 1);
+    }
+
     public function remap_position_data(int $offset=0) {
         $total = $this->toString();
         $this->position['start'] = $offset;
@@ -2220,6 +2294,8 @@ function opRBind($op) {
         case 'not ':
         case 'nounnot ':
             return 70;
+        case "'":
+            return 140;
     }
     return 0;
 }
