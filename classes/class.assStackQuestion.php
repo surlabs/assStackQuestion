@@ -2455,7 +2455,29 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
         return $newarray;
     }
-    /* setup_fake_feedback_and_input_validation() not required as it is only Moodle relevant */
+
+
+    /**
+     * Pollute the question's input state and PRT result caches so that each
+     * input appears to contain the name of the input, and each PRT feedback
+     * area displays "Feedback from PRT {name}". Naturally, this method should
+     * only be used for special purposes, namely the tidyquestion.php script.
+     * @throws stack_exception
+     */
+    public function setupFakeFeedbackAndInputValidation() {
+        // Set the cached input stats as if the user types the input name into each box.
+        foreach ($this->input_states as $name => $inputstate) {
+            $this->input_states[$name] = new stack_input_state(
+                $inputstate->status, $this->setValueInNestedArrays($inputstate->contents, $name),
+                $inputstate->contentsmodified, $inputstate->contentsdisplayed, $inputstate->errors, $inputstate->note, '');
+        }
+
+        // Set the cached prt results as if the feedback for each PRT was
+        // "Feedback from PRT {name}".
+        foreach ($this->prt_results as $name => $prtresult) {
+            $prtresult->override_feedback(stack_string('feedbackfromprtx', $name));
+        }
+    }
 
     /**
      * has_random_variants in Moodle
