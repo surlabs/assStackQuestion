@@ -2235,6 +2235,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param array $response the response.
      * @param bool $accept_valid if this is true, then we will grade things even if the corresponding inputs are only VALID, and not SCORE.
      * @return bool can this PRT be executed for that response.
+     * @throws stack_exception
      */
     public function hasNecessaryPrtInputs(stack_potentialresponse_tree_lite $prt, array $response, bool $accept_valid): bool
     {
@@ -2243,8 +2244,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             return false;
         }
 
-        foreach ($this->getCached('required')[$prt->get_name()] as $name) {
-            $this->getInputState($name, $response);
+        foreach ($this->getCached('required')[$prt->get_name()] as $name => $ignore) {
+            $status = $this->getInputState($name, $response)->status;
+            if (!(stack_input::SCORE == $status || ($accept_valid && stack_input::VALID == $status))) {
+                return false;
+            }
         }
 
         return true;
