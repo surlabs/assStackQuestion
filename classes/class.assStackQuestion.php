@@ -2518,6 +2518,18 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return 1000000;
     }
 
+    /**
+     * @return string|null
+     */
+    public function getVariantsSelectionSeed(): ?string
+    {
+        if (!empty($this->variants_selection_seed)) {
+            return $this->variants_selection_seed;
+        } else {
+            return (string) time();
+        }
+    }
+
     /* check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) not required as it is only Moodle relevant */
     //TODO FEATURE ROLES
 
