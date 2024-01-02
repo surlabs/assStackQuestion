@@ -1990,16 +1990,15 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         // Invalid if any input is invalid, ...
         foreach ($this->inputs as $name => $input) {
             if (stack_input::INVALID == $this->getInputState($name, $response)->status) {
-                //$this->runtime_errors[] = $this->getInputState($name, $response)->errors;
                 return true;
             }
         }
 
         // ... or any PRT gives an error.
-        foreach ($this->prts as $index => $prt) {
-            $result = $this->getPrtResult($index, $response, false);
-            if ($result->errors) {
-                //$this->runtime_errors[] = $result->errors;
+        foreach ($this->prts as $name => $prt) {
+            $result = $this->getPrtResult($name, $response, false);
+            //TODO PRT result get error
+            if ($result->get_errors()) {
                 return true;
             }
         }
