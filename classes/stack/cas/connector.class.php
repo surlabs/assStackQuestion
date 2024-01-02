@@ -68,17 +68,7 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
 
         $this->debug->log('Maxima command', $command);
 
-		//fau: #2 log maxima calls in the benchmark
-		global $ilBench;
-		if (is_object($ilBench)) {
-			$ilBench->startDbBench('MAXIMA ' . $command);
-			$rawresult = $this->call_maxima($command);
-			$ilBench->stopDbBench();
-		} else {
-			$rawresult = $this->call_maxima($command);
-		}
-
-		// fau.
+        $rawresult = $this->call_maxima($command);
         $this->debug->log('CAS result', $rawresult);
 
         $unpackedresult = $this->unpack_raw_result($rawresult);
@@ -115,13 +105,13 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
         $split = $raw;
         if (mb_strpos($split, $startmark) === false) {
             $this->debug->log('Timedout', true);
-            return array('timeout' => true, 'debug' => $split, 'timeouterrmessage' => $errmsg);
+            return array('timeout' => true, 'debug' => $split, 'timeoutdebug' => $errmsg);
         }
         $split = mb_substr($split, mb_strpos($split, $startmark) + mb_strlen($startmark));
 
         if (mb_strpos($split, $endmark) === false) {
             $this->debug->log('Timedout', 'in the middle of output');
-            return array('timeout' => true, 'debug' => $split, 'timeouterrmessage' => $errmsg);
+            return array('timeout' => true, 'debug' => $split, 'timeoutdebug' => $errmsg);
         }
         $split = mb_substr($split, 0, mb_strpos($split, $endmark));
 
@@ -186,7 +176,7 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
         $cmd = $settings->maximacommand;
         if ($settings->platform == 'linux-optimised') {
             $cmd = $settings->maximacommandopt;
-        } else if ($settings->platform == 'server') {
+        } else if (in_array($settings->platform, ['server', 'server-proxy'])) {
             $cmd = $settings->maximacommandserver;
         }
         if ('' === trim($cmd)) {
@@ -216,7 +206,7 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
      */
     protected function unpack_raw_result($rawresult) {
         $result = '';
-        $errors = false;
+        $errors = array();
         // This adds sufficient closing brackets to make sure we have enough to match.
         $rawresult .= ']]]]';
         if ('' == trim($rawresult)) {
@@ -278,12 +268,6 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
             // If there are plots in the output.
             $plot = isset($local['display']) ? substr_count($local['display'], '!ploturl!') : 0;
             if ($plot > 0) {
-                // @codingStandardsIgnoreStart
-                // For latex mode, remove the mbox.
-                // This handles forms: \mbox{image} and (earlier?) \mbox{{} {image} {}}.
-                // @codingStandardsIgnoreEnd
-                $local['display'] = preg_replace("|\\\mbox{({})? (<html>.+</html>) ({})?}|", "$2", $local['display']);
-
                 if ($this->wwwroothasunderscores) {
                     $local['display'] = str_replace($this->wwwrootfixupfind,
                             $this->wwwrootfixupreplace, $local['display']);
@@ -302,7 +286,7 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
         $offset = 0;
         $rawresultfragmentlen = strlen($rawresultfragment);
         $unparsed = array();
-        $errors = '';
+        $errors = array();
 
         $eqpos = strpos($rawresultfragment, '=', $offset);
         if ($eqpos) {
@@ -326,7 +310,7 @@ abstract class stack_cas_connection_base implements stack_cas_connection {
             $errors['PREPARSE'] = "There are no ='s in the raw output from the CAS!";
         }
 
-        if ('' != $errors) {
+        if (array() != $errors) {
             $unparsed['errors'] = $errors;
         }
 

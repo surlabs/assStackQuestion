@@ -28,7 +28,7 @@ class stack_cas_connection_db_cache implements stack_cas_connection {
     /** @var stack_debug_log does the debugging. */
     protected $debug;
 
-    /** @var */
+    /** @var moodle_database The database connection to use for the cache. */
     protected $db;
 
     /**
@@ -36,12 +36,10 @@ class stack_cas_connection_db_cache implements stack_cas_connection {
      * @param stack_cas_connection $rawconnection the un-cached connection.
      * @param stack_debug_log $debuglog the debug log to use.
      */
-    public function __construct(stack_cas_connection $rawconnection, stack_debug_log $debuglog, $db = NULL) {
+    public function __construct(stack_cas_connection $rawconnection, stack_debug_log $debuglog, moodle_database $db) {
         $this->rawconnection = $rawconnection;
         $this->debug = $debuglog;
-
-        global $DIC;
-        $this->db = $DIC->database();
+        $this->db = $db;
     }
 
     public function compute($command) {
@@ -64,6 +62,15 @@ class stack_cas_connection_db_cache implements stack_cas_connection {
             $this->add_to_cache($command, $result, $cached->key);
         }
         return $result;
+    }
+
+    public function get_maxima_available() {
+        if ('linux' != stack_connection_helper::get_platform()) {
+            return stack_string('healthunabletolistavail');
+        }
+        $this->command = 'maxima --list-avail';
+        $rawresult = $this->compute('');
+        return $rawresult;
     }
 
     public function json_compute($command): array {
@@ -102,42 +109,34 @@ class stack_cas_connection_db_cache implements stack_cas_connection {
      *      ->key, the hashed key used to index this result.
      */
     protected function get_cached_result($command) {
-		$cached = new stdClass();
-		$cached->key = $this->get_cache_key($command);
+        $cached = new stdClass();
+        $cached->key = $this->get_cache_key($command);
 
-		//fau: #4 Use ILIAS DB instead of Moodle DB
-		$query = 'SELECT * FROM xqcas_cas_cache WHERE hash = "' . $cached->key . '" ORDER BY id';
-		$res = $this->db->query($query);
-		$data[] = $this->db->fetchObject($res);
-		if ($data[0] == NULL) {
-			// Nothing relevant in the cache.
-			$cached->result = null;
+        // Are there any cached records that might match?
+        $data = $this->db->get_records('qtype_stack_cas_cache',
+                array('hash' => $cached->key), 'id');
+        if (!$data) {
+            // Nothing relevant in the cache.
+            $cached->result = null;
+            return $cached;
+        }
 
-			return $cached;
-		}
-		// fau.
+        // Get the data from the first record.
+        $record = reset($data);
+        if ($record->command != $command) {
+            throw new stack_exception('stack_cas_connection_db_cache: the command found at hash key ' .
+                    $cached->key . ' did not match what was expected.');
+        }
+        $cached->result = json_decode($record->result, true);
 
-		// Get the data from the first record.
-		$record = reset($data);
-		if ($record->command != $command) {
-			throw new stack_exception('stack_cas_connection_db_cache: the command found at hash key ' .
-				$cached->key . ' did not match what was expected.');
-		}
-		$cached->result = json_decode($record->result, true);
+        // If there was more than one record in the cache (due to a race condition)
+        // drop the duplicates.
+        unset($data[$record->id]);
+        if ($data) {
+            $this->db->delete_records_list('qtype_stack_cas_cache', 'id', array_keys($data));
+        }
 
-		// If there was more than one record in the cache (due to a race condition)
-		// drop the duplicates.
-		//fau: #5 Use ILIAS DB instead of Moodle DB
-		if (!empty($data)) {
-			unset($data[0]);
-			foreach ($data as $record) {
-				$delete_query = 'DELETE FROM xqcas_cas_cache WHERE id = "' . $record->id . '"';
-				$res = $this->db->query($delete_query);
-			}
-		}
-		//fau.
-
-		return $cached;
+        return $cached;
     }
 
     /**
@@ -156,10 +155,7 @@ class stack_cas_connection_db_cache implements stack_cas_connection {
         $data->command = $command;
         $data->result = json_encode($result);
 
-		//fau: #6 Use ILIAS DB instead of Moodle DB
-		$id = $this->db->nextId('xqcas_cas_cache');
-		$this->db->insert("xqcas_cas_cache", array("id" => array("integer", $id), "hash" => array("text", $key), "command" => array("clob", $data->command), "result" => array("clob", $data->result)));
-		//fau.
+        $this->db->insert_record('qtype_stack_cas_cache', $data);
     }
 
     /**

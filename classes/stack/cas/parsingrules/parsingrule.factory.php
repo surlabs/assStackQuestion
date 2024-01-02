@@ -22,7 +22,7 @@ require_once(__DIR__ . '/001_fix_call_of_a_group_or_function.filter.php');
 require_once(__DIR__ . '/002_log_candy.filter.php');
 require_once(__DIR__ . '/003_no_dot_dot.filter.php');
 require_once(__DIR__ . '/005_i_is_never_a_function.filter.php');
-require_once(__DIR__ . '/020_no_arc.filter.php');
+require_once(__DIR__ . '/022_trig_replace_synonyms.filter.php');
 require_once(__DIR__ . '/025_no_trig_power.filter.php');
 require_once(__DIR__ . '/030_no_trig_space.filter.php');
 require_once(__DIR__ . '/031_no_trig_brackets.filter.php');
@@ -34,6 +34,9 @@ require_once(__DIR__ . '/103_no_lists.filter.php');
 require_once(__DIR__ . '/104_no_sets.filter.php');
 require_once(__DIR__ . '/105_no_grouppings.filter.php');
 require_once(__DIR__ . '/106_no_control_flow.filter.php');
+require_once(__DIR__ . '/120_no_arc.filter.php');
+require_once(__DIR__ . '/150_replace_unicode_letters.filter.php');
+require_once(__DIR__ . '/180_char_based_superscripts.filter.php');
 require_once(__DIR__ . '/201_sig_figs_validation.filter.php');
 require_once(__DIR__ . '/202_decimal_places_validation.filter.php');
 require_once(__DIR__ . '/210_x_used_as_multiplication.filter.php');
@@ -42,6 +45,7 @@ require_once(__DIR__ . '/403_split_at_number_letter_boundary.filter.php');
 require_once(__DIR__ . '/404_split_at_number_letter_number_boundary.filter.php');
 require_once(__DIR__ . '/406_split_implied_variable_names.filter.php');
 require_once(__DIR__ . '/410_single_char_vars.filter.php');
+require_once(__DIR__ . '/420_consolidate_subscripts.filter.php');
 require_once(__DIR__ . '/441_split_unknown_functions.filter.php');
 require_once(__DIR__ . '/442_split_all_functions.filter.php');
 require_once(__DIR__ . '/450_split_floats.filter.php');
@@ -51,11 +55,18 @@ require_once(__DIR__ . '/505_no_evaluation_groups.filter.php');
 require_once(__DIR__ . '/520_no_equality_with_logic.filter.php');
 require_once(__DIR__ . '/541_no_unknown_functions.filter.php');
 require_once(__DIR__ . '/542_no_functions_at_all.filter.php');
+require_once(__DIR__ . '/601_castext.filter.php');
+require_once(__DIR__ . '/602_castext_simplifier.filter.php');
+require_once(__DIR__ . '/610_castext_static_string_extractor.filter.php');
+require_once(__DIR__ . '/680_gcl_sconcat.filter.php');
 require_once(__DIR__ . '/801_singleton_numeric.filter.php');
 require_once(__DIR__ . '/802_singleton_units.filter.php');
+require_once(__DIR__ . '/901_remove_comments.filter.php');
 require_once(__DIR__ . '/910_inert_float_for_display.filter.php');
 require_once(__DIR__ . '/990_no_fixing_spaces.filter.php');
 require_once(__DIR__ . '/991_no_fixing_stars.filter.php');
+require_once(__DIR__ . '/995_ev_modification.filter.php');
+require_once(__DIR__ . '/996_call_modification.filter.php');
 require_once(__DIR__ . '/997_string_security.filter.php');
 require_once(__DIR__ . '/998_security.filter.php');
 require_once(__DIR__ . '/999_strict.filter.php');
@@ -81,8 +92,8 @@ class stack_parsing_rule_factory {
                 return new stack_ast_filter_003_no_dot_dot();
             case '005_i_is_never_a_function':
                 return new stack_ast_filter_005_i_is_never_a_function();
-            case '020_no_arc':
-                return new stack_ast_filter_020_no_arc();
+            case '022_trig_replace_synonyms':
+                return new stack_ast_filter_022_trig_replace_synonyms();
             case '025_no_trig_power':
                 return new stack_ast_filter_025_no_trig_power();
             case '030_no_trig_space':
@@ -105,6 +116,12 @@ class stack_parsing_rule_factory {
                 return new stack_ast_filter_105_no_grouppings();
             case '106_no_control_flow':
                 return new stack_ast_filter_106_no_control_flow();
+            case '120_no_arc':
+                return new stack_ast_filter_120_no_arc();
+            case '150_replace_unicode_letters':
+                return new stack_ast_filter_150_replace_unicode_letters();
+            case '180_char_based_superscripts':
+                return new stack_ast_filter_180_char_based_superscripts();
             case '201_sig_figs_validation':
                 return new stack_ast_filter_201_sig_figs_validation();
             case '202_decimal_places_validation':
@@ -121,6 +138,8 @@ class stack_parsing_rule_factory {
                 return new stack_ast_filter_406_split_implied_variable_names();
             case '410_single_char_vars':
                 return new stack_ast_filter_410_single_char_vars();
+            case '420_consolidate_subscripts':
+                return new stack_ast_filter_420_consolidate_subscripts();
             case '441_split_unknown_functions':
                 return new stack_ast_filter_441_split_unknown_functions();
             case '442_split_all_functions':
@@ -139,16 +158,30 @@ class stack_parsing_rule_factory {
                 return new stack_ast_filter_541_no_unknown_functions();
             case '542_no_functions_at_all':
                 return new stack_ast_filter_542_no_functions_at_all();
+            case '601_castext':
+                return new stack_ast_filter_601_castext();
+            case '602_castext_simplifier':
+                return new stack_ast_filter_602_castext_simplifier();
+            case '610_castext_static_string_extractor':
+                return new stack_ast_filter_610_castext_static_string_extractor();
+            case '680_gcl_sconcat':
+                return new stack_ast_filter_680_gcl_sconcat();
             case '801_singleton_numeric':
                 return new stack_ast_filter_801_singleton_numeric();
             case '802_singleton_units':
                 return new stack_ast_filter_802_singleton_units();
+            case '901_remove_comments':
+                return new stack_ast_filter_901_remove_comments();
             case '910_inert_float_for_display':
                 return new stack_ast_filter_910_inert_float_for_display();
             case '990_no_fixing_spaces':
                 return new stack_ast_filter_990_no_fixing_spaces();
             case '991_no_fixing_stars':
                 return new stack_ast_filter_991_no_fixing_stars();
+            case '995_ev_modification':
+                return new stack_ast_filter_995_ev_modification();
+            case '996_call_modification':
+                return new stack_ast_filter_996_call_modification();
             case '997_string_security':
                 return new stack_ast_filter_997_string_security();
             case '998_security':
@@ -163,13 +196,17 @@ class stack_parsing_rule_factory {
             // If the static set has not been initialised do so.
             foreach (array('001_fix_call_of_a_group_or_function', '002_log_candy',
                            '003_no_dot_dot', '005_i_is_never_a_function',
-                           '020_no_arc', '025_no_trig_power',
+                           '022_trig_replace_synonyms',
+                           '025_no_trig_power',
                            '030_no_trig_space', '031_no_trig_brackets',
                            '050_no_chained_inequalities',
                            '090_special_forbidden_characters',
                            '101_no_floats', '102_no_strings',
                            '103_no_lists', '104_no_sets',
                            '105_no_grouppings', '106_no_control_flow',
+                           '120_no_arc',
+                           '150_replace_unicode_letters',
+                           '180_char_based_superscripts',
                            '201_sig_figs_validation',
                            '202_decimal_places_validation',
                            '210_x_used_as_multiplication',
@@ -177,16 +214,21 @@ class stack_parsing_rule_factory {
                            '403_split_at_number_letter_boundary',
                            '404_split_at_number_letter_number_boundary',
                            '406_split_implied_variable_names',
-                           '410_single_char_vars', '441_split_unknown_functions',
+                           '410_single_char_vars',
+                           '420_consolidate_subscripts',
+                           '441_split_unknown_functions',
                            '442_split_all_functions', '450_split_floats',
                            '502_replace_pm',
                            '504_insert_tuples_for_groups',
                            '505_no_evaluation_groups',
                            '520_no_equality_with_logic',
                            '541_no_unknown_functions', '542_no_functions_at_all',
-                           '801_singleton_numeric', '802_singleton_units',
+                           '601_castext', '602_castext_simplifier', '680_gcl_sconcat',
+                           '610_castext_static_string_extractor',
+                           '801_singleton_numeric', '802_singleton_units', '901_remove_comments',
                            '910_inert_float_for_display',
                            '990_no_fixing_spaces', '991_no_fixing_stars',
+                           '995_ev_modification', '996_call_modification',
                            '997_string_security',
                            '998_security', '999_strict') as $name) {
                 self::$singletons[$name] = self::build_from_name($name);

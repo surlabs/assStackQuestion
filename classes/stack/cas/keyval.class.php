@@ -18,6 +18,7 @@
 require_once(__DIR__ . '/../maximaparser/utils.php');
 require_once(__DIR__ . '/../maximaparser/MP_classes.php');
 require_once(__DIR__ . '/cassession2.class.php');
+require_once(__DIR__ . '/castext2/utils.php');
 require_once(__DIR__ . '/../utils.class.php');
 
 /**
@@ -47,12 +48,22 @@ class stack_cas_keyval {
     private $options;
     private $seed;
 
-    public function __construct($raw, $options = null, $seed=null) {
+    // For error mapping keyvals do need a context.
+    private $context;
+
+    /**
+     * @var string the name of the error-wrapper-class, tunable for use in
+     * other contexts, e.g. Stateful.
+     */
+    public $errclass = 'stack_cas_error';
+
+    public function __construct($raw, $options = null, $seed=null, $ctx='') {
         $this->raw          = $raw;
         $this->statements   = array();
         $this->errors       = array();
         $this->options      = $options;
         $this->seed         = $seed;
+        $this->context      = $ctx;
         $this->security     = new stack_cas_security();
 
         if (!is_string($raw)) {
@@ -76,16 +87,15 @@ class stack_cas_keyval {
             return true;
         }
 
+        // Protect things inside strings before we do QMCHAR tricks, and check for @, $.
+        $str = maxima_parser_utils::remove_comments($this->raw);
 
-        // CAS keyval may not contain @ or $.
-        if (strpos($this->raw, '@') !== false || strpos($this->raw, '$') !== false) {
-            $this->errors[] = stack_string('illegalcaschars');
-            $this->valid = false;
-            return false;
+        // Check again whether the string is now empty.
+        if (trim($str) == '') {
+            $this->valid = true;
+            return true;
         }
 
-        // Subtle one: must protect things inside strings before we do QMCHAR tricks.
-        $str = $this->raw;
         $strings = stack_utils::all_substring_strings($str);
         foreach ($strings as $key => $string) {
             $str = str_replace('"'.$string.'"', '[STR:'.$key.']', $str);
@@ -93,55 +103,57 @@ class stack_cas_keyval {
 
         $str = str_replace('?', 'QMCHAR', $str);
 
+        // CAS keyval may not contain @ or $ outside strings.
+        // We should certainly prevent the $ to make sure statements are separated by ;, although Maxima does allow $.
+        if (strpos($str, '@') !== false || strpos($str, '$') !== false) {
+            $this->errors[] = new $this->errclass(stack_string('illegalcaschars'), $this->context);
+            $this->valid = false;
+            return false;
+        }
+
         foreach ($strings as $key => $string) {
             $str = str_replace('[STR:'.$key.']', '"' .$string . '"', $str);
         }
 
         // 6/10/18 No longer split by line change, split by statement.
         // Allow writing of loops and other long statements onto multiple lines.
-        $ast = maxima_parser_utils::parse_and_insert_missing_semicolons($str);
+        $ast = maxima_parser_utils::parse_and_insert_missing_semicolons_with_includes($str);
         if (!$ast instanceof MP_Root) {
-            // If not then it is a SyntaxError.
+            // If not then it is a SyntaxError. Or an include error.
+            if ($ast instanceof stack_exception) {
+                $this->errors[] = new $this->errclass($ast->getMessage(), $this->context);
+                $this->valid = false;
+                return false;
+            }
             $syntaxerror = $ast;
             $error = $syntaxerror->getMessage();
             if (isset($syntaxerror->grammarLine) && isset($syntaxerror->grammarColumn)) {
                 $error .= ' (' . stack_string('stackCas_errorpos',
                         ['line' => $syntaxerror->grammarLine, 'col' => $syntaxerror->grammarColumn]) . ')';
             }
-            $this->errors[] = $error;
+            $this->errors[] = new $this->errclass($error, $this->context);
             $this->valid = false;
             return false;
         }
 
-        $ast = maxima_parser_utils::strip_comments($ast);
-
         $vallist = array();
-        // Update the types and values for future insert-stars and other logic.
-        $config = stack_utils::get_config();
-        if ($config->caspreparse == 'true') {
-            $vallist = maxima_parser_utils::identify_identifier_values($ast, $this->security->get_context());
-        }
-        if (isset($vallist['% TIMEOUT %'])) {
-            $this->errors[] = stack_string('stackCas_overlyComplexSubstitutionGraphOrRandomisation');
-            $this->valid = false;
-        } else {
-            // Mark inputs as specific type.
-            if (is_array($inputs)) {
-                foreach ($inputs as $name) {
-                    if (!isset($vallist[$name])) {
-                        $vallist[$name] = [];
-                    }
-                    $vallist[$name][-2] = -2;
+        // Mark inputs as specific type.
+        if (is_array($inputs)) {
+            foreach ($inputs as $name) {
+                if (!isset($vallist[$name])) {
+                    $vallist[$name] = [];
                 }
+                $vallist[$name][-2] = -2;
             }
-            $this->security->set_context($vallist);
         }
+        $this->security->set_context($vallist);
 
         $this->valid   = true;
         $this->statements   = array();
         foreach ($ast->items as $item) {
-            $cs = stack_ast_container::make_from_teacher_ast($item, '', $this->security);
+            // Include might have brought in some comments. Even after we removed them from the source.
             if ($item instanceof MP_Statement) {
+                $cs = stack_ast_container::make_from_teacher_ast($item, '', $this->security);
                 $op = '';
                 if ($item->statement instanceof MP_Operation) {
                     $op = $item->statement->op;
@@ -154,10 +166,10 @@ class stack_cas_keyval {
                     $cs = stack_ast_container_silent::make_from_teacher_ast($item, '',
                             $this->security);
                 }
+                $this->valid = $this->valid && $cs->get_valid();
+                $this->errors = array_merge($this->errors, $cs->get_errors('objects'));
+                $this->statements[] = $cs;
             }
-            $this->valid = $this->valid && $cs->get_valid();
-            $this->errors = array_merge($this->errors, $cs->get_errors(true));
-            $this->statements[] = $cs;
         }
 
         // Allow reference to inputs in the values of the question variables (otherwise we can't use them)!
@@ -167,7 +179,7 @@ class stack_cas_keyval {
             foreach ($usage['write'] as $key => $used) {
                 if (in_array($key, $inputs)) {
                     $this->valid = false;
-                    $this->errors[] = stack_string('stackCas_inputsdefined', $key);
+                    $this->errors[] = new $this->errclass(stack_string('stackCas_inputsdefined', $key), $this->context);
                 }
             }
         }
@@ -197,14 +209,32 @@ class stack_cas_keyval {
         return $this->valid;
     }
 
-    public function get_errors($casdebug = false) {
+    public function get_errors($casdebug = false, $raw = 'strings') {
         if (null === $this->valid) {
             $this->validate(null);
         }
-        if ($casdebug) {
-            $this->errors[] = $this->session->get_debuginfo();
+        $errors = [];
+        if ($raw === 'objects') {
+            $errors = array_merge([], $this->errors);
+            if ($casdebug) {
+                $errors[] = new $this->errclass($this->session->get_debuginfo(), $this->context);
+            }
+            return $this->errors;
+        } else {
+            foreach ($this->errors as $err) {
+                if ($err instanceof stack_cas_error) {
+                    $errors[] = $err->get_legacy_error();
+                } else {
+                    $errors[] = $err;
+                }
+            }
+            $errors = array_unique($errors);
         }
-        return $this->errors;
+
+        if ($casdebug) {
+            $errors[] = $this->session->get_debuginfo();
+        }
+        return $errors;
     }
 
     public function instantiate() {
@@ -240,14 +270,6 @@ class stack_cas_keyval {
     }
 
     /**
-     * Remove the ast, and other clutter from casstrings, so we can test equality cleanly and dump values.
-     */
-    public function test_clean() {
-        $this->session->test_clean();
-        return true;
-    }
-
-    /**
      * Compiles the keyval to a single statement with substatement
      * error tracking wrappings. The wrappings can contain a context-name
      * so that one can read the error messages with references like:
@@ -259,7 +281,7 @@ class stack_cas_keyval {
      *
      * Note that one must have done validation in advance.
      */
-    public function compile(string $contextname): array {
+    public function compile(string $contextname, castext2_static_replacer $map = null): array {
         $bestatements = [];
         $statements = [];
         $contextvariables = [];
@@ -277,7 +299,8 @@ class stack_cas_keyval {
             // If nothing return nothing, the logic outside will deal with null.
             return ['blockexternal' => null,
                     'statement' => null,
-                    'references' => $referenced];
+                    'references' => $referenced,
+                    'contextvariables' => null];
         }
 
         // Now we start from the RAW form as rebuilding the line
@@ -298,40 +321,56 @@ class stack_cas_keyval {
         }
 
         // And then the parsing.
-        $ast = maxima_parser_utils::parse_and_insert_missing_semicolons($str);
+        $ast = maxima_parser_utils::parse_and_insert_missing_semicolons_with_includes($str);
 
-        // Then we will build the normal filter chain for the syntax-candy. Repeat security checks just in case.
+        // Then we will build the filter chain for the syntax-candy. Repeat security checks just in case.
+        // Note that we add special 600-series filters.
         $errors = [];
         $answernotes = [];
-        $filteroptions = ['998_security' => ['security' => 't']];
-        $pipeline = stack_parsing_rule_factory::get_filter_pipeline(['998_security', '999_strict'], $filteroptions, true);
+        $filteroptions = ['998_security' => ['security' => 't'],
+            '601_castext' => ['context' => $contextname, 'errclass' => $this->errclass, 'map' => $map],
+            '610_castext_static_string_extractor' => ['static string extractor' => $map],
+            '995_ev_modification' => ['flags' => true]];
+        $pipeline = stack_parsing_rule_factory::get_filter_pipeline(['601_castext',
+            '602_castext_simplifier', '680_gcl_sconcat', '995_ev_modification',
+            '996_call_modification', '998_security', '999_strict'],
+            $filteroptions, true);
         $tostringparams = ['nosemicolon' => true, 'pmchar' => 1];
         $securitymodel = $this->security;
+
+        // Apply the filters.
+        $ast = $pipeline->filter($ast, $errors, $answernotes, $securitymodel);
+
+        $includes = [];
 
         // Process the AST.
         foreach ($ast->items as $item) {
             if ($item instanceof MP_Statement) {
-                // As this was already validated no need to check for parse errors.
-                // However we want to change positioning so that exceptions make sense.
-                if (isset($ast->position['fixedsemicolons'])) {
-                    $item = maxima_parser_utils::position_remap($item, $ast->position['fixedsemicolons']);
-                } else {
-                    $item = maxima_parser_utils::position_remap($item, $str);
+
+                // Strip off the %_C protection at the top level to establish if this is a context variable.
+                if ($item->statement instanceof MP_Group) {
+                    $r0 = $item->statement->items[0];
+                    if ($r0 instanceof MP_FunctionCall && $r0->name->value = '%_C') {
+                        $item->statement = $item->statement->items[1];
+                    }
                 }
 
-                // Here we could process comments or do other rewriting.
-                // Probably the first use will be extracting units realted details for cas-security configuration.
-
-                // Apply the normal filters.
-                $item = $pipeline->filter($item, $errors, $answernotes, $securitymodel);
-
                 // Render to statement.
-                $scope = stack_utils::php_string_to_maxima_string($contextname . ': ' .
+                $cn = $contextname . '/';
+                // If it comes from an inclusion add that into the error scoping.
+                if (isset($item->position['included-from'])) {
+                    $cn = $cn . 'external:' . $item->position['included-from'] . ' ';
+                }
+                if (isset($item->position['included-src'])) {
+                    $includes[$item->position['included-src']] = true;
+                }
+                $scope = stack_utils::php_string_to_maxima_string($cn .
                         $item->position['start'] . '-' . $item->position['end']);
-                $statement = '_EC(errcatch(' . $item->toString($tostringparams) . '),' . $scope . ')';
-
-                // Update references.
-                $referenced = maxima_parser_utils::variable_usage_finder($item, $referenced);
+                $payload = $item->toString($tostringparams);
+                if ($item->flags !== null && count($item->flags) > 0) {
+                    $payload = 'ev(' . $payload . ')';
+                }
+                $statement = '_EC(errcatch(' . $payload . '),' . $scope . ')';
 
                 // Check if it is one of the block externals.
                 $op = '';
@@ -349,6 +388,15 @@ class stack_cas_keyval {
                     $statements[] = $statement;
                 }
             }
+        }
+
+        // Update references.
+        $referenced = maxima_parser_utils::variable_usage_finder($ast, $referenced);
+
+        // Might be that broken things were found during the deepper processing.
+        if (count($errors) > 0) {
+            $this->valid = false;
+            $this->errors = array_merge($this->errors, $errors);
         }
 
         // Construct the return value.
@@ -369,6 +417,15 @@ class stack_cas_keyval {
         } else {
             // These statement groups always end with a 'true' to ensure minimal output.
             $contextvariables = '(' . implode(',', $contextvariables) . ',true)';
+        }
+
+        if (count($includes) > 0) {
+            // Now output them for use elsewhere.
+            return ['blockexternal' => $bestatements,
+                'statement' => $statements,
+                'contextvariables' => $contextvariables,
+                'references' => $referenced,
+                'includes' => array_keys($includes)];
         }
 
         // Now output them for use elsewhere.
