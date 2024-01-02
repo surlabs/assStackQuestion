@@ -253,7 +253,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     /**
      * @var string|null question general feedback.
      */
-    public $general_feedback;
+    public ?string $general_feedback;
 
     /* STACK CORE ATTRIBUTES END */
 
@@ -2985,13 +2985,17 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         // 4. Language warning checks.
         // Put language warning checks last (see guard clause below).
         // Check multi-language versions all have the same languages.
+        /* Not using moodle multi lang
         $ml = new stack_multilang();
         $qlangs = $ml->languages_used($this->questiontext);
         asort($qlangs);
         if ($qlangs != array() && !$errors) {
             $warnings['questiontext'] = stack_string('questiontextlanguages', implode(', ', $qlangs));
         }
+        */
+        return $warnings;
 
+        /*
         // Language tags don't exist.
         if ($qlangs == array()) {
             return $warnings;
@@ -3060,7 +3064,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 array('field' => $field, 'langs' => implode(', ', $langs)));
         }
 
-        return $warnings;
+        return $warnings;*/
 
     }
 
