@@ -2141,8 +2141,45 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return $weights;
     }
 
-    /* grade_parts_that_can_be_graded(array $response, array $lastgradedresponses, $finalsubmit) not required as it is only Moodle relevant */
+    public function gradePartsThatCanBeGraded(array $response, array $lastgradedresponses, $finalsubmit) {
+        $partresults = array();
 
+        // At the moment, this method is not written as efficiently as it might
+        // be in terms of caching. For now I will be happy it computes the right score.
+        // Once we are confident enough, we can try to optimise.
+
+        foreach ($this->prts as $index => $prt) {
+            // Some optimisation now hidden behind this, it will eval all PRTs
+            // of the question for this input.
+            $results = $this->getPrtResult($index, $response, $finalsubmit);
+            if (!$results->is_evaluated()) {
+                continue;
+            }
+
+            if (!$results->get_valid()) {
+                $partresults[$index] = [$index, null, null, true];
+                continue;
+            }
+
+            if (array_key_exists($index, $lastgradedresponses)) {
+                $lastresponse = $lastgradedresponses[$index];
+            } else {
+                $lastresponse = array();
+            }
+
+            $lastinput = $this->getPrtInput($index, $lastresponse, $finalsubmit);
+            $prtinput = $this->getPrtInput($index, $response, $finalsubmit);
+
+            if ($this->isSamePRTInput($index, $lastinput, $prtinput)) {
+                continue;
+            }
+
+            $partresults[$index] = [
+                $index, $results->get_score(), $results->get_penalty()];
+        }
+
+        return $partresults;
+    }
     /* compute_final_grade($responses, $totaltries) not required as it is only Moodle relevant */
 
     /**
