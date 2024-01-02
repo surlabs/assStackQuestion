@@ -1822,23 +1822,20 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * adapt_inputs() method in Moodle
      * Give all the input elements a chance to configure themselves given the
      * teacher's model answers.
+     * @throws stack_exception
      */
     protected function adaptInputs()
     {
-        try {
-            foreach ($this->inputs as $name => $input) {
-                // TODO: again should we give the whole thing to the input.
-                $teacher_answer = '';
-                if ($this->getTas($name)->is_correctly_evaluated()) {
-                    $teacher_answer = $this->getTas($name)->get_value();
-                }
-                $input->adapt_to_model_answer($teacher_answer);
-                if ($this->getCached('contextvariables-qv') !== null) {
-                    $input->add_contextsession(new stack_secure_loader($this->getCached('contextvariables-qv'), 'qv'));
-                }
+        foreach ($this->inputs as $name => $input) {
+            // TODO: again should we give the whole thing to the input.
+            $teacheranswer = '';
+            if ($this->tas[$name]->is_correctly_evaluated()) {
+                $teacheranswer = $this->tas[$name]->get_value();
             }
-        } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
+            $input->adapt_to_model_answer($teacheranswer);
+            if ($this->getCached('contextvariables-qv') !== null) {
+                $input->add_contextsession(new stack_secure_loader($this->getCached('contextvariables-qv'), '/qv'));
+            }
         }
     }
 
