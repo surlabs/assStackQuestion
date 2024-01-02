@@ -2180,7 +2180,53 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         return $partresults;
     }
-    /* compute_final_grade($responses, $totaltries) not required as it is only Moodle relevant */
+
+
+    public function computeFinalGrade($responses, $totaltries) {
+        // This method is used by the interactive behaviour to compute the final
+        // grade after all the tries are done.
+
+        // At the moment, this method is not written as efficiently as it might
+        // be in terms of caching. For now I am happy it computes the right score.
+        // Once we are confident enough, we could try switching the nesting
+        // of the loops to increase efficiency.
+
+        // TODO: switch the nesting, now that the eval is by response and not by PRT.
+        // Current CAS-cache helps but it is wasted cycles to go to it so many times.
+        $fraction = 0;
+        foreach ($this->prts as $index => $prt) {
+            if ($prt->is_formative()) {
+                continue;
+            }
+
+            $accumulatedpenalty = 0;
+            $lastinput = array();
+            $penaltytoapply = null;
+            $results = new stdClass();
+            $results->fraction = 0;
+
+            $frac = 0;
+            foreach ($responses as $response) {
+                $prtinput = $this->getPrtInput($index, $response, true);
+
+                if (!$this->isSamePRTInput($index, $lastinput, $prtinput)) {
+                    $penaltytoapply = $accumulatedpenalty;
+                    $lastinput = $prtinput;
+                }
+
+                if ($this->canExecutePrt($this->prts[$index], $response, true)) {
+                    $results = $this->getPrtResults($index, $response, true);
+
+                    $accumulatedpenalty += $results->get_fractionalpenalty();
+                    $frac = $results->get_fraction();
+                }
+            }
+
+            $fraction += max($frac - $penaltytoapply, 0);
+        }
+
+        return $fraction;
+    }
 
     /**
      * has_necessary_prt_inputs(stack_potentialresponse_tree_lite $prt, $response, $acceptvalid)
