@@ -2097,8 +2097,21 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return $teacher_answer;
     }
 
-    /* is_same_response(array $prevresponse, array $newresponse) not required as it is only Moodle relevant */
-    //TODO FEATURE?
+    /**
+     * @param array $prevresponse
+     * @param array $newresponse
+     * @return bool
+     */
+    public function isSameResponse(array $prevresponse, array $newresponse): bool
+    {
+        foreach ($this->getExpectedData() as $name => $notused) {
+            if (!assStackQuestionUtils::arrays_same_at_key_missing_is_blank(
+                $prevresponse, $newresponse, $name)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /* is_same_response_for_part($index, array $prevresponse, array $newresponse) not required as it is only Moodle relevant */
     //TODO FEATURE?
