@@ -2089,8 +2089,31 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
     }
 
-    /* grade_response(array $response) not required as it is only Moodle relevant */
-    //TODO FEATURE MANUAL GRADING
+    /**
+     * grade_response(array $response) in Moodle
+     * for Manual scoring
+     */
+    public function gradeResponse(array $response) {
+        $fraction = 0;
+
+        // If we have one or more notes input which needs manual grading, then mark it as needs grading.
+        // SUR Futura feature de correccion manual
+        /*if (!empty($this->inputs)) {
+            foreach ($this->inputs as $input) {
+                if ($input->get_extra_option('manualgraded')) {
+                    return question_state::$needsgrading;
+                }
+            }
+        }*/
+        foreach ($this->prts as $name => $prt) {
+            if (!$prt->is_formative()) {
+                $results = $this->getPrtResult($name, $response, true);
+                //TODO add get_fraction
+                $fraction += $results->get_fraction();
+            }
+        }
+        return array($fraction, question_state::graded_state_for_fraction($fraction));
+    }
 
     /**
      * @param $current_prt_name
