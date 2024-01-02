@@ -2906,6 +2906,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * Unfortunately, "errors" stop a question being saved.  So, we have a parallel warning mechanism.
      * Warnings need to be addressed but should not stop a question being saved.
      */
+    /**
+     * @throws stack_exception
+     */
     public function validateWarnings($errors = false): array
     {
 
@@ -2937,7 +2940,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         if ($text !== '') {
             $tocheck[stack_string('questiontext')] = $text;
         }
-        $ct = $this->get_generalfeedback_castext();
+        $ct = $this->getGeneralFeedbackCasText();
         $text = trim($ct->get_rendered($this->cas_text_processor));
         if ($text !== '') {
             $tocheck[stack_string('generalfeedback')] = $text;
