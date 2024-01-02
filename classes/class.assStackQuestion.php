@@ -2310,38 +2310,132 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param string $prt_name the name of the PRT to evaluate.
      * @param array $response the response to process.
      * @param bool $accept_valid if this is true, then we will grade things even if the corresponding inputs are only VALID, and not SCORE.
-     * @return stack_potentialresponse_tree_state|string
+     * @return prt_evaluatable
+     * @throws stack_exception
      */
     public function getPrtResult(string $prt_name, array $response, bool $accept_valid)
     {
-        try {
-            $this->validateCache($response, $accept_valid);
+        $this->validateCache($response, $accept_valid);
 
-            if (array_key_exists($prt_name, $this->getPrtResults())) {
-                return $this->getPrtResults($prt_name);
-            }
-
-            // We can end up with a null prt at this point if we have question tests for a deleted PRT.
-            if (!array_key_exists($prt_name, $this->prts)) {
-                // Bail here with an empty state to avoid a later exception which prevents question test editing.
-                return new stack_potentialresponse_tree_state(null, null, null, null);
-            }
-            $prt = $this->prts[$prt_name];
-
-            if (!$this->hasNecessaryPrtInputs($prt, $response, $accept_valid)) {
-                $this->setPrtResults(new stack_potentialresponse_tree_state($prt->get_value(), null, null, null), $prt_name);
-                return $this->getPrtResults($prt_name);
-            }
-
-            //EVALUATE PRT
-            $prt_input = $this->getPrtInput($prt_name, $response, $accept_valid);
-
-            $this->setPrtResults($prt->evaluate_response($this->session, $this->options, $prt_input, $this->seed), $prt_name);
-
-            return $this->getPrtResults($prt_name);
-        } catch (stack_exception $e) {
-            return $e->getMessage();
+        if (array_key_exists($prt_name, $this->prt_results)) {
+            return $this->prt_results[$prt_name];
         }
+
+        // We can end up with a null prt at this point if we have question tests for a deleted PRT.
+        // Alternatively we have a question that could not be compiled.
+        if (!array_key_exists($prt_name, $this->prts) || $this->getCached('units') === null) {
+            // Bail here with an empty state to avoid a later exception which prevents question test editing.
+            return new prt_evaluatable('prt_' . $prt_name . '(???)', 1, new castext2_static_replacer([]), array());
+        }
+
+        // If we do not have inputs for this then no need to continue.
+        if (!$this->hasNecessaryPrtInputs($this->prts[$prt_name], $response, $accept_valid)) {
+            $this->prt_results[$prt_name] = new prt_evaluatable($this->getCached('prt-signature')[$prt_name],
+                $this->prts[$prt_name]->get_value(),
+                new castext2_static_replacer($this->getCached('static-castext-strings')),
+                $this->getCached('prt-trace')[$prt_name]);
+            return $this->prtresults[$prt_name];
+        }
+
+        // First figure out which PRTs can be called.
+        $prts = [];
+        $inputs = [];
+        foreach ($this->prts as $name => $prt) {
+            if ($this->has_necessary_prt_inputs($prt, $response, $accept_valid)) {
+                $prts[$name] = $prt;
+                $inputs += $this->get_prt_input($name, $response, $accept_valid);
+            }
+        }
+
+        // So now we build a session to evaluate all the PRTs.
+        $session = new stack_cas_session2([], $this->options, $this->seed);
+
+        /* Not using moodle multi lang
+        if (count($this->getCached('langs')) > 0) {
+            $ml = new stack_multilang();
+            $selected = $ml->pick_lang($this->getCached('langs'));
+            $session->add_statement(new stack_secure_loader('%_STACK_LANG:' .
+                stack_utils::php_string_to_maxima_string($selected), 'language setting'), false);
+        }*/
+
+        // Construct the security object. But first units declaration into the session.
+        $units = (boolean) $this->getCached('units');
+
+        // If we have units we might as well include the units declaration in the session.
+        // To simplify authors work and remove the need to call that long function.
+        // TODO: Maybe add this to the preable to save lines, but for now documented here.
+        if ($units) {
+            $session->add_statement(new stack_secure_loader('stack_unit_si_declare(true)',
+                'automatic unit declaration'), false);
+        }
+
+        if ($this->getCached('preamble-qv') !== null) {
+            $session->add_statement(new stack_secure_loader($this->getCached('preamble-qv'), 'preamble'));
+        }
+        // Add preamble from PRTs as well.
+        foreach ($this->getCached('prt-preamble') as $name => $stmt) {
+            if (isset($prts[$name])) {
+                $session->add_statement(new stack_secure_loader($stmt, 'preamble PRT: ' . $name));
+            }
+        }
+
+        // Context variables should be first.
+        if ($this->getCached('contextvariables-qv') !== null) {
+            $session->add_statement(new stack_secure_loader($this->getCached('contextvariables-qv'), '/qv'));
+        }
+        // Add contextvars from PRTs as well.
+        foreach ($this->getCached('prt-contextvariables') as $name => $stmt) {
+            if (isset($prts[$name])) {
+                $session->add_statement(new stack_secure_loader($stmt, 'contextvariables PRT: ' . $name));
+            }
+        }
+
+        if ($this->getCached('statement-qv') !== null) {
+            $session->add_statement(new stack_secure_loader($this->getCached('statement-qv'), '/qv'));
+        }
+
+        // Then the definitions of the PRT-functions. Note not just statements for a reason.
+        foreach ($this->getCached('prt-definition') as $name => $stmt) {
+            if (isset($prts[$name])) {
+                $session->add_statement(new stack_secure_loader($stmt, 'definition PRT: ' . $name));
+            }
+        }
+
+        // Suppress simplification of raw inputs.
+        $session->add_statement(new stack_secure_loader('simp:false', 'input-simplification'));
+
+        // Now push in the input values and the new _INPUT_STRING.
+        // Note these have been validated in the input system.
+        $is = '_INPUT_STRING:["stack_map"';
+        foreach ($inputs as $key => $value) {
+            $session->add_statement(new stack_secure_loader($key . ':' . $value, 'i/' .
+                array_search($key, array_keys($this->inputs)) . '/s'));
+            $is .= ',[' . stack_utils::php_string_to_maxima_string($key) . ',';
+            if (strpos($value, 'ev(') === 0) { // Unpack the value if we have simp...
+                $is .= stack_utils::php_string_to_maxima_string(mb_substr($value, 3, -6)) . ']';
+            } else {
+                $is .= stack_utils::php_string_to_maxima_string($value) . ']';
+            }
+        }
+        $is .= ']';
+        $session->add_statement(new stack_secure_loader($is, 'input-strings'));
+
+        // Generate, cache and instantiate the results.
+        foreach ($this->prts as $name => $prt) {
+            // Put the input string map in the trace.
+            $trace = array_merge(array($is . '$', '/* ------------------- */'), $this->getCached('prt-trace')[$name]);
+            $p = new prt_evaluatable($this->getCached('prt-signature')[$name],
+                $prt->get_value(), new castext2_static_replacer($this->getCached('static-castext-strings')),
+                $trace);
+            if (isset($prts[$name])) {
+                // Always make sure it gets called with simp:false.
+                $session->add_statement(new stack_secure_loader('simp:false', 'prt-simplification'));
+                $session->add_statement($p);
+            }
+            $this->prt_results[$name] = $p;
+        }
+        $session->instantiate();
+        return $this->prt_results[$prt_name];
     }
 
     /* set_value_in_nested_arrays($arrayorscalar, $newvalue) not required as it is only Moodle relevant */
