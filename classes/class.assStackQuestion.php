@@ -2113,8 +2113,20 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return true;
     }
 
-    /* is_same_response_for_part($index, array $prevresponse, array $newresponse) not required as it is only Moodle relevant */
-    //TODO FEATURE?
+    /**
+     * @param $index
+     * @param array $prevresponse
+     * @param array $newresponse
+     * @return bool
+     * @throws stack_exception
+     */
+    public function isSameResponseForPart($index, array $prevresponse, array $newresponse): bool
+    {
+        $previnput = $this->getPrtInput($index, $prevresponse, true);
+        $newinput = $this->getPrtInput($index, $newresponse, true);
+
+        return $this->isSamePRTInput($index, $previnput, $newinput);
+    }
 
     /**
      * get_input_state($name, $response, $rawinput=false) in Moodle
