@@ -185,6 +185,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     public ?castext2_evaluatable $specific_feedback_instantiated = null;
 
     /**
+     * @var castext2_evaluatable|null instantiated version of specific_feedback.
+     * Initialised in start_attempt / apply_attempt_state.
+     */
+    public ?castext2_evaluatable $general_feedback_instantiated = null;
+
+    /**
      * @var castext2_evaluatable|null instantiated version of prt_correct.
      * Initialised in start_attempt / apply_attempt_state.
      */
@@ -1873,6 +1879,55 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
 
         return $hinttext;
+    }
+
+    /**
+     * Get the cattext for the general feedback, instantiated within the question's session.
+     * @return castext2_evaluatable the castext.
+     * @throws stack_exception
+     */
+    public function getGeneralFeedbackCasText(): ?castext2_evaluatable
+    {
+        // Could be that this is instantiated already.
+        if ($this->general_feedback_instantiated !== null) {
+            return $this->general_feedback_instantiated;
+        }
+        // We can have a failed question.
+        if ($this->getCached('castext-gf') === null) {
+            $ct = castext2_evaluatable::make_from_compiled('"Broken question."', '/gf',
+                new castext2_static_replacer([])); // This mainly for the bulk-test script.
+            $ct->requires_evaluation(); // Makes it as if it were evaluated.
+            return $ct;
+        }
+
+        $this->general_feedback_instantiated = castext2_evaluatable::make_from_compiled($this->getCached('castext-gf'),
+            '/gf', new castext2_static_replacer($this->getCached('static-castext-strings')));
+        // Might not require any evaluation anyway.
+        if (!$this->general_feedback_instantiated->requires_evaluation()) {
+            return $this->general_feedback_instantiated;
+        }
+
+        // Init a session with question-variables and the related details.
+        $session = new stack_cas_session2([], $this->options, $this->seed);
+        if ($this->getCached('preamble-qv') !== null) {
+            $session->add_statement(new stack_secure_loader($this->getCached('preamble-qv'), 'preamble'));
+        }
+        if ($this->getCached('contextvariables-qv') !== null) {
+            $session->add_statement(new stack_secure_loader($this->getCached('contextvariables-qv'), '/qv'));
+        }
+        if ($this->getCached('statement-qv') !== null) {
+            $session->add_statement(new stack_secure_loader($this->getCached('statement-qv'), '/qv'));
+        }
+
+        // Then add the general-feedback code.
+        $session->add_statement($this->general_feedback_instantiated);
+        $session->instantiate();
+
+        if ($this->general_feedback_instantiated->get_errors()) {
+            $this->runtime_errors[$this->general_feedback_instantiated->get_errors()] = true;
+        }
+
+        return $this->general_feedback_instantiated;
     }
 
     /**
