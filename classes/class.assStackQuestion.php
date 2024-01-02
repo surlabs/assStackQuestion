@@ -2034,8 +2034,41 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return true;
     }
 
-    /* is_gradable_response(array $response) not required as it is only Moodle relevant */
-    //TODO FEATURE?
+    /**
+     * @param array $response
+     * @return bool
+     */
+    public function isGradableResponse(array $response): bool
+    {
+        // Manually graded answers are always gradable.
+        if (!empty($this->inputs)) {
+            foreach ($this->inputs as $input) {
+                if ($input->get_extra_option('manualgraded')) {
+                    return true;
+                }
+            }
+        }
+        // If any PRT is gradable, then we can grade the question.
+        $noprts = true;
+        foreach ($this->prts as $index => $prt) {
+            $noprts = false;
+            // Whether formative PRTs can be executed is not relevant to gradability.
+            if (!$prt->is_formative() && $this->canExecutePrt($prt, $response, true)) {
+                return true;
+            }
+        }
+        // In the case of no PRTs,  questions are in state "is_gradable" if we have
+        // at least one input in the "score" or "valid" state.
+        if ($noprts) {
+            foreach ($this->inputstates as $key => $inputstate) {
+                if ($inputstate->status == 'score' || $inputstate->status == 'valid') {
+                    return true;
+                }
+            }
+        }
+        // Otherwise we are not "is_gradable".
+        return false;
+    }
 
     /**
      * get_validation_error(array $response)
