@@ -15,12 +15,6 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 
-//fau: #40 Do not use filterlib from Moodle
-//require_once($CFG->libdir . '/filterlib.php');
-//fau.
-
-include_once('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutputfilterbase.class.php');
-
 /**
  * STACK maths output methods for using MathJax.
  *

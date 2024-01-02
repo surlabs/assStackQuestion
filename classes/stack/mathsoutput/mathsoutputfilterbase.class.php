@@ -92,7 +92,7 @@ abstract class stack_maths_output_filter_base extends stack_maths_output {
      */
     protected function render_equation($tex, $displaystyle) {
 		//fau: #39 do not use Moodle filters.
-		//WARNING; Have a look, it maybe make equations not be properly shown.
+		//TODO Have a look, it maybe make equations not be properly shown.
 		if ($displaystyle) {
 			return $this->displaywrapstart .
 				$this->displaystart . $tex .
