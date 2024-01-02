@@ -2006,8 +2006,33 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return false;
     }
 
-    /* is_complete_response(array $response) not required as it is only Moodle relevant */
-    //TODO FEATURE?
+
+    /**
+     * get_prt_result($index, $response, $acceptvalid) in Moodle
+     * @throws stack_exception
+     */
+    public function isCompleteResponse(array $response): bool
+    {
+
+        // If all PRTs are gradable, then the question is complete. Optional inputs may be blank.
+        foreach ($this->prts as $prt) {
+            // Formative PRTs do not contribute to complete responses.
+            if (!$prt->is_formative() && !$this->canExecutePrt($prt, $response, false)) {
+                return false;
+            }
+        }
+
+        // If there are no PRTs, then check that all inputs are complete.
+        if (!$this->prts) {
+            foreach ($this->inputs as $name => $notused) {
+                if (stack_input::SCORE != $this->getInputState($name, $response)->status) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 
     /* is_gradable_response(array $response) not required as it is only Moodle relevant */
     //TODO FEATURE?
