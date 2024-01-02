@@ -2014,7 +2014,19 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
         return $expected;
     }
-    /* get_question_summary() not required as it is only Moodle relevant */
+
+    /**
+     * used in testing
+     * @return string
+     */
+    public function getQuestionSummary(): string
+    {
+        if ($this->question_note_instantiated !== null &&
+            '' !== $this->question_note_instantiated->get_rendered()) {
+            return $this->question_note_instantiated->get_rendered();
+        }
+        return stack_string('questionnote_missing');
+    }
 
     /* summarise_response(array $response) not required as it is only Moodle relevant */
     //TODO FEATURE
