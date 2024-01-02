@@ -168,40 +168,44 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     private stack_cas_security $security;
 
     /**
-     * Sometimes as cas session sometimes string no type declaration
-     * @var stack_cas_session2|string|bool STACK specific: session of variables.
+     * @var castext2_evaluatable|null STACK specific: variant specifying castext fragment.
      */
-    protected $question_note_instantiated;
+    protected ?castext2_evaluatable $question_note_instantiated = null;
 
     /**
-     * @var string|null instantiated version of question_text.
+     * @var castext2_evaluatable|null instantiated version of question_text.
      * Initialised in start_attempt / apply_attempt_state.
      */
-    public ?string $question_text_instantiated;
+    public ?castext2_evaluatable $question_text_instantiated = null;
 
     /**
-     * @var string|null instantiated version of specific_feedback.
+     * @var castext2_evaluatable|null instantiated version of specific_feedback.
      * Initialised in start_attempt / apply_attempt_state.
      */
-    public ?string $specific_feedback_instantiated;
+    public ?castext2_evaluatable $specific_feedback_instantiated = null;
 
     /**
-     * @var string|null instantiated version of prt_correct.
+     * @var castext2_evaluatable|null instantiated version of prt_correct.
      * Initialised in start_attempt / apply_attempt_state.
      */
-    public ?string $prt_correct_instantiated;
+    public ?castext2_evaluatable $prt_correct_instantiated = null;
 
     /**
-     * @var string|null instantiated version of prt_partially_correct.
+     * @var castext2_evaluatable|null instantiated version of prt_partially_correct.
      * Initialised in start_attempt / apply_attempt_state.
      */
-    public ?string $prt_partially_correct_instantiated;
+    public ?castext2_evaluatable $prt_partially_correct_instantiated = null;
 
     /**
-     * @var string|null instantiated version of prt_incorrect.
+     * @var castext2_evaluatable|null instantiated version of prt_incorrect.
      * Initialised in start_attempt / apply_attempt_state.
      */
-    public ?string $prt_incorrect_instantiated;
+    public ?castext2_evaluatable $prt_incorrect_instantiated = null;
+
+    /**
+     * @var castext2_processor|null
+     */
+    private ?castext2_processor $cas_text_processor = null;
 
     /**
      * @var array Errors generated at runtime.
@@ -249,10 +253,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     /* STACK CORE ATTRIBUTES END */
 
     /* ILIAS REQUIRED METHODS BEGIN */
-    /**
-     * @var array|bool|float|ilTemplate|int|int[]|mixed|object|string|null
-     */
-    private $cas_text_processor;
 
     /**
      * @return string ILIAS question type name
@@ -2627,11 +2627,258 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         //TODO COPY
     }
 
-    /* validate_against_stackversion() not required as it is only Moodle relevant */
-    //TODO FEATURE BULK TEST
+    /**
+     * This function is called by the bulk testing script on upgrade.
+     * This checks if questions use features which have changed.
+     */
+    public function validateAgainstStackVersion($context): string
+    {
+        $errors = array();
+        $qfields = array('questiontext', 'questionvariables', 'questionnote', 'questiondescription',
+            'specificfeedback', 'generalfeedback');
 
-    /* validate_warnings($errors = false) not required as it is only Moodle relevant */
-    //TODO FEATURE BULK TEST
+        $stackversion = (int) $this->stack_version;
+
+        // Things no longer allowed in questions.
+        $patterns = array(
+            array('pat' => 'addrow', 'ver' => 2018060601, 'alt' => 'rowadd'),
+            array('pat' => 'texdecorate', 'ver' => 2018080600),
+            array('pat' => 'logbase', 'ver' => 2019031300, 'alt' => 'lg')
+        );
+        foreach ($patterns as $checkpat) {
+            if ($stackversion < $checkpat['ver']) {
+                foreach ($qfields as $field) {
+                    if (strstr($this->$field ?? '', $checkpat['pat'])) {
+                        $a = array('pat' => $checkpat['pat'], 'ver' => $checkpat['ver'], 'qfield' => stack_string($field));
+                        $err = stack_string('stackversionerror', $a);
+                        if (array_key_exists('alt', $checkpat)) {
+                            $err .= ' ' . stack_string('stackversionerroralt', $checkpat['alt']);
+                        }
+                        $errors[] = $err;
+                    }
+                }
+                // Look inside the PRT feedback variables.  Should probably check the feedback as well.
+                foreach ($this->prts as $name => $prt) {
+                    $kv = $prt->get_feedbackvariables_keyvals();
+                    if (strstr($kv, $checkpat['pat'])) {
+                        $a = array('pat' => $checkpat['pat'], 'ver' => $checkpat['ver'],
+                            'qfield' => stack_string('feedbackvariables') . ' (' . $name . ')');
+                        $err = stack_string('stackversionerror', $a);
+                        if (array_key_exists('alt', $checkpat)) {
+                            $err .= ' ' . stack_string('stackversionerroralt', $checkpat['alt']);
+                        }
+                        $errors[] = $err;
+                    }
+                }
+            }
+        }
+
+        // Mul is no longer supported.
+        // We don't need to include a date check here because it is not a change in behaviour.
+        foreach ($this->inputs as $inputname => $input) {
+
+            if (!preg_match('/^([a-zA-Z]+|[a-zA-Z]+[0-9a-zA-Z_]*[0-9a-zA-Z]+)$/', $inputname)) {
+                $errors[] = stack_string('inputnameform', $inputname);
+            }
+
+            $options = $input->get_parameter('options');
+            if (trim($options ?? '') !== '') {
+                $options = explode(',', $options);
+                foreach ($options as $opt) {
+                    $opt = strtolower(trim($opt));
+                    if ($opt === 'mul') {
+                        $errors[] = stack_string('stackversionmulerror');
+                    }
+                }
+            }
+        }
+
+        // Look for RexExp answer test which is no longer supported.
+        foreach ($this->prts as $name => $prt) {
+            if (array_key_exists('RegExp', $prt->get_answertests())) {
+                $errors[] = stack_string('stackversionregexp');
+            }
+        }
+
+        // Check files use match the files in the question.
+        //TODO SUR por ahora comentado
+        /*
+        $fs = get_file_storage();
+        $pat = '/@@PLUGINFILE@@([^@"])*[\'"]/';
+        $fields = array('questiontext', 'specificfeedback', 'generalfeedback', 'questiondescription');
+        foreach ($fields as $field) {
+            $text = $this->$field;
+            $filesexpected = preg_match($pat, $text ?? '');
+            $filesfound    = $fs->get_area_files($context->id, 'question', $field, $this->id);
+            if (!$filesexpected && $filesfound != array()) {
+                $errors[] = stack_string('stackfileuseerror', stack_string($field));
+            }
+        }*/
+
+        // Add in any warnings.
+        $errors = array_merge($errors, $this->validateWarnings(true));
+
+        return implode(' ', $errors);
+    }
+
+    /*
+     * Unfortunately, "errors" stop a question being saved.  So, we have a parallel warning mechanism.
+     * Warnings need to be addressed but should not stop a question being saved.
+     */
+    public function validateWarnings($errors = false): array
+    {
+
+        $warnings = array();
+
+        // 1. Answer tests which require raw inputs actually have SAns a calculated value.
+        foreach ($this->prts as $prt) {
+            foreach ($prt->get_raw_sans_used() as $key => $sans) {
+                if (!array_key_exists(trim($sans), $this->inputs)) {
+                    $warnings[] = stack_string_error('AT_raw_sans_needed', array('prt' => $key));
+                }
+            }
+            foreach ($prt->get_raw_arguments_used() as $name => $ans) {
+                $tvalue = trim($ans);
+                $tvalue = substr($tvalue, strlen($tvalue) - 1);
+                if ($tvalue === ';') {
+                    $warnings[] = stack_string('nosemicolon') . ':' . $name;
+                }
+            }
+        }
+
+        // 2. Check alt-text exists.
+        // Reminder: previous approach in Oct 2021 tried to use libxml_use_internal_errors, but this was a dead end.
+        $tocheck = array();
+        $text = '';
+        if ($this->question_text_instantiated !== null) {
+            $text = trim($this->question_text_instantiated->get_rendered());
+        }
+        if ($text !== '') {
+            $tocheck[stack_string('questiontext')] = $text;
+        }
+        $ct = $this->get_generalfeedback_castext();
+        $text = trim($ct->get_rendered($this->cas_text_processor));
+        if ($text !== '') {
+            $tocheck[stack_string('generalfeedback')] = $text;
+        }
+        // This is a compromise.  We concatinate all nodes and we don't instantiate this!
+        foreach ($this->prts as $prt) {
+            $text = trim($prt->get_feedback_test());
+            if ($text !== '') {
+                $tocheck[$prt->get_name()] = $text;
+            }
+        }
+
+        foreach ($tocheck as $field => $text) {
+            // Replace unprotected & symbols, which happens a lot inside LaTeX equations.
+            $text = preg_replace("/&(?!\S+;)/", "&amp;", $text);
+
+            $missingalt = stack_utils::count_missing_alttext($text);
+            if ($missingalt > 0) {
+                $warnings[] = stack_string_error('alttextmissing', array('field' => $field, 'num' => $missingalt));
+            }
+        }
+
+        // 3. Check for todo blocks.
+        $tocheck = array();
+        $fields = array('questiontext', 'specificfeedback', 'generalfeedback', 'questiondescription');
+        foreach ($fields as $field) {
+            $tocheck[stack_string($field)] = $this->$field;
+        }
+        foreach ($this->prts as $prt) {
+            $text = trim($prt->get_feedback_test());
+            if ($text !== '') {
+                $tocheck[$prt->get_name()] = $text;
+            }
+        }
+        $pat = '/\[\[todo/';
+        foreach ($tocheck as $field => $text) {
+            if (preg_match($pat, $text ?? '')) {
+                $warnings[] = stack_string_error('todowarning', array('field' => $field));
+            }
+        }
+
+        // 4. Language warning checks.
+        // Put language warning checks last (see guard clause below).
+        // Check multi-language versions all have the same languages.
+        $ml = new stack_multilang();
+        $qlangs = $ml->languages_used($this->questiontext);
+        asort($qlangs);
+        if ($qlangs != array() && !$errors) {
+            $warnings['questiontext'] = stack_string('questiontextlanguages', implode(', ', $qlangs));
+        }
+
+        // Language tags don't exist.
+        if ($qlangs == array()) {
+            return $warnings;
+        }
+
+        $problems = false;
+        $missinglang = array();
+        $extralang = array();
+        $fields = array('specificfeedback', 'generalfeedback');
+        foreach ($fields as $field) {
+            $text = $this->$field;
+            // Strip out feedback tags (to help non-trivial content check)..
+            foreach ($this->prts as $prt) {
+                $text = str_replace('[[feedback:' . $prt->get_name() . ']]', '', $text);
+            }
+
+            if ($ml->non_trivial_content_for_check($text)) {
+
+                $langs = $ml->languages_used($text);
+                foreach ($qlangs as $expectedlang) {
+                    if (!in_array($expectedlang, $langs)) {
+                        $problems = true;
+                        $missinglang[$expectedlang][] = stack_string($field);
+                    }
+                }
+                foreach ($langs as $lang) {
+                    if (!in_array($lang, $qlangs)) {
+                        $problems = true;
+                        $extralang[stack_string($field)][] = $lang;
+                    }
+                }
+
+            }
+        }
+
+        foreach ($this->prts as $prt) {
+            foreach ($prt->get_feedback_languages() as $nodes) {
+                // The nodekey is really the answernote from one branch of the node.
+                // No actually it is not in the new PRT-system, it's just 'true' or 'false'.
+                foreach ($nodes as $nodekey => $langs) {
+                    foreach ($qlangs as $expectedlang) {
+                        if (!in_array($expectedlang, $langs)) {
+                            $problems = true;
+                            $missinglang[$expectedlang][] = $nodekey;
+                        }
+                    }
+                    foreach ($langs as $lang) {
+                        if (!in_array($lang, $qlangs)) {
+                            $problems = true;
+                            $extralang[$nodekey][] = $lang;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($problems) {
+            $warnings[] = stack_string_error('languageproblemsexist');
+        }
+        foreach ($missinglang as $lang => $missing) {
+            $warnings[] = stack_string('languageproblemsmissing',
+                array('lang' => $lang, 'missing' => implode(', ', $missing)));
+        }
+        foreach ($extralang as $field => $langs) {
+            $warnings[] = stack_string('languageproblemsextra',
+                array('field' => $field, 'langs' => implode(', ', $langs)));
+        }
+
+        return $warnings;
+
+    }
 
     /**
      * Cache management.
