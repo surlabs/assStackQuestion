@@ -2131,8 +2131,15 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return true;
     }
 
-    /* get_parts_and_weights() not required as it is only Moodle relevant */
-    //TODO FEATURE
+    public function getPartsAndWeights() {
+        $weights = array();
+        foreach ($this->prts as $index => $prt) {
+            if (!$prt->is_formative()) {
+                $weights[$index] = $prt->get_value();
+            }
+        }
+        return $weights;
+    }
 
     /* grade_parts_that_can_be_graded(array $response, array $lastgradedresponses, $finalsubmit) not required as it is only Moodle relevant */
 
