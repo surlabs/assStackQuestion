@@ -144,8 +144,8 @@ class assStackQuestionTest
 		}
 		$res = $db->query($query);
 
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/ilias_object/test/class.assStackQuestionTestInput.php';
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/ilias_object/test/class.assStackQuestionTestExpected.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/ilias_object/test/class.assStackQuestionTestInput.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/ilias_object/test/class.assStackQuestionTestExpected.php';
 		//If there is a result returns object, otherwise returns false.
 		while ($row = $db->fetchAssoc($res)) {
 			//Test object to return in case there are options in DB for this $question_id
@@ -211,7 +211,7 @@ class assStackQuestionTest
 	/*
 	public function conversion()
 	{
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionStackFactory.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionStackFactory.php';
 		$stack_factory = new assStackQuestionStackFactory();
 		return $stack_factory->get('unit_test', self::_read($this->getQuestionId(), $this->getTestCase()));
 	}

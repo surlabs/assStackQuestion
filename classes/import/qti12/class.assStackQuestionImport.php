@@ -13,8 +13,8 @@
  *
  */
 
-require_once './Services/MediaObjects/classes/class.ilObjMediaObject.php';
-require_once './Modules/TestQuestionPool/classes/import/qti12/class.assQuestionImport.php';
+//require_once './Services/MediaObjects/classes/class.ilObjMediaObject.php';
+//require_once './Modules/TestQuestionPool/classes/import/qti12/class.assQuestionImport.php';
 
 
 class assStackQuestionImport extends assQuestionImport

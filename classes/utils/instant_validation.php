@@ -16,10 +16,10 @@ chdir("../../../../../../../../../");
 // Avoid redirection to start screen
 // (see ilInitialisation::InitILIAS for details)
 
-require_once "./include/inc.header.php";
-require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+//require_once "./include/inc.header.php";
+//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 //Initialization (load of stack wrapper classes)
-require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
+//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
 
 header('Content-type: application/json; charset=utf-8');
 echo json_encode(checkUserResponse($_REQUEST['question_id'], $_REQUEST['input_name'], $_REQUEST['input_value']));
@@ -34,7 +34,7 @@ exit;
  */
 function checkUserResponse($question_id, $input_name, $user_response)
 {
-	require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/class.assStackQuestion.php';
+	//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/class.assStackQuestion.php';
 
 	$question = new assStackQuestion();
 
@@ -46,7 +46,7 @@ function checkUserResponse($question_id, $input_name, $user_response)
 
 	//Initialize question from seed
 	$active_id = $_GET['active_id'];
-	require_once "./Modules/Test/classes/class.ilObjTest.php";
+	//require_once "./Modules/Test/classes/class.ilObjTest.php";
 	$pass = ilObjTest::_getPass($active_id);
 
 	if (is_int($active_id) and is_int($pass)) {

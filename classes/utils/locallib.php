@@ -20,7 +20,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once(__DIR__ . '/../stack/mathsoutput/mathsoutput.class.php');
+//require_once(__DIR__ . '/../stack/mathsoutput/mathsoutput.class.php');
 include_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/exceptions/class.assStackQuestionException.php');
 
 /**
@@ -56,7 +56,7 @@ function stack_ouput_castext($castext)
  */
 function stack_string($key, $a = null)
 {
-	require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php';
+	//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php';
 	$user_language = getLanguage();
 	switch ($user_language) {
 		case 'en':
@@ -100,7 +100,7 @@ function get_stack_maxima_latex_replacements()
 	// This is an array language code => replacements array.
 	static $replacements = [];
 
-	require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php';
+	//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php';
 	$lang = getLanguage();
 	if (!isset($replacements[$lang])) {
 		$replacements[$lang] = [

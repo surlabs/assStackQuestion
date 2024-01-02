@@ -4,7 +4,7 @@
  * GPLv3, see LICENSE
  */
 
-require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 
 /**
  * STACK Question deployed seeds authoring GUI class
@@ -102,7 +102,7 @@ class assStackQuestionDeployedSeedsGUI
 	{
 		global $DIC;
 
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+		//require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
 		$ctrl = $DIC->ctrl();
 		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));

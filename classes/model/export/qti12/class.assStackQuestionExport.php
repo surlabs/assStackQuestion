@@ -145,7 +145,7 @@ class assStackQuestionExport extends assQuestionExport
 	{
 		if (strcmp($this->mode, "aggregated") == 0) return $this->aggregatedResultsToExcel($deliver);
 
-		require_once './Services/Excel/classes/class.ilExcelWriterAdapter.php';
+		//require_once './Services/Excel/classes/class.ilExcelWriterAdapter.php';
 		$excelfile = ilUtil::ilTempnam();
 		$adapter = new ilExcelWriterAdapter($excelfile, FALSE);
 		$testname = ilUtil::getASCIIFilename(preg_replace("/\s/", "_", $this->test_obj->getTitle())) . ".xls";
@@ -163,7 +163,7 @@ class assStackQuestionExport extends assQuestionExport
 		$format_title->setColor('black');
 		$format_title->setPattern(1);
 		$format_title->setFgColor('silver');
-		require_once './Services/Excel/classes/class.ilExcelUtils.php';
+		//require_once './Services/Excel/classes/class.ilExcelUtils.php';
 		$worksheet =& $workbook->addWorksheet(ilExcelUtils::_convert_text($this->lng->txt("tst_results")));
 		$additionalFields = $this->test_obj->getEvaluationAdditionalFields();
 		$row = 0;
@@ -502,7 +502,7 @@ class assStackQuestionExport extends assQuestionExport
 					$row += 2;
 					if (is_object($userdata) && is_array($userdata->getQuestions($pass))) {
 						foreach ($userdata->getQuestions($pass) as $question) {
-							require_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
+							//require_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
 							$question = assQuestion::_instanciateQuestion($question["id"]);
 							if (is_object($question)) {
 								$row = $question->setExportDetailsXLS($resultsheet, $row, $active_id, $pass, $format_title, $format_bold);

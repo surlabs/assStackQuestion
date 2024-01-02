@@ -113,7 +113,7 @@ class assStackQuestionTestTableGUI extends ilTable2GUI
 						//Add cross if fail
 						if ((float)$test_data["received_score"] != (float)$test_data["expected_score"])
 						{
-							require_once 'Services/UIComponent/Glyph/classes/class.ilGlyphGUI.php';
+							//require_once 'Services/UIComponent/Glyph/classes/class.ilGlyphGUI.php';
 							$row["received_score"] = $test_data["received_score"] . '<img src="' . ilUtil::getImagePath("icon_not_ok.svg") . '" />';
 
 						} else
@@ -141,7 +141,7 @@ class assStackQuestionTestTableGUI extends ilTable2GUI
 							//We are not checking penalties in ILIAS version of STACK
 							$row["received_penalty"] = $test_data["received_penalty"];
 							/*
-							require_once 'Services/UIComponent/Glyph/classes/class.ilGlyphGUI.php';
+							//require_once 'Services/UIComponent/Glyph/classes/class.ilGlyphGUI.php';
 							$row["received_penalty"] = $test_data["received_penalty"] . '<img src="' . ilUtil::getImagePath("icon_not_ok.svg") . '" />';*/
 
 						} else
@@ -166,7 +166,7 @@ class assStackQuestionTestTableGUI extends ilTable2GUI
 						//Add cross if fail
 						if ((float)$test_data["received_answernote"] != (float)$test_data["expected_answernote"])
 						{
-							require_once 'Services/UIComponent/Glyph/classes/class.ilGlyphGUI.php';
+							//require_once 'Services/UIComponent/Glyph/classes/class.ilGlyphGUI.php';
 							$row["received_answernote"] = $test_data["received_answernote"] . '<img src="' . ilUtil::getImagePath("icon_not_ok.svg") . '" />';
 
 						} else

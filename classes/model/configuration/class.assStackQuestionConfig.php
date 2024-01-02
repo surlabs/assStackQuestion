@@ -80,7 +80,7 @@ class assStackQuestionConfig
 	 */
 	public static function _readServers($config)
 	{
-		require_once(__DIR__ . '/class.assStackQuestionServer.php');
+		//require_once(__DIR__ . '/class.assStackQuestionServer.php');
 		assStackQuestionServer::readServersFromConfig($config);
 	}
 
@@ -93,7 +93,7 @@ class assStackQuestionConfig
 	 */
 	public static function _getServerAddress()
 	{
-		require_once(__DIR__ . '/class.assStackQuestionServer.php');
+		//require_once(__DIR__ . '/class.assStackQuestionServer.php');
 
 		if (isset(self::$server))
 		{
@@ -184,8 +184,8 @@ class assStackQuestionConfig
 		}
 
 		//Force re-creation of maxima local file with new content from stack4.
-		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
-		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php');
+		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
+		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php');
 
 		if (!file_exists($CFG->dataroot . '/stack/maximalocal.mac'))
 		{
@@ -483,8 +483,8 @@ class assStackQuestionConfig
 		}
 
 		//Force re-creation of maxima local file with new content from stack4.
-		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
-		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php');
+		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
+		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php');
 
 		if (!file_exists($CFG->dataroot . '/stack/maximalocal.mac'))
 		{

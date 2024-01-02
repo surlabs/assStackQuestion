@@ -190,7 +190,7 @@ class assStackQuestionPRT
 			. ' ORDER BY xqcas_prts.id';
 		$res = $db->query($query);
 
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/ilias_object/class.assStackQuestionPRTNode.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/ilias_object/class.assStackQuestionPRTNode.php';
 		//If there is a result returns object, otherwise returns false.
 		while ($row = $db->fetchAssoc($res)) {
 			//PRT object to return in case there are options in DB for this $question_id

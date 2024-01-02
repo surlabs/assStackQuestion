@@ -4,7 +4,7 @@
  * GPLv3, see LICENSE
  */
 
-require_once("./Services/Component/classes/class.ilPluginConfigGUI.php");
+//require_once("./Services/Component/classes/class.ilPluginConfigGUI.php");
 
 /**
  * STACK Question plugin config GUI
@@ -388,7 +388,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function getConnectionSettingsForm()
 	{
 		global $DIC;
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+		//require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
 		$ctrl = $DIC->ctrl();
 		$form->setFormAction($ctrl->getFormAction($this));
@@ -496,7 +496,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function getDisplaySettingsForm()
 	{
 		global $DIC;
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+		//require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
 		$ctrl = $DIC->ctrl();
 		$form->setFormAction($ctrl->getFormAction($this));
@@ -548,7 +548,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function getDefaultOptionsSettingsForm()
 	{
 		global $DIC;
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+		//require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
 		$ctrl = $DIC->ctrl();
 		$form->setFormAction($ctrl->getFormAction($this));
@@ -631,7 +631,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function getDefaultInputsSettingsForm()
 	{
 		global $DIC;
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+		//require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
 		$ctrl = $DIC->ctrl();
 		$form->setFormAction($ctrl->getFormAction($this));
@@ -738,8 +738,8 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 	public function getDefaultPRTSettingsForm()
 	{
 		global $DIC;
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
+		//require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
 		$ctrl = $DIC->ctrl();
 		$form->setFormAction($ctrl->getFormAction($this));
@@ -901,7 +901,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$db = $DIC->database();
 		$lng = $DIC->language();
 
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+		//require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($ctrl->getFormAction($this));
 
@@ -915,7 +915,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 		$stylesheet_active = $feedback_data["feedback_stylesheet_id"];
 
 		//Available standard styles
-		require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
+		//require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
 		$available_styles = ilObjStyleSheet::_getStandardStyles();
 		$available_styles[""] = $lng->txt("default");
 

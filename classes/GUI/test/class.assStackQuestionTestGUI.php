@@ -4,7 +4,7 @@
  * GPLv3, see LICENSE
  */
 
-require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 
 /**
  * STACK Question Unit tests GUI class
@@ -127,7 +127,7 @@ class assStackQuestionTestGUI
 	 */
 	public function fillTestCaseHeader($test)
 	{
-		require_once 'Services/UIComponent/Glyph/classes/class.ilGlyphGUI.php';
+		//require_once 'Services/UIComponent/Glyph/classes/class.ilGlyphGUI.php';
 		if ($this->mode)
 		{
 			$unit_test_results = $this->getUnitTestResults($test->getTestCase());
@@ -169,7 +169,7 @@ class assStackQuestionTestGUI
 		$ctrl = $DIC->ctrl();
 
 		$container_panel = ilPanelGUI::getInstance();
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+		//require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 
 		$testcase_toolbar = new ilPropertyFormGUI();
 		$testcase_toolbar->addCommandButton("runTestcases", $this->getPlugin()->txt("ut_run_testcase"));
@@ -224,7 +224,7 @@ class assStackQuestionTestGUI
 	 */
 	public function getPRTTable($testcase)
 	{
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/GUI/tables/class.assStackQuestionTestTableGUI.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/GUI/tables/class.assStackQuestionTestTableGUI.php';
 		$prts_table = new assStackQuestionTestTableGUI($this, "showUnitTests");
 		if ($this->mode)
 		{
@@ -255,7 +255,7 @@ class assStackQuestionTestGUI
 		$form_container->setHeadingStyle(ilPanelGUI::PANEL_STYLE_SECONDARY);
 		$form_container->setHeading($this->getPlugin()->txt("ut_testcase_name") . " " . $testcase_name);
 
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+		//require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
 
@@ -364,7 +364,7 @@ class assStackQuestionTestGUI
 		$form_container->setHeadingStyle(ilPanelGUI::PANEL_STYLE_SECONDARY);
 		$form_container->setHeading($this->getPlugin()->txt("ut_testcase_name") . " " . $testcase_name);
 
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+		//require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));
 

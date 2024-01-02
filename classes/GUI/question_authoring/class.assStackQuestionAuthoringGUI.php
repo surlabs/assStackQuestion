@@ -4,8 +4,8 @@
  * GPLv3, see LICENSE
  */
 
-require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
-require_once('Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php');
+//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+//require_once('Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php');
 
 /**
  * STACK Question authoring GUI class
@@ -58,7 +58,7 @@ class assStackQuestionAuthoringGUI
 		$this->setTemplate($this->getPlugin()->getTemplate('tpl.il_as_qpl_xqcas_authoring_container.html'));
 
 		//Set toolbar
-		require_once("./Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php");
+		//require_once("./Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php");
 		$toolbar = new ilToolbarGUI();
 		include_once('./Services/UIComponent/Button/classes/class.ilButton.php');
 
@@ -75,7 +75,7 @@ class assStackQuestionAuthoringGUI
 		$this->getTemplate()->setVariable("TOOLBAR", $toolbar->getHTML());
 
 		//Set form
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+		//require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
 		$form->setTitle($this->getPlugin()->txt('edit_cas_question'));
 		$ctrl = $DIC->ctrl();
@@ -100,7 +100,7 @@ class assStackQuestionAuthoringGUI
 		$this->getPlugin()->includeClass('utils/FormProperties/class.ilButtonFormPropertyGUI.php');
 
 		//https://mantis.ilias.de/view.php?id=25290
-		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
+		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
 		$this->default = assStackQuestionConfig::_getStoredSettings("all");
 
 		//Add general properties to form like question text, title, author...

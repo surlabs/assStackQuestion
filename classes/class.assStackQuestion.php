@@ -4,7 +4,7 @@
  * GPLv3, see LICENSE
  */
 
-require_once /** @lang text */
+//require_once /** @lang text */
 './Modules/TestQuestionPool/classes/class.assQuestion.php';
 
 // Interface for FormATest
@@ -277,7 +277,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         parent::__construct($title, $comment, $author, $owner, $question);
 
         // init the plugin object
-        require_once "./Services/Component/classes/class.ilPlugin.php";
+        //require_once "./Services/Component/classes/class.ilPlugin.php";
         try {
             $this->setPlugin(ilPlugin::getPluginObject(IL_COMP_MODULE, "TestQuestionPool", "qst", "assStackQuestion"));
         } catch (ilPluginException $e) {
@@ -290,14 +290,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         $this->setLastChange(time());
 
         //Initialize some STACK required parameters
-        require_once __DIR__ . '/utils/class.assStackQuestionInitialization.php';
-        require_once(__DIR__ . '/stack/input/factory.class.php');
-        require_once(__DIR__ . '/stack/cas/keyval.class.php');
-        require_once(__DIR__ . '/stack/cas/castext.class.php');
-        require_once(__DIR__ . '/stack/cas/cassecurity.class.php');
-        require_once(__DIR__ . '/stack/potentialresponsetree.class.php');
-        require_once(__DIR__ . '/utils/locallib.php');
-        require_once(__DIR__ . '/stack/cas/secure_loader.class.php');
+        //require_once __DIR__ . '/utils/class.assStackQuestionInitialization.php';
+        //require_once(__DIR__ . '/stack/input/factory.class.php');
+        //require_once(__DIR__ . '/stack/cas/keyval.class.php');
+        //require_once(__DIR__ . '/stack/cas/castext.class.php');
+        //require_once(__DIR__ . '/stack/cas/cassecurity.class.php');
+        //require_once(__DIR__ . '/stack/potentialresponsetree.class.php');
+        //require_once(__DIR__ . '/utils/locallib.php');
+        //require_once(__DIR__ . '/stack/cas/secure_loader.class.php');
     }
 
     //assQuestion abstract methods
@@ -541,7 +541,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function getOperators($expression): array
     {
-        require_once "./Modules/TestQuestionPool/classes/class.ilOperatorsExpressionMapping.php";
+        //require_once "./Modules/TestQuestionPool/classes/class.ilOperatorsExpressionMapping.php";
 
         return ilOperatorsExpressionMapping::getOperatorsByExpression($expression);
     }
@@ -566,7 +566,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function getUserQuestionResult($active_id, $pass): ilUserQuestionResult
     {
-        require_once './Modules/TestQuestionPool/classes/class.ilUserQuestionResult.php';
+        //require_once './Modules/TestQuestionPool/classes/class.ilUserQuestionResult.php';
 
         $result = new ilUserQuestionResult($this, $active_id, $pass);
         $points = (float)$this->calculateReachedPoints($active_id, $pass);
@@ -681,7 +681,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $this->setLifecycle(ilAssQuestionLifecycle::getDraftInstance());
         }
 
-        require_once("./Services/RTE/classes/class.ilRTE.php");
+        //require_once("./Services/RTE/classes/class.ilRTE.php");
         $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data["question_text"], 1));
         $this->setEstimatedWorkingTime(substr($data["working_time"], 0, 2), substr($data["working_time"], 3, 2), substr($data["working_time"], 6, 2));
 
@@ -1344,7 +1344,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         $standard_question = array();
 
         //load options
-        require_once __DIR__ . '/model/configuration/class.assStackQuestionConfig.php';
+        //require_once __DIR__ . '/model/configuration/class.assStackQuestionConfig.php';
         $standard_options = assStackQuestionConfig::_getStoredSettings('options');
         $options_array = array();
 

@@ -4,7 +4,7 @@
  * GPLv3, see LICENSE
  */
 
-require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/FormProperties/class.ilMultipartFormPropertyGUI.php';
+//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/FormProperties/class.ilMultipartFormPropertyGUI.php';
 
 /**
  * Columns property GUI class
@@ -108,7 +108,7 @@ class ilColumnsFormPropertyGUI extends ilMultipartFormPropertyGUI
 				if (assStackQuestionUtils::_endsWith($form_property->postvar, "_student_answer"))
 				{
 					$comment_id = rand(100000, 999999);
-					require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+					//require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
 					ilTooltipGUI::addTooltip('ilAssStackQuestion' . $comment_id, $lng->getUserLanguage() == "de" ? $casexpresion_german : $casexpresion_english);
 					$this->getTemplate()->setVariable("COMMENT_ID", $comment_id);
 					$this->getTemplate()->setVariable("SPECIFIC_TEXT_INFO", $lng->getUserLanguage() == "de" ? "<a href='javascript:;'>[CAS Ausdruck]</a>" : "<a href='javascript:;'>[CAS Expresion]</a>");
@@ -119,7 +119,7 @@ class ilColumnsFormPropertyGUI extends ilMultipartFormPropertyGUI
 				if (assStackQuestionUtils::_endsWith($form_property->postvar, "_teacher_answer"))
 				{
 					$comment_id = rand(100000, 999999);
-					require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+					//require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
 					ilTooltipGUI::addTooltip('ilAssStackQuestion' . $comment_id, $lng->getUserLanguage() == "de" ? $casexpresion_german : $casexpresion_english);
 					$this->getTemplate()->setVariable("COMMENT_ID", $comment_id);
 					$this->getTemplate()->setVariable("SPECIFIC_TEXT_INFO", $lng->getUserLanguage() == "de" ? "<a href='javascript:;'>[CAS Ausdruck]</a>" : "<a href='javascript:;'>[CAS Expresion]</a>");
@@ -130,7 +130,7 @@ class ilColumnsFormPropertyGUI extends ilMultipartFormPropertyGUI
 				if (assStackQuestionUtils::_endsWith($form_property->postvar, "_options"))
 				{
 					$comment_id = rand(100000, 999999);
-					require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+					//require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
 					ilTooltipGUI::addTooltip('ilAssStackQuestion' . $comment_id, $lng->getUserLanguage() == "de" ? $casexpresion_german : $casexpresion_english);
 					$this->getTemplate()->setVariable("COMMENT_ID", $comment_id);
 					$this->getTemplate()->setVariable("SPECIFIC_TEXT_INFO", $lng->getUserLanguage() == "de" ? "<a href='javascript:;'>[CAS Ausdruck]</a>" : "<a href='javascript:;'>[CAS Expresion]</a>");
@@ -141,7 +141,7 @@ class ilColumnsFormPropertyGUI extends ilMultipartFormPropertyGUI
 				if (assStackQuestionUtils::_endsWith($form_property->postvar, "_specific_feedback"))
 				{
 					$comment_id = rand(100000, 999999);
-					require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+					//require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
 					ilTooltipGUI::addTooltip('ilAssStackQuestion' . $comment_id, $lng->getUserLanguage() == "de" ? $castext_german : $castext_english);
 					$this->getTemplate()->setVariable("COMMENT_ID", $comment_id);
 					$this->getTemplate()->setVariable("SPECIFIC_TEXT_INFO", "<a href='javascript:;'>[CAS Text]</a>");

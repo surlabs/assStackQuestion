@@ -496,7 +496,7 @@ class assStackQuestionUtils
          * Step 3 User ilMathJax::getInstance()->insertLatexImages to deliver the LaTeX code.
          */
         include_once './Services/MathJax/classes/class.ilMathJax.php';
-        require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
+        //require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
         //ilMathJax::getInstance()->insertLatexImages cannot render \( delimiters so we change it to [tex]
         if ($start == '\(') {
             return stack_maths::process_display_castext(ilMathJax::getInstance()->insertLatexImages($text));
@@ -572,7 +572,7 @@ class assStackQuestionUtils
 	{
 		global $DIC;
 		$lng = $DIC->language();
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
 		//Initialize some STACK required parameters
 		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
 		//Do replacement
@@ -606,7 +606,7 @@ class assStackQuestionUtils
 
 	public static function stack_output_castext($castext)
 	{
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
 		//Initialize some STACK required parameters
 		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
 		return stack_maths::process_display_castext($castext);
@@ -638,11 +638,11 @@ class assStackQuestionUtils
 	 */
 	public static function _getFeedbackStyledText($a_text, $a_format)
 	{
-		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
+		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
 
 		//Get Styles assigned to Formats
 		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
-		require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
+		//require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
 
 		//Return text depending Format
 		if (strlen($a_text)) {
@@ -682,7 +682,7 @@ class assStackQuestionUtils
 
 	public static function _replaceFeedbackPlaceHolders($feedback)
 	{
-		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
+		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
 
 		//Get Styles assigned to Formats
 		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");

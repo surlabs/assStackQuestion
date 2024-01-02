@@ -58,7 +58,7 @@ class assStackQuestionStackFactory
 	//stack_cas_session2
 	public function getStackCasSessionDefault()
 	{
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/cassession2.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/cassession2.class.php';
 
 		$session = array();
 		//$options is an stack_options object. Default options given INCOMPLETE?
@@ -71,7 +71,7 @@ class assStackQuestionStackFactory
 
 	public function getStackCasCasstringFromInput(assStackQuestionInput $input)
 	{
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/casstring.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/casstring.class.php';
 		$cas_casstring = new stack_cas_casstring($input->getTeacherAnswer());
 		$cas_casstring->set_key($input->getInputName());
 		if ($cas_casstring->get_valid())
@@ -99,7 +99,7 @@ class assStackQuestionStackFactory
 		return $this->getStackCasText($parameters);
 
 		/*
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/casstring.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/casstring.class.php';
 		$cas_casstring = new stack_cas_casstring($parameters["string"]);
 		$cas_casstring->set_key($parameters["key"]);
 		if ($cas_casstring->get_valid($parameters["security"], $parameters["syntax"], (int)$parameters["stars"]))
@@ -118,7 +118,7 @@ class assStackQuestionStackFactory
 		return $this->getStackCasText($parameters);
 
 		/*
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/casstring.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/casstring.class.php';
 		$cas_casstring = new stack_cas_casstring($parameters["string"]);
 		#Unknown function problem solution
 		//$cas_casstring->set_key($parameters["name"]);
@@ -149,8 +149,8 @@ class assStackQuestionStackFactory
 		global $DIC;
 
 		$lng = $DIC->language();
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/cassession2.class.php';
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/keyval.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/cassession2.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/keyval.class.php';
 		if (!isset($parameters['raw']) OR strlen($parameters['raw']) <= 0)
 		{
 			$parameters['raw'] = " ";
@@ -200,8 +200,8 @@ class assStackQuestionStackFactory
 		global $DIC;
 
 		$lng = $DIC->language();
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/cassession2.class.php';
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/castext.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/cassession2.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/castext.class.php';
 		if (!isset($parameters['raw']) OR strlen($parameters['raw']) <= 0)
 		{
 			$parameters['raw'] = " ";
@@ -242,7 +242,7 @@ class assStackQuestionStackFactory
 
 	public function getStackDefaultOptions()
 	{
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/options.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/options.class.php';
 		//DEFAULT OPTIONS ARRAY GIVEN BY STACK
 		//stack options creation
 		$settings = array();
@@ -264,7 +264,7 @@ class assStackQuestionStackFactory
 		global $DIC;
 
 		$lng = $DIC->language();
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/factory.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/factory.class.php';
 		//If $parameters is an assStackQuestionInput object
 		if (is_a($parameters, 'assStackQuestionInput'))
 		{
@@ -330,8 +330,8 @@ class assStackQuestionStackFactory
 	 */
 	public function getStackInputState(array $parameters)
 	{
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/inputbase.class.php';
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/inputstate.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/inputbase.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/inputstate.class.php';
 		global $DIC;
 
 		$lng = $DIC->language();
@@ -388,7 +388,7 @@ class assStackQuestionStackFactory
 
 	public function getStackOptions($parameters)
 	{
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/options.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/options.class.php';
 
 		//stack options creation
 		return new stack_options($parameters);
@@ -397,7 +397,7 @@ class assStackQuestionStackFactory
 
 	public function getStackPotentialResponseNode(assStackQuestionPRTNode $ilias_node)
 	{
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/potentialresponsenode.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/potentialresponsenode.class.php';
 		//Prepare data to create node
 		$student_answer_parameters = array("name" => $ilias_node->getNodeName(), "string" => $ilias_node->getStudentAnswer());
 		$stack_student_answer = $this->get("cas_casstring_from_array", $student_answer_parameters);
@@ -413,7 +413,7 @@ class assStackQuestionStackFactory
 
 	public function getStackPotentialResponseTree(assStackQuestionPRT $ilias_PRT)
 	{
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/potentialresponsetree.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/potentialresponsetree.class.php';
 		//Feedback variables conversion
 		$feedback_variables_parameters = array('raw' => $ilias_PRT->getPRTFeedbackVariables(), 'options' => $this->get('default_options'), 'seed' => 1, 'security' => 't');
 		$stack_feedback_variables = $this->get("cas_keyval", $feedback_variables_parameters);
@@ -440,21 +440,21 @@ class assStackQuestionStackFactory
 
 	public function getStackPotentialResponseTreeState(array $parameters)
 	{
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/potentialresponsetreestate.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/potentialresponsetreestate.class.php';
 
 		return new stack_potentialresponse_tree_state($parameters['weight'], $parameters['valid'], $parameters['score'], $parameters['penalty']);
 	}
 
 	public function getStackPotentialResponseTreeStateBlank($prts_data)
 	{
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/potentialresponsetreestate.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/potentialresponsetreestate.class.php';
 
 		return new stack_potentialresponse_tree_state($prts_data['weight'], $prts_data['valid'], $prts_data['score'], $prts_data['penalty'], $prts_data['errors'], $prts_data['answernote'], $prts_data['feedback']);
 	}
 
 	private function getStackUnitTest($ilias_tests)
 	{
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/questiontest.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/questiontest.php';
 
 		foreach ($ilias_tests as $ilias_test)
 		{

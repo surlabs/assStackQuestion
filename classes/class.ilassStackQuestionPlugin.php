@@ -4,7 +4,7 @@
  * GPLv3, see LICENSE
  */
 
-require_once "./Modules/TestQuestionPool/classes/class.ilQuestionsPlugin.php";
+//require_once "./Modules/TestQuestionPool/classes/class.ilQuestionsPlugin.php";
 
 /**
  * STACK Question plugin for ILIAS 4.4+

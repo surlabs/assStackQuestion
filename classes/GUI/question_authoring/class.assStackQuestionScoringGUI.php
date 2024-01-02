@@ -133,7 +133,7 @@ class assStackQuestionScoringGUI
 	{
 		global $DIC;
 
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+		//require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
 		$ctrl = $DIC->ctrl();
 		$form->setFormAction($ctrl->getFormActionByClass('assStackQuestionGUI'));

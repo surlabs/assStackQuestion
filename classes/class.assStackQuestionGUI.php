@@ -51,7 +51,7 @@ class assStackQuestionGUI extends assQuestionGUI
         parent::__construct();
 
         //Initialize plugin object
-        require_once './Services/Component/classes/class.ilPlugin.php';
+        //require_once './Services/Component/classes/class.ilPlugin.php';
         try {
             $plugin = ilPlugin::getPluginObject(IL_COMP_MODULE, 'TestQuestionPool', 'qst', 'assStackQuestion');
             if (!is_a($plugin, 'ilassStackQuestionPlugin')) {
@@ -193,7 +193,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			//Not in preview, not in test run, we are in Test Results
 			//Check for PASS
 
-			require_once './Modules/Test/classes/class.ilObjTest.php';
+			//require_once './Modules/Test/classes/class.ilObjTest.php';
 			if (!ilObjTest::_getUsePreviousAnswers($active_id, true)) {
 				if (is_null($pass)) {
 					$pass = ilObjTest::_getPass($active_id);
@@ -384,7 +384,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		//Include content Style
 		$style_id = assStackQuestionUtils::_getActiveContentStyleId();
 		if (strlen($style_id)) {
-			require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
+			//require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
 			global $DIC;
 			$DIC->globalScreen()->layout()->meta()->addCss(ilObjStyleSheet::getContentStylePath((int)$style_id));
 		}
@@ -442,7 +442,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function writeQuestionSpecificPostData()
 	{
-		require_once("./Services/RTE/classes/class.ilRTE.php");
+		//require_once("./Services/RTE/classes/class.ilRTE.php");
 
 		//Question Text - Reload it with RTE (already loaded in writeQuestionGenericPostData())
 		$question_text = ((isset($_POST['question']) and $_POST['question'] != null) ? ilUtil::stripSlashes($_POST['question'], true, $this->getRTETags()) : '');
@@ -1106,7 +1106,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tabs->activateTab('edit_properties');
 		$tabs->activateSubTab('import_from_moodle');
 
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+		//require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($this->ctrl->getFormAction($this));
@@ -1179,7 +1179,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tabs->activateTab('edit_properties');
 		$tabs->activateSubTab('export_to_moodle');
 
-		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+		//require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($this->ctrl->getFormAction($this));
@@ -1224,7 +1224,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tabs = $DIC->tabs();
 		$lng = $DIC->language();
 
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/export/MoodleXML/class.assStackQuestionMoodleXMLExport.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/export/MoodleXML/class.assStackQuestionMoodleXMLExport.php';
 
 		//Set all parameters required
 		$tabs->activateTab('edit_properties');

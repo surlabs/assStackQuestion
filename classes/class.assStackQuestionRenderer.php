@@ -808,7 +808,7 @@ class assStackQuestionRenderer
 	 */
 	protected static function replaceFeedbackPlaceHolders(string $feedback): string
 	{
-		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
+		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
 
 		//Get Styles assigned to Formats
 		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");

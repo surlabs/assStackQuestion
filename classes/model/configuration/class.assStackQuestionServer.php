@@ -4,7 +4,7 @@
  * GPLv3, see LICENSE
  */
 
-require_once (__DIR__ . '/class.assStackQuestionConfig.php');
+//require_once (__DIR__ . '/class.assStackQuestionConfig.php');
 /**
  * STACK Question server
  *

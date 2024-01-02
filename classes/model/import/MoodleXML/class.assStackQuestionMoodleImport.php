@@ -11,8 +11,8 @@
  * @version $Id: 7.1$
  *
  */
-require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
-require_once './Services/MediaObjects/classes/class.ilObjMediaObject.php';
+//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+//require_once './Services/MediaObjects/classes/class.ilObjMediaObject.php';
 
 class assStackQuestionMoodleImport
 {
