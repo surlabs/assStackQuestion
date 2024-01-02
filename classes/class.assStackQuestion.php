@@ -1989,25 +1989,17 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * We need to make sure the inputs are displayed in the order in which they
      * occur in the question text. This is not necessarily the order in which they
      * are listed in the array $this->inputs.
-     * @return false|stack_cas_text
      */
-    public function formatCorrectResponse()
+    public function formatCorrectResponse(): string
     {
-        try {
-            $feedback = '';
-            $inputs = stack_utils::extract_placeholders($this->question_text_instantiated, 'input');
-            foreach ($inputs as $name) {
-                $input = $this->inputs[$name];
-                $feedback .= html_writer::tag('p', $input->get_teacher_answer_display($this->getTas($name)->get_dispvalue(), $this->getTas($name)->get_latex()));
-            }
-            //TODO
-            //return stack_ouput_castext($feedback);
-
-            return new stack_cas_text($feedback);
-        } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
-            return false;
+        $feedback = '';
+        $inputs = stack_utils::extract_placeholders($this->question_text_instantiated->get_rendered(), 'input');
+        foreach ($inputs as $name) {
+            $input = $this->inputs[$name];
+            $feedback .= html_writer::tag('p', $input->get_teacher_answer_display($this->tas[$name]->get_dispvalue(),
+                $this->tas[$name]->get_latex()));
         }
+        return stack_ouput_castext($feedback);
     }
 
     /* get_expected_data() not required as it is only Moodle relevant */
