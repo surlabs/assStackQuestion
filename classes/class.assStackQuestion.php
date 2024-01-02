@@ -2313,7 +2313,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @return prt_evaluatable
      * @throws stack_exception
      */
-    public function getPrtResult(string $prt_name, array $response, bool $accept_valid)
+    public function getPrtResult(string $prt_name, array $response, bool $accept_valid): prt_evaluatable
     {
         $this->validateCache($response, $accept_valid);
 
