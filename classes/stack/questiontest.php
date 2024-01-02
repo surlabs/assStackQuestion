@@ -21,9 +21,13 @@
 // @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
 require_once(__DIR__ . '/questiontestresult.php');
-require_once(__DIR__ . '/potentialresponsetree.class.php');
 
 class stack_question_test {
+    /**
+     * @var string Give each testcase a meaningful description.
+     */
+    public $description;
+
     /**
      * @var int|null test-case number, if this is a real test stored in the database, else null.
      */
@@ -44,7 +48,8 @@ class stack_question_test {
      * @param array $inputs input name => value to enter.
      * @param int $testcase test-case number, if this is a real test stored in the database.
      */
-    public function __construct($inputs, $testcase = null) {
+    public function __construct($description, $inputs, $testcase = null) {
+        $this->description = $description;
         $this->inputs = $inputs;
         $this->testcase = $testcase;
     }
@@ -75,6 +80,12 @@ class stack_question_test {
         // Create a completely clean version of the question usage we will use.
         // Evaluated state is stored in question variables etc.
         $question = question_bank::load_question($questionid);
+        // Hard-wire testing to use the decimal point.
+        // Teachers must use strict Maxima syntax, including in test case construction.
+        // I appreciate teachers will, reasonably, want to test the input mechanism.
+        // The added internal complexity here is serious.
+        // This complexity includes things like matrix input types which need a valid Maxima expression as the value of the input.
+        $question->options->set_option('decimals', '.');
         if (!is_null($seed)) {
             $question->seed = (int) $seed;
         }
@@ -116,33 +127,11 @@ class stack_question_test {
             }
             $result = $question->get_prt_result($prtname, $response, false);
             // Adapted from renderer.php prt_feedback_display.
-            $feedback = '';
-            $feedbackbits = $result->get_feedback();
-            if ($feedbackbits) {
-                $feedback = array();
-                $format = null;
-                foreach ($feedbackbits as $bit) {
-                    // Removed $qa->rewrite_pluginfile_urls which will break some links in questions here.
-                    $feedback[] = $bit->feedback;
-                    if (!is_null($bit->format)) {
-                        if (is_null($format)) {
-                            $format = $bit->format;
-                        }
-                        if ($bit->format != $format) {
-                            throw new coding_exception('Inconsistent feedback formats found in PRT ' . $name);
-                        }
-                    }
-                }
-                if (is_null($format)) {
-                    $format = FORMAT_HTML;
-                }
+            $feedback = $result->get_feedback();
+            $feedback = format_text(stack_maths::process_display_castext($feedback),
+                    FORMAT_HTML, array('noclean' => true, 'para' => false));
 
-                $feedback = $result->substitue_variables_in_feedback(implode(' ', $feedback));
-                $feedback = format_text(stack_maths::process_display_castext($feedback),
-                    $format, array('noclean' => true, 'para' => false));
-            }
-
-            $result->feedback = $feedback;
+            $result->override_feedback($feedback);
             $results->set_prt_result($prtname, $result);
 
         }
