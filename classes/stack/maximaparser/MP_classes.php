@@ -43,7 +43,6 @@
  * 'flattree'                Used for debugging of the internals.  Does not print checking groups by design.
  */
 
-defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/../cas/cassecurity.class.php');
 require_once(__DIR__ . '/../cas/parsingrules/996_call_modification.filter.php');
