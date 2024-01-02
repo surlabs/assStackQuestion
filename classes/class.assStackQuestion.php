@@ -2334,16 +2334,16 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 $this->prts[$prt_name]->get_value(),
                 new castext2_static_replacer($this->getCached('static-castext-strings')),
                 $this->getCached('prt-trace')[$prt_name]);
-            return $this->prtresults[$prt_name];
+            return $this->prt_results[$prt_name];
         }
 
         // First figure out which PRTs can be called.
         $prts = [];
         $inputs = [];
         foreach ($this->prts as $name => $prt) {
-            if ($this->has_necessary_prt_inputs($prt, $response, $accept_valid)) {
+            if ($this->hasNecessaryPrtInputs($prt, $response, $accept_valid)) {
                 $prts[$name] = $prt;
-                $inputs += $this->get_prt_input($name, $response, $accept_valid);
+                $inputs += $this->getPrtInput($name, $response, $accept_valid);
             }
         }
 
