@@ -2438,8 +2438,23 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return $this->prt_results[$prt_name];
     }
 
-    /* set_value_in_nested_arrays($arrayorscalar, $newvalue) not required as it is only Moodle relevant */
+    /**
+     * For a possibly nested array, replace all the values with $newvalue.
+     * @param string|array $arrayorscalar input array/value.
+     * @param mixed $newvalue the new value to set.
+     * @return string|array array.
+     */
+    protected function setValueInNestedArrays($arrayorscalar, $newvalue) {
+        if (!is_array($arrayorscalar)) {
+            return $newvalue;
+        }
 
+        $newarray = array();
+        foreach ($arrayorscalar as $key => $value) {
+            $newarray[$key] = $this->setValueInNestedArrays($value, $newvalue);
+        }
+        return $newarray;
+    }
     /* setup_fake_feedback_and_input_validation() not required as it is only Moodle relevant */
 
     /**
