@@ -2002,8 +2002,18 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return stack_ouput_castext($feedback);
     }
 
-    /* get_expected_data() not required as it is only Moodle relevant */
-
+    /**
+     * Used in testing
+     * @return array
+     */
+    public function getExpectedData(): array
+    {
+        $expected = array();
+        foreach ($this->inputs as $input) {
+            $expected += $input->get_expected_data();
+        }
+        return $expected;
+    }
     /* get_question_summary() not required as it is only Moodle relevant */
 
     /* summarise_response(array $response) not required as it is only Moodle relevant */
