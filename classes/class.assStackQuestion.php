@@ -2485,11 +2485,17 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function hasRandomVariants(): bool
     {
-        if (isset($this->question_variables)) {
-            return preg_match('~\brand~', $this->question_variables) || preg_match('~\bmultiselqn~', $this->question_variables);
-        } else {
-            return false;
-        }
+        return $this->randomVariantsCheck($this->question_variables);
+    }
+
+    /**
+     * @param string $text Input text (raw keyvals) to check for random functions, or use of stack_seed.
+     * @return bool Actual test of whether text uses randomisation.
+     */
+    public static function randomVariantsCheck(string $text): bool
+    {
+        return preg_match('~\brand~', $text) || preg_match('~\bmultiselqn~', $text)
+            || preg_match('~\bstack_seed~', $text);
     }
 
     /**
