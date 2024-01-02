@@ -78,11 +78,13 @@ class maxima_parser_utils {
 
         $cache = null;
         if ($cachekey && $muccachelimit && strlen($code) >= $muccachelimit && mb_strpos($code, 'stack_include') === false) {
+            //TODO SDIAZ Conectar con cache nueva
+            /*
             $cache = cache::make('qtype_stack', 'parsercache');
             $ast = $cache->get($cachekey);
             if ($ast) {
                 return $ast;
-            }
+            }*/
         }
 
         $parser = new MP_Parser();
