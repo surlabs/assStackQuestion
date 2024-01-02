@@ -2112,7 +2112,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 $fraction += $results->get_fraction();
             }
         }
-        return array($fraction, question_state::graded_state_for_fraction($fraction));
+        return array($fraction, assStackQuestionUtils::graded_state_for_fraction($fraction));
     }
 
     /**

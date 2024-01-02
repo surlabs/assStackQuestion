@@ -1318,5 +1318,23 @@ class assStackQuestionUtils
         return $found_random;
     }
 
+    /**
+     * Return the appropriate graded state based on a fraction. That is 0 or less
+     * is $graded_incorrect, 1 is $graded_correct, otherwise it is $graded_partcorrect.
+     * Appropriate allowance is made for rounding float values.
+     *
+     * @param number $fraction the grade, on the fraction scale.
+     * @return int one of the state constants.
+     */
+    public static function graded_state_for_fraction($fraction) {
+        if ($fraction < 0.000001) {
+            return -1;
+        } else if ($fraction > 0.999999) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
 
 }
