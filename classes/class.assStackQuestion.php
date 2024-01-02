@@ -2066,8 +2066,19 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return implode('; ', $bits);
     }
 
-    /* summarise_response_data(array $response) not required as it is only Moodle relevant */
-    //TODO FEATURE
+    /**
+     * Used in reporting
+     * @throws stack_exception
+     */
+    public function summariseResponseData(array $response): array
+    {
+        $bits = array();
+        foreach ($this->inputs as $name => $input) {
+            $state = $this->getInputState($name, $response);
+            $bits[$name] = $state->status;
+        }
+        return $bits;
+    }
 
     /**
      * get_correct_response() in Moodle
