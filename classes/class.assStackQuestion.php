@@ -2269,7 +2269,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         // there are no CAS errors.
 
         $result = $this->getPrtResult($prt->get_name(), $response, $accept_valid);
-        return null !== $result->valid && !$result->errors;
+        return $result->is_evaluated() && !$result->get_errors();
     }
 
     /**
