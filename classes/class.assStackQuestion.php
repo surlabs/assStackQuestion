@@ -2121,11 +2121,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param $prt_input
      * @return bool
      */
-    public function isSamePRTInput($current_prt_name, $last_input, $prt_input): bool
+    public function isSamePRTInput($index, $prtinput1, $prtinput2): bool
     {
-        //Not yet cached, this method has been adapted
-        foreach ($this->getCached('required')[$this->prts[$current_prt_name]->get_name()] as $name) {
-            if (!assStackQuestionUtils::arrays_same_at_key_missing_is_blank($last_input, $prt_input, $name)) {
+        foreach ($this->getCached('required')[$this->prts[$index]->get_name()] as $name => $ignore) {
+            if (!assStackQuestionUtils::arrays_same_at_key_missing_is_blank($prtinput1, $prtinput2, $name)) {
                 return false;
             }
         }
