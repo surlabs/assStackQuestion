@@ -1967,6 +1967,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * is_any_input_blank(array $response) in Moodle
      * @param array $response the current response being processed.
      * @return boolean whether any of the inputs are blank.
+     * @throws stack_exception
      */
     public function isAnyInputBlank(array $response): bool
     {
@@ -1982,6 +1983,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * is_any_part_invalid(array $response) in Moodle
      * @param array $response
      * @return bool
+     * @throws stack_exception
      */
     public function isAnyPartInvalid(array $response): bool
     {
