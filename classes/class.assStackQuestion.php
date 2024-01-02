@@ -1805,28 +1805,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     }
 
     /**
-     * Helper method used by initialise_question_from_seed.
-     * And Render Specific PRT Feedback (not initialised by default)
-     * prepare_cas_text($text, $session) method from Moodle
-     * @param string $text a textual part of the question that is CAS text.
-     * @param stack_cas_session2 $session the question's CAS session.
-     * @return stack_cas_text|false the CAS text version of $text.
-     */
-    public function prepareCASText(string $text, stack_cas_session2 $session): stack_cas_text
-    {
-        try {
-            $cas_text = new stack_cas_text($text, $session, $this->seed);
-            if ($cas_text->get_errors()) {
-                $this->runtime_errors[$cas_text->get_errors()] = true;
-            }
-            return $cas_text;
-        } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
-            return false;
-        }
-    }
-
-    /**
      * adapt_inputs() method in Moodle
      * Give all the input elements a chance to configure themselves given the
      * teacher's model answers.
