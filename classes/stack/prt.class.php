@@ -871,6 +871,7 @@ class stack_potentialresponse_tree_lite {
             if ($labels && array_key_exists($node->falseanswernote, $labels)) {
                 $rlabel = $labels[$node->falseanswernote];
             }
+            $key = (int) $key;
             $graph->add_prt_node($key + 1, $node->description, $left, $right, $llabel, $rlabel,
                 '#fgroup_id_' . $this->name . 'node_' . $key);
             $graph->add_prt_text($node->nodename + 1, $node->answertest, $node->quiet,
@@ -886,6 +887,16 @@ class stack_potentialresponse_tree_lite {
      */
     public function get_trace() {
         return $this->trace;
+    }
+
+    public function isSimplify(): bool
+    {
+        return $this->simplify;
+    }
+
+    public function setSimplify(bool $simplify): void
+    {
+        $this->simplify = $simplify;
     }
 
 }
