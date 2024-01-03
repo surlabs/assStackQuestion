@@ -1673,6 +1673,18 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 $session->add_statement($prtincorrect);
             }
 
+            // 7. The general feedback.
+            $generalfeedback = castext2_evaluatable::make_from_compiled($this->getCached('castext-gf'), '/gf', $static);
+            if ($generalfeedback->requires_evaluation()) {
+                $session->add_statement($generalfeedback);
+            }
+
+            // 8. The question description.
+            $questiondescription = castext2_evaluatable::make_from_compiled($this->getCached('castext-qd'), '/qd', $static);
+            if ($questiondescription->requires_evaluation()) {
+                $session->add_statement($questiondescription);
+            }
+
             // Now instantiate the session.
             if ($session->get_valid()) {
                 $session->instantiate();
@@ -1715,6 +1727,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
             // Allow inputs to update themselves based on the model answers.
             $this->adaptInputs();
+
+            $this->general_feedback_instantiated     = $generalfeedback;
+            $this->question_description_instantiated = $questiondescription;
         }
 
         if ($this->runtime_errors) {

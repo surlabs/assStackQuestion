@@ -375,13 +375,13 @@ class assStackQuestionRenderer
 	public static function _renderGeneralFeedback(assStackQuestion $question): string
 	{
 		try {
-			$general_feedback_text = new stack_cas_text($question->general_feedback, $question->session, $question->seed);
+			$general_feedback_text = $question->general_feedback_instantiated;
 
 			if ($general_feedback_text->get_errors()) {
 				$question->runtime_errors[$general_feedback_text->get_errors()] = true;
 			}
 
-			return assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy($general_feedback_text->get_display_castext()));
+			return assStackQuestionUtils::_getLatex(stack_maxima_latex_tidy($general_feedback_text->get_rendered()));
 		} catch (stack_exception $e) {
 			return $e->getMessage();
 		}
