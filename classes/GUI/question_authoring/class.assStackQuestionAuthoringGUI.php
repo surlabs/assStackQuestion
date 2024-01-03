@@ -564,9 +564,6 @@ class assStackQuestionAuthoringGUI
 	 */
 	public function getPRTPart(stack_potentialresponse_tree_lite $prt)
 	{
-        //TODO ajustar a nueva sintaxis prt
-        $part = new ilMultipartFormPart('$prt_name');
-        return $part;
         $prt_name = $prt->get_name();
 		//Create part and columns object
 		$part = new ilMultipartFormPart($prt_name);
@@ -605,11 +602,12 @@ class assStackQuestionAuthoringGUI
 		$prt_first_node = new ilSelectInputGUI($this->getPlugin()->txt('prt_first_node'), 'prt_' . $prt_name . '_first_node');
 		$node_list = array();
 		//Get list of nodes
-		foreach ($prt->getNodes() as $node_name => $prt_node) {
+		foreach ($prt->get_nodes_summary() as $node_name => $prt_node) {
 			$node_list[$node_name] = $node_name;
 		}
 		$prt_first_node->setOptions($node_list);
-		$prt_first_node->setValue($prt->getFirstNode());
+        //TODO eliminar value 0
+		$prt_first_node->setValue(0);
 		$settings_column->addFormProperty($prt_first_node);
 
 		//Paste node
@@ -654,51 +652,21 @@ class assStackQuestionAuthoringGUI
 
 	/**
 	 * Creates the graph for each PRT
-	 * @param stack_potentialresponse_tree $prt
+	 * @param stack_potentialresponse_tree_lite $prt
 	 * @return ilCustomInputGUI
 	 */
-	public function getGraphicalPart(stack_potentialresponse_tree $prt)
+	public function getGraphicalPart(stack_potentialresponse_tree_lite $prt)
 	{
-		//Graph Creation procedure
-		$this->getPlugin()->includeClass('stack/graphlayout/graph.php');
-		$graph = new stack_abstract_graph();
-		$first_node_name = $prt->getFirstNode();
-		$nodes = array();
-
-		$prt_name = $prt->get_name();
-
-		//Show all nodes
-		foreach ($prt->getNodes() as $node_name => $node) {
-			$nodes[$node_name] = $node;
-		}
-
-		foreach ($nodes as $node_name => $node) {
-			if (is_a($node, "stack_potentialresponse_node")) {
-				$branches_info = $node->summarise_branches();
-				if ($branches_info->truenextnode == -1) {
-					$left = null;
-				} else {
-					$left = $branches_info->truenextnode;
-				}
-				if ($branches_info->falsenextnode == -1) {
-					$right = null;
-				} else {
-					$right = $branches_info->falsenextnode;
-				}
-				$graph->add_node($node_name, $left, $right, $branches_info->truescoremode . round($branches_info->truescore, 2), $branches_info->falsescoremode . round($branches_info->falsescore, 2), '#fgroup_id_' . $prt_name . 'node_' . $node_name);
-			}
-		}
-
 		//Renderisation
 		try {
-			$graph->layout();
-			$svg = stack_abstract_graph_svg_renderer::render($graph, $prt_name . 'graphsvg');
+
+			$svg = stack_abstract_graph_svg_renderer::render($prt->get_prt_graph(), $prt->get_name() . 'graphsvg');
 		} catch (stack_exception $e) {
 			ilUtil::sendFailure($e->getMessage(), true);
 		}
 
 		//TODO Create new class to avoid deprecated custom property
-		$form_property = new ilCustomInputGUI($this->getPlugin()->txt('prt_graph'), 'prt_' . $prt_name . '_graphical');
+		$form_property = new ilCustomInputGUI($this->getPlugin()->txt('prt_graph'), 'prt_' . $prt->get_name() . '_graphical');
 		$form_property->setHtml($svg);
 
 		return $form_property;
@@ -706,11 +674,11 @@ class assStackQuestionAuthoringGUI
 
 	/**
 	 * The settings part is an accordeon with just one part for the general settings of each PRT
-	 * @param stack_potentialresponse_tree $prt
+	 * @param stack_potentialresponse_tree_lite $prt
 	 * @param string $container_width
 	 * @return ilAccordionFormPropertyGUI
 	 */
-	public function getSettingsPart(stack_potentialresponse_tree $prt, $container_width = "")
+	public function getSettingsPart(stack_potentialresponse_tree_lite $prt, $container_width = "")
 	{
 		global $DIC;
 
@@ -760,19 +728,20 @@ class assStackQuestionAuthoringGUI
 
 	/**
 	 * Tabs for different nodes
-	 * @param stack_potentialresponse_tree $prt
+	 * @param stack_potentialresponse_tree_lite $prt
 	 * @param string $container_width
 	 * @return ilTabsFormPropertyGUI
 	 */
-	public function getNodesPart(stack_potentialresponse_tree $prt, $container_width = "")
+	public function getNodesPart(stack_potentialresponse_tree_lite $prt, $container_width = "")
 	{
 		//Creation of tabs property
 		$nodes = new ilTabsFormPropertyGUI($this->getPlugin()->txt('prt_nodes'), 'prt_' . $prt->get_name() . '_nodes', $container_width, FALSE);
 
-		$q_nodes = $prt->getNodes();
+		$q_nodes = $prt->get_nodes_summary();
 		if (!empty($q_nodes)) {
 			foreach ($q_nodes as $node_name => $node) {
-				if ($prt->getFirstNode() == $node_name) {
+                //TODO quitar 0
+				if ('0' == $node_name) {
 					$first_node = $node;
 					unset($q_nodes[$node_name]);
 					array_unshift($q_nodes, $first_node);
@@ -823,13 +792,14 @@ class assStackQuestionAuthoringGUI
 		return $nodes;
 	}
 
-	/**
-	 * Gte content for each tab, two columns.
-	 * @param stack_potentialresponse_tree $prt
-	 * @param stack_potentialresponse_node $node
-	 * @return ilMultipartFormPart
-	 */
-	public function getNodePart(stack_potentialresponse_tree $prt, stack_potentialresponse_node $node)
+    /**
+     * Gte content for each tab, two columns.
+     * @param stack_potentialresponse_tree_lite $prt
+     * @param object $node
+     * @return ilMultipartFormPart
+     * @throws Exception
+     */
+	public function getNodePart(stack_potentialresponse_tree_lite $prt, object $node)
 	{
 		//Create columns property
 		$part = new ilMultipartFormPart($node->nodeid);
@@ -850,12 +820,13 @@ class assStackQuestionAuthoringGUI
 		return $part;
 	}
 
-	/**
-	 * @param stack_potentialresponse_tree $prt
-	 * @param stack_potentialresponse_node $node
-	 * @return ilColumnsFormPropertyGUI
-	 */
-	public function getCommonNodePart(stack_potentialresponse_tree $prt, stack_potentialresponse_node $node)
+    /**
+     * @param stack_potentialresponse_tree_lite $prt
+     * @param object $node
+     * @return ilColumnsFormPropertyGUI
+     * @throws Exception
+     */
+	public function getCommonNodePart(stack_potentialresponse_tree_lite $prt, object $node)
 	{
 		global $DIC;
 
@@ -907,11 +878,13 @@ class assStackQuestionAuthoringGUI
 			$node_options->setValue($this->default["prt_node_options"]);
 			$node_quiet->setValue($this->default["prt_node_quiet"]);
 		} else {
-			$answer_test->setValue($node->get_test());
-			$node_student_answer->setValue($node->getRawSans() == " " ? '' : $node->getRawSans());
-			$node_teacher_answer->setValue($node->getRawTans() == " " ? '' : $node->getRawTans());
-			$node_options->setValue((string)$node->getAtoptions());
-			$node_quiet->setValue($node->isQuiet() ? 1 : 0);
+            $answertest_data = self::parseNewAnswerTest($node->answertest);
+			$answer_test->setValue($answertest_data[0]);
+			$node_student_answer->setValue($answertest_data[1] == " " ? '' : $answertest_data[1]);
+			$node_teacher_answer->setValue($answertest_data[2] == " " ? '' : $answertest_data[2]);
+			//TODO no extra options
+            $node_options->setValue("");
+			$node_quiet->setValue($node->quiet ? 1 : 0);
 		}
 
 		$common_node_part->addFormProperty($answer_test);
@@ -945,11 +918,11 @@ class assStackQuestionAuthoringGUI
 
 	/**
 	 * Get content for positive column in node
-	 * @param stack_potentialresponse_tree $prt
-	 * @param stack_potentialresponse_node $node
+	 * @param stack_potentialresponse_tree_lite $prt
+	 * @param object $node
 	 * @return ilMultipartFormPart
 	 */
-	public function getNodePositivePart(stack_potentialresponse_tree $prt, stack_potentialresponse_node $node): ilMultipartFormPart
+	public function getNodePositivePart(stack_potentialresponse_tree_lite $prt, object $node): ilMultipartFormPart
 	{
 		//Create part and set parameters for customisation
 		$positive_part = new ilMultipartFormPart($this->getPlugin()->txt('node_pos_title'));
@@ -1003,13 +976,12 @@ class assStackQuestionAuthoringGUI
 			//$node_pos_specific_feedback->setValue($this->default[""]);
 			$node_pos_feedback_class->setValue(1);
 		} else {
-			$node_data = $node->summarise_branches();
-			$feedback_data = $node->getFeedbackFromNode();
+            $feedback_data = $node->truefeedback;
 
-			$node_pos_mode->setValue($node_data->truescoremode);
-			$node_pos_score->setValue($node_data->truescore);
-			$node_pos_next_node->setValue($node_data->truenextnode);
-			$node_pos_answernote->setValue($node_data->truenote);
+			$node_pos_mode->setValue($node->truescoremode);
+			$node_pos_score->setValue($node->truescore);
+			$node_pos_next_node->setValue($node->truenextnode);
+			$node_pos_answernote->setValue($node->truenote);
 
 			$node_pos_penalty->setValue($feedback_data['true_penalty']);
 			$node_pos_specific_feedback->setValue($feedback_data['true_feedback']);
@@ -1033,11 +1005,11 @@ class assStackQuestionAuthoringGUI
 
 	/**
 	 * Get content for negative column in node*
-	 * @param stack_potentialresponse_tree $prt
-	 * @param stack_potentialresponse_node $node
+	 * @param stack_potentialresponse_tree_lite $prt
+	 * @param object $node
 	 * @return ilMultipartFormPart
 	 */
-	public function getNodeNegativePart(stack_potentialresponse_tree $prt, stack_potentialresponse_node $node): ilMultipartFormPart
+	public function getNodeNegativePart(stack_potentialresponse_tree_lite $prt, object $node): ilMultipartFormPart
 	{
 		//Create part and set parameters for customisation
 		$negative_part = new ilMultipartFormPart($this->getPlugin()->txt('node_neg_title'));
@@ -1091,13 +1063,12 @@ class assStackQuestionAuthoringGUI
 			//$node_neg_specific_feedback->setValue($this->default[""]);
 			$node_neg_feedback_class->setValue(1);
 		} else {
-			$node_data = $node->summarise_branches();
-			$feedback_data = $node->getFeedbackFromNode();
+			$feedback_data = $node->falsefeedback;
 
-			$node_neg_mode->setValue($node_data->falsescoremode);
-			$node_neg_score->setValue($node_data->falsescore);
-			$node_neg_next_node->setValue($node_data->falsenextnode);
-			$node_neg_answernote->setValue($node_data->falsenote);
+			$node_neg_mode->setValue($node->falsescoremode);
+			$node_neg_score->setValue($node->falsescore);
+			$node_neg_next_node->setValue($node->falsenextnode);
+			$node_neg_answernote->setValue($node->falsenote);
 
 			$node_neg_penalty->setValue($feedback_data['false_penalty']);
 			$node_neg_specific_feedback->setValue($feedback_data['false_feedback']);
@@ -1274,4 +1245,13 @@ class assStackQuestionAuthoringGUI
 
 		return $options;
 	}
+
+    public static function parseNewAnswerTest($input): array
+    {
+    $pattern = '/(\w+)\((\w+),(\w+)\)/';
+    preg_match($pattern, $input, $matches);
+    array_shift($matches);
+
+    return $matches;
+}
 }
