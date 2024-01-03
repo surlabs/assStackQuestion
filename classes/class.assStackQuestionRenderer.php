@@ -131,17 +131,17 @@ class assStackQuestionRenderer
 
 				switch ($evaluation['points'][$prt_name]['status']) {
 					case 'correct':
-						$prt_feedback .= $question->prt_correct_instantiated;
+						$prt_feedback .= $question->prt_correct_instantiated->get_rendered($question->getCasTextProcessor());
 						$format = '2';
 
 						break;
 					case 'incorrect':
-						$prt_feedback .= $question->prt_incorrect_instantiated;
+						$prt_feedback .= $question->prt_incorrect_instantiated->get_rendered($question->getCasTextProcessor());
 						$format = '3';
 
 						break;
 					case 'partially_correct':
-						$prt_feedback .= $question->prt_partially_correct_instantiated;
+						$prt_feedback .= $question->prt_partially_correct_instantiated->get_rendered($question->getCasTextProcessor());
 						break;
 					default:
 						$prt_feedback .= '';
@@ -396,6 +396,8 @@ class assStackQuestionRenderer
 	 */
 	public static function _renderFeedbackForPreview(assStackQuestion $question): string
 	{
+        //TODO rework
+        return "feedback for preview not implemented";
 		//Specific feedback
 		$text_to_replace = $question->specific_feedback_instantiated;
 
@@ -681,6 +683,8 @@ class assStackQuestionRenderer
         // Add the student's responses, but only those needed by this prt.
         // Some irrelevant but invalid answers might break the CAS connection.
         $answers = $question->getUserResponse();
+        //TODO REWORK
+        /*
         foreach ($prt_info->get_required_variables(array_keys($answers)) as $name) {
             if (array_key_exists($name . '_val', $answers)) {
                 $ans = $answers[$name . '_val'];
@@ -696,7 +700,7 @@ class assStackQuestionRenderer
             $cs->set_key($name);
             $cs->set_keyless(false);
             $prt_state->get_cas_context()->add_statement($cs);
-        }
+        }*/
 
         if ($feedback_bits) {
             $format = "1";
