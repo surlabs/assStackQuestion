@@ -811,99 +811,42 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 assStackQuestionDB::_saveInput($this->getId(), $this->inputs[$input_name]);
             }
 
-            //load PRTs and PRT nodes
-            $prt_from_db_array = assStackQuestionDB::_readPRTs($question_id);
-
-            //Values
-            $total_value = 0;
-
-            //in ILIAS all attempts are graded
-            $grade_all = true;
-
-            foreach ($prt_from_db_array as $prt_name => $prt_data) {
-                $total_value += $prt_data['value'];
-            }
-
-            if ($prt_from_db_array && $grade_all && $total_value < 0.0000001) {
-                try {
-                    throw new stack_exception('There is an error authoring your question. ' .
-                        'The $totalvalue, the marks available for the question, must be positive in question ' .
-                        $this->getTitle());
-                } catch (stack_exception $e) {
-                    ilUtil::sendFailure($e);
-                    $total_value = 1.0;
-                }
-            }
-
             //get PRT and PRT Nodes from DB
+
+            $prt_from_db_array = assStackQuestionDB::_readPRTs($question_id);
 
             $this->getPlugin()->includeClass('utils/class.assStackQuestionUtils.php');
             $prt_names = assStackQuestionUtils::_getPRTNamesFromQuestion($this->getQuestion(), $options_from_db_array['ilias_options']['specific_feedback'], $prt_from_db_array);
 
-            if (!empty($prt_names)) {
-                foreach ($prt_names as $prt_name) {
+            $totalvalue = 0;
+            $allformative = true;
 
-                    $prt_data = $prt_from_db_array[$prt_name];
-                    $nodes = array();
-
-                    if (isset($prt_data['nodes']) and !empty($prt_data['nodes'])) {
-                        foreach ($prt_data['nodes'] as $node_name => $node_data) {
-
-                            $sans = stack_ast_container::make_from_teacher_source('PRSANS' . $node_name . ':' . $node_data['sans'], '', new stack_cas_security());
-                            $tans = stack_ast_container::make_from_teacher_source('PRTANS' . $node_name . ':' . $node_data['tans'], '', new stack_cas_security());
-
-                            //Penalties management, penalties are not an ILIAS Feature
-                            if (is_null($node_data['false_penalty']) || $node_data['false_penalty'] === '') {
-                                $false_penalty = 0;
-                            } else {
-                                $false_penalty = $node_data['false_penalty'];
-                            }
-
-                            if (is_null(($node_data['true_penalty']) || $node_data['true_penalty'] === '')) {
-                                $true_penalty = 0;
-                            } else {
-                                $true_penalty = $node_data['true_penalty'];
-                            }
-
-                            //Create Node and add it to the
-                            //TODO SAUL: Adaptar al nuevo sistema de nodos
-                            /*
-                            $node = new stack_potentialresponse_node($sans, $tans, $node_data['answer_test'], $node_data['test_options'], (bool)$node_data['quiet'], '', (int)$node_name, $node_data['sans'], $node_data['tans']);
-
-                            $node->add_branch(0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty, $node_data['false_next_node'], $node_data['false_feedback'], $node_data['false_feedback_format'], $node_data['false_answer_note']);
-                            $node->add_branch(1, $node_data['true_score_mode'], $node_data['true_score'], $true_penalty, $node_data['true_next_node'], $node_data['true_feedback'], $node_data['true_feedback_format'], $node_data['true_answer_note']);
-                            */
-                            $nodes[$node_name] = [];
-                        }
-                    } else {
-                        break;
-                    }
-
-                    if ($prt_data['feedback_variables']) {
-                        try {
-                            $feedback_variables = new stack_cas_keyval($prt_data['feedback_variables']);
-                            $feedback_variables = $feedback_variables->get_session();
-                        } catch (stack_exception $e) {
-                            ilUtil::sendFailure($e->getMessage(), true);
-                        }
-                    } else {
-                        $feedback_variables = null;
-                    }
-
-                    if ($total_value == 0) {
-                        //TODO Non gradable question
-                        $prt_value = 0.0;
-                    } else {
-                        $prt_value = $prt_data['value'];
-                    }
-
-                    try {
-                        //TODO SAUL Adaptar al nuevo sistema de PRT Lite
-                        $this->prts[$prt_name] = new stack_potentialresponse_tree_lite($prt_data, $prt_value);
-                    } catch (stack_exception $e) {
-                        ilUtil::sendFailure($e, true);
+            foreach ($prt_names as $name) {
+                // If not then we have just created the PRT.
+                if (array_key_exists($name, $prt_from_db_array)) {
+                    $prtdata = $prt_from_db_array[$name];
+                    // At this point we do not have the PRT method is_formative() available to us.
+                    if ($prtdata->feedbackstyle > 0) {
+                        $totalvalue += $prtdata->value;
+                        $allformative = false;
                     }
                 }
+            }
+
+            if ($prt_from_db_array && !$allformative && $totalvalue < 0.0000001) {
+                throw new stack_exception('There is an error authoring your question. ' .
+                    'The $totalvalue, the marks available for the question, must be positive in question ' .
+                    $data["title"]);
+            }
+
+            foreach ($prt_names as $name) {
+                if (array_key_exists($name, $prt_from_db_array)) {
+                    $prtvalue = 0;
+                    if (!$allformative) {
+                        $prtvalue = $prt_from_db_array[$name]->value / $totalvalue;
+                    }
+                    $this->prts[$name] = new stack_potentialresponse_tree_lite($prt_from_db_array[$name], $prtvalue);
+                } // If not we just added a PRT.
             }
 
             //load seeds
