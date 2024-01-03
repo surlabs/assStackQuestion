@@ -345,10 +345,12 @@ class assStackQuestionGUI extends assQuestionGUI
         }
 
 
+        /* TODO EVALUATION
 		//Ensure evaluation has been done
 		if (empty($this->object->getEvaluation())) {
 			$this->object->evaluateQuestion($this->object->getUserResponse());
 		}
+        */
 
 		//Render question Preview
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
