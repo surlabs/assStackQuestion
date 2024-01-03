@@ -430,7 +430,7 @@ class assStackQuestionAuthoringGUI
 	 */
 	public function getInputPart(stack_input $input)
 	{
-		$input_name = $input->get_name();
+		$input_name = $input->get_parameter('name');
 
 		$part = new ilMultipartFormPart($this->getPlugin()->txt('show_input') . ' ' . $input_name);
 
@@ -559,12 +559,15 @@ class assStackQuestionAuthoringGUI
 
 	/**
 	 * Create PRT Part
-	 * @param stack_potentialresponse_tree $prt
+	 * @param stack_potentialresponse_tree_lite $prt
 	 * @return ilMultipartFormPart
 	 */
-	public function getPRTPart(stack_potentialresponse_tree $prt)
+	public function getPRTPart(stack_potentialresponse_tree_lite $prt)
 	{
-		$prt_name = $prt->get_name();
+        //TODO ajustar a nueva sintaxis prt
+        $part = new ilMultipartFormPart('$prt_name');
+        return $part;
+        $prt_name = $prt->get_name();
 		//Create part and columns object
 		$part = new ilMultipartFormPart($prt_name);
 		$prt_columns_container = new ilColumnsFormPropertyGUI($this->getPlugin()->txt('prt_columns'), 'prt_' . $prt_name . '_columns', 12, TRUE);
@@ -643,8 +646,8 @@ class assStackQuestionAuthoringGUI
 		$prt_columns_container->addPart($settings_column, 9);
 
 		//Add columns property and set inner division
-		$part->addFormProperty($prt_columns_container);
 		$prt_columns_container->setWidthDivision(array('title' => 0, 'content' => 12, 'footer' => 0));
+        $part->addFormProperty($prt_columns_container);
 
 		return $part;
 	}
