@@ -44,7 +44,7 @@ class assStackQuestionHealthcheck
 
         $healthcheck = new stack_cas_healthcheck(assStackQuestionConfig::_getStoredSettings('all'));
 
-        var_dump($healthcheck);exit;
+        var_dump($healthcheck->get_test_results());exit;
 		//Add MathJax (Ensure MathJax is loaded)
 		include_once "./Services/Administration/classes/class.ilSetting.php";
 		$mathJaxSetting = new ilSetting("MathJax");

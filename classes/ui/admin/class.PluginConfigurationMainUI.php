@@ -27,7 +27,7 @@ class PluginConfigurationMainUI
 {
 
     private static Factory $factory;
-    private static ilCtrlInterface $control;
+    private static ilCtrl $control;
 
     /**
      * Shows the plugin configuration overview sections

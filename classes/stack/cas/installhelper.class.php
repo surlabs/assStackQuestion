@@ -25,6 +25,9 @@
 //require_once(__DIR__ . '/cassession2.class.php');
 
 
+use classes\core\filters\StackParser;
+use classes\platform\StackConfig;
+
 class stack_cas_configuration {
     protected static $instance = null;
 
@@ -55,26 +58,41 @@ class stack_cas_configuration {
 
     protected $blocksettings;
 
+
     /**
      * Constructor, initialises all the settings.
+     * @noinspection PhpArrayIndexImmediatelyRewrittenInspection
      */
     public function __construct() {
         global $CFG;
-        $this->settings = assStackQuestionConfig::_getStoredSettings('all');
+        $this->settings = StackConfig::getAll();
         $this->date = date("F j, Y, g:i a");
 
-        //fau: #9 fix for #22797 - omit the moodle specific sub path
-        $this->maximacodepath = stack_utils::convert_slash_paths($CFG->dirroot . '/classes/stack/maxima');
-        //fau.
+        $this->maximacodepath = stack_utils::convert_slash_paths(
+        //TODO SET WEBDIR + PATH COMO GLOBAL EN LUGAR DE USAR ILIAS EN CORE
+            realpath(ILIAS_DATA_DIR) .
+            '/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/core/external/maxima');
 
-        $this->logpath = stack_utils::convert_slash_paths($CFG->dataroot . '/stack/logs');
+        $this->logpath = stack_utils::convert_slash_paths(
+        //TODO SET DATADIR + PATH COMO GLOBAL EN LUGAR DE USAR ILIAS EN CORE
+            realpath(ILIAS_DATA_DIR) .
+            '/stack/logs');
 
-        $this->vnum = (float) substr($this->settings->maximaversion, 2);
+        //var_dump($this->settings);exit;
+        //SUR maximaversion to maxima_version
+        $this->vnum = (float) substr($this->settings["maxima_version"], 2);
 
         $this->blocksettings = array();
-        $this->blocksettings['MAXIMA_PLATFORM'] = $this->settings->platform;
-        $this->blocksettings['maxima_tempdir'] = stack_utils::convert_slash_paths($CFG->dataroot . '/stack/tmp/');
-        $this->blocksettings['IMAGE_DIR']     = stack_utils::convert_slash_paths($CFG->dataroot . '/stack/plots/');
+        //SUR platform to platform_type
+        $this->blocksettings['MAXIMA_PLATFORM'] = $this->settings["platform_type"];
+        $this->blocksettings['maxima_tempdir'] = stack_utils::convert_slash_paths(
+        //TODO SET DATADIR + PATH COMO GLOBAL EN LUGAR DE USAR ILIAS EN CORE
+            realpath(ILIAS_DATA_DIR) .
+            '/stack/tmp/');
+        $this->blocksettings['IMAGE_DIR'] = stack_utils::convert_slash_paths(
+        //TODO SET DATADIR + PATH COMO GLOBAL EN LUGAR DE USAR ILIAS EN CORE
+            realpath(ILIAS_DATA_DIR) .
+            '/stack/plots/');
 
         $this->blocksettings['PLOT_SIZE'] = '[450,300]';
         // These are used by the GNUplot "set terminal" command. Currently no user interface...
@@ -84,33 +102,46 @@ class stack_cas_configuration {
         // Note, the quotes need to be protected below.
         $this->blocksettings['PLOT_TERM_OPT'] = 'dynamic font \",11\" linewidth 1.2';
 
-        if ($this->settings->platform === 'win') {
+        //SUR platformtype to platform_type
+        if ($this->settings["platform_type"] === 'win') {
+            /*
+             * SUR no windows option in ilias
             $this->blocksettings['DEL_CMD']     = 'del';
-            $this->blocksettings['GNUPLOT_CMD'] = $this->get_plotcommand_win();
+            $this->blocksettings['GNUPLOT_CMD'] = $this->get_plotcommand_win();*/
         } else {
             $this->blocksettings['DEL_CMD']     = 'rm';
-            if ((trim($this->settings->plotcommand)) != '') {
-                $this->blocksettings['GNUPLOT_CMD'] = $this->settings->plotcommand;
-            } else if (is_readable('/Applications/Gnuplot.app/Contents/Resources/bin/gnuplot')) {
-                $this->blocksettings['GNUPLOT_CMD'] = '/Applications/Gnuplot.app/Contents/Resources/bin/gnuplot';
-            } else {
+            //SUR plotcommand to plot_command
+            if ((trim($this->settings["plot_command"])) != '') {
+                $this->blocksettings['GNUPLOT_CMD'] = $this->settings["plot_command"];
+            }
+            //SUR in ilias not possible
+            //else if (is_readable('/Applications/Gnuplot.app/Contents/Resources/bin/gnuplot')) {
+            //    $this->blocksettings['GNUPLOT_CMD'] = '/Applications/Gnuplot.app/Contents/Resources/bin/gnuplot';
+            //}
+            else {
                 $this->blocksettings['GNUPLOT_CMD'] = 'gnuplot';
             }
         }
         // Loop over this array to format them correctly...
-        if ($this->settings->platform === 'win') {
+        /*
+         * SUR no windows option in ilias
+        if ($this->settings["platform"] === 'win') {
             foreach ($this->blocksettings as $var => $val) {
                 if ($var != 'PLOT_TERM_OPT') {
                     $this->blocksettings[$var] = addslashes(str_replace( '/', '\\', $val));
                 }
             }
-        }
+        }*/
 
-        $this->blocksettings['MAXIMA_VERSION_EXPECTED'] = $this->settings->maximaversion;
+        //SUR maximaversion to maxima_version
+        $this->blocksettings['MAXIMA_VERSION_EXPECTED'] = $this->settings["maxima_version"];
         $this->blocksettings['URL_BASE']       = '!ploturl!';
-        if ($this->settings->platform === 'win') {
+        /*
+         * SUR no windows option in ilias
+
+        if ($this->settings["platform"] === 'win') {
             $this->blocksettings['URL_BASE']       = '!ploturl!/';
-        }
+        }*/
     }
 
     /**
