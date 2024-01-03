@@ -39,6 +39,8 @@ class assStackQuestionRenderer
 		// Replace inputs.
 		$inputs_to_validate = array();
 
+        $question_text = $question_text->get_evaluationform();
+
 		// Get the list of placeholders before format_text.
 		$input_placeholders = array_unique(stack_utils::extract_placeholders($question_text, 'input'));
 		sort($input_placeholders);
