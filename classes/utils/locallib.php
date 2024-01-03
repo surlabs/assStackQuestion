@@ -56,7 +56,9 @@ function stack_ouput_castext($castext)
 function stack_string($key, $a = null)
 {
 	//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php';
-	$user_language = getLanguage();
+    global $DIC;
+    $lng = $DIC->language();
+    $user_language = $lng->getUserLanguage();
 	switch ($user_language) {
 		case 'en':
 			static $string = array();
