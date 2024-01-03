@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace classes\platform;
 
-use classes\core\security\StackException;
+use classes\platform\StackException;
 use classes\platform\ilias\StackDatabaseIlias;
 
 /**

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace classes\platform\ilias;
 
-use classes\core\security\StackException;
+use classes\platform\StackException;
 use classes\platform\StackDatabase;
 use Exception;
 use ilDBInterface;
