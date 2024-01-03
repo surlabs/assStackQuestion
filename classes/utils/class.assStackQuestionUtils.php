@@ -280,12 +280,16 @@ class assStackQuestionUtils
 	}
 
 	/**
+     * @depracated
 	 * @param array $response_array
 	 * @param stack_input[] $inputs
 	 * @return bool
 	 */
 	public static function _isEmptyResponse(array $response_array, array $inputs): bool
 	{
+        //No longer needed
+        return false;
+        /*
 		if (empty($response_array)) {
 			return true;
 		}
@@ -313,7 +317,7 @@ class assStackQuestionUtils
 			}
 		}
 
-		return true;
+		return true;*/
 	}
 
 	/**
