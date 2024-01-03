@@ -74,7 +74,7 @@ class stack_cas_castext2_demarkdown extends stack_cas_castext2_block {
             if (isset($dontproc[$k])) {
                 $r .= $v;
             } else {
-                $v = markdown_to_html($v);
+                /* $v = markdown_to_html($v); */
                 // Note that at this point most of the interesting chars are entities.
                 // We need to revert some of those conversions to allow later processign to
                 // detect LaTeX for MathJax.
