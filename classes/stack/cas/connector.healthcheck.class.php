@@ -162,11 +162,11 @@ class stack_cas_healthcheck {
             // Intentionally use get_string for the sample CAS and plots, so we don't render
             // the maths too soon.
             $this->output_cas_text('healthcheckconnect',
-                stack_string('healthcheckconnectintro'), get_string('healthchecksamplecas', 'qtype_stack'));
+                stack_string('healthcheckconnectintro'), stack_string('healthchecksamplecas'));
             $this->output_cas_text('healthcheckconnectunicode',
-                stack_string('healthcheckconnectintro'), get_string('healthchecksamplecasunicode', 'qtype_stack'));
+                stack_string('healthcheckconnectintro'), stack_string('healthchecksamplecasunicode'));
             $this->output_cas_text('healthcheckplots',
-                stack_string('healthcheckplotsintro'), get_string('healthchecksampleplots', 'qtype_stack'));
+                stack_string('healthcheckplotsintro'), stack_string('healthchecksampleplots'));
         }
 
         // If we have a linux machine, and we are testing the raw connection then we should
