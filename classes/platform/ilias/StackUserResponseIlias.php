@@ -36,6 +36,7 @@ class StackUserResponseIlias extends StackUserResponse
     }
 
     /**
+     *
      * @throws StackException
      */
     public function getStackUserResponse(): array

@@ -27,8 +27,13 @@ abstract class StackUserResponse {
 
     abstract function getStackUserResponse(): array;
 
-    protected function checkStackUserResponse(): bool {
-        return true;
+    protected function checkStackUserResponse(array $stack_user_response): bool {
+        //TODO: SUR
+        if(is_array($stack_user_response)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }
