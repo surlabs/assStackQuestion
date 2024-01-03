@@ -84,8 +84,11 @@ abstract class stack_connection_helper {
 
         switch (self::$config->casresultscache) {
             case 'db':
-                global $DB;
-                $connection = new stack_cas_connection_db_cache($connection, $debuglog, $DB);
+                //fau: #7 Use ILIAS DB instead of Moodle DB
+                global $DIC;
+                $db = $DIC->database();
+                $connection = new stack_cas_connection_db_cache($connection, $debuglog, $db);
+                //fau.
                 break;
 
             case 'otherdb':

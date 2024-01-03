@@ -60,11 +60,12 @@ class stack_cas_configuration {
      */
     public function __construct() {
         global $CFG;
-        $this->settings = get_config('qtype_stack');
+        $this->settings = assStackQuestionConfig::_getStoredSettings('all');
         $this->date = date("F j, Y, g:i a");
 
-        $this->maximacodepath = stack_utils::convert_slash_paths(
-                $CFG->dirroot . '/question/type/stack/stack/maxima');
+        //fau: #9 fix for #22797 - omit the moodle specific sub path
+        $this->maximacodepath = stack_utils::convert_slash_paths($CFG->dirroot . '/classes/stack/maxima');
+        //fau.
 
         $this->logpath = stack_utils::convert_slash_paths($CFG->dataroot . '/stack/logs');
 
@@ -300,7 +301,7 @@ END;
      */
     public static function maximalocal_location() {
         global $CFG;
-        return stack_utils::convert_slash_paths($CFG->dataroot . '/stack/maximalocal.mac');
+        return stack_utils::convert_slash_paths(realpath(ILIAS_DATA_DIR) . '/stack/maximalocal.mac');
     }
 
     /**
@@ -309,17 +310,19 @@ END;
      */
     public static function images_location() {
         global $CFG;
-        return stack_utils::convert_slash_paths($CFG->dataroot . '/stack/plots');
+        return stack_utils::convert_slash_paths(realpath(ILIAS_DATA_DIR) . '/stack/plots');
     }
 
     /**
      * Create the maximalocal.mac file, overwriting it if it already exists.
      */
     public static function create_maximalocal() {
-        make_upload_directory('stack');
-        make_upload_directory('stack/logs');
-        make_upload_directory('stack/plots');
-        make_upload_directory('stack/tmp');
+        if (!is_dir(ILIAS_DATA_DIR . '/stack')) {
+            mkdir(ILIAS_DATA_DIR . '/stack', 0700, true);
+            mkdir(ILIAS_DATA_DIR . '/stack/logs');
+            mkdir(ILIAS_DATA_DIR . '/stack/plots');
+            mkdir(ILIAS_DATA_DIR . '/stack/tmp');
+        }
 
         if (!file_put_contents(self::maximalocal_location(), self::generate_maximalocal_contents())) {
             throw new stack_exception('Failed to write Maxima configuration file.');

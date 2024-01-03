@@ -28,7 +28,7 @@ class stack_cas_connection_db_cache implements stack_cas_connection {
     /** @var stack_debug_log does the debugging. */
     protected $debug;
 
-    /** @var moodle_database The database connection to use for the cache. */
+    /** @var ilDBInterface The database connection to use for the cache. */
     protected $db;
 
     /**
@@ -36,7 +36,7 @@ class stack_cas_connection_db_cache implements stack_cas_connection {
      * @param stack_cas_connection $rawconnection the un-cached connection.
      * @param stack_debug_log $debuglog the debug log to use.
      */
-    public function __construct(stack_cas_connection $rawconnection, stack_debug_log $debuglog, moodle_database $db) {
+    public function __construct(stack_cas_connection $rawconnection, stack_debug_log $debuglog, ilDBInterface $db) {
         $this->rawconnection = $rawconnection;
         $this->debug = $debuglog;
         $this->db = $db;

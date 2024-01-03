@@ -27,7 +27,9 @@
 class stack_cas_connection_server extends stack_cas_connection_base {
 
     protected function guess_maxima_command($path) {
-        return 'http://localhost:8080/MaximaPool/MaximaPool';
+        //fau: add server from DB
+        return assStackQuestionConfig::_getServerAddress();
+        //fau.
     }
 
     protected function call_maxima($command) {

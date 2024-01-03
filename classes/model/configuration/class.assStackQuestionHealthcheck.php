@@ -27,11 +27,6 @@ class assStackQuestionHealthcheck
 	private $plugin;
 
 	/**
-	 * @var assStackQuestionStackFactory the clas for create stack objects
-	 */
-	private $stack_factory;
-
-	/**
 	 * @var mixed The current status of the maxima connection
 	 */
 	private $maxima_connection_status;
@@ -41,20 +36,15 @@ class assStackQuestionHealthcheck
 	{
 		//Set plugin object
 		$this->setPlugin($plugin);
-
-		//Create STACK factory
-		$this->setStackFactory(new assStackQuestionStackFactory());
 	}
 
 	public function doHealthcheck()
 	{
 		global $tpl, $DIC;
-		//Include all classes needed
-		$this->getPlugin()->includeClass('utils/class.assStackQuestionInitialization.php');
-		$this->getPlugin()->includeClass('../exceptions/class.assStackQuestionException.php');
 
-		$this->checkMaximaConnection();
+        $healthcheck = new stack_cas_healthcheck(assStackQuestionConfig::_getStoredSettings('all'));
 
+        var_dump($healthcheck);exit;
 		//Add MathJax (Ensure MathJax is loaded)
 		include_once "./Services/Administration/classes/class.ilSetting.php";
 		$mathJaxSetting = new ilSetting("MathJax");
@@ -69,7 +59,6 @@ class assStackQuestionHealthcheck
 	{
 		global $CFG;
 		$this->getPlugin()->includeClass('stack/mathsoutput/mathsoutput.class.php');
-		$this->getPlugin()->includeClass('stack/cas/castext.class.php');
 
 		//Check LaTeX is being converted correctly
 		$this->setMaximaConnectionStatus('<b>' . html_writer::tag('p', stack_string('healthchecklatex')) . '</b>', 'healthchecklatex');
