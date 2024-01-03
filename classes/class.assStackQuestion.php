@@ -3753,4 +3753,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             return false;
         }
     }
+
+    public function getCasTextProcessor(): ?castext2_processor
+    {
+        return $this->cas_text_processor;
+    }
+
+    public function setCasTextProcessor(?castext2_processor $cas_text_processor): void
+    {
+        $this->cas_text_processor = $cas_text_processor;
+    }
 }

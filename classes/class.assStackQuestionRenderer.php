@@ -33,7 +33,7 @@ class assStackQuestionRenderer
 	{
 		global $DIC;
 
-		$question_text = $question->question_text_instantiated;
+		$question_text = $question->question_text_instantiated->get_rendered($question->getCasTextProcessor());
 		$instant_validation = (bool)stack_utils::get_config()->ajaxvalidation;
 
 		// Replace inputs.
