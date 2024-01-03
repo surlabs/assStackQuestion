@@ -1417,33 +1417,94 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     public function loadStandardPRT(string $prt_name, bool $return_standard_node = false)
     {
         //load PRTs and PRT nodes
+        //TODO LOAD PLATFORM STANDARD PRT
         $standard_prt = assStackQuestionConfig::_getStoredSettings('prts');
 
-        //Values
-        $total_value = 1;
-
-        //in ILIAS all attempts are graded
-        $grade_all = true;
-
-        if ($standard_prt && $grade_all && $total_value < 0.0000001) {
-            try {
-                throw new stack_exception('There is an error authoring your question. ' .
-                    'The $totalvalue, the marks available for the question, must be positive in question ' .
-                    $this->getTitle());
-            } catch (stack_exception $e) {
-                ilUtil::sendFailure($e->getMessage(), true);
-            }
-        }
-
-        $prt_value = 1.0;
         try {
 
-            //TODO quitar parseo guarro
-            $standard_prt_std = new stdClass();
-            foreach ($standard_prt as $key => $value) {
-                $standard_prt_std->$key = $value;
-            }
-            $this->prts[$prt_name] = new stack_potentialresponse_tree_lite($standard_prt_std, $prt_value);
+            $prt = new stdClass;
+            $prt->name              = 'ans';
+            $prt->id                = 0;
+            $prt->value             = 1;
+            $prt->feedbackstyle     = 1;
+            $prt->feedbackvariables = '';
+            $prt->firstnodename     = '0';
+            $prt->nodes             = [];
+            $prt->autosimplify      = true;
+            $newnode = new stdClass;
+            $newnode->id                  = '0';
+            $newnode->nodename            = '0';
+            $newnode->description         = '';
+            $newnode->sans                = 'ans1';
+            $newnode->tans                = 'ta';
+            $newnode->answertest          = 'AlgEquiv';
+            $newnode->testoptions         = '';
+            $newnode->quiet               = false;
+            $newnode->falsescore          = '0';
+            $newnode->falsescoremode      = '=';
+            $newnode->falsepenalty        = 0;
+            $newnode->falsefeedback       = '';
+            $newnode->falsefeedbackformat = '1';
+            $newnode->falseanswernote     = 'ans-0-F';
+            $newnode->falsenextnode       = '1';
+            $newnode->truescore           = 'sc2';
+            $newnode->truescoremode       = '=';
+            $newnode->truepenalty         = 0;
+            $newnode->truefeedback        = '';
+            $newnode->truefeedbackformat  = '1';
+            $newnode->trueanswernote      = 'ans-0-T';
+            $newnode->truenextnode        = '-1';
+            $prt->nodes[] = $newnode;
+            $newnode = new stdClass;
+            $newnode->id                  = '1';
+            $newnode->nodename            = '1';
+            $newnode->description         = '';
+            $newnode->sans                = 'ans1';
+            $newnode->tans                = '{p}';
+            $newnode->answertest          = 'AlgEquiv';
+            $newnode->testoptions         = '';
+            $newnode->quiet               = false;
+            $newnode->falsescore          = '0';
+            $newnode->falsescoremode      = '=';
+            $newnode->falsepenalty        = 0;
+            $newnode->falsefeedback       = '';
+            $newnode->falsefeedbackformat = '1';
+            $newnode->falseanswernote     = 'ans-1-F';
+            $newnode->falsenextnode       = '2';
+            $newnode->truescore           = '0';
+            $newnode->truescoremode       = '=';
+            $newnode->truepenalty         = 0;
+            $newnode->truefeedback        = '';
+            $newnode->truefeedbackformat  = '1';
+            $newnode->trueanswernote      = 'ans-1-T';
+            $newnode->truenextnode        = '-1';
+            $prt->nodes[] = $newnode;
+            $newnode = new stdClass;
+            $newnode->id                  = '2';
+            $newnode->nodename            = '2';
+            $newnode->description         = '';
+            $newnode->sans                = 'a1';
+            $newnode->tans                = '{0}';
+            $newnode->answertest          = 'AlgEquiv';
+            $newnode->testoptions         = '';
+            $newnode->quiet               = true;
+            $newnode->falsescore          = '0';
+            $newnode->falsescoremode      = '=';
+            $newnode->falsepenalty        = 0;
+            $newnode->falsefeedback       = '';
+            $newnode->falsefeedbackformat = '1';
+            $newnode->falseanswernote     = 'ans-2-F';
+            $newnode->falsenextnode       = '-1';
+            $newnode->truescore           = 'sc2';
+            $newnode->truescoremode       = '=';
+            $newnode->truepenalty         = 0;
+            $newnode->truefeedback        =
+                'All your answers satisfy the equation. But, you have missed some of the solutions.';
+            $newnode->truefeedbackformat  = '1';
+            $newnode->trueanswernote      = 'ans-2-T';
+            $newnode->truenextnode        = '-1';
+            $prt->nodes[] = $newnode;
+            $this->prts[$prt->name] = new stack_potentialresponse_tree_lite($prt, $prt->value, null);
         } catch (stack_exception $e) {
             ilUtil::sendFailure($e->getMessage(), true);
         }
