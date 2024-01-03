@@ -321,8 +321,6 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $this->questionInitForPreview();
 
-        return $this->object->question_text_instantiated->get_evaluationform();
-
 		$response = array();
 		foreach ($this->object->inputs as $input_name => $input) {
             //Do not send matrix to maxima
