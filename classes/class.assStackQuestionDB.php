@@ -160,6 +160,7 @@ class assStackQuestionDB
 				$prt_ids[$prt_name]->prt_id = $ilias_prts[$prt_name]['id'];
 			}
 
+            $potential_response_trees[$prt_name]->name = $row['name'];
 			$potential_response_trees[$prt_name]->value = $row['value'];
 			$potential_response_trees[$prt_name]->auto_simplify = $row['auto_simplify'];
 			$potential_response_trees[$prt_name]->feedback_variables = $row['feedback_variables'];
