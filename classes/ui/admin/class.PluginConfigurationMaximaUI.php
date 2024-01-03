@@ -126,7 +126,7 @@ class PluginConfigurationMaximaUI
             'true' => $plugin_object->txt("ui_admin_configuration_connection_preparse_all_yes"),
             'false' => $plugin_object->txt("ui_admin_configuration_connection_preparse_all_no"),
         ];
-        if (isset($data["preparse_all"]) && array_key_exists($data["preparse_all"], $preparse_all_options)) {
+        if (isset($data["preparse_all"]) && array_key_exists((string)$data["preparse_all"], $preparse_all_options)) {
             $preparse_all_value = $data["preparse_all"];
         } else {
             //TODO throw new stack_exception("Error: Preparse all value not valid: " . $data["preparse_all"]);

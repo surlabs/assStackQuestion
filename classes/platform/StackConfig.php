@@ -59,7 +59,7 @@ class StackConfig {
      * @param string|null $category
      * @return void
      */
-    public static function set(string $key, mixed $value, ?string $category = null): void {
+    public static function set(string $key, $value, ?string $category = null): void {
         if (isset(self::$config[$key])) {
             if (is_bool($value)) {
                 $value = (int) $value;
@@ -82,7 +82,7 @@ class StackConfig {
      * @return mixed
      * @throws StackException
      */
-    public static function get(string $key): mixed {
+    public static function get(string $key) {
         return self::$config[$key] ?? self::getFromDB($key);
     }
 
@@ -91,7 +91,7 @@ class StackConfig {
      * @param string $key
      * @return mixed
      */
-    public static function getFromDB(string $key): mixed {
+    public static function getFromDB(string $key) {
         $config = StackDatabase::select('xqcas_configuration', array(
             'parameter_name' => $key
         ));
