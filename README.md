@@ -24,7 +24,7 @@ STACK requires the [mbstring](https://www.php.net/manual/en/book.mbstring.php) P
 
 STACK requires [Maxima](https://maxima.sourceforge.io/), an Open-Source Computer Algebra System to work. Ensure you have Maxima instance installed on the web server running your ILIAS installation, or you have a Maxima Pool / Goemaxima connection before installing this plugin in your platform.
 * If you are using a local Maxima Installation, ensure it is at least Maxima 5.45
-* If you are using MaximaPool or GoeMaxima, the expected compiled version is 2021120900
+* If you are using MaximaPool or GoeMaxima, the expected compiled version is 2023121100
 
 STACK requires [GNUPlot](https://www.gnuplot.info), which is used by Maxima to generate graphical plots of functions etc. It is freely available
 and part of most Linux distrubutions. GNUplot needs to be installed on the web server
@@ -167,7 +167,7 @@ composer du
 This version has been declared stable on 2022.09.14
 Its main functionalities has been tested by the University of Erlangen and the Helmut Schmidt University.
 Some bugfixing may be expected when its use become more extensive. Please keep you ILIAS platform up to date
-- **This STACK for ILIAS plugin version requires a Maxima Server with the maxima version 2021120900. Other versions may trigger validation errors or not show the question at all**
+- **This STACK for ILIAS plugin version requires a Maxima Server with the maxima version 2023121100. Other versions may trigger validation errors or not show the question at all**
 - Ensure you clear the cache after updating.
 - Update of this plugin is currently only Manual on plugins administration.
 - **Changes in this Version**

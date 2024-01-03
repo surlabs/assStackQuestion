@@ -208,8 +208,8 @@ if (!function_exists('get_config')) {
         $configs->inputshowvalidation = $saved_config['input_show_validation'];
 
         $configs->maximalocalfolder = ilUtil::getWebspaceDir('filesystem') . '/xqcas/stack';
-        $configs->stackmaximaversion = "2021120900";
-        $configs->version = "2021120900";
+        $configs->stackmaximaversion = "2023121100";
+        $configs->version = "2023121100";
 
         return $configs;
     }

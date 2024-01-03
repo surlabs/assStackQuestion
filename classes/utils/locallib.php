@@ -43,8 +43,7 @@ class stack_exception extends assStackQuestionException
  */
 function stack_ouput_castext($castext)
 {
-	return format_text(stack_maths::process_display_castext($castext),
-		1, array('noclean' => true));
+	return stack_maths::process_display_castext($castext);
 }
 
 /**

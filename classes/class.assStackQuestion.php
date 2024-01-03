@@ -737,7 +737,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 $this->stack_version = $options_from_db_array['ilias_options']['stack_version'];
             } else {
                 //Stack version TODO CONFIG
-                $this->stack_version = '2021120900';
+                $this->stack_version = '2023121100';
             }
 
             //load inputs
@@ -1337,7 +1337,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         $this->variants_selection_seed = '';
 
         //Stack version TODO CONFIG
-        $this->stack_version = '2021120900';
+        $this->stack_version = '2023121100';
 
         //load standard input
         $this->loadStandardInput('ans1');
