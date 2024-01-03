@@ -922,3 +922,123 @@ if ($db->tableExists('xqcas_deployed_seeds')) {
     }
 }
 ?>
+<#46>
+<?php
+global $DIC;
+$db = $DIC->database();
+
+//Create feedback styles
+if ($db->tableExists("xqcas_configuration")) {
+    $existing_entries = array();
+
+    $result = $db->query("SELECT * FROM xqcas_configuration");
+    while ($row = $db->fetchAssoc($result)) {
+        $existing_entries[] = $row["parameter_name"];
+    }
+
+    if (in_array("allow_jsx_graph", $existing_entries)) {
+        $db->update("xqcas_configuration", array("value" => array("clob", "1")), array("parameter_name" => array("text", "allow_jsx_graph")));
+    }
+
+    if (!in_array("preparse_all", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "preparse_all"), "value" => array("clob", "1"), "group_name" => array("text", "common")));
+    }
+    if (!in_array("cache_parsed_expressions_longer_than", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "cache_parsed_expressions_longer_than"), "value" => array("clob", "50"), "group_name" => array("text", "common")));
+    }
+    if (!in_array("maxima_pool_url", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "maxima_pool_url"), "value" => array("clob", ""), "group_name" => array("text", "server")));
+    }
+    if (!in_array("maxima_pool_server_username_password", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "maxima_pool_server_username_password"), "value" => array("clob", ""), "group_name" => array("text", "server")));
+    }
+    if (!in_array("maxima_uses_proxy", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "maxima_uses_proxy"), "value" => array("clob", ""), "group_name" => array("text", "server")));
+    }
+    if (!in_array("question_level_simplify", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "question_level_simplify"), "value" => array("clob", "1"), "group_name" => array("text", "options")));
+    }
+    if (!in_array("assume_positive", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "assume_positive"), "value" => array("clob", ""), "group_name" => array("text", "options")));
+    }
+    if (!in_array("assume_real", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "assume_real"), "value" => array("clob", ""), "group_name" => array("text", "options")));
+    }
+    if (!in_array("feedback_fully_correct", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "feedback_fully_correct"), "value" => array("clob", "Correct answer, well done."), "group_name" => array("text", "options")));
+    }
+    if (!in_array("feedback_partially_correct", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "feedback_partially_correct"), "value" => array("clob", "Your answer is partially correct."), "group_name" => array("text", "options")));
+    }
+    if (!in_array("feedback_fully_incorrect", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "feedback_fully_incorrect"), "value" => array("clob", "Incorrect answer."), "group_name" => array("text", "options")));
+    }
+    if (!in_array("multiplication_sign", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "multiplication_sign"), "value" => array("clob", "dot"), "group_name" => array("text", "options")));
+    }
+    if (!in_array("surd_for_sqrt", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "surd_for_sqrt"), "value" => array("clob", "1"), "group_name" => array("text", "options")));
+    }
+    if (!in_array("complex_numbers", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "complex_numbers"), "value" => array("clob", "i"), "group_name" => array("text", "options")));
+    }
+    if (!in_array("inverse_trigonometric", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "inverse_trigonometric"), "value" => array("clob", "cos-1"), "group_name" => array("text", "options")));
+    }
+    if (!in_array("logic_symbols", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "logic_symbols"), "value" => array("clob", "lang"), "group_name" => array("text", "options")));
+    }
+    if (!in_array("matrix_parentheses", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "matrix_parentheses"), "value" => array("clob", "["), "group_name" => array("text", "options")));
+    }
+    if (!in_array("default_type", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "default_type"), "value" => array("clob", "algebraic"), "group_name" => array("text", "inputs")));
+    }
+    if (!in_array("box_size", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "box_size"), "value" => array("clob", "15"), "group_name" => array("text", "inputs")));
+    }
+    if (!in_array("strict_syntax", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "strict_syntax"), "value" => array("clob", "1"), "group_name" => array("text", "inputs")));
+    }
+    if (!in_array("insert_stars", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "insert_stars"), "value" => array("clob", "5"), "group_name" => array("text", "inputs")));
+    }
+    if (!in_array("forbidden_words", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "forbidden_words"), "value" => array("clob", ""), "group_name" => array("text", "inputs")));
+    }
+    if (!in_array("forbid_float", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "forbid_float"), "value" => array("clob", "1"), "group_name" => array("text", "inputs")));
+    }
+    if (!in_array("require_lowest_terms", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "require_lowest_terms"), "value" => array("clob", ""), "group_name" => array("text", "inputs")));
+    }
+    if (!in_array("check_answer_type", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "check_answer_type"), "value" => array("clob", ""), "group_name" => array("text", "inputs")));
+    }
+    if (!in_array("must_verify", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "must_verify"), "value" => array("clob", "1"), "group_name" => array("text", "inputs")));
+    }
+    if (!in_array("show_validation", $existing_entries)) {
+        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "show_validation"), "value" => array("clob", "1"), "group_name" => array("text", "inputs")));
+    }
+}
+?>
+<#47>
+<?php
+global $DIC;
+$db = $DIC->database();
+
+if ($db->tableExists('xqcas_options')) {
+    $db->addTableColumn("xqcas_options", "question_description", array('type' => 'clob', 'notnull' => false, 'default' => null));
+    $db->addTableColumn("xqcas_options", "question_description_format", array('type' => 'integer', 'length' => 2, 'notnull' => false, 'default' => null));
+}
+?>
+<#48>
+<?php
+global $DIC;
+$db = $DIC->database();
+
+if ($db->tableExists('xqcas_configuration')) {
+    $db->update("xqcas_configuration", array("value" => array("clob", "linux")), array("parameter_name" => array("text", "platform_type"), "value" => array("clob", "unix")));
+}
+?>
