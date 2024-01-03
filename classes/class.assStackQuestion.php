@@ -3027,7 +3027,16 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         if ($this->compiled_cache === null || !array_key_exists($key, $this->compiled_cache)) {
             // If not do the compilation.
             try {
-                $this->compiled_cache = assStackQuestion::compile($this->question_variables, $this->inputs, $this->prts, $this->options);
+                $this->compiled_cache = assStackQuestion::compile($this->id,
+                    $this->question_variables, $this->inputs, $this->prts,
+                    $this->options, $this->getQuestion(), assStackQuestionUtils::FORMAT_HTML,
+                    $this->question_note,
+                    $this->general_feedback, assStackQuestionUtils::FORMAT_HTML,
+                    $this->specific_feedback, assStackQuestionUtils::FORMAT_HTML,
+                    $this->getComment(), assStackQuestionUtils::FORMAT_HTML,
+                    $this->prt_correct, $this->prt_correct_format,
+                    $this->prt_partially_correct, $this->prt_partially_correct_format,
+                    $this->prt_incorrect, $this->prt_incorrect_format, $this->penalty);
                 //TODO CREATE NEW QUESTION CACHE DB ENTRY
             } catch (exception $e) {
                 // TODO: what exactly do we use here as the key
@@ -3406,28 +3415,47 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      *
      * Note that does throw exceptions about validation details.
      *
-     * Currently the cache contaisn the following keys:
+     * Currently the cache contains the following keys:
      *  'units' for declaring the units-mode.
      *  'forbiddenkeys' for the lsit of those.
-     *  'contextvariable-qv' the pre-validated question-variables which are context variables.
+     *  'contextvariables-qv' the pre-validated question-variables which are context variables.
      *  'statement-qv' the pre-validated question-variables.
      *  'preamble-qv' the matching blockexternals.
      *  'required' the lists of inputs required by given PRTs an array by PRT-name.
-     *
-     * In the future expect the following:
      *  'castext-qt' for the question-text as compiled CASText2.
      *  'castext-qn' for the question-note as compiled CASText2.
      *  'castext-...' for the model-solution and prtpartiallycorrect etc.
-     *  'prt' the compiled PRT-logics in an array.
+     *  'castext-td-...' for downloadable generated text content.
+     *  'security-context' mainly lists keys that are student inputs.
+     *  'prt-*' the compiled PRT-logics in an array. Divided by usage.
+     *  'langs' a list of language codes used in this question.
+     *
+     * In the future expect the following:
      *  'security-config' extended logic for cas-security, e.g. custom-units.
      *
-     * @param string the questionvariables
-     * @param array inputs as objects, keyed by input name
-     * @param array PRTs as objects
-     * @param stack_options the options in use, if they would ever matter
-     * @return array|false
+     * @param int $id the identifier of this question fot use if we have pluginfiles
+     * @param string $questionvariables the questionvariables
+     * @param array $inputs inputs as objects, keyed by input name
+     * @param array $prts PRTs as objects
+     * @param stack_options $options the options in use, if they would ever matter
+     * @param string $questiontext question-text
+     * @param string $questiontextformat question-text format
+     * @param string $questionnote question-note
+     * @param string $generalfeedback general-feedback
+     * @param string $generalfeedbackformat general-feedback format...
+     * @param float $defaultpenalty default penalty
+     * @return array a dictionary of things that might be expensive to generate.
+     * @throws stack_exception
      */
-    public static function compile($questionvariables, $inputs, $prts, $options)
+    public static function compile($id, $questionvariables, $inputs, $prts, $options,
+                                   $questiontext, $questiontextformat,
+                                   $questionnote,
+                                   $generalfeedback, $generalfeedbackformat,
+                                   $specificfeedback, $specificfeedbackformat,
+                                   $questiondescription, $questiondescriptionformat,
+                                   $prtcorrect, $prtcorrectformat,
+                                   $prtpartiallycorrect, $prtpartiallycorrectformat,
+                                   $prtincorrect, $prtincorrectformat, $defaultpenalty): array
     {
         // NOTE! We do not compile during question save as that would make
         // import actions slow. We could compile during fromform-validation
@@ -3436,81 +3464,246 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         //
         // As we currently compile at the first use things start slower than they could.
 
-        try {
-            // The cache will be a dictionary with many things.
-            $cc = [];
-            // Some details are globals built from many sources.
-            $units = false;
-            $forbiddenkeys = [];
+        // The cache will be a dictionary with many things.
+        $cc = [];
+        // Some details are globals built from many sources.
+        $units = false;
+        $forbiddenkeys = [];
+        $sec = new stack_cas_security();
 
-            // First handle the question variables.
-            if ($questionvariables === null || trim($questionvariables) === '') {
-                $cc['statement-qv'] = null;
-                $cc['preamble-qv'] = null;
-                $cc['contextvariable-qv'] = null;
-                $cc['security-context'] = [];
-            } else {
-                $kv = new stack_cas_keyval($questionvariables, $options);
-                if (!$kv->get_valid()) {
-                    throw new stack_exception('Error(s) in question-variables: ' . implode('; ', $kv->get_errors()));
-                }
-                $c = $kv->compile('question-variables');
-                // Store the pre-validated statement representing the whole qv.
-                $cc['statement-qv'] = $c['statement'];
-                // Store any contextvariables, e.g. assume statements.
-                $cc['contextvariables-qv'] = $c['contextvariables'];
-                // Store the possible block external features.
-                $cc['preamble-qv'] = $c['blockexternal'];
-                // Finally extend the forbidden keys set if we saw any variables written.
-                if (isset($c['references']['write'])) {
-                    $forbiddenkeys = array_merge($forbiddenkeys, $c['references']['write']);
-                }
-                // Collect type information and condense it.
-                $ti = $kv->get_security()->get_context();
-                $si = [];
-                foreach ($ti as $key => $value) {
-                    // We should not directly serialize the ASTs they have too much context in them.
-                    // Unfortunately that means we need to parse them back on every init.
-                    $si[$key] = array_keys($value);
-                }
+        // Some counter resets to ensure that the result is the same even if
+        // we for some reason would compile twice in a session.
+        // Happens during first preview and can lead to cache being always out
+        // of sync if textdownload is in play.
+        stack_cas_castext2_textdownload::$countfiles = 1;
 
-                // Mark all inputs. To let us know that they have special types.
-                foreach ($inputs as $key => $value) {
-                    if (!isset($si[$key])) {
-                        $si[$key] = [];
-                    }
-                    $si[$key][-2] = -2;
-                }
-                $cc['security-context'] = $si;
+        // Static string extrraction now for CASText2 in top level text blobs and PRTs,
+        // question varaibles and in the future probably also from input2.
+        $map = new castext2_static_replacer([]);
+
+        // First handle the question variables.
+        if ($questionvariables === null || trim($questionvariables) === '') {
+            $cc['statement-qv'] = null;
+            $cc['preamble-qv'] = null;
+            $cc['contextvariables-qv'] = null;
+            $cc['security-context'] = [];
+        } else {
+            $kv = new stack_cas_keyval($questionvariables, $options);
+
+            /* $kv->get_security($sec); ??? Maybe set_security instead*/
+            $kv->set_security($sec);
+
+
+            if (!$kv->get_valid()) {
+                throw new stack_exception('Error(s) in question-variables: ' . implode('; ', $kv->get_errors()));
             }
-
-            // Then do some basic detail collection related to the inputs and PRTs.
-            foreach ($inputs as $input) {
-                if (is_a($input, 'stack_units_input')) {
-                    $units = true;
-                    break;
-                }
+            $c = $kv->compile('/qv', $map);
+            // Store the pre-validated statement representing the whole qv.
+            $cc['statement-qv'] = $c['statement'];
+            // Store any contextvariables, e.g. assume statements.
+            $cc['contextvariables-qv'] = $c['contextvariables'];
+            // Store the possible block external features.
+            $cc['preamble-qv'] = $c['blockexternal'];
+            // Finally extend the forbidden keys set if we saw any variables written.
+            if (isset($c['references']['write'])) {
+                $forbiddenkeys = array_merge($forbiddenkeys, $c['references']['write']);
             }
-            $cc['required'] = [];
-            foreach ($prts as $prt) {
-                if ($prt->has_units()) {
-                    $units = true;
-                }
-                // This is surprisingly expensive to do, simpler to extract from compiled.
-                $cc['required'][$prt->get_name()] = $prt->get_required_variables(array_keys($inputs));
+            if (isset($c['includes'])) {
+                $cc['includes']['keyval'] = $c['includes'];
             }
-
-            // Note that instead of just adding the unit loading to the 'preamble-qv'
-            // and forgetting about units we do keep this bit of information stored
-            // as it may be used in input configuration at some later time.
-            $cc['units'] = $units;
-            $cc['forbiddenkeys'] = $forbiddenkeys;
-
-            return $cc;
-        } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
-            return array();
         }
+
+        // Then do some basic detail collection related to the inputs and PRTs.
+        foreach ($inputs as $input) {
+            if (is_a($input, 'stack_units_input')) {
+                $units = true;
+                break;
+            }
+        }
+        $cc['required'] = [];
+        $cc['prt-preamble'] = [];
+        $cc['prt-contextvariables'] = [];
+        $cc['prt-signature'] = [];
+        $cc['prt-definition'] = [];
+        $cc['prt-trace'] = [];
+        $i = 0;
+        foreach ($prts as $name => $prt) {
+            $path = '/p/' . $i;
+            $i = $i + 1;
+            $r = $prt->compile($inputs, $forbiddenkeys, $defaultpenalty, $sec, $path, $map);
+            $cc['required'][$name] = $r['required'];
+            if ($r['be'] !== null && $r['be'] !== '') {
+                $cc['prt-preamble'][$name] = $r['be'];
+            }
+            if ($r['cv'] !== null && $r['cv'] !== '') {
+                $cc['prt-contextvariables'][$name] = $r['cv'];
+            }
+            $cc['prt-signature'][$name] = $r['sig'];
+            $cc['prt-definition'][$name] = $r['def'];
+            $cc['prt-trace'][$name] = $r['trace'];
+            $units = $units || $r['units'];
+            if (isset($r['includes'])) {
+                if (!isset($cc['includes'])) {
+                    $cc['includes'] = $r['includes'];
+                } else {
+                    if (isset($r['includes']['keyval'])) {
+                        if (!isset($cc['includes']['keyval'])) {
+                            $cc['includes']['keyval'] = [];
+                        }
+                        $cc['includes']['keyval'] = array_unique(array_merge($cc['includes']['keyval'],
+                            $r['includes']['keyval']));
+                    }
+                    if (isset($r['includes']['castext'])) {
+                        if (!isset($cc['includes']['castext'])) {
+                            $cc['includes']['castext'] = [];
+                        }
+                        $cc['includes']['castext'] = array_unique(array_merge($cc['includes']['castext'],
+                            $r['includes']['castext']));
+                    }
+                }
+            }
+        }
+
+        // Note that instead of just adding the unit loading to the 'preamble-qv'
+        // and forgetting about units we do keep this bit of information stored
+        // as it may be used in input configuration at some later time.
+        $cc['units'] = $units;
+        $cc['forbiddenkeys'] = $forbiddenkeys;
+
+        // Do some pluginfile mapping. Note that the PRT-nodes are mapped in PRT-compiler.
+        $questiontext = assStackQuestionUtils::stack_castext_file_filter($questiontext, [
+            'questionid' => $id,
+            'field' => 'questiontext'
+        ]);
+        $generalfeedback = assStackQuestionUtils::stack_castext_file_filter($generalfeedback, [
+            'questionid' => $id,
+            'field' => 'generalfeedback'
+        ]);
+        $specificfeedback = assStackQuestionUtils::stack_castext_file_filter($specificfeedback, [
+            'questionid' => $id,
+            'field' => 'specificfeedback'
+        ]);
+        // Legacy questions may have a null description before being saved/compiled.
+        if ($questiondescription === null) {
+            $questiondescription = '';
+        }
+        $questiondescription = assStackQuestionUtils::stack_castext_file_filter($questiondescription, [
+            'questionid' => $id,
+            'field' => 'questiondescription'
+        ]);
+        $prtcorrect = assStackQuestionUtils::stack_castext_file_filter($prtcorrect, [
+            'questionid' => $id,
+            'field' => 'prtcorrect'
+        ]);
+        $prtpartiallycorrect = assStackQuestionUtils::stack_castext_file_filter($prtpartiallycorrect, [
+            'questionid' => $id,
+            'field' => 'prtpartiallycorrect'
+        ]);
+        $prtincorrect = assStackQuestionUtils::stack_castext_file_filter($prtincorrect, [
+            'questionid' => $id,
+            'field' => 'prtincorrect'
+        ]);
+
+        // Compile the castext fragments.
+        $ctoptions = [
+            'bound-vars' => $forbiddenkeys,
+            'prt-names' => array_flip(array_keys($prts)),
+            'io-blocks-as-raw' => 'pre-input2',
+            'static string extractor' => $map
+        ];
+        $ct = castext2_evaluatable::make_from_source($questiontext, '/qt');
+        if (!$ct->get_valid($questiontextformat, $ctoptions, $sec)) {
+            throw new stack_exception('Error(s) in question-text: ' . implode('; ', $ct->get_errors(false)));
+        } else {
+            $cc['castext-qt'] = $ct->get_evaluationform();
+            // Note that only with "question-text" may we get inlined downloads.
+            foreach ($ct->get_special_content() as $key => $values) {
+                if ($key === 'text-download') {
+                    foreach ($values as $k => $v) {
+                        $cc['castext-td-' . $k] = $v;
+                    }
+                } else if ($key === 'castext-includes') {
+                    if (!isset($cc['includes'])) {
+                        $cc['includes'] = ['castext' => $values];
+                    } else if (!isset($cc['includes']['castext'])) {
+                        $cc['includes']['castext'] = $values;
+                    } else {
+                        foreach ($values as $url) {
+                            if (array_search($url, $cc['includes']['castext']) === false) {
+                                $cc['includes']['castext'][] = $url;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        $ct = castext2_evaluatable::make_from_source($questionnote, '/qn');
+        if (!$ct->get_valid(assStackQuestionUtils::FORMAT_HTML, $ctoptions, $sec)) {
+            throw new stack_exception('Error(s) in question-note: ' . implode('; ', $ct->get_errors(false)));
+        } else {
+            $cc['castext-qn'] = $ct->get_evaluationform();
+        }
+
+        $ct = castext2_evaluatable::make_from_source($generalfeedback, '/gf');
+        if (!$ct->get_valid($generalfeedbackformat, $ctoptions, $sec)) {
+            throw new stack_exception('Error(s) in general-feedback: ' . implode('; ', $ct->get_errors(false)));
+        } else {
+            $cc['castext-gf'] = $ct->get_evaluationform();
+        }
+
+        $ct = castext2_evaluatable::make_from_source($specificfeedback, '/sf');
+        if (!$ct->get_valid($specificfeedbackformat, $ctoptions, $sec)) {
+            throw new stack_exception('Error(s) in specific-feedback: ' . implode('; ', $ct->get_errors(false)));
+        } else {
+            $cc['castext-sf'] = $ct->get_evaluationform();
+        }
+
+        $ct = castext2_evaluatable::make_from_source($questiondescription, '/qd');
+        if (!$ct->get_valid($questiondescriptionformat, $ctoptions, $sec)) {
+            throw new stack_exception('Error(s) in question description: ' . implode('; ', $ct->get_errors(false)));
+        } else {
+            $cc['castext-qd'] = $ct->get_evaluationform();
+        }
+
+        $ct = castext2_evaluatable::make_from_source($prtcorrect, '/pc');
+        if (!$ct->get_valid($prtcorrectformat, $ctoptions, $sec)) {
+            throw new stack_exception('Error(s) in PRT-correct message: ' . implode('; ', $ct->get_errors(false)));
+        } else {
+            $cc['castext-prt-c'] = $ct->get_evaluationform();
+        }
+
+        $ct = castext2_evaluatable::make_from_source($prtpartiallycorrect, '/pp');
+        if (!$ct->get_valid($prtpartiallycorrectformat, $ctoptions, $sec)) {
+            throw new stack_exception('Error(s) in PRT-partially correct message: ' . implode('; ', $ct->get_errors(false)));
+        } else {
+            $cc['castext-prt-pc'] = $ct->get_evaluationform();
+        }
+
+        $ct = castext2_evaluatable::make_from_source($prtincorrect, '/pi');
+        if (!$ct->get_valid($prtincorrectformat, $ctoptions, $sec)) {
+            throw new stack_exception('Error(s) in PRT-incorrect message: ' . implode('; ', $ct->get_errors(false)));
+        } else {
+            $cc['castext-prt-ic'] = $ct->get_evaluationform();
+        }
+
+        // Remember to collect the extracted strings once all has been done.
+        $cc['static-castext-strings'] = $map->get_map();
+
+        // The time of the security context as it were during 2021 was short, now only
+        // the input variables remain.
+        $si = [];
+
+        // Mark all inputs. To let us know that they have special types.
+        foreach ($inputs as $key => $value) {
+            if (!isset($si[$key])) {
+                $si[$key] = [];
+            }
+            $si[$key][-2] = -2;
+        }
+        $cc['security-context'] = $si;
+
+        return $cc;
     }
 
     /**
