@@ -31,8 +31,8 @@ class castext2_parser_utils {
     // In general it is either MD or anything else. For now we
     // have no other special cases.
     // Intentionally matching Moodle values.
-    const MDFORMAT = FORMAT_MARKDOWN;
-    const RAWFORMAT = FORMAT_HTML;
+    const MDFORMAT = assStackQuestionUtils::FORMAT_MARKDOWN;
+    const RAWFORMAT = assStackQuestionUtils::FORMAT_HTML;
 
     // Does the whole compile process.
     // Basically when compiling we need to know if Markdown is in use and

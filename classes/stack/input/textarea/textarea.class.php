@@ -91,7 +91,7 @@ class stack_textarea_input extends stack_input {
      * @param array|string $in
      * @return string
      */
-    protected function response_to_contents($response) {
+    public function response_to_contents($response) {
         $contents = array();
         if (array_key_exists($this->name, $response)) {
             $sans = $response[$this->name];

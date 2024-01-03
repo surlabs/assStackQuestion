@@ -104,20 +104,20 @@ class castext2_evaluatable implements cas_raw_value_extractor {
         }
         $ast = null;
         switch ($format) {
-            case FORMAT_HTML:
+            case assStackQuestionUtils::FORMAT_HTML:
             case castext2_parser_utils::RAWFORMAT:
                 // We do nothing to this.
                 break;
-            case FORMAT_MARKDOWN:
+            case assStackQuestionUtils::FORMAT_MARKDOWN:
             case castext2_parser_utils::MDFORMAT:
                 // We want to process it down to HTML.
                 $this->source = '[[demarkdown]]' . $this->source . '[[/demarkdown]]';
                 break;
-            case FORMAT_MOODLE:
+            case assStackQuestionUtils::FORMAT_MOODLE:
                 // We want to process it down to HTML.
                 $this->source = '[[demoodle]]' . $this->source . '[[/demoodle]]';
                 break;
-            case FORMAT_PLAIN:
+            case assStackQuestionUtils::FORMAT_PLAIN:
                 // TODO... We need to have something more complex for this
                 // as the formating logic will need to also stop filtering for
                 // this. Check /lib/weblib.php in Moodle.
