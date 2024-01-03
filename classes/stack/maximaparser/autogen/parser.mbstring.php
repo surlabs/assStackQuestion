@@ -41,27 +41,6 @@ if (!function_exists("peg_regex_test")) {
     }
 }
 
-/* Syntax error exception */
-if (!class_exists("SyntaxError", false)) {
-    class SyntaxError extends Exception {
-        public $expected;
-        public $found;
-        public $grammarOffset;
-        public $grammarLine;
-        public $grammarColumn;
-        public $name;
-        public function __construct($message, $expected, $found, $offset, $line, $column) {
-            parent::__construct($message, 0);
-            $this->expected = $expected;
-            $this->found = $found;
-            $this->grammarOffset = $offset;
-            $this->grammarLine = $line;
-            $this->grammarColumn = $column;
-            $this->name = "SyntaxError";
-        }
-    }
-}
-
 class MP_Parser {
     private $options              = null;
     private $peg_currPos          = 0;
