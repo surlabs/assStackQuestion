@@ -4,6 +4,9 @@
  * GPLv3, see LICENSE
  */
 
+use classes\platform\StackConfig;
+use classes\platform\StackPlatform;
+
 /**
  * STACK Question OBJECT
  *
@@ -665,6 +668,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     {
         global $DIC;
 
+        StackPlatform::initialize('ilias');
+
         $db = $DIC->database();
         //load the basic question data
         $result = $db->query("SELECT qpl_questions.* FROM qpl_questions WHERE question_id = " . $db->quote($question_id, 'integer'));
@@ -1301,7 +1306,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         //load options
         //require_once __DIR__ . '/model/configuration/class.assStackQuestionConfig.php';
-        $standard_options = assStackQuestionConfig::_getStoredSettings('options');
+        $standard_options = StackConfig::getAll();
         $options_array = array();
 
         $options_array['simplify'] = ((int)$standard_options['options_question_simplify']);
@@ -1430,47 +1435,15 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             }
         }
 
-        //get PRT and PRT Nodes from DB
-
-        $this->getPlugin()->includeClass('utils/class.assStackQuestionUtils.php');
-
-        $nodes = array();
-
-        $sans = stack_ast_container::make_from_teacher_source('PRSANS1:ans1', '', new stack_cas_security());
-        $tans = stack_ast_container::make_from_teacher_source('PRTANS1:1', '', new stack_cas_security());
-
-        //Penalties management, penalties are not an ILIAS Feature
-        if (is_null($standard_prt['prt_neg_penalty']) || $standard_prt['prt_neg_penalty'] === '') {
-            $false_penalty = 0;
-        } else {
-            $false_penalty = $standard_prt['prt_neg_penalty'];
-        }
-
-        if (is_null(($standard_prt['prt_pos_penalty']) || $standard_prt['prt_pos_penalty'] === '')) {
-            $true_penalty = 0;
-        } else {
-            $true_penalty = $standard_prt['prt_pos_penalty'];
-        }
-
-        //Create Node and add it to the
-        //TODO SAUL: Adaptar al nuevo sistema de nodos
-        /*
-        $node = new stack_potentialresponse_node($sans, $tans, $standard_prt['prt_node_answer_test'], $standard_prt['prt_node_options'], (bool)$standard_prt['prt_node_quiet'], '', 1, 'ans1', '1');
-
-        $node->add_branch(0, $standard_prt['prt_neg_mod'], $standard_prt['prt_neg_score'], $false_penalty, -1, '', 1, $standard_prt['prt_neg_answernote']);
-        $node->add_branch(1, $standard_prt['prt_pos_mod'], $standard_prt['prt_pos_score'], $true_penalty, -1, '', 1, $standard_prt['prt_pos_answernote']);
-
-        if ($return_standard_node) {
-            return $node;
-        }*/
-
-        $nodes[1] = [];
-
-        $feedback_variables = null;
-
         $prt_value = 1.0;
         try {
-            $this->prts[$prt_name] = new stack_potentialresponse_tree_lite($prt_name, '', (bool)$standard_prt['prt_simplify'], $prt_value, $feedback_variables, $nodes, '1', 1);
+
+            //TODO quitar parseo guarro
+            $standard_prt_std = new stdClass();
+            foreach ($standard_prt as $key => $value) {
+                $standard_prt_std->$key = $value;
+            }
+            $this->prts[$prt_name] = new stack_potentialresponse_tree_lite($standard_prt_std, $prt_value);
         } catch (stack_exception $e) {
             ilUtil::sendFailure($e->getMessage(), true);
         }
