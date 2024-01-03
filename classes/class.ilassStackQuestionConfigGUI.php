@@ -117,13 +117,26 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
                 $healthcheck = new stack_cas_healthcheck($data);
                 $data = $healthcheck->get_test_results();
 
+                //dump($data);
+                //dump($healthcheck->get_overall_result());
+                //exit;
+                $sections = [];
+                foreach($data as $key => $value){
+                    switch($value['tag']){
+                        case "test":
+                            break;
+                        default:
+                            $formFields = [];
+                            $formFields["details"] = $this->factory->input()->field()->textarea("Test")->withValue($value["details"]."");
+                            $sections[$value["tag"]] = $this->factory->input()->field()->section(
+                                $formFields,
+                                $value["tag"]
 
-                dump($data);
-                dump($healthcheck->get_overall_result());
-                exit;
+                            );
+                    }
 
-
-                $sections = $this->healthcheck($data);
+                }
+                $sections[] = $this->healthcheck($data);
                 $form_action = $this->control->getLinkTargetByClass("ilassStackQuestionConfigGUI", "healthcheck");
                 $rendered = $this->renderPanel($data, $form_action, $sections);
                 break;
@@ -191,14 +204,15 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
             ->withOnClick($modal->getShowSignal());
 
         //Return the UI component
-        return $this->renderer->render($this->factory->panel()->sub(
+        /*return $this->renderer->render($this->factory->panel()->sub(
             "LOREN IPSUM",
             $this->factory->legacy(
                 "LOREN IPSUM" .
                 $this->renderer->render($this->factory->divider()->horizontal()) .
-                $this->renderer->render([$button, $modal])
+                $this->renderer->render($sections)
             )
-        ));
+        ));*/
+        return $this->renderer->render($sections);
     }
 
     /**
