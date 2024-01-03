@@ -14,8 +14,12 @@
  */
 class assStackQuestionUtils
 {
+    const FORMAT_HTML = 0;
+    const FORMAT_MARKDOWN = 1;
+    const FORMAT_MOODLE = 2;
+    const FORMAT_PLAIN = 3;
 
-	/**
+    /**
 	 * Prevent comparison operators being interpreted as HTML tags
 	 * This would cause errors if CASText is processed with strip_tags.
 	 *
@@ -1340,5 +1344,42 @@ class assStackQuestionUtils
         }
     }
 
+    public static function stack_castext_file_filter(string $castext, array $identifiers): string {
+        if ($castext === '') {
+            // Nothing to do with empty strings.
+            return $castext;
+        }
 
+        // In Moodle these are easy to spot.
+        if (mb_strpos($castext, '@@PLUGINFILE@@') !== false) {
+            // We use the PFS block that has been specicifally
+            // built for Moodle to pass on the relevant details.
+            $block = '[[pfs';
+            switch ($identifiers['field']) {
+                case 'questiontext':
+                case 'generalfeedback':
+                    $block .= ' component="question"';
+                    $block .= ' filearea="' . $identifiers['field'] . '"';
+                    $block .= ' itemid="' . $identifiers['questionid'] . '"';
+                    break;
+                case 'specificfeedback':
+                case 'prtcorrect': // These three are not in actual use.
+                case 'prtpartiallycorrect':
+                case 'prtincorrect':
+                    $block .= ' component="qtype_stack"';
+                    $block .= ' filearea="' . $identifiers['field'] . '"';
+                    $block .= ' itemid="' . $identifiers['questionid'] . '"';
+                    break;
+                case 'prtnodetruefeedback':
+                case 'prtnodefalsefeedback':
+                    $block .= ' component="qtype_stack"';
+                    $block .= ' filearea="' . $identifiers['field'] . '"';
+                    $block .= ' itemid="' . $identifiers['prtnodeid'] . '"';
+                    break;
+            }
+            $block .= ']]';
+            return $block . $castext . '[[/pfs]]';
+        }
+        return $castext;
+    }
 }
