@@ -26,7 +26,7 @@ class PluginConfigurationDefaultsUI
 {
 
     private static Factory $factory;
-    private static ilCtrlInterface $control;
+    private static ilCtrl $control;
 
     /**
      * Shows the plugin configuration Maxima settings form

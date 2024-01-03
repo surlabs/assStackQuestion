@@ -29,7 +29,7 @@ class PluginConfigurationQualityUI
 
     private static Factory $factory;
     private static Renderer $renderer;
-    private static ilCtrlInterface $control;
+    private static ilCtrl $control;
 
     /**
      * Shows the plugin configuration Maxima settings form

@@ -27,7 +27,7 @@ class PluginConfigurationHealthcheckUI
 {
 
     private static Factory $factory;
-    private static ilCtrlInterface $control;
+    private static ilCtrl $control;
 
     /**
      * Shows the healthcheck

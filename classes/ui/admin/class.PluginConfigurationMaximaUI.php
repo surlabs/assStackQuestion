@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 use ILIAS\UI\Factory;
 use ILIAS\UI\Implementation\Component\Input\Field\Section;
-use classes\core\security\StackException;
 
 /**
  * This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
@@ -27,12 +26,13 @@ class PluginConfigurationMaximaUI
 {
 
     private static Factory $factory;
-    private static ilCtrlInterface $control;
+    private static ilCtrl $control;
 
 
     /**
      * Shows the plugin configuration Maxima settings form
-     * @throws StackException|ilCtrlException
+     * @throws stack_exception|ilCtrlException
+     * @throws stack_exception
      */
     public static function show(array $data, ilPlugin $plugin_object): array
     {
@@ -60,7 +60,7 @@ class PluginConfigurationMaximaUI
                 'linux' => self::getMaximaLocalSection($data, $plugin_object)
             ];
         } else {
-            throw new StackException("Error: Platform type not valid: " . $data["platform_type"]);
+            throw new stack_exception("Error: Platform type not valid: " . $data["platform_type"]);
         }
 
         return $content;
@@ -71,7 +71,7 @@ class PluginConfigurationMaximaUI
      * @param array $data
      * @param ilPlugin $plugin_object
      * @return Section
-     * @throws StackException
+     * @throws stack_exception
      */
     private static function getMaximaCommonSection(array $data, ilPlugin $plugin_object): Section
     {
@@ -87,7 +87,9 @@ class PluginConfigurationMaximaUI
         if (isset($data["maxima_version"]) && array_key_exists($data["maxima_version"], $maxima_version_options)) {
             $maxima_version_value = $data["maxima_version"];
         } else {
-            throw new StackException("Error: Maxima version value not valid: " . $data["maxima_version"]);
+            //TODO esto crashea la instalación, devolvemos la versión por defecto requerida
+            //throw new stack_exception("Error: Maxima version value not valid: " . $data["maxima_version"]);
+            $maxima_version_value = '5.44.0';
         }
         $maxima_version = self::$factory->input()->field()->select(
             $plugin_object->txt("ui_admin_configuration_connection_maxima_version_title"),
@@ -111,7 +113,7 @@ class PluginConfigurationMaximaUI
         if (isset($data["cas_result_caching"]) && array_key_exists($data["cas_result_caching"], $cas_result_caching_options)) {
             $maxima_version_value = $data["cas_result_caching"];
         } else {
-            throw new StackException("Error CAS result caching value not valid: " . $data["cas_result_caching"]);
+            throw new stack_exception("Error CAS result caching value not valid: " . $data["cas_result_caching"]);
         }
         $cas_result_caching = self::$factory->input()->field()->select(
             $plugin_object->txt("ui_admin_configuration_connection_cas_result_caching_title"),
@@ -127,7 +129,7 @@ class PluginConfigurationMaximaUI
         if (isset($data["preparse_all"]) && array_key_exists($data["preparse_all"], $preparse_all_options)) {
             $preparse_all_value = $data["preparse_all"];
         } else {
-            //TODO throw new StackException("Error: Preparse all value not valid: " . $data["preparse_all"]);
+            //TODO throw new stack_exception("Error: Preparse all value not valid: " . $data["preparse_all"]);
             $preparse_all_value = 'true';
         }
         $preparse_all = self::$factory->input()->field()->select(
