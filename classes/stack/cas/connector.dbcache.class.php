@@ -112,10 +112,11 @@ class stack_cas_connection_db_cache implements stack_cas_connection {
         $cached = new stdClass();
         $cached->key = $this->get_cache_key($command);
 
-        // Are there any cached records that might match?
-        $data = $this->db->get_records('qtype_stack_cas_cache',
-                array('hash' => $cached->key), 'id');
-        if (!$data) {
+        //fau: #4 Use ILIAS DB instead of Moodle DB
+        $query = 'SELECT * FROM xqcas_cas_cache WHERE hash = "' . $cached->key . '" ORDER BY id';
+        $res = $this->db->query($query);
+        $data[] = $this->db->fetchObject($res);
+        if ($data[0] == NULL) {
             // Nothing relevant in the cache.
             $cached->result = null;
             return $cached;
@@ -131,9 +132,13 @@ class stack_cas_connection_db_cache implements stack_cas_connection {
 
         // If there was more than one record in the cache (due to a race condition)
         // drop the duplicates.
-        unset($data[$record->id]);
-        if ($data) {
-            $this->db->delete_records_list('qtype_stack_cas_cache', 'id', array_keys($data));
+        //fau: #5 Use ILIAS DB instead of Moodle DB
+        if (!empty($data)) {
+            unset($data[0]);
+            foreach ($data as $record) {
+                $delete_query = 'DELETE FROM xqcas_cas_cache WHERE id = "' . $record->id . '"';
+                $res = $this->db->query($delete_query);
+            }
         }
 
         return $cached;
@@ -155,7 +160,10 @@ class stack_cas_connection_db_cache implements stack_cas_connection {
         $data->command = $command;
         $data->result = json_encode($result);
 
-        $this->db->insert_record('qtype_stack_cas_cache', $data);
+        //fau: #6 Use ILIAS DB instead of Moodle DB
+        $id = $this->db->nextId('xqcas_cas_cache');
+        $this->db->insert("xqcas_cas_cache", array("id" => array("integer", $id), "hash" => array("text", $key), "command" => array("clob", $data->command), "result" => array("clob", $data->result)));
+        //fau.
     }
 
     /**
