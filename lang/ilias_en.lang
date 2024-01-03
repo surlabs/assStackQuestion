@@ -1,11 +1,149 @@
-//
-// Copyright (c) 2013 Institut für Lern-Innovation, Friedrich-Alexander-Universität Erlangen-Nürnberg
-// GPLv2, see LICENSE 
-// 
-// English Language File for assStackQuestion Plugin
-//
-
 <!-- language file start -->
+ui_admin_configuration_title#:#STACK Question Configuration
+ui_admin_configuration_description#:#This page allows you to configure the STACK Question plugin.
+ui_admin_configuration_overview_title#:#STACK Plugin Overview
+ui_admin_configuration_maxima_title#:#Connection to Maxima
+ui_admin_configuration_defaults_title#:#Default values
+ui_admin_configuration_quality_title#:#Quality Assurance
+ui_admin_configuration_maxima_connection_title#:#Connection to Maxima
+ui_admin_configuration_maxima_connection_description#:#This section allows you to configure the main values for the connection to Maxima.
+ui_admin_configuration_maxima_connection_unix_title#:#Unix
+ui_admin_configuration_defaults_maxima_connection_unix_description#:#Maxima is installed locally in the server where the ILIAS platform is running.
+ui_admin_configuration_defaults_maxima_connection_server_title#:#Server
+ui_admin_configuration_defaults_maxima_connection_server_description#:#Maxima is installed in a server different from the one where the ILIAS platform is running.
+ui_admin_configuration_defaults_display_title#:#Maths display options
+ui_admin_configuration_defaults_display_description#:#These are the default values for the display of maths.
+ui_admin_configuration_defaults_validation_title#:#Validation mode
+ui_admin_configuration_defaults_user_validation_title#:#User validation
+ui_admin_configuration_defaults_user_validation_description#:#This option activates manual validation for all questions.
+ui_admin_configuration_defaults_instant_validation_title#:#Instant validation
+ui_admin_configuration_defaults_instant_validation_description#:#This option activates instant validation for all questions.
+ui_admin_configuration_allow_jsxgraph_title#:#Allow JSXGraph
+ui_admin_configuration_dont_allow_jsxgraph_title#:#Don't allow JSXGraph
+ui_admin_configuration_dont_allow_jsxgraph_description#:#This option deactivates JSXGraph for all questions.
+ui_admin_configuration_do_allow_jsxgraph_title#:#Do allow JSXGraph
+ui_admin_configuration_do_allow_jsxgraph_description#:#This option activates JSXGraph for all questions.
+ui_admin_configuration_connection_maxima_connection_common_title#:#Common Maxima connection settings
+ui_admin_configuration_connection_maxima_connection_common_description#:#These are the common Maxima connection settings.
+ui_admin_configuration_connection_maxima_connection_local_title#:#Local Maxima (Linux)
+ui_admin_configuration_connection_maxima_connection_local_description#:#These are the settings for a local Maxima installation on a Linux system.
+ui_admin_configuration_connection_maxima_connection_server_title#:#Server Maxima (Maxima Pool or Goemaxima)
+ui_admin_configuration_connection_maxima_connection_server_description#:#This option activates server Maxima for all questions on this platform.
+ui_admin_configuration_connection_maxima_version_title#:#Maxima version
+ui_admin_configuration_connection_maxima_version_description#:#This option sets the version of Maxima being used.
+ui_admin_configuration_defaults_cas_connection_timeout_title#:#CAS connection timeout
+ui_admin_configuration_defaults_cas_connection_timeout_description#:#This option sets the timeout to use when trying to connect to Maxima.
+ui_admin_configuration_connection_cas_result_caching_title#:#CAS result caching
+ui_admin_configuration_connection_cas_result_caching_description#:#This option determines whether calls the to CAS are cached. This setting should be turned on unless you are doing development that involves changing the Maxima code. The current state of the cache is shown on the healthcheck page. If you change your settings, e.g. the gnuplot command, you will need to clear the cache before you can see the effects of these changes.
+ui_admin_configuration_connection_cas_result_caching_db#:#Cache in the database
+ui_admin_configuration_connection_cas_result_caching_none#:#Do not cache
+ui_admin_configuration_connection_preparse_all_title#:#Preparse all
+ui_admin_configuration_connection_preparse_all_description#:#We recommend all code in question variables, etc., even from trusted teachers, is pre-parsed for potentially malicious patterns.  This is especially important when accepting imported questions from known sources.  However, it is possible for this pre-parse to time-out and it would be necessary to disable this check (temporarily) to back out of a potential dead end.  This code is still under testing and development and this setting will be removed in future releases ensuring this pre-parse is always applied.
+ui_admin_configuration_connection_preparse_all_yes#:#Always preparse
+ui_admin_configuration_connection_preparse_all_no#:#Do not preparse (not recommended)
+ui_admin_configuration_connection_maxima_command_title#:#Maxima command
+ui_admin_configuration_connection_maxima_command_description#:#If this is blank, STACK will make an educated guess as to where to find Maxima. If that fails, this should be set to the full path of the maxima or maxima-optimised executable.  Use for development and debugging only. Do not use on a production system: use optimised, or better, the Maxima Pool option.
+ui_admin_configuration_connection_optimized_maxima_command_title#:#Optimized Maxima command
+ui_admin_configuration_connection_optimized_maxima_command_description#:#This should be set to the full path of the maxima-optimised executable.  Consider using the timeout command on linux based systems. E.g. timeout --kill-after=10s 10s maxima
+ui_admin_configuration_connection_maxima_pool_url_title#:#Maxima Pool URL
+ui_admin_configuration_connection_maxima_pool_url_description#:#For Platform type: Server, this is must be set to the URL of the Maxima Pool servlet
+ui_admin_configuration_connection_maxima_pool_server_username_password_title#:#Maxima Pool server username:password
+ui_admin_configuration_connection_maxima_pool_server_username_password_description#:#If you are using Platform type: Server, and if you have set up your Maxima pool server with HTTP authentication, then you can put the username and password here. That is slighly safer than putting them in the URL. The format is username:password.
+ui_admin_configuration_connection_plot_command_title#:#Plot command
+ui_admin_configuration_connection_plot_command_description#:#This should be set to the full path of the gnuplot executable.
+ui_admin_configuration_connection_maxima_libraries_title#:#Maxima libraries
+ui_admin_configuration_connection_maxima_libraries_description#:#This is a comma separated list of Maxima library names which will be automatically loaded into Maxima.  Only supported library names can be used: "stats, distrib, descriptive, simplex". When you change the listed libraties you must rebuild the Maxima optimised image
+ui_admin_configuration_connection_cas_debugging_title#:#CAS debugging
+ui_admin_configuration_connection_cas_debugging_description#:#Whether to store debugging information about the CAS connection.
+ui_admin_configuration_connection_cache_parsed_expressions_longer_than_title#:#Cache parsed expressions longer than
+ui_admin_configuration_connection_cache_parsed_expressions_longer_than_description#:#The expression parser gets quite slow on long expressions (for example complicated question variables). Therefore we cache the result of parsing expressions longer than a this limit. Ideally, this setting should be set to a value where doing the cache lookup takes about as long as doing the parsing. 50 characters is an educated guess at this. If set to 0, the cache is disabled.
+ui_admin_configuration_connection_maxima_uses_proxy_title#:#Maxima uses proxy
+ui_admin_configuration_connection_maxima_uses_proxy_description#:#To be described
+ui_admin_configuration_defaults_options_title#:#Default options settings
+ui_admin_configuration_defaults_options_description#:#These are the default values for the options of the question. These values will be used when a new question is created.
+ui_admin_configuration_defaults_question_simplify_title#:#Question-level simplify
+ui_admin_configuration_defaults_question_simplify_description#:#Sets the variable "simp" within Maxima by default as true at question level. E.g. question variables, question text etc. The value set in each potential response tree will override this for any expressions subsequently defined within the tree.
+ui_admin_configuration_defaults_assume_positive_title#:#Assume positive
+ui_admin_configuration_defaults_assume_positive_description#:#This option sets the default value of Maxima's assume positive variable in new questions.
+ui_admin_configuration_defaults_assume_real_title#:#Assume real
+ui_admin_configuration_defaults_assume_real_description#:#This option sets the default value of Maxima's assume real variable in new questions.
+ui_admin_configuration_defaults_feedback_fully_correct_default#:#Congratulations! All your answers are correct.
+ui_admin_configuration_defaults_feedback_fully_correct_title#:#Standard feedback for fully correct questions
+ui_admin_configuration_defaults_feedback_fully_correct_description#:#This is the feedback which is shown to the student if they get all the answers correct.
+ui_admin_configuration_defaults_feedback_partially_correct_default#:#Some of your answers are correct.
+ui_admin_configuration_defaults_feedback_partially_correct_title#:#Standard feedback for partially correct questions
+ui_admin_configuration_defaults_feedback_partially_correct_description#:#This is the feedback which is shown to the student if they get some of the answers correct.
+ui_admin_configuration_defaults_feedback_fully_incorrect_default#:#None of your answers are correct.
+ui_admin_configuration_defaults_feedback_fully_incorrect_title#:#Standard feedback for fully incorrect questions
+ui_admin_configuration_defaults_feedback_fully_incorrect_description#:#This is the feedback which is shown to the student if they get none of the answers correct.
+ui_admin_configuration_defaults_surd_for_sqrt_title#:#Surd for square root
+ui_admin_configuration_defaults_surd_for_sqrt_description#:#Controls how surds are displayed.
+ui_admin_configuration_defaults_complex_numbers_title#:#Meaning and display of sqrt(-1)
+ui_admin_configuration_defaults_complex_numbers_description#:#Controls the meaning and display of the symbol i and sqrt(-1)
+ui_admin_configuration_defaults_complex_numbers_i#:#i
+ui_admin_configuration_defaults_complex_numbers_j#:#j
+ui_admin_configuration_defaults_complex_numbers_symi#:#symi
+ui_admin_configuration_defaults_complex_numbers_symj#:#symj
+ui_admin_configuration_defaults_multiplication_sign_title#:#Multiplication sign
+ui_admin_configuration_defaults_multiplication_sign_description#:#Controls how multiplication signs are displayed.
+ui_admin_configuration_defaults_multiplication_sign_dot#:#Dot
+ui_admin_configuration_defaults_multiplication_sign_cross#:#Cross
+ui_admin_configuration_defaults_multiplication_sign_only_numbers#:#Only numbers
+ui_admin_configuration_defaults_multiplication_sign_none#:#None
+ui_admin_configuration_defaults_inverse_trigonometric_title#:#Inverse trigonometric functions
+ui_admin_configuration_defaults_inverse_trigonometric_description#:#Controls how inverse trigonometric functions are displayed in CAS output.
+ui_admin_configuration_defaults_inverse_trigonometric_cos#:#cos-1
+ui_admin_configuration_defaults_inverse_trigonometric_acos#:#acos(x)
+ui_admin_configuration_defaults_inverse_trigonometric_arccos#:#arccos(x)
+ui_admin_configuration_defaults_inverse_trigonometric_arccos_arcosh#:#arccos(x)/arcosh(x)
+ui_admin_configuration_defaults_logic_symbols_title#:#Logic symbols
+ui_admin_configuration_defaults_logic_symbols_description#:#Controls how logic symbols are displayed.
+ui_admin_configuration_defaults_logic_symbols_lang#:#Language
+ui_admin_configuration_defaults_logic_symbols_symbolic#:#Symbolic
+ui_admin_configuration_defaults_matrix_parentheses_title#:#Matrix parentheses
+ui_admin_configuration_defaults_matrix_parentheses_description#:#Controls the default shape of matrix parentheses when displayed in CAS output.
+ui_admin_configuration_defaults_input_type_algebraic#:#Algebraic input
+ui_admin_configuration_defaults_input_type_textarea#:#Text area
+ui_admin_configuration_defaults_input_type_matrix#:#Matrix
+ui_admin_configuration_defaults_input_type_title#:#Input type
+ui_admin_configuration_defaults_input_type_description#:#This determines the type of the input element, e.g. form field, true/false, text area.
+ui_admin_configuration_defaults_input_box_size_title#:#Input box size
+ui_admin_configuration_defaults_input_box_size_description#:#Width of the html formfield.
+ui_admin_configuration_defaults_input_strict_syntax_title#:#Strict syntax
+ui_admin_configuration_defaults_input_strict_syntax_description#:#Does the input have to be done using strict Maxima syntax? If not, this increases the range of patterns which indicate missing *s on input, including any function application and scientific notation.
+ui_admin_configuration_defaults_insert_star_options_0#:#Don't insert stars
+ui_admin_configuration_defaults_insert_star_options_1#:#Insert stars for implied multiplication only.
+ui_admin_configuration_defaults_insert_star_options_2#:#Insert stars assuming single-character variable names
+ui_admin_configuration_defaults_insert_star_options_3#:#Insert stars for spaces only
+ui_admin_configuration_defaults_insert_star_options_4#:#Insert stars for implied multiplication and for spaces
+ui_admin_configuration_defaults_insert_star_options_5#:#Insert stars assuming single-character variables, implied and for spaces
+ui_admin_configuration_defaults_input_insert_stars_title#:#Insert stars
+ui_admin_configuration_defaults_input_insert_stars_description#:#If set to yes then the system will automatically insert *s into any patterns identified by Strict Syntax. Otherwise, it shows an error.
+ui_admin_configuration_defaults_input_forbidden_words_title#:#Forbidden words
+ui_admin_configuration_defaults_input_forbidden_words_description#:#This is a comma separated list of text strings which are forbidden in a student's answer.
+ui_admin_configuration_defaults_input_forbid_float_title#:#Forbid float
+ui_admin_configuration_defaults_input_forbid_float_description#:#If set to yes, then any answer of the student which has a floating point number will be rejected as invalid.
+ui_admin_configuration_defaults_input_require_lowest_terms_title#:#Require lowest terms
+ui_admin_configuration_defaults_input_require_lowest_terms_description#:#When this option is set to yes, any coefficients or other rational numbers in an expression, must be written in lowest terms. Otherwise the answer is rejected as invalid.
+ui_admin_configuration_defaults_input_check_answer_type_title#:#Check the type of the response
+ui_admin_configuration_defaults_input_check_answer_type_description#:#If yes, answers which are of a different "type" (e.g. expression, equation, matrix, list, set) are rejected as invalid.
+ui_admin_configuration_defaults_input_must_verify_title#:#Student must verify
+ui_admin_configuration_defaults_input_must_verify_description#:#Specifies whether the student's input is presented back to them before scoring.
+ui_admin_configuration_defaults_input_show_validation_options_0#:#No
+ui_admin_configuration_defaults_input_show_validation_options_1#:#Yes, with variable list
+ui_admin_configuration_defaults_input_show_validation_options_2#:#Yes, without variable list
+ui_admin_configuration_defaults_input_show_validation_options_3#:#Yes, Compact
+ui_admin_configuration_defaults_input_show_validation_title#:#Show the validation
+ui_admin_configuration_defaults_input_show_validation_description#:#Setting this option displays any validation feedback from this input, including echoing back their expression in traditional two dimensional notation.
+ui_admin_configuration_defaults_inputs_title#:#Default input settings
+ui_admin_configuration_defaults_inputs_description#:#These are the default values for the inputs of the question. These values will be used when a new question is created or a new input is added to a question.
+ui_author_main_title#:#STACK Question Authoring
+ui_author_import_from_moodle_xml_button_label#:#Import question(s) from a MoodleXML file
+ui_author_create_blank_question_button_label#:#Create STACK question from scratch
+ui_author_import_moodle_xml_title#:#Import question(s) from a MoodleXML file
+ui_author_import_moodle_xml_file#:#Moodle XML file
+ui_author_import_moodle_xml_import_button#:#Import
+ui_author_import_moodle_xml_cancel_import_button#:#Back
 assStackQuestion#:#STACK Question
 question_imported_successfully#:#Question was imported successfully
 error_importing_question#:#Error importing question
@@ -77,13 +215,6 @@ options_assume_positive_info#:#This option sets the value of Maxima's assume_pos
 options_prt_correct#:#Feedback for correct answers
 options_prt_partially_correct#:#Feedback for partially correct answers
 options_prt_incorrect#:#Feedback for incorrect answers
-options_multiplication_sign#:#Multiplication sign
-options_multiplication_sign_info#:#Controls how multiplication signs are displayed.
-options_mult_sign_dot#:#Dot
-options_mult_sign_cross#:#Cross
-options_mult_sign_none#:#None
-options_sqrt_sign#:#Surd for square root
-options_sqrt_sign_info#:#Controls how surds are displayed.
 options_complex_numbers#:#Meaning and display of sqrt(-1)
 options_complex_numbers_info#:#Controls the meaning and display of the symbol i and sqrt(-1)
 options_complex_numbers_i#:#i
@@ -178,7 +309,7 @@ message_question_text#:#Question text
 message_teacher_solution_part#:#The solution is:
 message_error_part#:#The following error(s) were found:
 message_user_response_container#:#The following answers were evaluated:
-dsm_deployed_seeds#:#Randomisation and Security
+dsm_deployed_seeds#:#Deployed seeds
 dsm_question_doesnt_use_randomisation#:#This question doesn't use randomisation so it's not possible create seeds.
 dsm_deployed_seeds_header#:#Deployed seed
 dsm_question_notes_header#:#Question note for the deployed seed
@@ -466,21 +597,3 @@ add_node#:#Add Node
 allow_jsx_graph#:#Allow JSXGraph Rendering
 allow_jsx_graph_info#:#By activating this option, you will allow STACK question authors to include JavaScript code blocks within the STACK questions. Please note that this code will be executed during the execution of the questions. Caution: Allowing JavaScript execution may pose a potential security risk.
 page_editor_compatibility_info#:#Please be aware that any edits made via the ILIAS page editor for stack-questions will not be exportable to the moodle-xml-format. This functionality is specifically designed for the ILIAS context. Ensure you familiarize yourself with this limitation, especially if you plan to use or export content outside of ILIAS.
-ui_author_randomisation_add_standard_test_button_text#:#Add standard test
-ui_author_randomisation_add_standard_test_description#:#This STACK question doesn't contain the standard unit test, where the model answer is set as student answer and full mark is expected. You can automatically add this standard test by clicking the following button.
-ui_author_randomisation_deployed_variants_panel_title#:#Deployed variants for question test runs
-ui_author_randomisation_active_variant_panel_title#:#Active variant for question preview and unit testing
-ui_author_randomisation_show_question_text_action_text#:#Show question text for this variant
-ui_author_randomisation_change_to_random_seed_action_text#:#Change active variant to a random seed
-ui_author_randomisation_run_all_tests_for_active_variant_action_text#:#Run all tests for active variant
-ui_author_randomisation_run_all_tests_for_all_variants_action_text#:#Run all tests for all variants
-ui_author_randomisation_generate_new_variants_action_text#:#Generate new variants
-ui_author_randomisation_delete_deployed_variant_action_text#:#Delete deployed variant
-ui_author_randomisation_set_as_active_variant_action_text#:#Set as active variant for preview and unit testing
-ui_author_randomisation_is_current_active_variant_text#:#Current active variant for preview and unit testing
-ui_author_randomisation_question_and_feedback_variables_text#:#Question and feedback variables for this variant
-ui_author_randomisation_unit_test_status_panel_title#:#Unit test status
-ui_author_randomisation_run_unit_test_action_text#:#Run unit test
-ui_author_randomisation_add_unit_test_action_text#:#Add unit test
-ui_author_randomisation_edit_unit_test_action_text#:#Edit unit test
-ui_author_randomisation_delete_unit_test_action_text#:#Delete unit test
