@@ -85,7 +85,7 @@ function stack_string($key, $a = null)
  */
 function stack_string_error($key, $a = null)
 {
-	$key = stack_maths::process_lang_string(get_string($key, 'qtype_stack', $a));
+	$key = stack_maths::process_lang_string(stack_string($key, 'qtype_stack', $a));
 	return '<i class="icon fa fa-exclamation-circle text-danger fa-fw " title="' . $key . '" aria-label="' .
 		$key . '"></i>' . $key;
 }
