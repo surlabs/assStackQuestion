@@ -162,9 +162,9 @@ class assStackQuestionDB
 
             $potential_response_trees[$prt_name]->name = $row['name'];
 			$potential_response_trees[$prt_name]->value = $row['value'];
-			$potential_response_trees[$prt_name]->auto_simplify = $row['auto_simplify'];
-			$potential_response_trees[$prt_name]->feedback_variables = $row['feedback_variables'];
-			$potential_response_trees[$prt_name]->first_node_name = $row['first_node_name'];
+			$potential_response_trees[$prt_name]->autosimplify = $row['auto_simplify'];
+			$potential_response_trees[$prt_name]->feedbackvariables = $row['feedback_variables'];
+			$potential_response_trees[$prt_name]->firstnodename = $row['first_node_name'];
 
 			//Reading nodes
 
@@ -211,27 +211,27 @@ class assStackQuestionDB
 
             $potential_response_tree_nodes[$prt_node_name] = new stdClass();
 
-			$potential_response_tree_nodes[$prt_node_name]->true_next_node = $row['true_next_node'];
-			$potential_response_tree_nodes[$prt_node_name]->false_next_node = $row['false_next_node'];
-			$potential_response_tree_nodes[$prt_node_name]->answer_test = $row['answer_test'];
+			$potential_response_tree_nodes[$prt_node_name]->truenextnode = $row['true_next_node'];
+			$potential_response_tree_nodes[$prt_node_name]->falsenextnode = $row['false_next_node'];
+			$potential_response_tree_nodes[$prt_node_name]->answertest = $row['answer_test'];
 			$potential_response_tree_nodes[$prt_node_name]->sans = $row['sans'];
 			$potential_response_tree_nodes[$prt_node_name]->tans = $row['tans'];
-			$potential_response_tree_nodes[$prt_node_name]->test_options = $row['test_options'];
+			$potential_response_tree_nodes[$prt_node_name]->testoptions = $row['test_options'];
 			$potential_response_tree_nodes[$prt_node_name]->quiet = (int)$row['quiet'];
 
-			$potential_response_tree_nodes[$prt_node_name]->true_score = $row['true_score'];
-			$potential_response_tree_nodes[$prt_node_name]->true_score_mode = $row['true_score_mode'];
-			$potential_response_tree_nodes[$prt_node_name]->true_penalty = $row['true_penalty'];
-			$potential_response_tree_nodes[$prt_node_name]->true_answer_note = $row['true_answer_note'];
-			$potential_response_tree_nodes[$prt_node_name]->true_feedback = ilRTE::_replaceMediaObjectImageSrc($row['true_feedback'], 1);
-			$potential_response_tree_nodes[$prt_node_name]->true_feedback_format = (int)$row['true_feedback_format'];
+			$potential_response_tree_nodes[$prt_node_name]->truescore = $row['true_score'];
+			$potential_response_tree_nodes[$prt_node_name]->truescoremode = $row['true_score_mode'];
+			$potential_response_tree_nodes[$prt_node_name]->truepenalty = $row['true_penalty'];
+			$potential_response_tree_nodes[$prt_node_name]->trueanswer_note = $row['true_answer_note'];
+			$potential_response_tree_nodes[$prt_node_name]->truefeedback = ilRTE::_replaceMediaObjectImageSrc($row['true_feedback'], 1);
+			$potential_response_tree_nodes[$prt_node_name]->truefeedbackformat = (int)$row['true_feedback_format'];
 
-			$potential_response_tree_nodes[$prt_node_name]->false_score = $row['false_score'];
-			$potential_response_tree_nodes[$prt_node_name]->false_score_mode = $row['false_score_mode'];
-			$potential_response_tree_nodes[$prt_node_name]->false_penalty = $row['false_penalty'];
-			$potential_response_tree_nodes[$prt_node_name]->false_answer_note = $row['false_answer_note'];
-			$potential_response_tree_nodes[$prt_node_name]->false_feedback = ilRTE::_replaceMediaObjectImageSrc($row['false_feedback'], 1);
-			$potential_response_tree_nodes[$prt_node_name]->false_feedback_format = (int)$row['false_feedback_format'];
+			$potential_response_tree_nodes[$prt_node_name]->falsescore = $row['false_score'];
+			$potential_response_tree_nodes[$prt_node_name]->falsescoremode = $row['false_score_mode'];
+			$potential_response_tree_nodes[$prt_node_name]->falsepenalty = $row['false_penalty'];
+			$potential_response_tree_nodes[$prt_node_name]->falseanswer_note = $row['false_answer_note'];
+			$potential_response_tree_nodes[$prt_node_name]->falsefeedback = ilRTE::_replaceMediaObjectImageSrc($row['false_feedback'], 1);
+			$potential_response_tree_nodes[$prt_node_name]->falsefeedbackformat = (int)$row['false_feedback_format'];
 		}
 
 		if ($just_id) {
