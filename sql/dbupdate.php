@@ -1051,7 +1051,7 @@ if ($db->tableExists('xqcas_prts') && !$db->tableColumnExists("xqcas_prts", "fee
     $db->addTableColumn("xqcas_prts", "feedback_style", array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 1));
 }
 
-if ($db->tableExists('xqcas_prt_nodes') && !$db->tableColumnExists("xqcas_prt_nodes", "feedback_style")) {
+if ($db->tableExists('xqcas_prt_nodes') && !$db->tableColumnExists("xqcas_prt_nodes", "description")) {
     $db->addTableColumn("xqcas_prt_nodes", "description", array('type' => 'text'));
 }
 
