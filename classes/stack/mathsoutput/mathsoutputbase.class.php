@@ -85,10 +85,8 @@ abstract class stack_maths_output {
         if ($replacedollars) {
             $text = $this->replace_dollars($text);
         }
-
 		//fau: #35 Use ILIAS plotting system instead of Moodle
-		global $CFG;
-		$text = str_replace('!ploturl!', $CFG->dataurl . '/stack/plots/', $text);
+		$text = str_replace('!ploturl!', realpath(ILIAS_DATA_DIR) .'/stack/plots/', $text);
 		//fau.
 
         $text = stack_fact_sheets::display($text, $renderer);

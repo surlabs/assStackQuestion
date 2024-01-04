@@ -46,8 +46,7 @@ abstract class stack_maths_output_filter_base extends stack_maths_output {
     public function process_lang_string($string) {
         $string = $this->find_and_render_equations($string);
 		//fau: #35 Use ILIAS plotting system instead of Moodle
-		global $CFG;
-		$string = str_replace('!ploturl!', $CFG->dataurl . '/stack/plots/', $string);
+		$string = str_replace('!ploturl!', realpath(ILIAS_DATA_DIR) .'/stack/plots/', $string);
 		//fau.
         return $string;
     }
