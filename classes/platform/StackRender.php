@@ -37,6 +37,6 @@ abstract class StackRender {
 
     abstract public static function renderSpecificFeedback(array $attempt_data, array $display_options): string;
 
-    abstract protected static function renderPRTFeedback(array $attempt_data, array $display_options): string;
+    abstract public static function renderPRTFeedback(array $attempt_data, array $display_options): string;
 
 }

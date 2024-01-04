@@ -194,7 +194,7 @@ class StackRenderIlias extends StackRender
      * @return string nicely formatted feedback, for display.
      * @throws StackException|stack_exception
      */
-    protected static function renderPRTFeedback(array $attempt_data, array $display_options): string
+    public static function renderPRTFeedback(array $attempt_data, array $display_options): string
     {
         $prt_name = $attempt_data['prt_name'];
 
