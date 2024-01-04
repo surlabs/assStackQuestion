@@ -1113,7 +1113,8 @@ if (!$db->tableExists('xqcas_preview_seeds')) {
         'user_id' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
         'is_active' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
         'seed' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
-        'stamp' => array('type' => 'integer', 'length' => 8, 'notnull' => true)
+        'stamp' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
+        'submitted_answer' => array('type' => 'clob', 'notnull' => false, 'default' => null)
     );
 
     $db->createTable('xqcas_preview_seeds', $fields);
