@@ -34,13 +34,6 @@ use castext2_default_processor;
 class StackRenderIlias extends StackRender
 {
 
-    private string $purpose;
-
-    public function __construct(string $purpose)
-    {
-        $this->setPurpose($purpose);
-    }
-
     /**
      * Generates the HTML for the question.
      * @param array $attempt_data
@@ -210,40 +203,29 @@ class StackRenderIlias extends StackRender
         );
 
         //$tag = 'div';
-        $feedback_html = '';
+        $prt_feedback_html = '';
         switch ($display_options['feedback_style']) {
             case 0:
                 // Formative PRT.
-                $feedback_html = $error_message . $feedback;
+                $prt_feedback_html = $error_message . $feedback;
                 break;
             case 1:
-                $feedback_html = $standard_prt_feedback . $error_message . $feedback;
+                $prt_feedback_html = $standard_prt_feedback . $error_message . $feedback;
                 break;
             case 2:
                 // Compact.
-                $feedback_html = $standard_prt_feedback . $error_message . $feedback;
+                $prt_feedback_html = $standard_prt_feedback . $error_message . $feedback;
                 //$tag = 'span';
                 break;
             case 3:
                 // Symbolic.
-                $feedback_html = $standard_prt_feedback . $error_message;
+                $prt_feedback_html = $standard_prt_feedback . $error_message;
                 //$tag = 'span';
                 break;
             default:
                 echo "i is not equal to 0, 1 or 2";
         }
 
-        return $feedback_html;
-    }
-
-
-    public function getPurpose(): string
-    {
-        return $this->purpose;
-    }
-
-    public function setPurpose(string $purpose): void
-    {
-        $this->purpose = $purpose;
+        return $prt_feedback_html;
     }
 }
