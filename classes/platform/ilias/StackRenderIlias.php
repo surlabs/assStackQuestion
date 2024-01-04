@@ -8,6 +8,7 @@ use classes\platform\StackEvaluation;
 use classes\platform\StackException;
 use classes\platform\StackRender;
 use classes\platform\StackUserResponse;
+use ilSetting;
 use stack_exception;
 use stack_maths;
 use stack_utils;
@@ -43,6 +44,7 @@ class StackRenderIlias extends StackRender
      */
     public static function renderQuestion(array $attempt_data, array $display_options): string
     {
+        global $DIC;
 
         $response = $attempt_data['response'];
         if (!($response instanceof StackUserResponse)) {
@@ -117,6 +119,8 @@ class StackRenderIlias extends StackRender
             $question_text = str_replace("[[feedback:{$prt_name}]]", $feedback, $question_text);
         }
 
+        // Ensure that the MathJax library is loaded.
+        self::ensureMathJaxLoaded();
         //TODO: VALIDATION
         // Se usa $inputs_to_validate
 
@@ -164,7 +168,7 @@ class StackRenderIlias extends StackRender
 
         // Replace any PRT feedback.
         $all_empty = true;
-        foreach ($question->prts as $prt_name=> $prt) {
+        foreach ($question->prts as $prt_name => $prt) {
             $feedback = '';
             if ($display_options['feedback']) {
                 $attempt_data['prt_name'] = $prt->get_name();
@@ -179,6 +183,8 @@ class StackRenderIlias extends StackRender
             return '';
         }
 
+        // Ensure that the MathJax library is loaded.
+        self::ensureMathJaxLoaded();
         return $feedback_text;
     }
 
@@ -232,8 +238,8 @@ class StackRenderIlias extends StackRender
 
         // TODO: Compact and symbolic only.
         //if ($display_options['feedback_style'] === 2 || $display_options['feedback_style'] === 3) {
-            //$s = get_string('symbolicprt' . $class . 'feedback', 'qtype_stack');
-            //return html_writer::tag('span', $s, array('class' => $class));
+        //$s = get_string('symbolicprt' . $class . 'feedback', 'qtype_stack');
+        //return html_writer::tag('span', $s, array('class' => $class));
         //}
 
         switch ($state) {
@@ -282,6 +288,16 @@ class StackRenderIlias extends StackRender
         }
 
         return $prt_feedback_html;
+    }
+
+    /**
+     * Ensure that the MathJax library is loaded.
+     */
+    public static function ensureMathJaxLoaded(): void
+    {
+        global $DIC;
+        $mathjax = new ilSetting("MathJax");
+        $DIC->globalScreen()->layout()->meta()->addJs($mathjax->get("path_to_mathjax"));
     }
 
 
