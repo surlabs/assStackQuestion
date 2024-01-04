@@ -1272,10 +1272,10 @@ class assStackQuestionDB
      * @param string $purpose
      * @param assStackQuestion $question
      * @param int $active_id or $user_id
-     * @param int $pass
+     * @param int|null $pass
      * @return int
      */
-    public static function _getSeed(string $purpose, assStackQuestion $question, int $active_id, int $pass) :int {
+    public static function _getSeed(string $purpose, assStackQuestion $question, int $active_id, ?int $pass = 0) :int {
         if ($purpose == 'test') {
             return self::_getSeedForTestPass($question, $active_id, $pass);
         } elseif ($purpose == 'preview') {
