@@ -58,15 +58,10 @@ class StackRenderIlias extends StackRender
         // basically for targeting plugin files
         $question->setCasTextProcessor(new castext2_default_processor());
 
-        if (is_string($question->question_text_instantiated)) {
-            // The question has not been instantiated successfully, at this level it is likely
-            // a failure at compilation and that means invalid teacher code.
-            return $question->question_text_instantiated;
-        }
-
         $question_text = $question->question_text_instantiated->get_rendered($question->getCasTextProcessor());
 
         // Replace inputs.
+        //TODO: INPUT REQUIRES VALIDATION
         $inputs_to_validate = array();
 
         // Get the list of placeholders before format_text.
@@ -121,7 +116,7 @@ class StackRenderIlias extends StackRender
             $question_text = str_replace("[[feedback:{$prt_name}]]", $feedback, $question_text);
         }
 
-        //TODO VALIDATION STUFF
+        //TODO: VALIDATION
         // Se usa $inputs_to_validate
 
         return $question_text;
