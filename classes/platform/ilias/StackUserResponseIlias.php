@@ -28,7 +28,25 @@ use classes\platform\StackUserResponse;
 class StackUserResponseIlias extends StackUserResponse
 {
 
+    /**
+     * @var string The purpose of the stack user response.
+     */
     private string $purpose;
+
+    public function getPurpose(): string
+    {
+        return $this->purpose;
+    }
+
+    public function setPurpose(string $purpose): void
+    {
+        $this->purpose = $purpose;
+    }
+
+    /**
+     * @var ?array The stack user response.
+     */
+    private ?array $user_response = null;
 
     public function __construct(string $purpose)
     {
@@ -36,11 +54,46 @@ class StackUserResponseIlias extends StackUserResponse
     }
 
     /**
-     *
+     * Returns the stack user response from different sources depending on the purpose.
      * @throws StackException
      */
     public function getStackUserResponse(): array
     {
+        // Return the user response if it has already been set.
+        if (is_array($this->user_response)) {
+            return $this->user_response;
+        }
+
+        switch ($this->getPurpose()) {
+            case 'post':
+                $stack_user_response = $this->getPostStackUserResponse();
+                break;
+            case 'preview':
+                $stack_user_response = $this->getPreviewStackUserResponse();
+                break;
+            case 'test':
+                $stack_user_response = $this->getTestStackUserResponse();
+                break;
+            case 'unit_test':
+                $stack_user_response = $this->getUnitTestStackUserResponse();
+                break;
+            case 'correct':
+                $stack_user_response = $this->getCorrectStackUserResponse();
+                break;
+            default:
+                throw new StackException('Invalid purpose selected: ' . $this->getPurpose() . '.');
+        }
+
+        if (!$this->checkStackUserResponse($stack_user_response)) {
+            throw new StackException('Invalid stack user response.');
+        } else {
+            return $stack_user_response;
+        }
+    }
+
+    public function saveStackUserResponse(array $stack_user_response): void
+    {
+
         switch ($this->getPurpose()) {
             case 'preview':
                 $stack_user_response = $this->getPreviewStackUserResponse();
@@ -52,11 +105,12 @@ class StackUserResponseIlias extends StackUserResponse
                 throw new StackException('Invalid purpose selected: ' . $this->getPurpose() . '.');
         }
 
-        if (!$this->checkStackUserResponse($stack_user_response)) {
-            throw new StackException('Invalid stack user response.');
-        } else {
-            return $stack_user_response;
-        }
+    }
+
+    private function getPostStackUserResponse(): array
+    {
+        $stack_user_response = array();
+        return $stack_user_response;
     }
 
     private function getPreviewStackUserResponse(): array
@@ -71,14 +125,16 @@ class StackUserResponseIlias extends StackUserResponse
         return $stack_user_response;
     }
 
-
-    public function getPurpose(): string
+    private function getCorrectStackUserResponse(): array
     {
-        return $this->purpose;
+        $stack_user_response = array();
+        return $stack_user_response;
     }
 
-    public function setPurpose(string $purpose): void
+    private function getUnitTestStackUserResponse(): array
     {
-        $this->purpose = $purpose;
+        $stack_user_response = array();
+        return $stack_user_response;
     }
+
 }
