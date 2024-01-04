@@ -239,7 +239,7 @@ class assStackQuestionRenderer
 
         //Question initialization
         if (!$question->isInstantiated()) {
-            $question->questionInitialisation("normal", (int)$student_solutions['seed'], true);
+            $question->questionInitialisation((int)$student_solutions['seed'], true);
         }
 
         $user_solution = array();

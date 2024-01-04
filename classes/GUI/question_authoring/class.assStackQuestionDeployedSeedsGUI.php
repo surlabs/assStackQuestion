@@ -88,7 +88,7 @@ class assStackQuestionDeployedSeedsGUI
 		$number_of_valid_seeds = 0;
 		//Get question note for each different seed
 		foreach ($this->getDeployedSeeds() as $id => $deployed_seed) {
-			$this->getParentObj()->object->questionInitialisation("normal", $deployed_seed, true, true);
+			$this->getParentObj()->object->questionInitialisation($deployed_seed, true, true);
 			$question_note_instantiated = $this->getParentObj()->object->getQuestionNoteInstantiated();
 			$number_of_valid_seeds++;
 			$valid_seeds[$id] = array('seed' => $deployed_seed, 'note' => $question_note_instantiated,'question_id' => $this->getParentObj()->object->getId(),

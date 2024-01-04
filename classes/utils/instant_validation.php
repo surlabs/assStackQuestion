@@ -54,7 +54,7 @@ function checkUserResponse($question_id, $input_name, $user_response)
 	} else {
 		//preview mode
 		$seed = $_SESSION['q_seed_for_preview_' . $_GET['q_id'] . ''];
-		$question->questionInitialisation("normal", $seed, true);
+		$question->questionInitialisation($seed, true);
 	}
 
 	//Secure input
