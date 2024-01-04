@@ -41,7 +41,7 @@ class StackRenderIlias extends StackRender
      * @return string
      * @throws StackException|stack_exception
      */
-    public function renderQuestion(array $attempt_data, array $display_options): string
+    public static function renderQuestion(array $attempt_data, array $display_options): string
     {
 
         $response = $attempt_data['response'];
@@ -112,13 +112,13 @@ class StackRenderIlias extends StackRender
         }
 
         // Replace PRTs.
-        foreach ($question->prts as $index => $prt) {
+        foreach ($question->prts as $prt_name => $prt) {
             $feedback = '';
             if ($display_options['feedback']) {
                 $attempt_data['prt_name'] = $prt->get_name();
-                $feedback = $this->renderPRTFeedback($attempt_data, $display_options);
+                $feedback = self::renderPRTFeedback($attempt_data, $display_options);
             }
-            $question_text = str_replace("[[feedback:{$index}]]", $feedback, $question_text);
+            $question_text = str_replace("[[feedback:{$prt_name}]]", $feedback, $question_text);
         }
 
         //TODO VALIDATION STUFF
@@ -128,13 +128,73 @@ class StackRenderIlias extends StackRender
     }
 
     /**
+     * @param array $attempt_data
+     * @param array $display_options
+     * @return string
+     * @throws StackException|stack_exception
+     */
+    public static function renderSpecificFeedback(array $attempt_data, array $display_options): string
+    {
+        $response = $attempt_data['response'];
+        if (!($response instanceof StackUserResponse)) {
+            throw new StackException('Invalid response type.');
+        }
+
+        $question = $attempt_data['question'];
+        if (!($question instanceof assStackQuestion)) {
+            throw new StackException('Invalid question type.');
+        }
+
+        if ($question->specific_feedback_instantiated === null) {
+            // Invalid question, otherwise this would be here.
+            return '';
+        }
+
+        $feedback_text = $question->specific_feedback_instantiated->get_rendered($question->getCasTextProcessor());
+        if (!$feedback_text) {
+            return '';
+        }
+
+        $feedback_text = stack_maths::process_display_castext($feedback_text);
+
+        //TODO: OVERALL FEEDBACK
+        /*
+        $individualfeedback = count($question->prts) == 1;
+        if ($individualfeedback) {
+            $overallfeedback = '';
+        } else {
+            $overallfeedback = $this->overall_standard_prt_feedback($qa, $question, $response);
+        }*/
+
+        // Replace any PRT feedback.
+        $all_empty = true;
+        $feedback_text = '';
+        foreach ($question->prts as $prt_name=> $prt) {
+            $feedback = '';
+            if ($display_options['feedback']) {
+                $attempt_data['prt_name'] = $prt->get_name();
+                $feedback = self::renderPRTFeedback($attempt_data, $display_options);
+                $all_empty = $all_empty && !$feedback;
+            }
+            $feedback_text = str_replace("[[feedback:{$prt_name}]]", $feedback, $feedback_text);
+        }
+
+        //TODO: OVERALL FEEDBACK
+        if ($all_empty) {
+            return '';
+        }
+
+        return $feedback_text;
+    }
+
+    /**
      * Slightly complex rules for what feedback to display.
      * @param array $attempt_data
      * @param array $display_options
      * @return string nicely formatted feedback, for display.
      * @throws StackException|stack_exception
      */
-    protected function renderPRTFeedback(array $attempt_data, array $display_options): string
+    protected static function renderPRTFeedback(array $attempt_data, array $display_options): string
     {
         $prt_name = $attempt_data['prt_name'];
 
@@ -228,4 +288,6 @@ class StackRenderIlias extends StackRender
 
         return $prt_feedback_html;
     }
+
+
 }
