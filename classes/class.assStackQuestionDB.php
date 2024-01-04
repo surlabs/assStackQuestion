@@ -1752,4 +1752,73 @@ class assStackQuestionDB
 
 		return true;
 	}
+
+    /**
+     * Get the qtest results for a question
+     *
+     * @param int $question_id
+     * @return array
+     */
+    public static function _readQtestResult(int $question_id) :array
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $query = /** @lang text */
+            'SELECT * FROM xqcas_qtest_results WHERE question_id = ' . $db->quote($question_id, 'integer');
+
+        $result = $db->query($query);
+
+        $qtest_results = array();
+
+        while ($row = $db->fetchAssoc($result)) {
+            $qtest_results[$row['test_case']] = $row;
+        }
+
+        return $qtest_results;
+    }
+
+    /**
+     * Save a qtest result for a question
+     *
+     * @param int $question_id
+     * @param array $data
+     * @return void
+     */
+    public static function _saveQtestResult(int $question_id, array $data)
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->insert("xqcas_qtest_results", array(
+            'id' => array('integer', $db->nextId('xqcas_qtest_results')),
+            'question_id' => array('integer', $question_id),
+            'test_case' => array('integer', $data['test_case']),
+            'seed' => array('integer', $data['seed']),
+            'result' => array('text', $data['result']),
+            'timerun' => array('integer', $data['timerun']),
+        ));
+    }
+
+    /**
+     * Delete a qtest result for a question
+     *
+     * @param int $question_id
+     * @param int $test_case
+     * @return bool
+     */
+    public static function _deleteQtestResult(int $question_id, int $test_case): bool
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $query = /** @lang text */
+            'DELETE FROM xqcas_qtest_results WHERE question_id = ' . $db->quote($question_id, 'integer') . ' AND test_case = ' . $db->quote($test_case, 'integer');
+
+        if ($db->manipulate($query)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
