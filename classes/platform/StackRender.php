@@ -28,17 +28,35 @@ use cas_evaluatable;
 abstract class StackRender {
 
     /**
-     * Generates the HTML for the question.
+     * Generates the HTML for the feedback of a specific potential response tree.
+     * @param array $attempt_data
+     * @param array $display_options
+     * @return string
+     */
+    abstract public static function renderPRTFeedback(array $attempt_data, array $display_options): string;
+
+    /**
+     * Generates the HTML for the question section.
      * @param array $attempt_data
      * @param array $display_options
      * @return string
      */
     abstract public static function renderQuestion(array $attempt_data, array $display_options): string;
 
+    /**
+     * Generates the HTML for specific feedback section.
+     * @param array $attempt_data
+     * @param array $display_options
+     * @return string
+     */
     abstract public static function renderSpecificFeedback(array $attempt_data, array $display_options): string;
 
-    abstract public static function renderPRTFeedback(array $attempt_data, array $display_options): string;
-
+    /**
+     * Generates the HTML for the general feedback section.
+     * @param array $attempt_data
+     * @param array $display_options
+     * @return string
+     */
     abstract public static function renderGeneralFeedback(array $attempt_data, array $display_options): string;
 
 }
