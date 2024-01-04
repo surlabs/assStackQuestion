@@ -1271,15 +1271,15 @@ class assStackQuestionDB
     /**
      * @param string $purpose
      * @param assStackQuestion $question
-     * @param int $active_id or $user_id
+     * @param int $id Is the active_id for test or the user_id for preview
      * @param int|null $pass
      * @return int
      */
-    public static function _getSeed(string $purpose, assStackQuestion $question, int $active_id, ?int $pass = 0) :int {
+    public static function _getSeed(string $purpose, assStackQuestion $question, int $id, ?int $pass = 0) :int {
         if ($purpose == 'test') {
-            return self::_getSeedForTestPass($question, $active_id, $pass);
+            return self::_getSeedForTestPass($question, $id, $pass);
         } elseif ($purpose == 'preview') {
-            return self::_getSeedForPreview($question, $active_id);
+            return self::_getSeedForPreview($question, $id);
         } else {
             return 0;
         }
