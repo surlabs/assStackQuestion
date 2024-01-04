@@ -29,72 +29,43 @@ class StackUserResponseIlias extends StackUserResponse
 {
 
     /**
-     * @var string The purpose of the stack user response.
-     */
-    private string $purpose;
-
-    public function getPurpose(): string
-    {
-        return $this->purpose;
-    }
-
-    public function setPurpose(string $purpose): void
-    {
-        $this->purpose = $purpose;
-    }
-
-    /**
-     * @var ?array The stack user response.
-     */
-    private ?array $user_response = null;
-
-    public function __construct(string $purpose)
-    {
-        $this->setPurpose($purpose);
-    }
-
-    /**
      * Returns the stack user response from different sources depending on the purpose.
      * @throws StackException
      */
-    public function getStackUserResponse(): array
+    public static function getStackUserResponse(string $purpose): array
     {
-        // Return the user response if it has already been set.
-        if (is_array($this->user_response)) {
-            return $this->user_response;
-        }
 
-        switch ($this->getPurpose()) {
+        switch ($purpose) {
             case 'post':
-                $stack_user_response = $this->getPostStackUserResponse();
+                $stack_user_response = self::getPostStackUserResponse();
                 break;
             case 'preview':
-                $stack_user_response = $this->getPreviewStackUserResponse();
+                $stack_user_response = self::getPreviewStackUserResponse();
                 break;
             case 'test':
-                $stack_user_response = $this->getTestStackUserResponse();
+                $stack_user_response = self::getTestStackUserResponse();
                 break;
             case 'unit_test':
-                $stack_user_response = $this->getUnitTestStackUserResponse();
+                $stack_user_response = self::getUnitTestStackUserResponse();
                 break;
             case 'correct':
-                $stack_user_response = $this->getCorrectStackUserResponse();
+                $stack_user_response = self::getCorrectStackUserResponse();
                 break;
             default:
-                throw new StackException('Invalid purpose selected: ' . $this->getPurpose() . '.');
+                throw new StackException('Invalid purpose selected: ' . $purpose . '.');
         }
 
-        if (!$this->checkStackUserResponse($stack_user_response)) {
+        if (!self::checkStackUserResponse($stack_user_response)) {
             throw new StackException('Invalid stack user response.');
         } else {
             return $stack_user_response;
         }
     }
 
-    public function saveStackUserResponse(array $stack_user_response): void
+    public function saveStackUserResponse(array $stack_user_response, string $purpose): void
     {
 
-        switch ($this->getPurpose()) {
+        switch ($purpose) {
             case 'preview':
                 $stack_user_response = $this->getPreviewStackUserResponse();
                 break;
@@ -102,36 +73,36 @@ class StackUserResponseIlias extends StackUserResponse
                 $stack_user_response = $this->getTestStackUserResponse();
                 break;
             default:
-                throw new StackException('Invalid purpose selected: ' . $this->getPurpose() . '.');
+                throw new StackException('Invalid purpose selected: ' . $purpose . '.');
         }
 
     }
 
-    private function getPostStackUserResponse(): array
+    private static function getPostStackUserResponse(): array
     {
         $stack_user_response = array();
         return $stack_user_response;
     }
 
-    private function getPreviewStackUserResponse(): array
+    private static function getPreviewStackUserResponse(): array
     {
         $stack_user_response = array();
         return $stack_user_response;
     }
 
-    private function getTestStackUserResponse(): array
+    private static function getTestStackUserResponse(): array
     {
         $stack_user_response = array();
         return $stack_user_response;
     }
 
-    private function getCorrectStackUserResponse(): array
+    private static function getCorrectStackUserResponse(): array
     {
         $stack_user_response = array();
         return $stack_user_response;
     }
 
-    private function getUnitTestStackUserResponse(): array
+    private static function getUnitTestStackUserResponse(): array
     {
         $stack_user_response = array();
         return $stack_user_response;
