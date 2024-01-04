@@ -137,6 +137,13 @@ ui_admin_configuration_defaults_input_show_validation_title#:#Show the validatio
 ui_admin_configuration_defaults_input_show_validation_description#:#Setting this option displays any validation feedback from this input, including echoing back their expression in traditional two dimensional notation.
 ui_admin_configuration_defaults_inputs_title#:#Default input settings
 ui_admin_configuration_defaults_inputs_description#:#These are the default values for the inputs of the question. These values will be used when a new question is created or a new input is added to a question.
+ui_admin_configuration_defaults_section_title_healthcheck_healthcheckmaximalocal#:#Health Check Maxima local
+ui_admin_configuration_defaults_section_title_healthcheck_healthuncached#:#Health Uncached
+ui_admin_configuration_defaults_section_title_healthcheck_healthcheckconnect#:#Health Check Connect
+ui_admin_configuration_defaults_section_title_healthcheck_healthcheckconnectunicode#:#Health Check Connect Unicode
+ui_admin_configuration_defaults_section_title_healthcheck_healthcheckplots#:#Health Check Plots
+ui_admin_configuration_defaults_section_title_healthcheck_healthchecksstackmaximaversion#:#Health Checks Stack Maxima version
+ui_admin_configuration_defaults_section_title_healthcheck_healthchecksstacklibrariesworking#:#Health Checks Stack libraries working
 ui_author_main_title#:#STACK Question Authoring
 ui_author_import_from_moodle_xml_button_label#:#Import question(s) from a MoodleXML file
 ui_author_create_blank_question_button_label#:#Create STACK question from scratch

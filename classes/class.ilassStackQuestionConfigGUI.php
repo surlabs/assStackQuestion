@@ -114,31 +114,35 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
                 $this->quality($data);
                 return;
             case "healthcheck":
+
+                $serverAddress = $data["maxima_pool_url"];
                 $healthcheck = new stack_cas_healthcheck($data);
                 $data = $healthcheck->get_test_results();
 
-                //dump($data);
                 //dump($healthcheck->get_overall_result());
-                //exit;
+
                 $sections = [];
+                $sections["server-info"] = $this->factory->messageBox()->info($this->getPluginObject()->txt("srv_address").":<br \>".$serverAddress);
+
                 foreach($data as $key => $value){
-                    switch($value['tag']){
-                        case "test":
-                            break;
-                        default:
-                            $formFields = [];
-                            $formFields["details"] = $this->factory->input()->field()->textarea("Test")->withValue($value["details"]."");
-                            $sections[$value["tag"]] = $this->factory->input()->field()->section(
-                                $formFields,
-                                $value["tag"]
 
-                            );
+                    $formFields = [];
+
+                    if(isset($value['details'])){
+                        $formFields["details"] = $this->factory->legacy($value["details"]);
+                        $sections[$value["tag"]] =  $this->factory->panel()->standard(
+                            $this->getPluginObject()->txt("ui_admin_configuration_defaults_section_title_healthcheck_".$value["tag"]),
+                            $this->factory->legacy(
+                                $this->renderer->render($formFields)
+                            )
+                        );
                     }
-
                 }
+
                 $sections[] = $this->healthcheck($data);
                 $form_action = $this->control->getLinkTargetByClass("ilassStackQuestionConfigGUI", "healthcheck");
                 $rendered = $this->renderPanel($data, $form_action, $sections);
+
                 break;
             case "bulktesting":
                 //TODO connect with the bulktesting class
