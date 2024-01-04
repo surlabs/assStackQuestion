@@ -583,7 +583,7 @@ abstract class stack_input {
      * this input as part of a correct response to the question.
      */
     public function get_teacher_answer() {
-        return $this->teacheranswer;
+        return (string)$this->teacheranswer;
     }
 
     /**
