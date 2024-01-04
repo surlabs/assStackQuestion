@@ -1064,3 +1064,41 @@ if ($db->tableExists('xqcas_qtests')) {
     }
 }
 ?>
+<#50>
+<?php
+global $DIC;
+$db = $DIC->database();
+
+if ($db->tableExists('xqcas_qtests')) {
+    if ($db->tableColumnExists("xqcas_qtests", "seed")) {
+        $db->dropTableColumn("xqcas_qtests", "seed");
+    }
+
+    if ($db->tableColumnExists("xqcas_qtests", "status")) {
+        $db->dropTableColumn("xqcas_qtests", "status");
+    }
+
+    if ($db->tableColumnExists("xqcas_qtests", "data")) {
+        $db->dropTableColumn("xqcas_qtests", "data");
+    }
+
+    if ($db->tableColumnExists("xqcas_qtests", "active")) {
+        $db->dropTableColumn("xqcas_qtests", "active");
+    }
+}
+
+if (!$db->tableExists("xqcas_qtests_results")) {
+    $fields = array(
+        'id' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
+        'question_id' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
+        'test_case' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
+        'seed' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
+        'result' => array('type' => 'integer', 'length' => 4, 'notnull' => true),
+        'timerun' => array('type' => 'integer', 'length' => 8, 'notnull' => true)
+    );
+
+    $db->createTable('xqcas_qtests_results', $fields);
+    $db->createSequence("xqcas_qtests_results");
+    $db->addPrimaryKey('xqcas_qtests_results', array('id'));
+}
+?>
