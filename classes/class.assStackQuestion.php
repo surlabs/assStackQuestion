@@ -619,7 +619,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     {
         $submittedAnswer = $this->getSolutionSubmit();
         if (!empty($submittedAnswer)) {
-            $previewSession->setParticipantsSolution($submittedAnswer);
+            // $previewSession->setParticipantsSolution($submittedAnswer);
+
+            assStackQuestionDB::_savePreviewSolution($this->getId(), $submittedAnswer);
+
+            dump($submittedAnswer); exit();
         }
     }
 

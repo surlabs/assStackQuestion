@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection ALL */
 /**
  * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
  * GPLv3, see LICENSE
@@ -1920,5 +1920,25 @@ class assStackQuestionDB
         } else {
             return false;
         }
+    }
+
+    /**
+     * Save a preview solution for a question
+     *
+     * @param int $question_id
+     * @param array $data
+     * @return void
+     */
+    public static function _savePreviewSolution(int $question_id, array $data) :void {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->update("xqcas_preview", array(
+            'submitted_answer' => array('clob', json_encode($data))
+        ), array(
+            'question_id' => array('integer', $question_id),
+            'user_id' => array('integer', $DIC->user()->getId()),
+            'is_active' => array('integer', 1)
+        ));
     }
 }
