@@ -338,7 +338,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function saveWorkingData($active_id, $pass = null, $authorized = true): bool
     {
-        /*
         global $DIC;
         $db = $DIC->database();
 
@@ -385,7 +384,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             if (ilObjAssessmentFolder::_enabledAssessmentLogging()) {
                 assQuestion::logAction($this->lng->txtlng('assessment', 'log_user_not_entered_values', ilObjAssessmentFolder::_getLogLanguage()), $active_id, $this->getId());
             }
-        }*/
+        }
 
         return true;
     }

@@ -183,6 +183,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true): string
 	{
+        /*
 		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
 
 		//Llama dos veces, una para el texto y otra para la best solution
@@ -233,6 +234,9 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 		return $solution_output;
+        */
+
+        return "";
 	}
 
 	/**
