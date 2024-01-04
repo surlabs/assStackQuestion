@@ -102,6 +102,7 @@ class StackRenderIlias extends StackRender
             $question_text = $input->replace_validation_tags($state, $field_name, $question_text);
 
             if ($input->requires_validation()) {
+                //TODO: INPUT REQUIRES VALIDATION
                 $inputs_to_validate[] = $input_name;
             }
         }
@@ -163,7 +164,6 @@ class StackRenderIlias extends StackRender
 
         // Replace any PRT feedback.
         $all_empty = true;
-        $feedback_text = '';
         foreach ($question->prts as $prt_name=> $prt) {
             $feedback = '';
             if ($display_options['feedback']) {
