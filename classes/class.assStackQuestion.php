@@ -1565,7 +1565,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param bool $force_variant
      * @param bool $deployed_seeds_view true only in authoring mode / deployed seeds view
      */
-    public function questionInitialisation(?int $variant, bool $force_variant = false, bool $deployed_seeds_view = false)
+    public function questionInitialisation(string $purpose, ?int $variant, bool $force_variant = false, bool $deployed_seeds_view = false)
     {
         //Initialize Options
         if (!is_a($this->options, 'stack_options')) {

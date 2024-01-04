@@ -93,7 +93,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$seed = assStackQuestionDB::_getSeedForTestPass($this->object, $active_id, $pass);
 
 		if (!$this->object->isInstantiated()) {
-			$this->object->questionInitialisation($seed, true);
+			$this->object->questionInitialisation("normal", $seed, true);
 		}
 
 		//Get user solution from DB
@@ -281,7 +281,7 @@ class assStackQuestionGUI extends assQuestionGUI
             }
 
             $_SESSION['q_seed_for_preview_' . $this->object->getId() . ''] = $variant;
-            $this->object->questionInitialisation($variant, true);
+            $this->object->questionInitialisation("normal", $variant, true);
         }
     }
 
