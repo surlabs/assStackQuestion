@@ -1064,3 +1064,69 @@ if ($db->tableExists('xqcas_qtests')) {
     }
 }
 ?>
+<#50>
+<?php
+global $DIC;
+$db = $DIC->database();
+
+if ($db->tableExists('xqcas_qtests')) {
+    if ($db->tableColumnExists("xqcas_qtests", "seed")) {
+        $db->dropTableColumn("xqcas_qtests", "seed");
+    }
+
+    if ($db->tableColumnExists("xqcas_qtests", "status")) {
+        $db->dropTableColumn("xqcas_qtests", "status");
+    }
+
+    if ($db->tableColumnExists("xqcas_qtests", "data")) {
+        $db->dropTableColumn("xqcas_qtests", "data");
+    }
+
+    if ($db->tableColumnExists("xqcas_qtests", "active")) {
+        $db->dropTableColumn("xqcas_qtests", "active");
+    }
+}
+
+if (!$db->tableExists("xqcas_qtest_results")) {
+    $fields = array(
+        'id' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
+        'question_id' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
+        'test_case' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
+        'seed' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
+        'result' => array('type' => 'integer', 'length' => 4, 'notnull' => true),
+        'timerun' => array('type' => 'integer', 'length' => 8, 'notnull' => true)
+    );
+
+    $db->createTable('xqcas_qtest_results', $fields);
+    $db->createSequence("xqcas_qtest_results");
+    $db->addPrimaryKey('xqcas_qtest_results', array('id'));
+}
+?>
+<#51>
+<?php
+global $DIC;
+$db = $DIC->database();
+
+if (!$db->tableExists('xqcas_preview_seeds')) {
+    $fields = array(
+        'question_id' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
+        'user_id' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
+        'is_active' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
+        'seed' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
+        'stamp' => array('type' => 'integer', 'length' => 8, 'notnull' => true)
+    );
+
+    $db->createTable('xqcas_preview_seeds', $fields);
+    $db->addPrimaryKey('xqcas_preview_seeds', array('question_id', 'user_id', 'is_active'));
+
+    if (!$db->indexExistsByFields('xqcas_preview_seeds', array('user_id', 'is_active'))) {
+        $db->addIndex('xqcas_preview_seeds', array('user_id', 'is_active'), 'ts1');
+    }
+    if (!$db->indexExistsByFields('xqcas_preview_seeds', array('seed'))) {
+        $db->addIndex('xqcas_preview_seeds', array('seed'), 'ts2');
+    }
+    if (!$db->indexExistsByFields('xqcas_preview_seeds', array('stamp'))) {
+        $db->addIndex('xqcas_preview_seeds', array('stamp'), 'ts3');
+    }
+}
+?>

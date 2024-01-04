@@ -90,7 +90,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function getTestOutput($active_id, $pass, $is_question_postponed, $user_post_solutions, $show_specific_inline_feedback)
 	{
 		//Question initialization
-		$seed = assStackQuestionDB::_getSeedForTestPass($this->object, $active_id, $pass);
+		$seed = assStackQuestionDB::_getSeed("test", $this->object, $active_id, $pass);
 
 		if (!$this->object->isInstantiated()) {
 			$this->object->questionInitialisation($seed, true);
@@ -235,56 +235,6 @@ class assStackQuestionGUI extends assQuestionGUI
 		return $solution_output;
 	}
 
-    public function questionInitForPreview()
-    {
-        //Seed management
-        if (isset($_REQUEST['fixed_seed'])) {
-            $seed = $_REQUEST['fixed_seed'];
-            $_SESSION['q_seed_for_preview_' . $this->object->getId() . ''] = $seed;
-        } else {
-            if (isset($_SESSION['q_seed_for_preview_' . $this->object->getId() . ''])) {
-                $seed = $_SESSION['q_seed_for_preview_' . $this->object->getId() . ''];
-            } else {
-                $seed = -1;
-            }
-        }
-        //Initialise the question
-        //if fixed_seed is activate, we are in preview forcing the use of a certain seed for this session
-        if (isset($_REQUEST['fixed_seed'])) {
-            $variant = $_REQUEST['fixed_seed'];
-        } else {
-            //Variant management
-            if (isset($_SESSION['q_seed_for_preview_' . $this->object->getId() . ''])) {
-                //We do have already a seed
-                $variant = (int) $_SESSION['q_seed_for_preview_' . $this->object->getId() . ''];
-            } else {
-                //We need a seed
-                if (!$this->object->hasRandomVariants()) {
-                    // Randomisation not used.
-                    $variant = 1;
-                } else {
-                    if (!empty($this->object->deployed_seeds)) {
-                        //If there are variants
-                        //Choose between deployed seeds
-                        $chosen_seed = array_rand($this->object->deployed_seeds);
-                        //Set random selected seed
-                        $variant = (int) $chosen_seed;
-                    } else {
-                        //Complete randomisation
-                        if ($this->object->hasRandomVariants()) {
-                            $variant = rand(1111111111, 9999999999);
-                        } else {
-                            $variant = 1;
-                        }
-                    }
-                }
-            }
-
-            $_SESSION['q_seed_for_preview_' . $this->object->getId() . ''] = $variant;
-            $this->object->questionInitialisation($variant, true);
-        }
-    }
-
 	/**
 	 * Returns the HTML for the question Preview
 	 * @param bool $show_question_only
@@ -316,7 +266,8 @@ class assStackQuestionGUI extends assQuestionGUI
             }
 		}
 
-        $this->questionInitForPreview();
+        $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
+        $this->object->questionInitialisation($seed, true);
 
 		$response = array();
 		foreach ($this->object->inputs as $input_name => $input) {
@@ -390,7 +341,9 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		if (isset($this->is_preview)) {
 
-            $this->questionInitForPreview();
+            global $DIC;
+            $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
+            $this->object->questionInitialisation($seed, true);
 
             //Ensure evaluation has been done
 			if (empty($this->object->getEvaluation())) {

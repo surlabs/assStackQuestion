@@ -1268,8 +1268,26 @@ class assStackQuestionDB
 
 	/* DELETE QUESTION IN DB END */
 
+    /**
+     * @param string $purpose
+     * @param assStackQuestion $question
+     * @param int $id Is the active_id for test or the user_id for preview
+     * @param int|null $pass
+     * @return int
+     */
+    public static function _getSeed(string $purpose, assStackQuestion $question, int $id, ?int $pass = 0) :int {
+        if ($purpose == 'test') {
+            return self::_getSeedForTestPass($question, $id, $pass);
+        } elseif ($purpose == 'preview') {
+            return self::_getSeedForPreview($question, $id);
+        } else {
+            return 0;
+        }
+    }
 
 	/**
+     * Get the seed for a test pass
+     *
 	 * @param assStackQuestion $question
 	 * @param int $active_id
 	 * @param int $pass
@@ -1336,6 +1354,88 @@ class assStackQuestionDB
 
 		return $seed;
 	}
+
+    /**
+     * Get the seed for a preview
+     *
+     * @param assStackQuestion $question
+     * @param int $active_id
+     * @param int $pass
+     * @return int
+     */
+    public static function _getSeedForPreview(assStackQuestion $question, int $user_id): int
+    {
+        $seed = 0;
+
+        //Does this question uses randomisation?
+        global $DIC;
+        $db = $DIC->database();
+        $question_id = $question->getId();
+        //Search for a seed in DB
+        //returns seed if exists
+        $query = /** @lang text */
+            'SELECT seed FROM xqcas_preview_seeds WHERE question_id = ' . $db->quote($question_id, 'integer')
+            . ' AND user_id = ' . $db->quote($user_id, 'integer')
+            . ' AND is_active = ' . $db->quote(1, 'integer')
+            . ' ORDER BY xqcas_preview_seeds.stamp';
+
+        $res = $db->query($query);
+        if (isset($res)) if (!empty($res)) {
+            $seed_found = 0;
+            while ($row = $db->fetchAssoc($res)) {
+                //set actual seed stored in DB
+                $seed = (int)$row['seed'];
+                if ($seed_found === 0) {
+                    $seed_found = $seed;
+                } else {
+                    ilUtil::sendFailure("ERROR: Trying to create a new seed where there is already one assigned", true);
+                    return 0;
+                }
+            }
+        }
+
+        if ($seed < 1) {
+            //Create new seed
+            $variants = self::_readDeployedVariants($question_id, true);
+
+            //If there are variants
+            if (!empty($variants)) {
+                //Choose between deployed seeds
+                $chosen_seed = array_rand($variants);
+                //Set random selected seed
+                $seed = (int)$chosen_seed;
+            } else {
+                //Complete randomisation
+                if ($question->hasRandomVariants()) {
+                    $seed = rand(1111111111, 9999999999);
+                } else {
+                    $seed = 1;
+                }
+            }
+
+            //Deactivate previous seeds
+            $db->update("xqcas_preview_seeds",
+                array(
+                    'is_active' => array('integer', 0)
+                ),
+                array(
+                    'question_id' => array('integer', $question_id),
+                    'user_id' => array('integer', $user_id),
+                    'is_active' => array('integer', 1)
+                )
+            );
+
+            //Save into xqcas_preview_seeds
+            $db->insert("xqcas_preview_seeds", array(
+                'question_id' => array('integer', $question_id),
+                'user_id' => array('integer', $user_id),
+                'is_active' => array('integer', 1),
+                'seed' => array('integer', $seed),
+                'stamp' => array('integer', time())));
+        }
+
+        return $seed;
+    }
 
 	/**
 	 * @param assStackQuestion $question
@@ -1752,4 +1852,73 @@ class assStackQuestionDB
 
 		return true;
 	}
+
+    /**
+     * Get the qtest results for a question
+     *
+     * @param int $question_id
+     * @return array
+     */
+    public static function _readQtestResult(int $question_id) :array
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $query = /** @lang text */
+            'SELECT * FROM xqcas_qtest_results WHERE question_id = ' . $db->quote($question_id, 'integer');
+
+        $result = $db->query($query);
+
+        $qtest_results = array();
+
+        while ($row = $db->fetchAssoc($result)) {
+            $qtest_results[$row['test_case']] = $row;
+        }
+
+        return $qtest_results;
+    }
+
+    /**
+     * Save a qtest result for a question
+     *
+     * @param int $question_id
+     * @param array $data
+     * @return void
+     */
+    public static function _saveQtestResult(int $question_id, array $data)
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->insert("xqcas_qtest_results", array(
+            'id' => array('integer', $db->nextId('xqcas_qtest_results')),
+            'question_id' => array('integer', $question_id),
+            'test_case' => array('integer', $data['test_case']),
+            'seed' => array('integer', $data['seed']),
+            'result' => array('text', $data['result']),
+            'timerun' => array('integer', $data['timerun']),
+        ));
+    }
+
+    /**
+     * Delete a qtest result for a question
+     *
+     * @param int $question_id
+     * @param int $test_case
+     * @return bool
+     */
+    public static function _deleteQtestResult(int $question_id, int $test_case): bool
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $query = /** @lang text */
+            'DELETE FROM xqcas_qtest_results WHERE question_id = ' . $db->quote($question_id, 'integer') . ' AND test_case = ' . $db->quote($test_case, 'integer');
+
+        if ($db->manipulate($query)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
