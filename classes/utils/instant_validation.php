@@ -44,19 +44,6 @@ function checkUserResponse($question_id, $input_name, $user_response)
 		return $e;
 	}
 
-	//Initialize question from seed
-	$active_id = $_GET['active_id'];
-	//require_once "./Modules/Test/classes/class.ilObjTest.php";
-	$pass = ilObjTest::_getPass($active_id);
-
-	if (is_int($active_id) and is_int($pass)) {
-		//test mode
-	} else {
-		//preview mode
-		$seed = $_SESSION['q_seed_for_preview_' . $_GET['q_id'] . ''];
-		$question->questionInitialisation($seed, true);
-	}
-
 	//Secure input
 	$user_response = array($input_name => ilutil::stripScriptHTML($user_response));
 
