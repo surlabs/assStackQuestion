@@ -1087,7 +1087,7 @@ if ($db->tableExists('xqcas_qtests')) {
     }
 }
 
-if (!$db->tableExists("xqcas_qtests_results")) {
+if (!$db->tableExists("xqcas_qtest_results")) {
     $fields = array(
         'id' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
         'question_id' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
@@ -1097,8 +1097,8 @@ if (!$db->tableExists("xqcas_qtests_results")) {
         'timerun' => array('type' => 'integer', 'length' => 8, 'notnull' => true)
     );
 
-    $db->createTable('xqcas_qtests_results', $fields);
-    $db->createSequence("xqcas_qtests_results");
-    $db->addPrimaryKey('xqcas_qtests_results', array('id'));
+    $db->createTable('xqcas_qtest_results', $fields);
+    $db->createSequence("xqcas_qtest_results");
+    $db->addPrimaryKey('xqcas_qtest_results', array('id'));
 }
 ?>
