@@ -25,8 +25,8 @@ use cas_evaluatable;
  *
  *********************************************************************/
 
-abstract class StackCastextRender {
+abstract class StackRender {
 
-    abstract function render(): string;
+    abstract function render($question): string;
 
 }
