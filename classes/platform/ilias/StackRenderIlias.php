@@ -80,7 +80,6 @@ class StackRenderIlias extends StackRender
             return '';
         }
 
-        $standard_prt_feedback = '';
         $state = StackEvaluation::stateForFraction($result->get_fraction());
 
         // TODO: Compact and symbolic only.
@@ -146,7 +145,6 @@ class StackRenderIlias extends StackRender
      */
     public static function renderQuestion(array $attempt_data, array $display_options): string
     {
-        global $DIC;
 
         $response = $attempt_data['response'];
         if (!($response instanceof StackUserResponse)) {
@@ -199,7 +197,7 @@ class StackRenderIlias extends StackRender
             $field_name = 'xqcas_' . $question->getId() . '_' . $input_name;
             $state = $question->getInputState($input_name, $response->getStackUserResponse());
 
-            $question_text = str_replace("[[input:{$input_name}]]",
+            $question_text = str_replace("[[input:$input_name]]",
                 $input->render($state, $field_name, $display_options['readonly'], $teacher_answer_value),
                 $question_text);
 
@@ -218,7 +216,7 @@ class StackRenderIlias extends StackRender
                 $attempt_data['prt_name'] = $prt->get_name();
                 $feedback = self::renderPRTFeedback($attempt_data, $display_options);
             }
-            $question_text = str_replace("[[feedback:{$prt_name}]]", $feedback, $question_text);
+            $question_text = str_replace("[[feedback:$prt_name]]", $feedback, $question_text);
         }
 
         // Ensure that the MathJax library is loaded.
@@ -278,7 +276,7 @@ class StackRenderIlias extends StackRender
                 $feedback = self::renderPRTFeedback($attempt_data, $display_options);
                 $all_empty = $all_empty && !$feedback;
             }
-            $feedback_text = str_replace("[[feedback:{$prt_name}]]", $feedback, $feedback_text);
+            $feedback_text = str_replace("[[feedback:$prt_name]]", $feedback, $feedback_text);
         }
 
         //TODO: OVERALL FEEDBACK
