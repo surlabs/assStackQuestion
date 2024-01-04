@@ -189,6 +189,36 @@ class StackRenderIlias extends StackRender
     }
 
     /**
+     * @param array $attempt_data
+     * @param array $display_options
+     * @return string
+     * @throws StackException
+     */
+    public static function renderGeneralFeedback(array $attempt_data, array $display_options): string
+    {
+        $question = $attempt_data['question'];
+        if (!($question instanceof assStackQuestion)) {
+            throw new StackException('Invalid question type.');
+        }
+
+        if ($question->general_feedback_instantiated === null) {
+            throw new StackException('General feedback not set.');
+        }
+
+        $general_feedback_text = $question->general_feedback_instantiated->get_rendered($question->getCasTextProcessor());
+
+        if (!$general_feedback_text) {
+            return '';
+        }
+
+        $general_feedback_text = stack_maths::process_display_castext($general_feedback_text);
+
+        // Ensure that the MathJax library is loaded.
+        self::ensureMathJaxLoaded();
+        return $general_feedback_text;
+    }
+
+    /**
      * Slightly complex rules for what feedback to display.
      * @param array $attempt_data
      * @param array $display_options
