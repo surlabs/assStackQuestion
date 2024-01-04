@@ -1042,3 +1042,21 @@ if ($db->tableExists('xqcas_configuration')) {
     $db->update("xqcas_configuration", array("value" => array("clob", "linux")), array("parameter_name" => array("text", "platform_type"), "value" => array("clob", "unix")));
 }
 ?>
+<#49>
+<?php
+global $DIC;
+$db = $DIC->database();
+
+if ($db->tableExists('xqcas_prts')) {
+    $db->addTableColumn("xqcas_prts", "feedback_style", array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 1));
+}
+
+if ($db->tableExists('xqcas_prt_nodes')) {
+    $db->addTableColumn("xqcas_prt_nodes", "description", array('type' => 'text'));
+}
+
+if ($db->tableExists('xqcas_qtests')) {
+    $db->addTableColumn("xqcas_qtests", "description", array('type' => 'text'));
+    $db->addTableColumn("xqcas_qtests", "time_modified", array('type' => 'integer', 'length' => 10, 'notnull' => false, 'default' => null));
+}
+?>
