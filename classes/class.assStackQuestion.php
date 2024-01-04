@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use classes\platform\ilias\StackPlatformIlias;
 use classes\platform\StackConfig;
 use classes\platform\StackPlatform;
 
@@ -318,6 +319,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         } catch (ilPluginException $e) {
             ilUtil::sendFailure($e, true);
         }
+
+        //Get stored settings from the platform database
+        $this->setPlatformConfiguration(StackConfig::getAll());
 
         //For some reason we should initialize lasttime for new questions, it seems not been donE in assQuestion Constructor
         $this->setLastChange(time());
