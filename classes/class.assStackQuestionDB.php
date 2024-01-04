@@ -1374,10 +1374,10 @@ class assStackQuestionDB
         //Search for a seed in DB
         //returns seed if exists
         $query = /** @lang text */
-            'SELECT seed FROM xqcas_preview_seeds WHERE question_id = ' . $db->quote($question_id, 'integer')
+            'SELECT seed FROM xqcas_preview WHERE question_id = ' . $db->quote($question_id, 'integer')
             . ' AND user_id = ' . $db->quote($user_id, 'integer')
             . ' AND is_active = ' . $db->quote(1, 'integer')
-            . ' ORDER BY xqcas_preview_seeds.stamp';
+            . ' ORDER BY xqcas_preview.stamp';
 
         $res = $db->query($query);
         if (isset($res)) if (!empty($res)) {
@@ -1414,7 +1414,7 @@ class assStackQuestionDB
             }
 
             //Deactivate previous seeds
-            $db->update("xqcas_preview_seeds",
+            $db->update("xqcas_preview",
                 array(
                     'is_active' => array('integer', 0)
                 ),
@@ -1425,8 +1425,8 @@ class assStackQuestionDB
                 )
             );
 
-            //Save into xqcas_preview_seeds
-            $db->insert("xqcas_preview_seeds", array(
+            //Save into xqcas_preview
+            $db->insert("xqcas_preview", array(
                 'question_id' => array('integer', $question_id),
                 'user_id' => array('integer', $user_id),
                 'is_active' => array('integer', 1),

@@ -1107,27 +1107,27 @@ if (!$db->tableExists("xqcas_qtest_results")) {
 global $DIC;
 $db = $DIC->database();
 
-if (!$db->tableExists('xqcas_preview_seeds')) {
+if (!$db->tableExists('xqcas_preview')) {
     $fields = array(
         'question_id' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
         'user_id' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
         'is_active' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
         'seed' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
         'stamp' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
-        'submitted_answer' => array('type' => 'clob', 'notnull' => false, 'default' => null)
+        'submitted_answer' => array('type' => 'clob', 'notnull' => false, 'default' => "{}")
     );
 
-    $db->createTable('xqcas_preview_seeds', $fields);
-    $db->addPrimaryKey('xqcas_preview_seeds', array('question_id', 'user_id', 'is_active'));
+    $db->createTable('xqcas_preview', $fields);
+    $db->addPrimaryKey('xqcas_preview', array('question_id', 'user_id', 'is_active'));
 
-    if (!$db->indexExistsByFields('xqcas_preview_seeds', array('user_id', 'is_active'))) {
-        $db->addIndex('xqcas_preview_seeds', array('user_id', 'is_active'), 'ts1');
+    if (!$db->indexExistsByFields('xqcas_preview', array('user_id', 'is_active'))) {
+        $db->addIndex('xqcas_preview', array('user_id', 'is_active'), 'ts1');
     }
-    if (!$db->indexExistsByFields('xqcas_preview_seeds', array('seed'))) {
-        $db->addIndex('xqcas_preview_seeds', array('seed'), 'ts2');
+    if (!$db->indexExistsByFields('xqcas_preview', array('seed'))) {
+        $db->addIndex('xqcas_preview', array('seed'), 'ts2');
     }
-    if (!$db->indexExistsByFields('xqcas_preview_seeds', array('stamp'))) {
-        $db->addIndex('xqcas_preview_seeds', array('stamp'), 'ts3');
+    if (!$db->indexExistsByFields('xqcas_preview', array('stamp'))) {
+        $db->addIndex('xqcas_preview', array('stamp'), 'ts3');
     }
 }
 ?>
