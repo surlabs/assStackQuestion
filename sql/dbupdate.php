@@ -1047,16 +1047,20 @@ if ($db->tableExists('xqcas_configuration')) {
 global $DIC;
 $db = $DIC->database();
 
-if ($db->tableExists('xqcas_prts')) {
+if ($db->tableExists('xqcas_prts') && !$db->tableColumnExists("xqcas_prts", "feedback_style")) {
     $db->addTableColumn("xqcas_prts", "feedback_style", array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 1));
 }
 
-if ($db->tableExists('xqcas_prt_nodes')) {
+if ($db->tableExists('xqcas_prt_nodes') && !$db->tableColumnExists("xqcas_prt_nodes", "feedback_style")) {
     $db->addTableColumn("xqcas_prt_nodes", "description", array('type' => 'text'));
 }
 
 if ($db->tableExists('xqcas_qtests')) {
-    $db->addTableColumn("xqcas_qtests", "description", array('type' => 'text'));
-    $db->addTableColumn("xqcas_qtests", "time_modified", array('type' => 'integer', 'length' => 10, 'notnull' => false, 'default' => null));
+    if (!$db->tableColumnExists("xqcas_qtests", "description")) {
+        $db->addTableColumn("xqcas_qtests", "description", array('type' => 'text'));
+    }
+    if (!$db->tableColumnExists("xqcas_qtests", "time_modified")) {
+        $db->addTableColumn("xqcas_qtests", "time_modified", array('type' => 'integer', 'length' => 8, 'notnull' => false, 'default' => null));
+    }
 }
 ?>
