@@ -90,7 +90,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function getTestOutput($active_id, $pass, $is_question_postponed, $user_post_solutions, $show_specific_inline_feedback)
 	{
 		//Question initialization
-		$seed = assStackQuestionDB::_getSeedForTestPass($this->object, $active_id, $pass);
+		$seed = assStackQuestionDB::_getSeed("test", $this->object, $active_id, $pass);
 
 		if (!$this->object->isInstantiated()) {
 			$this->object->questionInitialisation($seed, true);

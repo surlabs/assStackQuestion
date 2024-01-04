@@ -347,7 +347,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
 
         //Determine seed for current test run
-        $seed = assStackQuestionDB::_getSeedForTestPass($this, $active_id, $pass);
+        $seed = assStackQuestionDB::_getSeed("test", $this, $active_id, $pass);
 
         $entered_values = 0;
         $user_solution = $this->getSolutionSubmit();

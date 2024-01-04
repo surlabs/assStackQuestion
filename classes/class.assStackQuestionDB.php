@@ -1268,8 +1268,26 @@ class assStackQuestionDB
 
 	/* DELETE QUESTION IN DB END */
 
+    /**
+     * @param string $purpose
+     * @param assStackQuestion $question
+     * @param int $active_id or $user_id
+     * @param int $pass
+     * @return int
+     */
+    public static function _getSeed(string $purpose, assStackQuestion $question, int $active_id, int $pass) :int {
+        if ($purpose == 'test') {
+            return self::_getSeedForTestPass($question, $active_id, $pass);
+        } elseif ($purpose == 'preview') {
+            return self::_getSeedForPreview($question, $active_id);
+        } else {
+            return 0;
+        }
+    }
 
 	/**
+     * Get the seed for a test pass
+     *
 	 * @param assStackQuestion $question
 	 * @param int $active_id
 	 * @param int $pass
@@ -1336,6 +1354,88 @@ class assStackQuestionDB
 
 		return $seed;
 	}
+
+    /**
+     * Get the seed for a preview
+     *
+     * @param assStackQuestion $question
+     * @param int $active_id
+     * @param int $pass
+     * @return int
+     */
+    public static function _getSeedForPreview(assStackQuestion $question, int $user_id): int
+    {
+        $seed = 0;
+
+        //Does this question uses randomisation?
+        global $DIC;
+        $db = $DIC->database();
+        $question_id = $question->getId();
+        //Search for a seed in DB
+        //returns seed if exists
+        $query = /** @lang text */
+            'SELECT seed FROM xqcas_preview_seeds WHERE question_id = ' . $db->quote($question_id, 'integer')
+            . ' AND user_id = ' . $db->quote($user_id, 'integer')
+            . ' AND is_active = ' . $db->quote(1, 'integer')
+            . ' ORDER BY xqcas_preview_seeds.stamp';
+
+        $res = $db->query($query);
+        if (isset($res)) if (!empty($res)) {
+            $seed_found = 0;
+            while ($row = $db->fetchAssoc($res)) {
+                //set actual seed stored in DB
+                $seed = (int)$row['seed'];
+                if ($seed_found === 0) {
+                    $seed_found = $seed;
+                } else {
+                    ilUtil::sendFailure("ERROR: Trying to create a new seed where there is already one assigned", true);
+                    return 0;
+                }
+            }
+        }
+
+        if ($seed < 1) {
+            //Create new seed
+            $variants = self::_readDeployedVariants($question_id, true);
+
+            //If there are variants
+            if (!empty($variants)) {
+                //Choose between deployed seeds
+                $chosen_seed = array_rand($variants);
+                //Set random selected seed
+                $seed = (int)$chosen_seed;
+            } else {
+                //Complete randomisation
+                if ($question->hasRandomVariants()) {
+                    $seed = rand(1111111111, 9999999999);
+                } else {
+                    $seed = 1;
+                }
+            }
+
+            //Deactivate previous seeds
+            $db->update("xqcas_preview_seeds",
+                array(
+                    'is_active' => array('integer', 0)
+                ),
+                array(
+                    'question_id' => array('integer', $question_id),
+                    'user_id' => array('integer', $user_id),
+                    'is_active' => array('integer', 1)
+                )
+            );
+
+            //Save into xqcas_preview_seeds
+            $db->insert("xqcas_preview_seeds", array(
+                'question_id' => array('integer', $question_id),
+                'user_id' => array('integer', $user_id),
+                'is_active' => array('integer', 1),
+                'seed' => array('integer', $seed),
+                'stamp' => array('integer', time())));
+        }
+
+        return $seed;
+    }
 
 	/**
 	 * @param assStackQuestion $question
