@@ -1223,7 +1223,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
                 //PRT Results
                 if (is_array($prt_input) && !empty($prt_input)) {
-                    // TODO SAUL: Nueva evaluacion
                     /*
                     $evaluation_data['prts'][$prt_name] = $this->prts[$prt_name]->evaluate_response(
                         $this->session, $this->options, $prt_input, $this->seed
