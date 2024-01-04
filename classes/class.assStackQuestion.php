@@ -1,30 +1,55 @@
 <?php
-/**
- * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
- * GPLv3, see LICENSE
- */
+declare(strict_types=1);
 
 use classes\platform\StackConfig;
 use classes\platform\StackPlatform;
 
 /**
- * STACK Question OBJECT
+ *  This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
+ *  This plugin is developed and maintained by SURLABS and is a port of STACK Question for Moodle,
+ *  originally created by Chris Sangwin.
  *
- * @author Jesús Copado Mejías <stack@surlabs.es>
- * @version $Id: 7.1$
- * @ingroup    ModulesTestQuestionPool
+ *  The STACK Question plugin for ILIAS is open-source and licensed under GPL-3.0.
+ *  For license details, visit https://www.gnu.org/licenses/gpl-3.0.en.html.
+ *
+ *  To report bugs or participate in discussions, visit the Mantis system and filter by
+ *  the category "STACK Question" at https://mantis.ilias.de.
+ *
+ *  More information and source code are available at:
+ *  https://github.com/surlabs/STACK
+ *
+ *  If you need support, please contact the maintainer of this software at:
+ *  stack@surlabs.es
  *
  */
 class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQuestionScoringAdjustable
 {
-    /* ILIAS CORE ATTRIBUTES BEGIN */
-
-    //plugin attributes
-
     /**
-     * @var ilPlugin
+     * @var ilPlugin Contains ilPlugin derived object
+     * like ilLanguage
      */
     private ilPlugin $plugin;
+    public function getPlugin(): ilPlugin
+    {
+        return $this->plugin;
+    }
+    public function setPlugin(ilPlugin $plugin): void
+    {
+        $this->plugin = $plugin;
+    }
+
+    /**
+     * @var array Contains the platform data
+     */
+    private array $platform_configuration = [];
+    public function getPlatformConfiguration(): array
+    {
+        return $this->platform_configuration;
+    }
+    public function setPlatformConfiguration(array $platform_configuration): void
+    {
+        $this->platform_configuration = $platform_configuration;
+    }
 
     /* ILIAS CORE ATTRIBUTES END */
 
@@ -152,7 +177,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     /**
      * @var stack_ast_container[] STACK specific: the teacher's answers for each input.
      */
-    private array $tas;
+    private array $tas = [];
 
     /**
      * @var stack_cas_security the question level common security
@@ -288,28 +313,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     {
         parent::__construct($title, $comment, $author, $owner, $question);
 
-        // init the plugin object
-        //require_once "./Services/Component/classes/class.ilPlugin.php";
         try {
             $this->setPlugin(ilPlugin::getPluginObject(IL_COMP_MODULE, "TestQuestionPool", "qst", "assStackQuestion"));
         } catch (ilPluginException $e) {
             ilUtil::sendFailure($e, true);
         }
 
-        //Initialise some parameters
-        $this->tas = array();
         //For some reason we should initialize lasttime for new questions, it seems not been donE in assQuestion Constructor
         $this->setLastChange(time());
-
-        //Initialize some STACK required parameters
-        //require_once __DIR__ . '/utils/class.assStackQuestionInitialization.php';
-        //require_once(__DIR__ . '/stack/input/factory.class.php');
-        //require_once(__DIR__ . '/stack/cas/keyval.class.php');
-        //require_once(__DIR__ . '/stack/cas/castext.class.php');
-        //require_once(__DIR__ . '/stack/cas/cassecurity.class.php');
-        //require_once(__DIR__ . '/stack/potentialresponsetree.class.php');
-        //require_once(__DIR__ . '/utils/locallib.php');
-        //require_once(__DIR__ . '/stack/cas/secure_loader.class.php');
     }
 
     //assQuestion abstract methods
@@ -323,13 +334,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function saveWorkingData($active_id, $pass = null, $authorized = true): bool
     {
-        /** @var $ilDB ilDBInterface */
+        /*
         global $DIC;
         $db = $DIC->database();
 
         if (is_null($pass)) {
-            include_once /** @lang text */
-            "./Modules/Test/classes/class.ilObjTest.php";
             $pass = ilObjTest::_getPass($active_id);
         }
 
@@ -363,8 +372,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $entered_values = assStackQuestionDB::_saveUserTestSolution($this, $active_id, $pass, $authorized);
         });
 
-        include_once/** @lang text */
-        ('./Modules/Test/classes/class.ilObjAssessmentFolder.php');
 
         if ($entered_values) {
             if (ilObjAssessmentFolder::_enabledAssessmentLogging()) {
@@ -374,7 +381,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             if (ilObjAssessmentFolder::_enabledAssessmentLogging()) {
                 assQuestion::logAction($this->lng->txtlng('assessment', 'log_user_not_entered_values', ilObjAssessmentFolder::_getLogLanguage()), $active_id, $this->getId());
             }
-        }
+        }*/
 
         return true;
     }
@@ -813,7 +820,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             //And save it into the DB.
             foreach ($new_inputs as $input_name => $i_value) {
                 $this->loadStandardInput($input_name);
-                assStackQuestionDB::_saveInput($this->getId(), $this->inputs[$input_name]);
+                assStackQuestionDB::_saveInput((string)$this->getId(), $this->inputs[$input_name]);
             }
 
             //get PRT and PRT Nodes from DB
@@ -869,11 +876,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             if (is_array($extra_info)) {
                 $this->general_feedback = $extra_info['general_feedback'];
                 $this->penalty = (float)$extra_info['penalty'];
-                $this->hidden = (bool)$extra_info['hidden'];
+                $this->hidden = $extra_info['hidden'];
             } else {
                 $this->general_feedback = '';
                 $this->penalty = 0.0;
-                $this->hidden = false;
+                $this->hidden = 0;
             }
 
             //load unit tests
@@ -919,7 +926,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     {
         $solution = parent::getTestOutputSolutions($activeId, $pass);
 
-        $parsed_user_response_from_db = assStackQuestionUtils::_fromTSTSolutionsToSTACK($solution, $this->getId(), $this->inputs, $this->prts);
+        $parsed_user_response_from_db = assStackQuestionUtils::_fromTSTSolutionsToSTACK($solution, (string)$this->getId(), $this->inputs, $this->prts);
 
         $this->setUserResponse($parsed_user_response_from_db);
 
@@ -1361,7 +1368,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         //load extra info
         $this->general_feedback = '';
         $this->penalty = 0.0;
-        $this->hidden = false;
+        $this->hidden = 0;
     }
 
     /**
@@ -1619,14 +1626,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             }
 
             if ($this->getCached('preamble-qv') !== null) {
-                $session->add_statement(new stack_secure_loader($this->getCached('preamble-qv'), 'preamble'));
+                $session->add_statement(new stack_secure_loader((string)$this->getCached('preamble-qv'), 'preamble'));
             }
             // Context variables should be first.
             if ($this->getCached('contextvariables-qv') !== null) {
-                $session->add_statement(new stack_secure_loader($this->getCached('contextvariables-qv'), '/qv'));
+                $session->add_statement(new stack_secure_loader((string)$this->getCached('contextvariables-qv'), '/qv'));
             }
             if ($this->getCached('statement-qv') !== null) {
-                $session->add_statement(new stack_secure_loader($this->getCached('statement-qv'), '/qv'));
+                $session->add_statement(new stack_secure_loader((string)$this->getCached('statement-qv'), '/qv'));
             }
 
             // Note that at this phase the security object has no "words".
@@ -1663,13 +1670,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $static = new castext2_static_replacer($this->getCached('static-castext-strings'));
 
             // 3. CAS bits inside the question text.
-            $questiontext = castext2_evaluatable::make_from_compiled($this->getCached('castext-qt'), '/qt', $static);
+            $questiontext = castext2_evaluatable::make_from_compiled((string)$this->getCached('castext-qt'), '/qt', $static);
             if ($questiontext->requires_evaluation()) {
                 $session->add_statement($questiontext);
             }
 
             // 4. CAS bits inside the specific feedback.
-            $feedbacktext = castext2_evaluatable::make_from_compiled($this->getCached('castext-sf'), '/sf', $static);
+            $feedbacktext = castext2_evaluatable::make_from_compiled((string)$this->getCached('castext-sf'), '/sf', $static);
             if ($feedbacktext->requires_evaluation()) {
                 $session->add_statement($feedbacktext);
             }
@@ -1685,17 +1692,17 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $sessiontokeep = new stack_cas_session2($session->get_session(), $this->options, $this->seed);
 
             // 5. CAS bits inside the question note.
-            $notetext = castext2_evaluatable::make_from_compiled($this->getCached('castext-qn'), '/qn', $static);
+            $notetext = castext2_evaluatable::make_from_compiled((string)$this->getCached('castext-qn'), '/qn', $static);
             if ($notetext->requires_evaluation()) {
                 $session->add_statement($notetext);
             }
 
             // 6. The standard PRT feedback.
-            $prtcorrect          = castext2_evaluatable::make_from_compiled($this->getCached('castext-prt-c'),
+            $prtcorrect          = castext2_evaluatable::make_from_compiled((string)$this->getCached('castext-prt-c'),
                 '/pc', $static);
-            $prtpartiallycorrect = castext2_evaluatable::make_from_compiled($this->getCached('castext-prt-pc'),
+            $prtpartiallycorrect = castext2_evaluatable::make_from_compiled((string)$this->getCached('castext-prt-pc'),
                 '/pp', $static);
-            $prtincorrect        = castext2_evaluatable::make_from_compiled($this->getCached('castext-prt-ic'),
+            $prtincorrect        = castext2_evaluatable::make_from_compiled((string)$this->getCached('castext-prt-ic'),
                 '/pi', $static);
             if ($prtcorrect->requires_evaluation()) {
                 $session->add_statement($prtcorrect);
@@ -1708,13 +1715,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             }
 
             // 7. The general feedback.
-            $generalfeedback = castext2_evaluatable::make_from_compiled($this->getCached('castext-gf'), '/gf', $static);
+            $generalfeedback = castext2_evaluatable::make_from_compiled((string)$this->getCached('castext-gf'), '/gf', $static);
             if ($generalfeedback->requires_evaluation()) {
                 $session->add_statement($generalfeedback);
             }
 
             // 8. The question description.
-            $questiondescription = castext2_evaluatable::make_from_compiled($this->getCached('castext-qd'), '/qd', $static);
+            $questiondescription = castext2_evaluatable::make_from_compiled((string)$this->getCached('castext-qd'), '/qd', $static);
             if ($questiondescription->requires_evaluation()) {
                 $session->add_statement($questiondescription);
             }
@@ -1806,7 +1813,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             }
             $input->adapt_to_model_answer($teacheranswer);
             if ($this->getCached('contextvariables-qv') !== null) {
-                $input->add_contextsession(new stack_secure_loader($this->getCached('contextvariables-qv'), '/qv'));
+                $input->add_contextsession(new stack_secure_loader((string)$this->getCached('contextvariables-qv'), '/qv'));
             }
         }
     }
@@ -1866,7 +1873,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             return $ct;
         }
 
-        $this->general_feedback_instantiated = castext2_evaluatable::make_from_compiled($this->getCached('castext-gf'),
+        $this->general_feedback_instantiated = castext2_evaluatable::make_from_compiled((string)$this->getCached('castext-gf'),
             '/gf', new castext2_static_replacer($this->getCached('static-castext-strings')));
         // Might not require any evaluation anyway.
         if (!$this->general_feedback_instantiated->requires_evaluation()) {
@@ -1876,13 +1883,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         // Init a session with question-variables and the related details.
         $session = new stack_cas_session2([], $this->options, $this->seed);
         if ($this->getCached('preamble-qv') !== null) {
-            $session->add_statement(new stack_secure_loader($this->getCached('preamble-qv'), 'preamble'));
+            $session->add_statement(new stack_secure_loader((string)$this->getCached('preamble-qv'), 'preamble'));
         }
         if ($this->getCached('contextvariables-qv') !== null) {
-            $session->add_statement(new stack_secure_loader($this->getCached('contextvariables-qv'), '/qv'));
+            $session->add_statement(new stack_secure_loader((string)$this->getCached('contextvariables-qv'), '/qv'));
         }
         if ($this->getCached('statement-qv') !== null) {
-            $session->add_statement(new stack_secure_loader($this->getCached('statement-qv'), '/qv'));
+            $session->add_statement(new stack_secure_loader((string)$this->getCached('statement-qv'), '/qv'));
         }
 
         // Then add the general-feedback code.
@@ -1914,7 +1921,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             return $ct;
         }
 
-        $this->question_description_instantiated = castext2_evaluatable::make_from_compiled($this->getCached('castext-qd'),
+        $this->question_description_instantiated = castext2_evaluatable::make_from_compiled((string)$this->getCached('castext-qd'),
             '/gf', new castext2_static_replacer($this->getCached('static-castext-strings')));
         // Might not require any evaluation anyway.
         if (!$this->question_description_instantiated->requires_evaluation()) {
@@ -1924,13 +1931,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         // Init a session with question-variables and the related details.
         $session = new stack_cas_session2([], $this->options, $this->seed);
         if ($this->getCached('preamble-qv') !== null) {
-            $session->add_statement(new stack_secure_loader($this->getCached('preamble-qv'), 'preamble'));
+            $session->add_statement(new stack_secure_loader((string)$this->getCached('preamble-qv'), 'preamble'));
         }
         if ($this->getCached('contextvariables-qv') !== null) {
-            $session->add_statement(new stack_secure_loader($this->getCached('contextvariables-qv'), '/qv'));
+            $session->add_statement(new stack_secure_loader((string)$this->getCached('contextvariables-qv'), '/qv'));
         }
         if ($this->getCached('statement-qv') !== null) {
-            $session->add_statement(new stack_secure_loader($this->getCached('statement-qv'), '/qv'));
+            $session->add_statement(new stack_secure_loader((string)$this->getCached('statement-qv'), '/qv'));
         }
 
         // Then add the description code.
@@ -2544,7 +2551,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
 
         if ($this->getCached('preamble-qv') !== null) {
-            $session->add_statement(new stack_secure_loader($this->getCached('preamble-qv'), 'preamble'));
+            $session->add_statement(new stack_secure_loader((string)$this->getCached('preamble-qv'), 'preamble'));
         }
         // Add preamble from PRTs as well.
         foreach ($this->getCached('prt-preamble') as $name => $stmt) {
@@ -2555,7 +2562,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         // Context variables should be first.
         if ($this->getCached('contextvariables-qv') !== null) {
-            $session->add_statement(new stack_secure_loader($this->getCached('contextvariables-qv'), '/qv'));
+            $session->add_statement(new stack_secure_loader((string)$this->getCached('contextvariables-qv'), '/qv'));
         }
         // Add contextvars from PRTs as well.
         foreach ($this->getCached('prt-contextvariables') as $name => $stmt) {
@@ -2565,7 +2572,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
 
         if ($this->getCached('statement-qv') !== null) {
-            $session->add_statement(new stack_secure_loader($this->getCached('statement-qv'), '/qv'));
+            $session->add_statement(new stack_secure_loader((string)$this->getCached('statement-qv'), '/qv'));
         }
 
         // Then the definitions of the PRT-functions. Note not just statements for a reason.
@@ -3107,23 +3114,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     /* STACK CORE METHODS END */
 
     /* GETTERS AND SETTERS BEGIN */
-
-    /**
-     * @return ilPlugin
-     */
-    public function getPlugin(): ilPlugin
-    {
-        return $this->plugin;
-    }
-
-    /**
-     * @param ilPlugin $plugin
-     */
-    public function setPlugin(ilPlugin $plugin): void
-    {
-        $this->plugin = $plugin;
-    }
-
 
     /**
      * @return int|null
