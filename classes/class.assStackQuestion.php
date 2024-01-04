@@ -880,7 +880,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             if (is_array($extra_info)) {
                 $this->general_feedback = $extra_info['general_feedback'];
                 $this->penalty = (float)$extra_info['penalty'];
-                $this->hidden = $extra_info['hidden'];
+                $this->hidden = (int)$extra_info['hidden'];
             } else {
                 $this->general_feedback = '';
                 $this->penalty = 0.0;

@@ -318,7 +318,7 @@ class assStackQuestionDB
 	 * @param bool $just_id
 	 * @return array
 	 */
-	public static function _readUnitTests(int $question_id, bool $just_id = false): array
+	public static function _readUnitTests($question_id, bool $just_id = false): array
 	{
 		global $DIC;
 		$db = $DIC->database();
