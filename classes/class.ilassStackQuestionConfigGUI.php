@@ -253,7 +253,6 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
     private function quality(array $data): void
     {
         $this->tabs->activateTab("quality");
-        //TODO Change to use renderPanel
         $this->tpl->setContent(PluginConfigurationQualityUI::show($data, $this->getPluginObject()));
     }
 

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 use ILIAS\UI\Factory;
-use ILIAS\UI\Implementation\Component\Button\Bulky;
+use ILIAS\UI\Implementation\Component\Button\Standard;
 use ILIAS\UI\Renderer;
 use classes\core\security\StackException;
 
@@ -43,10 +43,15 @@ class PluginConfigurationQualityUI
         self::$control = $DIC->ctrl();
 
         try {
+            
+            $panel = self::$factory->panel()->standard(
+                $plugin_object->txt('ui_admin_configuration_quality_title'),
+                [self::getHealthcheckButton($plugin_object),
+                    self::getBulktestingButton($plugin_object),
+                    self::getClearCacheButton($plugin_object)]
+            );
 
-            $rendered_content =
-                self::$renderer->render(self::getHealthcheckButton($plugin_object)) .
-                self::$renderer->render(self::getBulktestingButton($plugin_object));
+            $rendered_content = self::$renderer->render($panel);
 
         } catch (Exception $e) {
             $rendered_content =
@@ -60,14 +65,9 @@ class PluginConfigurationQualityUI
      * Gets the healthcheck button for the plugin configuration
      * @throws ilCtrlException
      */
-    private static function getHealthcheckButton(ilPlugin $plugin_object): Bulky
+    private static function getHealthcheckButton(ilPlugin $plugin_object): Standard
     {
-        return self::$factory->button()->bulky(
-            self::$factory->symbol()->icon()->standard(
-                'nota',
-                $plugin_object->txt('ui_admin_configuration_security_button_label'),
-                'medium'
-            ),
+        return self::$factory->button()->standard(
             $plugin_object->txt('ui_admin_configuration_security_button_label'),
             self::$control->getLinkTargetByClass("ilassStackQuestionConfigGUI", "healthcheck")
         );
@@ -77,16 +77,23 @@ class PluginConfigurationQualityUI
      * Gets the Bulktesting button for the plugin configuration
      * @throws ilCtrlException
      */
-    private static function getBulktestingButton(ilPlugin $plugin_object): Bulky
+    private static function getBulktestingButton(ilPlugin $plugin_object): Standard
     {
-        return self::$factory->button()->bulky(
-            self::$factory->symbol()->icon()->standard(
-                'nota',
-                $plugin_object->txt('ui_admin_configuration_bulktesting_button_label'),
-                'medium'
-            ),
+        return self::$factory->button()->standard(
             $plugin_object->txt('ui_admin_configuration_bulktesting_button_label'),
             self::$control->getLinkTargetByClass("ilassStackQuestionConfigGUI", "bulktesting")
+        );
+    }
+
+    /**
+     * Gets the Clear Cache button for the plugin configuration
+     * @throws ilCtrlException
+     */
+    private static function getClearCacheButton(ilPlugin $plugin_object): Standard
+    {
+        return self::$factory->button()->standard(
+            $plugin_object->txt('clear_cache'),
+            "#"
         );
     }
 }
