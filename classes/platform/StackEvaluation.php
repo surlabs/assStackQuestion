@@ -4,8 +4,6 @@ declare(strict_types=1);
 namespace classes\platform;
 
 
-use cas_evaluatable;
-
 /**
  * This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
  * This plugin is developed and maintained by SURLABS and is a port of STACK Question for Moodle,
@@ -25,16 +23,27 @@ use cas_evaluatable;
  *
  *********************************************************************/
 
-abstract class StackRender {
+class StackEvaluation {
+
+    const EVALUATION_CORRECT = 1;
+    const EVALUATION_PARTIALLY_CORRECT = -1;
+    const EVALUATION_INCORRECT = 0;
 
     /**
-     * Generates the HTML for the question.
-     * @param array $attempt_data
-     * @param array $display_options
-     * @return string
+     * Return the appropriate graded state based on a fraction. That is 0 or less
+     * is $graded_incorrect, 1 is $graded_correct, otherwise it is $graded_partcorrect.
+     * Appropriate allowance is made for rounding float values.
+     *
+     * @param number $fraction the grade, on the fraction scale.
      */
-    abstract public function renderQuestion(array $attempt_data, array $display_options): string;
-
-    abstract protected function renderPRTFeedback(array $attempt_data, array $display_options): string;
-
+    public static function stateForFraction($fraction): int
+    {
+        if ($fraction < 0.000001) {
+            return self::EVALUATION_INCORRECT;
+        } else if ($fraction > 0.999999) {
+            return self::EVALUATION_CORRECT;
+        } else {
+            return self::EVALUATION_PARTIALLY_CORRECT;
+        }
+    }
 }

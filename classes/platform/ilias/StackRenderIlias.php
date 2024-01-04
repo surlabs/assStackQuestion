@@ -3,13 +3,15 @@ declare(strict_types=1);
 
 namespace classes\platform\ilias;
 
-use castext2_default_processor;
+use assStackQuestion;
+use classes\platform\StackEvaluation;
 use classes\platform\StackException;
 use classes\platform\StackRender;
 use classes\platform\StackUserResponse;
+use stack_exception;
 use stack_maths;
 use stack_utils;
-
+use castext2_default_processor;
 
 /**
  * This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
@@ -40,16 +42,27 @@ class StackRenderIlias extends StackRender
     }
 
     /**
-     *
-     * @throws StackException
+     * Generates the HTML for the question.
+     * @param array $attempt_data
+     * @param array $display_options
+     * @return string
+     * @throws StackException|stack_exception
      */
-    public function render($question): string
+    public function renderQuestion(array $attempt_data, array $display_options): string
     {
 
-        $response = [];
+        $response = $attempt_data['response'];
+        if (!($response instanceof StackUserResponse)) {
+            throw new StackException('Invalid response type.');
+        }
+
+        $question = $attempt_data['question'];
+        if (!($question instanceof assStackQuestion)) {
+            throw new StackException('Invalid question type.');
+        }
 
         // We need to provide a processor for the CASText2 post-processing,
-        // basically for targetting pluginfiles
+        // basically for targeting plugin files
         $question->setCasTextProcessor(new castext2_default_processor());
 
         if (is_string($question->question_text_instantiated)) {
@@ -58,7 +71,7 @@ class StackRenderIlias extends StackRender
             return $question->question_text_instantiated;
         }
 
-        $question_text = $question->question_text_instantiated->get_rendered($question->castextprocessor);
+        $question_text = $question->question_text_instantiated->get_rendered($question->getCasTextProcessor());
 
         // Replace inputs.
         $inputs_to_validate = array();
@@ -70,104 +83,157 @@ class StackRenderIlias extends StackRender
         sort($original_feedback_placeholders);
 
         // Now format the question_text.
-        $question_text = $question->format_text(
-            stack_maths::process_display_castext($question_text, $this),
-            FORMAT_HTML, // All CASText2 processed content has already been formatted to HTML.
-            $qa, 'question', 'question_text', $question->id);
+        $question_text = stack_maths::process_display_castext($question_text);
 
         // Get the list of placeholders after format_text.
-        $formatedinputplaceholders = stack_utils::extract_placeholders($question_text, 'input');
-        sort($formatedinputplaceholders);
-        $formatedfeedbackplaceholders = stack_utils::extract_placeholders($question_text, 'feedback');
-        sort($formatedfeedbackplaceholders);
+        $formatted_input_placeholders = stack_utils::extract_placeholders($question_text, 'input');
+        sort($formatted_input_placeholders);
+        $formatted_feedback_placeholders = stack_utils::extract_placeholders($question_text, 'feedback');
+        sort($formatted_feedback_placeholders);
 
         // We need to check that if the list has changed.
         // Have we lost some of the placeholders entirely?
         // Duplicates may have been removed by multi-lang,
         // No duplicates should remain.
-        if ($formatedinputplaceholders !== $original_input_placeholders ||
-            $formatedfeedbackplaceholders !== $originalfeedbackplaceholders) {
-            throw new coding_exception('Inconsistent placeholders. Possibly due to multi-lang filtter not being active.');
+        if ($formatted_input_placeholders !== $original_input_placeholders ||
+            $formatted_feedback_placeholders !== $original_feedback_placeholders) {
+            throw new StackException('Inconsistent placeholders. Possibly due to multi-lang filtter not being active.');
         }
 
-        foreach ($question->inputs as $name => $input) {
+        foreach ($question->inputs as $input_name => $input) {
             // Get the actual value of the teacher's answer at this point.
-            $tavalue = $question->get_ta_for_input($name);
+            $teacher_answer_value = $question->getTeacherAnswerForInput($input_name);
 
-            $fieldname = $qa->get_qt_field_name($name);
-            $state = $question->get_input_state($name, $response);
+            $field_name = 'xqcas_' . $question->getId() . '_' . $input_name;
+            $state = $question->getInputState($input_name, $response->getStackUserResponse());
 
-            $question_text = str_replace("[[input:{$name}]]",
-                $input->render($state, $fieldname, $options->readonly, $tavalue),
+            $question_text = str_replace("[[input:{$input_name}]]",
+                $input->render($state, $field_name, $display_options['readonly'], $teacher_answer_value),
                 $question_text);
 
-            $question_text = $input->replace_validation_tags($state, $fieldname, $question_text);
+            $question_text = $input->replace_validation_tags($state, $field_name, $question_text);
 
             if ($input->requires_validation()) {
-                $inputs_to_validate[] = $name;
+                $inputs_to_validate[] = $input_name;
             }
         }
 
         // Replace PRTs.
         foreach ($question->prts as $index => $prt) {
             $feedback = '';
-            if ($options->feedback) {
-                $feedback = $this->prt_feedback($index, $response, $qa, $options, $prt->get_feedbackstyle());
-
-            } else if (in_array($qa->get_behaviour_name(), array('interactivecountback', 'adaptivemulipart'))) {
-                // The behaviour name test here is a hack. The trouble is that interactive
-                // behaviour or adaptivemulipart does not show feedback if the input
-                // is invalid, but we want to show the CAS errors from the PRT.
-                $result = $question->get_prt_result($index, $response, $qa->get_state()->is_finished());
-                $errors = implode(' ', $result->get_errors());
-                $feedback = html_writer::nonempty_tag('span', $errors,
-                    array('class' => 'stackprtfeedback stackprtfeedback-' . $name));
+            if ($display_options['feedback']) {
+                $attempt_data['prt_name'] = $prt->get_name();
+                $feedback = $this->renderPRTFeedback($attempt_data, $display_options);
             }
             $question_text = str_replace("[[feedback:{$index}]]", $feedback, $question_text);
         }
 
-        // Initialise automatic validation, if enabled.
-        if (stack_utils::get_config()->ajaxvalidation) {
-            // Once we cen rely on everyone being on a Moodle version that includes the fix for
-            // MDL-65029 (3.5.6+, 3.6.4+, 3.7+) we can remove this if and just call the method.
-            if (method_exists($qa, 'get_outer_question_div_unique_id')) {
-                $questiondivid = $qa->get_outer_question_div_unique_id();
-            } else {
-                $questiondivid = 'q' . $qa->get_slot();
-            }
-            $this->page->requires->js_call_amd('qtype_stack/input', 'initInputs',
-                [$questiondivid, $qa->get_field_prefix(),
-                    $qa->get_database_id(), $inputs_to_validate]);
+        //TODO VALIDATION STUFF
+        // Se usa $inputs_to_validate
+
+        return $question_text;
+    }
+
+    /**
+     * Slightly complex rules for what feedback to display.
+     * @param array $attempt_data
+     * @param array $display_options
+     * @return string nicely formatted feedback, for display.
+     * @throws StackException|stack_exception
+     */
+    protected function renderPRTFeedback(array $attempt_data, array $display_options): string
+    {
+        $prt_name = $attempt_data['prt_name'];
+
+        $response_object = $attempt_data['response'];
+        if (!($response_object instanceof StackUserResponse)) {
+            throw new StackException('Invalid response type.');
+        }
+        $response = $response_object->getStackUserResponse();
+
+        $question = $attempt_data['question'];
+        if (!($question instanceof assStackQuestion)) {
+            throw new StackException('Invalid question type.');
         }
 
-        $result = '';
-        $result .= $this->question_tests_link($question, $options) . $question_text;
+        $result = $question->getPrtResult($prt_name, $response, $display_options['readonly']);
 
-        if ($qa->get_state() == question_state::$invalid) {
-            $result .= html_writer::nonempty_tag('span',
-                $question->get_validation_error($response),
-                array('class' => 'validationerror'));
+        $error_message = '';
+        if ($result->get_errors()) {
+            $error_message = stack_string('prtruntimeerror',
+                array('prt' => $prt_name, 'error' => implode(' ', $result->get_errors())));
         }
 
-        return $result;
-        switch ($this->getPurpose()) {
-            case 'ilias_question_text':
-                return $this->composeIliasQuestionText();
-            case 'ilias_specific_feedback':
-                return $this->composeIliasSpecificFeedback();
+        $feedback = $result->get_feedback($question->getCasTextProcessor());
+        // The feedback does not come as bits anymore the whole thing is concatenated in CAS
+        // and CASText converts any formats to HTML already, plugin files as well.
+        $feedback = stack_maths::process_display_castext($feedback);
+
+        //ILIAS: NO GRADING DETAILS
+
+        if (!$result->is_evaluated()) {
+            return '';
+        }
+        // Don't give standard feedback when we have errors.
+        if (count($result->get_errors()) != 0) {
+            return '';
+        }
+
+        $standard_prt_feedback = '';
+        $state = StackEvaluation::stateForFraction($result->get_fraction());
+
+        // TODO: Compact and symbolic only.
+        //if ($display_options['feedback_style'] === 2 || $display_options['feedback_style'] === 3) {
+            //$s = get_string('symbolicprt' . $class . 'feedback', 'qtype_stack');
+            //return html_writer::tag('span', $s, array('class' => $class));
+        //}
+
+        switch ($state) {
+            case -1:
+                // Incorrect.
+                $prt_feedback_instantiated = $question->prt_incorrect_instantiated;
+                break;
+            case 0:
+                // Partially correct.
+                $prt_feedback_instantiated = $question->prt_partially_correct_instantiated;
+                break;
+            case 1:
+                // Correct.
+                $prt_feedback_instantiated = $question->prt_correct_instantiated;
+                break;
             default:
-                throw new StackException('Invalid purpose selected: ' . $this->getPurpose() . '.');
+                throw new StackException('Invalid state.');
         }
-    }
 
-    private function composeIliasQuestionText(): string
-    {
-        return 'composeIliasQuestionText';
-    }
+        $standard_prt_feedback = stack_maths::process_display_castext(
+            $prt_feedback_instantiated->get_rendered($question->getCasTextProcessor())
+        );
 
-    private function composeIliasSpecificFeedback(): string
-    {
-        return 'composeIliasSpecificFeedback';
+        //$tag = 'div';
+        $feedback_html = '';
+        switch ($display_options['feedback_style']) {
+            case 0:
+                // Formative PRT.
+                $feedback_html = $error_message . $feedback;
+                break;
+            case 1:
+                $feedback_html = $standard_prt_feedback . $error_message . $feedback;
+                break;
+            case 2:
+                // Compact.
+                $feedback_html = $standard_prt_feedback . $error_message . $feedback;
+                //$tag = 'span';
+                break;
+            case 3:
+                // Symbolic.
+                $feedback_html = $standard_prt_feedback . $error_message;
+                //$tag = 'span';
+                break;
+            default:
+                echo "i is not equal to 0, 1 or 2";
+        }
+
+        return $feedback_html;
     }
 
 
