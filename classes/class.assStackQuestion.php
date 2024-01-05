@@ -372,7 +372,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             //Remove previous solution
             $this->removeCurrentSolution($active_id, $pass, $authorized);
             //Add current solution
-            $entered_values = assStackQuestionDB::_saveUserTestSolution($this, $active_id, $pass, $authorized);
+            $entered_values = assStackQuestionDB::_saveUserTestSolution($this, (int) $active_id, (int) $pass, $authorized);
         });
 
 

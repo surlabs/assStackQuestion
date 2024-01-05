@@ -21,6 +21,7 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 //require_once(__DIR__ . '/../stack/mathsoutput/mathsoutput.class.php');
+include_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
 include_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/exceptions/class.assStackQuestionException.php');
 
 /**
