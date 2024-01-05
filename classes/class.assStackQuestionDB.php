@@ -1444,6 +1444,11 @@ class assStackQuestionDB
 	 */
 	public static function _saveUserTestSolution(assStackQuestion $question, int $active_id, int $pass, bool $authorized): int
 	{
+        $raw_solution = array();
+
+        dump($raw_solution); exit();
+
+
 
 		//Save question text instantiated
 		$question->saveCurrentSolution($active_id, $pass, 'xqcas_text_' . $question->getId(), $question->question_text_instantiated, $authorized);
