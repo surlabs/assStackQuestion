@@ -301,124 +301,66 @@ class assStackQuestionMoodleImport
 		}
 
 		//STEP 4:load PRTs and PRT nodes
+        $totalvalue = 0;
+        $allformative = true;
 
-		//Values
-		$total_value = 0;
+        foreach ($question->prt as $prt_data) {
+            if ($prt_data->feedbackstyle > 0) {
+                $totalvalue += $prt_data->value;
+                $allformative = false;
+            }
+        }
 
-		foreach ($question->prt as $prt_data) {
-			$total_value += (float)ilUtil::secureString((string)$prt_data->value);
-		}
+        if ($question->prt && !$allformative && $totalvalue < 0.0000001) {
+            throw new stack_exception('There is an error on import your question. ' .
+                'The $totalvalue, the marks available for the question, must be positive in question ' .
+                $question->name->text);
+        }
 
-		if ($total_value < 0.0000001) {
-			$total_value = 1.0;
-		}
+        foreach ($question->prt as $prt_data) {
+            $temp_prt_data = new stdClass();
 
-		foreach ($question->prt as $prt) {
-			$first_node = 1;
+            $temp_prt_data->name = ilUtil::secureString((string) $prt_data->name);
+            $temp_prt_data->value = (float) $prt_data->value;
+            $temp_prt_data->autosimplify = (int) $prt_data->autosimplify;
+            $temp_prt_data->feedbackvariables = ilUtil::secureString((string) $prt_data->feedbackvariables);
+            $temp_prt_data->nodes = array();
 
-			$prt_name = ilUtil::secureString((string)$prt->name);
-			$nodes = array();
-			$is_first_node = true;
-			$invalid_node = false;
+            foreach ($prt_data->node as $node_data) {
+                $node = new stdClass();
 
-			//Check for non "0" nodes
-			/*
-			foreach ($prt->node as $xml_node) {
-				if ($xml_node->name == '0') {
-					$invalid_node = true;
-				}
-			}*/
+                $node->nodename = ilUtil::secureString((string) $node_data->name);
+                $node->answertest = ilUtil::secureString((string) $node_data->answertest);
+                $node->sans = ilUtil::secureString((string) $node_data->sans);
+                $node->tans = ilUtil::secureString((string) $node_data->tans);
+                $node->testoptions = ilUtil::secureString((string) $node_data->testoptions);
+                $node->quiet = ilUtil::secureString((int) $node_data->quiet);
+                $node->truescoremode = ilUtil::secureString((string) $node_data->truescoremode);
+                $node->truescore = ilUtil::secureString((string) $node_data->truescore);
+                $node->truepenalty = ilUtil::secureString((int) $node_data->truepenalty);
+                $node->truenextnode = ilUtil::secureString((string) $node_data->truenextnode);
+                $node->trueanswernote = ilUtil::secureString((string) $node_data->trueanswernote);
+                $node->truefeedback = ilUtil::secureString((string) $node_data->truefeedback->text);
+                $node->falsescoremode = ilUtil::secureString((string) $node_data->falsescoremode);
+                $node->falsescore = ilUtil::secureString((string) $node_data->falsescore);
+                $node->falsepenalty = ilUtil::secureString((int) $node_data->falsepenalty);
+                $node->falsenextnode = ilUtil::secureString((string) $node_data->falsenextnode);
+                $node->falseanswernote = ilUtil::secureString((string) $node_data->falseanswernote);
+                $node->falsefeedback = ilUtil::secureString((string) $node_data->falsefeedback->text);
 
-			foreach ($prt->node as $xml_node) {
+                $temp_prt_data->nodes[$node->nodename] = $node;
+            }
 
-				$node_name = ilUtil::secureString((string)$xml_node->name);
+            $prt_data = $temp_prt_data;
 
-				$raw_sans = assStackQuestionUtils::_debugText((string)$xml_node->sans);
-				$raw_tans = assStackQuestionUtils::_debugText((string)$xml_node->tans);
-
-				$sans = stack_ast_container::make_from_teacher_source('PRSANS' . $node_name . ':' . $raw_sans, '', new stack_cas_security());
-				$tans = stack_ast_container::make_from_teacher_source('PRTANS' . $node_name . ':' . $raw_tans, '', new stack_cas_security());
-
-				//Penalties management, penalties are not an ILIAS Feature
-				$false_penalty = ilUtil::secureString((string)$xml_node->falsepenalty);
-				$true_penalty = ilUtil::secureString((string)$xml_node->truepenalty);
-
-				try {
-					//Create Node and add it to the
-					$node = new stack_potentialresponse_node($sans, $tans, ilUtil::secureString((string)$xml_node->answertest), ilUtil::secureString((string)$xml_node->testoptions), (bool)(string)$xml_node->quiet, '', (int)$node_name, $raw_sans, $raw_tans);
-
-					//manage images in true feedback
-					if (isset($xml_node->falsefeedback->text)) {
-						$false_feedback = (string)$xml_node->falsefeedback->text;
-
-						if (isset($xml_node->falsefeedback->file)) {
-							$mapping = $this->getMediaObjectsFromXML($xml_node->falsefeedback->file);
-							$false_feedback = $this->replaceMediaObjectReferences($false_feedback, $mapping);
-						}
-					} else {
-						$false_feedback = '';
-					}
-
-					//manage images in true feedback
-					if (isset($xml_node->truefeedback->text)) {
-						$true_feedback = (string)$xml_node->truefeedback->text;
-
-						if (isset($xml_node->truefeedback->file)) {
-							$mapping = $this->getMediaObjectsFromXML($xml_node->truefeedback->file);
-							$true_feedback = $this->replaceMediaObjectReferences($true_feedback, $mapping);
-						}
-					} else {
-						$true_feedback = '';
-					}
+            $prtvalue = 0;
+            if (!$allformative) {
+                $prtvalue = $prt_data->value / $totalvalue;
+            }
 
 
-                    //Check for non "0" next nodes
-                    $true_next_node = $xml_node->truenextnode;
-                    $false_next_node = $xml_node->falsenextnode;
-
-                    //Check for non "0" answer notes
-                    if ($invalid_node) {
-                        $true_answer_note = $prt_name . '-' . $node_name . '-T';
-                        $false_answer_note = $prt_name . '-' . $node_name . '-F';
-                    } else {
-                        $true_answer_note = $xml_node->trueanswernote;
-                        $false_answer_note = $xml_node->falseanswernote;
-                    }
-
-                    $node->add_branch(0, ilUtil::secureString((string)$xml_node->falsescoremode), ilUtil::secureString((string)$xml_node->falsescore), $false_penalty, ilUtil::secureString((string)$false_next_node), ilUtil::secureString($false_feedback), 1, ilUtil::secureString((string)$false_answer_note));
-					$node->add_branch(1, ilUtil::secureString((string)$xml_node->truescoremode), ilUtil::secureString((string)$xml_node->truescore), $true_penalty, ilUtil::secureString((string)$true_next_node), ilUtil::secureString($true_feedback), 1, ilUtil::secureString((string)$true_answer_note));
-
-					$nodes[$node_name] = $node;
-
-					//set first node
-					if ($is_first_node) {
-						$first_node = $node_name;
-						$is_first_node = false;
-					}
-
-				} catch (stack_exception $e) {
-					$this->error_log[] = $this->getQuestion()->getTitle() . ': ' . $e;
-				}
-			}
-
-			$feedback_variables = null;
-			if ((string)$prt->feedbackvariables->text) {
-				try {
-					$feedback_variables = new stack_cas_keyval(assStackQuestionUtils::_debugText((string)$prt->feedbackvariables->text));
-					$feedback_variables = $feedback_variables->get_session();
-				} catch (stack_exception $e) {
-					$this->error_log[] = $this->getQuestion()->getTitle() . ': ' . $e;
-				}
-			}
-
-			$prt_value = (float)$prt->value / $total_value;
-
-			try {
-				$this->getQuestion()->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt->autosimplify, $prt_value, $feedback_variables, $nodes, (string)$first_node, 1);
-			} catch (stack_exception $e) {
-				$this->error_log[] = $this->getQuestion()->getTitle() . ': ' . $e;
-			}
-		}
+            $this->getQuestion()->prts[(string) $prt_data->name] = new stack_potentialresponse_tree_lite($prt_data, $prtvalue);
+        }
 
 		//seeds
 		$seeds = array();
