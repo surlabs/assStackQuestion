@@ -4,6 +4,9 @@
  * GPLv3, see LICENSE
  */
 
+use classes\platform\ilias\StackRenderIlias;
+use classes\platform\StackException;
+
 
 /**
  * STACK Question GUI
@@ -239,63 +242,19 @@ class assStackQuestionGUI extends assQuestionGUI
         return "";
 	}
 
-	/**
-	 * Returns the HTML for the question Preview
-	 * @param bool $show_question_only
-	 * @param bool $showInlineFeedback
-	 * @return string HTML
-	 */
+    /**
+     * Returns the HTML for the question Preview
+     * @param bool $show_question_only
+     * @param bool $showInlineFeedback
+     * @return string HTML
+     * @throws StackException|stack_exception
+     */
 	public function getPreview($show_question_only = false, $showInlineFeedback = false): string
 	{
 		global $DIC;
 
-		//set preview mode
-		$this->setIsPreview(array(1));
-
-		//User response from session
-		$user_solution = array();
-		//Debug the PreviewSession Data
-		if (is_object($this->getPreviewSession())) {
-            $raw_participants_solution = (array) $this->getPreviewSession()->getParticipantsSolution();
-            foreach ($raw_participants_solution as $key => $value) {
-                if (version_compare(phpversion(), '8.0.0', '<')) {
-                    if (substr($key, 0, 13) !== 'xqcas_solution') {
-                        $user_solution[$key] = $value;
-                    }
-                } else {
-                    if (!str_starts_with($key, 'xqcas_solution')) {
-                        $user_solution[$key] = $value;
-                    }
-                }
-            }
-		}
-
         $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
         $this->object->questionInitialisation($seed, true);
-
-		$response = array();
-		foreach ($this->object->inputs as $input_name => $input) {
-            //Do not send matrix to maxima
-            if (is_a($input, 'stack_matrix_input')
-                or is_a($input, 'stack_textarea_input')
-                or is_a($input, 'stack_equiv_input')) {
-                //clean solution
-                foreach (array_keys($user_solution) as $array_key){
-                    if (strpos($array_key, '_solution_')) {
-                        unset($user_solution[$array_key]);
-                    }
-                }
-                $this->object->setUserResponse($user_solution);
-            } elseif (is_a($input, 'stack_dropdown_input')
-                or is_a($input, 'stack_radio_input')
-                or is_a($input, 'stack_checkbox_input')) {
-                $this->object->setUserResponse($user_solution);
-            } else {
-                $response[$input_name] = $input->contents_to_maxima($input->response_to_contents($user_solution));
-                $this->object->setUserResponse($response,$input_name);
-            }
-        }
-
 
 		//Ensure evaluation has been done
 		if (empty($this->object->getEvaluation())) {
@@ -303,16 +262,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 		//Render question Preview
-		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
-		$question_preview = assStackQuestionRenderer::_renderQuestionText($this->object);
-
-		//Tab management
-		$tabs = $DIC->tabs();
-		if ($_GET['cmd'] == 'edit') {
-			$tabs->activateTab('edit_page');
-		} elseif ($_GET['cmd'] == 'preview') {
-			$tabs->activateTab('preview');
-		}
+		$question_preview = StackRenderIlias::renderQuestion();
 
 		//Returns output (with page if needed)
 		if (!$show_question_only) {
