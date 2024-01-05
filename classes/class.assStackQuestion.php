@@ -3098,9 +3098,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                     $this->prt_partially_correct, $this->prt_partially_correct_format,
                     $this->prt_incorrect, $this->prt_incorrect_format, $this->penalty);
                 //TODO CREATE NEW QUESTION CACHE DB ENTRY
-            } catch (exception $e) {
-                // TODO: what exactly do we use here as the key
-                // and what sort of errors does the compilation generate.
+            } catch (stack_exception $e) {
                 $this->runtime_errors[$e->getMessage()] = true;
             }
         }
