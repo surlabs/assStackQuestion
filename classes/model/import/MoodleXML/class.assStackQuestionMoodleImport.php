@@ -351,6 +351,8 @@ class assStackQuestionMoodleImport
                 $temp_prt_data->nodes[$node->nodename] = $node;
             }
 
+            $temp_prt_data->firstnodename = ilUtil::secureString((string) array_keys($temp_prt_data->nodes)[0]);
+
             $prt_data = $temp_prt_data;
 
             $prtvalue = 0;
