@@ -323,7 +323,7 @@ class assStackQuestionMoodleImport
             $temp_prt_data->name = ilUtil::secureString((string) $prt_data->name);
             $temp_prt_data->value = (float) $prt_data->value;
             $temp_prt_data->autosimplify = (int) $prt_data->autosimplify;
-            $temp_prt_data->feedbackvariables = ilUtil::secureString((string) $prt_data->feedbackvariables);
+            $temp_prt_data->feedbackvariables = ilUtil::secureString((string) $prt_data->feedbackvariables->text);
             $temp_prt_data->nodes = array();
 
             foreach ($prt_data->node as $node_data) {
