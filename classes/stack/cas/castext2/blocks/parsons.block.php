@@ -99,10 +99,11 @@ class stack_cas_castext2_parsons extends stack_cas_castext2_block {
         $r->items[] = new MP_String(json_encode($xpars));
 
         // Plug in some style and scripts.
-        $mathjax = ($mathjaxversion === "2") ? stack_get_mathjax_url() : stack_get_mathjax3_url();
+        $mathjax = new ilSetting("MathJax");
+
         $r->items[] = new MP_List([
             new MP_String('script'),
-            new MP_String(json_encode(['type' => 'text/javascript', 'src' => $mathjax]))]);
+            new MP_String(json_encode(['type' => 'text/javascript', 'src' => $mathjax->get("path_to_mathjax")]))]);
         $r->items[] = new MP_List([
             new MP_String('style'),
             new MP_String(json_encode(['href' => $css]))
