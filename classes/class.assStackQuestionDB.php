@@ -1447,9 +1447,9 @@ class assStackQuestionDB
         $raw_solution = array();
 
         //Save question text
-        $raw_solution["text"] = $question->question_text_instantiated->get_rendered();
+        $raw_solution["question_text"] = $question->question_text_instantiated->get_rendered();
         //Save question note
-        $raw_solution["note"] = $question->getQuestionSummary();
+        $raw_solution["question_note"] = $question->getQuestionSummary();
         //Save general feedback
         $raw_solution["general_feedback"] = $question->general_feedback;
         //Save Seed
