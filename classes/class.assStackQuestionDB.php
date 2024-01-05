@@ -211,6 +211,7 @@ class assStackQuestionDB
 
             $potential_response_tree_nodes[$prt_node_name] = new stdClass();
 
+            $potential_response_tree_nodes[$prt_node_name]->nodename = $row['node_name'];
 			$potential_response_tree_nodes[$prt_node_name]->truenextnode = $row['true_next_node'];
 			$potential_response_tree_nodes[$prt_node_name]->falsenextnode = $row['false_next_node'];
 			$potential_response_tree_nodes[$prt_node_name]->answertest = $row['answer_test'];
