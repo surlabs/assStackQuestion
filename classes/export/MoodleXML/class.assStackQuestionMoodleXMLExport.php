@@ -199,43 +199,39 @@ class assStackQuestionMoodleXMLExport
 					//Nodes
 					if (sizeof($prt->get_nodes())) {
 						foreach ($prt->get_nodes() as $node) {
-
-							$branches_info = $node->summarise_branches();
-							$feedback_info = $node->getFeedbackFromNode();
-
 							$a_xml_writer->xmlStartTag("node");
 
-							$a_xml_writer->xmlElement("name", NULL, (string)$node->nodeid);
-							$a_xml_writer->xmlElement("answertest", NULL, $node->get_test());
-							$a_xml_writer->xmlElement("sans", NULL, $node->getRawSans());
-							$a_xml_writer->xmlElement("tans", NULL, $node->getRawTans());
-							$a_xml_writer->xmlElement("testoptions", NULL, assStackQuestionUtils::_serializeExtraOptions($node->getAtoptions()));
+							$a_xml_writer->xmlElement("name", NULL, (string)$node->nodename);
+							$a_xml_writer->xmlElement("answertest", NULL, $node->answertest);
+							$a_xml_writer->xmlElement("sans", NULL, $node->sans);
+							$a_xml_writer->xmlElement("tans", NULL, $node->tans);
+							$a_xml_writer->xmlElement("testoptions", NULL, assStackQuestionUtils::_serializeExtraOptions($node->testoptions));
 							$a_xml_writer->xmlElement("quiet", NULL, (int)$node->isQuiet());
 
-							$a_xml_writer->xmlElement("truescoremode", NULL, $branches_info->truescoremode);
-							$a_xml_writer->xmlElement("truescore", NULL, $branches_info->truescore);
-							$a_xml_writer->xmlElement("truepenalty", NULL, $feedback_info['true_penalty']);
-							$a_xml_writer->xmlElement("truenextnode", NULL, $branches_info->truenextnode);
-							$a_xml_writer->xmlElement("trueanswernote", NULL, $branches_info->truenote);
-							$a_xml_writer->xmlElement("truefeedbackformat", NULL, (int)$feedback_info['true_feedback_format']);
+							$a_xml_writer->xmlElement("truescoremode", NULL, $node->truescoremode);
+							$a_xml_writer->xmlElement("truescore", NULL, $node->truescore);
+							$a_xml_writer->xmlElement("truepenalty", NULL, $node->truepenalty);
+							$a_xml_writer->xmlElement("truenextnode", NULL, $node->truenextnode);
+							$a_xml_writer->xmlElement("trueanswernote", NULL, $node->trueanswernote);
+							$a_xml_writer->xmlElement("truefeedbackformat", NULL, (int)$node->truefeedbackformat);
 
 							$a_xml_writer->xmlStartTag("truefeedback", array("format" => "html"));
-							$media = $this->getRTEMedia($feedback_info['true_feedback']);
-							$this->addRTEText($a_xml_writer, $feedback_info['true_feedback']);
+							$media = $this->getRTEMedia($node->truefeedback);
+							$this->addRTEText($a_xml_writer, $node->truefeedback);
 							$this->addRTEMedia($a_xml_writer, $media);
 							$a_xml_writer->xmlEndTag("truefeedback");
 
-							$a_xml_writer->xmlElement("falsescoremode", NULL, $branches_info->falsescoremode);
-							$a_xml_writer->xmlElement("falsescore", NULL, $branches_info->falsescore);
-							$a_xml_writer->xmlElement("falsepenalty", NULL, $feedback_info['false_penalty']);
-							$a_xml_writer->xmlElement("falsenextnode", NULL, $branches_info->falsenextnode);
-							$a_xml_writer->xmlElement("falseanswernote", NULL, $branches_info->falsenote);
-							$a_xml_writer->xmlElement("falsefeedbackformat", NULL, (int)$feedback_info['false_feedback_format']);
+							$a_xml_writer->xmlElement("falsescoremode", NULL, $node->falsescoremode);
+							$a_xml_writer->xmlElement("falsescore", NULL, $node->falsescore);
+							$a_xml_writer->xmlElement("falsepenalty", NULL, $node->falsepenalty);
+							$a_xml_writer->xmlElement("falsenextnode", NULL, $node->falsenextnode);
+							$a_xml_writer->xmlElement("falseanswernote", NULL, $node->falseanswernote);
+							$a_xml_writer->xmlElement("falsefeedbackformat", NULL, (int)$node->falsefeedbackformat);
 
 
 							$a_xml_writer->xmlStartTag("falsefeedback", array("format" => "html"));
-							$media = $this->getRTEMedia($feedback_info['false_feedback']);
-							$this->addRTEText($a_xml_writer, $feedback_info['false_feedback']);
+							$media = $this->getRTEMedia($node->falsefeedback);
+							$this->addRTEText($a_xml_writer, $node->falsefeedback);
 							$this->addRTEMedia($a_xml_writer, $media);
 							$a_xml_writer->xmlEndTag("falsefeedback");
 

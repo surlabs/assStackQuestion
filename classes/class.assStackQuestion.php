@@ -3773,9 +3773,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         foreach ($this->prts as $prt) {
             foreach ($prt->get_nodes_summary() as $node) {
-                $node_feedback = $node->getFeedbackFromNode();
-                $collected .= $node_feedback['true_feedback'];
-                $collected .= $node_feedback['false_feedback'];
+                $collected .= $node->truefeedback;
+                $collected .= $node->falsefeedback;
             }
         }
 

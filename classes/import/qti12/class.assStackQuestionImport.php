@@ -360,9 +360,8 @@ class assStackQuestionImport extends assQuestionImport
 
                 foreach ($this->object->prts as $prt) {
                     foreach ($prt->get_nodes() as $node) {
-                        $feedback = $node->getFeedbackFromNode();
-                        $node->setBranchFeedback(0, str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $feedback['false_feedback']));
-                        $node->setBranchFeedback(1, str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $feedback['true_feedback']));
+                        $node->setBranchFeedback(0, str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $node->falsefeedback));
+                        $node->setBranchFeedback(1, str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $node->truefeedback));
                     }
                 }
             }
@@ -380,11 +379,8 @@ class assStackQuestionImport extends assQuestionImport
 
         foreach ($this->object->prts as $prt) {
             foreach ($prt->get_nodes() as $node) {
-
-                $feedback = $node->getFeedbackFromNode();
-
-                $node->setBranchFeedback(0, ilRTE::_replaceMediaObjectImageSrc($feedback['false_feedback'], 1));
-                $node->setBranchFeedback(1, ilRTE::_replaceMediaObjectImageSrc($feedback['true_feedback'], 1));
+                $node->setBranchFeedback(0, ilRTE::_replaceMediaObjectImageSrc($node->falsefeedback, 1));
+                $node->setBranchFeedback(1, ilRTE::_replaceMediaObjectImageSrc($node->truefeedback, 1));
             }
         }
 

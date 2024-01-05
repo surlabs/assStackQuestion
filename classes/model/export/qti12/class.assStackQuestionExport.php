@@ -103,10 +103,8 @@ class assStackQuestionExport extends assQuestionExport
 
 		foreach ($this->object->prts as $prt) {
 			foreach ($prt->get_nodes() as $node) {
-				$feedback = $node->getFeedbackFromNode();
-
-				$this->object->addQTIMaterial($a_xml_writer, $feedback['true_feedback']);
-				$this->object->addQTIMaterial($a_xml_writer, $feedback['false_feedback']);
+				$this->object->addQTIMaterial($a_xml_writer, $node->truefeedback);
+				$this->object->addQTIMaterial($a_xml_writer, $node->false_feedback);
 			}
 		}
 
