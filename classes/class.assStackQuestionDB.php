@@ -615,11 +615,11 @@ class assStackQuestionDB
 					"value" => array("text", $question->prts[$prt_name]->get_value() == null ? "1.0" : $question->prts[$prt_name]->get_value()),
 					"auto_simplify" => array("integer", $question->prts[$prt_name]->isSimplify() == null ? 0 : $question->prts[$prt_name]->isSimplify()),
 					"feedback_variables" => array("clob", $question->prts[$prt_name]->get_feedbackvariables_keyvals() == null ? "" : $question->prts[$prt_name]->get_feedbackvariables_keyvals()),
-					"first_node_name" => array("text", $question->prts[$prt_name]->getFirstNode() == null ? '-1' : $question->prts[$prt_name]->getFirstNode()),
+					"first_node_name" => array("text", $question->prts[$prt_name]->get_first_node() == null ? '-1' : $question->prts[$prt_name]->get_first_node()),
 				));
 
 				//Insert nodes
-				foreach ($prt->getNodes() as $node) {
+				foreach ($prt->get_nodes() as $node) {
 					self::_saveStackPRTNodes($node, $question_id, $prt_name, -1);
 				}
 
@@ -635,14 +635,14 @@ class assStackQuestionDB
 						"value" => array("text", $question->prts[$prt_name]->get_value() == null ? "1.0" : $question->prts[$prt_name]->get_value()),
 						"auto_simplify" => array("integer", $question->prts[$prt_name]->isSimplify() == null ? 0 : $question->prts[$prt_name]->isSimplify()),
 						"feedback_variables" => array("clob", $question->prts[$prt_name]->get_feedbackvariables_keyvals() == null ? "" : $question->prts[$prt_name]->get_feedbackvariables_keyvals()),
-						"first_node_name" => array("text", $question->prts[$prt_name]->getFirstNode() == null ? '-1' : $question->prts[$prt_name]->getFirstNode()),
+						"first_node_name" => array("text", $question->prts[$prt_name]->get_first_node() == null ? '-1' : $question->prts[$prt_name]->get_first_node()),
 					)
 				);
 
 				//Update/Insert Nodes
 				$prt_node_ids = self::_readPRTNodes($question_id, $prt_name, true);
 
-				foreach ($prt->getNodes() as $node_name => $node) {
+				foreach ($prt->get_nodes() as $node_name => $node) {
 					if (!array_key_exists($node_name, $prt_node_ids) or empty($prt_node_ids)) {
 						//CREATE
 						self::_saveStackPRTNodes($node, $question_id, $prt_name, -1);
@@ -667,7 +667,7 @@ class assStackQuestionDB
 	 * @param string $prt_name
 	 * @param int $id
 	 */
-	private static function _saveStackPRTNodes(stack_potentialresponse_node $node, int $question_id, string $prt_name, int $id = -1): void
+	private static function _saveStackPRTNodes(stdClass $node, int $question_id, string $prt_name, int $id = -1): void
 	{
 		global $DIC;
 		$db = $DIC->database();

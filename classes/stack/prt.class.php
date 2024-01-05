@@ -45,7 +45,7 @@ class stack_potentialresponse_tree_lite {
     /** @var string index of the first node. */
     private $firstnode;
 
-    /** @var object the nodes of the tree. Just raw DB-objects. */
+    /** @var object[] the nodes of the tree. Just raw DB-objects. */
     private $nodes;
 
     /** @var int The feedback style of this PRT.
@@ -899,4 +899,23 @@ class stack_potentialresponse_tree_lite {
         $this->simplify = $simplify;
     }
 
+    /**
+     * Get the name of the first node of prt.
+     *
+     * @return string
+     */
+    public function get_first_node(): string {
+        // TODO SUR: Check if this is correct
+        return $this->firstnode;
+    }
+
+    /**
+     * Get all the nodes of prt.
+     *
+     * @return array
+     */
+    public function get_nodes(): array
+    {
+        return $this->nodes;
+    }
 }

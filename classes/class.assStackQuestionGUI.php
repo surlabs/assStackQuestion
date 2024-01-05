@@ -694,7 +694,7 @@ class assStackQuestionGUI extends assQuestionGUI
 				}
 
 				//NODE OPERATIONS
-				foreach ($prt->getNodes() as $node_name => $node) {
+				foreach ($prt->get_nodes() as $node_name => $node) {
 
 					//Add Node
 					if (isset($_POST['cmd']['save']['add_node_to_' . $prt_name])) {
@@ -702,7 +702,7 @@ class assStackQuestionGUI extends assQuestionGUI
 						//Check the new node name,
 						//We set as id the following to the current bigger node id
 						$max = 0;
-						foreach ($prt->getNodes() as $temp_node_name => $temp_node) {
+						foreach ($prt->get_nodes() as $temp_node_name => $temp_node) {
 							(int)$temp_node_name > $max ? $max = (int)$temp_node_name : "";
 						}
 						$new_node_name = $max + 1;
@@ -717,12 +717,12 @@ class assStackQuestionGUI extends assQuestionGUI
 					//Delete node
 					if (isset($_POST['cmd']['save']['delete_prt_' . $prt_name . '_node_' . $node->nodeid])) {
 
-						if (sizeof($prt->getNodes()) < 2) {
+						if (sizeof($prt->get_nodes()) < 2) {
 							ilUtil::sendFailure($this->object->getPlugin()->txt('deletion_error_not_enought_prt_nodes'));
 							return false;
 						}
 
-						if ((int)$prt->getFirstNode() == (int)$node_name) {
+						if ((int)$prt->get_first_node() == (int)$node_name) {
 							ilUtil::sendFailure($this->object->getPlugin()->txt('deletion_error_first_node'));
 							return false;
 						}
@@ -730,7 +730,7 @@ class assStackQuestionGUI extends assQuestionGUI
 						assStackQuestionDB::_deleteStackPrtNodes($this->object->getId(), $prt_name, $node->nodeid);
 
 						//Actualize current question values
-						$new_nodes = $prt->getNodes();
+						$new_nodes = $prt->get_nodes();
 						unset($new_nodes[$node_name]);
 
 						$prt->setNodes($new_nodes);
@@ -761,7 +761,7 @@ class assStackQuestionGUI extends assQuestionGUI
 						//Check the new node name,
 						//We set as id the following to the current bigger node id
 						$max = 0;
-						foreach ($prt->getNodes() as $temp_node_name => $temp_node) {
+						foreach ($prt->get_nodes() as $temp_node_name => $temp_node) {
 							(int)$temp_node_name > $max ? $max = (int)$temp_node_name : "";
 						}
 						$new_node_name = $max + 1;

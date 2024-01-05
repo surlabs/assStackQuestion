@@ -579,6 +579,16 @@ abstract class stack_input {
     }
 
     /**
+     * Get the name of the input.
+     *
+     * @return string
+     */
+    public function get_name(): string {
+        // TODO SUR: Check if this is correct
+        return $this->name;
+    }
+
+    /**
      * @return string the teacher's answer, an example of what could be typed into
      * this input as part of a correct response to the question.
      */

@@ -359,7 +359,7 @@ class assStackQuestionImport extends assQuestionImport
                 $this->object->general_feedback = str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $this->object->general_feedback);
 
                 foreach ($this->object->prts as $prt) {
-                    foreach ($prt->getNodes() as $node) {
+                    foreach ($prt->get_nodes() as $node) {
                         $feedback = $node->getFeedbackFromNode();
                         $node->setBranchFeedback(0, str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $feedback['false_feedback']));
                         $node->setBranchFeedback(1, str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $feedback['true_feedback']));
@@ -379,7 +379,7 @@ class assStackQuestionImport extends assQuestionImport
         $this->object->general_feedback = ilRTE::_replaceMediaObjectImageSrc($this->object->general_feedback, 1);
 
         foreach ($this->object->prts as $prt) {
-            foreach ($prt->getNodes() as $node) {
+            foreach ($prt->get_nodes() as $node) {
 
                 $feedback = $node->getFeedbackFromNode();
 

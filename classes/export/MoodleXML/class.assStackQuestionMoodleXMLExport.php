@@ -197,8 +197,8 @@ class assStackQuestionMoodleXMLExport
 					$a_xml_writer->xmlEndTag("feedbackvariables");
 
 					//Nodes
-					if (sizeof($prt->getNodes())) {
-						foreach ($prt->getNodes() as $node) {
+					if (sizeof($prt->get_nodes())) {
+						foreach ($prt->get_nodes() as $node) {
 
 							$branches_info = $node->summarise_branches();
 							$feedback_info = $node->getFeedbackFromNode();
