@@ -1464,9 +1464,9 @@ class assStackQuestionDB
             //Ensure only input data is stored
             if (array_key_exists($input_name, $question->inputs)) {
                 if (isset($question->inputs[$input_name]) && is_a($question->inputs[$input_name], "stack_notes_input")) {
-                    $raw_input["state"] = $input_state->__get("contents")[0];
+                    $raw_input["value"] = $input_state->__get("contents")[0];
                 } else {
-                    $raw_input["state"] = $input_state->contentsmodified;
+                    $raw_input["value"] = $input_state->contentsmodified;
                 }
             }
 
@@ -1477,9 +1477,9 @@ class assStackQuestionDB
             }
 
             try {
-                $raw_input["model_answer"] = $question->getTas($input_name)->get_value();
+                $raw_input["correct_value"] = $question->getTas($input_name)->get_value();
 
-                $raw_input["model_answer_display"] = $question->getTas($input_name)->get_display();
+                $raw_input["correct_display"] = $question->getTas($input_name)->get_display();
             } catch (stack_exception $e) {
                 ilUtil::sendFailure($e, true);
             }
@@ -1515,7 +1515,7 @@ class assStackQuestionDB
                 }
                 $raw_prt["status"] = (string)$fraction;
 
-                $raw_prt["answernote"] = implode(';', $prt->_answernotes);
+                $raw_prt["answer_notes"] = implode(';', $prt->_answernotes);
 
                 $raw_solution["prts"][$prt_name] = $raw_prt;
             }

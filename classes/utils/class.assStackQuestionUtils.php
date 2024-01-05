@@ -1224,92 +1224,114 @@ class assStackQuestionUtils
 	 * @param array $prts
 	 * @return array
 	 */
-	public static function _fromTSTSolutionsToSTACK(array $tst_solutions,string $question_id, array $inputs, array $prts ): array
-	{
-		$parsed_user_response_from_db = array();
+	public static function _fromTSTSolutionsToSTACK(array $tst_solutions,string $question_id, array $inputs, array $prts ): array {
+        $parsed_user_response_from_db = array();
 
-		foreach ($tst_solutions as $solution_entry) {
+        if (count($tst_solutions) > 0 && $tst_solutions[0]['value1'] != "xqcas_raw_data") {
+            foreach ($tst_solutions as $solution_entry) {
 
-			//Question text
-			if ($solution_entry['value1'] == 'xqcas_text_' . $question_id) {
-				$parsed_user_response_from_db['question_text'] = $solution_entry['value2'];
-			}
+                //Question text
+                if ($solution_entry['value1'] == 'xqcas_text_' . $question_id) {
+                    $parsed_user_response_from_db['question_text'] = $solution_entry['value2'];
+                }
 
-			//question note
-			if ($solution_entry['value1'] == 'xqcas_solution_' . $question_id) {
-				$parsed_user_response_from_db['question_note'] = $solution_entry['value2'];
-			}
+                //question note
+                if ($solution_entry['value1'] == 'xqcas_solution_' . $question_id) {
+                    $parsed_user_response_from_db['question_note'] = $solution_entry['value2'];
+                }
 
-			//General feedback
-			if ($solution_entry['value1'] == 'xqcas_general_feedback_' . $question_id) {
-				$parsed_user_response_from_db['general_feedback'] = $solution_entry['value2'];
-			}
+                //General feedback
+                if ($solution_entry['value1'] == 'xqcas_general_feedback_' . $question_id) {
+                    $parsed_user_response_from_db['general_feedback'] = $solution_entry['value2'];
+                }
 
-			//Seed
-			if ($solution_entry['value1'] == 'xqcas_question_' . $question_id . '_seed') {
-				$parsed_user_response_from_db['seed'] = $solution_entry['value2'];
-			}
+                //Seed
+                if ($solution_entry['value1'] == 'xqcas_question_' . $question_id . '_seed') {
+                    $parsed_user_response_from_db['seed'] = $solution_entry['value2'];
+                }
 
-			foreach ($inputs as $input_name => $input) {
+                foreach ($inputs as $input_name => $input) {
 
-				//User response value
-				if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_value') {
-					$parsed_user_response_from_db['inputs'][$input_name]['value'] = $solution_entry['value2'];
-				}
+                    //User response value
+                    if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_value') {
+                        $parsed_user_response_from_db['inputs'][$input_name]['value'] = $solution_entry['value2'];
+                    }
 
-				//User response display
-				if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_display') {
-					$parsed_user_response_from_db['inputs'][$input_name]['display'] = $solution_entry['value2'];
-				}
+                    //User response display
+                    if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_display') {
+                        $parsed_user_response_from_db['inputs'][$input_name]['display'] = $solution_entry['value2'];
+                    }
 
-				//correct answer value
-				if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_model_answer') {
-					$parsed_user_response_from_db['inputs'][$input_name]['correct_value'] = $solution_entry['value2'];
-				}
+                    //correct answer value
+                    if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_model_answer') {
+                        $parsed_user_response_from_db['inputs'][$input_name]['correct_value'] = $solution_entry['value2'];
+                    }
 
-				//correct answer display
-				if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_model_answer_display') {
-					$parsed_user_response_from_db['inputs'][$input_name]['correct_display'] = $solution_entry['value2'];
-				}
+                    //correct answer display
+                    if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_model_answer_display') {
+                        $parsed_user_response_from_db['inputs'][$input_name]['correct_display'] = $solution_entry['value2'];
+                    }
 
-				//Input validation
-				if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_validation_display') {
-					$parsed_user_response_from_db['inputs'][$input_name]['validation_display'] = $solution_entry['value2'];
-				}
-			}
+                    //Input validation
+                    if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_validation_display') {
+                        $parsed_user_response_from_db['inputs'][$input_name]['validation_display'] = $solution_entry['value2'];
+                    }
+                }
 
-			foreach ($prts as $prt_name => $prt) {
+                foreach ($prts as $prt_name => $prt) {
 
-				//PRT name
-				if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_name') {
-					$parsed_user_response_from_db['prts'][$prt_name]['name'] = $solution_entry['value2'];
-					$parsed_user_response_from_db['prts'][$prt_name]['points'] = $solution_entry['points'];
-				}
+                    //PRT name
+                    if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_name') {
+                        $parsed_user_response_from_db['prts'][$prt_name]['name'] = $solution_entry['value2'];
+                        $parsed_user_response_from_db['prts'][$prt_name]['points'] = $solution_entry['points'];
+                    }
 
-				//PRT errors
-				if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_errors') {
-					$parsed_user_response_from_db['prts'][$prt_name]['errors'] = $solution_entry['value2'];
-				}
+                    //PRT errors
+                    if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_errors') {
+                        $parsed_user_response_from_db['prts'][$prt_name]['errors'] = $solution_entry['value2'];
+                    }
 
-				//PRT feedback
-				if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_feedback') {
-					$parsed_user_response_from_db['prts'][$prt_name]['feedback'] = $solution_entry['value2'];
-				}
+                    //PRT feedback
+                    if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_feedback') {
+                        $parsed_user_response_from_db['prts'][$prt_name]['feedback'] = $solution_entry['value2'];
+                    }
 
-				//PRT status
-				if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_status') {
-					$parsed_user_response_from_db['prts'][$prt_name]['status'] = $solution_entry['value2'];
-				}
+                    //PRT status
+                    if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_status') {
+                        $parsed_user_response_from_db['prts'][$prt_name]['status'] = $solution_entry['value2'];
+                    }
 
-				//PRT answer notes
-				if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_answernote') {
-					$parsed_user_response_from_db['prts'][$prt_name]['answer_notes'] = $solution_entry['value2'];
-				}
+                    //PRT answer notes
+                    if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_answernote') {
+                        $parsed_user_response_from_db['prts'][$prt_name]['answer_notes'] = $solution_entry['value2'];
+                    }
 
-			}
-		}
+                }
+            }
 
-		return $parsed_user_response_from_db;
+            dump("Desde la estructura de tst_solutions antigua");
+        } else {
+            $parsed_user_response_from_db = (array) json_decode($tst_solutions[0]['value2']);
+
+            //Convert inputs from stdClass to array
+            $parsed_user_response_from_db['inputs'] = (array) $parsed_user_response_from_db['inputs'];
+            foreach ($parsed_user_response_from_db['inputs'] as $input_name => $input) {
+                $parsed_user_response_from_db['inputs'][$input_name] = (array) $input;
+            }
+
+            //Convert prts from stdClass to array
+            $parsed_user_response_from_db['prts'] = (array) $parsed_user_response_from_db['prts'];
+            foreach ($parsed_user_response_from_db['prts'] as $prt_name => $prt) {
+                $parsed_user_response_from_db['prts'][$prt_name] = (array) $prt;
+            }
+
+            dump("Desde la estructura de tst_solutions nueva");
+        }
+
+        dump($parsed_user_response_from_db); exit();
+
+
+        return $parsed_user_response_from_db;
 	}
 
     public static function _showRandomisationWarning(assStackQuestion $question): bool
