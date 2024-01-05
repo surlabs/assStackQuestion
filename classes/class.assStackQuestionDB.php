@@ -1446,100 +1446,66 @@ class assStackQuestionDB
 	{
         $raw_solution = array();
 
-        dump($raw_solution); exit();
+        //Save question text
+        $raw_solution["text"] = $question->question_text_instantiated->get_rendered();
+        //Save question note
+        $raw_solution["note"] = $question->getQuestionSummary();
+        //Save general feedback
+        $raw_solution["general_feedback"] = $question->general_feedback;
+        //Save Seed
+        $raw_solution["question_seed"] = $question->seed;
 
+        //Save inputs
+        $raw_solution["inputs"] = array();
 
+        foreach ($question->getEvaluation()['inputs']['states'] as $input_name => $input_state) {
+            $raw_input = array();
 
-		//Save question text instantiated
-		$question->saveCurrentSolution($active_id, $pass, 'xqcas_text_' . $question->getId(), $question->question_text_instantiated, $authorized);
-		//Save question note
-		$question->saveCurrentSolution($active_id, $pass, 'xqcas_solution_' . $question->getId(), $question->question_note_instantiated, $authorized);
-		//Save general feedback
-		$question->saveCurrentSolution($active_id, $pass, 'xqcas_general_feedback_' . $question->getId(), $question->general_feedback, $authorized);
-		//Save Seed
-		$question->saveCurrentSolution($active_id, $pass, 'xqcas_question_' . $question->getId() . '_seed', $question->seed);
-
-		$entered_values = 4;
-
-		foreach ($question->getEvaluation()['inputs']['states'] as $input_name => $input_state) {
-
-			//Ensure only input data is stored
-			if (array_key_exists($input_name, $question->inputs)) {
-				//value1 = xqcas_input_*_value, value2 = raw student answer for this question input
-                //#37321 - Notes result change to real user input value
-                if (isset($question->inputs[$input_name]) && is_a(
-                        $question->inputs[$input_name],
-                        "stack_notes_input"
-                    )) {
-                    $question->saveCurrentSolution(
-                        $active_id,
-                        $pass,
-                        'xqcas_input_' . $input_name . '_value',
-                        $input_state->__get("contents")[0]
-                    );
+            //Ensure only input data is stored
+            if (array_key_exists($input_name, $question->inputs)) {
+                if (isset($question->inputs[$input_name]) && is_a($question->inputs[$input_name], "stack_notes_input")) {
+                    $raw_input["state"] = $input_state->__get("contents")[0];
                 } else {
-                    $question->saveCurrentSolution(
-                        $active_id,
-                        $pass,
-                        'xqcas_input_' . $input_name . '_value',
-                        $input_state->contentsmodified
-                    );
+                    $raw_input["state"] = $input_state->contentsmodified;
                 }
-                $entered_values++;
+            }
 
-				//value1 = xqcas_input_*_display, value2 = student answer displayed for this question input after validation
-				$question->saveCurrentSolution($active_id, $pass, 'xqcas_input_' . $input_name . '_display', $input_state->contentsdisplayed);
-				$entered_values++;
+            $raw_input["display"] = $input_state->contentsdisplayed;
 
-				//value1 = xqcas_input_*_display, value2 = student answer displayed for this question input after validation
-				if (isset($question->getEvaluation()['inputs']['validation'][$input_name])) {
-					$question->saveCurrentSolution($active_id, $pass, 'xqcas_input_' . $input_name . '_validation_display', $question->getEvaluation()['inputs']['validation'][$input_name]);
-					$entered_values++;
-				}
+            if (isset($question->getEvaluation()['inputs']['validation'][$input_name])) {
+                $raw_input["validation_display"] = $question->getEvaluation()['inputs']['validation'][$input_name];
+            }
 
-				try {
-					//value1 = xqcas_input_*_model_answer, value2 = teacher answer for this question input in raw format but initialised
-					$question->saveCurrentSolution($active_id, $pass, 'xqcas_input_' . $input_name . '_model_answer', $question->getTas($input_name)->get_value());
-					$entered_values++;
+            try {
+                $raw_input["model_answer"] = $question->getTas($input_name)->get_value();
 
-					//value1 = xqcas_input_*_model_answer_display_, value2 = teacher answer for this question input validation display
-					$question->saveCurrentSolution($active_id, $pass, 'xqcas_input_' . $input_name . '_model_answer_display', $question->getTas($input_name)->get_display());
-					$entered_values++;
+                $raw_input["model_answer_display"] = $question->getTas($input_name)->get_display();
+            } catch (stack_exception $e) {
+                ilUtil::sendFailure($e, true);
+            }
 
-				} catch (stack_exception $e) {
-					ilUtil::sendFailure($e, true);
-				}
+            $raw_solution["inputs"][$input_name] = $raw_input;
+        }
 
-			}
-		}
+        //Save prts
+        $raw_solution["prts"] = array();
 
-		//Save PRT information
         if (isset($question->getEvaluation()['prts'])) {
             foreach ($question->getEvaluation()['prts'] as $prt_name => $prt) {
+                $raw_prt = array();
 
-                //value1 = xqcas_input_name, $value2 = input_name
-                $question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_name', $prt_name);
+                $raw_prt["name"] = $prt_name;
 
-                //Save points
-                if (isset($question->getEvaluation()['points'][$prt_name]['prt_points'])) {
-                    self::_addPointsToPRTDBEntry($question, $active_id, $pass, $prt_name, $question->getEvaluation()['points'][$prt_name]['prt_points'], $authorized);
-                }
+                $raw_prt["points"] = $question->getEvaluation()['points'][$prt_name]['prt_points'];
 
-                $entered_values++;
+                $raw_prt["errors"] = $prt->_errors;
 
-                //value1 = xqcas_input_*_errors, $value2 = feedback given by CAS
-                $question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_errors', $prt->_errors);
-                $entered_values++;
-
-                //value1 = xqcas_input_*_feedback, $value2 = feedback given by CAS
                 $feedback = '';
                 foreach ($prt->get_feedback() as $feedback_element) {
                     $feedback .= $feedback_element->feedback . ' ';
                 }
-                $question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_feedback', $feedback);
-                $entered_values++;
+                $raw_prt["feedback"] = $feedback;
 
-                //value1 = xqcas_input_*_status, $value2 = status
                 $obtained_points = (float)$question->getEvaluation()['points'][$prt_name]['prt_points'];
                 $max_prt_points = (float)$question->prts[$prt_name]->get_value();
                 if ($max_prt_points != 0.0) {
@@ -1547,17 +1513,18 @@ class assStackQuestionDB
                 } else {
                     $fraction = 0.0;
                 }
-                $question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_status', (string)$fraction);
-                $entered_values++;
+                $raw_prt["status"] = (string)$fraction;
 
-                //value1 = xqcas_input_*_status_message, $value2 = answernotes
-                $question->saveCurrentSolution($active_id, $pass, 'xqcas_prt_' . $prt_name . '_answernote', implode(';', $prt->_answernotes));
-                $entered_values++;
+                $raw_prt["answernote"] = implode(';', $prt->_answernotes);
 
+                $raw_solution["prts"][$prt_name] = $raw_prt;
             }
         }
 
-		return $entered_values;
+        $question->saveCurrentSolution($active_id, $pass, "raw_data", json_encode($raw_solution));
+
+        // We return 1 because after the rework only one data is inserted in the tst_solutions table.
+		return 1;
 	}
 
 	/**
