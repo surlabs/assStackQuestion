@@ -1308,8 +1308,6 @@ class assStackQuestionUtils
 
                 }
             }
-
-            dump("Desde la estructura de tst_solutions antigua");
         } else {
             $parsed_user_response_from_db = (array) json_decode($tst_solutions[0]['value2']);
 
@@ -1324,13 +1322,8 @@ class assStackQuestionUtils
             foreach ($parsed_user_response_from_db['prts'] as $prt_name => $prt) {
                 $parsed_user_response_from_db['prts'][$prt_name] = (array) $prt;
             }
-
-            dump("Desde la estructura de tst_solutions nueva");
         }
-
-        dump($parsed_user_response_from_db); exit();
-
-
+        
         return $parsed_user_response_from_db;
 	}
 
