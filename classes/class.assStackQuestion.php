@@ -1193,7 +1193,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         $this->getPlugin()->includeClass('class.assStackQuestionDB.php');
         //delete stack specific question data
-        assStackQuestionDB::_deleteStackQuestion($question_id);
+        assStackQuestionDB::_deleteStackQuestion((int) $question_id);
     }
 
     /* ILIAS OVERWRITTEN METHODS END */
