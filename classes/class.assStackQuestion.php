@@ -1207,102 +1207,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function evaluateQuestion(array $user_response): bool
     {
-        try {
 
-            $evaluation_data = array();
-            $total_weight = 0.0;
-
-            foreach ($this->prts as $prt_name => $prt) {
-
-                if (!$this->hasNecessaryPrtInputs($prt, $user_response, true)) {
-                    ilUtil::sendFailure('The PRT ' . $prt_name . ' wasnt evaluated because not all inputs were answered.', true);
-                    return false;
-                }
-
-                //User answers for PRT Evaluation
-                $prt_input = $this->getPrtInput($prt_name, $user_response, true);
-
-                //PRT Results
-                if (is_array($prt_input) && !empty($prt_input)) {
-                    /*
-                    $evaluation_data['prts'][$prt_name] = $this->prts[$prt_name]->evaluate_response(
-                        $this->session, $this->options, $prt_input, $this->seed
-                    );*/
-                    $evaluation_data['prts'][$prt_name] = new stack_potentialresponse_tree_state(
-                        $this->prts[$prt_name]->get_value(), false, 0, 0
-                    );
-                } else {
-                    $evaluation_data['prts'][$prt_name] = new stack_potentialresponse_tree_state(
-                        $this->prts[$prt_name]->get_value(), false, 0, 0
-                    );
-                }
-
-                //Sum weights
-                $total_weight = $total_weight + (float)$evaluation_data['prts'][$prt_name]->_weight;
-
-                //Accept valid
-                //if ($evaluation_data['prts'][$prt_name]->_valid) {
-                //}
-            }
-            $points_obtained = 0.0;
-
-            //Calculate Points per PRT
-            foreach (array_keys($this->prts) as $prt_name) {
-
-                //Calculate prt value in points
-                if ($total_weight != 0.0) {
-                    $relative_prt_weight_in_points = (((float)$evaluation_data['prts'][$prt_name]->_weight / $total_weight) * $this->getMaximumPoints());
-                } else {
-                    ilUtil::sendFailure("PRT: " . $prt_name . " Value invalid", true);
-                    $relative_prt_weight_in_points = 0.0;
-                }
-
-                $relative_prt_points = ((float)$evaluation_data['prts'][$prt_name]->_score * $relative_prt_weight_in_points);
-
-                //PRT Weight in Points
-                $evaluation_data['points'][$prt_name]['prt_weight'] = $relative_prt_weight_in_points;
-
-                //PRT Received points
-                $evaluation_data['points'][$prt_name]['prt_points'] = $relative_prt_points;
-
-                //Set Feedback type
-                if ($relative_prt_points <= 0.0) {
-                    $evaluation_data['points'][$prt_name]['status'] = 'incorrect';
-                } elseif ($relative_prt_points == $relative_prt_weight_in_points) {
-                    $evaluation_data['points'][$prt_name]['status'] = 'correct';
-                } elseif ($relative_prt_points < $relative_prt_weight_in_points) {
-                    $evaluation_data['points'][$prt_name]['status'] = 'partially_correct';
-                } else {
-                    $evaluation_data['points'][$prt_name]['status'] = null;
-                    ilUtil::sendFailure('Error calculating PRT points in evaluateQuestion', true);
-                }
-
-                //Count points
-                $points_obtained = $points_obtained + $relative_prt_points;
-            }
-
-            if ($points_obtained > $this->getMaximumPoints()) {
-                ilUtil::sendFailure('Error calculating points in evaluateQuestion, trying to give more than existing, set to Max Points.', true);
-            }
-
-            //Manage Inputs and Validation
-            $evaluation_data['inputs']['states'] = $this->getInputStates();
-            $evaluation_data['inputs']['validation'] = array();
-
-            foreach ($evaluation_data['inputs']['states'] as $input_name => $input) {
-                if (isset($evaluation_data['inputs']['states'][$input_name]) and is_a($evaluation_data['inputs']['states'][$input_name], 'stack_input_state')) {
-                    $evaluation_data['inputs']['validation'][$input_name] = $this->inputs[$input_name]->render_validation($input, $input_name);
-                }
-            }
-
-            //Mark as evaluated
-            $this->setEvaluation($evaluation_data);
-
-        } catch (stack_exception $e) {
-
-            ilUtil::sendFailure($e, true);
-
+        $evaluation_data = [];
+        foreach ($this->prts as $prt_name => $prt) {
+            $evaluation_data[$prt_name] = $this->getPrtResult($prt_name, $user_response, true);
         }
+        $this->setEvaluation($evaluation_data);
 
         return true;
     }

@@ -256,15 +256,16 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
         $this->object->questionInitialisation($seed, true);
+        $user_response = StackUserResponseIlias::getStackUserResponse('preview');
 
 		//Ensure evaluation has been done
 		if (empty($this->object->getEvaluation())) {
-			$this->object->evaluateQuestion($this->object->getUserResponse());
+			$this->object->evaluateQuestion($user_response);
 		}
 
         $attempt_data = [];
 
-        $attempt_data['response'] = StackUserResponseIlias::getStackUserResponse('preview');
+        $attempt_data['response'] = $user_response;
         $attempt_data['question'] = $this->object;
 
         $display_options = [];
@@ -279,7 +280,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			$question_preview = $this->getILIASPage($question_preview);
 		}
 
-		return $question_preview;
+		return assStackQuestionUtils::_getLatex($question_preview);
 	}
 
 	/**
