@@ -1918,13 +1918,13 @@ class assStackQuestionDB
      * @param int $question_id
      * @return array|null
      */
-    public static function _readPreviewSolution(int $question_id) {
+    public static function _readPreviewSolution(int $question_id, int $user_id) {
         global $DIC;
         $db = $DIC->database();
 
         $res = $db->query("SELECT submitted_answer FROM xqcas_preview WHERE question_id = " .
             $db->quote($question_id, 'integer') . " AND user_id = " .
-            $db->quote($DIC->user()->getId(), 'integer') . " AND is_active = 1");
+            $db->quote($user_id, 'integer') . " AND is_active = 1");
 
         $row = $db->fetchAssoc($res);
         if ($row) {
@@ -1934,4 +1934,43 @@ class assStackQuestionDB
         return null;
     }
 
+    public static function _readTestSolution(int $question_id, int $active_id) {
+        global $DIC;
+        $db = $DIC->database();
+
+        $solution = $db->query("SELECT value1, value2 FROM tst_solutions WHERE question_fi = " .
+            $db->quote($question_id, 'integer') . " AND active_fi = " .
+            $db->quote($active_id, 'integer'));
+
+        $solution_db = array();
+
+        while ($row = $db->fetchAssoc($solution)) {
+            $solution_db[] = $row;
+        }
+
+        $solution_db_parsed = assStackQuestionUtils::_fromTSTSolutionsToSTACK($solution_db, (string) $question_id);
+
+        //Old Test
+        if (!isset($solution_db_parsed['inputs'])) {
+            $old_student_solutions = assStackQuestionUtils::_fromDBToReadableFormat($solution_db);
+
+            if (isset($old_student_solutions["prt"])) {
+                foreach ($old_student_solutions["prt"] as $prt_name => $prt_info) {
+                    if (isset($prt_info["response"])) {
+                        foreach ($prt_info["response"] as $input_name => $input_info) {
+                            $old_student_solutions["inputs"][$input_name]['value'] = $input_info['value'];
+                            $old_student_solutions["inputs"][$input_name]['display'] = $input_info['display'];
+                            $old_student_solutions["inputs"][$input_name]['validation_display'] = $input_info['display'];
+                            $old_student_solutions["inputs"][$input_name]['correct_value'] = $input_info['model_answer'];
+                            $old_student_solutions["inputs"][$input_name]['correct_display'] = $input_info['model_answer_display'];
+                        }
+                    }
+                }
+            }
+
+            $solution_db_parsed = $old_student_solutions;
+        }
+
+        return $solution_db_parsed;
+    }
 }

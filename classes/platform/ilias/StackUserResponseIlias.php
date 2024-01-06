@@ -33,7 +33,7 @@ class StackUserResponseIlias extends StackUserResponse
      * Returns the stack user response from different sources depending on the purpose.
      * @throws StackException
      */
-    public static function getStackUserResponse(string $purpose, int $question_id): array
+    public static function getStackUserResponse(string $purpose, int $question_id, int $active_id): array
     {
 
         switch ($purpose) {
@@ -41,10 +41,10 @@ class StackUserResponseIlias extends StackUserResponse
                 $stack_user_response = self::getPostStackUserResponse();
                 break;
             case 'preview':
-                $stack_user_response = self::getPreviewStackUserResponse($question_id);
+                $stack_user_response = self::getPreviewStackUserResponse($question_id, $active_id);
                 break;
             case 'test':
-                $stack_user_response = self::getTestStackUserResponse();
+                $stack_user_response = self::getTestStackUserResponse($question_id, $active_id);
                 break;
             case 'unit_test':
                 $stack_user_response = self::getUnitTestStackUserResponse();
@@ -88,15 +88,14 @@ class StackUserResponseIlias extends StackUserResponse
         return $stack_user_response;
     }
 
-    private static function getPreviewStackUserResponse(int $question_id): ?array
+    private static function getPreviewStackUserResponse(int $question_id, int $user_id): ?array
     {
-        return assStackQuestionDB::_readPreviewSolution($question_id);
+        return assStackQuestionDB::_readPreviewSolution($question_id, $user_id);
     }
 
-    private static function getTestStackUserResponse(): array
+    private static function getTestStackUserResponse(int $question_id, int $active_id): array
     {
-        $stack_user_response = array();
-        return $stack_user_response;
+        return assStackQuestionDB::_readTestSolution($question_id, $active_id);
     }
 
     private static function getCorrectStackUserResponse(): array

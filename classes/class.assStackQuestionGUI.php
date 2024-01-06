@@ -82,94 +82,53 @@ class assStackQuestionGUI extends assQuestionGUI
         include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
 	}
 
-	/**
-	 * Returns the HTML for the Test View
-	 * @param $active_id
-	 * @param $pass
-	 * @param $is_question_postponed
-	 * @param $user_post_solutions
-	 * @param $show_specific_inline_feedback
-	 * @return false|mixed|string|void|null
-	 */
+    /**
+     * Returns the HTML for the Test View
+     * @param $active_id
+     * @param $pass
+     * @param $is_question_postponed
+     * @param $user_post_solutions
+     * @param $show_specific_inline_feedback
+     * @return false|mixed|string|void|null
+     * @throws StackException
+     * @throws stack_exception
+     */
 	public function getTestOutput($active_id, $pass, $is_question_postponed, $user_post_solutions, $show_specific_inline_feedback)
 	{
-		//Question initialization
-		$seed = assStackQuestionDB::_getSeed("test", $this->object, (int) $active_id, (int) $pass);
+        global $DIC;
 
-		if (!$this->object->isInstantiated()) {
-			$this->object->questionInitialisation($seed, true);
-		}
+        $seed = assStackQuestionDB::_getSeed("test", $this->object, $DIC->user()->getId());
+        $this->object->questionInitialisation($seed, true);
+        $user_response = StackUserResponseIlias::getStackUserResponse('test', $this->object->getId(), (int) $active_id);
 
-		//Get user solution from DB
-		if (empty($user_solution_from_db = $this->object->getTestOutputSolutions($active_id, $pass))) {
-
-
-			//No user Solution
-			//Render question from scratch
-			$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
-			try {
-				//Return question output
-				$question_output = assStackQuestionRenderer::_renderQuestionText($this->object, $show_specific_inline_feedback);
-				return $this->outQuestionPage('', $is_question_postponed, $active_id, $question_output, $show_specific_inline_feedback);
-			} catch (stack_exception $e) {
-				return $e->getMessage();
-			}
-
-		} else {
-            //Use user solution from DB
-            $user_solution = array();
-            //Get user solution from DB
-            foreach ($this->object->inputs as $input_name => $input) {
-
-                //first adaptation of the user solution only if user solution is present
-                $user_solution[$input_name] = $user_solution_from_db['inputs'][$input_name]['value'];
-
-                if (is_a($input, 'stack_textarea_input')
-                    or is_a($input, 'stack_equiv_input')
-                    or is_a($input, 'stack_matrix_input')) {
-
-                    $response = $input->maxima_to_response_array($user_solution[$input_name]);
-
-                    //clean solution
-                    foreach (array_keys($response) as $array_key) {
-                        if (strpos($array_key, '_val')) {
-                            unset($response[$array_key]);
-                        }
-                    }
-
-                    if(isset($user_solution[$input_name])){
-                        unset($user_solution[$input_name]);
-                    }
-
-                    $user_solution = array_merge($user_solution, $response);
-                } elseif (is_a($input, 'stack_checkbox_input')) {
-                    $response = $input->maxima_to_response_array($user_solution[$input_name]);
-                    $user_solution = array_merge($user_solution, $response);
-                } elseif (is_a($input, 'stack_dropdown_input')
-                    or is_a($input, 'stack_radio_input')) {
-                    $response = $input->maxima_to_response_array($user_solution[$input_name]);
-                    $user_solution[$input_name] = $response[$input_name];
-                }
-            }
+        //TODO: Check if this is correct.
+        // Is it necessary to store so much data in tst_solutions?
+        // If it is not necessary to save so much data, do not save it and remove this part of the code.
+        $temp_user_response = array();
+        foreach ($user_response["inputs"] as $input_name => $input) {
+            $temp_user_response[$input_name] = $input["value"];
         }
-
-        $this->object->setUserResponse($user_solution);
+        $user_response = $temp_user_response;
 
         //Ensure evaluation has been done
         if (empty($this->object->getEvaluation())) {
-            $this->object->evaluateQuestion($this->object->getUserResponse());
+            $this->object->evaluateQuestion($user_response);
         }
 
-        //Render Question
-		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
-		try {
-			//$question_output = assStackQuestionRenderer::_renderQuestionTest($this->object, $active_id, $pass, $user_post_solutions, $show_specific_inline_feedback, $is_question_postponed);
-			$question_output = assStackQuestionRenderer::_renderQuestionText($this->object, $show_specific_inline_feedback);
-			//Return question output
-			return $this->outQuestionPage('', $is_question_postponed, $active_id, $question_output, $show_specific_inline_feedback);
-		} catch (stack_exception $e) {
-			return $e->getMessage();
-		}
+        $attempt_data = [];
+
+        $attempt_data['response'] = $user_response;
+        $attempt_data['question'] = $this->object;
+
+        $display_options = [];
+        $display_options['readonly'] = false;
+        $display_options['feedback'] = true;
+
+        //Render question
+        $question = StackRenderIlias::renderQuestion($attempt_data, $display_options);
+
+
+        return assStackQuestionUtils::_getLatex($question);
 	}
 
 	/**
@@ -256,7 +215,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
         $this->object->questionInitialisation($seed, true);
-        $user_response = StackUserResponseIlias::getStackUserResponse('preview', $this->object->getId());
+        $user_response = StackUserResponseIlias::getStackUserResponse('preview', $this->object->getId(), $DIC->user()->getId());
 
 		//Ensure evaluation has been done
 		if (empty($this->object->getEvaluation())) {
@@ -295,7 +254,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
         $this->object->questionInitialisation($seed, true);
-        $user_response = StackUserResponseIlias::getStackUserResponse('preview', $this->object->getId());
+        $user_response = StackUserResponseIlias::getStackUserResponse('preview', $this->object->getId(), $DIC->user()->getId());
 
         //Ensure evaluation has been done
         if (empty($this->object->getEvaluation())) {
