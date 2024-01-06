@@ -95,9 +95,7 @@ class assStackQuestionGUI extends assQuestionGUI
      */
 	public function getTestOutput($active_id, $pass, $is_question_postponed, $user_post_solutions, $show_specific_inline_feedback)
 	{
-        global $DIC;
-
-        $seed = assStackQuestionDB::_getSeed("test", $this->object, $DIC->user()->getId());
+        $seed = assStackQuestionDB::_getSeed("test", $this->object, (int) $active_id);
         $this->object->questionInitialisation($seed, true);
         $user_response = StackUserResponseIlias::getStackUserResponse('test', $this->object->getId(), (int) $active_id);
 
@@ -146,61 +144,42 @@ class assStackQuestionGUI extends assQuestionGUI
 	 * @return string
 	 */
 	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true): string
-	{
-        /*
-		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
+    {
+        $seed = assStackQuestionDB::_getSeed($show_correct_solution ? "correct" : "test", $this->object, (int)$active_id);
+        $this->object->questionInitialisation($seed, true);
+        $user_response = StackUserResponseIlias::getStackUserResponse($show_correct_solution ? "correct" : "test", $this->object->getId(), (int)$active_id);
 
-		//Llama dos veces, una para el texto y otra para la best solution
-		if (!$this->object->isInstantiated()) {
-			//Not in preview, not in test run, we are in Test Results
-			//Check for PASS
-
-			//require_once './Modules/Test/classes/class.ilObjTest.php';
-			if (!ilObjTest::_getUsePreviousAnswers($active_id, true)) {
-				if (is_null($pass)) {
-					$pass = ilObjTest::_getPass($active_id);
-				}
-			}
-			//Return Solution output for Test Results
-			//Raw replacement from tst_solution instead of instancing and evaluate question
-			if (!$show_correct_solution) {
-				//TEXT
-				$solution_output = assStackQuestionRenderer::_renderQuestionTextForTestResults($this->object, $active_id, $pass);
-			} else {
-				//SOLUTION
-                $general_feedback = assStackQuestionRenderer::_renderGeneralFeedback($this->object);
-
-                $solution_output = $general_feedback . assStackQuestionRenderer::renderBestSolutionForTestResults($this->object, $active_id, $pass);
-			}
-
-			if (!$show_question_only) {
-				// get page object output
-				$solution_output = $this->getILIASPage($solution_output);
-			}
-
-			return $solution_output;
-		}
-
-        if (!$show_correct_solution) {
-            //TEXT
-            $solution_output = assStackQuestionRenderer::_renderBestSolution($this->object);
-        } else {
-            //SOLUTION
-            $general_feedback = assStackQuestionRenderer::_renderGeneralFeedback($this->object);
-
-            $solution_output = $general_feedback . assStackQuestionRenderer::_renderBestSolution($this->object);
+        if (isset($user_response["inputs"])) {
+            //TODO: Check if this is correct.
+            // Is it necessary to store so much data in tst_solutions?
+            // If it is not necessary to save so much data, do not save it and remove this part of the code.
+            $temp_user_response = array();
+            foreach ($user_response["inputs"] as $input_name => $input) {
+                $temp_user_response[$input_name] = $input["value"];
+            }
+            $user_response = $temp_user_response;
         }
 
-		//Return Solution output
-		if (!$show_question_only) {
-			// get page object output
-			$solution_output = $this->getILIASPage($solution_output);
-		}
+        //Ensure evaluation has been done
+        if (empty($this->object->getEvaluation())) {
+            $this->object->evaluateQuestion($user_response);
+        }
 
-		return $solution_output;
-        */
+        $attempt_data = [];
 
-        return "";
+        $attempt_data['response'] = $user_response;
+        $attempt_data['question'] = $this->object;
+
+        $display_options = [];
+        $display_options['readonly'] = false;
+        $display_options['feedback'] = true;
+
+        //Render question
+        $question = StackRenderIlias::renderQuestion($attempt_data, $display_options);
+
+        $question = $this->getILIASPage($question);
+
+        return assStackQuestionUtils::_getLatex($question);
 	}
 
     /**
