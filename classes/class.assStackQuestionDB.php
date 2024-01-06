@@ -1938,9 +1938,12 @@ class assStackQuestionDB
         global $DIC;
         $db = $DIC->database();
 
+        $pass = ilObjTest::_getPass($active_id);
+
         $solution = $db->query("SELECT value1, value2 FROM tst_solutions WHERE question_fi = " .
             $db->quote($question_id, 'integer') . " AND active_fi = " .
-            $db->quote($active_id, 'integer'));
+            $db->quote($active_id, 'integer') . " AND pass = " .
+            $db->quote($pass, 'integer'));
 
         $solution_db = array();
 
