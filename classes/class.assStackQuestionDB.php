@@ -161,7 +161,7 @@ class assStackQuestionDB
 			}
 
             $potential_response_trees[$prt_name]->name = $row['name'];
-			$potential_response_trees[$prt_name]->value = $row['value'];
+			$potential_response_trees[$prt_name]->value = (float)$row['value'];
 			$potential_response_trees[$prt_name]->autosimplify = $row['auto_simplify'];
 			$potential_response_trees[$prt_name]->feedbackvariables = $row['feedback_variables'];
 			$potential_response_trees[$prt_name]->firstnodename = $row['first_node_name'];
@@ -1502,7 +1502,7 @@ class assStackQuestionDB
 
                 $feedback = '';
                 foreach ($prt->get_feedback() as $feedback_element) {
-                    $feedback .= $feedback_element->feedback . ' ';
+                    $feedback .= $feedback_element->feedback . '<br>';
                 }
                 $raw_prt["feedback"] = $feedback;
 
