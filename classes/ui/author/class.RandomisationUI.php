@@ -263,17 +263,17 @@ class RandomisationUI
             $ico = $this->factory->symbol()->icon()->custom($path, 'Example');
 
             if ((string)$deployed_variant_identifier != $this->data["active_variant_identifier"]) {
-                $link = $this->factory->legacy(
-                    $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_set_as_active_variant_action_text"),
-                );
+                $link = $this->factory->legacy('');
+                $divider = $this->factory->legacy('');
             } else {
                 $link = $this->factory->legacy(
                     $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_is_current_active_variant_text"));
+                $divider = $this->factory->divider()->vertical();
             }
             $question_note = $deployed_variant_data["question_note"];
             $array_of_deployed_variants[] = $this->factory->panel()->sub(
                 (string)$deployed_variant_identifier .
-                $this->renderer->render($this->factory->divider()->vertical()) .
+                $this->renderer->render($divider) .
                 $this->renderer->render($link),
                 $this->factory->legacy(
                     $this->renderer->render($ico) .
