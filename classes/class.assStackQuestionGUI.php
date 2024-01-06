@@ -127,6 +127,7 @@ class assStackQuestionGUI extends assQuestionGUI
         //Render question
         $question = StackRenderIlias::renderQuestion($attempt_data, $display_options);
 
+        $question = $this->getILIASPage($question);
 
         return assStackQuestionUtils::_getLatex($question);
 	}
