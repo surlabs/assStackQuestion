@@ -1911,4 +1911,27 @@ class assStackQuestionDB
             'is_active' => array('integer', 1)
         ));
     }
+
+    /**
+     * Read a preview solution for a question
+     *
+     * @param int $question_id
+     * @return array|null
+     */
+    public static function _readPreviewSolution(int $question_id) {
+        global $DIC;
+        $db = $DIC->database();
+
+        $res = $db->query("SELECT submitted_answer FROM xqcas_preview WHERE question_id = " .
+            $db->quote($question_id, 'integer') . " AND user_id = " .
+            $db->quote($DIC->user()->getId(), 'integer') . " AND is_active = 1");
+
+        $row = $db->fetchAssoc($res);
+        if ($row) {
+            return json_decode($row['submitted_answer'], true);
+        }
+
+        return null;
+    }
+
 }

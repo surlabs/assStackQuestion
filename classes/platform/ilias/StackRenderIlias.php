@@ -7,7 +7,6 @@ use assStackQuestion;
 use classes\platform\StackEvaluation;
 use classes\platform\StackException;
 use classes\platform\StackRender;
-use classes\platform\StackUserResponse;
 use ilSetting;
 use stack_exception;
 use stack_maths;
@@ -46,11 +45,10 @@ class StackRenderIlias extends StackRender
     {
         $prt_name = $attempt_data['prt_name'];
 
-        $response_object = $attempt_data['response'];
-        if (!($response_object instanceof StackUserResponse)) {
+        $response = $attempt_data['response'];
+        if (!is_array($response)) {
             throw new StackException('Invalid response type.');
         }
-        $response = $response_object->getStackUserResponse();
 
         $question = $attempt_data['question'];
         if (!($question instanceof assStackQuestion)) {
@@ -237,7 +235,7 @@ class StackRenderIlias extends StackRender
     public static function renderSpecificFeedback(array $attempt_data, array $display_options): string
     {
         $response = $attempt_data['response'];
-        if (!($response instanceof StackUserResponse)) {
+        if (!is_array($response)) {
             throw new StackException('Invalid response type.');
         }
 

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace classes\platform\ilias;
 
+use assStackQuestionDB;
 use classes\platform\StackException;
 use classes\platform\StackUserResponse;
 
@@ -32,7 +33,7 @@ class StackUserResponseIlias extends StackUserResponse
      * Returns the stack user response from different sources depending on the purpose.
      * @throws StackException
      */
-    public static function getStackUserResponse(string $purpose): array
+    public static function getStackUserResponse(string $purpose, int $question_id): array
     {
 
         switch ($purpose) {
@@ -40,7 +41,7 @@ class StackUserResponseIlias extends StackUserResponse
                 $stack_user_response = self::getPostStackUserResponse();
                 break;
             case 'preview':
-                $stack_user_response = self::getPreviewStackUserResponse();
+                $stack_user_response = self::getPreviewStackUserResponse($question_id);
                 break;
             case 'test':
                 $stack_user_response = self::getTestStackUserResponse();
@@ -55,6 +56,9 @@ class StackUserResponseIlias extends StackUserResponse
                 throw new StackException('Invalid purpose selected: ' . $purpose . '.');
         }
 
+        if ($stack_user_response === null) {
+            return [];
+        }
         if (!self::checkStackUserResponse($stack_user_response)) {
             throw new StackException('Invalid stack user response.');
         } else {
@@ -84,10 +88,9 @@ class StackUserResponseIlias extends StackUserResponse
         return $stack_user_response;
     }
 
-    private static function getPreviewStackUserResponse(): array
+    private static function getPreviewStackUserResponse(int $question_id): ?array
     {
-        $stack_user_response = array();
-        return $stack_user_response;
+        return assStackQuestionDB::_readPreviewSolution($question_id);
     }
 
     private static function getTestStackUserResponse(): array

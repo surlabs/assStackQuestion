@@ -256,7 +256,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
         $this->object->questionInitialisation($seed, true);
-        $user_response = StackUserResponseIlias::getStackUserResponse('preview');
+        $user_response = StackUserResponseIlias::getStackUserResponse('preview', $this->object->getId());
 
 		//Ensure evaluation has been done
 		if (empty($this->object->getEvaluation())) {
@@ -290,19 +290,29 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function getSpecificFeedbackOutput($userSolution): string
 	{
+        global $DIC;
 
-		//Include content Style
-		$style_id = assStackQuestionUtils::_getActiveContentStyleId();
-		if (strlen($style_id)) {
-			//require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
-			global $DIC;
-			$DIC->globalScreen()->layout()->meta()->addCss(ilObjStyleSheet::getContentStylePath((int)$style_id));
-		}
+        $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
+        $this->object->questionInitialisation($seed, true);
+        $user_response = StackUserResponseIlias::getStackUserResponse('preview', $this->object->getId());
 
-        //TODO SPECIFIC FEEDBACK DIFFERENCES PREVIEW TEST
-        $specific_feedback = '';
-		//return $general_feedback . $specific_feedback;
-        return $specific_feedback;
+        //Ensure evaluation has been done
+        if (empty($this->object->getEvaluation())) {
+            $this->object->evaluateQuestion($user_response);
+        }
+
+        $attempt_data = [];
+
+        $attempt_data['response'] = $user_response;
+        $attempt_data['question'] = $this->object;
+
+        $display_options = [];
+        $display_options['readonly'] = false;
+
+        //Render question specific feedback
+        $specific_feedback_preview = StackRenderIlias::renderSpecificFeedback($attempt_data, $display_options);
+
+        return assStackQuestionUtils::_getLatex($specific_feedback_preview);
     }
 
 	/**

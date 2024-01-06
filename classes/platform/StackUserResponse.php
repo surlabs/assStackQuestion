@@ -25,7 +25,7 @@ namespace classes\platform;
 
 abstract class StackUserResponse {
 
-    abstract public static function getStackUserResponse(string $purpose): array;
+    abstract public static function getStackUserResponse(string $purpose, int $question_id): array;
 
     protected static function checkStackUserResponse(array $stack_user_response): bool {
         //TODO: SUR
