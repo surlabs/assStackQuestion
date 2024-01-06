@@ -270,6 +270,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $display_options = [];
         $display_options['readonly'] = false;
+        $display_options['feedback'] = true;
 
 		//Render question Preview
         $question_preview = StackRenderIlias::renderQuestion($attempt_data, $display_options);
