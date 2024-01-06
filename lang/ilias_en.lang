@@ -157,6 +157,7 @@ ui_author_randomisation_active_variant_panel_title#:#Active variant
 ui_author_randomisation_deployed_variants_panel_title#:#Deployed variants
 ui_author_randomisation_is_current_active_variant_text#:#Is current active variant
 ui_author_randomisation_set_as_active_variant_action_text#:#Set as active variant
+ui_author_randomisation_delete_deployed_variant_action_text#:#Delete deployed variant
 ui_author_randomisation_show_question_text_action_text#:#Show question text
 ui_author_randomisation_question_and_feedback_variables_text#:#Question and feedback variables
 ui_author_randomisation_generate_new_variants_action_text#:#Generate new variants

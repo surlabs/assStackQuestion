@@ -76,9 +76,14 @@ class RandomisationUI
             if ($key === "deployed_seeds") {
                 $this->data["deployed_variants"] = [];
                 foreach ($value as $deployed_seed) {
-                    $this->data["active_variant_identifier"] = (string)$deployed_seed["seed"];
-                    $this->data["active_variant_question_note"] = $deployed_seed["note"];
-                    $this->data["active_variant_question_text"] = $deployed_seed["question_text"];
+                    $active_seed = assStackQuestionDB::_readActiveSeed($deployed_seed["question_id"]);
+                    if ((int)$active_seed === (int)$deployed_seed["seed"]) {
+                        $this->data["active_variant_identifier"] = (string)$deployed_seed["seed"];
+                        $this->data["active_variant_question_note"] = (string)$deployed_seed["note"]->get_rendered();
+                        $this->data["active_variant_question_text"] = (string)$deployed_seed["question_text"]->get_rendered();
+                        $this->data["active_variant_question_variables"] = (string)$deployed_seed["question_id"];
+                        $this->data["active_variant_feedback_variables"] = (string)$deployed_seed["feedback_id"];
+                    }
                     $this->data["deployed_variants"][$deployed_seed["seed"]] = [
                         "question_note" => $deployed_seed["note"],
                         "question_variables" => $deployed_seed["question_id"],
@@ -191,7 +196,7 @@ class RandomisationUI
 
         $question_text = $this->data["active_variant_question_text"];
 
-        $page = $this->factory->modal()->lightboxTextPage(assStackQuestionUtils::_getLatex($question_text->get_rendered()), $this->language->txt("qpl_qst_xqcas_message_question_text"));
+        $page = $this->factory->modal()->lightboxTextPage(assStackQuestionUtils::_getLatex($question_text), $this->language->txt("qpl_qst_xqcas_message_question_text"));
         $modal = $this->factory->modal()->lightbox($page);
 
         $button = $this->factory->button()->standard($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_show_question_text_action_text"), '')
@@ -206,7 +211,7 @@ class RandomisationUI
         return $this->factory->panel()->sub(
             $active_variant_identifier,
             $this->factory->legacy(
-                assStackQuestionUtils::_getLatex($active_variant_question_note->get_rendered()) .
+                assStackQuestionUtils::_getLatex($active_variant_question_note) .
                 $this->renderer->render($this->factory->divider()->horizontal()) .
                 $this->renderer->render([$button, $modal])
             )
@@ -237,18 +242,30 @@ class RandomisationUI
         //Fill the data for each deployed variant
         foreach ($this->data["deployed_variants"] as $deployed_variant_identifier => $deployed_variant_data) {
 
+            //control parameters
+            $this->control->setParameterByClass(
+                'assStackQuestionGUI',
+                'set_active_variant_identifier',
+                $deployed_variant_identifier
+            );
+
             //Actions for each deployed variant
             $deployed_variant_individual_actions = $this->factory->dropdown()->standard(array(
                 $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_delete_deployed_variant_action_text") . ": " . (string)$deployed_variant_identifier,
                     //TODO: Connect with method
-                    $this->control->getLinkTargetByClass("assstackquestiongui", "deleteDeployedSeed"))));
+                    $this->control->getLinkTargetByClass("assstackquestiongui", "deleteDeployedSeed")),
+                $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_set_as_active_variant_action_text") . ": " . (string)$deployed_variant_identifier,
+                    //TODO: Connect with method
+                    $this->control->getLinkTargetByClass("assstackquestiongui", "setAsActiveVariant"))));
+
 
             $path = './src/UI/examples/Symbol/Icon/Custom/my_custom_icon.svg';
             $ico = $this->factory->symbol()->icon()->custom($path, 'Example');
-            $link = $this->factory->link()->standard($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_set_as_active_variant_action_text"), $this->control->getLinkTargetByClass("assstackquestiongui", "setAsActiveVariant"));
 
             if ((string)$deployed_variant_identifier != $this->data["active_variant_identifier"]) {
-                $link = $this->factory->link()->standard($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_set_as_active_variant_action_text"), $this->control->getLinkTargetByClass("assstackquestiongui", "setAsActiveVariant"));
+                $link = $this->factory->legacy(
+                    $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_set_as_active_variant_action_text"),
+                );
             } else {
                 $link = $this->factory->legacy(
                     $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_is_current_active_variant_text"));
@@ -286,7 +303,7 @@ class RandomisationUI
                 $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_delete_unit_test_action_text"), ""),
             ));
 
-            $list[$unit_test_number] = $this->factory->item()->group((string) $unit_test_number, array(
+            $list[$unit_test_number] = $this->factory->item()->group((string)$unit_test_number, array(
                 $this->factory->legacy("DESCRIPTION: Loren ipsum..."),
                 $this->factory->legacy("LAST RUN: 24.11.2023"),
                 $this->factory->legacy("PASSED"),

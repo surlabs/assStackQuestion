@@ -30,10 +30,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * like ilLanguage
      */
     private ilPlugin $plugin;
+
     public function getPlugin(): ilPlugin
     {
         return $this->plugin;
     }
+
     public function setPlugin(ilPlugin $plugin): void
     {
         $this->plugin = $plugin;
@@ -43,10 +45,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @var array Contains the platform data
      */
     private array $platform_configuration = [];
+
     public function getPlatformConfiguration(): array
     {
         return $this->platform_configuration;
     }
+
     public function setPlatformConfiguration(array $platform_configuration): void
     {
         $this->platform_configuration = $platform_configuration;
@@ -346,7 +350,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
 
         //Determine seed for current test run
-        $seed = assStackQuestionDB::_getSeed("test", $this, (int) $active_id, (int) $pass);
+        $seed = assStackQuestionDB::_getSeed("test", $this, (int)$active_id, (int)$pass);
 
         $entered_values = 0;
         $user_solution = $this->getSolutionSubmit();
@@ -362,17 +366,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $this->questionInitialisation($seed, true);
         }
 
-        //Evaluate Question if not.
-        if (empty($this->getEvaluation())) {
-            $this->evaluateQuestion($user_solution);
-        }
-
         //Save user test solution
         $this->getProcessLocker()->executeUserSolutionUpdateLockOperation(function () use (&$entered_values, $active_id, $pass, $authorized) {
             //Remove previous solution
             $this->removeCurrentSolution($active_id, $pass, $authorized);
             //Add current solution
-            $entered_values = assStackQuestionDB::_saveUserTestSolution($this, (int) $active_id, (int) $pass, $authorized);
+            $entered_values = assStackQuestionDB::_saveUserTestSolution($this, (int)$active_id, (int)$pass, $authorized);
         });
 
 
@@ -588,8 +587,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function getUserQuestionResult($active_id, $pass): ilUserQuestionResult
     {
-        //require_once './Modules/TestQuestionPool/classes/class.ilUserQuestionResult.php';
-
         $result = new ilUserQuestionResult($this, $active_id, $pass);
         $points = (float)$this->calculateReachedPoints($active_id, $pass);
         $max_points = (float)$this->getMaximumPoints();
@@ -835,22 +832,23 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $this->getPlugin()->includeClass('utils/class.assStackQuestionUtils.php');
             $prt_names = assStackQuestionUtils::_getPRTNamesFromQuestion($this->getQuestion(), $options_from_db_array['ilias_options']['specific_feedback'], $prt_from_db_array);
 
-            $totalvalue = 0;
-            $allformative = true;
+            $total_value = 0;
+            $all_formative = true;
 
             foreach ($prt_names as $name) {
                 // If not then we have just created the PRT.
                 if (array_key_exists($name, $prt_from_db_array)) {
-                    $prtdata = $prt_from_db_array[$name];
-                    // At this point we do not have the PRT method is_formative() available to us.
-                    if ($prtdata->feedbackstyle > 0) {
-                        $totalvalue += $prtdata->value;
-                        $allformative = false;
-                    }
+                    $prt_data = $prt_from_db_array[$name];
+
+                    $total_value += $prt_data->value;
+                    $all_formative = false;
                 }
             }
 
-            if ($prt_from_db_array && !$allformative && $totalvalue < 0.0000001) {
+            //initialize correct points
+            $this->setPoints($total_value);
+
+            if ($prt_from_db_array && !$all_formative && $total_value < 0.0000001) {
                 throw new stack_exception('There is an error authoring your question. ' .
                     'The $totalvalue, the marks available for the question, must be positive in question ' .
                     $data["title"]);
@@ -858,11 +856,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
             foreach ($prt_names as $name) {
                 if (array_key_exists($name, $prt_from_db_array)) {
-                    $prtvalue = 0;
-                    if (!$allformative) {
-                        $prtvalue = $prt_from_db_array[$name]->value / $totalvalue;
+                    $prt_value = 0;
+                    if (!$all_formative) {
+                        $prt_value = $prt_from_db_array[$name]->value / $total_value;
                     }
-                    $this->prts[$name] = new stack_potentialresponse_tree_lite($prt_from_db_array[$name], $prtvalue);
+                    $this->prts[$name] = new stack_potentialresponse_tree_lite($prt_from_db_array[$name], $prt_value);
                 } // If not we just added a PRT.
             }
 
@@ -920,7 +918,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return $user_solutions;
     }
 
-    function oldTestImportIdFinder($string, $starts_with) {
+    function oldTestImportIdFinder($string, $starts_with)
+    {
         if (substr($string, 0, strlen($starts_with)) === $starts_with) {
             return substr($string, strlen($starts_with));
         }
@@ -988,7 +987,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         $points = 0.0;
 
         if (!empty($this->getEvaluation())) {
-
             foreach (array_keys($this->prts) as $prt_name) {
                 $prt_points = $this->getEvaluation()['points'][$prt_name]['prt_points'];
                 $points = $points + $prt_points;
@@ -1065,7 +1063,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         $this->getPlugin()->includeClass('class.assStackQuestionDB.php');
         //delete stack specific question data
-        assStackQuestionDB::_deleteStackQuestion((int) $question_id);
+        assStackQuestionDB::_deleteStackQuestion((int)$question_id);
     }
 
     /* ILIAS OVERWRITTEN METHODS END */
@@ -1079,12 +1077,76 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function evaluateQuestion(array $user_response): bool
     {
+        try {
 
-        $evaluation_data = [];
-        foreach ($this->prts as $prt_name => $prt) {
-            $evaluation_data[$prt_name] = $this->getPrtResult($prt_name, $user_response, true);
+            $evaluation_data = array();
+
+            foreach ($this->prts as $prt_name => $prt) {
+                //User answers for PRT Evaluation
+                $prt_input = $this->getPrtInput($prt_name, $user_response, true);
+
+                //PRT Results
+                if (is_array($prt_input) && !empty($prt_input)) {
+                    $prt_result = $this->getPrtResult($prt_name, $prt_input, true);
+                    $evaluation_data['prts'][$prt_name]['prt_result'] = $prt_result;
+                }
+            }
+
+            $points_obtained = 0.0;
+            //Calculate Points per PRT
+            foreach (array_keys($this->prts) as $prt_name) {
+                if (isset($evaluation_data['prts'][$prt_name]['prt_result'])) {
+
+                    $prt_result = $evaluation_data['prts'][$prt_name]['prt_result'];
+
+                    $total_weight = $this->getPoints();
+
+                    //Calculate prt value in points
+                    if ($total_weight != 0.0) {
+                        $fraction = $prt_result->get_fraction();
+                    } else {
+                        ilUtil::sendFailure("PRT: " . $prt_name . " Value invalid", true);
+                        $fraction = 0.0;
+                    }
+
+                    //PRT Received points
+                    $evaluation_data['points'][$prt_name]['prt_points'] = $fraction;
+
+                    //Set Feedback type
+                    if ($fraction <= 0.0) {
+                        $evaluation_data['points'][$prt_name]['status'] = 'incorrect';
+                    } elseif ($fraction == $prt_result->getWeight()) {
+                        $evaluation_data['points'][$prt_name]['status'] = 'correct';
+                    } elseif ($fraction < $prt_result->getWeight()) {
+                        $evaluation_data['points'][$prt_name]['status'] = 'partially_correct';
+                    } else {
+                        $evaluation_data['points'][$prt_name]['status'] = null;
+                        ilUtil::sendFailure('Error calculating PRT points in evaluateQuestion', true);
+                    }
+
+                    //Count points
+                    $points_obtained = $points_obtained + $fraction;
+                }
+            }
+
+            if ($points_obtained > $this->getMaximumPoints()) {
+                ilUtil::sendFailure('Error calculating points in evaluateQuestion, trying to give more than existing, set to Max Points.', true);
+            }
+
+            //Manage Inputs and Validation
+            foreach ($this->inputs as $input_name => $input) {
+                $evaluation_data['inputs']['states'][$input_name] = $this->getInputState($input_name, $user_response);
+                $evaluation_data['inputs']['validation'][$input_name] = $this->inputs[$input_name]->render_validation($evaluation_data['inputs']['states'][$input_name], $input_name);
+            }
+
+            //Mark as evaluated
+            $this->setEvaluation($evaluation_data);
+
+        } catch (stack_exception $e) {
+
+            ilUtil::sendFailure($e, true);
+
         }
-        $this->setEvaluation($evaluation_data);
 
         return true;
     }
@@ -1216,86 +1278,86 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         try {
 
             $prt = new stdClass;
-            $prt->name              = 'ans';
-            $prt->id                = 0;
-            $prt->value             = 1;
-            $prt->feedbackstyle     = 1;
+            $prt->name = 'ans';
+            $prt->id = 0;
+            $prt->value = 1;
+            $prt->feedbackstyle = 1;
             $prt->feedbackvariables = '';
-            $prt->firstnodename     = '0';
-            $prt->nodes             = [];
-            $prt->autosimplify      = true;
+            $prt->firstnodename = '0';
+            $prt->nodes = [];
+            $prt->autosimplify = true;
             $newnode = new stdClass;
-            $newnode->id                  = '0';
-            $newnode->nodename            = '0';
-            $newnode->description         = '';
-            $newnode->sans                = 'ans1';
-            $newnode->tans                = 'ta';
-            $newnode->answertest          = 'AlgEquiv';
-            $newnode->testoptions         = '';
-            $newnode->quiet               = false;
-            $newnode->falsescore          = '0';
-            $newnode->falsescoremode      = '=';
-            $newnode->falsepenalty        = 0;
-            $newnode->falsefeedback       = '';
+            $newnode->id = '0';
+            $newnode->nodename = '0';
+            $newnode->description = '';
+            $newnode->sans = 'ans1';
+            $newnode->tans = 'ta';
+            $newnode->answertest = 'AlgEquiv';
+            $newnode->testoptions = '';
+            $newnode->quiet = false;
+            $newnode->falsescore = '0';
+            $newnode->falsescoremode = '=';
+            $newnode->falsepenalty = 0;
+            $newnode->falsefeedback = '';
             $newnode->falsefeedbackformat = '1';
-            $newnode->falseanswernote     = 'ans-0-F';
-            $newnode->falsenextnode       = '1';
-            $newnode->truescore           = 'sc2';
-            $newnode->truescoremode       = '=';
-            $newnode->truepenalty         = 0;
-            $newnode->truefeedback        = '';
-            $newnode->truefeedbackformat  = '1';
-            $newnode->trueanswernote      = 'ans-0-T';
-            $newnode->truenextnode        = '-1';
+            $newnode->falseanswernote = 'ans-0-F';
+            $newnode->falsenextnode = '1';
+            $newnode->truescore = 'sc2';
+            $newnode->truescoremode = '=';
+            $newnode->truepenalty = 0;
+            $newnode->truefeedback = '';
+            $newnode->truefeedbackformat = '1';
+            $newnode->trueanswernote = 'ans-0-T';
+            $newnode->truenextnode = '-1';
             $prt->nodes[] = $newnode;
             $newnode = new stdClass;
-            $newnode->id                  = '1';
-            $newnode->nodename            = '1';
-            $newnode->description         = '';
-            $newnode->sans                = 'ans1';
-            $newnode->tans                = '{p}';
-            $newnode->answertest          = 'AlgEquiv';
-            $newnode->testoptions         = '';
-            $newnode->quiet               = false;
-            $newnode->falsescore          = '0';
-            $newnode->falsescoremode      = '=';
-            $newnode->falsepenalty        = 0;
-            $newnode->falsefeedback       = '';
+            $newnode->id = '1';
+            $newnode->nodename = '1';
+            $newnode->description = '';
+            $newnode->sans = 'ans1';
+            $newnode->tans = '{p}';
+            $newnode->answertest = 'AlgEquiv';
+            $newnode->testoptions = '';
+            $newnode->quiet = false;
+            $newnode->falsescore = '0';
+            $newnode->falsescoremode = '=';
+            $newnode->falsepenalty = 0;
+            $newnode->falsefeedback = '';
             $newnode->falsefeedbackformat = '1';
-            $newnode->falseanswernote     = 'ans-1-F';
-            $newnode->falsenextnode       = '2';
-            $newnode->truescore           = '0';
-            $newnode->truescoremode       = '=';
-            $newnode->truepenalty         = 0;
-            $newnode->truefeedback        = '';
-            $newnode->truefeedbackformat  = '1';
-            $newnode->trueanswernote      = 'ans-1-T';
-            $newnode->truenextnode        = '-1';
+            $newnode->falseanswernote = 'ans-1-F';
+            $newnode->falsenextnode = '2';
+            $newnode->truescore = '0';
+            $newnode->truescoremode = '=';
+            $newnode->truepenalty = 0;
+            $newnode->truefeedback = '';
+            $newnode->truefeedbackformat = '1';
+            $newnode->trueanswernote = 'ans-1-T';
+            $newnode->truenextnode = '-1';
             $prt->nodes[] = $newnode;
             $newnode = new stdClass;
-            $newnode->id                  = '2';
-            $newnode->nodename            = '2';
-            $newnode->description         = '';
-            $newnode->sans                = 'a1';
-            $newnode->tans                = '{0}';
-            $newnode->answertest          = 'AlgEquiv';
-            $newnode->testoptions         = '';
-            $newnode->quiet               = true;
-            $newnode->falsescore          = '0';
-            $newnode->falsescoremode      = '=';
-            $newnode->falsepenalty        = 0;
-            $newnode->falsefeedback       = '';
+            $newnode->id = '2';
+            $newnode->nodename = '2';
+            $newnode->description = '';
+            $newnode->sans = 'a1';
+            $newnode->tans = '{0}';
+            $newnode->answertest = 'AlgEquiv';
+            $newnode->testoptions = '';
+            $newnode->quiet = true;
+            $newnode->falsescore = '0';
+            $newnode->falsescoremode = '=';
+            $newnode->falsepenalty = 0;
+            $newnode->falsefeedback = '';
             $newnode->falsefeedbackformat = '1';
-            $newnode->falseanswernote     = 'ans-2-F';
-            $newnode->falsenextnode       = '-1';
-            $newnode->truescore           = 'sc2';
-            $newnode->truescoremode       = '=';
-            $newnode->truepenalty         = 0;
-            $newnode->truefeedback        =
+            $newnode->falseanswernote = 'ans-2-F';
+            $newnode->falsenextnode = '-1';
+            $newnode->truescore = 'sc2';
+            $newnode->truescoremode = '=';
+            $newnode->truepenalty = 0;
+            $newnode->truefeedback =
                 'All your answers satisfy the equation. But, you have missed some of the solutions.';
-            $newnode->truefeedbackformat  = '1';
-            $newnode->trueanswernote      = 'ans-2-T';
-            $newnode->truenextnode        = '-1';
+            $newnode->truefeedbackformat = '1';
+            $newnode->trueanswernote = 'ans-2-T';
+            $newnode->truenextnode = '-1';
             $prt->nodes[] = $newnode;
             $this->prts[$prt->name] = new stack_potentialresponse_tree_lite($prt, $prt->value, null);
         } catch (stack_exception $e) {
@@ -1401,7 +1463,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             }*/
 
             // Construct the security object. But first units declaration into the session.
-            $units = (boolean) $this->getCached('units');
+            $units = (boolean)$this->getCached('units');
 
             // If we have units we might as well include the units declaration in the session.
             // To simplify authors work and remove the need to call that long function.
@@ -1484,11 +1546,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             }
 
             // 6. The standard PRT feedback.
-            $prtcorrect          = castext2_evaluatable::make_from_compiled((string)$this->getCached('castext-prt-c'),
+            $prtcorrect = castext2_evaluatable::make_from_compiled((string)$this->getCached('castext-prt-c'),
                 '/pc', $static);
             $prtpartiallycorrect = castext2_evaluatable::make_from_compiled((string)$this->getCached('castext-prt-pc'),
                 '/pp', $static);
-            $prtincorrect        = castext2_evaluatable::make_from_compiled((string)$this->getCached('castext-prt-ic'),
+            $prtincorrect = castext2_evaluatable::make_from_compiled((string)$this->getCached('castext-prt-ic'),
                 '/pi', $static);
             if ($prtcorrect->requires_evaluation()) {
                 $session->add_statement($prtcorrect);
@@ -1524,27 +1586,27 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             }
 
             // Finally, store only those values really needed for later.
-            $this->question_text_instantiated        = $questiontext;
+            $this->question_text_instantiated = $questiontext;
             if ($questiontext->get_errors()) {
                 $s = stack_string('runtimefielderr',
                     array('field' => stack_string('questiontext'), 'err' => $questiontext->get_errors()));
                 $this->runtime_errors[$s] = true;
             }
-            $this->specific_feedback_instantiated    = $feedbacktext;
+            $this->specific_feedback_instantiated = $feedbacktext;
             if ($feedbacktext->get_errors()) {
                 $s = stack_string('runtimefielderr',
                     array('field' => stack_string('specificfeedback'), 'err' => $feedbacktext->get_errors()));
                 $this->runtime_errors[$s] = true;
             }
-            $this->question_note_instantiated        = $notetext;
+            $this->question_note_instantiated = $notetext;
             if ($notetext->get_errors()) {
                 $s = stack_string('runtimefielderr',
                     array('field' => stack_string('questionnote'), 'err' => $notetext->get_errors()));
                 $this->runtime_errors[$s] = true;
             }
-            $this->prt_correct_instantiated          = $prtcorrect;
+            $this->prt_correct_instantiated = $prtcorrect;
             $this->prt_partially_correct_instantiated = $prtpartiallycorrect;
-            $this->prt_incorrect_instantiated        = $prtincorrect;
+            $this->prt_incorrect_instantiated = $prtincorrect;
             $this->session = $sessiontokeep;
             if ($sessiontokeep->get_errors()) {
                 $s = stack_string('runtimefielderr',
@@ -1555,7 +1617,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             // Allow inputs to update themselves based on the model answers.
             $this->adaptInputs();
 
-            $this->general_feedback_instantiated     = $generalfeedback;
+            $this->general_feedback_instantiated = $generalfeedback;
             $this->question_description_instantiated = $questiondescription;
         }
 
@@ -1915,9 +1977,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
         if (array_key_exists($name, $this->inputs)) {
             $qv = [];
-            $qv['preamble-qv']         = $this->getCached('preamble-qv');
+            $qv['preamble-qv'] = $this->getCached('preamble-qv');
             $qv['contextvariables-qv'] = $this->getCached('contextvariables-qv');
-            $qv['statement-qv']        = $this->getCached('statement-qv');
+            $qv['statement-qv'] = $this->getCached('statement-qv');
 
             $this->input_states[$name] = $this->inputs[$name]->validate_student_response(
                 $response, $this->options, $teacheranswer, $this->security, $raw_input,
@@ -2013,9 +2075,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             }
         }
         // If any PRT is gradable, then we can grade the question.
-        $noprts = true;
+        $no_prts = true;
         foreach ($this->prts as $index => $prt) {
-            $noprts = false;
+            $no_prts = false;
             // Whether formative PRTs can be executed is not relevant to gradability.
             if (!$prt->is_formative() && $this->canExecutePrt($prt, $response, true)) {
                 return true;
@@ -2023,9 +2085,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
         // In the case of no PRTs,  questions are in state "is_gradable" if we have
         // at least one input in the "score" or "valid" state.
-        if ($noprts) {
-            foreach ($this->inputstates as $key => $inputstate) {
-                if ($inputstate->status == 'score' || $inputstate->status == 'valid') {
+        if ($no_prts) {
+            foreach ($this->input_states as $key => $input_state) {
+                if ($input_state->status == 'score' || $input_state->status == 'valid') {
                     return true;
                 }
             }
@@ -2057,7 +2119,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * grade_response(array $response) in Moodle
      * for Manual scoring
      */
-    public function gradeResponse(array $response) {
+    public function gradeResponse(array $response)
+    {
         $fraction = 0;
 
         // If we have one or more notes input which needs manual grading, then mark it as needs grading.
@@ -2095,7 +2158,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return true;
     }
 
-    public function getPartsAndWeights() {
+    public function getPartsAndWeights()
+    {
         $weights = array();
         foreach ($this->prts as $index => $prt) {
             if (!$prt->is_formative()) {
@@ -2105,7 +2169,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return $weights;
     }
 
-    public function gradePartsThatCanBeGraded(array $response, array $lastgradedresponses, $finalsubmit) {
+    public function gradePartsThatCanBeGraded(array $response, array $lastgradedresponses, $finalsubmit)
+    {
         $partresults = array();
 
         // At the moment, this method is not written as efficiently as it might
@@ -2149,7 +2214,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     /**
      * @throws stack_exception
      */
-    public function computeFinalGrade($responses, $totaltries) {
+    public function computeFinalGrade($responses, $totaltries)
+    {
         // This method is used by the interactive behaviour to compute the final
         // grade after all the tries are done.
 
@@ -2253,10 +2319,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         if (!array_key_exists($index, $this->prts)) {
             $msg = '"' . $this->getTitle() . '" (' . $this->getId() . ') seed = ' .
                 $this->getSeed() . ' and STACK version = ' . $this->stack_version;
-            throw new stack_exception ("get_prt_input called for PRT " . $index ." which does not exist in question " . $msg);
+            throw new stack_exception ("get_prt_input called for PRT " . $index . " which does not exist in question " . $msg);
         }
         $prt = $this->prts[$index];
-        $prtinput = array();
+        $prt_input = array();
         foreach ($this->getCached('required')[$prt->get_name()] as $name => $ignore) {
             $state = $this->getInputState($name, $response);
             if (stack_input::SCORE == $state->status || ($accept_valid && stack_input::VALID == $state->status)) {
@@ -2264,11 +2330,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 if ($state->simp === true) {
                     $val = 'ev(' . $val . ',simp)';
                 }
-                $prtinput[$name] = $val;
+                $prt_input[$name] = $val;
             }
         }
 
-        return $prtinput;
+        return $prt_input;
     }
 
     /**
@@ -2326,7 +2392,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }*/
 
         // Construct the security object. But first units declaration into the session.
-        $units = (boolean) $this->getCached('units');
+        $units = (boolean)$this->getCached('units');
 
         // If we have units we might as well include the units declaration in the session.
         // To simplify authors work and remove the need to call that long function.
@@ -2411,7 +2477,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param mixed $newvalue the new value to set.
      * @return string|array array.
      */
-    protected function setValueInNestedArrays($arrayorscalar, $newvalue) {
+    protected function setValueInNestedArrays($arrayorscalar, $newvalue)
+    {
         if (!is_array($arrayorscalar)) {
             return $newvalue;
         }
@@ -2431,7 +2498,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * only be used for special purposes, namely the tidyquestion.php script.
      * @throws stack_exception
      */
-    public function setupFakeFeedbackAndInputValidation() {
+    public function setupFakeFeedbackAndInputValidation()
+    {
         // Set the cached input stats as if the user types the input name into each box.
         foreach ($this->input_states as $name => $inputstate) {
             $this->input_states[$name] = new stack_input_state(
@@ -2493,7 +2561,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         if (!empty($this->variants_selection_seed)) {
             return $this->variants_selection_seed;
         } else {
-            return (string) time();
+            return (string)time();
         }
     }
 
@@ -2525,7 +2593,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         // So we will build another session just for this.
         // First we replace the compiled statements with the raw keyval statements.
         $tmp = $this->session->get_session();
-        $tmp = array_filter($tmp, function($v) {
+        $tmp = array_filter($tmp, function ($v) {
             return method_exists($v, 'is_correctly_evaluated');
         });
         $kv = new stack_cas_keyval($this->question_variables, $this->options, $this->seed);
@@ -2604,7 +2672,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         $qfields = array('questiontext', 'questionvariables', 'questionnote', 'questiondescription',
             'specificfeedback', 'generalfeedback');
 
-        $stackversion = (int) $this->stack_version;
+        $stackversion = (int)$this->stack_version;
 
         // Things no longer allowed in questions.
         $patterns = array(

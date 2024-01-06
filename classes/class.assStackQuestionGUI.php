@@ -108,10 +108,6 @@ class assStackQuestionGUI extends assQuestionGUI
         }
         $user_response = $temp_user_response;
 
-        //Ensure evaluation has been done
-        if (empty($this->object->getEvaluation())) {
-            $this->object->evaluateQuestion($user_response);
-        }
 
         $attempt_data = [];
 
@@ -147,7 +143,7 @@ class assStackQuestionGUI extends assQuestionGUI
     {
         $seed = assStackQuestionDB::_getSeed($show_correct_solution ? "correct" : "test", $this->object, (int)$active_id);
         $this->object->questionInitialisation($seed, true);
-        $user_response = StackUserResponseIlias::getStackUserResponse($show_correct_solution ? "correct" : "test", $this->object->getId(), (int)$active_id);
+        $user_response =  $this->object->getCorrectResponse();
 
         if (isset($user_response["inputs"])) {
             //TODO: Check if this is correct.
@@ -160,24 +156,21 @@ class assStackQuestionGUI extends assQuestionGUI
             $user_response = $temp_user_response;
         }
 
-        //Ensure evaluation has been done
-        if (empty($this->object->getEvaluation())) {
-            $this->object->evaluateQuestion($user_response);
-        }
-
         $attempt_data = [];
 
         $attempt_data['response'] = $user_response;
         $attempt_data['question'] = $this->object;
 
         $display_options = [];
-        $display_options['readonly'] = false;
+        $display_options['readonly'] = true;
         $display_options['feedback'] = true;
 
         //Render question
         $question = StackRenderIlias::renderQuestion($attempt_data, $display_options);
 
-        $question = $this->getILIASPage($question);
+        if (!$show_question_only) {
+            $question = $this->getILIASPage($question);
+        }
 
         return assStackQuestionUtils::_getLatex($question);
 	}
@@ -209,7 +202,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $display_options = [];
         $display_options['readonly'] = false;
-        $display_options['feedback'] = true;
+        $display_options['feedback'] = $showInlineFeedback;
 
 		//Render question Preview
         $question_preview = StackRenderIlias::renderQuestion($attempt_data, $display_options);
@@ -235,11 +228,6 @@ class assStackQuestionGUI extends assQuestionGUI
         $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
         $this->object->questionInitialisation($seed, true);
         $user_response = StackUserResponseIlias::getStackUserResponse('preview', $this->object->getId(), $DIC->user()->getId());
-
-        //Ensure evaluation has been done
-        if (empty($this->object->getEvaluation())) {
-            $this->object->evaluateQuestion($user_response);
-        }
 
         $attempt_data = [];
 
@@ -1592,6 +1580,16 @@ class assStackQuestionGUI extends assQuestionGUI
     public function editUnitTestUI(){
         $ui = new RandomisationUI([]);
         $this->tpl->setContent($ui->show_form_in_modal());
+    }
+
+
+    public function setAsActiveVariant()
+    {
+        if(isset($_GET['set_active_variant_identifier'])){
+            $variant_id = $_GET['set_active_variant_identifier'];
+            assStackQuestionDB::_saveSeedForPreview($this->object->getId(),$variant_id);
+        }
+        $this->deployedSeedsManagement();
     }
 
 

@@ -1893,6 +1893,48 @@ class assStackQuestionDB
     }
 
     /**
+     * Read the current active seed for a question
+     *
+     * @param int $question_id
+     * @return array|null
+     */
+    public static function _readActiveSeed(int $question_id) {
+        global $DIC;
+        $db = $DIC->database();
+
+        $res = $db->query("SELECT seed FROM xqcas_preview WHERE question_id = " .
+            $db->quote($question_id, 'integer') . " AND user_id = " .
+            $db->quote($DIC->user()->getId(), 'integer') . " AND is_active = 1");
+
+        $row = $db->fetchAssoc($res);
+        if ($row) {
+            return (string)$row['seed'];
+        }
+
+        return null;
+    }
+
+    /**
+     * Saves the active seed
+     *
+     * @param int $question_id
+     * @param array $data
+     * @return void
+     */
+    public static function _saveSeedForPreview(int $question_id, int $seed) :void {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->update("xqcas_preview", array(
+            'seed' => array('integer', $seed)
+        ), array(
+            'question_id' => array('integer', $question_id),
+            'user_id' => array('integer', $DIC->user()->getId()),
+            'is_active' => array('integer', 1)
+        ));
+    }
+
+    /**
      * Save a preview solution for a question
      *
      * @param int $question_id
