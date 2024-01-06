@@ -87,13 +87,12 @@ class PluginConfigurationQualityUI
 
     /**
      * Gets the Clear Cache button for the plugin configuration
-     * @throws ilCtrlException
      */
     private static function getClearCacheButton(ilPlugin $plugin_object): Standard
     {
         return self::$factory->button()->standard(
             $plugin_object->txt('clear_cache'),
-            "#"
+            self::$control->getLinkTargetByClass("ilassStackQuestionConfigGUI", "clearCache")
         );
     }
 }

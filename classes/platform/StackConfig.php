@@ -172,4 +172,23 @@ class StackConfig {
         // In case there is nothing to update, return true to avoid error messages
         return true;
     }
+
+    /**
+     * Clear the platform Maxima cache
+     * @return bool
+     */
+    public static function clearCache(): bool
+    {
+        global $DIC;
+        $db = $DIC->database();
+        $query = "TRUNCATE table xqcas_cas_cache";
+        $db->manipulate($query);
+
+        //TODO 31702
+        /*Additional this two pathes should be flushed too:
+        ./data/<client_id>/xqcas/stack/plots
+        ./data/<client_id>/xqcas/stack/tmp*/
+
+        return TRUE;
+    }
 }
