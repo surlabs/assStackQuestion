@@ -269,4 +269,10 @@ class prt_evaluatable implements cas_raw_value_extractor {
     public function get_debuginfo(): string {
         return 'TODO DEBUGINFO';
     }
+
+
+    public function getWeight(): float
+    {
+        return (float)$this->weight;
+    }
 }
