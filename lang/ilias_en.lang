@@ -151,6 +151,23 @@ ui_author_import_moodle_xml_title#:#Import question(s) from a MoodleXML file
 ui_author_import_moodle_xml_file#:#Moodle XML file
 ui_author_import_moodle_xml_import_button#:#Import
 ui_author_import_moodle_xml_cancel_import_button#:#Back
+ui_author_randomisation_add_standard_test_description#:#Add a standard test
+ui_author_randomisation_add_standard_test_button_text#:#Add standard test
+ui_author_randomisation_active_variant_panel_title#:#Active variant
+ui_author_randomisation_deployed_variants_panel_title#:#Deployed variants
+ui_author_randomisation_is_current_active_variant_text#:#Is current active variant
+ui_author_randomisation_set_as_active_variant_action_text#:#Set as active variant
+ui_author_randomisation_show_question_text_action_text#:#Show question text
+ui_author_randomisation_question_and_feedback_variables_text#:#Question and feedback variables
+ui_author_randomisation_generate_new_variants_action_text#:#Generate new variants
+ui_author_randomisation_change_to_random_seed_action_text#:#Change to random seed
+ui_author_randomisation_run_all_tests_for_active_variant_action_text#:#Run all tests for active variant
+ui_author_randomisation_run_all_tests_for_all_variants_action_text#:#Run all tests for all variants
+ui_author_randomisation_add_unit_test_action_text#:#Add unit test
+ui_author_randomisation_run_unit_test_action_text#:#Run unit test
+ui_author_randomisation_edit_unit_test_action_text#:#Edit unit test
+ui_author_randomisation_delete_unit_test_action_text#:#Delete unit test
+ui_author_randomisation_unit_test_status_panel_title#:#Unit test status
 assStackQuestion#:#STACK Question
 question_imported_successfully#:#Question was imported successfully
 error_importing_question#:#Error importing question
