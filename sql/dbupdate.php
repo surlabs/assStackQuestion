@@ -1028,7 +1028,7 @@ if ($db->tableExists("xqcas_configuration")) {
 global $DIC;
 $db = $DIC->database();
 
-if ($db->tableExists('xqcas_options')) {
+if ($db->tableExists('xqcas_options') && !$db->tableColumnExists("xqcas_options", "question_description")) {
     $db->addTableColumn("xqcas_options", "question_description", array('type' => 'clob', 'notnull' => false, 'default' => null));
     $db->addTableColumn("xqcas_options", "question_description_format", array('type' => 'integer', 'length' => 2, 'notnull' => false, 'default' => null));
 }
@@ -1038,7 +1038,7 @@ if ($db->tableExists('xqcas_options')) {
 global $DIC;
 $db = $DIC->database();
 
-if ($db->tableExists('xqcas_configuration')) {
+if ($db->tableExists('xqcas_configuration') && $db->tableColumnExists("xqcas_configuration", "value")) {
     $db->update("xqcas_configuration", array("value" => array("clob", "linux")), array("parameter_name" => array("text", "platform_type"), "value" => array("clob", "unix")));
 }
 ?>
