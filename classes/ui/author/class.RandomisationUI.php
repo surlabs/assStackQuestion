@@ -189,17 +189,24 @@ class RandomisationUI
                 $this->control->getLinkTargetByClass("assstackquestiongui", "addCustomTest"))
         ));
 
-        $page = $this->factory->modal()->lightboxTextPage($this->data["active_variant_question_text"], $this->language->txt("qpl_qst_xqcas_message_question_text"));
+        $question_text = $this->data["active_variant_question_text"];
+
+        $page = $this->factory->modal()->lightboxTextPage(assStackQuestionUtils::_getLatex($question_text->get_rendered()), $this->language->txt("qpl_qst_xqcas_message_question_text"));
         $modal = $this->factory->modal()->lightbox($page);
 
         $button = $this->factory->button()->standard($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_show_question_text_action_text"), '')
             ->withOnClick($modal->getShowSignal());
 
         //Return the UI component
+        $active_variant_identifier = $this->data["active_variant_identifier"];
+        $active_variant_question_note = $this->data["active_variant_question_note"];
+        $active_variant_question_variables = $this->data["active_variant_question_variables"];
+        $active_variant_feedback_variables = $this->data["active_variant_feedback_variables"];
+
         return $this->factory->panel()->sub(
-            $this->data["active_variant_identifier"],
+            $active_variant_identifier,
             $this->factory->legacy(
-                $this->data["active_variant_question_note"] .
+                assStackQuestionUtils::_getLatex($active_variant_question_note->get_rendered()) .
                 $this->renderer->render($this->factory->divider()->horizontal()) .
                 $this->renderer->render([$button, $modal])
             )
@@ -208,9 +215,9 @@ class RandomisationUI
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_question_and_feedback_variables_text")
             )
                 ->withSections(array(
-                    $this->factory->legacy($this->data["active_variant_question_variables"]),
+                    $this->factory->legacy($active_variant_question_variables),
                     $this->factory->divider()->horizontal(),
-                    $this->factory->legacy($this->data["active_variant_feedback_variables"]),
+                    $this->factory->legacy($active_variant_feedback_variables),
                 )))
             ->withActions($current_active_variant_panel_actions);
     }
@@ -246,6 +253,7 @@ class RandomisationUI
                 $link = $this->factory->legacy(
                     $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_is_current_active_variant_text"));
             }
+            $question_note = $deployed_variant_data["question_note"];
             $array_of_deployed_variants[] = $this->factory->panel()->sub(
                 (string)$deployed_variant_identifier .
                 $this->renderer->render($this->factory->divider()->vertical()) .
@@ -253,7 +261,7 @@ class RandomisationUI
                 $this->factory->legacy(
                     $this->renderer->render($ico) .
                     $this->renderer->render($this->factory->divider()->vertical()) .
-                    $deployed_variant_data["question_note"]))
+                    assStackQuestionUtils::_getLatex($question_note->get_rendered())))
                 ->withActions($deployed_variant_individual_actions);
         }
 
