@@ -98,14 +98,18 @@ class stack_equiv_input extends stack_input {
             $boxwidth = max($boxwidth, strlen($row));
         }
 
+        if ($readonly) {
+            $solution_input_id = (string)rand(1000000000, 9999999999);
+            $fieldname = $solution_input_id;
+        }
         $attributes = array(
             'class' => 'equivinput',
-            'name'  => $fieldname,
-            'id'    => $fieldname,
-            'rows'  => max(3, count($rows) + 1),
-            'cols'  => min($boxwidth, 50),
+            'name' => $fieldname,
+            'id' => $fieldname,
+            'rows' => max(3, count($rows) + 1),
+            'cols' => min($boxwidth, 50),
             'autocapitalize' => 'none',
-            'spellcheck'     => 'false',
+            'spellcheck' => 'false',
         );
         if ($placeholder) {
             $attributes['placeholder'] = $placeholder;

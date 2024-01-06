@@ -53,6 +53,8 @@ class stack_boolean_input extends stack_input {
         $attributes = array();
         if ($readonly) {
             $attributes['disabled'] = 'disabled';
+            $solution_input_id = (string)rand(1000000000, 9999999999);
+            $fieldname = $solution_input_id;
         }
 
         $value = $this->contents_to_maxima($state->contents);

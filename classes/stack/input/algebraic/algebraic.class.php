@@ -41,6 +41,13 @@ class stack_algebraic_input extends stack_input {
             return $this->render_error($this->errors);
         }
 
+        if ($readonly) {
+            //ensures input id and name are different for solution than for student input
+            $attributes['readonly'] = 'readonly';
+            $solution_input_id = (string)rand(1000000000, 9999999999);
+            $fieldname = $solution_input_id;
+        }
+
         $size = $this->parameters['boxWidth'] * 0.9 + 0.1;
         $attributes = array(
             'type'  => 'text',
@@ -68,10 +75,6 @@ class stack_algebraic_input extends stack_input {
             $attributes[$field] = $this->parameters['syntaxHint'];
         } else {
             $attributes['value'] = $value;
-        }
-
-        if ($readonly) {
-            $attributes['readonly'] = 'readonly';
         }
 
         return html_writer::empty_tag('input', $attributes);

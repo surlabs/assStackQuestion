@@ -79,6 +79,8 @@ class stack_checkbox_input extends stack_dropdown_input {
             }
             if ($readonly) {
                 $inputattributes['disabled'] = 'disabled';
+                $solution_input_id = (string)rand(1000000000, 9999999999);
+                $fieldname = $solution_input_id;
             }
             $radiobuttons[] = html_writer::empty_tag('input', $inputattributes) .
                 html_writer::tag('label', $ansid, $labelattributes);

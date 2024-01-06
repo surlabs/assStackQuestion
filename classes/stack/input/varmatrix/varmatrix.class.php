@@ -58,6 +58,10 @@ class stack_varmatrix_input extends stack_input {
         }
 
         $size = $this->parameters['boxWidth'] * 0.9 + 0.1;
+        if ($readonly) {
+            $solution_input_id = (string)rand(1000000000, 9999999999);
+            $fieldname = $solution_input_id;
+        }
         $attributes = array(
             'name'           => $fieldname,
             'id'             => $fieldname,

@@ -295,8 +295,16 @@ class stack_matrix_input extends stack_input {
                     $field = 'placeholder';
                 }
                 $name = $fieldname.'_sub_'.$i.'_'.$j;
-                $xhtml .= '<td><input type="text" id="'.$name.'" name="'.$name.'" '.$field.'="'.$val.'" size="'.
-                        $this->parameters['boxWidth'].'"'.$attr.'></td>';
+                if ($readonly) {
+                    $solution_input_id = (string)rand(1000000000, 9999999999);
+                    $xhtml .= '<td><input type="text" id="' . $solution_input_id . '" name="' . $solution_input_id . '" ' . $field . '="' . $val . '" size="' .
+                        $this->parameters['boxWidth'] . '"' . $attr . '></td>';
+
+                } else {
+                    $xhtml .= '<td><input type="text" id="' . $name . '" name="' . $name . '" ' . $field . '="' . $val . '" size="' .
+                        $this->parameters['boxWidth'] . '"' . $attr . '></td>';
+
+                }
             }
 
             if ($i == 0) {

@@ -43,6 +43,10 @@ class stack_textarea_input extends stack_input {
             return $this->render_error($this->errors);
         }
 
+        if ($readonly) {
+            $solution_input_id = (string)rand(1000000000, 9999999999);
+            $fieldname = $solution_input_id;
+        }
         $attributes = array(
             'name' => $fieldname,
             'id'   => $fieldname,

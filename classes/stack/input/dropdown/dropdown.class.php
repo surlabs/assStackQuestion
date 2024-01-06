@@ -447,6 +447,8 @@ class stack_dropdown_input extends stack_input {
         $inputattributes = array();
         if ($readonly) {
             $inputattributes['disabled'] = 'disabled';
+            $solution_input_id = (string)rand(1000000000, 9999999999);
+            $fieldname = $solution_input_id;
         }
 
         $notanswered = '';

@@ -39,6 +39,10 @@ class stack_notes_input extends stack_input {
 
         // Note that at the moment, $this->boxHeight and $this->boxWidth are only
         // used as minimums. If the current input is bigger, the box is expanded.
+        if($readonly){
+            $solution_input_id = (string)rand(1000000000, 9999999999);
+            $fieldname = $solution_input_id;
+        }
         $attributes = array(
             'name' => $fieldname,
             'id'   => $fieldname,
