@@ -116,9 +116,10 @@ class stack_potentialresponse_tree_lite {
      */
     public function is_formative() {
         // Note, some of this logic is duplicated in renderer.php before we have instantiated this class.
-        if ($this->feedbackstyle === 0) {
-            return true;
-        }
+        //if ($this->feedbackstyle === 0) {
+        //    return true;
+        //}
+        //TODO
         return false;
     }
 
