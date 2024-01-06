@@ -147,7 +147,7 @@ class StackRenderIlias extends StackRender
     {
 
         $response = $attempt_data['response'];
-        if (!($response instanceof StackUserResponse)) {
+        if (!is_array($response)) {
             throw new StackException('Invalid response type.');
         }
 
@@ -195,7 +195,7 @@ class StackRenderIlias extends StackRender
             $teacher_answer_value = $question->getTeacherAnswerForInput($input_name);
 
             $field_name = 'xqcas_' . $question->getId() . '_' . $input_name;
-            $state = $question->getInputState($input_name, $response->getStackUserResponse());
+            $state = $question->getInputState($input_name, $response);
 
             $question_text = str_replace("[[input:$input_name]]",
                 $input->render($state, $field_name, $display_options['readonly'], $teacher_answer_value),

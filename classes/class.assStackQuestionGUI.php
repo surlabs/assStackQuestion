@@ -5,6 +5,7 @@
  */
 
 use classes\platform\ilias\StackRenderIlias;
+use classes\platform\ilias\StackUserResponseIlias;
 use classes\platform\StackException;
 
 
@@ -261,8 +262,16 @@ class assStackQuestionGUI extends assQuestionGUI
 			$this->object->evaluateQuestion($this->object->getUserResponse());
 		}
 
+        $attempt_data = [];
+
+        $attempt_data['response'] = StackUserResponseIlias::getStackUserResponse('preview');
+        $attempt_data['question'] = $this->object;
+
+        $display_options = [];
+        $display_options['readonly'] = false;
+
 		//Render question Preview
-		$question_preview = StackRenderIlias::renderQuestion();
+        $question_preview = StackRenderIlias::renderQuestion($attempt_data, $display_options);
 
 		//Returns output (with page if needed)
 		if (!$show_question_only) {
@@ -281,8 +290,6 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function getSpecificFeedbackOutput($userSolution): string
 	{
 
-		$this->getPlugin()->includeClass('class.assStackQuestionRenderer.php');
-
 		//Include content Style
 		$style_id = assStackQuestionUtils::_getActiveContentStyleId();
 		if (strlen($style_id)) {
@@ -291,24 +298,8 @@ class assStackQuestionGUI extends assQuestionGUI
 			$DIC->globalScreen()->layout()->meta()->addCss(ilObjStyleSheet::getContentStylePath((int)$style_id));
 		}
 
-		//$general_feedback = assStackQuestionRenderer::_renderGeneralFeedback($this->object);
-
-		if (isset($this->is_preview)) {
-
-            global $DIC;
-            $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
-            $this->object->questionInitialisation($seed, true);
-
-            //Ensure evaluation has been done
-			if (empty($this->object->getEvaluation())) {
-				$this->object->evaluateQuestion($userSolution);
-			}
-
-			$specific_feedback = assStackQuestionRenderer::_renderFeedbackForPreview($this->object);
-		} else {
-			$specific_feedback = assStackQuestionRenderer::_renderFeedbackForTest($this->object, $userSolution);
-		}
-
+        //TODO SPECIFIC FEEDBACK DIFFERENCES PREVIEW TEST
+        $specific_feedback = '';
 		//return $general_feedback . $specific_feedback;
         return $specific_feedback;
     }
