@@ -1,9 +1,15 @@
 <?php
 declare(strict_types=1);
 
+namespace classes\ui\author;
+
+use assStackQuestionDB;
+use assStackQuestionUtils;
+use ilCtrlException;
 use ILIAS\UI\Component\Panel\Sub;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
+use ilSetting;
 
 /**
  * This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
@@ -23,7 +29,7 @@ use ILIAS\UI\Renderer;
  * stack@surlabs.es
  *
  *********************************************************************/
-class RandomisationUI
+class RandomisationAndSecurityUI
 {
 
     private Factory $factory;

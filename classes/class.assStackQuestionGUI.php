@@ -23,6 +23,7 @@ use classes\platform\ilias\StackRandomisationIlias;
 use classes\platform\ilias\StackRenderIlias;
 use classes\platform\ilias\StackUserResponseIlias;
 use classes\platform\StackException;
+use classes\ui\author\RandomisationAndSecurityUI;
 
 
 /**
@@ -1135,7 +1136,7 @@ class assStackQuestionGUI extends assQuestionGUI
             'question_id' => $this->object->getId(),
             'unit_tests' => $this->object->getUnitTests(),
         );
-        $ui = new RandomisationUI($array);
+        $ui = new RandomisationAndSecurityUI($array);
 
 		//Add MathJax (Ensure MathJax is loaded)
 		//include_once "./Services/Administration/classes/class.ilSetting.php";
@@ -1261,7 +1262,7 @@ class assStackQuestionGUI extends assQuestionGUI
         $this->object->instantiateUnitTests();
         $unit_test_data = $this->object->getUnitTests();
 
-        $ui = new RandomisationUI([]);
+        $ui = new RandomisationAndSecurityUI([]);
         $this->tpl->setContent($ui->show(true));
     }
 
@@ -1595,12 +1596,12 @@ class assStackQuestionGUI extends assQuestionGUI
 
     public function changeActiveVariant()
     {
-        $ui = new RandomisationUI([]);
+        $ui = new RandomisationAndSecurityUI([]);
         $this->tpl->setContent($ui->show_form_in_modal());
     }
 
     public function editUnitTestUI(){
-        $ui = new RandomisationUI([]);
+        $ui = new RandomisationAndSecurityUI([]);
         $this->tpl->setContent($ui->show_form_in_modal());
     }
 

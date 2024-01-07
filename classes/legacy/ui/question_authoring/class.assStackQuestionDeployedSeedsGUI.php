@@ -77,7 +77,7 @@ class assStackQuestionDeployedSeedsGUI
             'question_id' => $this->getQuestionId(),
             'unit_tests' => $this->getParentObj()->object->getUnitTests(),
         );
-        $ui = new RandomisationUI($array);
+        $ui = new RandomisationAndSecurityUI($array);
         return $ui->show(true);
 	}
 
