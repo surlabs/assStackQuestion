@@ -6,6 +6,7 @@ namespace classes\platform\ilias;
 
 use assStackQuestion;
 use assStackQuestionDB;
+use maxima_parser_utils;
 
 /**
  * This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
@@ -42,6 +43,9 @@ class StackRandomisationIlias
         //Get question note for each different seed
         foreach ($variants as $id => $deployed_seed) {
             $question->questionInitialisation($deployed_seed, true, true);
+
+            //Format question variables
+            $question_variables = $question->getQuestionSessionKeyvalRepresentation();
             $question_text_instantiated = $question->question_text_instantiated;
             $question_note_instantiated = $question->question_note_instantiated;
             $number_of_valid_seeds++;
@@ -49,7 +53,7 @@ class StackRandomisationIlias
                 'note' => $question_note_instantiated,
                 'question_id' => $question->getId(),
                 'question_text' => $question_text_instantiated,
-                'question_variables' => $question->compiled_cache);
+                'question_variables' => $question_variables);
         }
 
         return $valid_seeds;

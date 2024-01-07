@@ -87,7 +87,7 @@ class RandomisationAndSecurityUI
                         $this->data["active_variant_identifier"] = (string)$deployed_seed["seed"];
                         $this->data["active_variant_question_note"] = (string)$deployed_seed["note"]->get_rendered();
                         $this->data["active_variant_question_text"] = (string)$deployed_seed["question_text"]->get_rendered();
-                        $this->data["active_variant_question_variables"] = (string)$deployed_seed["question_id"];
+                        $this->data["active_variant_question_variables"] = (string)$deployed_seed["question_variables"];
                         $this->data["active_variant_feedback_variables"] = (string)$deployed_seed["feedback_id"];
                     }
 
