@@ -81,7 +81,7 @@ class RandomisationAndSecurityUI
             //deployed seeds
             if ($key === "deployed_seeds") {
                 $this->data["deployed_variants"] = [];
-                foreach ($value as $deployed_seed) {
+                foreach ($value as $id => $deployed_seed) {
                     $active_seed = assStackQuestionDB::_readActiveSeed($deployed_seed["question_id"]);
                     if ((int)$active_seed === (int)$deployed_seed["seed"]) {
                         $this->data["active_variant_identifier"] = (string)$deployed_seed["seed"];
@@ -90,12 +90,17 @@ class RandomisationAndSecurityUI
                         $this->data["active_variant_question_variables"] = (string)$deployed_seed["question_id"];
                         $this->data["active_variant_feedback_variables"] = (string)$deployed_seed["feedback_id"];
                     }
-                    $this->data["deployed_variants"][$deployed_seed["seed"]] = [
-                        "question_note" => $deployed_seed["note"],
-                        "question_variables" => $deployed_seed["question_id"],
-                        "unit_test_passed" => "True",
-                        "question_text" => $deployed_seed["question_text"]
-                    ];
+
+                    if ($id === "") {
+                        //non deployed seed
+                    } else {
+                        $this->data["deployed_variants"][$deployed_seed["seed"]] = [
+                            "question_note" => $deployed_seed["note"],
+                            "question_variables" => $deployed_seed["question_id"],
+                            "unit_test_passed" => "True",
+                            "question_text" => $deployed_seed["question_text"]
+                        ];
+                    }
                 }
                 continue;
             }

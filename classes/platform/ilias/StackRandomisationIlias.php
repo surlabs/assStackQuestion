@@ -28,12 +28,16 @@ use assStackQuestionDB;
 class StackRandomisationIlias
 {
 
-    public static function getQuestionNotesForSeeds(assStackQuestion $question): array
+    public static function getRandomisationData(assStackQuestion $question, ?int $force_active_seed): array
     {
         $valid_seeds = array();
         $number_of_valid_seeds = 0;
 
         $variants = assStackQuestionDB::_readDeployedVariants($question->getId());
+
+        if ($force_active_seed !== null && !array_key_exists($force_active_seed, $variants)) {
+            $variants[null] = $force_active_seed;
+        }
 
         //Get question note for each different seed
         foreach ($variants as $id => $deployed_seed) {

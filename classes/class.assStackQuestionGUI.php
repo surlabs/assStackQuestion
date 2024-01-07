@@ -1112,11 +1112,12 @@ class assStackQuestionGUI extends assQuestionGUI
 	}
 
 
-	/**
-	 * Redirects to the Deployed Seeds Tabs
-	 * @return void
-	 */
-	public function randomisationAndSecurity()
+    /**
+     * Redirects to the Deployed Seeds Tabs
+     * @param int|null $force_active_seed
+     * @return void
+     */
+	public function randomisationAndSecurity(?int $force_active_seed = null): void
 	{
 		global $DIC;
 		$tabs = $DIC->tabs();
@@ -1129,7 +1130,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tabs->activateSubTab('randomisation_and_security');
 		$this->getQuestionTemplate();
 
-        $deployed_seed_data = StackRandomisationIlias::getQuestionNotesForSeeds($this->object);
+        $deployed_seed_data = StackRandomisationIlias::getRandomisationData($this->object, $force_active_seed);
 
         $array = array(
             'deployed_seeds' => $deployed_seed_data,
@@ -1613,6 +1614,14 @@ class assStackQuestionGUI extends assQuestionGUI
             assStackQuestionDB::_saveSeedForPreview($this->object->getId(),(int)$variant_id);
         }
         $this->randomisationAndSecurity();
+    }
+
+    public function changeToRandomSeed()
+    {
+        $seed = rand(1111111111,9999999999);
+        $this->object->deployed_seeds[$seed] = $seed;
+        assStackQuestionDB::_saveSeedForPreview($this->object->getId(),$seed);
+        $this->randomisationAndSecurity($seed);
     }
 
 
