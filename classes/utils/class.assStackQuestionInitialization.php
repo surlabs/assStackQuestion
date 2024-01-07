@@ -29,8 +29,7 @@ $GLOBALS['CFG'] =& $CFG;
 define('PARAM_RAW', 'raw');
 define('MOODLE_INTERNAL', '1');
 
-include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/locallib.php';
-include_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/exceptions/class.assStackQuestionException.php');
+//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/locallib.php';
 
 
 if (!function_exists('getLanguage')) {
@@ -593,7 +592,7 @@ if (!class_exists('html_writer')) {
                     }
                     break;
                 default:
-                    throw new assStackQuestionException("Time type $type is not supported by html_writer::select_time().");
+                    throw new Exception("Time type $type is not supported by html_writer::select_time().");
             }
 
             if (empty($attributes['id'])) {

@@ -104,7 +104,7 @@ class ilColumnsFormPropertyGUI extends ilMultipartFormPropertyGUI
 				$lng = $DIC->language();
 
 				//Student answer
-				include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+				//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 				if (assStackQuestionUtils::_endsWith($form_property->postvar, "_student_answer"))
 				{
 					$comment_id = rand(100000, 999999);
@@ -115,7 +115,7 @@ class ilColumnsFormPropertyGUI extends ilMultipartFormPropertyGUI
 				}
 
 				//Teacher answer
-				include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+				//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 				if (assStackQuestionUtils::_endsWith($form_property->postvar, "_teacher_answer"))
 				{
 					$comment_id = rand(100000, 999999);
@@ -126,7 +126,7 @@ class ilColumnsFormPropertyGUI extends ilMultipartFormPropertyGUI
 				}
 
 				//Node options
-				include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+				//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 				if (assStackQuestionUtils::_endsWith($form_property->postvar, "_options"))
 				{
 					$comment_id = rand(100000, 999999);
@@ -137,7 +137,7 @@ class ilColumnsFormPropertyGUI extends ilMultipartFormPropertyGUI
 				}
 
 				//specific feedback
-				include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+				//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 				if (assStackQuestionUtils::_endsWith($form_property->postvar, "_specific_feedback"))
 				{
 					$comment_id = rand(100000, 999999);

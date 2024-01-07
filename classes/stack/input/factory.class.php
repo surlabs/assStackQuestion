@@ -67,7 +67,7 @@ class stack_input_factory {
         if (!is_readable($file)) {
             throw new stack_exception('stack_input_factory: unknown input type ' . $type);
         }
-        include_once($file);
+        //include_once($file);
 
         if (!class_exists($class)) {
             throw new stack_exception('stack_input_factory: input type ' . $type .
@@ -115,7 +115,7 @@ class stack_input_factory {
             }
 
             // Skip folders that don't define the right class.
-            include_once($file);
+            //include_once($file);
             $class = "stack_{$inputname}_input";
             if (!class_exists($class)) {
                 continue;

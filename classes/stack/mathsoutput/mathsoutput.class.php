@@ -133,7 +133,7 @@ class stack_maths {
         if (!is_readable($file)) {
             throw new stack_exception('stack_maths: unknown output method ' . $type);
         }
-        include_once($file);
+        //include_once($file);
 
         if (!class_exists($class)) {
             throw new stack_exception('stack_maths: output method ' . $type .

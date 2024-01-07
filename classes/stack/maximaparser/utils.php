@@ -27,7 +27,7 @@
 //require_once(__DIR__ . '/../utils.class.php');
 //require_once(__DIR__ . '/MP_classes.php');
 
-include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/locallib.php';
+//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/locallib.php';
 
 class maxima_parser_utils {
 

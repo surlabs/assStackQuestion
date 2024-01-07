@@ -79,8 +79,9 @@ class assStackQuestionGUI extends assQuestionGUI
             }
         }
         //Initialize some STACK required parameters
-        include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
-	}
+        require_once __DIR__ . '/utils/class.assStackQuestionInitialization.php';
+        require_once(__DIR__ . '/utils/locallib.php');
+    }
 
     /**
      * Returns the HTML for the Test View
@@ -534,7 +535,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->getQuestionTemplate();
 
 		//Create GUI object
-		$this->plugin->includeClass('GUI/question_authoring/class.assStackQuestionAuthoringGUI.php');
+		//$this->plugin->includeClass('GUI/question_authoring/class.assStackQuestionAuthoringGUI.php');
 		$authoring_gui = new assStackQuestionAuthoringGUI($this->plugin, $this);
 
 		//Add CSS
@@ -758,7 +759,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function initRTESupport()
 	{
-		include_once "./Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php";
+		//include_once "./Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php";
 		$this->rte_tags = ilObjAdvancedEditing::_getUsedHTMLTags($this->rte_module);
 
 		$this->required_tags = array("a", "blockquote", "br", "cite", "code", "div", "em", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "img", "li", "ol", "p", "pre", "span", "strike", "strong", "sub", "sup", "table", "caption", "thead", "th", "td", "tr", "u", "ul", "i", "b", "gap");
@@ -800,8 +801,8 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tabs = $DIC->tabs();
 
 		$this->ctrl->setParameterByClass("ilAssQuestionPageGUI", "q_id", $_GET["q_id"]);
-		include_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
-		$this->plugin->includeClass('class.ilAssStackQuestionFeedback.php');
+		//include_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
+		//$this->plugin->includeClass('class.ilAssStackQuestionFeedback.php');
 
 		$q_type = $this->object->getQuestionType();
 
@@ -879,8 +880,8 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tabs = $DIC->tabs();
 
 		$this->ctrl->setParameterByClass("ilAssQuestionPageGUI", "q_id", $_GET["q_id"]);
-		include_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
-		$this->plugin->includeClass('class.ilAssStackQuestionFeedback.php');
+		//include_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
+		//$this->plugin->includeClass('class.ilAssStackQuestionFeedback.php');
 
 		$q_type = $this->object->getQuestionType();
 
@@ -987,7 +988,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			ilUtil::sendFailure($this->plugin->txt('error_import_question_in_test'), true);
 		} else {
 			//Include import class and prepare object
-			$this->plugin->includeClass('model/import/MoodleXML/class.assStackQuestionMoodleImport.php');
+			//$this->plugin->includeClass('model/import/MoodleXML/class.assStackQuestionMoodleImport.php');
 			$import = new assStackQuestionMoodleImport($this->plugin, (int)$_POST['first_question_id'], $this->object);
 			$import->setRTETags($this->getRTETags());
 			$import->import($xml_file);
@@ -1112,11 +1113,11 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->getQuestionTemplate();
 
 		//Create GUI object
-		$this->getPlugin()->includeClass('GUI/question_authoring/class.assStackQuestionDeployedSeedsGUI.php');
+		//$this->getPlugin()->includeClass('GUI/question_authoring/class.assStackQuestionDeployedSeedsGUI.php');
 		$deployed_seeds_gui = new assStackQuestionDeployedSeedsGUI($this->plugin, $this->object->getId(), $this);
 
 		//Add MathJax (Ensure MathJax is loaded)
-		include_once "./Services/Administration/classes/class.ilSetting.php";
+		//include_once "./Services/Administration/classes/class.ilSetting.php";
 		$mathJaxSetting = new ilSetting("MathJax");
 		$DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
 
@@ -1191,7 +1192,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->getQuestionTemplate();
 
 		//Create GUI object
-		$this->plugin->includeClass('GUI/question_authoring/class.assStackQuestionScoringGUI.php');
+		//$this->plugin->includeClass('GUI/question_authoring/class.assStackQuestionScoringGUI.php');
 		$scoring_gui = new assStackQuestionScoringGUI($this->plugin, $this->object, $this->object->getPoints());
 
 		//Add CSS
@@ -1252,7 +1253,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tabs = $DIC->tabs();
 
 		//Set all parameters required
-		$this->plugin->includeClass('utils/class.assStackQuestionStackFactory.php');
+		//$this->plugin->includeClass('utils/class.assStackQuestionStackFactory.php');
 		$tabs->activateTab('edit_properties');
 		$tabs->activateSubTab('unit_tests');
 		$this->getQuestionTemplate();
@@ -1272,18 +1273,18 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Create STACK Question object if doesn't exists
 		if (!is_a($this->object->getStackQuestion(), 'assStackQuestionStackQuestion')) {
-			$this->plugin->includeClass("model/class.assStackQuestionStackQuestion.php");
+			//$this->plugin->includeClass("model/class.assStackQuestionStackQuestion.php");
 			$this->object->setStackQuestion(new assStackQuestionStackQuestion());
 			$this->object->getStackQuestion()->init($this->object);
 		}
 
 		//Create Unit test object
-		$this->plugin->includeClass("model/ilias_object/test/class.assStackQuestionUnitTests.php");
+		//$this->plugin->includeClass("model/ilias_object/test/class.assStackQuestionUnitTests.php");
 		$unit_tests_object = new assStackQuestionUnitTests($this->plugin, $this->object);
 		$unit_test_results = $unit_tests_object->runTest($testcase_name);
 
 		//Create GUI object
-		$this->plugin->includeClass('GUI/test/class.assStackQuestionTestGUI.php');
+		//$this->plugin->includeClass('GUI/test/class.assStackQuestionTestGUI.php');
 		$unit_test_gui = new assStackQuestionTestGUI($this, $this->plugin, $unit_test_results);
 
 		//Add CSS
@@ -1302,7 +1303,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tabs = $DIC->tabs();
 
 		//Set all parameters required
-		$this->plugin->includeClass('utils/class.assStackQuestionStackFactory.php');
+		//$this->plugin->includeClass('utils/class.assStackQuestionStackFactory.php');
 		$tabs->activateTab('edit_properties');
 		$tabs->activateSubTab('unit_tests');
 		$this->getQuestionTemplate();
@@ -1321,11 +1322,11 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 		//Create unit test object
-		$this->plugin->includeClass("model/ilias_object/test/class.assStackQuestionUnitTests.php");
+		//$this->plugin->includeClass("model/ilias_object/test/class.assStackQuestionUnitTests.php");
 		$unit_tests_object = new assStackQuestionUnitTests($this->plugin, $this->object);
 
 		//Create GUI object
-		$this->plugin->includeClass('GUI/test/class.assStackQuestionTestGUI.php');
+		//$this->plugin->includeClass('GUI/test/class.assStackQuestionTestGUI.php');
 		$unit_test_gui = new assStackQuestionTestGUI($this, $this->plugin);
 
 		//Add CSS
@@ -1399,13 +1400,13 @@ class assStackQuestionGUI extends assQuestionGUI
 		global $DIC;
 		$tabs = $DIC->tabs();
 		//Set all parameters required
-		$this->plugin->includeClass('utils/class.assStackQuestionStackFactory.php');
+		//$this->plugin->includeClass('utils/class.assStackQuestionStackFactory.php');
 		$tabs->activateTab('edit_properties');
 		$tabs->activateSubTab('unit_tests');
 		$this->getQuestionTemplate();
 
 		//Create GUI object
-		$this->plugin->includeClass('GUI/test/class.assStackQuestionTestGUI.php');
+		//$this->plugin->includeClass('GUI/test/class.assStackQuestionTestGUI.php');
 		$unit_test_gui = new assStackQuestionTestGUI($this, $this->plugin);
 
 		//Add CSS

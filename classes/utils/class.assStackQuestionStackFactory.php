@@ -298,7 +298,7 @@ class assStackQuestionStackFactory
 		//If $parameters is an Array
 		if (!isset($parameters['type']) OR !isset($parameters['name']))
 		{
-			throw new assStackQuestionException($lng->txt('ex_input_creation_is_not_possible'));
+			throw new Exception($lng->txt('ex_input_creation_is_not_possible'));
 		} else
 		{
 			if (!isset($parameters['teacheranswer']))
@@ -338,7 +338,7 @@ class assStackQuestionStackFactory
 		//State value translation to stack constans.
 		if (!isset($parameters['status']))
 		{
-			throw new assStackQuestionException($lng->txt('ex_unknown_input_state'));
+			throw new Exception($lng->txt('ex_unknown_input_state'));
 		} else
 		{
 			switch ($parameters['status'])

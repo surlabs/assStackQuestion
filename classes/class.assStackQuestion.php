@@ -443,7 +443,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         $thisObjId = $this->getObjId();
 
         $clone = $this;
-        include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
+        //include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
         $original_id = assQuestion::_getOriginalId($this->id);
         $clone->id = -1;
 
@@ -491,7 +491,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
         // duplicate the question in database
         $clone = $this;
-        include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
+        //include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
 
         $original_id = assQuestion::_getOriginalId($this->id);
         $clone->id = -1;
@@ -524,7 +524,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             return -1;
         }
 
-        include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
+        //include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
 
         $sourceQuestionId = $this->id;
         $sourceParentId = $this->getObjId();
@@ -677,8 +677,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     {
         global $DIC;
 
-        StackPlatform::initialize('ilias');
-
         $db = $DIC->database();
         //load the basic question data
         $result = $db->query("SELECT qpl_questions.* FROM qpl_questions WHERE question_id = " . $db->quote($question_id, 'integer'));
@@ -709,7 +707,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         $this->setEstimatedWorkingTime(substr($data["working_time"], 0, 2), substr($data["working_time"], 3, 2), substr($data["working_time"], 6, 2));
 
         //Load the specific assStackQuestion data from DB
-        $this->getPlugin()->includeClass('class.assStackQuestionDB.php');
+        //$this->getPlugin()->includeClass('class.assStackQuestionDB.php');
 
         $options_from_db_array = assStackQuestionDB::_readOptions($this->getId());
         if ($options_from_db_array === -1) {
@@ -829,7 +827,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
             $prt_from_db_array = assStackQuestionDB::_readPRTs($question_id);
 
-            $this->getPlugin()->includeClass('utils/class.assStackQuestionUtils.php');
+            //$this->getPlugin()->includeClass('utils/class.assStackQuestionUtils.php');
             $prt_names = assStackQuestionUtils::_getPRTNamesFromQuestion($this->getQuestion(), $options_from_db_array['ilias_options']['specific_feedback'], $prt_from_db_array);
 
             $total_value = 0;
@@ -951,7 +949,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         array $solutionhints = []
     )
     {
-        $this->getPlugin()->includeClass('import/qti12/class.assStackQuestionImport.php');
+        //$this->getPlugin()->includeClass('import/qti12/class.assStackQuestionImport.php');
         $import = new assStackQuestionImport($this);
         return $import->fromXML($item, $questionpool_id, $tst_id, $tst_object, $question_counter, $import_mapping);
 
@@ -969,7 +967,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function toXML($a_include_header = true, $a_include_binary = true, $a_shuffle = false, $test_output = false, $force_image_references = false): string
     {
-        $this->getPlugin()->includeClass('model/export/qti12/class.assStackQuestionExport.php');
+        //$this->getPlugin()->includeClass('model/export/qti12/class.assStackQuestionExport.php');
         $export = new assStackQuestionExport($this);
 
         return $export->toXML($a_include_header, $a_include_binary, $a_shuffle, $test_output, $force_image_references);
@@ -1028,7 +1026,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function saveAdditionalQuestionDataToDb()
     {
-        $this->getPlugin()->includeClass('class.assStackQuestionDB.php');
+        //$this->getPlugin()->includeClass('class.assStackQuestionDB.php');
         try {
             assStackQuestionDB::_saveStackQuestion($this);
         } catch (stack_exception $e) {
@@ -1061,7 +1059,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         //delete general question data
         parent::delete($question_id);
 
-        $this->getPlugin()->includeClass('class.assStackQuestionDB.php');
+        //$this->getPlugin()->includeClass('class.assStackQuestionDB.php');
         //delete stack specific question data
         assStackQuestionDB::_deleteStackQuestion((int)$question_id);
     }

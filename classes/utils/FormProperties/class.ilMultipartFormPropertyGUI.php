@@ -4,7 +4,7 @@
  * GPLv3, see LICENSE
  */
 
-include_once("./Services/Form/classes/class.ilFormPropertyGUI.php");
+//include_once("./Services/Form/classes/class.ilFormPropertyGUI.php");
 
 /**
  * Multipart form property GUI class

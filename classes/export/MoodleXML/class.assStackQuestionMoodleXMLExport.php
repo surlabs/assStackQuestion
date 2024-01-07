@@ -55,7 +55,7 @@ class assStackQuestionMoodleXMLExport
 	{
 		global $ilias;
 
-		include_once("./Services/Xml/classes/class.ilXmlWriter.php");
+		//include_once("./Services/Xml/classes/class.ilXmlWriter.php");
 		$a_xml_writer = new ilXmlWriter;
 
 

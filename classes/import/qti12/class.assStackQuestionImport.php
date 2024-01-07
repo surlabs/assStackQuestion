@@ -84,7 +84,7 @@ class assStackQuestionImport extends assQuestionImport
             //Old Style
 
             //Objects
-            $this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionOptions.php");
+            //$this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionOptions.php");
             /* @var assStackQuestionOptions $options_obj */
             $options_obj = unserialize(base64_decode($item->getMetadataEntry('options')));
             $this->object->question_variables = $options_obj->getQuestionVariables();
@@ -122,7 +122,7 @@ class assStackQuestionImport extends assQuestionImport
 
             //STEP 3: load xqcas_inputs fields
             //old format load
-            $this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionInput.php");
+            //$this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionInput.php");
             $inputs_raw = unserialize(base64_decode($item->getMetadataEntry('inputs')));
             $required_parameters = stack_input_factory::get_parameters_used();
 
@@ -169,8 +169,8 @@ class assStackQuestionImport extends assQuestionImport
             //PRTs
             /* @var assStackQuestionPRT $prt */
             /* @var assStackQuestionPRTNode $node */
-            $this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionPRT.php");
-            $this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionPRTNode.php");
+            //$this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionPRT.php");
+            //$this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionPRTNode.php");
             $prts = unserialize(base64_decode($item->getMetadataEntry('prts')));
             foreach ($prts as $prt_name => $prt) {
                 foreach ($prt->getPRTNodes() as $node_name => $node) {
@@ -286,7 +286,7 @@ class assStackQuestionImport extends assQuestionImport
             }
 
             //SEEDS
-            $this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionDeployedSeed.php");
+            //$this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionDeployedSeed.php");
             $deployed_seeds = unserialize(base64_decode($item->getMetadataEntry('seeds')));
 
             //TODO Not done
@@ -300,14 +300,14 @@ class assStackQuestionImport extends assQuestionImport
             $this->object->deployed_seeds = $seeds;
 
             //TESTS
-            $this->object->getPlugin()->includeClass("model/ilias_object/test/class.assStackQuestionTest.php");
-            $this->object->getPlugin()->includeClass("model/ilias_object/test/class.assStackQuestionTestInput.php");
-            $this->object->getPlugin()->includeClass("model/ilias_object/test/class.assStackQuestionTestExpected.php");
+            //$this->object->getPlugin()->includeClass("model/ilias_object/test/class.assStackQuestionTest.php");
+            //$this->object->getPlugin()->includeClass("model/ilias_object/test/class.assStackQuestionTestInput.php");
+            //$this->object->getPlugin()->includeClass("model/ilias_object/test/class.assStackQuestionTestExpected.php");
             $unit_tests = unserialize(base64_decode($item->getMetadataEntry('tests')));
 
             //EXTRA INFO
             /* @var assStackQuestionExtraInfo $extra_info */
-            $this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionExtraInfo.php");
+            //$this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionExtraInfo.php");
             $extra_info = unserialize(base64_decode($item->getMetadataEntry('extra_info')));
             $extra_info->setHowToSolve($this->processNonAbstractedImageReferences($extra_info->getHowToSolve(), $item->getIliasSourceNic()));
 
@@ -329,8 +329,8 @@ class assStackQuestionImport extends assQuestionImport
 
         if (is_array($_SESSION["import_mob_xhtml"])) {
 
-            include_once "./Services/MediaObjects/classes/class.ilObjMediaObject.php";
-            include_once "./Services/RTE/classes/class.ilRTE.php";
+            //include_once "./Services/MediaObjects/classes/class.ilObjMediaObject.php";
+            //include_once "./Services/RTE/classes/class.ilRTE.php";
 
             foreach ($_SESSION["import_mob_xhtml"] as $mob) {
                 if ($tst_id > 0) {

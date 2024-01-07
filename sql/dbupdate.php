@@ -255,7 +255,7 @@ $query = 'SELECT * FROM xqcas_configuration WHERE group_name = "options"';
 $result = $db->query($query);
 if (!$db->fetchAssoc($result)) {
 	$options_default_values = array('options_question_simplify' => '1', 'options_assume_positive' => '0', 'options_prt_correct' => 'Correct answer, well done.', 'options_prt_partially_correct' => 'Your answer is partially correct.', 'options_prt_incorrect' => 'Incorrect answer.', 'options_multiplication_sign' => 'dot', 'options_sqrt_sign' => '1', 'options_complex_numbers' => 'i', 'options_inverse_trigonometric' => 'cos-1');
-	foreach ($options_default_values as $paremeter_name => $value) {
+	foreach ($options_default_values as $paremeter_name => $value){
 		$db->insert("xqcas_configuration", array('parameter_name' => array('text', $paremeter_name), 'value' => array('clob', $value), 'group_name' => array('text', 'options')));
 	}
 }
@@ -270,8 +270,6 @@ if (!$db->fetchAssoc($result)) {
 		$db->insert("xqcas_configuration", array('parameter_name' => array('text', $paremeter_name), 'value' => array('clob', $value), 'group_name' => array('text', 'inputs')));
 	}
 }
-
-require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
 $config = new assStackQuestionConfig();
 $config->setDefaultSettingsForConnection();
 ?>
