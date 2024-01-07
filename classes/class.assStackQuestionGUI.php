@@ -19,6 +19,7 @@ declare(strict_types=1);
  *
  */
 
+use classes\platform\ilias\StackRandomisationIlias;
 use classes\platform\ilias\StackRenderIlias;
 use classes\platform\ilias\StackUserResponseIlias;
 use classes\platform\StackException;
@@ -857,10 +858,10 @@ class assStackQuestionGUI extends assQuestionGUI
 
 			$this->addTab_QuestionFeedback($tabs);
 
-			if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'deployedSeedsManagement', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle',))) {
+			if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'randomisationAndSecurity', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle',))) {
 				$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 				$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
-				$tabs->addSubTab('deployed_seeds_management', $this->plugin->txt('dsm_deployed_seeds'), $this->ctrl->getLinkTargetByClass($classname, "deployedSeedsManagement"));
+				$tabs->addSubTab('randomisation_and_security', $this->plugin->txt('ui_author_randomisation_and_security_title'), $this->ctrl->getLinkTargetByClass($classname, "randomisationAndSecurity"));
 				//$tabs->addSubTab('unit_tests', $this->plugin->txt('ut_title'), $this->ctrl->getLinkTargetByClass($classname, "showUnitTests"));
 				$tabs->addSubTab('import_from_moodle', $this->plugin->txt('import_from_moodle'), $this->ctrl->getLinkTargetByClass($classname, "importQuestionFromMoodleForm"));
 				$tabs->addSubTab('export_to_moodle', $this->plugin->txt('export_to_moodle'), $this->ctrl->getLinkTargetByClass($classname, "exportQuestiontoMoodleForm"));
@@ -923,10 +924,10 @@ class assStackQuestionGUI extends assQuestionGUI
 		// edit question properties
 		$tabs->addTarget("edit_properties", $url, array("editQuestion", "save", "cancel", "addSuggestedSolution", "cancelExplorer", "linkChilds", "removeSuggestedSolution", "parseQuestion", "saveEdit", "suggestRange"), $classname, "", $force_active);
 
-		if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'deployedSeedsManagement', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle',))) {
+		if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'randomisationAndSecurity', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle',))) {
 			$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 			$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
-			$tabs->addSubTab('deployed_seeds_management', $this->plugin->txt('dsm_deployed_seeds'), $this->ctrl->getLinkTargetByClass($classname, "deployedSeedsManagement"));
+			$tabs->addSubTab('randomisation_and_security', $this->plugin->txt('ui_author_randomisation_and_security_title'), $this->ctrl->getLinkTargetByClass($classname, "randomisationAndSecurity"));
 			//$tabs->addSubTab('unit_tests', $this->plugin->txt('ut_title'), $this->ctrl->getLinkTargetByClass($classname, "showUnitTests"));
 		}
 
@@ -1114,7 +1115,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 * Redirects to the Deployed Seeds Tabs
 	 * @return void
 	 */
-	public function deployedSeedsManagement()
+	public function randomisationAndSecurity()
 	{
 		global $DIC;
 		$tabs = $DIC->tabs();
@@ -1124,12 +1125,17 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 		//Set all parameters required
 		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('deployed_seeds_management');
+		$tabs->activateSubTab('randomisation_and_security');
 		$this->getQuestionTemplate();
 
-		//Create GUI object
-		//$this->getPlugin()->includeClass('GUI/question_authoring/class.assStackQuestionDeployedSeedsGUI.php');
-		$deployed_seeds_gui = new assStackQuestionDeployedSeedsGUI($this->plugin, $this->object->getId(), $this);
+        $deployed_seed_data = StackRandomisationIlias::getQuestionNotesForSeeds($this->object);
+
+        $array = array(
+            'deployed_seeds' => $deployed_seed_data,
+            'question_id' => $this->object->getId(),
+            'unit_tests' => $this->object->getUnitTests(),
+        );
+        $ui = new RandomisationUI($array);
 
 		//Add MathJax (Ensure MathJax is loaded)
 		//include_once "./Services/Administration/classes/class.ilSetting.php";
@@ -1137,10 +1143,10 @@ class assStackQuestionGUI extends assQuestionGUI
 		$DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
 
 		//Add CSS
-		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_deployed_seeds_management.css'));
+		//$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_deployed_seeds_management.css'));
 
 		//Returns Deployed seeds form
-		$this->tpl->setVariable("QUESTION_DATA", $deployed_seeds_gui->showDeployedSeedsPanel());
+		$this->tpl->setVariable("QUESTION_DATA", $ui->show(true));
 	}
 
 	/**
@@ -1153,7 +1159,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tabs = $DIC->tabs();
 		//Set all parameters required
 		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('deployed_seeds_management');
+		$tabs->activateSubTab('randomisation_and_security');
 		$this->getQuestionTemplate();
 
 		//New seed creation
@@ -1163,7 +1169,7 @@ class assStackQuestionGUI extends assQuestionGUI
         //save seed
         assStackQuestionDB::_saveStackSeeds($this->object,'add',$seed);
 
-		$this->deployedSeedsManagement();
+		$this->randomisationAndSecurity();
 	}
 
 	/*
@@ -1175,7 +1181,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tabs = $DIC->tabs();
 		//Set all parameters required
 		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('deployed_seeds_management');
+		$tabs->activateSubTab('randomisation_and_security');
 		$this->getQuestionTemplate();
 
 		//New seed creation
@@ -1185,7 +1191,7 @@ class assStackQuestionGUI extends assQuestionGUI
         //delete seed
         assStackQuestionDB::_deleteStackSeeds($question_id,'',$seed);
 
-		$this->deployedSeedsManagement();
+		$this->randomisationAndSecurity();
 	}
 
 	/**
@@ -1603,9 +1609,9 @@ class assStackQuestionGUI extends assQuestionGUI
     {
         if(isset($_GET['set_active_variant_identifier'])){
             $variant_id = $_GET['set_active_variant_identifier'];
-            assStackQuestionDB::_saveSeedForPreview($this->object->getId(),$variant_id);
+            assStackQuestionDB::_saveSeedForPreview($this->object->getId(),(int)$variant_id);
         }
-        $this->deployedSeedsManagement();
+        $this->randomisationAndSecurity();
     }
 
 

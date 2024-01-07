@@ -196,7 +196,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     /**
      * @var castext2_evaluatable|null STACK specific: variant specifying castext fragment.
      */
-    protected ?castext2_evaluatable $question_note_instantiated = null;
+    public ?castext2_evaluatable $question_note_instantiated = null;
 
     /**
      * @var castext2_evaluatable|null instantiated version of question_text.
@@ -3175,22 +3175,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     public function setPenalty(float $penalty): void
     {
         $this->penalty = $penalty;
-    }
-
-    /**
-     * @return castext2_evaluatable
-     */
-    public function getQuestionNoteInstantiated(): ?castext2_evaluatable
-    {
-        return $this->question_note_instantiated;
-    }
-
-    /**
-     * @param ?castext2_evaluatable $question_note_instantiated
-     */
-    public function setQuestionNoteInstantiated(?castext2_evaluatable $question_note_instantiated): void
-    {
-        $this->question_note_instantiated = $question_note_instantiated;
     }
 
     /**
