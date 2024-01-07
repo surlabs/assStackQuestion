@@ -104,29 +104,4 @@ class StackPlatformIlias extends StackPlatform
         return true;
     }
 
-    /**
-     * Called at ilias question object creation
-     * @return ilPlugin|null
-     */
-    public static function getPlugin(): ?ilPlugin
-    {
-        global $DIC;
-
-        /** @var ilComponentRepository $component_repository */
-        $component_repository = $DIC["component.repository"];
-
-        try {
-            $plugin_name = 'assStackQuestion';
-            $info = $component_repository->getPluginByName($plugin_name);
-        } catch (StackException $e) {
-            //TODO log error
-            return null;
-        }
-
-        /** @var ilComponentFactory $component_factory */
-        $component_factory = $DIC["component.factory"];
-
-        /** @var ilQuestionsPlugin $plugin_obj */
-        return $component_factory->getPlugin($info->getId());
-    }
 }
