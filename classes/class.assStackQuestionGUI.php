@@ -1,7 +1,22 @@
 <?php
+declare(strict_types=1);
 /**
- * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
- * GPLv3, see LICENSE
+ *  This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
+ *  This plugin is developed and maintained by SURLABS and is a port of STACK Question for Moodle,
+ *  originally created by Chris Sangwin.
+ *
+ *  The STACK Question plugin for ILIAS is open-source and licensed under GPL-3.0.
+ *  For license details, visit https://www.gnu.org/licenses/gpl-3.0.en.html.
+ *
+ *  To report bugs or participate in discussions, visit the Mantis system and filter by
+ *  the category "STACK Question" at https://mantis.ilias.de.
+ *
+ *  More information and source code are available at:
+ *  https://github.com/surlabs/STACK
+ *
+ *  If you need support, please contact the maintainer of this software at:
+ *  stack@surlabs.es
+ *
  */
 
 use classes\platform\ilias\StackRenderIlias;
@@ -610,7 +625,7 @@ class assStackQuestionGUI extends assQuestionGUI
 					//Generate the new prt name,
 					$generated_prt_name = "prt" . (string)rand(20, 1000);
 
-					if (assStackQuestionDB::_copyPRTFunction($original_question_id, $original_prt_name, $this->object->getId(), $generated_prt_name)) {
+					if (assStackQuestionDB::_copyPRTFunction($original_question_id, $original_prt_name, (string)$this->object->getId(), $generated_prt_name)) {
 
 						//Include placeholder in specific feedback
 						$current_specific_feedback = $this->object->specific_feedback;
@@ -638,7 +653,7 @@ class assStackQuestionGUI extends assQuestionGUI
 						}
 						$new_node_name = $max + 1;
 
-						if (assStackQuestionDB::_addNodeFunction($this->object->getId(), $prt_name, $new_node_name)) {
+						if (assStackQuestionDB::_addNodeFunction((string)$this->object->getId(), $prt_name, (string)$new_node_name)) {
 							return true;
 						} else {
 							return false;
@@ -697,7 +712,7 @@ class assStackQuestionGUI extends assQuestionGUI
 						}
 						$new_node_name = $max + 1;
 
-						if (assStackQuestionDB::_copyNodeFunction($original_question_id, $original_prt_name, $original_node_name, $this->object->getId(), $prt_name, $new_node_name)) {
+						if (assStackQuestionDB::_copyNodeFunction($original_question_id, $original_prt_name, $original_node_name, (string)$this->object->getId(), $prt_name, (string)$new_node_name)) {
 							return true;
 						} else {
 							return false;
