@@ -347,9 +347,7 @@ class assStackQuestionDB
                 $unit_tests['test_cases'][$testcase_name]['results'] = self::_readUnitTestResults($question_id, $testcase_name);
 			}
 		}
-
-        dump($unit_tests); exit();
-
+        
 		return $unit_tests;
 	}
 
