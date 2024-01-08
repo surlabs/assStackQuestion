@@ -409,11 +409,12 @@ class assStackQuestionGUI extends assQuestionGUI
                 $prt_data->nodes = array();
 
 				//Look for node info
-				foreach ($this->object->prts[$prt_name]->get_nodes_summary() as $node_id => $node) {
-					$prefix = 'prt_' . $prt_name . '_node_' . $node_id;
+				foreach ($this->object->prts[$prt_name]->get_nodes_summary() as $name => $node) {
+					$prefix = 'prt_' . $prt_name . '_node_' . $name;
 
                     $node = new stdClass();
 
+                    $node->nodename = $name;
                     $node->truenextnode = ((isset($_POST[$prefix . '_pos_next']) and $_POST[$prefix . '_pos_next'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_pos_next'])) : -1);
                     $node->falsenextnode = ((isset($_POST[$prefix . '_neg_next']) and $_POST[$prefix . '_neg_next'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_neg_next'])) : -1);
                     $node->answertest = ((isset($_POST[$prefix . '_answer_test']) and $_POST[$prefix . '_answer_test'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_answer_test'])) : '');
@@ -436,7 +437,7 @@ class assStackQuestionGUI extends assQuestionGUI
                     $node->falsefeedback = ((isset($_POST[$prefix . '_neg_specific_feedback']) and $_POST[$prefix . '_neg_specific_feedback'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST[$prefix . '_neg_specific_feedback'], false))) : '');
                     $node->falsefeedbackformat = ((isset($_POST[$prefix . '_neg_feedback_class']) and $_POST[$prefix . '_neg_feedback_class'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_neg_feedback_class'])) : '');
 
-                    $prt_data->nodes[$node_id] = $node;
+                    $prt_data->nodes[$name] = $node;
                 }
 
                 $prts_array[$prt_name] = $prt_data;

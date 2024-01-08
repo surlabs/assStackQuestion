@@ -709,7 +709,7 @@ class assStackQuestionDB
 				array(
 					"question_id" => array("integer", $question_id),
 					"prt_name" => array("text", $prt_name),
-					"node_name" => array("text", (string)$node->nodename),
+					"node_name" => array("text", (string) $node->nodename),
 					"answer_test" => array("text", $node->answertest),
 					"sans" => array("text", $node->sans),
 					"tans" => array("text", $node->tans),
