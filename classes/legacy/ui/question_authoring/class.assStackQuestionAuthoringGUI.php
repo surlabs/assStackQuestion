@@ -737,7 +737,7 @@ class assStackQuestionAuthoringGUI
 		//Creation of tabs property
 		$nodes = new ilTabsFormPropertyGUI($this->getPlugin()->txt('prt_nodes'), 'prt_' . $prt->get_name() . '_nodes', $container_width, FALSE);
 
-		$q_nodes = $prt->get_nodes_summary();
+		$q_nodes = $prt->get_nodes();
 		if (!empty($q_nodes)) {
 			foreach ($q_nodes as $node_name => $node) {
                 //TODO quitar 0
@@ -878,10 +878,9 @@ class assStackQuestionAuthoringGUI
 			$node_options->setValue($this->default["prt_node_options"]);
 			$node_quiet->setValue($this->default["prt_node_quiet"]);
 		} else {
-            $answertest_data = self::parseNewAnswerTest($node->answertest);
-			$answer_test->setValue($answertest_data[0]);
-			$node_student_answer->setValue($answertest_data[1] == " " ? '' : $answertest_data[1]);
-			$node_teacher_answer->setValue($answertest_data[2] == " " ? '' : $answertest_data[2]);
+			$answer_test->setValue($node->answertest);
+			$node_student_answer->setValue($node->sans);
+			$node_teacher_answer->setValue($node->tans);
 			//TODO no extra options
             $node_options->setValue("");
 			$node_quiet->setValue($node->quiet ? 1 : 0);
@@ -976,16 +975,13 @@ class assStackQuestionAuthoringGUI
 			//$node_pos_specific_feedback->setValue($this->default[""]);
 			$node_pos_feedback_class->setValue(1);
 		} else {
-            $feedback_data = $node->truefeedback;
-
 			$node_pos_mode->setValue($node->truescoremode);
 			$node_pos_score->setValue($node->truescore);
 			$node_pos_next_node->setValue($node->truenextnode);
 			$node_pos_answernote->setValue($node->truenote);
-
-			$node_pos_penalty->setValue($feedback_data['true_penalty']);
-			$node_pos_specific_feedback->setValue($feedback_data['true_feedback']);
-			$node_pos_feedback_class->setValue($feedback_data['true_feedback_format']);
+			$node_pos_penalty->setValue($node->truepenalty);
+			$node_pos_specific_feedback->setValue($node->truefeedback);
+			$node_pos_feedback_class->setValue($node->truefeedbackclass);
 		}
 
 
@@ -1063,16 +1059,13 @@ class assStackQuestionAuthoringGUI
 			//$node_neg_specific_feedback->setValue($this->default[""]);
 			$node_neg_feedback_class->setValue(1);
 		} else {
-			$feedback_data = $node->falsefeedback;
-
 			$node_neg_mode->setValue($node->falsescoremode);
 			$node_neg_score->setValue($node->falsescore);
 			$node_neg_next_node->setValue($node->falsenextnode);
 			$node_neg_answernote->setValue($node->falsenote);
-
-			$node_neg_penalty->setValue($feedback_data['false_penalty']);
-			$node_neg_specific_feedback->setValue($feedback_data['false_feedback']);
-			$node_neg_feedback_class->setValue($feedback_data['false_feedback_format']);
+			$node_neg_penalty->setValue($node->falsepenalty);
+			$node_neg_specific_feedback->setValue($node->falsefeedback);
+			$node_neg_feedback_class->setValue($node->falsefeedbackclass);
 		}
 
 		//Add properties to form
@@ -1245,13 +1238,4 @@ class assStackQuestionAuthoringGUI
 
 		return $options;
 	}
-
-    public static function parseNewAnswerTest($input): array
-    {
-    $pattern = '/(\w+)\((\w+),(\w+)\)/';
-    preg_match($pattern, $input, $matches);
-    array_shift($matches);
-
-    return $matches;
-}
 }
