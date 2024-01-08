@@ -445,12 +445,12 @@ class assStackQuestionDB
         while ($row = $db->fetchAssoc($res)) {
             $seed = (int) $row['seed'];
             $result = (int) $row['result'];
-            $time_run = (int) $row['time_run'];
+            $timerun = (int) $row['timerun'];
 
             $testcase_results[] = array(
                 'seed' => $seed,
                 'result' => $result,
-                'time_run' => $time_run
+                'timerun' => $timerun
             );
         }
 
