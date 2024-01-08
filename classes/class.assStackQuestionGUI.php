@@ -115,7 +115,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	{
         $seed = assStackQuestionDB::_getSeed("test", $this->object, (int) $active_id);
         $this->object->questionInitialisation($seed, true);
-        $user_response = StackUserResponseIlias::getStackUserResponse('test', $this->object->getId(), (int) $active_id);
+        $user_response = StackUserResponseIlias::getStackUserResponse('test', (int) $this->object->getId(), (int) $active_id);
 
         //TODO: Check if this is correct.
         // Is it necessary to store so much data in tst_solutions?
