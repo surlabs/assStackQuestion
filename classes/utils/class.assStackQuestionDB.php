@@ -340,10 +340,15 @@ class assStackQuestionDB
 				$unit_tests[$testcase_name] = (int)$row['id'];
 			} else {
 				$unit_tests['ids'][$testcase_name] = (int)$row['id'];
+                $unit_tests['test_cases'][$testcase_name]['decription'] = $row['description'] ?? '';
+                $unit_tests['test_cases'][$testcase_name]['time_modified'] = $row['time_modified'] ?? '';
 				$unit_tests['test_cases'][$testcase_name]['inputs'] = self::_readUnitTestInputs($question_id, $testcase_name);
 				$unit_tests['test_cases'][$testcase_name]['expected'] = self::_readUnitTestExpected($question_id, $testcase_name);
+                $unit_tests['test_cases'][$testcase_name]['results'] = self::_readUnitTestResults($question_id, $testcase_name);
 			}
 		}
+
+        dump($unit_tests); exit();
 
 		return $unit_tests;
 	}
@@ -419,6 +424,34 @@ class assStackQuestionDB
 
 		return $testcase_expected;
 	}
+
+    /**
+     * @param int $question_id
+     * @param int $testcase_name
+     * @param bool $just_id
+     * @return array
+     */
+    private static function _readUnitTestResults(int $question_id, int $testcase_name, bool $just_id = false): array
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        //Select tests query
+        $query = /** @lang text */
+            'SELECT * FROM xqcas_qtest_results WHERE question_id = ' . $db->quote($question_id, 'integer') . ' AND test_case = ' . $db->quote((string)$testcase_name, 'text') . ' ORDER BY xqcas_qtest_results.test_case';
+        $res = $db->query($query);
+
+        $testcase_results = array();
+
+        //If there is a result returns array, otherwise returns false.
+        while ($row = $db->fetchAssoc($res)) {
+            $seed = (int) $row['seed'];
+            $result = (int) $row['result'];
+            $time_run = (int) $row['time_run'];
+        }
+
+        return $testcase_results;
+    }
 
 	/* READ QUESTION FROM DB END */
 
