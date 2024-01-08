@@ -341,7 +341,7 @@ class assStackQuestionDB
 			} else {
 				$unit_tests['ids'][$testcase_name] = (int)$row['id'];
                 $unit_tests['test_cases'][$testcase_name]['decription'] = $row['description'] ?? '';
-                $unit_tests['test_cases'][$testcase_name]['time_modified'] = $row['time_modified'] ?? '';
+                $unit_tests['test_cases'][$testcase_name]['time_modified'] = $row['time_modified'] ? (int) $row['time_modified'] : 0;
 				$unit_tests['test_cases'][$testcase_name]['inputs'] = self::_readUnitTestInputs($question_id, $testcase_name);
 				$unit_tests['test_cases'][$testcase_name]['expected'] = self::_readUnitTestExpected($question_id, $testcase_name);
                 $unit_tests['test_cases'][$testcase_name]['results'] = self::_readUnitTestResults($question_id, $testcase_name);
@@ -446,6 +446,12 @@ class assStackQuestionDB
             $seed = (int) $row['seed'];
             $result = (int) $row['result'];
             $time_run = (int) $row['time_run'];
+
+            $testcase_results[] = array(
+                'seed' => $seed,
+                'result' => $result,
+                'time_run' => $time_run
+            );
         }
 
         return $testcase_results;
