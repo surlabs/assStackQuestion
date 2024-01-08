@@ -574,7 +574,7 @@ class assStackQuestionAuthoringGUI
 		try {
 			$graphical_column->addFormProperty($this->getGraphicalPart($prt));
 		} catch (Exception $exception) {
-			$this->question_gui->object->setErrors($exception->getMessage());
+			$this->question_gui->object->runtime_errors[$exception->getMessage()] = true;
 		}
 		$prt_columns_container->addPart($graphical_column, 3);
 
