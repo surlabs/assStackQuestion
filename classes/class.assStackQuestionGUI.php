@@ -672,7 +672,7 @@ class assStackQuestionGUI extends assQuestionGUI
 					}
 
 					//Delete node
-					if (isset($_POST['cmd']['save']['delete_prt_' . $prt_name . '_node_' . $node->nodeid])) {
+					if (isset($_POST['cmd']['save']['delete_prt_' . $prt_name . '_node_' . $node->nodename])) {
 
 						if (sizeof($prt->get_nodes()) < 2) {
 							ilUtil::sendFailure($this->object->getPlugin()->txt('deletion_error_not_enought_prt_nodes'));
@@ -684,7 +684,7 @@ class assStackQuestionGUI extends assQuestionGUI
 							return false;
 						}
 
-						assStackQuestionDB::_deleteStackPrtNodes($this->object->getId(), $prt_name, $node->nodeid);
+						assStackQuestionDB::_deleteStackPrtNodes($this->object->getId(), $prt_name, $node->nodename);
 
 						//Actualize current question values
 						$new_nodes = $prt->get_nodes();
@@ -698,9 +698,9 @@ class assStackQuestionGUI extends assQuestionGUI
 					}
 
 					//Copy Node
-					if (isset($_POST['cmd']['save']['copy_prt_' . $prt_name . '_node_' . $node->nodeid])) {
+					if (isset($_POST['cmd']['save']['copy_prt_' . $prt_name . '_node_' . $node->nodename])) {
 						//Set node into session
-						$_SESSION['copy_node'] = $this->object->getId() . "_" . $prt_name . "_" . $node->nodeid;
+						$_SESSION['copy_node'] = $this->object->getId() . "_" . $prt_name . "_" . $node->nodename;
 
 						ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_node_copied_to_clipboard"), true);
 						return true;
