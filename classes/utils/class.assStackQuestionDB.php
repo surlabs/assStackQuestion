@@ -629,7 +629,7 @@ class assStackQuestionDB
 				//UPDATE
 				$db->replace('xqcas_prts',
 					array(
-						"id" => array('integer', $prt_ids[$prt_name]['prt_id'])),
+						"id" => array('integer', $prt_ids[$prt_name]->prt_id)),
 					array(
 						"question_id" => array("integer", $question_id),
 						"name" => array("text", $question->prts[$prt_name]->get_name()),
@@ -649,8 +649,8 @@ class assStackQuestionDB
 						self::_saveStackPRTNodes($node, $question_id, $prt_name, -1);
 					} else {
 						//UPDATE
-						if (isset($prt_ids[$prt_name]['nodes'][$node_name])) {
-							self::_saveStackPRTNodes($node, $question_id, $prt_name, $prt_ids[$prt_name]['nodes'][$node_name]);
+						if (isset($prt_ids[$prt_name]->nodes[$node_name])) {
+							self::_saveStackPRTNodes($node, $question_id, $prt_name, $prt_ids[$prt_name]->nodes[$node_name]);
 						} else {
 							ilUtil::sendFailure('question:' . $question_id . $prt_name . $node_name);
 						}

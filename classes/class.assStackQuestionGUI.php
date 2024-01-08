@@ -261,14 +261,15 @@ class assStackQuestionGUI extends assQuestionGUI
         return assStackQuestionUtils::_getLatex($specific_feedback_preview);
     }
 
-	/**
-	 * Evaluates a posted edit form and writes the form data in the question object
-	 * (called frm generic commands in assQuestionGUI)
-	 * Converts the data from post into assStackQuestion ($this->object)
-	 * Called before editQuestion()
-	 *
-	 * @return integer    0: question can be saved / 1: form is not complete
-	 */
+    /**
+     * Evaluates a posted edit form and writes the form data in the question object
+     * (called frm generic commands in assQuestionGUI)
+     * Converts the data from post into assStackQuestion ($this->object)
+     * Called before editQuestion()
+     *
+     * @return integer    0: question can be saved / 1: form is not complete
+     * @throws stack_exception
+     */
 	public function writePostData($always = FALSE): int
 	{
 		$hasErrors = !$always && $this->editQuestion(TRUE);
@@ -288,10 +289,11 @@ class assStackQuestionGUI extends assQuestionGUI
 		return 1;
 	}
 
-	/**
-	 * Writes the data from $_POST into assStackQuestion
-	 * Called before editQuestion()
-	 */
+    /**
+     * Writes the data from $_POST into assStackQuestion
+     * Called before editQuestion()
+     * @throws stack_exception
+     */
 	public function writeQuestionSpecificPostData()
 	{
 		//require_once("./Services/RTE/classes/class.ilRTE.php");
@@ -382,27 +384,29 @@ class assStackQuestionGUI extends assQuestionGUI
 		//in ILIAS all attempts are graded
 		$grade_all = true;
 
-		$prt_from_post_array = array();
-
-
 		//Load only those prt located in the question text or in the specific feedback.
 		$prt_placeholders = stack_utils::extract_placeholders($this->object->getQuestion() . $this->object->specific_feedback, 'feedback');
-		foreach ($prt_placeholders as $prt_name) {
 
-			//Is new? Then load Standard PRT
+        $prts_array = array();
+
+        foreach ($prt_placeholders as $prt_name) {
+            $prt_data = array();
+
+            //Is new? Then load Standard PRT
 			if (!isset($this->object->prts[$prt_name])) {
 				$this->object->loadStandardPRT($prt_name);
 				ilUtil::sendSuccess('New PRT: ' . $prt_name . ' Created', true);
 			} else {
-                $prt_from_post_array[$prt_name] = new stdClass();
+                $prt_data = new stdClass();
 
 				//LOAD STORED DATA
-                $prt_from_post_array[$prt_name]->value = ((isset($_POST['prt_' . $prt_name . '_value']) and $_POST['prt_' . $prt_name . '_value'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_value'])) : '');
-                $prt_from_post_array[$prt_name]->autosimplify = ((isset($_POST['prt_' . $prt_name . '_simplify']) and $_POST['prt_' . $prt_name . '_simplify'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_simplify'])) : '');
-                $prt_from_post_array[$prt_name]->feedbackvariables = ((isset($_POST['prt_' . $prt_name . '_feedback_variables']) and $_POST['prt_' . $prt_name . '_feedback_variables'] != null) ? assStackQuestionUtils::_debugText($_POST['prt_' . $prt_name . '_feedback_variables']) : '');
-                $prt_from_post_array[$prt_name]->firstnodename = ((isset($_POST['prt_' . $prt_name . '_first_node']) and $_POST['prt_' . $prt_name . '_first_node'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_first_node'])) : '');
+                $prt_data->name = $prt_name;
+                $prt_data->value = ((isset($_POST['prt_' . $prt_name . '_value']) and $_POST['prt_' . $prt_name . '_value'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_value'])) : '');
+                $prt_data->autosimplify = ((isset($_POST['prt_' . $prt_name . '_simplify']) and $_POST['prt_' . $prt_name . '_simplify'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_simplify'])) : '');
+                $prt_data->feedbackvariables = ((isset($_POST['prt_' . $prt_name . '_feedback_variables']) and $_POST['prt_' . $prt_name . '_feedback_variables'] != null) ? assStackQuestionUtils::_debugText($_POST['prt_' . $prt_name . '_feedback_variables']) : '');
+                $prt_data->firstnodename = ((isset($_POST['prt_' . $prt_name . '_first_node']) and $_POST['prt_' . $prt_name . '_first_node'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_first_node'])) : '');
 
-                $prt_from_post_array[$prt_name]->nodes = array();
+                $prt_data->nodes = array();
 
 				//Look for node info
 				foreach ($this->object->prts[$prt_name]->get_nodes_summary() as $node_id => $node) {
@@ -432,81 +436,34 @@ class assStackQuestionGUI extends assQuestionGUI
                     $node->falsefeedback = ((isset($_POST[$prefix . '_neg_specific_feedback']) and $_POST[$prefix . '_neg_specific_feedback'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST[$prefix . '_neg_specific_feedback'], false))) : '');
                     $node->falsefeedbackformat = ((isset($_POST[$prefix . '_neg_feedback_class']) and $_POST[$prefix . '_neg_feedback_class'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_neg_feedback_class'])) : '');
 
-                    $prt_from_post_array[$prt_name]->nodes[$node_id] = $node;
+                    $prt_data->nodes[$node_id] = $node;
                 }
 
-                dump($_POST);
-                dump($prt_from_post_array);
-                exit();
-
-                $prt_data = $prt_from_post_array[$prt_name];
-				$nodes = array();
-
-				foreach ($prt_data['nodes'] as $node_name => $node_data) {
-
-					$sans = stack_ast_container::make_from_teacher_source('PRSANS' . $node_name . ':' . $node_data['sans'], '', new stack_cas_security());
-					$tans = stack_ast_container::make_from_teacher_source('PRTANS' . $node_name . ':' . $node_data['tans'], '', new stack_cas_security());
-
-					//Penalties management, penalties are not an ILIAS Feature
-					if (is_null($node_data['false_penalty']) || $node_data['false_penalty'] === '') {
-						$false_penalty = 0;
-					} else {
-						$false_penalty = $node_data['false_penalty'];
-					}
-
-					if (is_null(($node_data['true_penalty']) || $node_data['true_penalty'] === '')) {
-						$true_penalty = 0;
-					} else {
-						$true_penalty = $node_data['true_penalty'];
-					}
-
-					try {
-						//Create Node and add it to the
-
-						$node = new stack_potentialresponse_node($sans, $tans, $node_data['answer_test'], $node_data['test_options'], (bool)$node_data['quiet'], '', (int)$node_name, $node_data['sans'], $node_data['tans']);
-
-						$node->add_branch(0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty, $node_data['false_next_node'], ilUtil::stripSlashes($node_data['false_feedback'], true, $this->getRTETags()), $node_data['false_feedback_format'], $node_data['false_answer_note']);
-						$node->add_branch(1, $node_data['true_score_mode'], $node_data['true_score'], $true_penalty, $node_data['true_next_node'], ilUtil::stripSlashes($node_data['true_feedback'], true, $this->getRTETags()), $node_data['true_feedback_format'], $node_data['true_answer_note']);
-
-						$nodes[$node_name] = $node;
-					} catch (stack_exception $e) {
-						ilUtil::sendFailure($e, true);
-					}
-				}
-
-				if ($prt_data['feedback_variables']) {
-					try {
-						$feedback_variables = new stack_cas_keyval($prt_data['feedback_variables']);
-						$feedback_variables = $feedback_variables->get_session();
-					} catch (stack_exception $e) {
-						ilUtil::sendFailure($e, true);
-					}
-				} else {
-					$feedback_variables = null;
-				}
-
-				foreach ($prt_from_post_array as $prt_name => $prt_data) {
-					$total_value += $prt_data['value'];
-				}
-
-				if ($prt_from_post_array && $grade_all && $total_value < 0.0000001) {
-					try {
-						throw new stack_exception('There is an error authoring your question. ' .
-							'The $totalvalue, the marks available for the question, must be positive in question ' .
-							$this->object->getTitle());
-					} catch (stack_exception $e) {
-						ilUtil::sendFailure($e, true);
-					}
-				}
-
-				$prt_value = $prt_data['value'];
-
-				try {
-					$this->object->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt_data['auto_simplify'], $prt_value, $feedback_variables, $nodes, (string)$prt_data['first_node_name'], 1);
-				} catch (stack_exception $e) {
-					ilUtil::sendFailure($e, true);
-				}
+                $prts_array[$prt_name] = $prt_data;
 			}
+
+            $total_value = 0;
+            $all_formative = true;
+
+            foreach ($prts_array as $name => $prt_data) {
+                $total_value += $prt_data->value;
+                $all_formative = false;
+            }
+
+            $this->object->setPoints($total_value);
+
+            if ($prts_array && !$all_formative && $total_value < 0.0000001) {
+                throw new stack_exception('There is an error authoring your question. ' .
+                    'The $totalvalue, the marks available for the question, must be positive in question ' . $this->object->getTitle());
+            }
+
+            foreach ($prts_array as $name => $prt_data) {
+                $prt_value = 0;
+                if (!$all_formative) {
+                    $prt_value = $prt_data->value / $total_value;
+                }
+                $this->object->prts[$name] = new stack_potentialresponse_tree_lite($prt_data, $prt_value);
+            }
 		}
 	}
 
