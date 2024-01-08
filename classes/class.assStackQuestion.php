@@ -366,6 +366,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $this->questionInitialisation($seed, true);
         }
 
+        //Evaluate user response
+        //Ensure evaluation has been done
+        if (empty($this->getEvaluation())) {
+            $this->evaluateQuestion($user_solution);
+        }
+
         //Save user test solution
         $this->getProcessLocker()->executeUserSolutionUpdateLockOperation(function () use (&$entered_values, $active_id, $pass, $authorized) {
             //Remove previous solution

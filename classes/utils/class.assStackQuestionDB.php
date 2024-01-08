@@ -1535,13 +1535,9 @@ class assStackQuestionDB
 
                 $raw_prt["points"] = $question->getEvaluation()['points'][$prt_name]['prt_points'];
 
-                $raw_prt["errors"] = $prt->_errors;
+                $raw_prt["errors"] = $prt["prt_result"]->get_errors();
 
-                $feedback = '';
-                foreach ($prt->get_feedback() as $feedback_element) {
-                    $feedback .= $feedback_element->feedback . '<br>';
-                }
-                $raw_prt["feedback"] = $feedback;
+                $raw_prt["feedback"] = $prt["prt_result"]->get_feedback();
 
                 $obtained_points = (float)$question->getEvaluation()['points'][$prt_name]['prt_points'];
                 $max_prt_points = (float)$question->prts[$prt_name]->get_value();
@@ -1552,7 +1548,7 @@ class assStackQuestionDB
                 }
                 $raw_prt["status"] = (string)$fraction;
 
-                $raw_prt["answer_notes"] = implode(';', $prt->_answernotes);
+                $raw_prt["answer_notes"] = implode(';', $prt["prt_result"]->get_answernotes());
 
                 $raw_solution["prts"][$prt_name] = $raw_prt;
             }
