@@ -152,7 +152,6 @@ class RandomisationAndSecurityUI
         $deployed_seeds_bulk_actions = $this->factory->dropdown()->standard(array(
             $this->factory->button()->shy(
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_generate_new_variants_action_text"),
-                //TODO: Connect with method
                 $this->control->getLinkTargetByClass("assstackquestiongui", "generateNewVariants")),
         ));
 
@@ -185,22 +184,18 @@ class RandomisationAndSecurityUI
         $current_active_variant_panel_actions = $this->factory->dropdown()->standard(array(
             $this->factory->button()->shy(
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_generate_new_variants_action_text"),
-                //TODO: Connect with method
                 $this->control->getLinkTargetByClass("assstackquestiongui", "generateNewVariants")),
             $this->factory->button()->shy(
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_change_to_random_seed_action_text"),
                 //TODO: Change this to a modal
                 $this->control->getLinkTargetByClass("assstackquestiongui", "changeToRandomSeed")),
             $this->factory->button()->shy(
-            //TODO: Connect with method
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_run_all_tests_for_active_variant_action_text"),
                 $this->control->getLinkTargetByClass("assstackquestiongui", "runAllTestsForActiveVariant")),
             $this->factory->button()->shy(
-            //TODO: Connect with method
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_run_all_tests_for_all_variants_action_text"),
                 $this->control->getLinkTargetByClass("assstackquestiongui", "runAllTestsForAllVariants")),
             $this->factory->button()->shy(
-            //TODO: Connect with method
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_add_unit_test_action_text"),
                 $this->control->getLinkTargetByClass("assstackquestiongui", "addCustomTest"))
         ));
@@ -263,10 +258,8 @@ class RandomisationAndSecurityUI
             //Actions for each deployed variant
             $deployed_variant_individual_actions = $this->factory->dropdown()->standard(array(
                 $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_delete_deployed_variant_action_text") . ": " . (string)$deployed_variant_identifier,
-                    //TODO: Connect with method
                     $this->control->getLinkTargetByClass("assstackquestiongui", "deleteDeployedSeed")),
                 $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_set_as_active_variant_action_text") . ": " . (string)$deployed_variant_identifier,
-                    //TODO: Connect with method
                     $this->control->getLinkTargetByClass("assstackquestiongui", "setAsActiveVariant"))));
 
 

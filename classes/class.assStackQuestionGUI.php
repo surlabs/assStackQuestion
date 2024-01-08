@@ -1591,5 +1591,23 @@ class assStackQuestionGUI extends assQuestionGUI
         $this->randomisationAndSecurity($seed);
     }
 
+    public function generateNewVariants()
+    {
+        // TODO: Implement generateNewVariants() method.
+    }
 
+    public function runAllTestsForActiveVariant()
+    {
+        // TODO: Implement runAllTestsForActiveVariant() method.
+    }
+
+    public function runAllTestsForAllVariants()
+    {
+        // TODO: Implement runAllTestsForAllVariants() method.
+    }
+
+    public function addCustomTest()
+    {
+        // TODO: Implement addCustomTest() method.
+    }
 }
