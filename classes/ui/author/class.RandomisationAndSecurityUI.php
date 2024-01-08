@@ -292,6 +292,8 @@ class RandomisationAndSecurityUI
 
     public function getUnitTestStatusPanelUIComponent()
     {
+        $count_passed = 0;
+
         if (isset($this->data["unit_tests"]["test_cases"])) {
             $unit_tests = $this->data["unit_tests"]["test_cases"];
         } else {
@@ -307,15 +309,36 @@ class RandomisationAndSecurityUI
                 $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_delete_unit_test_action_text"), ""),
             ));
 
-            $list[$unit_test_number] = $this->factory->item()->group((string)$unit_test_number, array(
-                $this->factory->legacy("DESCRIPTION: Loren ipsum..."),
-                $this->factory->legacy("LAST RUN: 24.11.2023"),
-                $this->factory->legacy("PASSED"),
+            $last_run = "Never";
+            $status = "Not tested";
+
+            foreach ($unit_test["results"] as $result) {
+                if ($result["status"] == 1) {
+                    $status = "Passed";
+                } else {
+                    $status = "Failed";
+                }
+
+                $last_run = date('Y-m-d H:i:s', $result["time_run"]);
+            }
+
+            if ($status == "Passed") {
+                $count_passed++;
+            }
+
+            $list[$unit_test_number] = $this->factory->item()->group((string) $unit_test_number, array(
+                $this->factory->legacy("Description: " . $unit_test["description"]),
+                $this->factory->legacy("Lat run: " . $last_run),
+                $this->factory->legacy("Status: " . $status),
             ))->withActions($actions);
         }
 
+        if ($count_passed == count($unit_tests)) {
+            $count_passed = "All";
+        }
+
         $std_list = $this->factory->panel()->listing()->standard($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status_panel_title"), array(
-            $this->factory->item()->group("ALL PASSED", $list)
+            $this->factory->item()->group($count_passed . " Passed", $list)
         ));
 
         return $std_list;
