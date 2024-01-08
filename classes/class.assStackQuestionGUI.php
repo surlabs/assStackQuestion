@@ -144,24 +144,25 @@ class assStackQuestionGUI extends assQuestionGUI
         return assStackQuestionUtils::_getLatex($question);
 	}
 
-	/**
-	 * Returns question view with correct response filled in
-	 * @param integer $active_id The active user id
-	 * @param integer|null $pass The test pass
-	 * @param boolean $graphicalOutput Show visual feedback for right/wrong answers
-	 * @param boolean $result_output Show the reached points for parts of the question
-	 * @param boolean $show_question_only Show the question without the ILIAS content around
-	 * @param boolean $show_feedback Show the question feedback
-	 * @param boolean $show_correct_solution Show the correct solution instead of the user solution
-	 * @param boolean $show_manual_scoring Show specific information for the manual scoring output
-	 * @param bool $show_question_text
-	 * @return string
-	 */
+    /**
+     * Returns question view with correct response filled in
+     * @param integer $active_id The active user id
+     * @param integer|null $pass The test pass
+     * @param boolean $graphicalOutput Show visual feedback for right/wrong answers
+     * @param boolean $result_output Show the reached points for parts of the question
+     * @param boolean $show_question_only Show the question without the ILIAS content around
+     * @param boolean $show_feedback Show the question feedback
+     * @param boolean $show_correct_solution Show the correct solution instead of the user solution
+     * @param boolean $show_manual_scoring Show specific information for the manual scoring output
+     * @param bool $show_question_text
+     * @return string
+     * @throws StackException
+     */
 	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true): string
     {
         $seed = assStackQuestionDB::_getSeed($show_correct_solution ? "correct" : "test", $this->object, (int)$active_id);
         $this->object->questionInitialisation($seed, true);
-        $user_response =  $this->object->getCorrectResponse();
+        $user_response =  $show_correct_solution ? $this->object->getCorrectResponse() : StackUserResponseIlias::getStackUserResponse('test', (int) $this->object->getId(), (int) $active_id, (int) $pass);
 
         if (isset($user_response["inputs"])) {
             //TODO: Check if this is correct.

@@ -33,7 +33,7 @@ class StackUserResponseIlias extends StackUserResponse
      * Returns the stack user response from different sources depending on the purpose.
      * @throws StackException
      */
-    public static function getStackUserResponse(string $purpose, int $question_id, int $id): array
+    public static function getStackUserResponse(string $purpose, int $question_id, int $id, int $pass = 0): array
     {
 
         switch ($purpose) {
@@ -44,7 +44,7 @@ class StackUserResponseIlias extends StackUserResponse
                 $stack_user_response = self::getPreviewStackUserResponse($question_id, $id);
                 break;
             case 'test':
-                $stack_user_response = self::getTestStackUserResponse($question_id, $id);
+                $stack_user_response = self::getTestStackUserResponse($question_id, $id, $pass);
                 break;
             case 'unit_test':
                 $stack_user_response = self::getUnitTestStackUserResponse();
@@ -93,9 +93,9 @@ class StackUserResponseIlias extends StackUserResponse
         return assStackQuestionDB::_readPreviewSolution($question_id, $user_id);
     }
 
-    private static function getTestStackUserResponse(int $question_id, int $active_id): array
+    private static function getTestStackUserResponse(int $question_id, int $active_id, int $pass = 0): array
     {
-        return assStackQuestionDB::_readTestSolution($question_id, $active_id);
+        return assStackQuestionDB::_readTestSolution($question_id, $active_id, $pass);
     }
 
     private static function getCorrectStackUserResponse(): array

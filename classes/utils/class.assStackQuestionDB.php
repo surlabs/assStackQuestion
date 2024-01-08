@@ -2009,11 +2009,9 @@ class assStackQuestionDB
         return null;
     }
 
-    public static function _readTestSolution(int $question_id, int $active_id) {
+    public static function _readTestSolution(int $question_id, int $active_id, int $pass = 0) {
         global $DIC;
         $db = $DIC->database();
-
-        $pass = ilObjTest::_getPass($active_id);
 
         $solution = $db->query("SELECT value1, value2 FROM tst_solutions WHERE question_fi = " .
             $db->quote($question_id, 'integer') . " AND active_fi = " .
