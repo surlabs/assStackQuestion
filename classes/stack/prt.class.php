@@ -919,4 +919,9 @@ class stack_potentialresponse_tree_lite {
     {
         return $this->nodes;
     }
+
+    public function setNodes(array $new_nodes)
+    {
+        $this->nodes = $new_nodes;
+    }
 }
