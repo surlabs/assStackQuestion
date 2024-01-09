@@ -1467,7 +1467,7 @@ abstract class stack_input {
         // Equiv inputs don't have validation divs.
         if ($this->get_validation_method() == 'equiv') {
             $class = "stackinputfeedback equiv";
-            $divspan = 'span';
+            $divspan = 'div';
         }
         if ($this->get_parameter('showValidation', 1) == 3) {
             $class = "stackinputfeedback compact";
