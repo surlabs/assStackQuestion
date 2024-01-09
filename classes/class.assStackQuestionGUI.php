@@ -187,8 +187,14 @@ class assStackQuestionGUI extends assQuestionGUI
         $display_options['readonly'] = true;
         $display_options['feedback'] = true;
 
-        //Render question
-        $question = StackRenderIlias::renderQuestion($attempt_data, $display_options);
+        //Render question (and general feedback if solution)
+        $question = '';
+        if ($show_correct_solution) {
+            $question .= StackRenderIlias::renderGeneralFeedback($attempt_data, $display_options);
+        }
+
+        $question .= StackRenderIlias::renderQuestion($attempt_data, $display_options);
+
 
         if (!$show_question_only) {
             $question = $this->getILIASPage($question);
