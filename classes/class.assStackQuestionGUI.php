@@ -210,7 +210,9 @@ class assStackQuestionGUI extends assQuestionGUI
         //Render question (and general feedback if solution)
         $question = '';
         if ($show_correct_solution) {
+            global $DIC;
             $question .= StackRenderIlias::renderGeneralFeedback($attempt_data, $display_options);
+            $question .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->divider()->horizontal());
         }
 
         $question .= StackRenderIlias::renderQuestion($attempt_data, $display_options);
@@ -267,6 +269,16 @@ class assStackQuestionGUI extends assQuestionGUI
         $display_options['feedback'] = true;
         $display_options['feedback_style'] = 1;
 		//Render question Preview
+
+        /*
+        $question_preview = $DIC->ui()->renderer()->render($DIC->ui()->factory()->button()->standard(
+            $DIC->language()->txt('stack_preview_question'),
+            $DIC->ctrl()->getLinkTargetByClass(
+                'assStackQuestionGUI',
+                'fillWithCorrectResponses'
+            )
+        ));*/
+
         $question_preview = StackRenderIlias::renderQuestion($attempt_data, $display_options);
 
 		//Returns output (with page if needed)
@@ -1673,4 +1685,15 @@ class assStackQuestionGUI extends assQuestionGUI
         $this->tpl->setContent($ui->showCustomTestForm());
 
     }
+
+    /**
+     * @throws stack_exception
+     * @throws StackException
+
+    protected function fillWithCorrectResponses()
+    {
+        global $DIC;
+        $this->preview_correct = true;
+        $this->tpl->setContent($this->getPreview(true, true));
+    }*/
 }
