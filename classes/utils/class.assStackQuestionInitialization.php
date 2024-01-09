@@ -22,8 +22,7 @@ $CFG->wwwroot = ilUtil::_getHttpPath();
 // the server path of the installation
 $CFG->dirroot = realpath(dirname(__FILE__) . '/../..');
 // the data directory of the plugin
-$CFG->dataroot = realpath(ilUtil::getWebspaceDir('filesystem')) . '/xqcas';
-$CFG->dataurl = ilUtil::_getHttpPath() . "/" . ILIAS_WEB_DIR . "/" . CLIENT_ID . "/xqcas";
+$CFG->dataroot = ILIAS_WEB_DIR . '/xqcas';
 $GLOBALS['CFG'] =& $CFG;
 
 define('PARAM_RAW', 'raw');

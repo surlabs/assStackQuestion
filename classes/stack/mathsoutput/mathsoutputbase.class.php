@@ -86,7 +86,8 @@ abstract class stack_maths_output {
             $text = $this->replace_dollars($text);
         }
 		//fau: #35 Use ILIAS plotting system instead of Moodle
-		$text = str_replace('!ploturl!', realpath(ILIAS_DATA_DIR) .'/stack/plots/', $text);
+
+        $text = str_replace('!ploturl!', ILIAS_HTTP_PATH . "/" . ILIAS_WEB_DIR . "/" . CLIENT_ID . "/xqcas/stack/plots/", $text);
 		//fau.
 
         $text = stack_fact_sheets::display($text, $renderer);
