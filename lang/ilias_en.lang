@@ -170,6 +170,13 @@ ui_author_randomisation_run_unit_test_action_text#:#Run unit test
 ui_author_randomisation_edit_unit_test_action_text#:#Edit unit test
 ui_author_randomisation_delete_unit_test_action_text#:#Delete unit test
 ui_author_randomisation_unit_test_status_panel_title#:#Unit test status
+ui_author_randomisation_unit_test_addform_description#:#Description
+ui_author_randomisation_unit_test_addform_section_general#:#General
+ui_author_randomisation_unit_test_addform_section_entries#:#Entries to test
+ui_author_randomisation_unit_test_addform_rating#:#Rating
+ui_author_randomisation_unit_test_addform_penalization#:#Penalization
+ui_author_randomisation_unit_test_addform_response_note#:#Response note
+ui_author_randomisation_unit_test_addform_section_expected_result#:#Expected result
 assStackQuestion#:#STACK Question
 question_imported_successfully#:#Question was imported successfully
 error_importing_question#:#Error importing question

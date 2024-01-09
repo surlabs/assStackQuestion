@@ -197,7 +197,7 @@ class RandomisationAndSecurityUI
                 $this->control->getLinkTargetByClass("assstackquestiongui", "runAllTestsForAllVariants")),
             $this->factory->button()->shy(
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_add_unit_test_action_text"),
-                $this->control->getLinkTargetByClass("assstackquestiongui", "addCustomTest"))
+                $this->control->getLinkTargetByClass("assstackquestiongui", "addCustomTestForm"))
         ));
 
         $question_text = $this->data["active_variant_question_text"];
@@ -342,6 +342,99 @@ class RandomisationAndSecurityUI
         ));
 
         return $std_list;
+    }
+
+    public function showCustomTestForm(): string
+    {
+        $sections = $this->initCustomTest();
+        $form_action = $this->control->getLinkTargetByClass("assStackQuestionGUI", "addCustomTestForm");
+        return $this->renderCustomTest($form_action, $sections);
+    }
+
+    public function initCustomTest():array
+    {
+        global $DIC;
+
+        try {
+
+
+            //GENERAL SECTION
+            $descInput = $this->factory->input()->field()->text($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_description"), '');
+
+            $formFields = [
+                'descInput' => $descInput
+            ];
+
+            $sectionGeneral = $this->factory->input()->field()->section($formFields, $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_section_general"), "");
+
+            $sections["general"] = $sectionGeneral;
+
+            //ENTRIES SECTION
+            $ans1 = $this->factory->input()->field()->text("ans1", '')->withRequired(true);
+
+            $formFields = [
+                'ans1' => $ans1
+            ];
+
+            $sectionEntries = $this->factory->input()->field()->section($formFields, $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_section_entries"), "");
+
+            $sections["entries"] = $sectionEntries;
+
+            //EXPECTED RESULT SECTION
+            $rating = $this->factory->input()->field()->text($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_rating"), '')->withRequired(true);
+            $penalization = $this->factory->input()->field()->text($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_penalization"), '')->withRequired(true);
+
+            $options = array(
+                "1-0-t" => "1-0-T",
+                "1-0-f" => "1-0-F",
+            );
+            $responseNote = $this->factory->input()->field()->select($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_response_note"), $options);
+
+            $formFields = [
+                'rating' => $rating,
+                'penalization' => $penalization,
+                'responseNote' => $responseNote
+            ];
+
+            $sectionExpectedResult = $this->factory->input()->field()->section($formFields, $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_section_expected_result"), "");
+
+            $sections["expectedResult"] = $sectionExpectedResult;
+
+
+
+        } catch (Exception $e){
+            $section = $this->factory->messageBox()->failure($e->getMessage());
+            $sections["object"] = $section;
+        }
+
+        return $sections;
+
+    }
+
+    public function renderCustomTest(string $form_action, array $sections): string
+    {
+        global $DIC;
+
+        $form = $this->factory->input()->container()->form()->standard(
+            $form_action,
+            $sections
+        );
+
+        $saving_info = "";
+
+        $request = $DIC->http()->request();
+
+        //Check if the form has been submitted
+        if ($request->getMethod() == "POST") {
+            $form = $form->withRequest($request);
+            $result = $form->getData();
+            if($result){
+                $saving_info = $this->saveProperties($result);
+            }
+        }
+
+        return $saving_info . $this->renderer->render($form);
+
     }
 
 }
