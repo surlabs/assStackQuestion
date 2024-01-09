@@ -55,7 +55,7 @@ class StackRenderIlias extends StackRender
             throw new StackException('Invalid question type.');
         }
 
-        $result = $question->getPrtResult($prt_name, $response, $display_options['readonly']);
+        $result = $question->getPrtResult($prt_name, $response, true);
 
         $error_message = '';
         if ($result->get_errors()) {
@@ -71,11 +71,11 @@ class StackRenderIlias extends StackRender
         //ILIAS: NO GRADING DETAILS
 
         if (!$result->is_evaluated()) {
-            return '';
+            throw new StackException('PRT ' . $prt_name . 'not evaluated.');
         }
         // Don't give standard feedback when we have errors.
         if (count($result->get_errors()) != 0) {
-            return '';
+            throw new StackException('PRT' . $prt_name . ' has errors.');
         }
 
         $state = StackEvaluation::stateForFraction($result->get_fraction());

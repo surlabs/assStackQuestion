@@ -164,8 +164,17 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true): string
     {
         $seed = assStackQuestionDB::_getSeed($show_correct_solution ? "correct" : "test", $this->object, (int)$active_id);
-        $this->object->questionInitialisation($seed, true);
         $user_response =  $show_correct_solution ? $this->object->getCorrectResponse() : StackUserResponseIlias::getStackUserResponse('test', (int) $this->object->getId(), (int) $active_id, (int) $pass);
+
+        //Instantiate Question if not.
+        if (!$this->object->isInstantiated()) {
+            $this->object->questionInitialisation($seed, true);
+        }
+
+        //Ensure evaluation has been done
+        if (empty($this->object->getEvaluation())) {
+            $this->object->evaluateQuestion($user_response);
+        }
 
         if (isset($user_response["inputs"])) {
             //TODO: Check if this is correct.
@@ -234,7 +243,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $display_options = [];
         $display_options['readonly'] = false;
-        $display_options['feedback'] = $showInlineFeedback;
+        $display_options['feedback'] = true;
 
 		//Render question Preview
         $question_preview = StackRenderIlias::renderQuestion($attempt_data, $display_options);
@@ -258,8 +267,17 @@ class assStackQuestionGUI extends assQuestionGUI
         global $DIC;
 
         $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
-        $this->object->questionInitialisation($seed, true);
         $user_response = StackUserResponseIlias::getStackUserResponse('preview', $this->object->getId(), $DIC->user()->getId());
+
+        //Instantiate Question if not.
+        if (!$this->object->isInstantiated()) {
+            $this->object->questionInitialisation($seed, true);
+        }
+
+        //Ensure evaluation has been done
+        if (empty($this->object->getEvaluation())) {
+            $this->object->evaluateQuestion($user_response);
+        }
 
         $attempt_data = [];
 
@@ -268,6 +286,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $display_options = [];
         $display_options['readonly'] = false;
+        $display_options['feedback'] = true;
 
         //Render question specific feedback
         $specific_feedback_preview = StackRenderIlias::renderSpecificFeedback($attempt_data, $display_options);
