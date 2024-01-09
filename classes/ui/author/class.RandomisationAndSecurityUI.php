@@ -46,35 +46,7 @@ class RandomisationAndSecurityUI
     {
         global $DIC;
 
-        $default_data = [
-            "active_variant_identifier" => "\(236412378944623\)",
-            "active_variant_question_text" => "\(Question Text\)",
-            "active_variant_question_note" => "\(Question Note\)",
-            "active_variant_question_variables" => "\(Question Variables\)",
-            "active_variant_feedback_variables" => "\(Feedback Variables\)",
-            "deployed_variants" => [
-                "236412378944623" => [
-                    "question_note" => "\(Question Note\)",
-                    "question_variables" => "\(Question Variables\)",
-                    "unit_test_passed" => "\(True\)",
-                    "question_text" => "\(Question Text\)"
-                ],
-                "236412378944624" => [
-                    "question_note" => "\(Question Note\)",
-                    "question_variables" => "\(Question Variables\)",
-                    "unit_test_passed" => "\(True\)",
-                    "question_text" => "\(Question Text\)"
-                ],
-                "236412378944625" => [
-                    "question_note" => "\(Question Note\)",
-                    "question_variables" => "\(Question Variables\)",
-                    "unit_test_passed" => "\(True\)",
-                    "question_text" => "\(Question Text\)"
-                ]
-            ]
-        ];
-
-        $this->data = $default_data;
+        $this->data = [];
 
         foreach ($data as $key => $value) {
 
@@ -139,28 +111,35 @@ class RandomisationAndSecurityUI
             $html .= $this->renderer->render($add_standard_test_message_box);
         }
 
-        //Active variants panel
-        $active_variants_panel = $this->factory->panel()->standard(
-            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_active_variant_panel_title"),
-            array(
-                $this->getCurrentActiveVariantPanelUIComponent()
+        if (!empty($this->data["deployed_variants"])) {
+            //Active variants panel
+            $active_variants_panel = $this->factory->panel()->standard(
+                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_active_variant_panel_title"),
+                array(
+                    $this->getCurrentActiveVariantPanelUIComponent()
+                )
+            );
+            $html .= $this->renderer->render($active_variants_panel);
+
+            //Actions for all deployed variants
+            $deployed_seeds_bulk_actions = $this->factory->dropdown()->standard(array(
+                $this->factory->button()->shy(
+                    $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_generate_new_variants_action_text"),
+                    $this->control->getLinkTargetByClass("assstackquestiongui", "generateNewVariants")),
+            ));
+
+            //Deployed variants panel
+            $deployed_variants_panel = $this->factory->panel()->standard(
+                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_deployed_variants_panel_title"),
+                $this->getCurrentlyDeployedVariantsPanelUIComponent()
+            );
+            $html .= $this->renderer->render($deployed_variants_panel);
+        } else {
+            $html .= $this->renderer->render($this->factory->messageBox()->info(
+                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_no_deployed_variants_message")
             )
-        );
-        $html .= $this->renderer->render($active_variants_panel);
-
-        //Actions for all deployed variants
-        $deployed_seeds_bulk_actions = $this->factory->dropdown()->standard(array(
-            $this->factory->button()->shy(
-                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_generate_new_variants_action_text"),
-                $this->control->getLinkTargetByClass("assstackquestiongui", "generateNewVariants")),
-        ));
-
-        //Deployed variants panel
-        $deployed_variants_panel = $this->factory->panel()->standard(
-            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_deployed_variants_panel_title"),
-            $this->getCurrentlyDeployedVariantsPanelUIComponent()
-        );
-        $html .= $this->renderer->render($deployed_variants_panel);
+            );
+        }
 
         //Test overview panel
         $test_overview_panel = $this->factory->panel()->standard(
