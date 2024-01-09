@@ -851,9 +851,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 }
             }
 
-            //initialize correct points
-            $this->setPoints($total_value);
-
             if ($prt_from_db_array && !$all_formative && $total_value < 0.0000001) {
                 throw new stack_exception('There is an error authoring your question. ' .
                     'The $totalvalue, the marks available for the question, must be positive in question ' .

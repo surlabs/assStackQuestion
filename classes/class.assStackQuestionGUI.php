@@ -459,8 +459,6 @@ class assStackQuestionGUI extends assQuestionGUI
                 $all_formative = false;
             }
 
-            $this->object->setPoints($total_value);
-
             if ($prts_array && !$all_formative && $total_value < 0.0000001) {
                 throw new stack_exception('There is an error authoring your question. ' .
                     'The $totalvalue, the marks available for the question, must be positive in question ' . $this->object->getTitle());
@@ -835,7 +833,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			$this->addTab_QuestionFeedback($tabs);
 
 			if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'randomisationAndSecurity', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle','generateNewVariants', 'runAllTestsForActiveVariant', 'runAllTestsForAllVariants', 'addCustomTestForm'))) {
-				$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "e ditQuestion"));
+				$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 				$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
 				$tabs->addSubTab('randomisation_and_security', $this->plugin->txt('ui_author_randomisation_and_security_title'), $this->ctrl->getLinkTargetByClass($classname, "randomisationAndSecurity"));
 				//$tabs->addSubTab('unit_tests', $this->plugin->txt('ut_title'), $this->ctrl->getLinkTargetByClass($classname, "showUnitTests"));
