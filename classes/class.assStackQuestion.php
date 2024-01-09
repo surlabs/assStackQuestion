@@ -371,8 +371,13 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         //Evaluate user response
         //Ensure evaluation has been done
+
         if (empty($this->getEvaluation())) {
-            $this->evaluateQuestion($user_solution);
+            try{
+                $this->evaluateQuestion($user_solution);
+            } catch (stack_exception|StackException $e) {
+                ilUtil::sendFailure($e->getMessage(), true);
+            }
         }
 
         //Save user test solution
@@ -1069,80 +1074,74 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * Evaluates the question
      * @param array $user_response
      * @return bool
-     * @throws StackException
+     * @throws StackException | stack_exception
      */
     public function evaluateQuestion(array $user_response): bool
     {
-        try {
 
-            $fraction = 0;
-            foreach ($this->prts as $prt_name => $prt) {
-                if ($prt->is_formative()) {
-                    continue;
+        $fraction = 0;
+        foreach ($this->prts as $prt_name => $prt) {
+            if ($prt->is_formative()) {
+                continue;
+            }
+
+            $accumulated_penalty = 0;
+            $last_input = array();
+            $penalty_to_apply = null;
+            $results = new stdClass();
+            $results->fraction = 0;
+            $evaluation_data = [];
+
+            $frac = 0;
+            foreach ($user_response as $response) {
+                $prt_input = $this->getPrtInput($prt_name, $user_response, true);
+
+                if (!$this->isSamePRTInput($prt_name, $last_input, $prt_input)) {
+                    $penalty_to_apply = $accumulated_penalty;
+                    $last_input = $prt_input;
                 }
 
-                $accumulated_penalty = 0;
-                $last_input = array();
-                $penalty_to_apply = null;
-                $results = new stdClass();
-                $results->fraction = 0;
-                $evaluation_data = [];
+                if ($this->canExecutePrt($this->prts[$prt_name], $user_response, true)) {
 
-                $frac = 0;
-                foreach ($user_response as $response) {
-                    $prt_input = $this->getPrtInput($prt_name, $user_response, true);
+                    $results = $this->getPrtResult($prt_name, $user_response, true);
+                    $evaluation_data['prts'][$prt_name]['prt_result'] = $results;
+                    $accumulated_penalty += $results->get_fractionalpenalty();
+                    $frac = (float)$results->get_fraction();
 
-                    if (!$this->isSamePRTInput($prt_name, $last_input, $prt_input)) {
-                        $penalty_to_apply = $accumulated_penalty;
-                        $last_input = $prt_input;
+                    //Set Feedback type
+                    if ($frac <= 0.0) {
+                        $evaluation_data['points'][$prt_name]['status'] = 'incorrect';
+                    } elseif ($frac == $results->getWeight()) {
+                        $evaluation_data['points'][$prt_name]['status'] = 'correct';
+                    } elseif ($frac < $results->getWeight()) {
+                        $evaluation_data['points'][$prt_name]['status'] = 'partially_correct';
+                    } else {
+                        throw new StackException('Error,  more points given than MAX Points');
                     }
 
-                    if ($this->canExecutePrt($this->prts[$prt_name], $user_response, true)) {
-
-                        $results = $this->getPrtResult($prt_name, $user_response, true);
-                        $evaluation_data['prts'][$prt_name]['prt_result'] = $results;
-                        $accumulated_penalty += $results->get_fractionalpenalty();
-                        $frac = (float)$results->get_fraction();
-
-                        //Set Feedback type
-                        if ($frac <= 0.0) {
-                            $evaluation_data['points'][$prt_name]['status'] = 'incorrect';
-                        } elseif ($frac == $results->getWeight()) {
-                            $evaluation_data['points'][$prt_name]['status'] = 'correct';
-                        } elseif ($frac < $results->getWeight()) {
-                            $evaluation_data['points'][$prt_name]['status'] = 'partially_correct';
-                        } else {
-                            throw new StackException('Error,  more points given than MAX Points');
-                        }
-
-                    }
                 }
-
-                $fraction += max($frac - $penalty_to_apply, 0);
-                $evaluation_data['points'][$prt_name]['prt_points'] = $frac;
             }
 
-            $evaluation_data['points']['total'] = (float)$fraction;
-
-
-            if ($fraction > $this->getMaximumPoints()) {
-                throw new StackException('Error,  more points given than MAX Points');
-            }
-
-            //Manage Inputs and Validation
-            foreach ($this->inputs as $input_name => $input) {
-                $evaluation_data['inputs']['states'][$input_name] = $this->getInputState($input_name, $user_response);
-                $evaluation_data['inputs']['validation'][$input_name] = $this->inputs[$input_name]->render_validation($evaluation_data['inputs']['states'][$input_name], $input_name);
-            }
-
-            //Mark as evaluated
-            $this->setEvaluation($evaluation_data);
-
-        } catch (stack_exception $e) {
-
-            ilUtil::sendFailure($e, true);
-
+            $fraction += max($frac - $penalty_to_apply, 0);
+            $evaluation_data['points'][$prt_name]['prt_points'] = $frac;
         }
+
+        $evaluation_data['points']['total'] = (float)$fraction;
+
+
+        if ($fraction > $this->getMaximumPoints()) {
+            throw new StackException('Error,  more points given than MAX Points');
+        }
+
+        //Manage Inputs and Validation
+        foreach ($this->inputs as $input_name => $input) {
+            $evaluation_data['inputs']['states'][$input_name] = $this->getInputState($input_name, $user_response);
+            $evaluation_data['inputs']['validation'][$input_name] = $this->inputs[$input_name]->render_validation($evaluation_data['inputs']['states'][$input_name], $input_name);
+        }
+
+        //Mark as evaluated
+        $this->setEvaluation($evaluation_data);
+
 
         return true;
     }
@@ -2290,6 +2289,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param array $response the response.
      * @param bool $accept_valid if this is true, then we will grade things even if the corresponding inputs are only VALID, and not SCORE.
      * @return bool can this PRT be executed for that response.
+     * @throws stack_exception
      */
     protected function canExecutePrt(stack_potentialresponse_tree_lite $prt, array $response, bool $accept_valid): bool
     {

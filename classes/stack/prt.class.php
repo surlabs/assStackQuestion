@@ -369,6 +369,9 @@ class stack_potentialresponse_tree_lite {
     // what to use as local variables.
     // The returned array contains the function declaration, its call signature,
     // and any necessary additional preamble, i.e. textput rules and the like.
+    /**
+     * @throws stack_exception
+     */
     public function compile(array $inputs, array $boundvars, $defaultpenalty, $security, $pathprefix, $map): array {
         $r = ['sig' => '', 'def' => '', 'cv' => null, 'be' => null, 'required' => [], 'units' => false];
         // Note these variables are initialised before the feedback-vars and if not forbidden
@@ -601,6 +604,9 @@ class stack_potentialresponse_tree_lite {
         return $at;
     }
 
+    /**
+     * @throws stack_exception
+     */
     private function compile_node($node, $usage, $defaultpenalty, $security, $path, $ct2options): array {
         /* In the old system there is a hack that covers some options let's repeat that here.
          * For some tests there is an option assume_pos. This will be evaluated by maxima (since this is also the name
@@ -856,6 +862,9 @@ class stack_potentialresponse_tree_lite {
 
     /*
      * @param array $labels an array of labels for the branches.
+     */
+    /**
+     * @throws stack_exception
      */
     public function get_prt_graph($labels = false) {
         $graph = new stack_abstract_graph();

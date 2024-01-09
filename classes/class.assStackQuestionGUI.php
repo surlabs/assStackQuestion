@@ -164,16 +164,27 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true): string
     {
         $seed = assStackQuestionDB::_getSeed($show_correct_solution ? "correct" : "test", $this->object, (int)$active_id);
-        $user_response =  $show_correct_solution ? $this->object->getCorrectResponse() : StackUserResponseIlias::getStackUserResponse('test', (int) $this->object->getId(), (int) $active_id, (int) $pass);
 
         //Instantiate Question if not.
         if (!$this->object->isInstantiated()) {
-            $this->object->questionInitialisation($seed, true);
+            try{
+                $this->object->questionInitialisation($seed, true);
+            } catch (stack_exception|StackException $e) {
+                ilUtil::sendFailure($e->getMessage(), true);
+                return '';
+            }
         }
+
+        $user_response =  $show_correct_solution ? $this->object->getCorrectResponse() : StackUserResponseIlias::getStackUserResponse('test', (int) $this->object->getId(), (int) $active_id, (int) $pass);
 
         //Ensure evaluation has been done
         if (empty($this->object->getEvaluation())) {
-            $this->object->evaluateQuestion($user_response);
+            try{
+                $this->object->evaluateQuestion($user_response);
+            } catch (stack_exception|StackException $e) {
+                ilUtil::sendFailure($e->getMessage(), true);
+                return '';
+            }
         }
 
         if (isset($user_response["inputs"])) {
@@ -228,12 +239,22 @@ class assStackQuestionGUI extends assQuestionGUI
 
         //Instantiate Question if not.
         if (!$this->object->isInstantiated()) {
-            $this->object->questionInitialisation($seed, true);
+            try{
+                $this->object->questionInitialisation($seed, true);
+            } catch (stack_exception|StackException $e) {
+                ilUtil::sendFailure($e->getMessage(), true);
+                return '';
+            }
         }
 
 		//Ensure evaluation has been done
 		if (empty($this->object->getEvaluation())) {
-			$this->object->evaluateQuestion($user_response);
+            try{
+                $this->object->evaluateQuestion($user_response);
+            } catch (stack_exception|StackException $e) {
+                ilUtil::sendFailure($e->getMessage(), true);
+                return '';
+            }
 		}
 
         $attempt_data = [];
@@ -271,12 +292,20 @@ class assStackQuestionGUI extends assQuestionGUI
 
         //Instantiate Question if not.
         if (!$this->object->isInstantiated()) {
-            $this->object->questionInitialisation($seed, true);
+            try{
+                $this->object->questionInitialisation($seed, true);
+            } catch (stack_exception|StackException $e) {
+                ilUtil::sendFailure($e->getMessage(), true);
+            }
         }
 
         //Ensure evaluation has been done
         if (empty($this->object->getEvaluation())) {
-            $this->object->evaluateQuestion($user_response);
+            try{
+                $this->object->evaluateQuestion($user_response);
+            } catch (stack_exception|StackException $e) {
+                ilUtil::sendFailure($e->getMessage(), true);
+            }
         }
 
         $attempt_data = [];
