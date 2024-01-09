@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 use classes\platform\ilias\StackPlatformIlias;
 use classes\platform\StackConfig;
+use classes\platform\StackException;
 use classes\platform\StackPlatform;
 
 /**
@@ -990,16 +991,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         $points = 0.0;
 
         if (!empty($this->getEvaluation())) {
-            foreach (array_keys($this->prts) as $prt_name) {
-                $prt_points = $this->getEvaluation()['points'][$prt_name]['prt_points'];
-                $points = $points + $prt_points;
-            }
-
-            if ($points > $this->getMaximumPoints()) {
-                ilUtil::sendFailure("Error,  more points given than MAX Points", true);
-                $points = $this->getMaximumPoints();
-            }
-
+            $points = $this->getEvaluation()['points']['total'];
         }
         return $points;
     }
@@ -1077,63 +1069,64 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * Evaluates the question
      * @param array $user_response
      * @return bool
+     * @throws StackException
      */
     public function evaluateQuestion(array $user_response): bool
     {
         try {
 
-            $evaluation_data = array();
-
+            $fraction = 0;
             foreach ($this->prts as $prt_name => $prt) {
-                //User answers for PRT Evaluation
-                $prt_input = $this->getPrtInput($prt_name, $user_response, true);
-
-                //PRT Results
-                if (is_array($prt_input) && !empty($prt_input)) {
-                    $prt_result = $this->getPrtResult($prt_name, $prt_input, true);
-                    $evaluation_data['prts'][$prt_name]['prt_result'] = $prt_result;
+                if ($prt->is_formative()) {
+                    continue;
                 }
-            }
 
-            $points_obtained = 0.0;
-            //Calculate Points per PRT
-            foreach (array_keys($this->prts) as $prt_name) {
-                if (isset($evaluation_data['prts'][$prt_name]['prt_result'])) {
+                $accumulated_penalty = 0;
+                $last_input = array();
+                $penalty_to_apply = null;
+                $results = new stdClass();
+                $results->fraction = 0;
+                $evaluation_data = [];
 
-                    $prt_result = $evaluation_data['prts'][$prt_name]['prt_result'];
+                $frac = 0;
+                foreach ($user_response as $response) {
+                    $prt_input = $this->getPrtInput($prt_name, $user_response, true);
 
-                    $total_weight = $this->getPoints();
-
-                    //Calculate prt value in points
-                    if ($total_weight != 0.0) {
-                        $fraction = $prt_result->get_fraction();
-                    } else {
-                        ilUtil::sendFailure("PRT: " . $prt_name . " Value invalid", true);
-                        $fraction = 0.0;
+                    if (!$this->isSamePRTInput($prt_name, $last_input, $prt_input)) {
+                        $penalty_to_apply = $accumulated_penalty;
+                        $last_input = $prt_input;
                     }
 
-                    //PRT Received points
-                    $evaluation_data['points'][$prt_name]['prt_points'] = $fraction * $total_weight;
+                    if ($this->canExecutePrt($this->prts[$prt_name], $user_response, true)) {
 
-                    //Set Feedback type
-                    if ($fraction <= 0.0) {
-                        $evaluation_data['points'][$prt_name]['status'] = 'incorrect';
-                    } elseif ($fraction == $prt_result->getWeight()) {
-                        $evaluation_data['points'][$prt_name]['status'] = 'correct';
-                    } elseif ($fraction < $prt_result->getWeight()) {
-                        $evaluation_data['points'][$prt_name]['status'] = 'partially_correct';
-                    } else {
-                        $evaluation_data['points'][$prt_name]['status'] = null;
-                        ilUtil::sendFailure('Error calculating PRT points in evaluateQuestion', true);
+                        $results = $this->getPrtResult($prt_name, $user_response, true);
+                        $evaluation_data['prts'][$prt_name]['prt_result'] = $results;
+                        $accumulated_penalty += $results->get_fractionalpenalty();
+                        $frac = (float)$results->get_fraction();
+
+                        //Set Feedback type
+                        if ($frac <= 0.0) {
+                            $evaluation_data['points'][$prt_name]['status'] = 'incorrect';
+                        } elseif ($frac == $results->getWeight()) {
+                            $evaluation_data['points'][$prt_name]['status'] = 'correct';
+                        } elseif ($frac < $results->getWeight()) {
+                            $evaluation_data['points'][$prt_name]['status'] = 'partially_correct';
+                        } else {
+                            throw new StackException('Error,  more points given than MAX Points');
+                        }
+
                     }
-
-                    //Count points
-                    $points_obtained = $points_obtained + $fraction;
                 }
+
+                $fraction += max($frac - $penalty_to_apply, 0);
+                $evaluation_data['points'][$prt_name]['prt_points'] = $frac;
             }
 
-            if ($points_obtained > $this->getMaximumPoints()) {
-                ilUtil::sendFailure('Error calculating points in evaluateQuestion, trying to give more than existing, set to Max Points.', true);
+            $evaluation_data['points']['total'] = (float)$fraction;
+
+
+            if ($fraction > $this->getMaximumPoints()) {
+                throw new StackException('Error,  more points given than MAX Points');
             }
 
             //Manage Inputs and Validation
@@ -2039,7 +2032,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     /**
      * get_prt_result($index, $response, $acceptvalid) in Moodle
      * @throws stack_exception
-     */
+     *
     public function isCompleteResponse(array $response): bool
     {
 
@@ -2061,12 +2054,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
 
         return true;
-    }
+    }*/
 
     /**
      * @param array $response
      * @return bool
-     */
+
     public function isGradableResponse(array $response): bool
     {
         // Manually graded answers are always gradable.
@@ -2097,7 +2090,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
         // Otherwise we are not "is_gradable".
         return false;
-    }
+    }*/
 
     /**
      * get_validation_error(array $response)

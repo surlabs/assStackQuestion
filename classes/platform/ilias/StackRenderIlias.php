@@ -71,11 +71,11 @@ class StackRenderIlias extends StackRender
         //ILIAS: NO GRADING DETAILS
 
         if (!$result->is_evaluated()) {
-            throw new StackException('PRT ' . $prt_name . 'not evaluated.');
+            //TODO throw new StackException('PRT ' . $prt_name . 'not evaluated.');
         }
         // Don't give standard feedback when we have errors.
         if (count($result->get_errors()) != 0) {
-            throw new StackException('PRT' . $prt_name . ' has errors.');
+            //TODO throw new StackException('PRT' . $prt_name . ' has errors.');
         }
 
         $state = StackEvaluation::stateForFraction($result->get_fraction());
