@@ -395,6 +395,13 @@ class stack_potentialresponse_tree_lite {
         $fv = new stack_cas_keyval($this->feedbackvariables);
         $fv->set_security($security);
         $fv->get_valid();
+        if(!$fv->get_valid()) {
+            $error_message = '';
+            foreach($fv->get_errors() as $error) {
+                $error_message .= $error . "\n";
+            }
+            throw new stack_exception('Error in feedback variables. ' . $error_message);
+        }
         $fv = $fv->compile($pathprefix . '/fv', $map);
         $r['be'] = $fv['blockexternal'];
         $r['cv'] = $fv['contextvariables'];
