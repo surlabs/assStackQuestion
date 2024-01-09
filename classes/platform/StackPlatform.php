@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace classes\platform;
 
-use classes\core\options\StackOptions;
-use classes\core\security\StackException;
 use classes\platform\ilias\StackPlatformIlias;
 
 /**

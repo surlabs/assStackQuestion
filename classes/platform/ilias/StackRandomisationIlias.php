@@ -48,7 +48,6 @@ class StackRandomisationIlias
             $question_variables = $question->getQuestionSessionKeyvalRepresentation();
             $question_text_instantiated = $question->question_text_instantiated;
             $question_note_instantiated = $question->question_note_instantiated;
-            $number_of_valid_seeds++;
             $valid_seeds[$id] = array('seed' => $deployed_seed,
                 'note' => $question_note_instantiated,
                 'question_id' => $question->getId(),

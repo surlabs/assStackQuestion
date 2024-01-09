@@ -318,6 +318,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     {
         parent::__construct($title, $comment, $author, $owner, $question);
 
+        StackPlatform::initialize('ilias');
+
         try {
             $this->setPlugin(ilPlugin::getPluginObject(IL_COMP_MODULE, "TestQuestionPool", "qst", "assStackQuestion"));
         } catch (ilPluginException $e) {

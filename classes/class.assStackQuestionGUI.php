@@ -23,6 +23,7 @@ use classes\platform\ilias\StackRandomisationIlias;
 use classes\platform\ilias\StackRenderIlias;
 use classes\platform\ilias\StackUserResponseIlias;
 use classes\platform\StackException;
+use classes\platform\StackPlatform;
 use classes\ui\author\RandomisationAndSecurityUI;
 
 
@@ -86,6 +87,8 @@ class assStackQuestionGUI extends assQuestionGUI
 
         //Initialize and loads the Stack question from DB
         $this->object = new assStackQuestion();
+
+        StackPlatform::initialize('ilias');
 
         if ($id >= 0) {
             try {
