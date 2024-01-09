@@ -209,8 +209,12 @@ class assStackQuestionGUI extends assQuestionGUI
 		global $DIC;
 
         $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
-        $this->object->questionInitialisation($seed, true);
         $user_response = StackUserResponseIlias::getStackUserResponse('preview', $this->object->getId(), $DIC->user()->getId());
+
+        //Instantiate Question if not.
+        if (!$this->object->isInstantiated()) {
+            $this->object->questionInitialisation($seed, true);
+        }
 
 		//Ensure evaluation has been done
 		if (empty($this->object->getEvaluation())) {

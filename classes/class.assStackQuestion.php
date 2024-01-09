@@ -1116,7 +1116,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                     }
 
                     //PRT Received points
-                    $evaluation_data['points'][$prt_name]['prt_points'] = $fraction;
+                    $evaluation_data['points'][$prt_name]['prt_points'] = $fraction * $total_weight;
 
                     //Set Feedback type
                     if ($fraction <= 0.0) {
@@ -2939,10 +2939,16 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function getCached(string $key)
     {
+        if ($this->compiled_cache !== null && isset($this->compiled_cache['FAIL'])) {
+            // This question failed compilation, no need to try again in this request.
+            // Make sure the error is back in the error list.
+            $this->runtime_errors[$this->compiled_cache['FAIL']] = true;
+            return null;
+        }
+
         // Do we have that particular thing in the cache?
         if ($this->compiled_cache === null || !array_key_exists($key, $this->compiled_cache)) {
             // If not do the compilation.
-            try {
                 $this->compiled_cache = assStackQuestion::compile($this->id,
                     $this->question_variables, $this->inputs, $this->prts,
                     $this->options, $this->getQuestion(), assStackQuestionUtils::FORMAT_HTML,
@@ -2953,10 +2959,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                     $this->prt_correct, $this->prt_correct_format,
                     $this->prt_partially_correct, $this->prt_partially_correct_format,
                     $this->prt_incorrect, $this->prt_incorrect_format, $this->penalty);
-                //TODO CREATE NEW QUESTION CACHE DB ENTRY
-            } catch (stack_exception $e) {
-                $this->runtime_errors[$e->getMessage()] = true;
-            }
         }
 
         // A run-time error means we don't have the $key in the cache.
