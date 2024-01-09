@@ -84,7 +84,7 @@ class stack_cas_connection_server extends stack_cas_connection_base {
 
                 } else {
                     // Otherwise this is a plot.
-                    $filename = $CFG->dataroot . "/stack/plots/" . $filenameinzip;
+                    $filename =  ILIAS_WEB_DIR . "/" . CLIENT_ID . "/xqcas/stack/plots/" . $filenameinzip;
                     file_put_contents($filename, $zip->getFromIndex($i));
                 }
             }
