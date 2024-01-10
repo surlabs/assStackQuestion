@@ -110,7 +110,6 @@ class RandomisationAndSecurityUI
             );
             $html .= $this->renderer->render($add_standard_test_message_box);
         }
-
         if (!empty($this->data["deployed_variants"])) {
             //Active variants panel
             $active_variants_panel = $this->factory->panel()->standard(
@@ -280,7 +279,10 @@ class RandomisationAndSecurityUI
         }
 
         $list = [];
+
         foreach ($unit_tests as $unit_test_number => $unit_test) {
+            $this->control->setParameterByClass('assstackquestiongui', 'caseToEdit', $unit_test_number);
+
             $actions = $this->factory->dropdown()->standard(array(
                 $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_run_unit_test_action_text"), ""),
                 $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_edit_unit_test_action_text"),
@@ -310,6 +312,7 @@ class RandomisationAndSecurityUI
                 $this->factory->legacy("Lat run: " . $last_run),
                 $this->factory->legacy("Status: " . $status),
             ))->withActions($actions);
+            //dump($list[$unit_test_number]);
         }
 
         if ($count_passed == count($unit_tests)) {
@@ -330,33 +333,34 @@ class RandomisationAndSecurityUI
         return $this->renderCustomTest($form_action, $sections);
     }
 
-    public function initCustomTest():array
+    public function initCustomTest($description = "-", $inputs = null, $expected = null):array
     {
         global $DIC;
 
         try {
+            $this->control->setParameterByClass('assStackQuestionGUI', 'cmd', 'addCustomTestForm');
 
+            dump($description);
+            exit;
 
             //GENERAL SECTION
-            $descInput = $this->factory->input()->field()->text($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_description"), '');
+            $descInput = $this->factory->input()->field()->text($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_description"), '')->withValue($description);
 
             $formFields = [
                 'descInput' => $descInput
             ];
 
             $sectionGeneral = $this->factory->input()->field()->section($formFields, $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_section_general"), "");
-
             $sections["general"] = $sectionGeneral;
 
             //ENTRIES SECTION
-            $ans1 = $this->factory->input()->field()->text("ans1", '')->withRequired(true);
+            $ans1 = $this->factory->input()->field()->text("ans1", '')->withRequired(true)->withValue("a");
 
             $formFields = [
                 'ans1' => $ans1
             ];
 
             $sectionEntries = $this->factory->input()->field()->section($formFields, $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_section_entries"), "");
-
             $sections["entries"] = $sectionEntries;
 
             //EXPECTED RESULT SECTION
@@ -367,7 +371,7 @@ class RandomisationAndSecurityUI
                 "1-0-t" => "1-0-T",
                 "1-0-f" => "1-0-F",
             );
-            $responseNote = $this->factory->input()->field()->select($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_response_note"), $options);
+            $responseNote = $this->factory->input()->field()->select($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_response_note"), $options)->withRequired(true);
 
             $formFields = [
                 'rating' => $rating,
@@ -378,8 +382,6 @@ class RandomisationAndSecurityUI
             $sectionExpectedResult = $this->factory->input()->field()->section($formFields, $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_section_expected_result"), "");
 
             $sections["expectedResult"] = $sectionExpectedResult;
-
-
 
         } catch (Exception $e){
             $section = $this->factory->messageBox()->failure($e->getMessage());
@@ -408,12 +410,22 @@ class RandomisationAndSecurityUI
             $form = $form->withRequest($request);
             $result = $form->getData();
             if($result){
+                dump($result);
+                exit;
                 $saving_info = $this->saveProperties($result);
             }
         }
 
         return $saving_info . $this->renderer->render($form);
 
+    }
+
+    public function showEditCustomTestForm($unit_tests): string
+    {
+
+        $sections = $this->initCustomTest($unit_tests["decription"], $unit_tests["inputs"], $unit_tests["expected"]);
+        $form_action = $this->control->getLinkTargetByClass("assStackQuestionGUI", "editTestcases");
+        return $this->renderCustomTest($form_action, $sections);
     }
 
 }

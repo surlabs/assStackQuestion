@@ -1361,41 +1361,52 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function editTestcases()
 	{
+
 		global $DIC;
 		$tabs = $DIC->tabs();
+
+        $globalTemplate = $DIC->ui()->mainTemplate();
 
 		//Set all parameters required
 		//$this->plugin->includeClass('utils/class.assStackQuestionStackFactory.php');
 		$tabs->activateTab('edit_properties');
 		$tabs->activateSubTab('unit_tests');
-		$this->getQuestionTemplate();
 
 		//get Post vars
-		if (isset($_POST['test_id'])) {
+/*		if (isset($_POST['test_id'])) {
 			$test_id = $_POST['test_id'];
 		}
 		if (isset($_POST['question_id'])) {
 			$question_id = $_POST['question_id'];
-		}
-		if (isset($_POST['testcase_name'])) {
-			$testcase_name = $_POST['testcase_name'];
+		}*/
+		if (isset($_GET['caseToEdit'])) {
+            $ui = new RandomisationAndSecurityUI([]);
+            $unit_test_data = $this->object->getUnitTests();
+            $render = $ui->showEditCustomTestForm($unit_test_data['test_cases'][$_GET['caseToEdit']]);
 		} else {
-			$testcase_name = FALSE;
+            $factory = $DIC->ui()->factory();
+			$render = $DIC->ui()->renderer()->render($factory->messageBox()->failure('No test case selected'));
 		}
+
 
 		//Create unit test object
 		//$this->plugin->includeClass("model/ilias_object/test/class.assStackQuestionUnitTests.php");
-		$unit_tests_object = new assStackQuestionUnitTests($this->plugin, $this->object);
+		//$unit_tests_object = new assStackQuestionUnitTests($this->plugin, $this->object);
 
 		//Create GUI object
 		//$this->plugin->includeClass('GUI/test/class.assStackQuestionTestGUI.php');
-		$unit_test_gui = new assStackQuestionTestGUI($this, $this->plugin);
+		//$unit_test_gui = new assStackQuestionTestGUI($this, $this->plugin);
+        /*
+                //Add CSS
+                $DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
 
-		//Add CSS
-		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
+                //Returns Deployed seeds form*/
+		//$this->tpl->setVariable("QUESTION_DATA", $unit_test_gui->editTestcaseForm($testcase_name, $this->object->inputs, $this->object->prts));
 
-		//Returns Deployed seeds form
-		$this->tpl->setVariable("QUESTION_DATA", $unit_test_gui->editTestcaseForm($testcase_name, $this->object->inputs, $this->object->prts));
+        //$this->object->instantiateUnitTests();
+
+
+        $globalTemplate->setContent($render);
 	}
 
 	/**
@@ -1680,9 +1691,14 @@ class assStackQuestionGUI extends assQuestionGUI
 
     public function addCustomTestForm()
     {
+        GLOBAL $DIC;
         $ui = new RandomisationAndSecurityUI([]);
-
         $this->tpl->setContent($ui->showCustomTestForm());
+
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
 
     }
 
