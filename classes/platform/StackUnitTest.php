@@ -108,13 +108,14 @@ class StackUnitTest {
         }
 
         $response = self::computeResponse($question, $this->inputs);
+        $question->evaluateQuestion($response);
 
         $results = new StackUnitTestResult($this);
         $results->setQuestionPenalty($question->getPenalty());
         foreach ($this->inputs as $inputname => $notused) {
             // Check input still exits, could have been deleted in a question.
-            if (array_key_exists($inputname, $question->inputs)) {
-                $inputstate = $question->getInputState($inputname, $response);
+            if (array_key_exists($inputname, $question->getEvaluation()['inputs'])) {
+                $inputstate = $question->getEvaluation()['inputs'][$inputname];
                 // The _val below is a hack.  Not all inputnames exist explicitly in
                 // the response, but the _val does. Some inputs, e.g. matrices have
                 // many entries in the response so none match $response[$inputname].
@@ -137,7 +138,7 @@ class StackUnitTest {
             if (implode(' | ', $expectedresult->answernotes) !== 'NULL') {
                 $emptytestcase = false;
             }
-            $result = $question->getPrtResult($prtname, $response, false);
+            $result = $question->getEvaluation()['prts'][$prtname]['prt_result'];
             // Adapted from renderer.php prt_feedback_display.
             $feedback = $result->get_feedback();
             $feedback = stack_maths::process_display_castext($feedback);
