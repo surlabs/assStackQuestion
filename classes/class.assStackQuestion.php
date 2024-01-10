@@ -332,6 +332,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         //For some reason we should initialize lasttime for new questions, it seems not been donE in assQuestion Constructor
         $this->setLastChange(time());
+        //Initialize some STACK required parameters
+        require_once __DIR__ . '/utils/class.assStackQuestionInitialization.php';
+        require_once(__DIR__ . '/utils/locallib.php');
     }
 
     //assQuestion abstract methods
