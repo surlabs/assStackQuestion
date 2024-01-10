@@ -91,6 +91,12 @@ class StackUnitTest {
         // Evaluated state is stored in question variables etc.
         $question = new assStackQuestion();
         $question->loadFromDb($questionid);
+
+        if (!$question->isInstantiated()) {
+            //TODO: Change the seed
+            $question->questionInitialisation(1);
+        }
+
         // Hard-wire testing to use the decimal point.
         // Teachers must use strict Maxima syntax, including in test case construction.
         // I appreciate teachers will, reasonably, want to test the input mechanism.
