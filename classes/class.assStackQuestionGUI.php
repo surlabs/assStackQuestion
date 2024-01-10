@@ -1722,11 +1722,8 @@ class assStackQuestionGUI extends assQuestionGUI
             $testcase->addExpectedResult($name, new stack_potentialresponse_tree_state(1, true, (float) $expected["score"], (float) $expected["penalty"], '', array($expected["answer_note"])));
         }
 
-        $testcase->run($this->object->getId());
-
-        dump($testcase);
+        dump($testcase->run($this->object->getId()));
         exit();
-
     }
 
     /**
