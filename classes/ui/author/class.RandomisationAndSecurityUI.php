@@ -328,7 +328,7 @@ class RandomisationAndSecurityUI
         }
 
         $std_list = $this->factory->panel()->listing()->standard($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status_panel_title"), array(
-            $this->factory->item()->group($count_passed . " Passed", $list)
+            $this->factory->item()->group($count_passed . "/" . count($unit_tests) . " Passed", $list)
         ));
 
         return $std_list;
