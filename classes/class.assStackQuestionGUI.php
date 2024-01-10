@@ -1708,6 +1708,11 @@ class assStackQuestionGUI extends assQuestionGUI
      */
     public function runUnitTest()
     {
+        global $DIC;
+
+        $factory = $DIC->ui()->factory();
+        $renderer = $DIC->ui()->renderer();
+
         $unit_test = $this->object->getUnitTests()["test_cases"][$_GET["test_case"]];
 
         $inputs = array();
@@ -1722,9 +1727,22 @@ class assStackQuestionGUI extends assQuestionGUI
             $testcase->addExpectedResult($name, new stack_potentialresponse_tree_state(1, true, (float) $expected["score"], (float) $expected["penalty"], '', array($expected["answer_note"])));
         }
 
-        dump($testcase->run($this->object->getId(), (int) $_GET["set_active_variant_identifier"]));
+        $result = $testcase->run($this->object->getId(), (int) $_GET["set_active_variant_identifier"]);
 
-        exit();
+        $content = "";
+
+        if ($result->passed()) {
+            $content .= $renderer->render($factory->messageBox()->success('Test case passed'));
+        } else {
+            $content .= $renderer->render($factory->messageBox()->failure('Test case failed'));
+        }
+
+        // TODO: Maybe show more information about the test case
+        $content .= $renderer->render($factory->messageBox()->info("TODO: Resultados del test unitario"));
+
+        $content .= $renderer->render($factory->button()->standard($DIC->language()->txt("back"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
+
+        $this->tpl->setContent($content);
     }
 
     /**
