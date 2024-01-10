@@ -24,6 +24,7 @@ use classes\platform\ilias\StackRenderIlias;
 use classes\platform\ilias\StackUserResponseIlias;
 use classes\platform\StackException;
 use classes\platform\StackPlatform;
+use classes\platform\StackUnitTest;
 use classes\ui\author\RandomisationAndSecurityUI;
 
 
@@ -1699,6 +1700,32 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $tabs->activateTab('edit_properties');
         $tabs->activateSubTab('randomisation_and_security');
+
+    }
+
+    /**
+     * @throws stack_exception
+     */
+    public function runUnitTest()
+    {
+        $unit_test = $this->object->getUnitTests()["test_cases"][$_GET["test_case"]];
+
+        $inputs = array();
+
+        foreach ($unit_test["inputs"] as $name => $input) {
+            $inputs[$name] = $input["value"];
+        }
+
+        $testcase = new StackUnitTest($unit_test["description"], $inputs, (int) $_GET["test_case"]);
+
+        foreach ($unit_test["expected"] as $name => $expected) {
+            $testcase->addExpectedResult($name, new stack_potentialresponse_tree_state(1, true, (float) $expected["score"], (float) $expected["penalty"], '', array($expected["answer_note"])));
+        }
+
+        $testcase->run($this->object->getId());
+
+        dump($testcase);
+        exit();
 
     }
 

@@ -93,6 +93,9 @@ class RandomisationAndSecurityUI
         $DIC->globalScreen()->layout()->meta()->addJs($mathJaxSetting->get("path_to_mathjax"));
     }
 
+    /**
+     * @throws ilCtrlException
+     */
     public function show(bool $show_add_standard_test_button): string
     {
         $html = "";
@@ -187,10 +190,10 @@ class RandomisationAndSecurityUI
             ->withOnClick($modal->getShowSignal());
 
         //Return the UI component
-        $active_variant_identifier = $this->data["active_variant_identifier"];
-        $active_variant_question_note = $this->data["active_variant_question_note"];
-        $active_variant_question_variables = $this->data["active_variant_question_variables"];
-        $active_variant_feedback_variables = $this->data["active_variant_feedback_variables"];
+        $active_variant_identifier = $this->data["active_variant_identifier"] ?? "";
+        $active_variant_question_note = $this->data["active_variant_question_note"] ?? "";
+        $active_variant_question_variables = $this->data["active_variant_question_variables"] ?? "";
+        $active_variant_feedback_variables = $this->data["active_variant_feedback_variables"] ?? "";
 
         return $this->factory->panel()->sub(
             $active_variant_identifier,
@@ -281,10 +284,15 @@ class RandomisationAndSecurityUI
         $list = [];
 
         foreach ($unit_tests as $unit_test_number => $unit_test) {
-            $this->control->setParameterByClass('assstackquestiongui', 'caseToEdit', $unit_test_number);
+            $this->control->setParameterByClass(
+                'assStackQuestionGUI',
+                'test_case',
+                $unit_test_number
+            );
 
             $actions = $this->factory->dropdown()->standard(array(
-                $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_run_unit_test_action_text"), ""),
+                $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_run_unit_test_action_text"),
+                    $this->control->getLinkTargetByClass("assstackquestiongui", "runUnitTest")),
                 $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_edit_unit_test_action_text"),
                     $this->control->getLinkTargetByClass("assstackquestiongui", "editTestcases")),
                 $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_delete_unit_test_action_text"), ""),

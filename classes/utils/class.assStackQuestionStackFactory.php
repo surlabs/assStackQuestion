@@ -4,6 +4,8 @@
  * GPLv3, see LICENSE
  */
 
+use classes\platform\StackUnitTest;
+
 /**
  * This class provides different stack objects in order to be used by the question plugin
  *
@@ -454,16 +456,14 @@ class assStackQuestionStackFactory
 
 	private function getStackUnitTest($ilias_tests)
 	{
-		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/questiontest.php';
-
 		foreach ($ilias_tests as $ilias_test)
 		{
 			//Create test and inputs
-			$stack_question_test = new stack_question_test($ilias_test->getInputsForSTACKtest());
+			$stack_question_test = new StackUnitTest($ilias_test->getInputsForSTACKtest(), array());
 			//Add expected results
 			foreach ($ilias_test->getTestExpected() as $expected)
 			{
-				$stack_question_test->add_expected_result($expected->getTestPRTName(), new stack_potentialresponse_tree_state(1, true, $expected->getExpectedScore(), $expected->getExpectedPenalty(), '', array($expected->getExpectedAnswerNote())));
+				$stack_question_test->addExpectedResult($expected->getTestPRTName(), new stack_potentialresponse_tree_state(1, true, $expected->getExpectedScore(), $expected->getExpectedPenalty(), '', array($expected->getExpectedAnswerNote())));
 			}
 		}
 
