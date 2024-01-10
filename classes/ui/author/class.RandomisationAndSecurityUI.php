@@ -341,15 +341,12 @@ class RandomisationAndSecurityUI
         return $this->renderCustomTest($form_action, $sections);
     }
 
-    public function initCustomTest($description = "-", $inputs = null, $expected = null):array
+    public function initCustomTest($description = "", $inputs = null, $expected = null):array
     {
         global $DIC;
 
         try {
             $this->control->setParameterByClass('assStackQuestionGUI', 'cmd', 'addCustomTestForm');
-
-            dump($description);
-            exit;
 
             //GENERAL SECTION
             $descInput = $this->factory->input()->field()->text($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_description"), '')->withValue($description);
@@ -362,11 +359,24 @@ class RandomisationAndSecurityUI
             $sections["general"] = $sectionGeneral;
 
             //ENTRIES SECTION
-            $ans1 = $this->factory->input()->field()->text("ans1", '')->withRequired(true)->withValue("a");
+            $formFields = [];
 
-            $formFields = [
-                'ans1' => $ans1
-            ];
+            if($inputs == null){
+
+                $ans1 = $this->factory->input()->field()->text("ans1", '')->withRequired(true);
+                $formFields['ans1'] = $ans1;
+
+            } else {
+
+                foreach($inputs as $key => $input){
+
+                    $ans = $this->factory->input()->field()->text($key, '')->withRequired(true)->withValue($input["value"]);
+                    $formFields[$key] = $ans;
+
+
+                }
+            }
+
 
             $sectionEntries = $this->factory->input()->field()->section($formFields, $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_section_entries"), "");
             $sections["entries"] = $sectionEntries;
