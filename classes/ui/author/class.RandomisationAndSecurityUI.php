@@ -426,7 +426,6 @@ class RandomisationAndSecurityUI
 
         $request = $DIC->http()->request();
 
-        var_dump($_POST);exit;
         //Check if the form has been submitted
         if ($request->getMethod() == "POST") {
             $form = $form->withRequest($request);
