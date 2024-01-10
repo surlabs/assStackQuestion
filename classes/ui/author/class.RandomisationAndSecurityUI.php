@@ -349,7 +349,10 @@ class RandomisationAndSecurityUI
             $this->control->setParameterByClass('assStackQuestionGUI', 'cmd', 'addCustomTestForm');
 
             //GENERAL SECTION
-            $descInput = $this->factory->input()->field()->text($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_description"), '')->withValue($description);
+            $descInput = $this->factory->input()->field()->text(
+                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_description")
+                , ''
+            )->withValue($description);
 
             $formFields = [
                 'descInput' => $descInput
@@ -423,6 +426,7 @@ class RandomisationAndSecurityUI
 
         $request = $DIC->http()->request();
 
+        var_dump($_POST);exit;
         //Check if the form has been submitted
         if ($request->getMethod() == "POST") {
             $form = $form->withRequest($request);
@@ -441,7 +445,7 @@ class RandomisationAndSecurityUI
     public function showEditCustomTestForm($unit_tests): string
     {
 
-        $sections = $this->initCustomTest($unit_tests["decription"], $unit_tests["inputs"], $unit_tests["expected"]);
+        $sections = $this->initCustomTest($unit_tests["description"], $unit_tests["inputs"], $unit_tests["expected"]);
         $form_action = $this->control->getLinkTargetByClass("assStackQuestionGUI", "editTestcases");
         return $this->renderCustomTest($form_action, $sections);
     }
