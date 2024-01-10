@@ -106,27 +106,6 @@ class StackUnitTestResult {
     }
 
     /**
-     * @return array input name => object with fields ->input, ->display and ->status.
-     */
-    public function getInputStates(): array
-    {
-        $states = array();
-
-        foreach ($this->inputvalues as $inputname => $inputvalue) {
-            $state = new stdClass();
-            $state->rawinput = $this->testcase->getInput($inputname);
-            $state->input = $inputvalue;
-            $state->modified = $this->inputvaluesmodified[$inputname];
-            $state->display = $this->inputdisplayed[$inputname];
-            $state->status = $this->inputstatuses[$inputname];
-            $state->errors = $this->inputerrors[$inputname];
-            $states[$inputname] = $state;
-        }
-
-        return $states;
-    }
-
-    /**
      * Ensure we round scores and penalties consistently.
      * @param float $score
      * @return float

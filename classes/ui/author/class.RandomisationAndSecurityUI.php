@@ -308,7 +308,7 @@ class RandomisationAndSecurityUI
                     $status = "Failed";
                 }
 
-                $last_run = date('Y-m-d H:i:s', $result["time_run"]);
+                $last_run = date('d-m-Y H:i:s', $result["timerun"]);
             }
 
             if ($status == "Passed") {

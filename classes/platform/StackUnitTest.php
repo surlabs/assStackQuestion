@@ -5,6 +5,7 @@ namespace classes\platform;
 
 
 use assStackQuestion;
+use assStackQuestionDB;
 use stack_ast_container;
 use stack_cas_security;
 use stack_cas_session2;
@@ -77,11 +78,11 @@ class StackUnitTest {
     /**
      * Run this test against a particular question.
      * @param int $questionid The database id of the question to test.
-     * @param int|null $seed the random seed to use.
+     * @param int $seed the random seed to use.
      * @return StackUnitTestResult the test results.
      * @throws stack_exception
      */
-    public function run(int $questionid, ?int $seed = null): StackUnitTestResult
+    public function run(int $questionid, int $seed): StackUnitTestResult
     {
         // We don't permit completely empty test cases.
         // Completely empty test cases always pass, which is spurious in the bulk test.
@@ -93,8 +94,7 @@ class StackUnitTest {
         $question->loadFromDb($questionid);
 
         if (!$question->isInstantiated()) {
-            //TODO: Change the seed
-            $question->questionInitialisation(1);
+            $question->questionInitialisation($seed);
         }
 
         // Hard-wire testing to use the decimal point.
@@ -242,6 +242,13 @@ class StackUnitTest {
      * @param StackUnitTestResult $result the test result.
      */
     protected function saveResult(assStackQuestion $question, StackUnitTestResult $result) {
+        $raw_result = array();
 
+        $raw_result['test_case'] = $this->testCase;
+        $raw_result['seed'] = $question->seed;
+        $raw_result['result'] = $result->passed() ? 1 : 0;
+        $raw_result['timerun'] = time();
+
+        assStackQuestionDB::_saveQtestResult($question->getId(), $raw_result);
     }
 }
