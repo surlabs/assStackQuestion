@@ -217,18 +217,18 @@ class StackUnitTestResult {
     }
 
     /**
-     * @return bool whether the test passed successfully.
+     * @return string whether the test passed successfully.
      */
-    public function passed(): bool
+    public function passed(): string
     {
         if ($this->emptytestcase) {
-            return false;
+            return '0';
         }
         foreach ($this->getPrtStates() as $state) {
             if (!$state->testoutcome) {
-                return false;
+                return $state->reason;
             }
         }
-        return true;
+        return '1';
     }
 }

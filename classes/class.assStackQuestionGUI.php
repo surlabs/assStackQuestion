@@ -1731,10 +1731,12 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $content = "";
 
-        if ($result->passed()) {
+        if ($result->passed() === '1') {
             $content .= $renderer->render($factory->messageBox()->success('Test case passed'));
+        } elseif ($result->passed() === '0') {
+            $content .= $renderer->render($factory->messageBox()->failure('Test case failed due to empty testcases not allowed'));
         } else {
-            $content .= $renderer->render($factory->messageBox()->failure('Test case failed'));
+            $content .= $renderer->render($factory->messageBox()->failure('Test case failed due to:' . $result->passed()));
         }
 
         // TODO: Maybe show more information about the test case
@@ -1743,6 +1745,11 @@ class assStackQuestionGUI extends assQuestionGUI
         $content .= $renderer->render($factory->button()->standard($DIC->language()->txt("back"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
 
         $this->tpl->setContent($content);
+    }
+
+    public function addStandardTest(){
+        StackUnitTest::addDefaultTestcase($this->object);
+        //TODO RUN TESTCASES AND SHOW RESULTS
     }
 
     /**

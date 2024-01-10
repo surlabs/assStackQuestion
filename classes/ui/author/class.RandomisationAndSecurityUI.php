@@ -104,8 +104,7 @@ class RandomisationAndSecurityUI
             //Add standard test button
             $add_standard_test_button = $this->factory->button()->standard(
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_add_standard_test_button_text"),
-                "addStandardTest");
-
+                $this->control->getLinkTargetByClass("assstackquestiongui", "addStandardTest"));
             $add_standard_test_message_box = $this->factory->messageBox()->info(
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_add_standard_test_description")
                 . $this->renderer->render($this->factory->divider()->vertical()) .

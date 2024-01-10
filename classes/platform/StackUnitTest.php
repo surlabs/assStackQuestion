@@ -247,9 +247,37 @@ class StackUnitTest {
 
         $raw_result['test_case'] = $this->testCase;
         $raw_result['seed'] = $question->seed;
-        $raw_result['result'] = $result->passed() ? 1 : 0;
+        if($result->passed() === '1') {
+            $raw_result['passed'] = 1;
+        } else {
+            $raw_result['passed'] = 0;
+        }
         $raw_result['timerun'] = time();
 
         assStackQuestionDB::_saveQtestResult($question->getId(), $raw_result);
+    }
+
+
+    public static function addDefaultTestcase(assStackQuestion $question) {
+        $inputs = array();
+        foreach ($question->inputs as $input_name => $input) {
+            $inputs[$input_name] = $input->get_teacher_answer_testcase();
+        }
+        $default_unit_test = new self(stack_string('autotestcase'), $inputs);
+        $response = self::computeResponse($question, $inputs);
+
+        foreach ($question->prts as $prt_name => $prt) {
+            $result = $question->getPrtResult($prt_name, $response, false);
+            // For testing purposes we just take the last note.
+            $answer_notes = $result->get_answernotes();
+            $answer_note = array(end($answer_notes));
+            // Here we hard-wire 1 mark and 0 penalty.  This is what we normally want for the
+            // teacher's answer.  If the question does not give full marks to the teacher's answer then
+            // the test case will fail, and the user can confirm the failing behaviour if they really intended this.
+            // Normally we'd want a failing test case with the teacher's answer not getting full marks!
+            $default_unit_test->addExpectedResult($prt_name, new stack_potentialresponse_tree_state(
+                1, true, 1, 0, '', $answer_note));
+        }
+        //TODO SAUL: Guardar el test en la base de datos
     }
 }
