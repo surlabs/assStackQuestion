@@ -1383,7 +1383,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		if (isset($_GET['test_case'])) {
             $ui = new RandomisationAndSecurityUI([]);
             $unit_test_data = $this->object->getUnitTests();
-            $render = $ui->showEditCustomTestForm($unit_test_data['test_cases'][$_GET['test_case']]);
+            $render = $ui->showEditCustomTestForm($unit_test_data['test_cases'][$_GET['test_case']], $this->object->prts);
 		} else {
             $factory = $DIC->ui()->factory();
 			$render = $DIC->ui()->renderer()->render($factory->messageBox()->failure('No test case selected'));
