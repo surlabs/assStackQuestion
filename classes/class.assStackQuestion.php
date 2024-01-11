@@ -3024,10 +3024,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     {
         $max = 0;
 
-        foreach ($this->unit_tests["test_cases"] as $test_case => $unit_test) {
-            if ((int)$test_case > $max) {
-                $max = (int)$test_case;
+        if (!empty($this->unit_tests["test_cases"]) && is_array($this->unit_tests["test_cases"])) {
+            foreach ($this->unit_tests["test_cases"] as $test_case => $unit_test) {
+                if ((int)$test_case > $max) {
+                    $max = (int)$test_case;
+                }
             }
+        } else {
+            return '1';
         }
 
         return (string)($max + 1);
