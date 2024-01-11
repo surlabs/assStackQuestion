@@ -1090,11 +1090,22 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             }
 
             $frac = 0;
+            //$accumulated_penalty = 0;
+            //$last_input = [];
+            //$penalty_to_apply = null;
+
+            //$prt_input = $this->getPrtInput($prt_name, $user_response, true);
+
+            //if (!$this->isSamePRTInput($prt_name, $last_input, $prt_input)) {
+            //$penalty_to_apply = $accumulated_penalty;
+            //    $last_input = $prt_input;
+            //}
 
             $results = $this->getPrtResult($prt_name, $user_response, true);
             $evaluation_data['prts'][$prt_name]['prt_result'] = $results;
 
             if ($this->canExecutePrt($this->prts[$prt_name], $user_response, true)) {
+                //$accumulated_penalty += $results->get_fractionalpenalty();
                 $frac = (float)$results->get_fraction();
 
                 //Set Feedback type
@@ -1111,7 +1122,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 $evaluation_data['points'][$prt_name]['status'] = 'incorrect';
             }
 
-            $fraction += max($frac, 0);
+            //$fraction += max($frac - $penalty_to_apply, 0);
             $evaluation_data['points'][$prt_name]['prt_points'] = $frac;
         }
 

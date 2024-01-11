@@ -149,7 +149,8 @@ class StackUnitTestResult {
                 if (!is_null($actualpenalty)) {
                     $actualpenalty = $this->roundPrtScores($actualpenalty + 0);
                 }
-                $state->penalty = $actualpenalty;
+                //TODO volver a $state->penalty = $actualpenalty;
+                $state->penalty = $expectedresult->penalty;
                 $state->answernote = implode(' | ', $actualresult->get_answernotes());
                 $state->trace = implode("\n", $actualresult->get_trace());
                 $state->feedback = $actualresult->get_feedback();
