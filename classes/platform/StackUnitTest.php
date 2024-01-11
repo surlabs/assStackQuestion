@@ -300,9 +300,9 @@ class StackUnitTest {
 
         foreach ($default_unit_test->expectedResults as $prt_name => $expected_result) {
             $raw_expected_results[$prt_name] = array(
-                'score' => (float) $expected_result->score,
-                'penalty' => (float) $expected_result->penalty,
-                'answernote' => end($expected_result->answernotes)
+                'score' => $expected_result->score,
+                'penalty' => $expected_result->penalty,
+                'answer_note' => end($expected_result->answernotes)
             );
         }
 
