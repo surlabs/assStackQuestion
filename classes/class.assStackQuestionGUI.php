@@ -1732,12 +1732,14 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $content = "";
 
-        if (in_array('0', $unit_test_results)) {
-            $content .= $renderer->render($factory->messageBox()->failure('Test cases failed due to empty testcases not allowed'));
-        } elseif (in_array('1', $unit_test_results)) {
-            $content .= $renderer->render($factory->messageBox()->success('Test cases passed'));
-        } else {
-            $content .= $renderer->render($factory->messageBox()->failure('Test cases failed due to:' . $result->passed()));
+        foreach ($unit_test_results as $test_case => $result) {
+            if ($result === '1') {
+                $content .= $renderer->render($factory->messageBox()->success('Test case ' . $test_case . ' passed'));
+            } elseif ($result === '0') {
+                $content .= $renderer->render($factory->messageBox()->failure('Test case ' . $test_case . ' failed due to empty testcases not allowed'));
+            } else {
+                $content .= $renderer->render($factory->messageBox()->failure('Test case ' . $test_case . ' failed due to:' . $result));
+            }
         }
 
         $content .= $renderer->render($factory->button()->standard($DIC->language()->txt("back"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
