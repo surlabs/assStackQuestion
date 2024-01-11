@@ -1675,18 +1675,53 @@ class assStackQuestionGUI extends assQuestionGUI
         $this->randomisationAndSecurity($seed);
     }
 
+    /**
+     * @throws stack_exception
+     */
     public function generateNewVariants()
     {
-        // TODO: Implement generateNewVariants() method.
+        global $DIC;
 
-        // Generar 10 semillas (como maximo) y en total un timeout de 15 segundos, si pasan
-        // esos segundos que se queden las generadas y no genere mas, por
-        // eso un MAXIMO de 10 y no 10 de seguro.
+        $factory = $DIC->ui()->factory();
+        $renderer = $DIC->ui()->renderer();
 
-        // Hay que tener en cuenta que la semilla no de el mismo resultado, para ello comparar
-        // question notes con cada semilla generada y cada deployed seed.
+        $start_time = time();
+        $generated_seeds = 0;
 
-        // Una vez confirmado meterla a xqcas_deployed_seeds
+        $question_notes = array();
+
+        foreach ($this->object->deployed_seeds as $seed) {
+            $temp_question = clone $this->object;
+            $temp_question->questionInitialisation($seed, true);
+            $question_notes[$temp_question->question_note_instantiated->get_rendered()] = true;
+        }
+
+        while($generated_seeds < 10 && time() - $start_time < 15){
+            $seed = rand(1111111111,9999999999);
+
+            $temp_question = clone $this->object;
+            $temp_question->questionInitialisation($seed, true);
+            $question_note_instantiated = $temp_question->question_note_instantiated->get_rendered();
+
+            if (!$question_notes[$question_note_instantiated]) {
+                $generated_seeds++;
+                $this->object->deployed_seeds[$seed] = $seed;
+                $question_notes[$question_note_instantiated] = true;
+                assStackQuestionDB::_saveStackSeeds($this->object,'add', $seed);
+            }
+        }
+
+        $content = "";
+
+        if ($generated_seeds > 0) {
+            $content .= $renderer->render($factory->messageBox()->success('Successfully generated ' . $generated_seeds . ' new seeds'));
+        } else {
+            $content .= $renderer->render($factory->messageBox()->failure('Failed to generate new seeds'));
+        }
+
+        $content .= $renderer->render($factory->button()->standard($DIC->language()->txt("back"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
+
+        $this->tpl->setContent($content);
     }
 
     public function runAllTestsForActiveVariant()
