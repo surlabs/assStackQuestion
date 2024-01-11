@@ -1091,9 +1091,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
             $frac = 0;
 
+            $results = $this->getPrtResult($prt_name, $user_response, true);
+            $evaluation_data['prts'][$prt_name]['prt_result'] = $results;
+
             if ($this->canExecutePrt($this->prts[$prt_name], $user_response, true)) {
-                $results = $this->getPrtResult($prt_name, $user_response, true);
-                $evaluation_data['prts'][$prt_name]['prt_result'] = $results;
                 $frac = (float)$results->get_fraction();
 
                 //Set Feedback type
@@ -1106,6 +1107,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 } else {
                     throw new StackException('Error,  more points given than MAX Points');
                 }
+            } else {
+                $evaluation_data['points'][$prt_name]['status'] = 'incorrect';
             }
 
             $fraction += max($frac, 0);

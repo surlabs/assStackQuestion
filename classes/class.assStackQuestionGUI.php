@@ -1724,9 +1724,51 @@ class assStackQuestionGUI extends assQuestionGUI
         $this->tpl->setContent($content);
     }
 
+    /**
+     * @throws stack_exception
+     * @throws StackException
+     */
     public function runAllTestsForActiveVariant()
     {
-        // TODO: Implement runAllTestsForActiveVariant() method.
+        global $DIC;
+
+        $factory = $DIC->ui()->factory();
+        $renderer = $DIC->ui()->renderer();
+
+        $unit_tests = $this->object->getUnitTests();
+        $unit_test_results = array();
+
+        foreach ($unit_tests["test_cases"] as $test_case => $unit_test) {
+            $inputs = array();
+
+            foreach ($unit_test["inputs"] as $name => $input) {
+                $inputs[$name] = $input["value"];
+            }
+
+            $testcase = new StackUnitTest($unit_test["description"], $inputs, (int) $test_case);
+
+            foreach ($unit_test["expected"] as $name => $expected) {
+                $testcase->addExpectedResult($name, new stack_potentialresponse_tree_state(1, true, (float) $expected["score"], (float) $expected["penalty"], '', array($expected["answer_note"])));
+            }
+
+            $result = $testcase->run($this->object->getId(), (int) $_GET["set_active_variant_identifier"]);
+
+            $unit_test_results[$test_case] = $result->passed();
+        }
+
+        $content = "";
+
+        if (in_array('0', $unit_test_results)) {
+            $content .= $renderer->render($factory->messageBox()->failure('Test cases failed due to empty testcases not allowed'));
+        } elseif (in_array('1', $unit_test_results)) {
+            $content .= $renderer->render($factory->messageBox()->success('Test cases passed'));
+        } else {
+            $content .= $renderer->render($factory->messageBox()->failure('Test cases failed due to:' . $result->passed()));
+        }
+
+        $content .= $renderer->render($factory->button()->standard($DIC->language()->txt("back"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
+
+        $this->tpl->setContent($content);
     }
 
     public function runAllTestsForAllVariants()
@@ -1749,6 +1791,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
     /**
      * @throws stack_exception
+     * @throws StackException
      */
     public function runUnitTest()
     {
@@ -1782,9 +1825,6 @@ class assStackQuestionGUI extends assQuestionGUI
         } else {
             $content .= $renderer->render($factory->messageBox()->failure('Test case failed due to:' . $result->passed()));
         }
-
-        // TODO: Maybe show more information about the test case
-        $content .= $renderer->render($factory->messageBox()->info("TODO: Resultados del test unitario"));
 
         $content .= $renderer->render($factory->button()->standard($DIC->language()->txt("back"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
 
