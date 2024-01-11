@@ -5,6 +5,7 @@ namespace classes\ui\author;
 
 use assStackQuestionDB;
 use assStackQuestionUtils;
+use classes\platform\ilias\StackRenderIlias;
 use ilCtrlException;
 use ILIAS\UI\Component\Panel\Sub;
 use ILIAS\UI\Factory;
@@ -79,6 +80,11 @@ class RandomisationAndSecurityUI
 
             if ($key === "unit_tests") {
                 $this->data["unit_tests"] = $value;
+                continue;
+            }
+
+            if ($key === "question") {
+                $this->data["question"] = $value;
                 continue;
             }
         }
@@ -180,13 +186,32 @@ class RandomisationAndSecurityUI
                 $this->control->getLinkTargetByClass("assstackquestiongui", "addCustomTestForm"))
         ));
 
-        $question_text = $this->data["active_variant_question_text"];
+        $attempt_data = [];
 
-        $page = $this->factory->modal()->lightboxTextPage(assStackQuestionUtils::_getLatex($question_text), $this->language->txt("qpl_qst_xqcas_message_question_text"));
-        $modal = $this->factory->modal()->lightbox($page);
+        $attempt_data['response'] = [];
+        $attempt_data['question'] = $this->data["question"];
 
-        $button = $this->factory->button()->standard($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_show_question_text_action_text"), '')
-            ->withOnClick($modal->getShowSignal());
+        $display_options = [];
+        $display_options['readonly'] = true;
+        $display_options['feedback'] = true;
+
+        //Render question text
+        $question_text = StackRenderIlias::renderQuestion($attempt_data, $display_options);
+
+        $page_text = $this->factory->modal()->lightboxTextPage(assStackQuestionUtils::_getLatex($question_text), $this->language->txt("qpl_qst_xqcas_message_question_text"));
+        $modal_text = $this->factory->modal()->lightbox($page_text);
+
+        $button_text = $this->factory->button()->standard($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_show_question_text_action_text"), '')
+            ->withOnClick($modal_text->getShowSignal());
+
+        //Render general feedback
+        $general_feedback = StackRenderIlias::renderGeneralFeedback($attempt_data, $display_options);
+
+        $page_general_feedback = $this->factory->modal()->lightboxTextPage(assStackQuestionUtils::_getLatex($general_feedback), $this->language->txt("qpl_qst_xqcas_message_general_feedback"));
+        $modal_general_feedback = $this->factory->modal()->lightbox($page_general_feedback);
+
+        $button_general_feedback = $this->factory->button()->standard($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_show_general_feedback_action_text"), '')
+            ->withOnClick($modal_general_feedback->getShowSignal());
 
         //Return the UI component
         $active_variant_identifier = $this->data["active_variant_identifier"] ?? "";
@@ -199,7 +224,9 @@ class RandomisationAndSecurityUI
             $this->factory->legacy(
                 assStackQuestionUtils::_getLatex($active_variant_question_note) .
                 $this->renderer->render($this->factory->divider()->horizontal()) .
-                $this->renderer->render([$button, $modal])
+                $this->renderer->render([$button_text, $modal_text]) .
+                $this->renderer->render($this->factory->divider()->vertical()) .
+                $this->renderer->render([$button_general_feedback, $modal_general_feedback])
             )
         )
             ->withCard($this->factory->card()->standard(

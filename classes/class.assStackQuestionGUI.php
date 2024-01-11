@@ -1177,6 +1177,7 @@ class assStackQuestionGUI extends assQuestionGUI
             'deployed_seeds' => $deployed_seed_data,
             'question_id' => $this->object->getId(),
             'unit_tests' => $this->object->getUnitTests(),
+            'question'  => $this->object,
         );
         $ui = new RandomisationAndSecurityUI($array);
 
