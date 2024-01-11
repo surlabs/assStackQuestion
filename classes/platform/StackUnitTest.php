@@ -81,6 +81,7 @@ class StackUnitTest {
      * @param int $seed the random seed to use.
      * @return StackUnitTestResult the test results.
      * @throws stack_exception
+     * @throws StackException
      */
     public function run(int $questionid, int $seed): StackUnitTestResult
     {
@@ -248,9 +249,9 @@ class StackUnitTest {
         $raw_result['test_case'] = $this->testCase;
         $raw_result['seed'] = $question->seed;
         if($result->passed() === '1') {
-            $raw_result['passed'] = 1;
+            $raw_result['result'] = 1;
         } else {
-            $raw_result['passed'] = 0;
+            $raw_result['result'] = 0;
         }
         $raw_result['timerun'] = time();
 

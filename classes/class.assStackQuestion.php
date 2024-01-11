@@ -1081,51 +1081,36 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function evaluateQuestion(array $user_response): bool
     {
-
         $fraction = 0;
+        $evaluation_data = [];
+
         foreach ($this->prts as $prt_name => $prt) {
             if ($prt->is_formative()) {
                 continue;
             }
 
             $accumulated_penalty = 0;
-            $last_input = array();
-            $penalty_to_apply = null;
-            $results = new stdClass();
-            $results->fraction = 0;
-            $evaluation_data = [];
 
             $frac = 0;
-            foreach ($user_response as $response) {
-                $prt_input = $this->getPrtInput($prt_name, $user_response, true);
 
-                if (!$this->isSamePRTInput($prt_name, $last_input, $prt_input)) {
-                    $penalty_to_apply = $accumulated_penalty;
-                    $last_input = $prt_input;
-                }
+            if ($this->canExecutePrt($this->prts[$prt_name], $user_response, true)) {
+                $results = $this->getPrtResult($prt_name, $user_response, true);
+                $evaluation_data['prts'][$prt_name]['prt_result'] = $results;
+                $frac = (float)$results->get_fraction();
 
-                if ($this->canExecutePrt($this->prts[$prt_name], $user_response, true)) {
-
-                    $results = $this->getPrtResult($prt_name, $user_response, true);
-                    $evaluation_data['prts'][$prt_name]['prt_result'] = $results;
-                    $accumulated_penalty += $results->get_fractionalpenalty();
-                    $frac = (float)$results->get_fraction();
-
-                    //Set Feedback type
-                    if ($frac <= 0.0) {
-                        $evaluation_data['points'][$prt_name]['status'] = 'incorrect';
-                    } elseif ($frac == $results->getWeight()) {
-                        $evaluation_data['points'][$prt_name]['status'] = 'correct';
-                    } elseif ($frac < $results->getWeight()) {
-                        $evaluation_data['points'][$prt_name]['status'] = 'partially_correct';
-                    } else {
-                        throw new StackException('Error,  more points given than MAX Points');
-                    }
-
+                //Set Feedback type
+                if ($frac <= 0.0) {
+                    $evaluation_data['points'][$prt_name]['status'] = 'incorrect';
+                } elseif ($frac == $results->getWeight()) {
+                    $evaluation_data['points'][$prt_name]['status'] = 'correct';
+                } elseif ($frac < $results->getWeight()) {
+                    $evaluation_data['points'][$prt_name]['status'] = 'partially_correct';
+                } else {
+                    throw new StackException('Error,  more points given than MAX Points');
                 }
             }
 
-            $fraction += max($frac - $penalty_to_apply, 0);
+            $fraction += max($frac, 0);
             $evaluation_data['points'][$prt_name]['prt_points'] = $frac;
         }
 
@@ -1144,7 +1129,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         //Mark as evaluated
         $this->setEvaluation($evaluation_data);
-
 
         return true;
     }
