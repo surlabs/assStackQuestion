@@ -1815,7 +1815,8 @@ class assStackQuestionGUI extends assQuestionGUI
         }
 
         StackUnitTest::addDefaultTestcase($this->object);
-        //TODO RUN TESTCASES AND SHOW RESULTS
+
+        $this->randomisationAndSecurity();
     }
 
     /**
