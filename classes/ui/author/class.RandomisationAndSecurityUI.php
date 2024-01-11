@@ -388,8 +388,8 @@ class RandomisationAndSecurityUI
                 $sans = [];
 
                 foreach($prt->get_nodes() as $node){
-                    $options[trim($node->trueanswer_note)] = trim($node->trueanswer_note);
-                    $options[trim($node->falseanswer_note)] = trim($node->falseanswer_note);
+                    $options[trim($node->trueanswernote)] = trim($node->trueanswernote);
+                    $options[trim($node->falseanswernote)] = trim($node->falseanswernote);
 
                     if(!in_array($node->sans, $sans)){
                         $sans[] = $node->sans;

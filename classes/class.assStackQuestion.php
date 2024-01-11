@@ -1272,6 +1272,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $newnode = new stdClass;
             $newnode->id = '0';
             $newnode->nodename = '0';
+            $newnode->prtname = 'ans';
             $newnode->description = '';
             $newnode->sans = 'ans1';
             $newnode->tans = 'ta';
@@ -1296,6 +1297,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $newnode = new stdClass;
             $newnode->id = '1';
             $newnode->nodename = '1';
+            $newnode->prtname = 'ans';
             $newnode->description = '';
             $newnode->sans = 'ans1';
             $newnode->tans = '{p}';
@@ -1320,6 +1322,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $newnode = new stdClass;
             $newnode->id = '2';
             $newnode->nodename = '2';
+            $newnode->prtname = 'ans';
             $newnode->description = '';
             $newnode->sans = 'a1';
             $newnode->tans = '{0}';

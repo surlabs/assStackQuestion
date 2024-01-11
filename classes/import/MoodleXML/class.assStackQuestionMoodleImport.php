@@ -330,6 +330,7 @@ class assStackQuestionMoodleImport
                 $node = new stdClass();
 
                 $node->nodename = ilUtil::secureString((string) $node_data->name);
+                $node->prtname = ilUtil::secureString((string) $node_data->prtname);
                 $node->answertest = ilUtil::secureString((string) $node_data->answertest);
                 $node->sans = ilUtil::secureString((string) $node_data->sans);
                 $node->tans = ilUtil::secureString((string) $node_data->tans);

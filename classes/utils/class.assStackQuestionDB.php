@@ -223,14 +223,14 @@ class assStackQuestionDB
 			$potential_response_tree_nodes[$prt_node_name]->truescore = $row['true_score'];
 			$potential_response_tree_nodes[$prt_node_name]->truescoremode = $row['true_score_mode'];
 			$potential_response_tree_nodes[$prt_node_name]->truepenalty = $row['true_penalty'];
-			$potential_response_tree_nodes[$prt_node_name]->trueanswer_note = $row['true_answer_note'];
+			$potential_response_tree_nodes[$prt_node_name]->trueanswernote = $row['true_answer_note'];
 			$potential_response_tree_nodes[$prt_node_name]->truefeedback = ilRTE::_replaceMediaObjectImageSrc($row['true_feedback'], 1);
 			$potential_response_tree_nodes[$prt_node_name]->truefeedbackformat = (int)$row['true_feedback_format'];
 
 			$potential_response_tree_nodes[$prt_node_name]->falsescore = $row['false_score'];
 			$potential_response_tree_nodes[$prt_node_name]->falsescoremode = $row['false_score_mode'];
 			$potential_response_tree_nodes[$prt_node_name]->falsepenalty = $row['false_penalty'];
-			$potential_response_tree_nodes[$prt_node_name]->falseanswer_note = $row['false_answer_note'];
+			$potential_response_tree_nodes[$prt_node_name]->falseanswernote = $row['false_answer_note'];
 			$potential_response_tree_nodes[$prt_node_name]->falsefeedback = ilRTE::_replaceMediaObjectImageSrc($row['false_feedback'], 1);
 			$potential_response_tree_nodes[$prt_node_name]->falsefeedbackformat = (int)$row['false_feedback_format'];
 		}
