@@ -899,7 +899,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 			$this->addTab_QuestionFeedback($tabs);
 
-			if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'randomisationAndSecurity', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle','generateNewVariants', 'runAllTestsForActiveVariant', 'runAllTestsForAllVariants', 'addCustomTestForm'))) {
+			if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'randomisationAndSecurity', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle','generateNewVariants', 'runAllTestsForActiveVariant', 'runAllTestsForAllVariants', 'addCustomTestForm', 'editTestcases'))) {
 				$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 				$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
 				$tabs->addSubTab('randomisation_and_security', $this->plugin->txt('ui_author_randomisation_and_security_title'), $this->ctrl->getLinkTargetByClass($classname, "randomisationAndSecurity"));
@@ -1368,18 +1368,9 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $globalTemplate = $DIC->ui()->mainTemplate();
 
-		//Set all parameters required
-		//$this->plugin->includeClass('utils/class.assStackQuestionStackFactory.php');
 		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('unit_tests');
+		$tabs->activateSubTab('randomisation_and_security');
 
-		//get Post vars
-/*		if (isset($_POST['test_id'])) {
-			$test_id = $_POST['test_id'];
-		}
-		if (isset($_POST['question_id'])) {
-			$question_id = $_POST['question_id'];
-		}*/
 		if (isset($_GET['test_case'])) {
             $ui = new RandomisationAndSecurityUI([]);
             $unit_test_data = $this->object->getUnitTests();
@@ -1388,24 +1379,6 @@ class assStackQuestionGUI extends assQuestionGUI
             $factory = $DIC->ui()->factory();
 			$render = $DIC->ui()->renderer()->render($factory->messageBox()->failure('No test case selected'));
 		}
-
-
-		//Create unit test object
-		//$this->plugin->includeClass("model/ilias_object/test/class.assStackQuestionUnitTests.php");
-		//$unit_tests_object = new assStackQuestionUnitTests($this->plugin, $this->object);
-
-		//Create GUI object
-		//$this->plugin->includeClass('GUI/test/class.assStackQuestionTestGUI.php');
-		//$unit_test_gui = new assStackQuestionTestGUI($this, $this->plugin);
-        /*
-                //Add CSS
-                $DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
-
-                //Returns Deployed seeds form*/
-		//$this->tpl->setVariable("QUESTION_DATA", $unit_test_gui->editTestcaseForm($testcase_name, $this->object->inputs, $this->object->prts));
-
-        //$this->object->instantiateUnitTests();
-
 
         $globalTemplate->setContent($render);
 	}
@@ -1779,14 +1752,13 @@ class assStackQuestionGUI extends assQuestionGUI
     public function addCustomTestForm()
     {
         GLOBAL $DIC;
-        $ui = new RandomisationAndSecurityUI([]);
-        $this->tpl->setContent($ui->showCustomTestForm());
-
         $tabs = $DIC->tabs();
 
         $tabs->activateTab('edit_properties');
         $tabs->activateSubTab('randomisation_and_security');
 
+        $ui = new RandomisationAndSecurityUI([]);
+        $this->tpl->setContent($ui->showCustomTestForm($this->object->inputs, $this->object->prts));
     }
 
     /**

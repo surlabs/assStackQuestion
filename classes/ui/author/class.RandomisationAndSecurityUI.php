@@ -333,14 +333,14 @@ class RandomisationAndSecurityUI
         return $std_list;
     }
 
-    public function showCustomTestForm(): string
+    public function showCustomTestForm(array $inputs, array $prts): string
     {
-        $sections = $this->initCustomTest();
+        $sections = $this->initCustomTest("", $inputs, null, $prts);
         $form_action = $this->control->getLinkTargetByClass("assStackQuestionGUI", "addCustomTestForm");
         return $this->renderCustomTest($form_action, $sections);
     }
 
-    public function initCustomTest($description = "", $inputs = null, $expected = null, $prts = null):array
+    public function initCustomTest(string $description = "", array $inputs = null, array $expected = null, array $prts = null):array
     {
         global $DIC;
 
@@ -363,22 +363,14 @@ class RandomisationAndSecurityUI
             //ENTRIES SECTION
             $formFields = [];
 
-            if($inputs == null){
-
-                $ans1 = $this->factory->input()->field()->text("ans1", '')->withRequired(true);
-                $formFields['ans1'] = $ans1;
-
-            } else {
-
-                foreach($inputs as $key => $input){
-
-                    $ans = $this->factory->input()->field()->text($key, '')->withRequired(true)->withValue($input["value"]);
-                    $formFields[$key] = $ans;
-
-
+            foreach($inputs as $key => $input){
+                $ans = $this->factory->input()->field()->text($key, '')->withRequired(true);
+                if($expected){
+                    $ans = $ans->withValue($input["value"]);
                 }
-            }
+                $formFields[$key] = $ans;
 
+            }
 
             $sectionEntries = $this->factory->input()->field()->section($formFields, $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_section_entries"), "");
             $sections["entries"] = $sectionEntries;
@@ -386,58 +378,43 @@ class RandomisationAndSecurityUI
             //EXPECTED RESULT SECTION
             $formFields = [];
 
-            if($expected == null){
+            foreach($prts as $key => $prt){
                 $rating = $this->factory->input()->field()->text($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_rating"), '')->withRequired(true);
                 $penalization = $this->factory->input()->field()->text($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_penalization"), '')->withRequired(true);
 
-                $options = array(
-                    "1-0-t" => "1-0-T",
-                    "1-0-f" => "1-0-F",
-                );
+                $options = [];
+                $options["NULL"] = "NULL";
 
-                $responseNote = $this->factory->input()->field()->select($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_response_note"), $options)->withRequired(true);
+                $sans = [];
 
-                $formFields = [
-                    'rating' => $rating,
-                    'penalization' => $penalization,
-                    'responseNote' => $responseNote
-                ];
+                foreach($prt->get_nodes() as $node){
+                    $options[trim($node->trueanswer_note)] = trim($node->trueanswer_note);
+                    $options[trim($node->falseanswer_note)] = trim($node->falseanswer_note);
 
-                $sectionExpectedResult = $this->factory->input()->field()->section($formFields, $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_section_expected_result"), "");
-
-                $sections["expectedResult"] = $sectionExpectedResult;
-
-            } else {
-
-                foreach($expected as $key => $expect){
-
-                    $rating = $this->factory->input()->field()->text($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_rating"), '')->withRequired(true)->withValue($expect["score"]);
-                    $penalization = $this->factory->input()->field()->text($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_penalization"), '')->withRequired(true)->withValue($expect["penalty"]);
-
-                    $options = [];
-
-                    foreach($prts[$key]->get_nodes() as $node){
-                        $options[trim($node->trueanswer_note)] = trim($node->trueanswer_note);
-                        $options[trim($node->falseanswer_note)] = trim($node->falseanswer_note);
+                    if(!in_array($node->sans, $sans)){
+                        $sans[] = $node->sans;
                     }
-
-                    $responseNote = $this->factory->input()->field()->select($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_response_note"), $options)->withRequired(true)->withValue($expect["answer_note"]);
-
-                    $formFields = [
-                        'rating' => $rating,
-                        'penalization' => $penalization,
-                        'responseNote' => $responseNote
-                    ];
-
-                    $sectionExpectedResult = $this->factory->input()->field()->section($formFields, $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_section_expected_result")." ".$key, "");
-
-                    $sections["result_".$key] = $sectionExpectedResult;
-
 
                 }
 
-            }
+                $responseNote = $this->factory->input()->field()->select($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_response_note"), $options)->withRequired(true);
 
+                if($expected){
+                    $rating = $rating->withValue($expected[$key]["score"]);
+                    $penalization = $penalization->withValue($expected[$key]["penalty"]);
+                    $responseNote = $responseNote->withValue($expected[$key]["answer_note"]);
+                }
+
+                $formFields['rating'] = $rating;
+                $formFields['penalization'] = $penalization;
+                $formFields['responseNote'] = $responseNote;
+
+                $sectionExpectedResult = $this->factory->input()->field()->section($formFields, $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_section_expected_result")." ".$key.": [".implode(",", $sans)."]", "");
+
+                $sections["result_".$key] = $sectionExpectedResult;
+
+
+            }
 
         } catch (Exception $e){
             $section = $this->factory->messageBox()->failure($e->getMessage());
@@ -476,9 +453,15 @@ class RandomisationAndSecurityUI
 
     }
 
-    public function showEditCustomTestForm($unit_tests, $prts): string
+    public function showEditCustomTestForm(array $unit_tests, array $prts): string
     {
         $sections = $this->initCustomTest($unit_tests["description"], $unit_tests["inputs"], $unit_tests["expected"], $prts);
+        $this->control->setParameterByClass(
+            'assStackQuestionGUI',
+            'test_case',
+            $_GET["test_case"]
+        );
+
         $form_action = $this->control->getLinkTargetByClass("assStackQuestionGUI", "editTestcases");
         return $this->renderCustomTest($form_action, $sections);
     }
