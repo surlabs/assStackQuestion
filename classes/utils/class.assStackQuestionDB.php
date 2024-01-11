@@ -864,7 +864,7 @@ class assStackQuestionDB
 		return true;
 	}
 
-	private static function _saveStackUnitTests(assStackQuestion $question, string $purpose): bool
+	public static function _saveStackUnitTests(assStackQuestion $question, string $purpose): bool
 	{
 		global $DIC;
 		$db = $DIC->database();

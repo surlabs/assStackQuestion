@@ -1678,6 +1678,15 @@ class assStackQuestionGUI extends assQuestionGUI
     public function generateNewVariants()
     {
         // TODO: Implement generateNewVariants() method.
+
+        // Generar 10 semillas (como maximo) y en total un timeout de 15 segundos, si pasan
+        // esos segundos que se queden las generadas y no genere mas, por
+        // eso un MAXIMO de 10 y no 10 de seguro.
+
+        // Hay que tener en cuenta que la semilla no de el mismo resultado, para ello comparar
+        // question notes con cada semilla generada y cada deployed seed.
+
+        // Una vez confirmado meterla a xqcas_deployed_seeds
     }
 
     public function runAllTestsForActiveVariant()
@@ -1747,7 +1756,14 @@ class assStackQuestionGUI extends assQuestionGUI
         $this->tpl->setContent($content);
     }
 
+    /**
+     * @throws stack_exception
+     */
     public function addStandardTest(){
+        if (!$this->object->isInstantiated()) {
+            $this->object->questionInitialisation(0);
+        }
+
         StackUnitTest::addDefaultTestcase($this->object);
         //TODO RUN TESTCASES AND SHOW RESULTS
     }

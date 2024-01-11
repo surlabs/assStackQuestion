@@ -258,12 +258,20 @@ class StackUnitTest {
     }
 
 
+    /**
+     * @throws stack_exception
+     */
     public static function addDefaultTestcase(assStackQuestion $question) {
+        $test_case = $question->getNextTestCaseNumber();
+
         $inputs = array();
+
         foreach ($question->inputs as $input_name => $input) {
             $inputs[$input_name] = $input->get_teacher_answer_testcase();
         }
-        $default_unit_test = new self(stack_string('autotestcase'), $inputs);
+
+        $default_unit_test = new self(stack_string('autotestcase'), $inputs, (int) $test_case);
+
         $response = self::computeResponse($question, $inputs);
 
         foreach ($question->prts as $prt_name => $prt) {
@@ -278,6 +286,35 @@ class StackUnitTest {
             $default_unit_test->addExpectedResult($prt_name, new stack_potentialresponse_tree_state(
                 1, true, 1, 0, '', $answer_note));
         }
-        //TODO SAUL: Guardar el test en la base de datos
+
+        $raw_inputs = array();
+
+        foreach ($default_unit_test->inputs as $input_name => $value) {
+            $raw_inputs[$input_name] = array(
+                'value' => $value
+            );
+        }
+
+        $raw_expected_results = array();
+
+        foreach ($default_unit_test->expectedResults as $prt_name => $expected_result) {
+            $raw_expected_results[$prt_name] = array(
+                'score' => $expected_result->score,
+                'penalty' => $expected_result->penalty,
+                'answernote' => $expected_result->answernotes[0]
+            );
+        }
+
+        $raw_unit_test = array(
+            'time_modified' => time(),
+            'description' => $default_unit_test->description,
+            'inputs' => $raw_inputs,
+            'expected' => $raw_expected_results,
+            'results' => array()
+        );
+
+        $question->addUnitTest($test_case, $raw_unit_test);
+
+        assStackQuestionDB::_saveStackUnitTests($question, "");
     }
 }

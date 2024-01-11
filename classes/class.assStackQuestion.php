@@ -1406,6 +1406,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param int|null $variant
      * @param bool $force_variant
      * @param bool $deployed_seeds_view true only in authoring mode / deployed seeds view
+     * @throws stack_exception
      */
     public function questionInitialisation(?int $variant, bool $force_variant = false, bool $deployed_seeds_view = false)
     {
@@ -2998,6 +2999,31 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     public function setUnitTests(array $unit_tests): void
     {
         $this->unit_tests = $unit_tests;
+    }
+
+    /**
+     * @param string $test_case
+     * @param array $unit_test
+     */
+    public function addUnitTest(string $test_case, array $unit_test): void
+    {
+        $this->unit_tests["test_cases"][$test_case] = $unit_test;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNextTestCaseNumber(): string
+    {
+        $max = 0;
+
+        foreach ($this->unit_tests["test_cases"] as $test_case => $unit_test) {
+            if ((int)$test_case > $max) {
+                $max = (int)$test_case;
+            }
+        }
+
+        return (string)($max + 1);
     }
 
     /**
