@@ -1089,8 +1089,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 continue;
             }
 
-            $accumulated_penalty = 0;
-
             $frac = 0;
 
             if ($this->canExecutePrt($this->prts[$prt_name], $user_response, true)) {
