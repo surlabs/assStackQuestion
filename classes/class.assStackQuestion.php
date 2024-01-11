@@ -1082,6 +1082,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     public function evaluateQuestion(array $user_response): bool
     {
         $fraction = 0;
+        $total_weight = 0;
         $evaluation_data = [];
 
         foreach ($this->prts as $prt_name => $prt) {
@@ -1102,6 +1103,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             //}
 
             $results = $this->getPrtResult($prt_name, $user_response, true);
+            $total_weight += $results->getWeight();
             $evaluation_data['prts'][$prt_name]['prt_result'] = $results;
 
             if ($this->canExecutePrt($this->prts[$prt_name], $user_response, true)) {
@@ -1122,11 +1124,17 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 $evaluation_data['points'][$prt_name]['status'] = 'incorrect';
             }
 
-            //$fraction += max($frac - $penalty_to_apply, 0);
+            $fraction += max($frac, 0);
             $evaluation_data['points'][$prt_name]['prt_points'] = $frac;
         }
 
-        $evaluation_data['points']['total'] = (float)$fraction;
+        if ($total_weight > 0) {
+            $ilias_points = ($fraction / $total_weight) * $this->getMaximumPoints();
+        } else {
+            throw new StackException('No points available for evaluation');
+        }
+
+        $evaluation_data['points']['total'] = (float)$ilias_points;
 
 
         if ($fraction > $this->getMaximumPoints()) {
