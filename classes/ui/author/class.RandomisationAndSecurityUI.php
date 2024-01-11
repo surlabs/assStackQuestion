@@ -301,7 +301,7 @@ class RandomisationAndSecurityUI
             $status = "Not tested";
 
             foreach ($unit_test["results"] as $result) {
-                if ((int) $result["status"] == 1) {
+                if ((int) $result["result"] == 1) {
                     $status = "Passed";
                 } else {
                     $status = "Failed";

@@ -302,7 +302,7 @@ class StackUnitTest {
             $raw_expected_results[$prt_name] = array(
                 'score' => (float) $expected_result->score,
                 'penalty' => (float) $expected_result->penalty,
-                'answernote' => $expected_result->answernotes[0] ?? 'NULL'
+                'answernote' => end($expected_result->answernotes)
             );
         }
 
