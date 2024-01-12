@@ -272,8 +272,13 @@ class RandomisationAndSecurityUI
             //control parameters
             $this->control->setParameterByClass(
                 'assStackQuestionGUI',
-                'set_active_variant_identifier',
+                'variant_identifier',
                 $deployed_variant_identifier
+            );
+            $this->control->setParameterByClass(
+                'assStackQuestionGUI',
+                'active_variant',
+                $this->data["active_variant_identifier"]
             );
 
             //Actions for each deployed variant

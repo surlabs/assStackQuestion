@@ -1223,20 +1223,31 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function deleteDeployedSeed()
 	{
 		global $DIC;
-		$tabs = $DIC->tabs();
+        $factory = $DIC->ui()->factory();
+        $renderer = $DIC->ui()->renderer();
+
+        $tabs = $DIC->tabs();
 		//Set all parameters required
 		$tabs->activateTab('edit_properties');
 		$tabs->activateSubTab('randomisation_and_security');
-		$this->getQuestionTemplate();
 
 		//New seed creation
-		$seed = (int)$_POST['deployed_seed'];
-		$question_id = (int)$_POST['question_id'];
+        $active_variant = (int) $_GET['active_variant'];
+		$seed = (int) $_GET['variant_identifier'];
+		$question_id = (int) $_GET['q_id'];
 
-        //delete seed
-        assStackQuestionDB::_deleteStackSeeds($question_id,'',$seed);
+        if ($seed != $active_variant) {
+            //delete seed
+            assStackQuestionDB::_deleteStackSeeds($question_id, '', $seed);
 
-		$this->randomisationAndSecurity();
+            $this->randomisationAndSecurity();
+        } else {
+            $content = $renderer->render($factory->messageBox()->failure('You cannot delete the active variant'));
+
+            $content .= $renderer->render($factory->button()->standard($DIC->language()->txt("back"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
+
+            $this->tpl->setContent($content);
+        }
 	}
 
 	/**
@@ -1636,8 +1647,8 @@ class assStackQuestionGUI extends assQuestionGUI
 
     public function setAsActiveVariant()
     {
-        if(isset($_GET['set_active_variant_identifier'])){
-            $variant_id = $_GET['set_active_variant_identifier'];
+        if(isset($_GET['variant_identifier'])){
+            $variant_id = $_GET['variant_identifier'];
             assStackQuestionDB::_saveSeedForPreview($this->object->getId(),(int)$variant_id);
         }
         $this->randomisationAndSecurity();
@@ -1727,7 +1738,7 @@ class assStackQuestionGUI extends assQuestionGUI
                 $testcase->addExpectedResult($name, new stack_potentialresponse_tree_state(1, true, (float) $expected["score"], (float) $expected["penalty"], '', array($expected["answer_note"])));
             }
 
-            $result = $testcase->run($this->object->getId(), (int) $_GET["set_active_variant_identifier"]);
+            $result = $testcase->run($this->object->getId(), (int) $_GET["variant_identifier"]);
 
             $unit_test_results[$test_case] = $result->passed();
         }
@@ -1749,9 +1760,59 @@ class assStackQuestionGUI extends assQuestionGUI
         $this->tpl->setContent($content);
     }
 
+    /**
+     * @throws stack_exception
+     * @throws StackException
+     */
     public function runAllTestsForAllVariants()
     {
-        // TODO: Implement runAllTestsForAllVariants() method.
+        global $DIC;
+
+        $factory = $DIC->ui()->factory();
+        $renderer = $DIC->ui()->renderer();
+
+        $unit_tests = $this->object->getUnitTests();
+        $unit_test_results = array();
+
+        foreach ($this->object->deployed_seeds as $seed) {
+            foreach ($unit_tests["test_cases"] as $test_case => $unit_test) {
+                $inputs = array();
+
+                foreach ($unit_test["inputs"] as $name => $input) {
+                    $inputs[$name] = $input["value"];
+                }
+
+                $testcase = new StackUnitTest($unit_test["description"], $inputs, (int) $test_case);
+
+                foreach ($unit_test["expected"] as $name => $expected) {
+                    $testcase->addExpectedResult($name, new stack_potentialresponse_tree_state(1, true, (float) $expected["score"], (float) $expected["penalty"], '', array($expected["answer_note"])));
+                }
+
+                $result = $testcase->run($this->object->getId(), (int) $seed);
+
+                $unit_test_results[] = array(
+                    'test_case' => $test_case,
+                    'seed' => $seed,
+                    'result' => $result->passed()
+                );
+            }
+        }
+
+        $content = "";
+
+        foreach ($unit_test_results as $result) {
+            if ($result['result'] === '1') {
+                $content .= $renderer->render($factory->messageBox()->success('Test case ' . $result['test_case'] . ' passed for seed ' . $result['seed']));
+            } elseif ($result['result'] === '0') {
+                $content .= $renderer->render($factory->messageBox()->failure('Test case ' . $result['test_case'] . ' failed due to empty testcases not allowed for seed ' . $result['seed']));
+            } else {
+                $content .= $renderer->render($factory->messageBox()->failure('Test case ' . $result['test_case'] . ' failed due to:' . $result['result'] . ' for seed ' . $result['seed']));
+            }
+        }
+
+        $content .= $renderer->render($factory->button()->standard($DIC->language()->txt("back"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
+
+        $this->tpl->setContent($content);
     }
 
     public function addCustomTestForm()
@@ -1791,7 +1852,7 @@ class assStackQuestionGUI extends assQuestionGUI
             $testcase->addExpectedResult($name, new stack_potentialresponse_tree_state(1, true, (float) $expected["score"], (float) $expected["penalty"], '', array($expected["answer_note"])));
         }
 
-        $result = $testcase->run($this->object->getId(), (int) $_GET["set_active_variant_identifier"]);
+        $result = $testcase->run($this->object->getId(), (int) $_GET["variant_identifier"]);
 
         $content = "";
 
