@@ -3,14 +3,17 @@ declare(strict_types=1);
 
 namespace classes\ui\author;
 
+use assStackQuestion;
 use assStackQuestionDB;
 use assStackQuestionUtils;
 use classes\platform\ilias\StackRenderIlias;
+use classes\platform\StackUnitTest;
 use ilCtrlException;
 use ILIAS\UI\Component\Panel\Sub;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 use ilSetting;
+use InvalidArgumentException;
 
 /**
  * This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
@@ -371,11 +374,11 @@ class RandomisationAndSecurityUI
         return $std_list;
     }
 
-    public function showCustomTestForm(array $inputs, array $prts): string
+    public function showCustomTestForm(array $inputs, array $prts, assStackQuestion $question): string
     {
         $sections = $this->initCustomTest("", $inputs, null, $prts);
         $form_action = $this->control->getLinkTargetByClass("assStackQuestionGUI", "addCustomTestForm");
-        return $this->renderCustomTest($form_action, $sections);
+        return $this->renderCustomTest($form_action, $sections, $question);
     }
 
     public function initCustomTest(string $description = "", array $inputs = null, array $expected = null, array $prts = null):array
@@ -445,7 +448,7 @@ class RandomisationAndSecurityUI
 
                 $formFields['score'] = $rating;
                 $formFields['penalty'] = $penalization;
-                $formFields['answernote'] = $responseNote;
+                $formFields['answer_note'] = $responseNote;
 
                 $sectionExpectedResult = $this->factory->input()->field()->section($formFields, $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_section_expected_result")." ".$key.": [".implode(",", $sans)."]", "");
 
@@ -463,7 +466,7 @@ class RandomisationAndSecurityUI
 
     }
 
-    public function renderCustomTest(string $form_action, array $sections): string
+    public function renderCustomTest(string $form_action, array $sections, assStackQuestion $question): string
     {
         global $DIC;
 
@@ -481,9 +484,7 @@ class RandomisationAndSecurityUI
             $form = $form->withRequest($request);
             $result = $form->getData();
             if($result){
-                dump($result);
-                exit;
-                $saving_info = $this->saveProperties($result);
+                $saving_info = $this->saveUnitTest($_GET["test_case"], $result, $question);
             }
         }
 
@@ -491,7 +492,7 @@ class RandomisationAndSecurityUI
 
     }
 
-    public function showEditCustomTestForm(array $unit_tests, array $prts): string
+    public function showEditCustomTestForm(array $unit_tests, array $prts, assStackQuestion $question): string
     {
         $sections = $this->initCustomTest($unit_tests["description"], $unit_tests["inputs"], $unit_tests["expected"], $prts);
         $this->control->setParameterByClass(
@@ -501,7 +502,40 @@ class RandomisationAndSecurityUI
         );
 
         $form_action = $this->control->getLinkTargetByClass("assStackQuestionGUI", "editTestcases");
-        return $this->renderCustomTest($form_action, $sections);
+        return $this->renderCustomTest($form_action, $sections, $question);
     }
 
+    /**
+     * @param string|null $test_case
+     * @param array $unit_test
+     * @param assStackQuestion $question
+     * @return string
+     */
+    private function saveUnitTest(?string $test_case, array $unit_test, assStackQuestion $question) : string {
+        // Parse the unit_test to the correct format
+        $unit_test["description"] = $unit_test["general"]["description"];
+        unset($unit_test["general"]);
+
+        foreach ($unit_test["inputs"] as $key => $value) {
+            $unit_test["inputs"][$key] = [
+                "value" => $value
+            ];
+        }
+
+        foreach ($unit_test as $key => $value) {
+            if (strpos($key, "result_") !== false) {
+                unset($unit_test[$key]);
+                $key = str_replace("result_", "", $key);
+                $unit_test["expected"][$key] = $value;
+            }
+        }
+
+        $unit_test["time_modified"] = time();
+
+        if (StackUnitTest::saveTestCase($test_case, $unit_test, $question)) {
+            return $this->renderer->render($this->factory->messageBox()->success('Saved'));
+        } else {
+            return $this->renderer->render($this->factory->messageBox()->failure('Error saving'));
+        }
+    }
 }

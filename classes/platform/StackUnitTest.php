@@ -318,4 +318,18 @@ class StackUnitTest {
 
         assStackQuestionDB::_saveStackUnitTests($question, "");
     }
+
+    public static function saveTestCase(?string $test_case, array $unit_test, assStackQuestion $question): bool
+    {
+        if (isset($test_case)) {
+            $unit_test["results"] = $question->unit_tests["test_cases"][$test_case]["results"];
+        } else {
+            $test_case = $question->getNextTestCaseNumber();
+            $unit_test["results"] = [];
+        }
+
+        $question->addUnitTest($test_case, $unit_test);
+
+        return assStackQuestionDB::_saveStackUnitTests($question, "");
+    }
 }

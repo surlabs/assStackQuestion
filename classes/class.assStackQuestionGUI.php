@@ -1377,7 +1377,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		if (isset($_GET['test_case'])) {
             $ui = new RandomisationAndSecurityUI([]);
             $unit_test_data = $this->object->getUnitTests();
-            $render = $ui->showEditCustomTestForm($unit_test_data['test_cases'][$_GET['test_case']], $this->object->prts);
+            $render = $ui->showEditCustomTestForm($unit_test_data['test_cases'][$_GET['test_case']], $this->object->prts, $this->object);
 		} else {
             $factory = $DIC->ui()->factory();
 			$render = $DIC->ui()->renderer()->render($factory->messageBox()->failure('No test case selected'));
@@ -1763,7 +1763,7 @@ class assStackQuestionGUI extends assQuestionGUI
         $tabs->activateSubTab('randomisation_and_security');
 
         $ui = new RandomisationAndSecurityUI([]);
-        $this->tpl->setContent($ui->showCustomTestForm($this->object->inputs, $this->object->prts));
+        $this->tpl->setContent($ui->showCustomTestForm($this->object->inputs, $this->object->prts, $this->object));
     }
 
     /**

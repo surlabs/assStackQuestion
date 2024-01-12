@@ -883,6 +883,8 @@ class assStackQuestionDB
 						"id" => array("integer", $db->nextId('xqcas_qtests')),
 						"question_id" => array("integer", $question_id),
 						"test_case" => array("integer", $testcase_name),
+                        "description" => array("text", $test_case['description']),
+                        "time_modified" => array("integer", time())
 					));
 
 					//Create Unit Tests Input
@@ -897,7 +899,6 @@ class assStackQuestionDB
 
 
 				} else {
-
 					//UPDATE
 					$db->replace('xqcas_qtests',
 						array(
@@ -905,6 +906,8 @@ class assStackQuestionDB
 						array(
 							"question_id" => array("integer", $question_id),
 							"test_case" => array("integer", $testcase_name),
+                            "description" => array("text", $test_case['description']),
+                            "time_modified" => array("integer", time())
 						)
 					);
 
