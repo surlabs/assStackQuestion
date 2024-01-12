@@ -160,6 +160,7 @@ ui_author_randomisation_is_current_active_variant_text#:#Is current active varia
 ui_author_randomisation_set_as_active_variant_action_text#:#Set as active variant
 ui_author_randomisation_delete_deployed_variant_action_text#:#Delete deployed variant
 ui_author_randomisation_show_question_text_action_text#:#Show question text
+ui_author_randomisation_show_general_feedback_action_text#:#Show general feedback
 ui_author_randomisation_question_and_feedback_variables_text#:#Question and feedback variables
 ui_author_randomisation_generate_new_variants_action_text#:#Generate 10 new variants
 ui_author_randomisation_change_to_random_seed_action_text#:#Change to random seed
@@ -170,6 +171,13 @@ ui_author_randomisation_run_unit_test_action_text#:#Run unit test
 ui_author_randomisation_edit_unit_test_action_text#:#Edit unit test
 ui_author_randomisation_delete_unit_test_action_text#:#Delete unit test
 ui_author_randomisation_unit_test_status_panel_title#:#Unit test status
+ui_author_randomisation_unit_test_not_run#:#Not tested
+ui_author_randomisation_unit_test_passed#:#Passed
+ui_author_randomisation_unit_test_failed#:#Failed
+ui_author_randomisation_unit_test_all#:#All
+ui_author_randomisation_unit_test_description#:#Description
+ui_author_randomisation_unit_test_last_run#:#Last run
+ui_author_randomisation_unit_test_status#:#Status
 ui_author_randomisation_unit_test_addform_description#:#Description
 ui_author_randomisation_unit_test_addform_section_general#:#General
 ui_author_randomisation_unit_test_addform_section_entries#:#Entries to test

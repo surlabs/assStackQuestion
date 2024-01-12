@@ -344,37 +344,40 @@ class RandomisationAndSecurityUI
                     $this->control->getLinkTargetByClass("assstackquestiongui", "deleteUnitTest")),
             ));
 
-            $last_run = "Never";
-            $status = "Not tested";
+            $last_run = $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_not_run");
+            $status = $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_not_run");
 
             foreach ($unit_test["results"] as $result) {
                 if ((int) $result["result"] == 1) {
-                    $status = "Passed";
+                    $status = 1;
                 } else {
-                    $status = "Failed";
+                    $status = 0;
                 }
 
                 $last_run = date('d-m-Y H:i:s', $result["timerun"]);
             }
 
-            if ($status == "Passed") {
+            if ($status === 1) {
                 $count_passed++;
+
+                $status = $this->renderer->render($this->factory->legacy("<span style='color:green'>" . $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed") . "</span>"));
+            } else {
+                $status = $this->renderer->render($this->factory->legacy("<span style='color:red'>" . $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_failed") . "</span>"));
             }
 
             $list[$unit_test_number] = $this->factory->item()->group((string) $unit_test_number, array(
-                $this->factory->legacy("Description: " . $unit_test["description"]),
-                $this->factory->legacy("Lat run: " . $last_run),
-                $this->factory->legacy("Status: " . $status),
+                $this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_description") . ": " . $unit_test["description"]),
+                $this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_last_run") . ": " . $last_run),
+                $this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status") . ": " . $status),
             ))->withActions($actions);
-            //dump($list[$unit_test_number]);
         }
 
         if ($count_passed == count($unit_tests)) {
-            $count_passed = "All";
+            $count_passed = $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_all");
         }
 
         $std_list = $this->factory->panel()->listing()->standard($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status_panel_title"), array(
-            $this->factory->item()->group($count_passed . "/" . count($unit_tests) . " Passed", $list)
+            $this->factory->item()->group($count_passed . "/" . count($unit_tests) . " " . $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed"), $list)
         ));
 
         return $std_list;
