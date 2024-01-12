@@ -1508,4 +1508,19 @@ class assStackQuestionUtils
         }
         return $castext;
     }
+
+    public static function parseToHTMLWithLatex($input): string
+    {
+        $components = explode(";", $input);
+
+        $htmlOutput = "<div>";
+
+        foreach ($components as $component) {
+            list($variable, $value) = explode(":", $component, 2);
+            $htmlOutput .= "<p>\($variable\): \($value\)</p>";
+        }
+
+        $htmlOutput .= "</div>";
+        return $htmlOutput;
+    }
 }

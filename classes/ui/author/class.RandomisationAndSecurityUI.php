@@ -244,7 +244,7 @@ class RandomisationAndSecurityUI
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_question_and_feedback_variables_text")
             )
                 ->withSections(array(
-                    $this->factory->legacy($active_variant_question_variables),
+                    $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithLatex($active_variant_question_variables)),
                     $this->factory->divider()->horizontal(),
                     $this->factory->legacy($active_variant_feedback_variables),
                 )))
