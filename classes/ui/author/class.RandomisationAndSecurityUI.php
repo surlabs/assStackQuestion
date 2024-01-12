@@ -392,7 +392,7 @@ class RandomisationAndSecurityUI
             )->withValue($description);
 
             $formFields = [
-                'descInput' => $descInput
+                'description' => $descInput
             ];
 
             $sectionGeneral = $this->factory->input()->field()->section($formFields, $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_section_general"), "");
@@ -411,7 +411,7 @@ class RandomisationAndSecurityUI
             }
 
             $sectionEntries = $this->factory->input()->field()->section($formFields, $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_section_entries"), "");
-            $sections["entries"] = $sectionEntries;
+            $sections["inputs"] = $sectionEntries;
 
             //EXPECTED RESULT SECTION
             $formFields = [];
@@ -443,9 +443,9 @@ class RandomisationAndSecurityUI
                     $responseNote = $responseNote->withValue($expected[$key]["answer_note"]);
                 }
 
-                $formFields['rating'] = $rating;
-                $formFields['penalization'] = $penalization;
-                $formFields['responseNote'] = $responseNote;
+                $formFields['score'] = $rating;
+                $formFields['penalty'] = $penalization;
+                $formFields['answernote'] = $responseNote;
 
                 $sectionExpectedResult = $this->factory->input()->field()->section($formFields, $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_section_expected_result")." ".$key.": [".implode(",", $sans)."]", "");
 
