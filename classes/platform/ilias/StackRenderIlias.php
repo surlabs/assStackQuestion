@@ -4,14 +4,17 @@ declare(strict_types=1);
 namespace classes\platform\ilias;
 
 use assStackQuestion;
+use classes\platform\StackConfig;
 use classes\platform\StackEvaluation;
 use classes\platform\StackException;
 use classes\platform\StackRender;
 use ilSetting;
+use ilUtil;
 use stack_exception;
 use stack_maths;
 use stack_utils;
 use castext2_default_processor;
+use stdClass;
 
 /**
  * This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
@@ -143,6 +146,7 @@ class StackRenderIlias extends StackRender
      */
     public static function renderQuestion(array $attempt_data, array $display_options): string
     {
+        global $DIC;
 
         $response = $attempt_data['response'];
         if (!is_array($response)) {
@@ -153,6 +157,8 @@ class StackRenderIlias extends StackRender
         if (!($question instanceof assStackQuestion)) {
             throw new StackException('Invalid question type.');
         }
+
+        $instant_validation = StackConfig::getAll()["instant_validation"];
 
         // We need to provide a processor for the CASText2 post-processing,
         // basically for targeting plugin files
@@ -192,19 +198,51 @@ class StackRenderIlias extends StackRender
             // Get the actual value of the teacher's answer at this point.
             $teacher_answer_value = $question->getTeacherAnswerForInput($input_name);
 
+            //Do not show validation in some inputs
+            $validation_button = '';
+            if (($input->get_parameter('showValidation') != 0)) {
+                if (!is_a($input, 'stack_radio_input') &&
+                    !is_a($input, 'stack_dropdown_input') &&
+                    !is_a($input, 'stack_checkbox_input') &&
+                    !is_a($input, 'stack_boolean_input')
+                ) {
+                    if (!$instant_validation) {
+                        $validation_button = self::_renderValidationButton($question->getId(), $input_name);
+                    }
+                }
+            }
+
+
             $field_name = 'xqcas_' . $question->getId() . '_' . $input_name;
             $state = $question->getInputState($input_name, $response);
 
             $question_text = str_replace("[[input:$input_name]]",
-                $input->render($state, $field_name, $display_options['readonly'], $teacher_answer_value),
+                $input->render($state, $field_name, $display_options['readonly'], $teacher_answer_value)." ".$validation_button,
                 $question_text);
+
+            //Validation Placeholders
+            if (is_a($input, 'stack_matrix_input')) {
+                $ilias_validation = '<div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '"></div>
+                <div class="xqcas_input_validation">
+                    <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '"></div>
+                </div>' .
+                    '<div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input->getWidth() . '</div>
+                <div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden">' . $input->getHeight() . '</div>';
+            } else {
+                $ilias_validation = '<div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '"></div>
+                <div class="xqcas_input_validation">
+                    <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '"></div>
+                </div>';
+            }
 
             $question_text = $input->replace_validation_tags($state, $field_name, $question_text);
 
+            //TODO: Add $ilias_validation to the question_text and check <div class="stackinputfeedback standard" id="xqcas_211_ans1_val">
+
             if ($input->requires_validation()) {
-                //TODO: INPUT REQUIRES VALIDATION
                 $inputs_to_validate[] = $input_name;
             }
+
         }
 
         // Replace PRTs.
@@ -221,6 +259,21 @@ class StackRenderIlias extends StackRender
         self::ensureMathJaxLoaded();
         //TODO: VALIDATION
         // Se usa $inputs_to_validate
+
+        //Validation
+        $jsconfig = new stdClass();
+
+        if ($instant_validation) {
+            //Instant Validation
+            $jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/instant_validation.php";
+            $DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/instant_validation.js');
+            $DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.instant_validation.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
+        } else {
+            //Button Validation
+            $jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/validation.php";
+            $DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/assStackQuestion.js');
+            $DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.assStackQuestion.init(' . json_encode($jsconfig) . ',' . json_encode($question_text) . ')');
+        }
 
         return $question_text;
     }
@@ -328,6 +381,17 @@ class StackRenderIlias extends StackRender
         global $DIC;
         $mathjax = new ilSetting("MathJax");
         $DIC->globalScreen()->layout()->meta()->addJs($mathjax->get("path_to_mathjax"));
+    }
+
+    /**
+     * Returns the button for current input field.
+     * @param string $question_id
+     * @param string $input_name
+     * @return string the HTML code of the button of validation for this input.
+     */
+    public static function _renderValidationButton(int $question_id, string $input_name): string
+    {
+        return "<button style=\"height:1.8em;\" class=\"xqcas\" name=\"cmd[xqcas_" . $question_id . '_' . $input_name . "]\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></button>";
     }
 
 

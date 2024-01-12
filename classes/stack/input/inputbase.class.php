@@ -1457,29 +1457,32 @@ abstract class stack_input {
      * This function is responsible for removing the validation tags from the question stem and replacing
      * them with the validation feedback.  Only the equiv input type currently does anything different here.
      */
-    public function replace_validation_tags($state, $fieldname, $questiontext) {
+    public function replace_validation_tags($state, $fieldname, $questiontext, $iliasvalidation = null) {
 
         $name = $this->name;
         $feedback = $this->render_validation($state, $fieldname);
 
-        $class = "stackinputfeedback standard";
-        $divspan = 'div';
-        // Equiv inputs don't have validation divs.
-        if ($this->get_validation_method() == 'equiv') {
-            $class = "stackinputfeedback equiv";
+        if ($iliasvalidation) {
+            $feedback = $iliasvalidation;
+        } else {
+            $class = "stackinputfeedback standard";
             $divspan = 'div';
-        }
-        if ($this->get_parameter('showValidation', 1) == 3) {
-            $class = "stackinputfeedback compact";
-            $divspan = 'span';
-        }
+            // Equiv inputs don't have validation divs.
+            if ($this->get_validation_method() == 'equiv') {
+                $class = "stackinputfeedback equiv";
+                $divspan = 'span';
+            }
+            if ($this->get_parameter('showValidation', 1) == 3) {
+                $class = "stackinputfeedback compact";
+                $divspan = 'span';
+            }
 
-        if (!$feedback) {
-            $class .= ' empty';
-        }
+            if (!$feedback) {
+                $class .= ' empty';
+            }
 
-        $feedback = html_writer::tag($divspan, $feedback,
-            ['class' => $class, 'id' => $fieldname.'_val', 'aria-live' => 'assertive']);
+            $feedback = html_writer::tag($divspan, $feedback, array('class' => $class, 'id' => $fieldname.'_val'));
+        }
         $response = str_replace("[[validation:{$name}]]", $feedback, $questiontext);
 
         return $response;

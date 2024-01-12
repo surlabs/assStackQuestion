@@ -35,7 +35,6 @@ il.instant_validation = new function () {
 	var typingTimer;                //timer identifier
 	var doneTypingInterval = 2000;  //time in ms, 5 second for example
 
-
 	/**
 	 * Initialize the selector
 	 * called from ilTemplate::addOnLoadCode,
@@ -45,6 +44,7 @@ il.instant_validation = new function () {
 	this.init = function (a_config, a_texts) {
 		config = a_config;
 		texts = a_texts;
+
 
 		$('.ilc_question_Standard input[type="text"]').keyup(function (event) {
 			delay(function () {
@@ -77,6 +77,9 @@ il.instant_validation = new function () {
 						}
 					}
 					user_response += ')';
+
+					console.log(user_response);
+
 					var input_name = matrix_input_name;
 					var input_value = user_response;
 				} else {
@@ -88,12 +91,15 @@ il.instant_validation = new function () {
 					'input_name': input_name,
 					'input_value': input_value
 				})
-
 					.done(function (data) {
-						$('#validation_xqcas_' + question_id + '_' + input_name).html(data);
+						console.log(data);
+						$('#xqcas_' + question_id + '_' + input_name + "_val").html(data);
 						MathJax.Hub.Queue(["Typeset", MathJax.Hub, 'validation_xqcas_' + question_id + '_' + input_name]);
-						$('#validation_xqcas_roll_' + question_id + '_' + input_name).html("");
-					});
+					}).catch(function (error) {
+					console.log(error.responseText);
+				});
+
+				;
 
 
 				/**

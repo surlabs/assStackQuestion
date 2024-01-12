@@ -59,6 +59,7 @@ il.assStackQuestion = new function () {
 		} else {
 			name = event.target.name;
 		}
+
 		name = name.replace(/cmd\[xqcas_/, '', name);
 		name = name.replace(/\]/, '', name);
 		var i = name.indexOf('_');
@@ -100,16 +101,20 @@ il.assStackQuestion = new function () {
 		$(".test_specific_feedback").hide();
 		/*
 		$(".ilAssQuestionRelatedNavigationContainer:first").nextUntil(".ilAssQuestionRelatedNavigationContainer").hide();*/
-
 		$.get(config.validate_url, {
 			'question_id': question_id,
 			'input_name': input_name,
 			'input_value': input_value
 		})
 			.done(function (data) {
-				$('#validation_xqcas_' + question_id + '_' + input_name).html(data);
+				//console.log(data);
+				$('#xqcas_' + question_id + '_' + input_name + "_val").html(data);
 				MathJax.Hub.Queue(["Typeset", MathJax.Hub, 'validation_xqcas_' + question_id + '_' + input_name]);
+			}).catch(function (error) {
+				console.log(error.responseText);
 			});
+
+		;
 
 		return false;
 	}

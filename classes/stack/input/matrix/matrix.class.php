@@ -22,8 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class stack_matrix_input extends stack_input {
-    protected $width;
-    protected $height;
+    public $width;
+    public $height;
 
     protected $extraoptions = array(
         'hideanswer' => false,
@@ -547,6 +547,38 @@ class stack_matrix_input extends stack_input {
         }
 
         return $out;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getWidth()
+    {
+        return $this->width;
+    }
+
+    /**
+     * @param mixed $width
+     */
+    public function setWidth($width): void
+    {
+        $this->width = $width;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getHeight()
+    {
+        return $this->height;
+    }
+
+    /**
+     * @param mixed $height
+     */
+    public function setHeight($height): void
+    {
+        $this->height = $height;
     }
 
 }
