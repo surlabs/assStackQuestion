@@ -302,7 +302,7 @@ class assStackQuestionGUI extends assQuestionGUI
         global $DIC;
 
         $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
-        $user_response = StackUserResponseIlias::getStackUserResponse('preview', $this->object->getId(), $DIC->user()->getId());
+        $user_response = StackUserResponseIlias::getStackUserResponse('preview', (int)$this->object->getId(), $DIC->user()->getId());
 
         //Instantiate Question if not.
         if (!$this->object->isInstantiated()) {
