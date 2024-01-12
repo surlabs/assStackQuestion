@@ -978,7 +978,7 @@ class assStackQuestionAuthoringGUI
 			$node_pos_mode->setValue($node->truescoremode);
 			$node_pos_score->setValue($node->truescore);
 			$node_pos_next_node->setValue($node->truenextnode);
-			$node_pos_answernote->setValue($node->truenote);
+			$node_pos_answernote->setValue($node->trueanswernote);
 			$node_pos_penalty->setValue($node->truepenalty);
 			$node_pos_specific_feedback->setValue($node->truefeedback);
 			$node_pos_feedback_class->setValue($node->truefeedbackclass);
@@ -1062,7 +1062,7 @@ class assStackQuestionAuthoringGUI
 			$node_neg_mode->setValue($node->falsescoremode);
 			$node_neg_score->setValue($node->falsescore);
 			$node_neg_next_node->setValue($node->falsenextnode);
-			$node_neg_answernote->setValue($node->falsenote);
+			$node_neg_answernote->setValue($node->falseanswernote);
 			$node_neg_penalty->setValue($node->falsepenalty);
 			$node_neg_specific_feedback->setValue($node->falsefeedback);
 			$node_neg_feedback_class->setValue($node->falsefeedbackclass);
