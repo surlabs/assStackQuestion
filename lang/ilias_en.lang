@@ -185,6 +185,16 @@ ui_author_randomisation_unit_test_addform_rating#:#Rating
 ui_author_randomisation_unit_test_addform_penalization#:#Penalization
 ui_author_randomisation_unit_test_addform_response_note#:#Response note
 ui_author_randomisation_unit_test_addform_section_expected_result#:#Expected result
+ui_author_randomisation_unit_test_case_passed#:#Test case passed
+ui_author_randomisation_unit_test_case_failed_empty#:#Test case failed due to empty testcases not allowed
+ui_author_randomisation_unit_test_case_failed#:#Test case failed due to: %s
+ui_author_randomisation_unit_test_case_passed_for_seed#:#Test case %s passed for seed %s
+ui_author_randomisation_unit_test_case_failed_empty_for_seed#:#Test case %s failed due to empty testcases not allowed for seed %s
+ui_author_randomisation_unit_test_case_failed_for_seed#:#Test case %s failed due to: %s for seed %s
+ui_author_randomisation_cannot_delete_active_variant#:#You cannot delete the active variant
+ui_author_randomisation_sucessfully_on_seeds_generation#:#Successfully generated %s new seeds
+ui_author_randomisation_failed_on_seeds_generation#:#Failed on seeds generation
+ui_author_randomisation_no_test_case_selected#:#No test case selected
 assStackQuestion#:#STACK Question
 question_imported_successfully#:#Question was imported successfully
 error_importing_question#:#Error importing question

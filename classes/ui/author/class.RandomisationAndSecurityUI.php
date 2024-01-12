@@ -180,6 +180,12 @@ class RandomisationAndSecurityUI
      */
     private function getCurrentActiveVariantPanelUIComponent(): Sub
     {
+        $this->control->setParameterByClass(
+            'assStackQuestionGUI',
+            'active_variant_identifier',
+            $this->data["active_variant_identifier"]
+        );
+
         //Actions for the currently active variant
         $current_active_variant_panel_actions = $this->factory->dropdown()->standard(array(
             $this->factory->button()->shy(

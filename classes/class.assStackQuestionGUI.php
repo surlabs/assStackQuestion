@@ -1242,7 +1242,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
             $this->randomisationAndSecurity();
         } else {
-            $content = $renderer->render($factory->messageBox()->failure('You cannot delete the active variant'));
+            $content = $renderer->render($factory->messageBox()->failure($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_cannot_delete_active_variant')));
 
             $content .= $renderer->render($factory->button()->standard($DIC->language()->txt("back"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
 
@@ -1391,7 +1391,7 @@ class assStackQuestionGUI extends assQuestionGUI
             $render = $ui->showEditCustomTestForm($unit_test_data['test_cases'][$_GET['test_case']], $this->object->prts, $this->object);
 		} else {
             $factory = $DIC->ui()->factory();
-			$render = $DIC->ui()->renderer()->render($factory->messageBox()->failure('No test case selected'));
+			$render = $DIC->ui()->renderer()->render($factory->messageBox()->failure($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_no_test_case_selected')));
 		}
 
         $globalTemplate->setContent($render);
@@ -1701,9 +1701,9 @@ class assStackQuestionGUI extends assQuestionGUI
         $content = "";
 
         if ($generated_seeds > 0) {
-            $content .= $renderer->render($factory->messageBox()->success('Successfully generated ' . $generated_seeds . ' new seeds'));
+            $content .= $renderer->render($factory->messageBox()->success($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_sucessfully_on_seeds_generation'), $generated_seeds));
         } else {
-            $content .= $renderer->render($factory->messageBox()->failure('Failed to generate new seeds'));
+            $content .= $renderer->render($factory->messageBox()->failure($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_failed_on_seeds_generation')));
         }
 
         $content .= $renderer->render($factory->button()->standard($DIC->language()->txt("back"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
@@ -1738,7 +1738,7 @@ class assStackQuestionGUI extends assQuestionGUI
                 $testcase->addExpectedResult($name, new stack_potentialresponse_tree_state(1, true, (float) $expected["score"], (float) $expected["penalty"], '', array($expected["answer_note"])));
             }
 
-            $result = $testcase->run($this->object->getId(), (int) $_GET["variant_identifier"]);
+            $result = $testcase->run($this->object->getId(), (int) $_GET["active_variant_identifier"]);
 
             $unit_test_results[$test_case] = $result->passed();
         }
@@ -1747,11 +1747,11 @@ class assStackQuestionGUI extends assQuestionGUI
 
         foreach ($unit_test_results as $test_case => $result) {
             if ($result === '1') {
-                $content .= $renderer->render($factory->messageBox()->success('Test case ' . $test_case . ' passed'));
+                $content .= $renderer->render($factory->messageBox()->success(sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_passed_for_seed'), $test_case, $_GET["active_variant_identifier"])));
             } elseif ($result === '0') {
-                $content .= $renderer->render($factory->messageBox()->failure('Test case ' . $test_case . ' failed due to empty testcases not allowed'));
+                $content .= $renderer->render($factory->messageBox()->failure(sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed_empty_for_seed'), $test_case, $_GET["active_variant_identifier"])));
             } else {
-                $content .= $renderer->render($factory->messageBox()->failure('Test case ' . $test_case . ' failed due to:' . $result));
+                $content .= $renderer->render($factory->messageBox()->failure(sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed_for_seed'), $test_case, $result, $_GET["active_variant_identifier"])));
             }
         }
 
@@ -1802,11 +1802,11 @@ class assStackQuestionGUI extends assQuestionGUI
 
         foreach ($unit_test_results as $result) {
             if ($result['result'] === '1') {
-                $content .= $renderer->render($factory->messageBox()->success('Test case ' . $result['test_case'] . ' passed for seed ' . $result['seed']));
+                $content .= $renderer->render($factory->messageBox()->success(sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_passed_for_seed'), $result['test_case'], $result['seed'])));
             } elseif ($result['result'] === '0') {
-                $content .= $renderer->render($factory->messageBox()->failure('Test case ' . $result['test_case'] . ' failed due to empty testcases not allowed for seed ' . $result['seed']));
+                $content .= $renderer->render($factory->messageBox()->failure(sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed_empty_for_seed'), $result['test_case'], $result['seed'])));
             } else {
-                $content .= $renderer->render($factory->messageBox()->failure('Test case ' . $result['test_case'] . ' failed due to:' . $result['result'] . ' for seed ' . $result['seed']));
+                $content .= $renderer->render($factory->messageBox()->failure(sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed_for_seed'), $result['test_case'], $result['result'], $result['seed'])));
             }
         }
 
@@ -1857,11 +1857,11 @@ class assStackQuestionGUI extends assQuestionGUI
         $content = "";
 
         if ($result->passed() === '1') {
-            $content .= $renderer->render($factory->messageBox()->success('Test case passed'));
+            $content .= $renderer->render($factory->messageBox()->success($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_passed')));
         } elseif ($result->passed() === '0') {
-            $content .= $renderer->render($factory->messageBox()->failure('Test case failed due to empty testcases not allowed'));
+            $content .= $renderer->render($factory->messageBox()->failure($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed_empty')));
         } else {
-            $content .= $renderer->render($factory->messageBox()->failure('Test case failed due to:' . $result->passed()));
+            $content .= $renderer->render($factory->messageBox()->failure($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed')));
         }
 
         $content .= $renderer->render($factory->button()->standard($DIC->language()->txt("back"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
