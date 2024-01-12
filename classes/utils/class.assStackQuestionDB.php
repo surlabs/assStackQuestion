@@ -1251,7 +1251,7 @@ class assStackQuestionDB
 	 * @param int $question_id
 	 * @return bool
 	 */
-	public static function _deleteStackUnitTests(int $question_id): bool
+	public static function _deleteStackUnitTests(int $question_id, ?int $test_case = null): bool
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -1259,8 +1259,12 @@ class assStackQuestionDB
 		$query = /** @lang text */
 			'DELETE FROM xqcas_qtests WHERE question_id = ' . $db->quote($question_id, 'integer');
 
+        if ($test_case !== null) {
+            $query .= ' AND test_case = ' . $db->quote($test_case, 'integer');
+        }
+
 		if ($db->manipulate($query) != false) {
-			return self::_deleteStackUnitTestInputs($question_id) and self::_deleteStackUnitTestExpected($question_id);
+			return self::_deleteStackUnitTestInputs($question_id, $test_case) and self::_deleteStackUnitTestExpected($question_id, $test_case);
 		} else {
 			return false;
 		}
@@ -1270,39 +1274,47 @@ class assStackQuestionDB
 	 * @param int $question_id
 	 * @return bool
 	 */
-	public static function _deleteStackUnitTestInputs(int $question_id): bool
-	{
-		global $DIC;
-		$db = $DIC->database();
+	public static function _deleteStackUnitTestInputs(int $question_id, ?int $test_case = null): bool
+    {
+        global $DIC;
+        $db = $DIC->database();
 
-		$query = /** @lang text */
-			'DELETE FROM xqcas_qtest_inputs WHERE question_id = ' . $db->quote($question_id, 'integer');
+        $query = /** @lang text */
+            'DELETE FROM xqcas_qtest_inputs WHERE question_id = ' . $db->quote($question_id, 'integer');
 
-		if ($db->manipulate($query) != false) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+        if ($test_case !== null) {
+            $query .= ' AND test_case = ' . $db->quote($test_case, 'integer');
+        }
+
+        if ($db->manipulate($query) != false) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 	/**
 	 * @param int $question_id
 	 * @return bool
 	 */
-	public static function _deleteStackUnitTestExpected(int $question_id): bool
-	{
-		global $DIC;
-		$db = $DIC->database();
+	public static function _deleteStackUnitTestExpected(int $question_id, ?int $test_case = null): bool
+    {
+        global $DIC;
+        $db = $DIC->database();
 
-		$query = /** @lang text */
-			'DELETE FROM xqcas_qtest_expected WHERE question_id = ' . $db->quote($question_id, 'integer');
+        $query = /** @lang text */
+            'DELETE FROM xqcas_qtest_expected WHERE question_id = ' . $db->quote($question_id, 'integer');
 
-		if ($db->manipulate($query) != false) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+        if ($test_case !== null) {
+            $query .= ' AND test_case = ' . $db->quote($test_case, 'integer');
+        }
+
+        if ($db->manipulate($query) != false) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 	/* DELETE QUESTION IN DB END */
 

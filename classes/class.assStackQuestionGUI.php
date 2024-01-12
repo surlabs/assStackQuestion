@@ -1892,4 +1892,19 @@ class assStackQuestionGUI extends assQuestionGUI
         $this->preview_correct = true;
         $this->tpl->setContent($this->getPreview(true, true));
     }*/
+
+    /**
+     * @return void
+     */
+    public function deleteUnitTest()
+    {
+        $test_case = (int) $_GET['test_case'];
+
+        unset($this->object->unit_tests['ids'][$test_case]);
+        unset($this->object->unit_tests['test_cases'][$test_case]);
+
+        assStackQuestionDB::_deleteStackUnitTests($this->object->getId(), $test_case);
+
+        $this->randomisationAndSecurity();
+    }
 }
