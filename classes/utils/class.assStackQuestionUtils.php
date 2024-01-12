@@ -326,13 +326,14 @@ class assStackQuestionUtils
 
 	/**
 	 * Checks wheter a question uses randomisation or not
-	 * @param $question_variables_text string the question variables
+	 * @param $text string the text to analyze
 	 * @return boolean
 	 */
-	public static function _questionHasRandomVariables($question_variables_text)
-	{
-		return (boolean)preg_match('~\brand~', $question_variables_text);
-	}
+    public static function _hasRandomVariables($text): bool
+    {
+        return preg_match('~\brand~', $text) || preg_match('~\bmultiselqn~', $text)
+            || preg_match('~\bstack_seed~', $text);
+    }
 
 	/**
 	 * Checks wheter a question uses randomisation or not

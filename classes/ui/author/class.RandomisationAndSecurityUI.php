@@ -142,10 +142,21 @@ class RandomisationAndSecurityUI
             );
             $html .= $this->renderer->render($deployed_variants_panel);
         } else {
-            $html .= $this->renderer->render($this->factory->messageBox()->info(
-                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_no_deployed_variants_message")
-            )
-            );
+
+            if(assStackQuestionUtils::_hasRandomVariables($this->data["question"]->question_variables)){
+                $generate_variants_button = $this->renderer->render(
+                    $this->factory->button()->standard(
+                        $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_no_variants_generate_new_variants_action_text"),
+                        $this->control->getLinkTargetByClass("assstackquestiongui", "generateNewVariants"))
+                );
+
+                $html .= $this->renderer->render($this->factory->messageBox()->info(
+                    $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_no_deployed_variants_message")
+                ));
+
+                $html .= $generate_variants_button;
+            }
+
         }
 
         //Test overview panel
