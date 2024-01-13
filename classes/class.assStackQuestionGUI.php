@@ -1692,7 +1692,7 @@ class assStackQuestionGUI extends assQuestionGUI
         $content = "";
 
         if ($generated_seeds > 0) {
-            $content .= $renderer->render($factory->messageBox()->success($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_sucessfully_on_seeds_generation'), $generated_seeds));
+            $content .= $renderer->render($factory->messageBox()->success($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_sucessfully_on_seeds_generation', $generated_seeds)));
         } else {
             $content .= $renderer->render($factory->messageBox()->failure($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_failed_on_seeds_generation')));
         }

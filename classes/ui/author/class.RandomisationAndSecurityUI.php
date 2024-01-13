@@ -154,10 +154,10 @@ class RandomisationAndSecurityUI
                 );
 
                 $html .= $this->renderer->render($this->factory->messageBox()->info(
-                    $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_no_deployed_variants_message")
+                    $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_no_deployed_variants_message_but_has_randomisation") .
+                    $this->renderer->render($this->factory->divider()->vertical()) .
+                    $generate_variants_button
                 ));
-
-                $html .= $generate_variants_button;
             } else {
                 //No randomisation in the question
                 $html .= $this->renderer->render($this->factory->messageBox()->info(
@@ -259,9 +259,7 @@ class RandomisationAndSecurityUI
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_question_variables_text")
             )
                 ->withSections(array(
-                    $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithLatex($active_variant_question_variables)),
-                    $this->factory->divider()->horizontal(),
-                    $this->factory->legacy($active_variant_feedback_variables),
+                    $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithLatex($active_variant_question_variables))
                 )))
             ->withActions($current_active_variant_panel_actions);
     }
@@ -318,7 +316,8 @@ class RandomisationAndSecurityUI
                 $this->factory->legacy(
                     $this->renderer->render($ico) .
                     $this->renderer->render($this->factory->divider()->vertical()) .
-                    assStackQuestionUtils::_getLatex($question_note->get_rendered())))
+                    assStackQuestionUtils::_getLatex($question_note->get_rendered()) .
+                    $this->renderer->render($this->factory->divider()->horizontal())))
                 ->withActions($deployed_variant_individual_actions);
         }
 
@@ -370,16 +369,34 @@ class RandomisationAndSecurityUI
             if ($status === 1) {
                 $count_passed++;
 
-                $status = $this->renderer->render($this->factory->legacy("<span style='color:green'>" . $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed") . "</span>"));
+                $status_text = $this->renderer->render($this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed")));
             } else {
-                $status = $this->renderer->render($this->factory->legacy("<span style='color:red'>" . $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_failed") . "</span>"));
+                $status_text = $this->renderer->render($this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_failed")));
+            }
+
+            $results_overview = $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_description") . ": " . $unit_test["description"] . "<br>" .
+                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_last_run") . ": " . $last_run . "<br>" .
+                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status") . ": " . $status_text;
+
+            if ($status === 0) {
+                $test_results_view = $this->factory->messageBox()->failure($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_failed") . $results_overview);
+            } elseif ($status === 1) {
+                $test_results_view = $this->factory->messageBox()->success($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed") . $results_overview);
+            } else {
+                $test_results_view = $this->factory->messageBox()->info($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_not_run") . $results_overview);
             }
 
             $list[$unit_test_number] = $this->factory->item()->group((string)$unit_test_number, array(
+                $test_results_view
+            ))->withActions($actions);
+
+            /*
+            var_dump($status);exit;
+            $list[$unit_test_number] = $this->factory->item()->group((string)$unit_test_number, array(
                 $this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_description") . ": " . $unit_test["description"]),
                 $this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_last_run") . ": " . $last_run),
-                $this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status") . ": " . $status),
-            ))->withActions($actions);
+                $this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status") . ": " . $status_text),
+            ))->withActions($actions);*/
         }
 
         if ($count_passed == count($unit_tests)) {
