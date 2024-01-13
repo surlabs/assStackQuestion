@@ -114,6 +114,7 @@ class RandomisationAndSecurityUI
     public function show(): string
     {
         $html = "";
+        $uses_randomisation = false;
 
         //Instantiate Question if not.
         if (!$this->data["question"]->isInstantiated()) {
@@ -121,6 +122,7 @@ class RandomisationAndSecurityUI
         }
 
         if (assStackQuestionUtils::_hasRandomVariables($this->data["question"]->question_variables)) {
+            $uses_randomisation = true;
             if (empty($this->data["deployed_variants"])) {
                 //No deployed variants
                 $generate_variants_button = $this->renderer->render(
@@ -146,7 +148,7 @@ class RandomisationAndSecurityUI
         $active_variants_panel = $this->factory->panel()->standard(
             $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_active_variant_panel_title"),
             array(
-                $this->getCurrentActiveVariantPanelUIComponent()
+                $this->getCurrentActiveVariantPanelUIComponent($uses_randomisation)
             )
         );
         $html .= $this->renderer->render($active_variants_panel);
@@ -194,11 +196,12 @@ class RandomisationAndSecurityUI
     /**
      * Returns the UI subcomponent for the currently active variant panel
      * which is a Sub section of a panel
+     * @param bool $uses_randomisation
      * @return Sub
      * @throws StackException
      * @throws stack_exception
      */
-    private function getCurrentActiveVariantPanelUIComponent(): Sub
+    private function getCurrentActiveVariantPanelUIComponent(bool $uses_randomisation): Sub
     {
         $this->control->setParameterByClass(
             'assStackQuestionGUI',
@@ -206,25 +209,33 @@ class RandomisationAndSecurityUI
             $this->data["active_variant_identifier"] ?? '1'
         );
 
-        //Actions for the currently active variant
-        $current_active_variant_panel_actions = $this->factory->dropdown()->standard(array(
-            $this->factory->button()->shy(
-                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_generate_new_variants_action_text"),
-                $this->control->getLinkTargetByClass("assstackquestiongui", "generateNewVariants")),
-            $this->factory->button()->shy(
-                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_run_all_tests_for_active_variant_action_text"),
-                $this->control->getLinkTargetByClass("assstackquestiongui", "runAllTestsForActiveVariant")),
-            $this->factory->button()->shy(
-                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_run_all_tests_for_all_variants_action_text"),
-                $this->control->getLinkTargetByClass("assstackquestiongui", "runAllTestsForAllVariants")),
-            $this->factory->button()->shy(
-                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_add_unit_test_action_text"),
-                $this->control->getLinkTargetByClass("assstackquestiongui", "addCustomTestForm")),
-            $this->factory->button()->shy(
-                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_add_standard_test_button_text"),
-                $this->control->getLinkTargetByClass("assstackquestiongui", "addStandardTest"))
+        $array_of_actions = [];
 
-        ));
+        if ($uses_randomisation) {
+            $array_of_actions[] = $this->factory->button()->shy(
+                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_generate_new_variants_action_text"),
+                $this->control->getLinkTargetByClass("assstackquestiongui", "generateNewVariants"));
+            $array_of_actions[] = $this->factory->button()->shy(
+                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_run_all_tests_for_active_variant_action_text"),
+                $this->control->getLinkTargetByClass("assstackquestiongui", "runAllTestsForActiveVariant"));
+            $array_of_actions[] = $this->factory->button()->shy(
+                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_run_all_tests_for_all_variants_action_text"),
+                $this->control->getLinkTargetByClass("assstackquestiongui", "runAllTestsForAllVariants"));
+        } else {
+            $array_of_actions[] = $this->factory->button()->shy(
+                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_run_all_tests_for_this_question_action_text"),
+                $this->control->getLinkTargetByClass("assstackquestiongui", "runAllTestsForActiveVariant"));
+        }
+
+        $array_of_actions[] = $this->factory->button()->shy(
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_add_unit_test_action_text"),
+            $this->control->getLinkTargetByClass("assstackquestiongui", "addCustomTestForm"));
+        $array_of_actions[] = $this->factory->button()->shy(
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_add_standard_test_button_text"),
+            $this->control->getLinkTargetByClass("assstackquestiongui", "addStandardTest"));
+
+        //Actions for the currently active variant
+        $current_active_variant_panel_actions = $this->factory->dropdown()->standard($array_of_actions);
 
         $attempt_data = [];
 

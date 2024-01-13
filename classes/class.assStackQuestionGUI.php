@@ -910,6 +910,7 @@ class assStackQuestionGUI extends assQuestionGUI
                 'runAllTestsForActiveVariant',
                 'runAllTestsForAllVariants',
                 'addCustomTestForm',
+                'addStandardTest',
                 'editTestcases',
                 'deleteUnitTest'
             ))) {
