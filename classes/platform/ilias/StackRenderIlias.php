@@ -46,6 +46,10 @@ class StackRenderIlias extends StackRender
      */
     public static function renderPRTFeedback(array $attempt_data, array $display_options): string
     {
+        global $DIC;
+        $factory = $DIC->ui()->factory();
+        $renderer = $DIC->ui()->renderer();
+
         $prt_name = $attempt_data['prt_name'];
 
         $response = $attempt_data['response'];
@@ -63,7 +67,7 @@ class StackRenderIlias extends StackRender
         $error_message = '';
         if ($result->get_errors()) {
             $error_message = stack_string('prtruntimeerror',
-                array('prt' => $prt_name, 'error' => implode(' ', $result->get_errors())));
+                array('prt' => $prt_name, 'error' => implode('</br>', $result->get_errors())));
         }
 
         $feedback = $result->get_feedback($question->getCasTextProcessor());
@@ -81,7 +85,7 @@ class StackRenderIlias extends StackRender
             //TODO throw new StackException('PRT' . $prt_name . ' has errors.');
         }
 
-        $state = StackEvaluation::stateForFraction($result->get_fraction());
+        $state = StackEvaluation::stateForFraction($result->get_score());
 
         // TODO: Compact and symbolic only.
         //if ($display_options['feedback_style'] === 2 || $display_options['feedback_style'] === 3) {
@@ -92,42 +96,44 @@ class StackRenderIlias extends StackRender
         switch ($state) {
             case -1:
                 // Incorrect.
-                $prt_feedback_instantiated = $question->prt_incorrect_instantiated;
+                $prt_feedback_instantiated = stack_maths::process_display_castext(
+                    $question->prt_incorrect_instantiated->get_rendered($question->getCasTextProcessor()));
+                $standard_prt_feedback = $factory->messageBox()->failure($prt_feedback_instantiated);
                 break;
             case 0:
                 // Partially correct.
-                $prt_feedback_instantiated = $question->prt_partially_correct_instantiated;
+                $prt_feedback_instantiated = stack_maths::process_display_castext(
+                    $question->prt_partially_correct_instantiated->get_rendered($question->getCasTextProcessor()));
+                $standard_prt_feedback = $factory->messageBox()->info($prt_feedback_instantiated);
                 break;
             case 1:
                 // Correct.
-                $prt_feedback_instantiated = $question->prt_correct_instantiated;
+                $prt_feedback_instantiated = stack_maths::process_display_castext(
+                    $question->prt_correct_instantiated->get_rendered($question->getCasTextProcessor()));
+                $standard_prt_feedback = $factory->messageBox()->success($prt_feedback_instantiated);
                 break;
             default:
                 throw new StackException('Invalid state.');
         }
-
-        $standard_prt_feedback = stack_maths::process_display_castext(
-            $prt_feedback_instantiated->get_rendered($question->getCasTextProcessor())
-        );
 
         //$tag = 'div';
         $prt_feedback_html = '';
         switch ($display_options['feedback_style']) {
             case 0:
                 // Formative PRT.
-                $prt_feedback_html = $error_message . $feedback;
+                $prt_feedback_html = $error_message . '</br>' . $feedback;
                 break;
             case 1:
-                $prt_feedback_html = $standard_prt_feedback . $error_message . $feedback;
+                $prt_feedback_html = $renderer->render($standard_prt_feedback) . '</br>' . $error_message . '</br>' . $feedback;
                 break;
             case 2:
                 // Compact.
-                $prt_feedback_html = $standard_prt_feedback . $error_message . $feedback;
+                $prt_feedback_html = $renderer->render($standard_prt_feedback) . '</br>' . $error_message . '</br>' . $feedback;
                 //$tag = 'span';
                 break;
             case 3:
                 // Symbolic.
-                $prt_feedback_html = $standard_prt_feedback . $error_message;
+                $prt_feedback_html = $renderer->render($standard_prt_feedback) . '</br>' . $error_message;
                 //$tag = 'span';
                 break;
             default:
@@ -245,7 +251,7 @@ class StackRenderIlias extends StackRender
         // Replace PRTs.
         foreach ($question->prts as $prt_name => $prt) {
             $feedback = '';
-            if ($display_options['feedback']) {
+            if ($display_options['feedback'] && !empty($response)) {
                 $attempt_data['prt_name'] = $prt->get_name();
                 $feedback = self::renderPRTFeedback($attempt_data, $display_options);
             }
