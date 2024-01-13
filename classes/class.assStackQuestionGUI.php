@@ -892,7 +892,28 @@ class assStackQuestionGUI extends assQuestionGUI
 
 			$this->addTab_QuestionFeedback($tabs);
 
-			if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'randomisationAndSecurity', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle','generateNewVariants', 'runAllTestsForActiveVariant', 'runAllTestsForAllVariants', 'addCustomTestForm', 'editTestcases'))) {
+			if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm',
+                'importQuestionFromMoodle',
+                'editQuestion',
+                'scoringManagement',
+                'scoringManagementPanel',
+                'randomisationAndSecurity',
+                'createNewDeployedSeed',
+                'deleteDeployedSeed',
+                'showUnitTests',
+                'runTestcases',
+                'createTestcases',
+                'post',
+                'exportQuestiontoMoodleForm',
+                'exportQuestionToMoodle',
+                'generateNewVariants',
+                'setAsActiveVariant',
+                'runUnitTest',
+                'runAllTestsForActiveVariant',
+                'runAllTestsForAllVariants',
+                'addCustomTestForm',
+                'editTestcases'
+            ))) {
 				$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 				$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
 				$tabs->addSubTab('randomisation_and_security', $this->plugin->txt('ui_author_randomisation_and_security_title'), $this->ctrl->getLinkTargetByClass($classname, "randomisationAndSecurity"));
@@ -1321,9 +1342,8 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tabs = $DIC->tabs();
 
 		//Set all parameters required
-		//$this->plugin->includeClass('utils/class.assStackQuestionStackFactory.php');
 		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('unit_tests');
+		$tabs->activateSubTab('randomisation_and_security');
 		$this->getQuestionTemplate();
 
 		//get Post vars
@@ -1393,6 +1413,11 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function doEditTestcase()
 	{
+        global $DIC;
+        $tabs = $DIC->tabs();
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
 		if (isset($_POST['testcase_name'])) {
 			$testcase_name = $_POST['testcase_name'];
 			$test = $this->object->getTests($testcase_name);
@@ -1449,12 +1474,11 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function createTestcases()
 	{
-		global $DIC;
-		$tabs = $DIC->tabs();
-		//Set all parameters required
-		//$this->plugin->includeClass('utils/class.assStackQuestionStackFactory.php');
-		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('unit_tests');
+        global $DIC;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
 		$this->getQuestionTemplate();
 
 		//Create GUI object
@@ -1474,6 +1498,12 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function doCreateTestcase()
 	{
+        global $DIC;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
 		//boolean correct
 		$testcase = assStackQuestionUtils::_getNewTestCaseNumber($this->object->getId());
 		$new_test = new assStackQuestionTest(-1, $this->object->getId(), $testcase);
@@ -1631,6 +1661,12 @@ class assStackQuestionGUI extends assQuestionGUI
     }
 
     public function editUnitTestUI(){
+        global $DIC;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
         $ui = new RandomisationAndSecurityUI([]);
         $this->tpl->setContent($ui->show_form_in_modal());
     }
@@ -1638,6 +1674,12 @@ class assStackQuestionGUI extends assQuestionGUI
 
     public function setAsActiveVariant()
     {
+        global $DIC;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
         if(isset($_GET['variant_identifier'])){
             $variant_id = $_GET['variant_identifier'];
             assStackQuestionDB::_saveSeedForPreview($this->object->getId(),(int)$variant_id);
@@ -1647,6 +1689,12 @@ class assStackQuestionGUI extends assQuestionGUI
 
     public function changeToRandomSeed()
     {
+        global $DIC;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
         $seed = rand(1111111111,9999999999);
         $this->object->deployed_seeds[$seed] = $seed;
         assStackQuestionDB::_saveSeedForPreview($this->object->getId(),$seed);
@@ -1659,6 +1707,10 @@ class assStackQuestionGUI extends assQuestionGUI
     public function generateNewVariants()
     {
         global $DIC;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
 
         $factory = $DIC->ui()->factory();
         $renderer = $DIC->ui()->renderer();
@@ -1692,7 +1744,7 @@ class assStackQuestionGUI extends assQuestionGUI
         $content = "";
 
         if ($generated_seeds > 0) {
-            $content .= $renderer->render($factory->messageBox()->success($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_sucessfully_on_seeds_generation', $generated_seeds)));
+            $content .= $renderer->render($factory->messageBox()->success((string)$generated_seeds . ' '. $DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_sucessfully_on_seeds_generation')));
         } else {
             $content .= $renderer->render($factory->messageBox()->failure($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_failed_on_seeds_generation')));
         }
@@ -1709,6 +1761,10 @@ class assStackQuestionGUI extends assQuestionGUI
     public function runAllTestsForActiveVariant()
     {
         global $DIC;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
 
         $factory = $DIC->ui()->factory();
         $renderer = $DIC->ui()->renderer();
@@ -1758,6 +1814,10 @@ class assStackQuestionGUI extends assQuestionGUI
     public function runAllTestsForAllVariants()
     {
         global $DIC;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
 
         $factory = $DIC->ui()->factory();
         $renderer = $DIC->ui()->renderer();
@@ -1825,6 +1885,10 @@ class assStackQuestionGUI extends assQuestionGUI
     public function runUnitTest()
     {
         global $DIC;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
 
         $factory = $DIC->ui()->factory();
         $renderer = $DIC->ui()->renderer();
@@ -1864,6 +1928,12 @@ class assStackQuestionGUI extends assQuestionGUI
      * @throws stack_exception
      */
     public function addStandardTest(){
+        global $DIC;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
         if (!$this->object->isInstantiated()) {
             $this->object->questionInitialisation(0);
         }
@@ -1885,6 +1955,7 @@ class assStackQuestionGUI extends assQuestionGUI
     }*/
 
     /**
+     * Called when deleting one unit test
      * @return void
      */
     public function deleteUnitTest()
