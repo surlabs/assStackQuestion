@@ -1182,7 +1182,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		//$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_deployed_seeds_management.css'));
 
 		//Returns Deployed seeds form
-		$this->tpl->setVariable("QUESTION_DATA", $ui->show(true));
+		$this->tpl->setVariable("QUESTION_DATA", $ui->show());
 	}
 
 	/**
@@ -1309,7 +1309,7 @@ class assStackQuestionGUI extends assQuestionGUI
         $unit_test_data = $this->object->getUnitTests();
 
         $ui = new RandomisationAndSecurityUI([]);
-        $this->tpl->setContent($ui->show(true));
+        $this->tpl->setContent($ui->show());
     }
 
 	/**

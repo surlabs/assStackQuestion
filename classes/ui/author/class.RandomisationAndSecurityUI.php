@@ -105,11 +105,11 @@ class RandomisationAndSecurityUI
     /**
      * @throws ilCtrlException
      */
-    public function show(bool $show_add_standard_test_button): string
+    public function show(): string
     {
         $html = "";
 
-        if ($show_add_standard_test_button) {
+        if (empty($this->data["unit_tests"])) {
             //Add standard test button
             $add_standard_test_button = $this->factory->button()->standard(
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_add_standard_test_button_text"),
@@ -121,6 +121,7 @@ class RandomisationAndSecurityUI
             );
             $html .= $this->renderer->render($add_standard_test_message_box);
         }
+
         if (!empty($this->data["deployed_variants"])) {
             //Active variants panel
             $active_variants_panel = $this->factory->panel()->standard(
