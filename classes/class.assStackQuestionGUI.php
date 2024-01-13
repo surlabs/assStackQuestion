@@ -453,21 +453,12 @@ class assStackQuestionGUI extends assQuestionGUI
 			$this->object->inputs[$input_name] = stack_input_factory::make($type, $input_name, $teacher_answer, $this->object->options, $parameters);
 		}
 
-		//stack_potentialresponse_tree
-		//Values
-		$total_value = 0;
-
-		//in ILIAS all attempts are graded
-		$grade_all = true;
-
 		//Load only those prt located in the question text or in the specific feedback.
 		$prt_placeholders = stack_utils::extract_placeholders($this->object->getQuestion() . $this->object->specific_feedback, 'feedback');
 
         $prts_array = array();
 
         foreach ($prt_placeholders as $prt_name) {
-            $prt_data = array();
-
             //Is new? Then load Standard PRT
 			if (!isset($this->object->prts[$prt_name])) {
 				$this->object->loadStandardPRT($prt_name);

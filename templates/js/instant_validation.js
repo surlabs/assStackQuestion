@@ -47,6 +47,7 @@ il.instant_validation = new function () {
 
 
 		$('.ilc_question_Standard input[type="text"]').keyup(function (event) {
+			add_spinner();
 			delay(function () {
 				var name = event.target.name;
 				name = name.replace(/xqcas_/, '', name);
@@ -90,6 +91,7 @@ il.instant_validation = new function () {
 					'input_value': input_value
 				})
 					.done(function (data) {
+						remove_spinner();
 						$('#validation_xqcas_' + question_id + '_' + input_name).html(data);
 						MathJax.Hub.Queue(["Typeset", MathJax.Hub, 'validation_xqcas_' + question_id + '_' + input_name]);
 					}).catch(function (error) {
@@ -115,8 +117,8 @@ il.instant_validation = new function () {
 		});
 
 		$('tr#xqcas_question_display textarea[rows="5"]').keyup(function (event) {
+			add_spinner();
 			delay(function () {
-
 				var name = event.target.name;
 				name = name.replace(/xqcas_/, '', name);
 				var i = name.indexOf('_');
@@ -131,6 +133,7 @@ il.instant_validation = new function () {
 				})
 
 					.done(function (data) {
+						remove_spinner();
 						$('#validation_xqcas_' + question_id + '_' + input_name).html(data);
 						MathJax.Hub.Queue(["Typeset", MathJax.Hub, 'validation_xqcas_' + question_id + '_' + input_name]);
 						$('#validation_xqcas_roll_' + question_id + '_' + input_name).html("");
@@ -166,4 +169,37 @@ il.instant_validation = new function () {
 			}
 		}
 	})();
+
+	var add_spinner = (function () {
+		if($(".spinner-container").length==0){
+			$('.xqcas_input_validation').append(`
+				<div class="spinner-container">
+					<style>
+						.spinner {
+							border: 3px solid;
+							border-top: 3px solid transparent !important;
+							border-radius: 50%;
+							width: 32px;
+							height: 32px;
+							animation: spin 1s linear infinite;
+						}
+						.spinner-container {
+							display: flex;
+							justify-content: center;
+							align-items: center;
+						}
+						@keyframes spin {
+							0% { transform: rotate(0deg); }
+							100% { transform: rotate(360deg); }
+						}
+					</style>
+					<div class="spinner ilEditModified"></div>
+				</div>
+			`);
+		}
+	});
+
+	var remove_spinner = (function () {
+		$(".spinner-container").remove();
+	});
 };

@@ -1123,70 +1123,26 @@ class assStackQuestionUtils
 		}
 
 		//get PRT and PRT Nodes from DB
-			foreach ($prt_from_array as $prt_name => $prt_data) {
+        $total_value = 0;
+        $all_formative = true;
 
-				$nodes = array();
+        foreach ($prt_from_array as $name => $prt_data) {
+            $total_value += $prt_data->value;
+            $all_formative = false;
+        }
 
-				if (isset($prt_data->nodes) and !empty($prt_data->nodes)) {
-					foreach ($prt_data->nodes as $node_name => $node_data) {
-                        $node = new stdClass();
+        if ($prt_from_array && !$all_formative && $total_value < 0.0000001) {
+            throw new stack_exception('There is an error authoring your question. ' .
+                'The $totalvalue, the marks available for the question, must be positive in question ' . $question->getTitle());
+        }
 
-
-                        $node->nodename = $node_name;
-                        $node->prtname = $prt_name;
-                        $node->truenextnode = $node_data->true_next_node;
-                        $node->falsenextnode = $node_data->false_next_node;
-                        $node->answertest = $node_data->answer_test;
-                        $node->sans = $node_data->sans;
-                        $node->tans = $node_data->tans;
-                        $node->testoptions = $node_data->test_options;
-                        $node->quiet = $node_data->quiet;
-
-                        $node->truescore = $node_data->true_score;
-                        $node->truescoremode = $node_data->true_score_mode;
-                        $node->truepenalty = $node_data->true_penalty;
-                        $node->trueanswernote = $node_data->true_answer_note;
-                        $node->truefeedback = $node_data->true_feedback;
-                        $node->truefeedbackformat = $node_data->true_feedback_format;
-
-                        $node->falsescore = $node_data->false_score;
-                        $node->falsescoremode = $node_data->false_score_mode;
-                        $node->falsepenalty = $node_data->false_penalty;
-                        $node->falseanswernote = $node_data->false_answer_note;
-                        $node->falsefeedback = $node_data->false_feedback;
-                        $node->falsefeedbackformat = $node_data->false_feedback_format;
-
-                        $prt_data->nodes[$node_name] = $node;
-					}
-				} else {
-					break;
-				}
-
-				if ($prt_data->feedback_variables) {
-					try {
-						$feedback_variables = new stack_cas_keyval($prt_data->feedback_variables);
-						$feedback_variables = $feedback_variables->get_session();
-					} catch (stack_exception $e) {
-						ilUtil::sendFailure($e->getMessage(), true);
-					}
-				} else {
-					$feedback_variables = null;
-				}
-
-				if ($total_value == 0) {
-					//TODO Non gradable question
-					$prt_value = 0.0;
-				} else {
-					$prt_value = $prt_data->value;
-				}
-
-				try {
-					$question->prts[$prt_name] = new stack_potentialresponse_tree_lite($prt_data, $prt_value);
-				} catch (stack_exception $e) {
-					ilUtil::sendFailure($e, true);
-				}
-			}
-
+        foreach ($prt_from_array as $name => $prt_data) {
+            $prt_value = 0;
+            if (!$all_formative) {
+                $prt_value = $prt_data->value / $total_value;
+            }
+            $question->prts[$name] = new stack_potentialresponse_tree_lite($prt_data, $prt_value);
+        }
 
 		//load seeds
 		$deployed_seeds = $array['deployed_variants'];
