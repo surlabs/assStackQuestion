@@ -7,6 +7,7 @@ use assStackQuestion;
 use assStackQuestionDB;
 use assStackQuestionUtils;
 use classes\platform\ilias\StackRenderIlias;
+use classes\platform\StackException;
 use classes\platform\StackUnitTest;
 use ilCtrlException;
 use ILIAS\UI\Component\Panel\Sub;
@@ -153,8 +154,12 @@ class RandomisationAndSecurityUI
         ));
 
         //Deployed variants panel
+        $num_of_deployed_variants = count($this->data["deployed_variants"]);
+
         $deployed_variants_panel = $this->factory->panel()->standard(
-            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_deployed_variants_panel_title"),
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_deployed_variants_panel_title") .
+            $this->renderer->render($this->factory->divider()->vertical()) .
+            (string)$num_of_deployed_variants,
             $this->getCurrentlyDeployedVariantsPanelUIComponent()
         );
         $html .= $this->renderer->render($deployed_variants_panel);
@@ -170,14 +175,6 @@ class RandomisationAndSecurityUI
                 $this->renderer->render($add_standard_test_button)
             );
             $html .= $this->renderer->render($add_standard_test_message_box);
-        }
-
-        if (!empty($this->data["deployed_variants"])) {
-
-        } else {
-
-
-
         }
 
         //Test overview panel
@@ -210,10 +207,6 @@ class RandomisationAndSecurityUI
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_generate_new_variants_action_text"),
                 $this->control->getLinkTargetByClass("assstackquestiongui", "generateNewVariants")),
             $this->factory->button()->shy(
-                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_change_to_random_seed_action_text"),
-                //TODO: Change this to a modal
-                $this->control->getLinkTargetByClass("assstackquestiongui", "changeToRandomSeed")),
-            $this->factory->button()->shy(
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_run_all_tests_for_active_variant_action_text"),
                 $this->control->getLinkTargetByClass("assstackquestiongui", "runAllTestsForActiveVariant")),
             $this->factory->button()->shy(
@@ -221,7 +214,11 @@ class RandomisationAndSecurityUI
                 $this->control->getLinkTargetByClass("assstackquestiongui", "runAllTestsForAllVariants")),
             $this->factory->button()->shy(
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_add_unit_test_action_text"),
-                $this->control->getLinkTargetByClass("assstackquestiongui", "addCustomTestForm"))
+                $this->control->getLinkTargetByClass("assstackquestiongui", "addCustomTestForm")),
+            $this->factory->button()->shy(
+                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_add_standard_test_button_text"),
+                $this->control->getLinkTargetByClass("assstackquestiongui", "addStandardTest"))
+
         ));
 
         $attempt_data = [];
@@ -308,26 +305,23 @@ class RandomisationAndSecurityUI
                 $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_delete_deployed_variant_action_text") . ": " . (string)$deployed_variant_identifier,
                     $this->control->getLinkTargetByClass("assstackquestiongui", "deleteDeployedSeed"))));
 
-            $path = './src/UI/examples/Symbol/Icon/Custom/my_custom_icon.svg';
-            $ico = $this->factory->symbol()->icon()->custom($path, 'Example');
+            //$path = './src/UI/examples/Symbol/Icon/Custom/my_custom_icon.svg';
+            //$ico = $this->factory->symbol()->icon()->custom($path, 'Example');
 
             if ((string)$deployed_variant_identifier != $this->data["active_variant_identifier"]) {
                 $link = $this->factory->button()->standard($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_set_as_active_variant_action_text"),
                     $this->control->getLinkTargetByClass("assstackquestiongui", "setAsActiveVariant"));
-                $divider = $this->factory->divider()->vertical();
             } else {
                 $link = $this->factory->legacy(
                     $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_is_current_active_variant_text"));
-                $divider = $this->factory->divider()->vertical();
             }
+
             $question_note = $deployed_variant_data["question_note"];
             $array_of_deployed_variants[] = $this->factory->panel()->sub(
                 (string)$deployed_variant_identifier .
-                $this->renderer->render($divider) .
+                $this->renderer->render($this->factory->divider()->vertical()) .
                 $this->renderer->render($link),
                 $this->factory->legacy(
-                    $this->renderer->render($ico) .
-                    $this->renderer->render($this->factory->divider()->vertical()) .
                     assStackQuestionUtils::_getLatex($question_note->get_rendered()) .
                     $this->renderer->render($this->factory->divider()->horizontal())))
                 ->withActions($deployed_variant_individual_actions);
@@ -391,9 +385,17 @@ class RandomisationAndSecurityUI
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status") . ": " . $status_text;
 
             if ($status === 0) {
-                $test_results_view = $this->factory->messageBox()->failure($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_failed") . $results_overview);
+                $test_results_view = $this->factory->messageBox()->failure(
+                    $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_failed") .
+                    $this->renderer->render($this->factory->divider()->horizontal()) .
+                    $results_overview
+                );
             } elseif ($status === 1) {
-                $test_results_view = $this->factory->messageBox()->success($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed") . $results_overview);
+                $test_results_view = $this->factory->messageBox()->success(
+                    $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed") .
+                    $this->renderer->render($this->factory->divider()->horizontal()) .
+                    $results_overview
+                );
             } else {
                 $test_results_view = $this->factory->messageBox()->info($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_not_run") . $results_overview);
             }
@@ -502,10 +504,9 @@ class RandomisationAndSecurityUI
 
                 $sections["result_" . $key] = $sectionExpectedResult;
 
-
             }
 
-        } catch (Exception $e) {
+        } catch (StackException $e) {
             $section = $this->factory->messageBox()->failure($e->getMessage());
             $sections["object"] = $section;
         }
