@@ -109,9 +109,9 @@ class PluginConfigurationMainUI
 
         //Validation mode
         if (isset($data['instant_validation']) && $data['instant_validation'] === 0) {
-            $validation_value = '1';
-        } elseif (isset($data['instant_validation']) && $data['instant_validation'] === 1) {
             $validation_value = '0';
+        } elseif (isset($data['instant_validation']) && $data['instant_validation'] === 1) {
+            $validation_value = '1';
         } else {
             throw new StackException("Error: instant_validation value not found");
         }
