@@ -210,15 +210,13 @@ class assStackQuestionGUI extends assQuestionGUI
         $display_options['feedback'] = true;
 
         //Render question (and general feedback if solution)
-        $question = '';
+        $question = StackRenderIlias::renderQuestion($attempt_data, $display_options);
+
         if ($show_correct_solution) {
             global $DIC;
-            $question .= StackRenderIlias::renderGeneralFeedback($attempt_data, $display_options);
             $question .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->divider()->horizontal());
+            $question .= StackRenderIlias::renderGeneralFeedback($attempt_data, $display_options);
         }
-
-        $question .= StackRenderIlias::renderQuestion($attempt_data, $display_options);
-
 
         if (!$show_question_only) {
             $question = $this->getILIASPage($question);
