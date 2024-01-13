@@ -297,8 +297,6 @@ class StackRenderIlias extends StackRender
             throw new StackException('Invalid question type.');
         }
 
-        //var_dump($question->specific_feedback_instantiated->get_rendered());exit;
-
         if ($question->specific_feedback_instantiated === null) {
             // Invalid question, otherwise this would be here.
             return '';

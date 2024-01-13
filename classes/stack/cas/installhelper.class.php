@@ -78,7 +78,6 @@ class stack_cas_configuration {
             realpath(ILIAS_DATA_DIR) .
             '/stack/logs');
 
-        //var_dump($this->settings);exit;
         //SUR maximaversion to maxima_version
         $this->vnum = (float) substr($this->settings["maxima_version"], 2);
 
