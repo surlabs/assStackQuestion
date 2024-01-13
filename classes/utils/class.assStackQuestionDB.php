@@ -1569,6 +1569,9 @@ class assStackQuestionDB
             }
         }
 
+        //Save total points
+        $raw_solution["total_points"] = $question->getEvaluation()['points']['total'];
+
         $question->saveCurrentSolution($active_id, $pass, "xqcas_raw_data", json_encode($raw_solution));
 
         // We return 1 because after the rework only one data is inserted in the tst_solutions table.
