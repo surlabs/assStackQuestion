@@ -206,7 +206,7 @@ class assStackQuestionMoodleXMLExport
 							$a_xml_writer->xmlElement("sans", NULL, $node->sans);
 							$a_xml_writer->xmlElement("tans", NULL, $node->tans);
 							$a_xml_writer->xmlElement("testoptions", NULL, assStackQuestionUtils::_serializeExtraOptions($node->testoptions));
-							$a_xml_writer->xmlElement("quiet", NULL, (int)$node->isQuiet());
+							$a_xml_writer->xmlElement("quiet", NULL, (int) $node->quiet);
 
 							$a_xml_writer->xmlElement("truescoremode", NULL, $node->truescoremode);
 							$a_xml_writer->xmlElement("truescore", NULL, $node->truescore);
@@ -289,7 +289,7 @@ class assStackQuestionMoodleXMLExport
 
 		$a_xml_writer->xmlEndTag("quiz");
 
-		$xml = $a_xml_writer->xmlDumpMem(FALSE);
+		$xml = $a_xml_writer->xmlDumpMem();
 
 		if (is_array($this->getStackQuestions())) {
 			if (sizeof($this->getStackQuestions()) > 1) {
