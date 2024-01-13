@@ -886,7 +886,17 @@ class assStackQuestionGUI extends assQuestionGUI
 				}
 			}
 			// edit question properties
-			$tabs->addTarget("edit_properties", $url, array("editQuestion", "save", "cancel", "addSuggestedSolution", "cancelExplorer", "linkChilds", "removeSuggestedSolution", "parseQuestion", "saveEdit", "suggestRange"), $classname, "", $force_active);
+			$tabs->addTarget("edit_properties", $url, array("editQuestion",
+                "save",
+                "cancel",
+                "addSuggestedSolution",
+                "cancelExplorer",
+                "linkChilds",
+                "removeSuggestedSolution",
+                "parseQuestion",
+                "saveEdit",
+                "suggestRange"
+            ), $classname, "", $force_active);
 
 			$this->addTab_QuestionFeedback($tabs);
 
@@ -917,7 +927,6 @@ class assStackQuestionGUI extends assQuestionGUI
 				$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 				$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
 				$tabs->addSubTab('randomisation_and_security', $this->plugin->txt('ui_author_randomisation_and_security_title'), $this->ctrl->getLinkTargetByClass($classname, "randomisationAndSecurity"));
-				//$tabs->addSubTab('unit_tests', $this->plugin->txt('ut_title'), $this->ctrl->getLinkTargetByClass($classname, "showUnitTests"));
 				$tabs->addSubTab('import_from_moodle', $this->plugin->txt('import_from_moodle'), $this->ctrl->getLinkTargetByClass($classname, "importQuestionFromMoodleForm"));
 				$tabs->addSubTab('export_to_moodle', $this->plugin->txt('export_to_moodle'), $this->ctrl->getLinkTargetByClass($classname, "exportQuestiontoMoodleForm"));
 			}

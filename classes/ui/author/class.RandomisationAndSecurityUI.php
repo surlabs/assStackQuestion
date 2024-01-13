@@ -429,7 +429,6 @@ class RandomisationAndSecurityUI
                 ))->withActions($actions);
 
             /*
-            var_dump($status);exit;
             $list[$unit_test_number] = $this->factory->item()->group((string)$unit_test_number, array(
                 $this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_description") . ": " . $unit_test["description"]),
                 $this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_last_run") . ": " . $last_run),
