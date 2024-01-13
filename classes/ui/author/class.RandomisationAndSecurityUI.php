@@ -77,7 +77,6 @@ class RandomisationAndSecurityUI
                         $this->data["deployed_variants"][$deployed_seed["seed"]] = [
                             "question_note" => $deployed_seed["note"],
                             "question_variables" => $deployed_seed["question_id"],
-                            "unit_test_passed" => "True",
                             "question_text" => $deployed_seed["question_text"]
                         ];
                     }
@@ -177,14 +176,20 @@ class RandomisationAndSecurityUI
             $html .= $this->renderer->render($add_standard_test_message_box);
         }
 
-        $panel = $this->getUnitTestStatusPanelUIComponent($count_passed,$unit_tests);
+        $panel = $this->getUnitTestStatusPanelUIComponent($count_passed, $unit_tests);
+        $total_unit_tests = count($this->data['unit_tests']);
+        //TODO SAUL $this->data['unit_tests'] no se actualiza correctamente
+        if ($total_unit_tests < $count_passed) {
+            $total_unit_tests = $count_passed;
+        }
+
         //Test overview panel
         $test_overview_panel = $this->factory->panel()->standard(
             $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status_panel_title") .
             $this->renderer->render($this->factory->divider()->vertical()) .
-            count($this->data['unit_tests']) .
+            $total_unit_tests .
             $this->renderer->render($this->factory->divider()->vertical()) .
-            '(' . $count_passed . '/' . count($this->data['unit_tests']) . ') ' .
+            '(' . $count_passed . '/' . $total_unit_tests . ') ' .
             $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed"),
             $panel
         );
