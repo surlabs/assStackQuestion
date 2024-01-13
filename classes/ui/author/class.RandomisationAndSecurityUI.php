@@ -250,7 +250,7 @@ class RandomisationAndSecurityUI
             )
         )
             ->withCard($this->factory->card()->standard(
-                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_question_and_feedback_variables_text")
+                $this->language->txt("ui_author_randomisation_question_variables_text")
             )
                 ->withSections(array(
                     $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithLatex($active_variant_question_variables)),

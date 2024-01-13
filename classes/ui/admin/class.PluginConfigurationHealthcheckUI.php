@@ -55,6 +55,11 @@ class PluginConfigurationHealthcheckUI
             $data = $healthcheck->get_test_results();
 
             $sections = [];
+
+            //add mbstring info
+            $mbstring_loaded = self::isMbstringLoaded($plugin_object);
+            $sections["mbstring"] = self::$factory->messageBox()->{$mbstring_loaded["type"]}($mbstring_loaded["message"]);
+
             $sections["server-info"] = self::$factory->messageBox()->info(
                 $plugin_object->txt("srv_address") . ":<br \>"
                 . $serverAddress);
@@ -81,5 +86,28 @@ class PluginConfigurationHealthcheckUI
         }
 
         return $sections;
+    }
+
+
+    /**
+     * Checks if the mbstring extension is loaded
+     * @return array
+     */
+    private static function isMbstringLoaded(ilPlugin $plugin_object): array
+    {
+        if (!extension_loaded('mbstring')) {
+            $data = [
+                'type' => 'failure',
+                'data' => null,
+                'message' => $plugin_object->txt('ui_admin_configuration_quality_healthcheck_mbstring_false'),
+            ];
+        } else {
+            $data = [
+                'type' => 'success',
+                'data' => null,
+                'message' => $plugin_object->txt('ui_admin_configuration_quality_healthcheck_mbstring_true'),
+            ];
+        }
+        return $data;
     }
 }
