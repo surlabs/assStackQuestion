@@ -161,6 +161,7 @@ ui_author_randomisation_no_deployed_variants_message_but_has_randomisation#:#Thi
 ui_author_randomisation_no_variants_generate_new_variants_action_text#:#Generate 10 new variants (if possible)
 ui_author_randomisation_add_standard_test_description#:#Add a standard test
 ui_author_randomisation_add_standard_test_button_text#:#Add standard test
+ui_author_randomisation_standard_unit_test_case_added#:#Standard unit test case added
 ui_author_randomisation_active_variant_panel_title#:#Active variant for preview and unit tests
 ui_author_randomisation_deployed_variants_panel_title#:#Deployed variants
 ui_author_randomisation_is_current_active_variant_text#:#Is current active variant for preview and unit tests
@@ -198,6 +199,7 @@ ui_author_randomisation_unit_test_case_failed#:#Test case failed due to: %s
 ui_author_randomisation_unit_test_case_passed_for_seed#:#Test case %s passed for seed %s
 ui_author_randomisation_unit_test_case_failed_empty_for_seed#:#Test case %s failed due to empty testcases not allowed for seed %s
 ui_author_randomisation_unit_test_case_failed_for_seed#:#Test case %s failed due to: %s for seed %s
+ui_author_randomisation_unit_test_case_deleted#:#Test case deleted
 ui_author_randomisation_cannot_delete_active_variant#:#You cannot delete the active variant
 ui_author_randomisation_sucessfully_on_seeds_generation#:#Seeds were successfully generated
 ui_author_randomisation_failed_on_seeds_generation#:#Failed on seeds generation

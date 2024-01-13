@@ -912,7 +912,8 @@ class assStackQuestionGUI extends assQuestionGUI
                 'runAllTestsForActiveVariant',
                 'runAllTestsForAllVariants',
                 'addCustomTestForm',
-                'editTestcases'
+                'editTestcases',
+                'deleteUnitTest'
             ))) {
 				$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 				$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
@@ -1866,9 +1867,13 @@ class assStackQuestionGUI extends assQuestionGUI
         $this->tpl->setContent($content);
     }
 
-    public function addCustomTestForm()
+    /**
+     * Shows the form for adding a custom test
+     * @return void
+     */
+    public function addCustomTestForm(): void
     {
-        GLOBAL $DIC;
+        global $DIC;
         $tabs = $DIC->tabs();
 
         $tabs->activateTab('edit_properties');
@@ -1879,19 +1884,17 @@ class assStackQuestionGUI extends assQuestionGUI
     }
 
     /**
+     * Called when executing a specific test
      * @throws stack_exception
      * @throws StackException
      */
     public function runUnitTest()
     {
-        global $DIC;
+        global $DIC, $tpl;
         $tabs = $DIC->tabs();
 
         $tabs->activateTab('edit_properties');
         $tabs->activateSubTab('randomisation_and_security');
-
-        $factory = $DIC->ui()->factory();
-        $renderer = $DIC->ui()->renderer();
 
         $unit_test = $this->object->getUnitTests()["test_cases"][$_GET["test_case"]];
 
@@ -1901,34 +1904,42 @@ class assStackQuestionGUI extends assQuestionGUI
             $inputs[$name] = $input["value"];
         }
 
-        $testcase = new StackUnitTest($unit_test["description"], $inputs, (int) $_GET["test_case"]);
+        $testcase = new StackUnitTest($unit_test["description"], $inputs, (int)$_GET["test_case"]);
 
         foreach ($unit_test["expected"] as $name => $expected) {
-            $testcase->addExpectedResult($name, new stack_potentialresponse_tree_state(1, true, (float) $expected["score"], (float) $expected["penalty"], '', array($expected["answer_note"])));
+            $testcase->addExpectedResult($name,
+                new stack_potentialresponse_tree_state(
+                    1,
+                    true,
+                    (float)$expected["score"],
+                    (float)$expected["penalty"],
+                    '', array($expected["answer_note"]
+                )));
         }
 
-        $result = $testcase->run($this->object->getId(), (int) $_GET["variant_identifier"]);
+        $result = $testcase->run($this->object->getId(), (int)$_GET["variant_identifier"]);
 
-        $content = "";
-
+        $message = $testcase->testCase . ': ';
         if ($result->passed() === '1') {
-            $content .= $renderer->render($factory->messageBox()->success($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_passed')));
-        } elseif ($result->passed() === '0') {
-            $content .= $renderer->render($factory->messageBox()->failure($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed_empty')));
+            $type = 'success';
+            $message .= $DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_passed');
         } else {
-            $content .= $renderer->render($factory->messageBox()->failure($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed')));
+            $type = 'failure';
+            $message .= $DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed');
         }
 
-        $content .= $renderer->render($factory->button()->standard($DIC->language()->txt("back"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
+        $tpl->setOnScreenMessage($type, $message, true);
 
-        $this->tpl->setContent($content);
+        $this->randomisationAndSecurity();
     }
 
     /**
+     * Called when adding a standard test
      * @throws stack_exception
      */
-    public function addStandardTest(){
-        global $DIC;
+    public function addStandardTest(): void
+    {
+        global $DIC, $tpl;
         $tabs = $DIC->tabs();
 
         $tabs->activateTab('edit_properties');
@@ -1939,6 +1950,10 @@ class assStackQuestionGUI extends assQuestionGUI
         }
 
         StackUnitTest::addDefaultTestcase($this->object);
+
+        $tpl->setOnScreenMessage('success',
+            $this->object->getPlugin()->txt('ui_author_randomisation_standard_unit_test_case_added'),
+            true);
 
         $this->randomisationAndSecurity();
     }
@@ -1960,12 +1975,21 @@ class assStackQuestionGUI extends assQuestionGUI
      */
     public function deleteUnitTest()
     {
-        $test_case = (int) $_GET['test_case'];
+        global $DIC, $tpl;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
+        $test_case = (int)$_GET['test_case'];
 
         unset($this->object->unit_tests['ids'][$test_case]);
         unset($this->object->unit_tests['test_cases'][$test_case]);
 
         assStackQuestionDB::_deleteStackUnitTests($this->object->getId(), $test_case);
+        $tpl->setOnScreenMessage('success',
+            $this->object->getPlugin()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_deleted'),
+            true);
 
         $this->randomisationAndSecurity();
     }
