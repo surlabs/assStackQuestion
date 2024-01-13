@@ -28,6 +28,7 @@ class PluginConfigurationHealthcheckUI
 
     private static Factory $factory;
     private static ilCtrl $control;
+    private static $renderer;
 
     /**
      * Shows the healthcheck
@@ -38,6 +39,7 @@ class PluginConfigurationHealthcheckUI
 
         self::$factory = $DIC->ui()->factory();
         self::$control = $DIC->ctrl();
+        self::$renderer = $DIC->ui()->renderer();
 
         try {
 
@@ -48,51 +50,36 @@ class PluginConfigurationHealthcheckUI
                 'run'
             );
 
-            //get sections
-            $content = [
-                'connection' => self::getMaximaConnectionSection($data, $plugin_object),
-                'display' => self::getDisplayOptionsSection($data, $plugin_object)
-            ];
+            $serverAddress = $data["maxima_pool_url"];
+            $healthcheck = new stack_cas_healthcheck($data);
+            $data = $healthcheck->get_test_results();
+
+            $sections = [];
+            $sections["server-info"] = self::$factory->messageBox()->info(
+                $plugin_object->txt("srv_address") . ":<br \>"
+                . $serverAddress);
+
+
+            foreach ($data as $value) {
+
+                $form_fields = [];
+
+                if (isset($value['details'])) {
+                    $form_fields["details"] = self::$factory->legacy($value["details"]);
+
+                    $sections[$value["tag"]] = self::$factory->panel()->standard(
+                        $plugin_object->txt("ui_admin_configuration_defaults_section_title_healthcheck_" . $value["tag"]),
+                        self::$factory->legacy(
+                            self::$renderer->render($form_fields)
+                        )
+                    );
+                }
+            }
 
         } catch (Exception $e) {
-            $content = ['error' => self::$factory->messageBox()->failure($e->getMessage())];
+            $sections = ['error' => self::$factory->messageBox()->failure($e->getMessage())];
         }
 
-        return $content;
-    }
-
-    /**
-     * Gets the Maxima connection section
-     * @throws StackException
-     */
-    private static function getMaximaConnectionSection(array $data, ilPlugin $plugin_object): Section
-    {
-
-
-        return self::$factory->input()->field()->section(
-            [
-            ],
-            $plugin_object->txt("ui_admin_configuration_maxima_connection_title"),
-            $plugin_object->txt("ui_admin_configuration_maxima_connection_description")
-        );
-
-
-    }
-
-    /**
-     * Gets the defaults validation section
-     * @throws StackException
-     */
-    private static function getDisplayOptionsSection(array $data, ilPlugin $plugin_object): Section
-    {
-
-        return self::$factory->input()->field()->section(
-            [
-            ],
-            $plugin_object->txt("ui_admin_configuration_defaults_display_title"),
-            $plugin_object->txt("ui_admin_configuration_defaults_display_description")
-        );
-
-
+        return $sections;
     }
 }

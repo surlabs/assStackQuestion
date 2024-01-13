@@ -116,34 +116,9 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
                 $this->quality($data);
                 return;
             case "healthcheck":
-                $serverAddress = $data["maxima_pool_url"];
-                $healthcheck = new stack_cas_healthcheck($data);
-                $data = $healthcheck->get_test_results();
-
-                $sections = [];
-                $sections["server-info"] = $this->factory->messageBox()->info(
-                    $this->getPluginObject()->txt("srv_address") . ":<br \>"
-                    . $serverAddress);
-
-                foreach ($data as $key => $value) {
-
-                    $form_fields = [];
-
-                    if (isset($value['details'])) {
-                        $form_fields["details"] = $this->factory->legacy($value["details"]);
-                        $sections[$value["tag"]] = $this->factory->panel()->standard(
-                            $this->getPluginObject()->txt("ui_admin_configuration_defaults_section_title_healthcheck_" . $value["tag"]),
-                            $this->factory->legacy(
-                                $this->renderer->render($form_fields)
-                            )
-                        );
-                    }
-                }
-
                 $sections[] = $this->healthcheck($data);
                 $form_action = $this->control->getLinkTargetByClass("ilassStackQuestionConfigGUI", "healthcheck");
                 $rendered = $this->renderPanel($data, $form_action, $sections);
-
                 break;
             case 'clearCache':
                 StackConfig::clearCache();

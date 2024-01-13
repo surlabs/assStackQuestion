@@ -24,6 +24,7 @@
 //require_once(__DIR__ . '/castext2/castext2_evaluatable.class.php');
 //require_once(__DIR__ . '/connector.dbcache.class.php');
 //require_once(__DIR__ . '/installhelper.class.php');
+use classes\platform\ilias\StackRenderIlias;
 
 /**
  * This class supports the healthcheck functions..
@@ -48,6 +49,7 @@ class stack_cas_healthcheck {
         global $CFG;
         $this->config = $config;
 
+        StackRenderIlias::ensureMathJaxLoaded();
         // Record the platform in the summary.
         $test = array();
         $test['tag'] = 'platform';
@@ -274,7 +276,9 @@ class stack_cas_healthcheck {
             $test['details'] .= stack_string('errors') . $ct->get_errors();
             $test['details'] .= stack_string('debuginfo') . $session->get_debuginfo();
         } else {
-            $test['details'] .= html_writer::tag('p', stack_ouput_castext($ct->get_rendered()));
+            $test['details'] .= html_writer::tag('p', stack_ouput_castext(
+                assStackQuestionUtils::_getLatex($ct->get_rendered())
+            ));
         }
         $this->tests[] = $test;
     }
