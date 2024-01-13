@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace classes\platform\ilias;
 
 use assStackQuestion;
+use assStackQuestionUtils;
 use classes\platform\StackConfig;
 use classes\platform\StackEvaluation;
 use classes\platform\StackException;
@@ -97,21 +98,24 @@ class StackRenderIlias extends StackRender
         switch ($state) {
             case -1:
                 // Incorrect.
-                $prt_feedback_instantiated = stack_maths::process_display_castext(
-                    $question->prt_incorrect_instantiated->get_rendered($question->getCasTextProcessor()));
-                $standard_prt_feedback = $factory->messageBox()->failure($prt_feedback_instantiated);
+                $prt_feedback_instantiated =
+                    $question->prt_incorrect_instantiated->get_rendered($question->getCasTextProcessor());
+                $standard_prt_feedback = $factory->messageBox()->failure(assStackQuestionUtils::_getLatex(
+                    $prt_feedback_instantiated . '</br>' . $feedback));
                 break;
             case 0:
                 // Partially correct.
-                $prt_feedback_instantiated = stack_maths::process_display_castext(
-                    $question->prt_partially_correct_instantiated->get_rendered($question->getCasTextProcessor()));
-                $standard_prt_feedback = $factory->messageBox()->info($prt_feedback_instantiated);
+                $prt_feedback_instantiated =
+                    $question->prt_partially_correct_instantiated->get_rendered($question->getCasTextProcessor());
+                $standard_prt_feedback = $factory->messageBox()->info(
+                    assStackQuestionUtils::_getLatex($prt_feedback_instantiated . '</br>' . $feedback));
                 break;
             case 1:
                 // Correct.
-                $prt_feedback_instantiated = stack_maths::process_display_castext(
-                    $question->prt_correct_instantiated->get_rendered($question->getCasTextProcessor()));
-                $standard_prt_feedback = $factory->messageBox()->success($prt_feedback_instantiated);
+                $prt_feedback_instantiated =
+                    $question->prt_correct_instantiated->get_rendered($question->getCasTextProcessor());
+                $standard_prt_feedback = $factory->messageBox()->success(
+                    assStackQuestionUtils::_getLatex($prt_feedback_instantiated . '</br>' . $feedback));
                 break;
             default:
                 throw new StackException('Invalid state.');
@@ -122,14 +126,14 @@ class StackRenderIlias extends StackRender
         switch ($display_options['feedback_style']) {
             case 0:
                 // Formative PRT.
-                $prt_feedback_html = $error_message . '</br>' . $feedback;
+                $prt_feedback_html = $error_message;
                 break;
             case 1:
-                $prt_feedback_html = $renderer->render($standard_prt_feedback) . '</br>' . $error_message . '</br>' . $feedback;
+                $prt_feedback_html = $renderer->render($standard_prt_feedback) . '</br>' . $error_message;
                 break;
             case 2:
                 // Compact.
-                $prt_feedback_html = $renderer->render($standard_prt_feedback) . '</br>' . $error_message . '</br>' . $feedback;
+                $prt_feedback_html = $renderer->render($standard_prt_feedback) . '</br>' . $error_message;
                 //$tag = 'span';
                 break;
             case 3:
@@ -201,7 +205,14 @@ class StackRenderIlias extends StackRender
             throw new StackException('Inconsistent placeholders. Possibly due to multi-lang filtter not being active.');
         }
 
-        foreach ($question->inputs as $input_name => $input) {
+        foreach ($formatted_input_placeholders as $input_name) {
+
+            if (isset($question->inputs[$input_name])) {
+                $input = $question->inputs[$input_name];
+            } else {
+                throw new StackException('Input ' . $input_name . 'not found.');
+            }
+
             // Get the actual value of the teacher's answer at this point.
             $teacher_answer_value = $question->getTeacherAnswerForInput($input_name);
 
@@ -250,7 +261,11 @@ class StackRenderIlias extends StackRender
         }
 
         // Replace PRTs.
-        foreach ($question->prts as $prt_name => $prt) {
+        foreach ($formatted_feedback_placeholders as $prt_name) {
+            if (!isset($question->prts[$prt_name])) {
+                throw new StackException('PRT ' . $prt_name . 'not found.');
+            }
+            $prt = $question->prts[$prt_name];
             $feedback = '';
             if ($display_options['feedback'] && !empty($response)) {
                 $attempt_data['prt_name'] = $prt->get_name();
@@ -310,6 +325,24 @@ class StackRenderIlias extends StackRender
         if (!$feedback_text) {
             return '';
         }
+        // Get the list of placeholders before format_text.
+        $original_feedback_placeholders = array_unique(stack_utils::extract_placeholders($feedback_text, 'feedback'));
+        sort($original_feedback_placeholders);
+
+        // Now format the question_text.
+        $feedback_text = stack_maths::process_display_castext($feedback_text);
+
+        // Get the list of placeholders after format_text.
+        $formatted_feedback_placeholders = stack_utils::extract_placeholders($feedback_text, 'feedback');
+        sort($formatted_feedback_placeholders);
+
+        // We need to check that if the list has changed.
+        // Have we lost some of the placeholders entirely?
+        // Duplicates may have been removed by multi-lang,
+        // No duplicates should remain.
+        if ($formatted_feedback_placeholders !== $original_feedback_placeholders) {
+            throw new StackException('Inconsistent placeholders. Possibly due to multi-lang filtter not being active.');
+        }
 
         $feedback_text = stack_maths::process_display_castext($feedback_text);
 
@@ -322,22 +355,21 @@ class StackRenderIlias extends StackRender
             $overallfeedback = $this->overall_standard_prt_feedback($qa, $question, $response);
         }*/
 
-        // Replace any PRT feedback.
-        $all_empty = true;
-        foreach ($question->prts as $prt_name => $prt) {
-            $feedback = '';
-            if ($display_options['feedback']) {
-                $attempt_data['prt_name'] = $prt->get_name();
-                $feedback = self::renderPRTFeedback($attempt_data, $display_options);
-                $all_empty = $all_empty && !$feedback;
+        $display_options['feedback'] = true;
+        $display_options['feedback_style'] = 1;
+        // Replace PRTs.
+        foreach ($formatted_feedback_placeholders as $prt_name) {
+            if (!isset($question->prts[$prt_name])) {
+                throw new StackException('PRT ' . $prt_name . 'not found.');
             }
-            $feedback_text = str_replace("[[feedback:{$prt_name}]]", $feedback, $feedback_text);
+            if (!empty($response)) {
+                $attempt_data['prt_name'] = $prt_name;
+                $feedback = self::renderPRTFeedback($attempt_data, $display_options);
+            }
+            $feedback_text = str_replace("[[feedback:$prt_name]]", $feedback, $feedback_text);
         }
 
         //TODO: OVERALL FEEDBACK
-        if ($all_empty) {
-            return '';
-        }
 
         // Ensure that the MathJax library is loaded.
         self::ensureMathJaxLoaded();
