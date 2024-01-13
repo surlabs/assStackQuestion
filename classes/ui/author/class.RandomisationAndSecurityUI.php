@@ -250,7 +250,7 @@ class RandomisationAndSecurityUI
             )
         )
             ->withCard($this->factory->card()->standard(
-                $this->language->txt("ui_author_randomisation_question_variables_text")
+                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_question_variables_text")
             )
                 ->withSections(array(
                     $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithLatex($active_variant_question_variables)),
@@ -290,17 +290,15 @@ class RandomisationAndSecurityUI
             //Actions for each deployed variant
             $deployed_variant_individual_actions = $this->factory->dropdown()->standard(array(
                 $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_delete_deployed_variant_action_text") . ": " . (string)$deployed_variant_identifier,
-                    $this->control->getLinkTargetByClass("assstackquestiongui", "deleteDeployedSeed")),
-                $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_set_as_active_variant_action_text") . ": " . (string)$deployed_variant_identifier,
-                    $this->control->getLinkTargetByClass("assstackquestiongui", "setAsActiveVariant"))));
-
+                    $this->control->getLinkTargetByClass("assstackquestiongui", "deleteDeployedSeed"))));
 
             $path = './src/UI/examples/Symbol/Icon/Custom/my_custom_icon.svg';
             $ico = $this->factory->symbol()->icon()->custom($path, 'Example');
 
             if ((string)$deployed_variant_identifier != $this->data["active_variant_identifier"]) {
-                $link = $this->factory->legacy('');
-                $divider = $this->factory->legacy('');
+                $link = $this->factory->button()->standard($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_set_as_active_variant_action_text"),
+                    $this->control->getLinkTargetByClass("assstackquestiongui", "setAsActiveVariant"));
+                $divider = $this->factory->divider()->vertical();
             } else {
                 $link = $this->factory->legacy(
                     $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_is_current_active_variant_text"));
