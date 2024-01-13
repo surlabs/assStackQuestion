@@ -207,7 +207,7 @@ class StackRenderIlias extends StackRender
                     !is_a($input, 'stack_boolean_input')
                 ) {
                     if (!$instant_validation) {
-                        $validation_button = self::_renderValidationButton($question->getId(), $input_name);
+                        $validation_button = self::_renderValidationButton((int)$question->getId(), $input_name);
                     }
                 }
             }
