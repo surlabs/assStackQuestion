@@ -424,19 +424,31 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
 
         // get all saved part solutions with points assigned
-        $result = $this->getCurrentSolutionResultSet($active_id, $pass, $authorized_solution);
+        $solution = $db->query("SELECT value1, value2, points FROM tst_solutions WHERE question_fi = " .
+            $db->quote($this->getId(), 'integer') . " AND active_fi = " .
+            $db->quote($active_id, 'integer') . " AND pass = " .
+            $db->quote($pass, 'integer'));
 
-        // in some cases points may have been saved twice (see saveWorkingDataValue())
-        // so collect them by the part result (value1)
-        // and summarize them afterwards
-        $points = array();
+        $tst_solutions = array();
 
-        if (!empty($result)) {
-            while ($row = $db->fetchAssoc($result)) {
-                $points[$row['value1']] = (float)$row['points'];
-            }
+        while ($row = $db->fetchAssoc($solution)) {
+            $tst_solutions[] = $row;
         }
-        return array_sum($points);
+
+        $points = 0;
+
+        if (count($tst_solutions) > 0 && $tst_solutions[0]['value1'] != "xqcas_raw_data") {
+            // old format
+            foreach ($tst_solutions as $row) {
+                $points += (float) $row['points'];
+            }
+        } else {
+            $parsed_user_response_from_db = (array) json_decode($tst_solutions[0]['value2']);
+
+            $points = (float) $parsed_user_response_from_db['total_points'];
+        }
+
+        return $points;
     }
 
 
