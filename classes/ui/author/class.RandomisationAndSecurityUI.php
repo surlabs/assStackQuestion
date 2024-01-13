@@ -9,12 +9,15 @@ use assStackQuestionUtils;
 use classes\platform\ilias\StackRenderIlias;
 use classes\platform\StackException;
 use classes\platform\StackUnitTest;
+use ilCtrl;
 use ilCtrlException;
+use ILIAS\UI\Component\Panel\Listing\Listing;
 use ILIAS\UI\Component\Panel\Sub;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
+use ilLanguage;
 use ilSetting;
-use InvalidArgumentException;
+use stack_exception;
 
 /**
  * This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
@@ -41,9 +44,9 @@ class RandomisationAndSecurityUI
 
     private Renderer $renderer;
 
-    private \ilLanguage $language;
+    private ilLanguage $language;
 
-    private $control;
+    private ilCtrl $control;
 
     private array $data;
 
@@ -89,7 +92,6 @@ class RandomisationAndSecurityUI
 
             if ($key === "question") {
                 $this->data["question"] = $value;
-                continue;
             }
         }
 
@@ -104,7 +106,10 @@ class RandomisationAndSecurityUI
     }
 
     /**
+     * @return string
+     * @throws StackException
      * @throws ilCtrlException
+     * @throws stack_exception
      */
     public function show(): string
     {
@@ -112,11 +117,11 @@ class RandomisationAndSecurityUI
 
         //Instantiate Question if not.
         if (!$this->data["question"]->isInstantiated()) {
-            $this->data["question"]->questionInitialisation((int) $this->data["active_variant_identifier"] ?? 1, true);
+            $this->data["question"]->questionInitialisation((int)$this->data["active_variant_identifier"] ?? 1, true);
         }
 
         if (assStackQuestionUtils::_hasRandomVariables($this->data["question"]->question_variables)) {
-            if(empty($this->data["deployed_variants"])) {
+            if (empty($this->data["deployed_variants"])) {
                 //No deployed variants
                 $generate_variants_button = $this->renderer->render(
                     $this->factory->button()->standard(
@@ -145,13 +150,6 @@ class RandomisationAndSecurityUI
             )
         );
         $html .= $this->renderer->render($active_variants_panel);
-
-        //Actions for all deployed variants
-        $deployed_seeds_bulk_actions = $this->factory->dropdown()->standard(array(
-            $this->factory->button()->shy(
-                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_generate_new_variants_action_text"),
-                $this->control->getLinkTargetByClass("assstackquestiongui", "generateNewVariants")),
-        ));
 
         //Deployed variants panel
         $num_of_deployed_variants = count($this->data["deployed_variants"]);
@@ -191,7 +189,8 @@ class RandomisationAndSecurityUI
      * Returns the UI subcomponent for the currently active variant panel
      * which is a Sub section of a panel
      * @return Sub
-     * @throws ilCtrlException
+     * @throws StackException
+     * @throws stack_exception
      */
     private function getCurrentActiveVariantPanelUIComponent(): Sub
     {
@@ -252,7 +251,7 @@ class RandomisationAndSecurityUI
         $active_variant_identifier = $this->data["active_variant_identifier"] ?? "";
         $active_variant_question_note = $this->data["active_variant_question_note"] ?? "";
         $active_variant_question_variables = $this->data["active_variant_question_variables"] ?? "";
-        $active_variant_feedback_variables = $this->data["active_variant_feedback_variables"] ?? "";
+        //$active_variant_feedback_variables = $this->data["active_variant_feedback_variables"] ?? "";
 
         return $this->factory->panel()->sub(
             $active_variant_identifier,
@@ -331,7 +330,7 @@ class RandomisationAndSecurityUI
         return $array_of_deployed_variants;
     }
 
-    public function getUnitTestStatusPanelUIComponent()
+    public function getUnitTestStatusPanelUIComponent(): Listing
     {
         $count_passed = 0;
 
@@ -380,29 +379,35 @@ class RandomisationAndSecurityUI
                 $status_text = $this->renderer->render($this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_failed")));
             }
 
-            $results_overview = $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_description") . ": " . $unit_test["description"] . "<br>" .
-                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_last_run") . ": " . $last_run . "<br>" .
-                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status") . ": " . $status_text;
+            $results_overview = $this->language->txt(
+                    "qpl_qst_xqcas_ui_author_randomisation_unit_test_last_run") . ": " . $last_run;
 
             if ($status === 0) {
                 $test_results_view = $this->factory->messageBox()->failure(
                     $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_failed") .
-                    $this->renderer->render($this->factory->divider()->horizontal()) .
+                    $this->renderer->render($this->factory->divider()->vertical()) .
                     $results_overview
                 );
             } elseif ($status === 1) {
                 $test_results_view = $this->factory->messageBox()->success(
                     $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed") .
-                    $this->renderer->render($this->factory->divider()->horizontal()) .
+                    $this->renderer->render($this->factory->divider()->vertical()) .
                     $results_overview
                 );
             } else {
-                $test_results_view = $this->factory->messageBox()->info($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_not_run") . $results_overview);
+                $test_results_view = $this->factory->messageBox()->confirmation(
+                    $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_not_run") .
+                    $this->renderer->render($this->factory->divider()->vertical()) .
+                    $results_overview
+                );
             }
 
-            $list[$unit_test_number] = $this->factory->item()->group((string)$unit_test_number, array(
-                $test_results_view
-            ))->withActions($actions);
+            $list[$unit_test_number] = $this->factory->item()->group((string)$unit_test_number .
+                $this->renderer->render($this->factory->divider()->vertical()) .
+                $unit_test["description"],
+                array(
+                    $test_results_view
+                ))->withActions($actions);
 
             /*
             var_dump($status);exit;
@@ -417,11 +422,17 @@ class RandomisationAndSecurityUI
             $count_passed = $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_all");
         }
 
-        $std_list = $this->factory->panel()->listing()->standard($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status_panel_title"), array(
-            $this->factory->item()->group($count_passed . "/" . count($unit_tests) . " " . $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed"), $list)
-        ));
+        return $this->factory->panel()->listing()->standard(
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status_panel_title") .
+            $this->renderer->render($this->factory->divider()->vertical()) .
+            count($unit_tests) .
+            $this->renderer->render($this->factory->divider()->vertical()) .
+            '(' . $count_passed . '/' . count($unit_tests) . ') ' .
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed"),
 
-        return $std_list;
+            array(
+                $this->factory->item()->group("", $list)
+            ));
     }
 
     public function showCustomTestForm(array $inputs, array $prts, assStackQuestion $question): string
@@ -433,7 +444,6 @@ class RandomisationAndSecurityUI
 
     public function initCustomTest(string $description = "", array $inputs = null, array $expected = null, array $prts = null): array
     {
-        global $DIC;
 
         try {
             $this->control->setParameterByClass('assStackQuestionGUI', 'cmd', 'addCustomTestForm');

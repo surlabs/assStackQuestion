@@ -177,7 +177,7 @@ ui_author_randomisation_add_unit_test_action_text#:#Add unit test
 ui_author_randomisation_run_unit_test_action_text#:#Run unit test
 ui_author_randomisation_edit_unit_test_action_text#:#Edit unit test
 ui_author_randomisation_delete_unit_test_action_text#:#Delete unit test
-ui_author_randomisation_unit_test_status_panel_title#:#Unit test status
+ui_author_randomisation_unit_test_status_panel_title#:#Unit tests
 ui_author_randomisation_unit_test_not_run#:#Not tested
 ui_author_randomisation_unit_test_passed#:#Passed
 ui_author_randomisation_unit_test_failed#:#Failed
