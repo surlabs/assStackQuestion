@@ -289,7 +289,7 @@ class assStackQuestionMoodleXMLExport
 
 		$a_xml_writer->xmlEndTag("quiz");
 
-		$xml = $a_xml_writer->xmlDumpMem();
+		$xml = $a_xml_writer->xmlDumpMem(false);
 
 		if (is_array($this->getStackQuestions())) {
 			if (sizeof($this->getStackQuestions()) > 1) {

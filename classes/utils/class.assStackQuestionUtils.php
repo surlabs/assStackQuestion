@@ -1108,7 +1108,7 @@ class assStackQuestionUtils
 		$grade_all = true;
 
 		foreach ($prt_from_array as $prt_name => $prt_data) {
-			$total_value += $prt_data['value'];
+			$total_value += $prt_data->value;
 		}
 
 		if ($prt_from_array && $grade_all && $total_value < 0.0000001) {
@@ -1127,44 +1127,44 @@ class assStackQuestionUtils
 
 				$nodes = array();
 
-				if (isset($prt_data['nodes']) and !empty($prt_data['nodes'])) {
-					foreach ($prt_data['nodes'] as $node_name => $node_data) {
+				if (isset($prt_data->nodes) and !empty($prt_data->nodes)) {
+					foreach ($prt_data->nodes as $node_name => $node_data) {
+                        $node = new stdClass();
 
-						$sans = stack_ast_container::make_from_teacher_source('PRSANS' . $node_name . ':' . $node_data['sans'], '', new stack_cas_security());
-						$tans = stack_ast_container::make_from_teacher_source('PRTANS' . $node_name . ':' . $node_data['tans'], '', new stack_cas_security());
 
-						//Penalties management, penalties are not an ILIAS Feature
-						if (is_null($node_data['false_penalty']) || $node_data['false_penalty'] === '') {
-							$false_penalty = 0;
-						} else {
-							$false_penalty = $node_data['false_penalty'];
-						}
+                        $node->nodename = $node_name;
+                        $node->prtname = $prt_name;
+                        $node->truenextnode = $node_data->true_next_node;
+                        $node->falsenextnode = $node_data->false_next_node;
+                        $node->answertest = $node_data->answer_test;
+                        $node->sans = $node_data->sans;
+                        $node->tans = $node_data->tans;
+                        $node->testoptions = $node_data->test_options;
+                        $node->quiet = $node_data->quiet;
 
-						if (is_null(($node_data['true_penalty']) || $node_data['true_penalty'] === '')) {
-							$true_penalty = 0;
-						} else {
-							$true_penalty = $node_data['true_penalty'];
-						}
+                        $node->truescore = $node_data->true_score;
+                        $node->truescoremode = $node_data->true_score_mode;
+                        $node->truepenalty = $node_data->true_penalty;
+                        $node->trueanswernote = $node_data->true_answer_note;
+                        $node->truefeedback = $node_data->true_feedback;
+                        $node->truefeedbackformat = $node_data->true_feedback_format;
 
-						try {
-							//Create Node and add it to the
-							$node = new stack_potentialresponse_node($sans, $tans, $node_data['answer_test'], $node_data['test_options'], (bool)$node_data['quiet'], '', (int)$node_name, $node_data['sans'], $node_data['tans']);
+                        $node->falsescore = $node_data->false_score;
+                        $node->falsescoremode = $node_data->false_score_mode;
+                        $node->falsepenalty = $node_data->false_penalty;
+                        $node->falseanswernote = $node_data->false_answer_note;
+                        $node->falsefeedback = $node_data->false_feedback;
+                        $node->falsefeedbackformat = $node_data->false_feedback_format;
 
-							$node->add_branch(0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty, $node_data['false_next_node'], $node_data['false_feedback'], $node_data['false_feedback_format'], $node_data['false_answer_note']);
-							$node->add_branch(1, $node_data['true_score_mode'], $node_data['true_score'], $true_penalty, $node_data['true_next_node'], $node_data['true_feedback'], $node_data['true_feedback_format'], $node_data['true_answer_note']);
-
-							$nodes[$node_name] = $node;
-						} catch (stack_exception $e) {
-							ilUtil::sendFailure($e->getMessage(), true);
-						}
+                        $prt_data->nodes[$node_name] = $node;
 					}
 				} else {
 					break;
 				}
 
-				if ($prt_data['feedback_variables']) {
+				if ($prt_data->feedback_variables) {
 					try {
-						$feedback_variables = new stack_cas_keyval($prt_data['feedback_variables']);
+						$feedback_variables = new stack_cas_keyval($prt_data->feedback_variables);
 						$feedback_variables = $feedback_variables->get_session();
 					} catch (stack_exception $e) {
 						ilUtil::sendFailure($e->getMessage(), true);
@@ -1177,11 +1177,11 @@ class assStackQuestionUtils
 					//TODO Non gradable question
 					$prt_value = 0.0;
 				} else {
-					$prt_value = $prt_data['value'];
+					$prt_value = $prt_data->value;
 				}
 
 				try {
-					$question->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt_data['auto_simplify'], $prt_value, $feedback_variables, $nodes, (string)$prt_data['first_node_name'], 1);
+					$question->prts[$prt_name] = new stack_potentialresponse_tree_lite($prt_data, $prt_value);
 				} catch (stack_exception $e) {
 					ilUtil::sendFailure($e, true);
 				}
