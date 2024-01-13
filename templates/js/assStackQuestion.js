@@ -50,6 +50,7 @@ il.assStackQuestion = new function () {
 	 * Send the current panel state per ajax
 	 */
 	this.validate = function (event) {
+		add_spinner();
 		var name = "";
 		if (event.target.name === undefined) {
 			name = event.target.getAttribute('name');
@@ -107,6 +108,7 @@ il.assStackQuestion = new function () {
 			'input_value': input_value
 		})
 			.done(function (data) {
+				remove_spinner();
 				$('#validation_xqcas_' + question_id + '_' + input_name).html(data);
 				MathJax.Hub.Queue(["Typeset", MathJax.Hub, 'validation_xqcas_' + question_id + '_' + input_name]);
 			}).catch(function (error) {
@@ -117,4 +119,37 @@ il.assStackQuestion = new function () {
 
 		return false;
 	}
+
+	var add_spinner = (function () {
+		if($(".spinner-container").length==0){
+			$('.xqcas_input_validation').append(`
+				<div class="spinner-container">
+					<style>
+						.spinner {
+							border: 3px solid;
+							border-top: 3px solid transparent !important;
+							border-radius: 50%;
+							width: 32px;
+							height: 32px;
+							animation: spin 1s linear infinite;
+						}
+						.spinner-container {
+							display: flex;
+							justify-content: center;
+							align-items: center;
+						}
+						@keyframes spin {
+							0% { transform: rotate(0deg); }
+							100% { transform: rotate(360deg); }
+						}
+					</style>
+					<div class="spinner ilEditModified"></div>
+				</div>
+			`);
+		}
+	});
+
+	var remove_spinner = (function () {
+		$(".spinner-container").remove();
+	});
 };
