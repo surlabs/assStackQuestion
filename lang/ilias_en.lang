@@ -163,7 +163,7 @@ ui_author_randomisation_add_standard_test_description#:#Add a standard test
 ui_author_randomisation_add_standard_test_button_text#:#Add standard test
 ui_author_randomisation_standard_unit_test_case_added#:#Standard unit test case added
 ui_author_randomisation_active_variant_panel_title#:#Active variant for authors at preview and unit tests
-ui_author_randomisation_deployed_variants_panel_title#:#Variants of the question for students in tests
+ui_author_randomisation_deployed_variants_panel_title#:#Question's variants for students in tests
 ui_author_randomisation_is_current_active_variant_text#:#Is current active variant for preview and unit tests
 ui_author_randomisation_set_as_active_variant_action_text#:#Set as active variant for preview and unit tests
 ui_author_randomisation_delete_deployed_variant_action_text#:#Delete deployed variant
@@ -178,21 +178,20 @@ ui_author_randomisation_add_unit_test_action_text#:#Add unit test
 ui_author_randomisation_run_unit_test_action_text#:#Run unit test
 ui_author_randomisation_edit_unit_test_action_text#:#Edit unit test
 ui_author_randomisation_delete_unit_test_action_text#:#Delete unit test
-ui_author_randomisation_unit_test_status_panel_title#:#Unit tests
+ui_author_randomisation_unit_test_status_panel_title#:#Question's testcases
 ui_author_randomisation_unit_test_not_run#:#Not tested
 ui_author_randomisation_unit_test_passed#:#Passed
 ui_author_randomisation_unit_test_failed#:#Failed
-ui_author_randomisation_unit_test_all#:#All
 ui_author_randomisation_unit_test_description#:#Description
 ui_author_randomisation_unit_test_last_run#:#Last run
 ui_author_randomisation_unit_test_status#:#Status
-ui_author_randomisation_unit_test_addform_description#:#Description
+ui_author_randomisation_unit_test_addform_description#:#Testcase description
 ui_author_randomisation_unit_test_addform_section_general#:#General
-ui_author_randomisation_unit_test_addform_section_entries#:#Entries to test
-ui_author_randomisation_unit_test_addform_rating#:#Rating
-ui_author_randomisation_unit_test_addform_penalization#:#Penalization
-ui_author_randomisation_unit_test_addform_response_note#:#Response note
-ui_author_randomisation_unit_test_addform_section_expected_result#:#Expected result
+ui_author_randomisation_unit_test_addform_section_entries#:#User response
+ui_author_randomisation_unit_test_addform_rating#:#PRT Score
+ui_author_randomisation_unit_test_addform_penalization#:#PRT Penalty
+ui_author_randomisation_unit_test_addform_response_note#:#Answer note
+ui_author_randomisation_unit_test_addform_section_expected_result#:#Expected results
 ui_author_randomisation_unit_test_case_passed#:#Test case passed
 ui_author_randomisation_unit_test_case_failed_empty#:#Test case failed due to empty testcases not allowed
 ui_author_randomisation_unit_test_case_failed#:#Test case failed due to: %s

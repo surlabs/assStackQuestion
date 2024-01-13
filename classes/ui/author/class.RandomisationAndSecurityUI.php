@@ -175,10 +175,16 @@ class RandomisationAndSecurityUI
             $html .= $this->renderer->render($add_standard_test_message_box);
         }
 
+        $panel = $this->getUnitTestStatusPanelUIComponent($count_passed,$unit_tests);
         //Test overview panel
         $test_overview_panel = $this->factory->panel()->standard(
-            "",
-            $this->getUnitTestStatusPanelUIComponent()
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status_panel_title") .
+            $this->renderer->render($this->factory->divider()->vertical()) .
+            count($this->data['unit_tests']) .
+            $this->renderer->render($this->factory->divider()->vertical()) .
+            '(' . $count_passed . '/' . count($this->data['unit_tests']) . ') ' .
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed"),
+            $panel
         );
         $html .= $this->renderer->render($test_overview_panel);
 
@@ -332,7 +338,7 @@ class RandomisationAndSecurityUI
         return $array_of_deployed_variants;
     }
 
-    public function getUnitTestStatusPanelUIComponent(): Listing
+    public function getUnitTestStatusPanelUIComponent(&$count_passed, &$status_text): Listing
     {
         $count_passed = 0;
 
@@ -420,18 +426,8 @@ class RandomisationAndSecurityUI
             ))->withActions($actions);*/
         }
 
-        if ($count_passed == count($unit_tests)) {
-            $count_passed = $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_all");
-        }
-
         return $this->factory->panel()->listing()->standard(
-            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status_panel_title") .
-            $this->renderer->render($this->factory->divider()->vertical()) .
-            count($unit_tests) .
-            $this->renderer->render($this->factory->divider()->vertical()) .
-            '(' . $count_passed . '/' . count($unit_tests) . ') ' .
-            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed"),
-
+            '',
             array(
                 $this->factory->item()->group("", $list)
             ));
