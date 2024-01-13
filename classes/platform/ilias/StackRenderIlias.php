@@ -212,7 +212,6 @@ class StackRenderIlias extends StackRender
                 }
             }
 
-
             $field_name = 'xqcas_' . $question->getId() . '_' . $input_name;
             $state = $question->getInputState($input_name, $response);
 

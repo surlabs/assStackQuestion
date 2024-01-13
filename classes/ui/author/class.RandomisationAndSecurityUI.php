@@ -68,7 +68,7 @@ class RandomisationAndSecurityUI
                         $this->data["active_variant_question_note"] = (string)$deployed_seed["note"]->get_rendered();
                         $this->data["active_variant_question_text"] = (string)$deployed_seed["question_text"]->get_rendered();
                         $this->data["active_variant_question_variables"] = (string)$deployed_seed["question_variables"];
-                        $this->data["active_variant_feedback_variables"] = (string)$deployed_seed["feedback_id"];
+                        $this->data["active_variant_feedback_variables"] = (string)$deployed_seed["feedback_variables"];
                     }
 
                     if ($id === "") {
@@ -273,7 +273,7 @@ class RandomisationAndSecurityUI
         $active_variant_identifier = $this->data["active_variant_identifier"] ?? "";
         $active_variant_question_note = $this->data["active_variant_question_note"] ?? "";
         $active_variant_question_variables = $this->data["active_variant_question_variables"] ?? "";
-        //$active_variant_feedback_variables = $this->data["active_variant_feedback_variables"] ?? "";
+        $active_variant_feedback_variables = $this->data["active_variant_feedback_variables"] ?? "";
 
         return $this->factory->panel()->sub(
             $active_variant_identifier .
@@ -291,7 +291,9 @@ class RandomisationAndSecurityUI
                 $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_question_variables_text")
             )
                 ->withSections(array(
-                    $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithLatex($active_variant_question_variables))
+                    $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithLatex($active_variant_question_variables)),
+                    $this->factory->divider()->horizontal(),
+                    $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithLatex($active_variant_feedback_variables))
                 )))
             ->withActions($current_active_variant_panel_actions);
     }
