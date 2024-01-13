@@ -156,6 +156,7 @@ ui_author_import_moodle_xml_file#:#Moodle XML file
 ui_author_import_moodle_xml_import_button#:#Import
 ui_author_import_moodle_xml_cancel_import_button#:#Back
 ui_author_randomisation_and_security_title#:#Randomisation and Security
+ui_author_randomisation_no_randomisation_message#:#This question does not use randomisation.
 ui_author_randomisation_add_standard_test_description#:#Add a standard test
 ui_author_randomisation_add_standard_test_button_text#:#Add standard test
 ui_author_randomisation_active_variant_panel_title#:#Active variant for preview and unit tests

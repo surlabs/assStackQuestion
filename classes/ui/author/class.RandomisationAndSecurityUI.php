@@ -158,6 +158,12 @@ class RandomisationAndSecurityUI
                 ));
 
                 $html .= $generate_variants_button;
+            }else{
+                //No randomisation in the question
+                $html .= $this->renderer->render($this->factory->messageBox()->info(
+                    $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_no_randomisation_message")
+                ));
+
             }
 
         }
