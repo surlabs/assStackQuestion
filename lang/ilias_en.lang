@@ -1,5 +1,6 @@
 <!-- language file start -->
 ui_admin_configuration_title#:#STACK Question Configuration
+ui_admin_configuration_saved#:#The configuration has been saved successfully.
 ui_admin_configuration_description#:#This page allows you to configure the STACK Question plugin.
 ui_admin_configuration_overview_title#:#STACK Plugin Overview
 ui_admin_configuration_maxima_title#:#Connection to Maxima
@@ -145,6 +146,8 @@ ui_admin_configuration_defaults_section_title_healthcheck_healthcheckplots#:#Hea
 ui_admin_configuration_defaults_section_title_healthcheck_healthchecksstackmaximaversion#:#Health Checks Stack Maxima version
 ui_admin_configuration_defaults_section_title_healthcheck_healthchecksstacklibrariesworking#:#Health Checks Stack libraries working
 ui_admin_configuration_quality_healthcheck_button_label#:#Do Health Check
+ui_admin_configuration_quality_healthcheck_mbstring_true#:#The PHP mbstring extension is installed and enabled
+ui_admin_configuration_quality_healthcheck_mbstring_false#:#STACK requires the PHP mbstring extension to be used, and it is not installed on the Server where ILIAS is running. STACK questions might not work properly until this is installed.
 ui_author_main_title#:#STACK Question Authoring
 ui_author_import_from_moodle_xml_button_label#:#Import question(s) from a MoodleXML file
 ui_author_create_blank_question_button_label#:#Create STACK question from scratch
@@ -162,7 +165,7 @@ ui_author_randomisation_set_as_active_variant_action_text#:#Set as active varian
 ui_author_randomisation_delete_deployed_variant_action_text#:#Delete deployed variant
 ui_author_randomisation_show_question_text_action_text#:#Show question text
 ui_author_randomisation_show_general_feedback_action_text#:#Show general feedback
-ui_author_randomisation_question_and_feedback_variables_text#:#Question and feedback variables
+ui_author_randomisation_question_variables_text#:#Question variables
 ui_author_randomisation_generate_new_variants_action_text#:#Generate 10 new variants
 ui_author_randomisation_change_to_random_seed_action_text#:#Change to random seed
 ui_author_randomisation_run_all_tests_for_active_variant_action_text#:#Run all tests for active variant

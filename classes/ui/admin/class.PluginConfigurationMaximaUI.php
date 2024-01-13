@@ -267,10 +267,12 @@ class PluginConfigurationMaximaUI
 
         //Optimized Maxima command
         $optimized_maxima_command_value = $data["optimized_maxima_command"] ?? "";
+        //FEATURE Optimized Maxima command
+        /*
         $optimized_maxima_command = self::$factory->input()->field()->text(
             $plugin_object->txt("ui_admin_configuration_connection_optimized_maxima_command_title"),
             $plugin_object->txt("ui_admin_configuration_connection_optimized_maxima_command_description")
-        )->withValue("TODO no se guarda aun");
+        )->withValue(");*/
 
         //Plot command
         $plot_command_value = $data["plot_command"] ?? "";
@@ -293,7 +295,7 @@ class PluginConfigurationMaximaUI
         return self::$factory->input()->field()->section(
             [
                 'maxima_command' => $maxima_command,
-                'optimized_maxima_command' => $optimized_maxima_command,
+                //'optimized_maxima_command' => $optimized_maxima_command,
                 'plot_command' => $plot_command,
                 'maxima_uses_proxy' => $maxima_uses_proxy,
             ],
