@@ -162,8 +162,8 @@ ui_author_randomisation_no_variants_generate_new_variants_action_text#:#Generate
 ui_author_randomisation_add_standard_test_description#:#Add a standard test
 ui_author_randomisation_add_standard_test_button_text#:#Add standard test
 ui_author_randomisation_standard_unit_test_case_added#:#Standard unit test case added
-ui_author_randomisation_active_variant_panel_title#:#Active variant for preview and unit tests
-ui_author_randomisation_deployed_variants_panel_title#:#Deployed variants
+ui_author_randomisation_active_variant_panel_title#:#Active variant for authors at preview and unit tests
+ui_author_randomisation_deployed_variants_panel_title#:#Variants of the question for students in tests
 ui_author_randomisation_is_current_active_variant_text#:#Is current active variant for preview and unit tests
 ui_author_randomisation_set_as_active_variant_action_text#:#Set as active variant for preview and unit tests
 ui_author_randomisation_delete_deployed_variant_action_text#:#Delete deployed variant

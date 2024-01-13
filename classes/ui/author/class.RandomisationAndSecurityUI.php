@@ -254,7 +254,9 @@ class RandomisationAndSecurityUI
         //$active_variant_feedback_variables = $this->data["active_variant_feedback_variables"] ?? "";
 
         return $this->factory->panel()->sub(
-            $active_variant_identifier,
+            $active_variant_identifier .
+            $this->renderer->render($this->factory->divider()->vertical()) .
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_is_current_active_variant_text"),
             $this->factory->legacy(
                 assStackQuestionUtils::_getLatex($active_variant_question_note) .
                 $this->renderer->render($this->factory->divider()->horizontal()) .
