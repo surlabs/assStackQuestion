@@ -146,7 +146,7 @@ class RandomisationAndSecurityUI
             $html .= $this->renderer->render($deployed_variants_panel);
         } else {
 
-            if(assStackQuestionUtils::_hasRandomVariables($this->data["question"]->question_variables)){
+            if (assStackQuestionUtils::_hasRandomVariables($this->data["question"]->question_variables)) {
                 $generate_variants_button = $this->renderer->render(
                     $this->factory->button()->standard(
                         $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_no_variants_generate_new_variants_action_text"),
@@ -158,7 +158,7 @@ class RandomisationAndSecurityUI
                 ));
 
                 $html .= $generate_variants_button;
-            }else{
+            } else {
                 //No randomisation in the question
                 $html .= $this->renderer->render($this->factory->messageBox()->info(
                     $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_no_randomisation_message")
@@ -358,7 +358,7 @@ class RandomisationAndSecurityUI
             $status = $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_not_run");
 
             foreach ($unit_test["results"] as $result) {
-                if ((int) $result["result"] == 1) {
+                if ((int)$result["result"] == 1) {
                     $status = 1;
                 } else {
                     $status = 0;
@@ -375,7 +375,7 @@ class RandomisationAndSecurityUI
                 $status = $this->renderer->render($this->factory->legacy("<span style='color:red'>" . $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_failed") . "</span>"));
             }
 
-            $list[$unit_test_number] = $this->factory->item()->group((string) $unit_test_number, array(
+            $list[$unit_test_number] = $this->factory->item()->group((string)$unit_test_number, array(
                 $this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_description") . ": " . $unit_test["description"]),
                 $this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_last_run") . ": " . $last_run),
                 $this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status") . ": " . $status),
@@ -400,7 +400,7 @@ class RandomisationAndSecurityUI
         return $this->renderCustomTest($form_action, $sections, $question);
     }
 
-    public function initCustomTest(string $description = "", array $inputs = null, array $expected = null, array $prts = null):array
+    public function initCustomTest(string $description = "", array $inputs = null, array $expected = null, array $prts = null): array
     {
         global $DIC;
 
@@ -423,9 +423,9 @@ class RandomisationAndSecurityUI
             //ENTRIES SECTION
             $formFields = [];
 
-            foreach($inputs as $key => $input){
+            foreach ($inputs as $key => $input) {
                 $ans = $this->factory->input()->field()->text($key, '')->withRequired(true);
-                if($expected){
+                if ($expected) {
                     $ans = $ans->withValue($input["value"]);
                 }
                 $formFields[$key] = $ans;
@@ -438,7 +438,7 @@ class RandomisationAndSecurityUI
             //EXPECTED RESULT SECTION
             $formFields = [];
 
-            foreach($prts as $key => $prt){
+            foreach ($prts as $key => $prt) {
                 $rating = $this->factory->input()->field()->text($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_rating"), '')->withRequired(true);
                 $penalization = $this->factory->input()->field()->text($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_penalization"), '')->withRequired(true);
 
@@ -447,11 +447,11 @@ class RandomisationAndSecurityUI
 
                 $sans = [];
 
-                foreach($prt->get_nodes() as $node){
+                foreach ($prt->get_nodes() as $node) {
                     $options[trim($node->trueanswernote)] = trim($node->trueanswernote);
                     $options[trim($node->falseanswernote)] = trim($node->falseanswernote);
 
-                    if(!in_array($node->sans, $sans)){
+                    if (!in_array($node->sans, $sans)) {
                         $sans[] = $node->sans;
                     }
 
@@ -459,7 +459,7 @@ class RandomisationAndSecurityUI
 
                 $responseNote = $this->factory->input()->field()->select($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_response_note"), $options)->withRequired(true);
 
-                if($expected){
+                if ($expected) {
                     $rating = $rating->withValue($expected[$key]["score"]);
                     $penalization = $penalization->withValue($expected[$key]["penalty"]);
                     $responseNote = $responseNote->withValue($expected[$key]["answer_note"]);
@@ -469,14 +469,14 @@ class RandomisationAndSecurityUI
                 $formFields['penalty'] = $penalization;
                 $formFields['answer_note'] = $responseNote;
 
-                $sectionExpectedResult = $this->factory->input()->field()->section($formFields, $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_section_expected_result")." ".$key.": [".implode(",", $sans)."]", "");
+                $sectionExpectedResult = $this->factory->input()->field()->section($formFields, $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_section_expected_result") . " " . $key . ": [" . implode(",", $sans) . "]", "");
 
-                $sections["result_".$key] = $sectionExpectedResult;
+                $sections["result_" . $key] = $sectionExpectedResult;
 
 
             }
 
-        } catch (Exception $e){
+        } catch (Exception $e) {
             $section = $this->factory->messageBox()->failure($e->getMessage());
             $sections["object"] = $section;
         }
@@ -502,7 +502,7 @@ class RandomisationAndSecurityUI
         if ($request->getMethod() == "POST") {
             $form = $form->withRequest($request);
             $result = $form->getData();
-            if($result){
+            if ($result) {
                 $saving_info = $this->saveUnitTest($_GET["test_case"], $result, $question);
             }
         }
@@ -530,7 +530,8 @@ class RandomisationAndSecurityUI
      * @param assStackQuestion $question
      * @return string
      */
-    private function saveUnitTest(?string $test_case, array $unit_test, assStackQuestion $question) : string {
+    private function saveUnitTest(?string $test_case, array $unit_test, assStackQuestion $question): string
+    {
         // Parse the unit_test to the correct format
         $unit_test["description"] = $unit_test["general"]["description"];
         unset($unit_test["general"]);
