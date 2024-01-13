@@ -107,8 +107,7 @@ il.assStackQuestion = new function () {
 			'input_value': input_value
 		})
 			.done(function (data) {
-				//console.log(data);
-				$('#xqcas_' + question_id + '_' + input_name + "_val").html(data);
+				$('#validation_xqcas_' + question_id + '_' + input_name).html(data);
 				MathJax.Hub.Queue(["Typeset", MathJax.Hub, 'validation_xqcas_' + question_id + '_' + input_name]);
 			}).catch(function (error) {
 				console.log(error.responseText);

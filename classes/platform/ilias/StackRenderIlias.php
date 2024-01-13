@@ -235,9 +235,7 @@ class StackRenderIlias extends StackRender
                 </div>';
             }
 
-            $question_text = $input->replace_validation_tags($state, $field_name, $question_text);
-
-            //TODO: Add $ilias_validation to the question_text and check <div class="stackinputfeedback standard" id="xqcas_211_ans1_val">
+            $question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
 
             if ($input->requires_validation()) {
                 $inputs_to_validate[] = $input_name;
