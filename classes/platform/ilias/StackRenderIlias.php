@@ -68,6 +68,7 @@ class StackRenderIlias extends StackRender
         if ($result->get_errors()) {
             $error_message = stack_string('prtruntimeerror',
                 array('prt' => $prt_name, 'error' => implode('</br>', $result->get_errors())));
+            $error_message = $renderer->render($factory->messageBox()->failure($error_message));
         }
 
         $feedback = $result->get_feedback($question->getCasTextProcessor());
@@ -330,7 +331,7 @@ class StackRenderIlias extends StackRender
                 $feedback = self::renderPRTFeedback($attempt_data, $display_options);
                 $all_empty = $all_empty && !$feedback;
             }
-            $feedback_text = str_replace("[[feedback:$prt_name]]", $feedback, $feedback_text);
+            $feedback_text = str_replace("[[feedback:{$prt_name}]]", $feedback, $feedback_text);
         }
 
         //TODO: OVERALL FEEDBACK
