@@ -257,9 +257,13 @@ $string['settingplatformtypeunix'] = 'Linux';
 $string['settingplatformtypeunixoptimised'] = 'Linux (optimiert)';
 $string['settingplatformtypewin']  = 'Windows';
 $string['settingplatformtypeserver'] = 'Server';
+$string['settingplatformtypeserverproxy'] = 'Server (via proxy)';
 $string['settingplatformtypemaximapool'] = 'MaximaPool';
 $string['settingplatformmaximacommand'] = 'Maxima Kommando';
-$string['settingplatformmaximacommand_desc'] = 'STACK benötigt den Shellbefehl zum Starten von Maxima. Wenn leer, versucht STACK sinnvoll zu raten.';
+$string['settingplatformmaximacommand_desc'] = 'STACK benötigt den Shellbefehl zum Starten von Maxima. Wenn leer, versucht STACK sinnvoll zu raten.';$string['settingplatformmaximacommandopt'] = 'Optimierter Maxima-Befehl';
+$string['settingplatformmaximacommandopt_desc'] = 'Dies sollte auf den vollständigen Pfad des Maxima-optimierten ausführbaren Programms gesetzt werden. Betrachten Sie die Verwendung des Timeout-Befehls auf Linux-basierten Systemen. Z.B. timeout --kill-after=10s 10s maxima';
+$string['settingplatformmaximacommandserver'] = 'URL des Maxima Pools';
+$string['settingplatformmaximacommandserver_desc'] = 'Für den Plattformtyp: Server, muss dies auf die URL des Maxima Pool-Servlets gesetzt werden.';
 $string['settingplatformplotcommand'] = 'Plot Kommando';
 $string['settingplatformplotcommand_desc'] = 'STACK benötigt den Shellbefehl zum Starten von GNUPlot. Wenn leer, versucht STACK sinnvoll zu raten.';
 
