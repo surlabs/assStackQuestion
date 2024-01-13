@@ -1127,7 +1127,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		//Getting data from POST
 		if (isset($_POST['first_question_id']) and isset($_POST['xqcas_all_from_pool'])) {
 			$question_id = (int)$_POST['first_question_id'];
-			$q_type_id = $this->object->getQuestionTypeID();
+			$q_type_id = (int) $this->object->getQuestionTypeID();
 			try {
 				if ($_POST['xqcas_all_from_pool'] == 'xqcas_export_all_from_pool') {
 					//Get all questions from a pool
