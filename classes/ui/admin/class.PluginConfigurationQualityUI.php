@@ -46,9 +46,10 @@ class PluginConfigurationQualityUI
             
             $panel = self::$factory->panel()->standard(
                 $plugin_object->txt('ui_admin_configuration_quality_title'),
-                [self::getHealthcheckButton($plugin_object),
-                    self::getBulktestingButton($plugin_object),
-                    self::getClearCacheButton($plugin_object)]
+                [
+                    self::getHealthcheckButton($plugin_object),
+                    self::getClearCacheButton($plugin_object)
+                ]
             );
 
             $rendered_content = self::$renderer->render($panel);
@@ -68,7 +69,7 @@ class PluginConfigurationQualityUI
     private static function getHealthcheckButton(ilPlugin $plugin_object): Standard
     {
         return self::$factory->button()->standard(
-            $plugin_object->txt('ui_admin_configuration_security_button_label'),
+            $plugin_object->txt('ui_admin_configuration_quality_healthcheck_button_label'),
             self::$control->getLinkTargetByClass("ilassStackQuestionConfigGUI", "healthcheck")
         );
     }
