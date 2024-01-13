@@ -1133,15 +1133,37 @@ $string['youmustconfirm'] = 'Bitte bestätigen Sie hier.';
 $string['healthchecksamplecas'] = 'The derivative of {@ x^4/(1+x^4) @} is \[ \frac{d}{dx} \frac{x^4}{1+x^4} = {@ diff(x^4/(1+x^4),x) @}. \]';
 $string['healthchecksampledisplaytex'] = '\[\sum_{n=1}^\infty \frac{1}{n^2} = \frac{\pi^2}{6}.\]';
 $string['healthchecksampleinlinetex'] = '\(\sum_{n=1}^\infty \frac{1}{n^2} = \frac{\pi^2}{6}\).';
-$string['healthcheckplots'] = 'Graph plotting';
-$string['healthcheckplotsintro'] = 'There should be two different plots.  If two identical plots are seen then this is an error in naming the plot files. If no errors are returned, but a plot is not displayed then one of the following may help.  (i) check read permissions on the two temporary directories. (ii) change the options used by GNUPlot to create the plot. Currently there is no web interface to these options.';
-$string['healthchecksampleplots'] = 'Two example plots below.  {@plot([x^4/(1+x^4),diff(x^4/(1+x^4),x)],[x,-3,3])@} {@plot([sin(x),x,x^2,x^3],[x,-3,3],[y,-3,3],grid2d)@}  A third, smaller, plot may be displayed here with traditional axes.  (Newer versions of Maxima only.) {@plot([sin(x),x,x^2,x^3],[x,-3,3],[y,-3,3],[box, false],[yx_ratio, 1],[axes, solid],[xtics, -3, 1, 3],[ytics, -3, 1, 3],[size,250,250])@}';
-$string['healthuncachedintro'] = 'This section always sends a genuine call to the CAS, regardless of the current cache settings.  This is needed to ensure the connection to the CAS is really currently working.';
-$string['healthuncachedstack_CAS_ok'] = 'CAS returned data as expected.  You have a live connection to the CAS.';
-$string['healthuncachedstack_CAS_not'] = 'CAS returned some data as expected, but there were errors.';
-$string['healthuncachedstack_CAS_version'] = 'Expected Maxima version : "{$a->expected}".  Actual Maxima version: {$a->actual}.';
-$string['healthuncachedstack_CAS_versionnotchecked'] = 'You have chosen the "default" version of Maxima, so no Maxima version checking is being done.  Your raw connection is actually using version {$a->actual}.';
-$string['healthuncachedstack_CAS_calculation'] = 'Expected CAS calculation : {$a->expected}.  Actual CAS calculation: {$a->actual}.';
+$string['healthcheckplots'] = 'Diagrammzeichnung';
+$string['healthcheckplotsintro'] = 'Es sollten zwei verschiedene Diagramme sein. Wenn zwei identische Diagramme angezeigt werden, dann ist dies ein Fehler bei der Benennung der Diagrammdateien. Wenn keine Fehler zurückgegeben werden, aber ein Diagramm nicht angezeigt wird, dann kann eines der Folgenden helfen. (i) Überprüfen Sie die Leseberechtigungen für die beiden temporären Verzeichnisse. (ii) Ändern Sie die Optionen, die von GNUPlot zum Erstellen des Diagramms verwendet werden. Derzeit gibt es keine Web-Schnittstelle für diese Optionen.';
+$string['healthchecksampleplots'] = 'Zwei Beispiel-Diagramme unten. {@plot([x^4/(1+x^4),diff(x^4/(1+x^4),x)],[x,-3,3])@} {@plot([sin(x),x,x^2,x^3],[x,-3,3],[y,-3,3],grid2d)@} Ein drittes, kleineres Diagramm kann hier mit traditionellen Achsen angezeigt werden. (Nur neuere Versionen von Maxima.) {@plot([sin(x),x,x^2,x^3],[x,-3,3],[y,-3,3],[box, false],[yx_ratio, 1],[axes, solid],[xtics, -3, 1, 3],[ytics, -3, 1, 3],[size,250,250])@}';
+$string['healthuncachedintro'] = 'Dieser Abschnitt sendet immer einen echten Aufruf an das CAS, unabhängig von den aktuellen Cache-Einstellungen. Dies ist notwendig, um sicherzustellen, dass die Verbindung zum CAS wirklich aktuell funktioniert.';
+$string['healthuncachedstack_CAS_ok'] = 'CAS hat die erwarteten Daten zurückgegeben. Sie haben eine Live-Verbindung zum CAS.';
+$string['healthuncachedstack_CAS_not'] = 'CAS hat einige Daten wie erwartet zurückgegeben, aber es gab Fehler.';
+$string['healthuncachedstack_CAS_version'] = 'Erwartete Maxima-Version: "{$a->expected}". Tatsächliche Maxima-Version: {$a->actual}.';
+$string['healthuncachedstack_CAS_versionnotchecked'] = 'Sie haben die "Standard"-Version von Maxima gewählt, daher wird keine Überprüfung der Maxima-Version durchgeführt. Ihre Rohverbindung verwendet tatsächlich die Version {$a->actual}.';
+$string['healthuncachedstack_CAS_calculation'] = 'Erwartete CAS-Berechnung: {$a->expected}. Tatsächliche CAS-Berechnung: {$a->actual}.';
 
 //Solve thttps://mantis.ilias.de/view.php?id=24003
 $string['stackCas_unencpsulated_comma'] = 'In dem eingegebenen Ausdruck erscheint ein Komma an ungewöhnlicher Stelle. Kommas werden zur Trennung von Elementen in Listen, Mengen usw. verwendet. Bitte verwenden Sie in Dezimalzahlen anstelle eines Kommas einen Dezimalpunkt.';
+$string['calc_int_methods_parts_indefinite_fact'] = '\[
+\int u{{\rm d}v\over {\rm d}x}{\rm d}x=uv- \int{{\rm d}u\over {\rm d}x}v\,{\rm d}x\]
+oder alternativ: \[\int f(x)g(x)\,{\rm d}x=f(x)\,\int
+g(x){\rm d}x -\int {{\rm d}f\over {\rm d}x}\left\{\int g(x){\rm d}x\right\}{\rm d}x.\]';
+
+$string['calc_int_methods_parts_indefinite_name'] = 'Integration durch Teile';
+$string['calc_int_methods_parts_indefinite_fact'] = '';
+
+$string['Illegal_singleton_power'] = 'Diese Eingabe erfordert einen numerischen Wert in einer der folgenden Formen: <code>{$a->forms}</code>';
+$string['Illegal_singleton_floats'] = 'Diese Eingabe akzeptiert keine Dezimalzahlen in der angegebenen Form. Diese Eingabe erfordert einen numerischen Wert in einer der folgenden Formen: <code>{$a->forms}</code>';
+$string['Illegal_singleton_integer'] = 'Diese Eingabe akzeptiert keine ganzzahligen Werte. Diese Eingabe erfordert einen numerischen Wert in einer der folgenden Formen: <code>{$a->forms}</code>';
+
+$string['castext_debug_header_key'] = 'Variablenname';
+$string['castext_debug_header_value_simp'] = 'Vereinfachter Wert';
+$string['castext_debug_header_value_no_simp'] = 'Wert';
+$string['castext_debug_header_disp_simp'] = 'Vereinfachter angezeigter Wert';
+$string['castext_debug_header_disp_no_simp'] = 'Angezeigter Wert';
+$string['castext_debug_no_vars'] = 'Diese Frage hat keine zu debuggenden Fragenvariablen!';
+
+$string['castext_error_header'] = 'Darstellung des Textinhalts fehlgeschlagen.';
+$string['castext_error_unevaluated'] = 'Dieser Textinhalt wurde nie ausgewertet.';
+
