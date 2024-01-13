@@ -60,7 +60,7 @@ class RandomisationAndSecurityUI
                 foreach ($value as $id => $deployed_seed) {
                     $active_seed = assStackQuestionDB::_readActiveSeed($deployed_seed["question_id"]);
                     if ((int)$active_seed === (int)$deployed_seed["seed"]) {
-                        $this->data["active_variant_identifier"] = (string)$deployed_seed["seed"];
+                        $this->data["active_variant_identifier"] = (string)$deployed_seed["seed"] ?? '1';
                         $this->data["active_variant_question_note"] = (string)$deployed_seed["note"]->get_rendered();
                         $this->data["active_variant_question_text"] = (string)$deployed_seed["question_text"]->get_rendered();
                         $this->data["active_variant_question_variables"] = (string)$deployed_seed["question_variables"];
@@ -109,6 +109,56 @@ class RandomisationAndSecurityUI
     {
         $html = "";
 
+        //Instantiate Question if not.
+        if (!$this->data["question"]->isInstantiated()) {
+            $this->data["question"]->questionInitialisation((int) $this->data["active_variant_identifier"] ?? 1, true);
+        }
+
+        if (assStackQuestionUtils::_hasRandomVariables($this->data["question"]->question_variables)) {
+            if(empty($this->data["deployed_variants"])) {
+                //No deployed variants
+                $generate_variants_button = $this->renderer->render(
+                    $this->factory->button()->standard(
+                        $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_no_variants_generate_new_variants_action_text"),
+                        $this->control->getLinkTargetByClass("assstackquestiongui", "generateNewVariants"))
+                );
+
+                $html .= $this->renderer->render($this->factory->messageBox()->info(
+                    $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_no_deployed_variants_message_but_has_randomisation") .
+                    $this->renderer->render($this->factory->divider()->vertical()) .
+                    $generate_variants_button
+                ));
+            }
+        } else {
+            //No randomisation in the question
+            $html .= $this->renderer->render($this->factory->messageBox()->info(
+                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_no_randomisation_message")
+            ));
+        }
+
+        //Active variants panel
+        $active_variants_panel = $this->factory->panel()->standard(
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_active_variant_panel_title"),
+            array(
+                $this->getCurrentActiveVariantPanelUIComponent()
+            )
+        );
+        $html .= $this->renderer->render($active_variants_panel);
+
+        //Actions for all deployed variants
+        $deployed_seeds_bulk_actions = $this->factory->dropdown()->standard(array(
+            $this->factory->button()->shy(
+                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_generate_new_variants_action_text"),
+                $this->control->getLinkTargetByClass("assstackquestiongui", "generateNewVariants")),
+        ));
+
+        //Deployed variants panel
+        $deployed_variants_panel = $this->factory->panel()->standard(
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_deployed_variants_panel_title"),
+            $this->getCurrentlyDeployedVariantsPanelUIComponent()
+        );
+        $html .= $this->renderer->render($deployed_variants_panel);
+
         if (empty($this->data["unit_tests"])) {
             //Add standard test button
             $add_standard_test_button = $this->factory->button()->standard(
@@ -123,49 +173,10 @@ class RandomisationAndSecurityUI
         }
 
         if (!empty($this->data["deployed_variants"])) {
-            //Active variants panel
-            $active_variants_panel = $this->factory->panel()->standard(
-                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_active_variant_panel_title"),
-                array(
-                    $this->getCurrentActiveVariantPanelUIComponent()
-                )
-            );
-            $html .= $this->renderer->render($active_variants_panel);
 
-            //Actions for all deployed variants
-            $deployed_seeds_bulk_actions = $this->factory->dropdown()->standard(array(
-                $this->factory->button()->shy(
-                    $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_generate_new_variants_action_text"),
-                    $this->control->getLinkTargetByClass("assstackquestiongui", "generateNewVariants")),
-            ));
-
-            //Deployed variants panel
-            $deployed_variants_panel = $this->factory->panel()->standard(
-                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_deployed_variants_panel_title"),
-                $this->getCurrentlyDeployedVariantsPanelUIComponent()
-            );
-            $html .= $this->renderer->render($deployed_variants_panel);
         } else {
 
-            if (assStackQuestionUtils::_hasRandomVariables($this->data["question"]->question_variables)) {
-                $generate_variants_button = $this->renderer->render(
-                    $this->factory->button()->standard(
-                        $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_no_variants_generate_new_variants_action_text"),
-                        $this->control->getLinkTargetByClass("assstackquestiongui", "generateNewVariants"))
-                );
 
-                $html .= $this->renderer->render($this->factory->messageBox()->info(
-                    $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_no_deployed_variants_message_but_has_randomisation") .
-                    $this->renderer->render($this->factory->divider()->vertical()) .
-                    $generate_variants_button
-                ));
-            } else {
-                //No randomisation in the question
-                $html .= $this->renderer->render($this->factory->messageBox()->info(
-                    $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_no_randomisation_message")
-                ));
-
-            }
 
         }
 
@@ -190,7 +201,7 @@ class RandomisationAndSecurityUI
         $this->control->setParameterByClass(
             'assStackQuestionGUI',
             'active_variant_identifier',
-            $this->data["active_variant_identifier"]
+            $this->data["active_variant_identifier"] ?? '1'
         );
 
         //Actions for the currently active variant
@@ -289,7 +300,7 @@ class RandomisationAndSecurityUI
             $this->control->setParameterByClass(
                 'assStackQuestionGUI',
                 'active_variant',
-                $this->data["active_variant_identifier"]
+                $this->data["active_variant_identifier"] ?? '1'
             );
 
             //Actions for each deployed variant
