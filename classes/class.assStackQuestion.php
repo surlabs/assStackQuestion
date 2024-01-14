@@ -1272,6 +1272,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             //Load input to the question.
             $this->inputs[$input_name] = $input;
         } else {
+            global $tpl;
             $tpl->setOnScreenMessage('info', 'The new input ' . $input_name . ' was already created', true);
         }
     }
