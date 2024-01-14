@@ -78,12 +78,6 @@ php setup/setup.php update
 - Bug Reports: [Mantis](https://www.ilias.de/mantis) (Choose project "ILIAS plugins" and filter by category "STACK Question Type")
 - SIG Mathe [Forum](https://docu.ilias.de/goto_docu_frm_7004.html)
 
-## Known Issues
-- Unit Tests are currently not available. Unit Tests created will remain in its current state until time for this at the moment non-extensive used feature has been fund and found.
-- firstline syntax hint is not properly rendered in equivalence reasoning inputs.
-- Check answer type is currently not evaluated
-- Instant validation for textareas not working properly
-
 # Version History
 * The stable version 8.5.x for **ILIAS 8** with the STACK Core version 4.5.0 can be found in the Github branch **ilias8_stack_dev**
 * The stable version 8.0.x for **ILIAS 8** with the STACK Core version 4.3.9 can be found in the Github branch **ilias8_stack**
