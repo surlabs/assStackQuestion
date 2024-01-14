@@ -603,40 +603,68 @@ $string['cassuitecolerrors'] = 'CAS errors';
 $string['texdisplaystyle'] = 'Display-style equation';
 $string['texinlinestyle'] = 'Inline-style equation';
 
-// Used in casstring.class.php.
+// Used in CAS statement validation.
 $string['stackCas_spaces']                  = 'Illegal spaces found in expression {$a->expr}.';
 $string['stackCas_underscores']             = 'The following use of underscore characters is not permitted: {$a}.';
 $string['stackCas_percent']                 = '&#037; found in expression {$a->expr}.';
 $string['stackCas_missingLeftBracket']      = 'You have a missing left bracket <span class="stacksyntaxexample">{$a->bracket}</span> in the expression: {$a->cmd}.';
 $string['stackCas_missingRightBracket']     = 'You have a missing right bracket <span class="stacksyntaxexample">{$a->bracket}</span> in the expression: {$a->cmd}.';
+$string['stackCas_qmarkoperators']          = 'Question marks are not permitted in responses.';
 $string['stackCas_apostrophe']              = 'Apostrophes are not permitted in responses.';
 $string['stackCas_newline']                 = 'Newline characters are not permitted in responses.';
 $string['stackCas_forbiddenChar']           = 'CAS commands may not contain the following characters: {$a->char}.';
+$string['stackCas_useinsteadChar']          = 'Please replace <span class="stacksyntaxexample">{$a->bad}</span> with \'<span class="stacksyntaxexample">{$a->char}</span>\'.';
 $string['stackCas_finalChar']               = '\'{$a->char}\' is an invalid final character in {$a->cmd}';
 $string['stackCas_MissingStars']            = 'You seem to be missing * characters. Perhaps you meant to type {$a->cmd}.';
-$string['stackCas_unknownFunction']         = 'Unknown function: {$a->forbid}.';
-$string['stackCas_unknownFunctionCase']     = 'Input is case sensitive:  {$a->forbid} is an unknown function.  Did you mean {$a->lower}?';
+$string['stackCas_unknownFunction']         = 'Unknown function: {$a->forbid} in the term {$a->term}.';
+$string['stackCas_noFunction']              = 'The use of the function {$a->forbid} in the term {$a->term} is not permitted in this context.';
+$string['stackCas_forbiddenFunction']       = 'Forbidden function: {$a->forbid}.';
+$string['stackCas_spuriousop']              = 'Unknown operator: {$a->cmd}.';
+$string['stackCas_forbiddenOperator']       = 'Forbidden operator: {$a->forbid}.';
+$string['stackCas_forbiddenVariable']       = 'Forbidden variable or constant: {$a->forbid}.';
+$string['stackCas_operatorAsVariable']      = 'Operator {$a->op} interpreted as variable, check syntax.';
+$string['stackCas_redefinitionOfConstant']  = 'Redefinition of key constants is forbidden: {$a->constant}.';
+$string['stackCas_unknownFunctionCase']     = 'Input is case sensitive: {$a->forbid} is an unknown function. Did you mean {$a->lower}?';
+// TODO: the message should say that while these are valid names for variables as long as this case combination is not implicitely allowed we assume that you have typoed the known different case.
+$string['stackCas_unknownVariableCase']     = 'Input is case sensitive: {$a->forbid} is an unknown variable. Did you mean {$a->lower}?';
 $string['stackCas_unsupportedKeyword']      = 'Unsupported keyword: {$a->forbid}.';
 $string['stackCas_forbiddenWord']           = 'The expression {$a->forbid} is forbidden.';
+$string['stackCas_forbiddenntuple']         = 'Coordinates are not permitted in this input.';
 $string['stackCas_bracketsdontmatch']       = 'The brackets are incorrectly nested in the expression: {$a->cmd}.';
-$string['stackCas_spuriousop']              = 'Unknown operator: {$a->cmd}.';
 $string['stackCas_chained_inequalities']    = 'You appear to have "chained inequalities" e.g. \(a &lt b &lt c\).  You need to connect individual inequalities with logical operations such as \(and\) or \(or\).';
 $string['stackCas_backward_inequalities']   = 'Non-strict inequalities e.g. \( \leq \) or \( \geq \) must be entered as <= or >=.  You have {$a->cmd} in your expression, which is backwards.';
 $string['stackCas_unencpsulated_comma']     = 'A comma in your expression appears in a strange way.  Commas are used to separate items in lists, sets etc.  You need to use a decimal point, not a comma, in floating point numbers.';
+$string['stackCas_unencpsulated_semicolon'] = 'A semicolon (;) in your expression appears in a strange way.  Semicolons are used to separate items in lists, sets etc.';
 $string['stackCas_trigspace']               = 'To apply a trig function to its arguments you must use brackets, not spaces.  For example use {$a->trig} instead.';
 $string['stackCas_trigop']                  = 'You must apply {$a->trig} to an argument.  You seem to have {$a->forbid}, which looks like you have tried to use {$a->trig} as a variable name.';
-$string['stackCas_trigexp']                 = 'You cannot take a power of a trig function by writing {$a->forbid}. The square of the value of \(\sin(x)\) is typed in as \(\sin(x)^2\).  The inverse of \(\sin(x)\) is written <tt>asin(x)</tt> and not \(\sin^{-1}(x)\) .';
+$string['stackCas_trigexp']                 = 'You cannot take a power of a trig function by writing {$a->forbid}. The square of the value of \(\{$a->identifier}(x)\) is typed in as <tt>{$a->identifier}(x)^2</tt>.  The inverse of \(\{$a->identifier}(x)\) is written <tt>a{$a->identifier}(x)</tt> and not \(\{$a->identifier}^{-1}(x)\) .';
 $string['stackCas_trigparens']              = 'When you apply a trig function to its arguments you must use round parentheses not square brackets.  E.g {$a->forbid}.';
 $string['stackCas_triginv']                 = 'Inverse trig functions are written {$a->goodinv} not {$a->badinv}.';
+$string['stackCas_baddotdot']               = 'Using matrix multiplication "." with scalar floats is forbidden, use normal multiplication "*" instead for the same result. ';
 $string['stackCas_badLogIn']                = 'You have typed in the expression <tt>In</tt>.  The natural logarithm is entered as <tt>ln</tt> in lower case.  ("Lima November" not "India November")';
 $string['stackCas_unitssynonym']            = 'You appear to have units {$a->forbid}.  Did you mean {$a->unit}?';
 $string['stackCas_unknownUnitsCase']        = 'Input of units is case sensitive:  {$a->forbid} is an unknown unit. Did you mean one from the following list {$a->unit}?';
+$string['stackCas_applyingnonobviousfunction'] = 'This function call {$a->problem} does not appear to have an easily visible function name. Due to security reasons you may need to simplify the call so that the validator can see the function name.';
+$string['stackCas_callingasfunction']       = 'Calling the result of a function call is forbidden {$a->problem}, lambdas are still allowed.';
+$string['stackCas_applyfunmakestring']      = 'The name of the function cannot be a string in <code>{$a->type}</code>.';
+$string['stackCas_badpostfixop']            = 'You have a bad "postfix" operator in your expression.';
+$string['stackCas_overrecursivesignatures'] = 'The question code includes too many functions defined through mapping';
+$string['stackCas_reserved_function']       = 'The function name "{$a->name}" is not permitted in this question. Please contact your teacher.';
+$string['stackCas_studentInputAsFunction']  = 'Use of student input as the name of a function is not permitted.';
+$string['stackCas_unknownSubstitutionPotenttiallyMaskingAFunctionName'] = 'The function name "{$a->name}" is potentially redefined in unclear substitutions.';
+$string['stackCas_functionNameSubstitutionToForbiddenOne'] = 'The function name "{$a->name}" is potentially mapped, using substitutions, to "{$a->trg}" which is a forbidden one.';
+$string['stackCas_overlyComplexSubstitutionGraphOrRandomisation'] = 'The question code has overly complex substitutions or builds randomisation in an incremental and hard to validate way, the validation has timed out to deal with this simplify the logic, check the documentation for quidance.';
+$string['stackCas_redefine_built_in']       = 'Redefining a built in function "{$a->name}" is forbidden.';
+$string['stackCas_nested_function_declaration'] = 'Definition of a function inside another function is now forbidden, use renaming of the function if you need to switch function definitions from within another function.';
+$string['stackCas_decimal_usedthreesep']        = 'You have used the full stop <code>.</code>, the comma <code>,</code> and semicolon <code>;</code> in your expression.  Please be consistent with decimal position (<code>.</code> or <code>,</code>) and list item separators (<code>,</code> or <code>;</code>).  Your answer is ambiguous!';
+$string['stackCas_decimal_usedcomma']           = 'You have used the full stop <code>.</code>, but you must use the comma <code>,</code> as a decimal separator!';
 
 // Used in cassession.class.php.
 $string['stackCas_CASError']                = 'The CAS returned the following error(s):';
 $string['stackCas_allFailed']               = 'CAS failed to return any evaluated expressions.  Please check your connection with the CAS.';
 $string['stackCas_failedReturn']            = 'CAS failed to return any data.';
 $string['stackCas_failedReturnOne']         = 'CAS failed to return some data.';
+$string['stackCas_failedtimeout']           = 'CAS failed to return any data due to timeout.';
 
 // Used in keyval.class.php.
 $string['stackCas_inputsdefined']           = 'You may not use input names as variables.  You have tried to define <code>{$a}</code>';
@@ -659,6 +687,7 @@ $string['stackCas_MissingCloseHTML']        = 'Missing closing html tag. ';
 $string['stackCas_failedValidation']        = 'CASText failed validation. ';
 $string['stackCas_invalidCommand']          = 'CAS commands not valid. ';
 $string['stackCas_CASErrorCaused']          = 'caused the following error:';
+$string['stackCas_errorpos']                = 'At about line {$a->line} character {$a->col}.';
 
 // Used in blocks.
 $string['stackBlock_ifNeedsCondition']       = 'If-block needs a test attribute. ';
