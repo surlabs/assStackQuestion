@@ -880,11 +880,11 @@ class stack_potentialresponse_tree_lite {
             } else {
                 $right = $node->falsenextnode + 1;
             }
-            $llabel = $node->truescoremode . round($node->truescore, 2);
+            $llabel = $node->truescoremode . round((float)$node->truescore, 2);
             if ($labels && array_key_exists($node->trueanswernote, $labels)) {
                 $llabel = $labels[$node->trueanswernote];
             }
-            $rlabel = $node->falsescoremode . round($node->falsescore, 2);
+            $rlabel = $node->falsescoremode . round((float)$node->falsescore, 2);
             if ($labels && array_key_exists($node->falseanswernote, $labels)) {
                 $rlabel = $labels[$node->falseanswernote];
             }

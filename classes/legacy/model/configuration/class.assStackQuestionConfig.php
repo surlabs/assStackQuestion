@@ -205,12 +205,12 @@ class assStackQuestionConfig
 		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
 		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php');
 
-		if (!file_exists($CFG->dataroot . '/stack/maximalocal.mac'))
+		if (!file_exists(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/maximalocal.mac'))
 		{
 			stack_cas_configuration::create_maximalocal();
 		} else
 		{
-			unlink($CFG->dataroot . '/stack/maximalocal.mac');
+			unlink(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/maximalocal.mac');
 			stack_cas_configuration::create_maximalocal();
 		}
 
@@ -504,12 +504,12 @@ class assStackQuestionConfig
 		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
 		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php');
 
-		if (!file_exists($CFG->dataroot . '/stack/maximalocal.mac'))
+		if (!file_exists(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/maximalocal.mac'))
 		{
 			stack_cas_configuration::create_maximalocal();
 		} else
 		{
-			unlink($CFG->dataroot . '/stack/maximalocal.mac');
+			unlink(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/maximalocal.mac');
 			stack_cas_configuration::create_maximalocal();
 		}
 

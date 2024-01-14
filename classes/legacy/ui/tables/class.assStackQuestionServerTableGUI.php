@@ -87,7 +87,7 @@ class assStackQuestionServerTableGUI extends ilTable2GUI
 	/**
 	 * @param array $a_set
 	 */
-	public function fillRow($a_set)
+	public function fillRow($a_set): void
 	{
 	    global $DIC;
 

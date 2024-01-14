@@ -429,6 +429,7 @@ $string['qm_error'] = 'Ihre Antwort ist nicht vollständig. Bitte füllen Sie al
 $string['stackOptions_AnsTest_values_AlgEquiv']            = "AlgEquiv";
 $string['stackOptions_AnsTest_values_AlgEquivNouns']       = "AlgEquivNouns";
 $string['stackOptions_AnsTest_values_EqualComAss']         = "EqualComAss";
+$string['stackOptions_AnsTest_values_EqualComAssRules']    = "EqualComAssRules";
 $string['stackOptions_AnsTest_values_CasEqual']            = "CasEqual";
 $string['stackOptions_AnsTest_values_SameType']            = "SameType";
 $string['stackOptions_AnsTest_values_SubstEquiv']          = "SubstEquiv";
@@ -461,6 +462,7 @@ $string['stackOptions_AnsTest_values_Diff']                = "Diff";
 $string['stackOptions_AnsTest_values_Int']                 = "Int";
 $string['stackOptions_AnsTest_values_String']              = "String";
 $string['stackOptions_AnsTest_values_StringSloppy']        = "StringSloppy";
+$string['stackOptions_AnsTest_values_Levenshtein']         = "Levenshtein";
 $string['stackOptions_AnsTest_values_SRegExp']             = "SRegExp";
 
 $string['TEST_FAILED_Q']            = 'The answer test failed to execute correctly: please alert your teacher. ';

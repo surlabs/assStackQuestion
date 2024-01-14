@@ -71,24 +71,6 @@ class assStackQuestionAuthoringGUI
 
 		//Set templates
 		$this->setTemplate($this->getPlugin()->getTemplate('tpl.il_as_qpl_xqcas_authoring_container.html'));
-
-		//Set toolbar
-		//require_once("./Services/UIComponent/Toolbar/classes/class.ilToolbarGUI.php");
-		$toolbar = new ilToolbarGUI();
-		//include_once('./Services/UIComponent/Button/classes/class.ilButton.php');
-
-		$show_info_button = ilButton::getInstance();
-		$show_info_button->setCaption($this->getPlugin()->txt("enable_disable_info"), FALSE);
-		$show_info_button->setId("enable_disable_info");
-		$toolbar->addButtonInstance($show_info_button);
-
-		$show_link_button = ilButton::getInstance();
-		$show_link_button->setCaption($this->getPlugin()->txt("auth_guide_name"), FALSE);
-		$show_link_button->setId("auth_guide_name");
-		$toolbar->addButtonInstance($show_link_button);
-
-		$this->getTemplate()->setVariable("TOOLBAR", $toolbar->getHTML());
-
 		//Set form
 		//require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
@@ -120,10 +102,10 @@ class assStackQuestionAuthoringGUI
 
 		//Add general properties to form like question text, title, author...
 		//ADD predefined input and validation fields
-		if ($this->getQuestionGUI()->object->getQuestion() == "") {
+		if ($this->getQuestionGUI()->object->getQuestion() == "[[input:ans1]] [[validation:ans1]]") {
 			$this->new_question = TRUE;
 			$this->getQuestionGUI()->object->setQuestion("[[input:ans1]] [[validation:ans1]]");
-			$this->getQuestionGUI()->object->setPoints("1");
+			$this->getQuestionGUI()->object->setPoints((float)"1");
 		}
 
 		//Add question title when blank
@@ -397,19 +379,19 @@ class assStackQuestionAuthoringGUI
 
 		//Set value if exists if not default values
 		if ($this->new_question) {
-			$options_question_simplify->setChecked((int)$this->default["options_question_simplify"]);
-			$options_assume_positive->setChecked((int)$this->default["options_assume_positive"]);
+			$options_question_simplify->setChecked((bool)$this->default["options_question_simplify"]);
+			$options_assume_positive->setChecked((bool)$this->default["options_assume_positive"]);
 			$options_prt_correct->setValue($this->default["options_prt_correct"]);
 			$options_prt_partially_correct->setValue($this->default["options_prt_partially_correct"]);
 			$options_prt_incorrect->setValue($this->default["options_prt_incorrect"]);
 			$options_multiplication_sign->setValue($this->default["options_multiplication_sign"]);
-			$options_sqrt_sign->setChecked((int)$this->default["options_sqrt_sign"]);
+			$options_sqrt_sign->setChecked((bool)$this->default["options_sqrt_sign"]);
 			$options_complex_numbers->setValue($this->default["options_complex_numbers"]);
 			$options_inverse_trigonometric->setValue($this->default["options_inverse_trigonometric"]);
-			$options_matrix_parens->setValue($this->default["options_matrix_parens"]);
+			$options_matrix_parens->setValue($this->default["options_matrix_parents"]);
 		} else {
 			$options_question_simplify->setChecked($options->get_option('simplify'));
-			$options_assume_positive->setChecked((int)$options->get_option('assumepos'));
+			$options_assume_positive->setChecked((bool)$options->get_option('assumepos'));
 			$options_prt_correct->setValue($this->getQuestionGUI()->object->prt_correct);
 			$options_prt_partially_correct->setValue($this->getQuestionGUI()->object->prt_partially_correct);
 			$options_prt_incorrect->setValue($this->getQuestionGUI()->object->prt_incorrect);
@@ -525,16 +507,16 @@ class assStackQuestionAuthoringGUI
 			$input_type->setValue($this->default["input_type"]);
 			//$input_model_answer->setValue($this->default[""]);
 			$input_box_size->setValue($this->default["input_box_size"]);
-			$input_strict_syntax->setChecked((int)$this->default["input_strict_syntax"]);
-			$input_insert_stars->setValue((int)$this->default["input_insert_stars"]);
+			$input_strict_syntax->setChecked((bool)$this->default["input_strict_syntax"]);
+			$input_insert_stars->setValue((bool)$this->default["input_insert_stars"]);
 			$input_syntax_hint->setValue($this->default["input_syntax_hint"]);
 			$input_forbidden_words->setValue($this->default["input_forbidden_words"]);
 			$input_allow_words->setValue($this->default["input_allow_words"]);
-			$input_forbid_float->setChecked((int)$this->default["input_forbid_float"]);
-			$input_require_lowest_terms->setChecked((int)$this->default["input_require_lowest_terms"]);
-			$input_check_answer_type->setChecked((int)$this->default["input_check_answer_type"]);
-			$input_must_verify->setChecked((int)$this->default["input_must_verify"]);
-			$input_show_validation->setValue((int)$this->default["input_show_validation"]);
+			$input_forbid_float->setChecked((bool)$this->default["input_forbid_float"]);
+			$input_require_lowest_terms->setChecked((bool)$this->default["input_require_lowest_terms"]);
+			$input_check_answer_type->setChecked((bool)$this->default["input_check_answer_type"]);
+			$input_must_verify->setChecked((bool)$this->default["input_must_verify"]);
+			$input_show_validation->setValue((bool)$this->default["input_show_validation"]);
 			$input_options->setValue($this->default["input_extra_options"]);
 		} else {
 			$input_type->setValue(assStackQuestionUtils::_getInputType($input));

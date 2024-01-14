@@ -73,9 +73,32 @@ class assStackQuestionGUI extends assQuestionGUI
         global $tpl;
         parent::__construct();
 
-        //Initialize plugin object
-        $plugin = ilPlugin::getPluginObject(IL_COMP_MODULE, 'TestQuestionPool', 'qst', 'assStackQuestion');
-        $this->setPlugin($plugin);
+        // init the plugin object
+        try {
+            global $DIC;
+
+            /** @var ilComponentRepository $component_repository */
+            $component_repository = $DIC["component.repository"];
+
+            $info = null;
+            $plugin_name = 'assStackQuestion';
+            $info = $component_repository->getPluginByName($plugin_name);
+
+            /** @var ilComponentFactory $component_factory */
+            $component_factory = $DIC["component.factory"];
+
+            /** @var ilQuestionsPlugin $plugin_obj */
+            $plugin_obj = $component_factory->getPlugin($info->getId());
+
+            if (!is_null($info) && $info->isActive()) {
+                $this->setPlugin($plugin_obj);
+            } else {
+                throw new ilPluginException($plugin_name . ' plugin is not active');
+            }
+        } catch (ilPluginException $e) {
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
+        }
 
         //Initialize and loads the Stack question from DB
         $this->object = new assStackQuestion();
@@ -895,17 +918,17 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
 		if ($_GET["q_id"]) {
-			if ($rbacsystem->checkAccess('write', $_GET["ref_id"])) {
+			if ($rbacsystem->checkAccess('write', (int)$_GET["ref_id"])) {
 				// edit page
-				$tabs->addTarget("edit_page", $this->ctrl->getLinkTargetByClass("ilAssQuestionPageGUI", "edit"), array("edit", "insert", "exec_pg"), "", "", "");
+				$tabs->addTarget("edit_page", $this->ctrl->getLinkTargetByClass("ilAssQuestionPageGUI", "edit"), array("edit", "insert", "exec_pg"), "", "", true);
 			}
 
 			// edit page
-			$tabs->addTarget("preview", $this->ctrl->getLinkTargetByClass("ilAssQuestionPreviewGUI", "show"), array("preview"), "ilAssQuestionPageGUI", "", "");
+			$tabs->addTarget("preview", $this->ctrl->getLinkTargetByClass("ilAssQuestionPreviewGUI", "show"), array("preview"), "ilAssQuestionPageGUI", "", true);
 		}
 
 		$force_active = false;
-		if ($rbacsystem->checkAccess('write', $_GET["ref_id"])) {
+		if ($rbacsystem->checkAccess('write', (int)$_GET["ref_id"])) {
 			$url = "";
 
 			if ($classname) {
@@ -1357,7 +1380,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
 		//Get new points value and save it to the DB
 		if (isset($_POST['new_scoring']) and (float)$_POST['new_scoring'] > 0.0) {
-			$this->object->setPoints(ilUtil::stripSlashes($_POST['new_scoring']));
+			$this->object->setPoints((float)ilUtil::stripSlashes($_POST['new_scoring']));
 			$this->object->saveQuestionDataToDb($this->object->getId());
 		} else {
             $tpl->setContent

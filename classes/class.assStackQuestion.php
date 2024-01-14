@@ -321,7 +321,32 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         StackPlatform::initialize('ilias');
 
-        $this->setPlugin(ilPlugin::getPluginObject(IL_COMP_MODULE, "TestQuestionPool", "qst", "assStackQuestion"));
+        // init the plugin object
+        try {
+            global $DIC;
+
+            /** @var ilComponentRepository $component_repository */
+            $component_repository = $DIC["component.repository"];
+
+            $info = null;
+            $plugin_name = 'assStackQuestion';
+            $info = $component_repository->getPluginByName($plugin_name);
+
+            /** @var ilComponentFactory $component_factory */
+            $component_factory = $DIC["component.factory"];
+
+            /** @var ilQuestionsPlugin $plugin_obj */
+            $plugin_obj = $component_factory->getPlugin($info->getId());
+
+            if (!is_null($info) && $info->isActive()) {
+                $this->setPlugin($plugin_obj);
+            } else {
+                throw new ilPluginException($plugin_name . ' plugin is not active');
+            }
+        } catch (ilPluginException $e) {
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
+        }
 
         //Get stored settings from the platform database
         $this->setPlatformConfiguration(StackConfig::getAll());
@@ -457,7 +482,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param null $test_obj_id
      * @return int|null the duplicated question id
      */
-    public function duplicate($for_test = true, $title = "", $author = "", $owner = "", $testObjId = null)
+    public function duplicate(bool $for_test = true, string $title = "", string $author = "", string $owner = "", $testObjId = null): int
     {
         if ($this->id <= 0) {
             // The question has not been saved. It cannot be duplicated
@@ -483,7 +508,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $clone->setAuthor($author);
         }
         if ($owner) {
-            $clone->setOwner($owner);
+            $clone->setOwner((int)$owner);
         }
         if ($for_test) {
             $clone->saveToDb($original_id);
@@ -698,7 +723,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param integer $question_id A unique key which defines the question in the database
      * @throws stack_exception
      */
-    public function loadFromDb($question_id)
+    public function loadFromDb($question_id): void
     {
         global $DIC, $tpl;
 
@@ -708,18 +733,18 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         $data = $db->fetchAssoc($result);
         $this->setId($question_id);
-        $this->setTitle($data["title"]);
-        $this->setComment($data["description"]);
-        $this->setSuggestedSolution($data["solution_hint"]);
-        $this->setOriginalId($data["original_id"]);
-        $this->setObjId($data["obj_fi"]);
+        $this->setTitle($data["title"] ?? '');
+        $this->setComment($data["description"] ?? '');
+        $this->setSuggestedSolution($data["solution_hint"] ?? '');
+        $this->setOriginalId((int)$data["original_id"]);
+        $this->setObjId((int)$data["obj_fi"]);
         $this->setAuthor($data["author"]);
-        $this->setOwner($data["owner"]);
-        $this->setPoints($data["points"]);
+        $this->setOwner((int)$data["owner"]);
+        $this->setPoints((float)$data["points"]);
         $this->lastChange = $data['tstamp'];
 
         //set question text
-        $this->setQuestion($data["question_text"]);
+        $this->setQuestion($data["question_text"] ?? '');
 
         try {
             $this->setLifecycle(ilAssQuestionLifecycle::getInstance($data['lifecycle']));
@@ -728,8 +753,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         }
 
         //require_once("./Services/RTE/classes/class.ilRTE.php");
-        $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data["question_text"], 1));
-        $this->setEstimatedWorkingTime(substr($data["working_time"], 0, 2), substr($data["working_time"], 3, 2), substr($data["working_time"], 6, 2));
+        $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data["question_text"] ?? '', 1));
 
         //Load the specific assStackQuestion data from DB
         //$this->getPlugin()->includeClass('class.assStackQuestionDB.php');
@@ -962,14 +986,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param array $import_mapping An array containing references to included ILIAS objects
      */
     public function fromXML(
-        &$item,
-        &$questionpool_id,
-        &$tst_id,
+        $item,
+        $questionpool_id,
+        $tst_id,
         &$tst_object,
         &$question_counter,
-        &$import_mapping,
-        array $solutionhints = []
-    )
+        array $import_mapping,
+        array &$solutionhints = []
+    ): array
     {
         //$this->getPlugin()->includeClass('import/qti12/class.assStackQuestionImport.php');
         $import = new assStackQuestionImport($this);
@@ -1068,10 +1092,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * Deletes the question from the DB
      * @param int $question_id
      */
-    public function delete($question_id)
+    public function delete($question_id): void
     {
         //delete general question data
-        parent::delete($question_id);
+        parent::delete((int)$question_id);
 
         //$this->getPlugin()->includeClass('class.assStackQuestionDB.php');
         //delete stack specific question data

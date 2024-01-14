@@ -334,8 +334,8 @@ class assStackQuestionMoodleXMLExport
 
 			$new_match = explode('?', $name);
 
-			if (is_file(ilUtil::getWebspaceDir() . "/mobs/mm_" . $id . '/' . $new_match[0])) {
-				$media[$new_match[0]] = file_get_contents(ilUtil::getWebspaceDir() . "/mobs/mm_" . $id . '/' . $new_match[0]);
+			if (is_file(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . "/mobs/mm_" . $id . '/' . $new_match[0])) {
+				$media[$new_match[0]] = file_get_contents(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . "/mobs/mm_" . $id . '/' . $new_match[0]);
 			}
 		}
 

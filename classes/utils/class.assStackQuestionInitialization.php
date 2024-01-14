@@ -36,11 +36,11 @@ $CFG->wwwroot = ilUtil::_getHttpPath();
 // the server path of the installation
 $CFG->dirroot = realpath(dirname(__FILE__) . '/../..');
 // the data directory of the plugin
-$CFG->dataroot = ILIAS_WEB_DIR . '/xqcas';
+$CFG->dataroot = realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas';
 $GLOBALS['CFG'] =& $CFG;
 
-define('PARAM_RAW', 'raw');
-define('MOODLE_INTERNAL', '1');
+//define('PARAM_RAW', 'raw');
+//define('MOODLE_INTERNAL', '1');
 
 //include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/locallib.php';
 
@@ -219,7 +219,7 @@ if (!function_exists('get_config')) {
         //Show validation button
         $configs->inputshowvalidation = $saved_config['input_show_validation'];
 
-        $configs->maximalocalfolder = ilUtil::getWebspaceDir('filesystem') . '/xqcas/stack';
+        $configs->maximalocalfolder = realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack';
         $configs->stackmaximaversion = "2023121100";
         $configs->version = "2023121100";
 

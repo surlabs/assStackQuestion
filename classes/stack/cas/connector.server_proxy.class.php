@@ -92,7 +92,7 @@ class stack_cas_connection_server_proxy extends stack_cas_connection_base {
         // Did we get files?
         if (strpos(curl_getinfo($request, CURLINFO_CONTENT_TYPE), "text/plain") === false) {
             // We have to save the zip file on local disk before opening.
-            $ziptemp = tempnam($CFG->dataroot . '/stack/tmp/', 'zip');
+            $ziptemp = tempnam(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/tmp/', 'zip');
             file_put_contents($ziptemp, $ret);
 
             // Loop over the contents of the zip.
@@ -107,7 +107,7 @@ class stack_cas_connection_server_proxy extends stack_cas_connection_base {
 
                 } else {
                     // Otherwise this is a plot.
-                    $filename =  ILIAS_WEB_DIR . "/" . CLIENT_ID . "/xqcas/stack/plots/" . $filenameinzip;
+                    $filename =  realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . "/stack/plots/" . $filenameinzip;
                     file_put_contents($filename, $zip->getFromIndex($i));
                 }
             }
