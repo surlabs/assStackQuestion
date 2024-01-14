@@ -43,7 +43,6 @@ class stack_algebraic_input extends stack_input {
 
         if ($readonly) {
             //ensures input id and name are different for solution than for student input
-            $attributes['readonly'] = 'readonly';
             $solution_input_id = (string)rand(1000000000, 9999999999);
             $fieldname = $solution_input_id;
         }
