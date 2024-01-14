@@ -109,7 +109,7 @@ class assStackQuestionGUI extends assQuestionGUI
      */
 	public function getTestOutput($active_id, $pass, $is_question_postponed, $user_post_solutions, $show_specific_inline_feedback)
 	{
-        $seed = assStackQuestionDB::_getSeed("test", $this->object, (int) $active_id);
+        $seed = assStackQuestionDB::_getSeed("test", $this->object, (int) $active_id, (int) $pass);
         $this->object->questionInitialisation($seed, true);
         $user_response = StackUserResponseIlias::getStackUserResponse('test', (int) $this->object->getId(), (int) $active_id, (int) $pass);
 
@@ -131,6 +131,7 @@ class assStackQuestionGUI extends assQuestionGUI
         $display_options = [];
         $display_options['readonly'] = false;
         $display_options['feedback'] = true;
+        $display_options['feedback_style'] = 1;
 
         //Render question
         $question = StackRenderIlias::renderQuestion($attempt_data, $display_options);
@@ -142,7 +143,12 @@ class assStackQuestionGUI extends assQuestionGUI
 	}
 
     /**
-     * Returns question view with correct response filled in
+     * Returns question view with a response filled in
+     * It can be the user response
+     * It can be the correct response
+     * Depending on the context
+     * Called multiple times at execution
+     * This method is called from the test view and from the question pool view
      * @param integer $active_id The active user id
      * @param integer|null $pass The test pass
      * @param boolean $graphicalOutput Show visual feedback for right/wrong answers
@@ -160,7 +166,17 @@ class assStackQuestionGUI extends assQuestionGUI
         global $tpl;
 
         StackRenderIlias::ensureMathJaxLoaded();
-        $seed = assStackQuestionDB::_getSeed($show_correct_solution ? "correct" : "test", $this->object, (int)$active_id);
+
+        if (!is_null($active_id) && (int)$active_id !== 0) {
+            $purpose = 'test';
+            if (is_null($pass)) {
+                $pass = ilObjTest::_getPass($active_id);
+            }
+        } else {
+            $purpose = 'preview';
+        }
+
+        $seed = assStackQuestionDB::_getSeed($purpose, $this->object, (int)$active_id, (int)$pass);
 
         //Instantiate Question if not.
         if (!$this->object->isInstantiated()) {
@@ -202,7 +218,8 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $display_options = [];
         $display_options['readonly'] = true;
-        $display_options['feedback'] = $graphicalOutput;
+        $display_options['feedback'] = true;
+        $display_options['feedback_style'] = 1;
 
         //Render question (and general feedback if solution)
         $question = assStackQuestionUtils::_getLatex(StackRenderIlias::renderQuestion($attempt_data, $display_options));
@@ -296,7 +313,11 @@ class assStackQuestionGUI extends assQuestionGUI
 	{
         global $DIC, $tpl;
 
-        $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
+        if (is_int($this->object->getSeed())) {
+            $seed = $this->object->getSeed();
+        } else {
+            $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
+        }
         $user_response = StackUserResponseIlias::getStackUserResponse('preview', (int)$this->object->getId(), $DIC->user()->getId());
 
         //Instantiate Question if not.

@@ -184,9 +184,9 @@ class assStackQuestionDB
 			//Reading nodes
 
 			if ($just_id) {
-				$prt_ids[$prt_name]->nodes = self::_readPRTNodes($question_id, $prt_name, true);
+				$prt_ids[$prt_name]->nodes = self::_readPRTNodes((int)$question_id, $prt_name, true);
 			} else {
-				$potential_response_trees[$prt_name]->nodes = self::_readPRTNodes($question_id, $prt_name);
+				$potential_response_trees[$prt_name]->nodes = self::_readPRTNodes((int)$question_id, $prt_name);
 			}
 		}
 		if ($just_id) {
@@ -357,9 +357,9 @@ class assStackQuestionDB
 				$unit_tests['ids'][$testcase_name] = (int)$row['id'];
                 $unit_tests['test_cases'][$testcase_name]['description'] = $row['description'] ?? '';
                 $unit_tests['test_cases'][$testcase_name]['time_modified'] = $row['time_modified'] ? (int) $row['time_modified'] : 0;
-				$unit_tests['test_cases'][$testcase_name]['inputs'] = self::_readUnitTestInputs($question_id, $testcase_name);
-				$unit_tests['test_cases'][$testcase_name]['expected'] = self::_readUnitTestExpected($question_id, $testcase_name);
-                $unit_tests['test_cases'][$testcase_name]['results'] = self::_readUnitTestResults($question_id, $testcase_name);
+				$unit_tests['test_cases'][$testcase_name]['inputs'] = self::_readUnitTestInputs((int)$question_id, $testcase_name);
+				$unit_tests['test_cases'][$testcase_name]['expected'] = self::_readUnitTestExpected((int)$question_id, $testcase_name);
+                $unit_tests['test_cases'][$testcase_name]['results'] = self::_readUnitTestResults((int)$question_id, $testcase_name);
 			}
 		}
         
@@ -673,7 +673,7 @@ class assStackQuestionDB
 
 				//Insert nodes
 				foreach ($prt->get_nodes() as $node) {
-					self::_saveStackPRTNodes($node, $question_id, $prt_name, -1);
+					self::_saveStackPRTNodes($node, (int)$question_id, $prt_name, -1);
 				}
 
 			} else {
@@ -693,19 +693,19 @@ class assStackQuestionDB
 				);
 
 				//Update/Insert Nodes
-				$prt_node_ids = self::_readPRTNodes($question_id, $prt_name, true);
+				$prt_node_ids = self::_readPRTNodes((int)$question_id, $prt_name, true);
 
 				foreach ($prt->get_nodes() as $node_name => $node) {
 					if (!array_key_exists($node_name, $prt_node_ids) or empty($prt_node_ids)) {
 						//CREATE
-						self::_saveStackPRTNodes($node, $question_id, $prt_name, -1);
+						self::_saveStackPRTNodes($node, (int)$question_id, $prt_name, -1);
 					} else {
 						//UPDATE
 						if (isset($prt_ids[$prt_name]->nodes[$node_name])) {
-							self::_saveStackPRTNodes($node, $question_id, $prt_name, $prt_ids[$prt_name]->nodes[$node_name]);
+							self::_saveStackPRTNodes($node, (int)$question_id, $prt_name, $prt_ids[$prt_name]->nodes[$node_name]);
 						} else {
                             global $tpl;
-                            $tpl->setOnScreenMessage('failure', 'question:' . $question_id . $prt_name . $node_name, true);
+                            $tpl->setOnScreenMessage('failure', 'question:' . (int)$question_id . $prt_name . $node_name, true);
 						}
 					}
 				}
@@ -905,12 +905,12 @@ class assStackQuestionDB
 
 					//Create Unit Tests Input
 					foreach ($test_case['inputs'] as $input_name => $input) {
-						self::_saveStackUnitTestInput($question_id, $testcase_name, $input_name, $input['value'], -1);
+						self::_saveStackUnitTestInput((int)$question_id, $testcase_name, $input_name, $input['value'], -1);
 					}
 
 					//Create Unit Tests Expected
 					foreach ($test_case['expected'] as $prt_name => $expected) {
-						self::_saveStackUnitTestExpected($question_id, $testcase_name, $prt_name, $expected, -1);
+						self::_saveStackUnitTestExpected((int)$question_id, $testcase_name, $prt_name, $expected, -1);
 					}
 
 
@@ -928,16 +928,16 @@ class assStackQuestionDB
 					);
 
 					//Manage Unit Tests Input
-					$testcase_input_ids = self::_readUnitTestInputs($question_id, $testcase_name, true);
+					$testcase_input_ids = self::_readUnitTestInputs((int)$question_id, $testcase_name, true);
 
 					foreach ($test_case['inputs'] as $input_name => $input) {
 						if (!array_key_exists($input_name, $testcase_input_ids) or empty($testcase_input_ids)) {
 							//CREATE
-							self::_saveStackUnitTestInput($question_id, $testcase_name, $input_name, $input['value'], -1);
+							self::_saveStackUnitTestInput((int)$question_id, $testcase_name, $input_name, $input['value'], -1);
 						} else {
 							//UPDATE
 							if (isset($input['value'])) {
-								self::_saveStackUnitTestInput($question_id, $testcase_name, $input_name, $input['value'], $testcase_input_ids[$input_name]);
+								self::_saveStackUnitTestInput((int)$question_id, $testcase_name, $input_name, $input['value'], $testcase_input_ids[$input_name]);
 							} else {
                                 global $tpl;
                                 $tpl->setOnScreenMessage('failure', 'question test inputs:' . $question_id . $testcase_name . $input_name, true);
@@ -1361,14 +1361,16 @@ class assStackQuestionDB
 	 * @param int $pass
 	 * @return int
 	 */
-	public static function _getSeedForTestPass(assStackQuestion $question, int $active_id, int $pass): int
+	public static function _getSeedForTestPass(assStackQuestion $question, int $active_id, ?int $pass = null): int
 	{
 		$seed = 0;
-
 		//Does this question uses randomisation?
 		global $DIC;
 		$db = $DIC->database();
 		$question_id = $question->getId();
+        if(is_null($pass)) {
+            $pass = $question->getPass();
+        }
 		//Search for a seed in DB
 		//returns seed if exists
 		$query = /** @lang text */
@@ -1386,14 +1388,18 @@ class assStackQuestionDB
 				if ($seed_found === 0) {
 					$seed_found = $seed;
 				} else {
-                    global $tpl;
-                    $tpl->setOnScreenMessage('failure', "ERROR: Trying to create a new seed where there is already one assigned", true);
-					return 0;
+                    echo "ERROR: Trying to create a new seed where there is already one assigned";
+                    echo "<br>question_id: ".$question_id;
+                    echo "<br>active_id: ".$active_id;
+                    echo "<br>pass: ".$pass;
+                    echo "<br>seed: ".$seed;
+                    echo "<br>seed_found: ".$seed_found;
+                    exit;
 				}
 			}
 		}
 
-		if ($seed < 1) {
+		if ($seed <= 0) {
 			//Create new seed
 			$variants = self::_readDeployedVariants($question_id, true);
 

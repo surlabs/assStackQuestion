@@ -131,7 +131,7 @@ class assStackQuestionMoodleImport
                     try {
                         //Save STACK Parameters forcing insert.
                         if (assStackQuestionDB::_saveStackQuestion($this->getQuestion(), 'import')) {
-                            $this->saveMediaObjectUsages($this->getQuestion()->getId());
+                            $this->saveMediaObjectUsages((int)$this->getQuestion()->getId());
                             $number_of_questions_created++;
                         }
                     } catch (stack_exception $e) {
@@ -149,7 +149,7 @@ class assStackQuestionMoodleImport
                     //Purge media objects as we didn't import the question
                     $this->purgeMediaObjects();
                     //Delete Question
-                    $this->getQuestion()->delete($this->getQuestion()->getId());
+                    $this->getQuestion()->delete((int)$this->getQuestion()->getId());
                 }
             }
 		}
