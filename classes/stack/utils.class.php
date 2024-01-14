@@ -786,7 +786,7 @@ class stack_utils {
      * @param string $string that contains ""-quotes around the content.
      * @return string without those quotes.
      */
-    public static function maxima_string_to_php_string($string): string
+    public static function maxima_string_to_php_string($string)
     {
         $converted = str_replace("\\\\", "\\", $string);
         $converted = str_replace("\\\"", '"', $converted);
