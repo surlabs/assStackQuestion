@@ -208,7 +208,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $display_options = [];
         $display_options['readonly'] = true;
-        $display_options['feedback'] = true;
+        $display_options['feedback'] = $graphicalOutput;
 
         //Render question (and general feedback if solution)
         $question = assStackQuestionUtils::_getLatex(StackRenderIlias::renderQuestion($attempt_data, $display_options));

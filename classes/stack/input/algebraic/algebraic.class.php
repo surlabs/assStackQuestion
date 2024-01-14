@@ -59,6 +59,11 @@ class stack_algebraic_input extends stack_input {
             'spellcheck'     => 'false',
             'class' => 'algebraic',
         );
+
+        if ($readonly) {
+            $attributes['readonly'] = 'readonly';
+        }
+
         if ($this->extraoptions['align'] === 'right') {
             $attributes['class'] = 'algebraic-right';
         }
