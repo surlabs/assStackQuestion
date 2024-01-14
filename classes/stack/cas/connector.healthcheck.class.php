@@ -54,7 +54,7 @@ class stack_cas_healthcheck {
         $test = array();
         $test['tag'] = 'platform';
         $test['result'] = null;
-        $test['summary'] = $config->platform;
+        $test['summary'] = $config['platform_type'];
         $test['details'] = null;
         $this->tests[] = $test;
 
@@ -77,7 +77,7 @@ class stack_cas_healthcheck {
         stack_cas_configuration::create_maximalocal();
 
         // Make sure we are in a position to call maxima.
-        switch ($config->platform) {
+        switch ($config['platform_type']) {
             case 'win':
                 $maximalocation = stack_cas_configuration::confirm_maxima_win_location();
                 if ('' != $maximalocation) {
@@ -173,7 +173,7 @@ class stack_cas_healthcheck {
 
         // If we have a linux machine, and we are testing the raw connection then we should
         // attempt to automatically create an optimized maxima image on the system.
-        if ($this->ishealthy && $config->platform === 'linux') {
+        if ($this->ishealthy && $config['platform_type'] === 'linux') {
             list($message, $debug, $result, $commandline, $rawcommand)
                 = stack_connection_helper::stackmaxima_auto_maxima_optimise($genuinedebug);
             $test = array();
@@ -242,7 +242,7 @@ class stack_cas_healthcheck {
         $test = array();
         $test['tag'] = 'settingmaximalibraries';
         $test['result'] = null;
-        $test['summary'] = $config->maximalibraries;
+        $test['summary'] = $config['cas_maxima_libraries'];
         $test['details'] = null;
         $this->tests[] = $test;
 
@@ -250,7 +250,7 @@ class stack_cas_healthcheck {
         $test = array();
         $test['tag'] = 'settingcasresultscache';
         $test['result'] = null;
-        $test['summary'] = stack_string('healthcheckcache_' . $config->casresultscache);
+        $test['summary'] = stack_string('healthcheckcache_' . $config['cas_result_caching']);
         $test['details'] = null;
         $this->tests[] = $test;
     }

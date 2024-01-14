@@ -745,14 +745,14 @@ class assStackQuestionDB
                 "true_next_node" => array("text", $node->truenextnode),
                 "true_answer_note" => array("text", $node->trueanswernote),
                 "true_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($node->truefeedback)),
-                "true_feedback_format" => array("integer", (int)$node->truefeedbackformat),
+                "true_feedback_format" => array("integer", 1),
                 "false_score_mode" => array("text", $node->falsescoremode),
                 "false_score" => array("text", $node->falsescore),
                 "false_penalty" => array("text", $node->falsepenalty),
                 "false_next_node" => array("text", $node->falsenextnode),
                 "false_answer_note" => array("text", $node->falseanswernote),
                 "false_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($node->falsefeedback)),
-                "false_feedback_format" => array("integer", (int)$node->falsefeedbackformat),
+                "false_feedback_format" => array("integer", 1),
 			));
 		} else {
 			//UPDATE
@@ -809,7 +809,9 @@ class assStackQuestionDB
                     array(
                         'id' => array('integer', $db->nextId('xqcas_deployed_seeds')),
                         'question_id' => array('integer', $question_id),
-                        'seed' => array('integer', $added_seed)
+                        'seed' => array('integer', $added_seed),
+                        'testing_status' => array('string', ''),
+                        'data' => array('clob', '')
                     )
                 );
             } else {
@@ -824,7 +826,9 @@ class assStackQuestionDB
                             array(
                                 'id' => array('integer', $db->nextId('xqcas_deployed_seeds')),
                                 'question_id' => array('integer', $question_id),
-                                'seed' => array('integer', $seed)
+                                'seed' => array('integer', $seed),
+                                'testing_status' => array('string', ''),
+                                'data' => array('clob', '')
                             )
                         );
                     } else {
@@ -834,7 +838,9 @@ class assStackQuestionDB
                             array('id' => array('integer', $id)),
                             array(
                                 'question_id' => array('integer', $question_id),
-                                'seed' => array('integer', $seed)
+                                'seed' => array('integer', $seed),
+                                'testing_status' => array('string', ''),
+                                'data' => array('clob', '')
                             )
                         );
                     }
@@ -891,6 +897,10 @@ class assStackQuestionDB
 			foreach ($question->getUnitTests()['test_cases'] as $testcase_name => $test_case) {
 
 				$testcases_ids = self::_readUnitTests($question_id, true);
+                $description = '';
+                if(isset($test_case['description'])) {
+                    $description = $test_case['description'];
+                }
 
 				if (!array_key_exists($testcase_name, $testcases_ids) or empty($testcases_ids) or $purpose == 'import') {
 
@@ -899,7 +909,7 @@ class assStackQuestionDB
 						"id" => array("integer", $db->nextId('xqcas_qtests')),
 						"question_id" => array("integer", $question_id),
 						"test_case" => array("integer", $testcase_name),
-                        "description" => array("text", $test_case['description']),
+                        "description" => array("text", $description),
                         "time_modified" => array("integer", time())
 					));
 
@@ -922,7 +932,7 @@ class assStackQuestionDB
 						array(
 							"question_id" => array("integer", $question_id),
 							"test_case" => array("integer", $testcase_name),
-                            "description" => array("text", $test_case['description']),
+                            "description" => array("text", $description),
                             "time_modified" => array("integer", time())
 						)
 					);
@@ -1071,7 +1081,7 @@ class assStackQuestionDB
 			"strict_syntax" => array("integer", $input->get_parameter('strictSyntax') !== null ? $input->get_parameter('strictSyntax') : ''),
 			"insert_stars" => array("integer", $input->get_parameter('insertStars') !== null ? $input->get_parameter('insertStars') : ''),
 			"syntax_hint" => array("text", $input->get_parameter('syntaxHint') !== null ? $input->get_parameter('syntaxHint') : ''),
-			"syntax_attribute" => array("text", $input->get_parameter('syntaxAttribute') !== null ? $input->get_parameter('syntaxAttribute') : ''),
+			"syntax_attribute" => array("integer", $input->get_parameter('syntaxAttribute') !== null ? (int)$input->get_parameter('syntaxAttribute') : 0),
 			"forbid_words" => array("text", $input->get_parameter('forbidWords') !== null ? $input->get_parameter('forbidWords') : ''),
 			"allow_words" => array("text", $input->get_parameter('allowWords') !== null ? $input->get_parameter('allowWords') : ''),
 			"forbid_float" => array("integer", $input->get_parameter('forbidFloats') !== null ? $input->get_parameter('forbidFloats') : ''),
@@ -1507,7 +1517,8 @@ class assStackQuestionDB
                 'user_id' => array('integer', $user_id),
                 'is_active' => array('integer', 1),
                 'seed' => array('integer', $seed),
-                'stamp' => array('integer', time())));
+                'stamp' => array('integer', time()),
+                'submitted_answer' => array('clob', '{}')));
         }
 
         return $seed;

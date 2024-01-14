@@ -74,7 +74,7 @@ class stack_cas_configuration {
 
         $this->maximacodepath = stack_utils::convert_slash_paths(
         //TODO SET WEBDIR + PATH COMO GLOBAL EN LUGAR DE USAR ILIAS EN CORE
-            realpath(ILIAS_WEB_DIR."/".CLIENT_ID) .
+            realpath(ILIAS_DATA_DIR) .
             '/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/core/external/maxima');
 
         $this->logpath = stack_utils::convert_slash_paths(
@@ -186,7 +186,7 @@ class stack_cas_configuration {
     }
 
     public function maxima_win_location() {
-        if ($this->settings->platform != 'win') {
+        if ($this->settings['platform'] != 'win') {
             return '';
         }
 
@@ -289,7 +289,7 @@ END;
 
 END;
 
-        if ($this->settings->platform == 'linux-optimised') {
+        if ($this->settings['platform_type'] == 'linux-optimised') {
             $contents .= <<<END
 /* We are using an optimised lisp image with maxima and the stack libraries
    pre-loaded. That is why you don't see the familiar load("stackmaxima.mac")$ here.
@@ -304,7 +304,7 @@ END;
 load("stackmaxima.mac")$
 
 END;
-            $maximalib = $this->settings->maximalibraries;
+            $maximalib = $this->settings['cas_maxima_libraries'];
             $maximalib = explode(',', $maximalib);
             foreach ($maximalib as $lib) {
                 $lib = trim($lib);
@@ -392,7 +392,7 @@ END;
         $livetestcases = array();
         $message = '';
         $permittedlibraries = array_keys(self::$maximalibraries);
-        $maximalib = $this->settings->maximalibraries;
+        $maximalib = $this->settings['cas_maxima_libraries'];
         $maximalib = explode(',', $maximalib);
         foreach ($maximalib as $lib) {
             $lib = trim($lib);
@@ -425,25 +425,25 @@ END;
     public static function create_auto_maxima_image() {
         $config = get_config('qtype_stack');
             // Do not try to generate the optimised image on MS platforms.
-        if ($config->platform == 'win') {
+        if ($config['platform'] == 'win') {
             $errmsg = "Microsoft Windows version cannot be automatically optimised";
             return array(false, $errmsg);
-        } else if ($config->platform != 'linux' && $config->platform != 'linux-optimised') {
-            $errmsg = "$config->platform version cannot be automatically optimised";
+        } else if ($config['platform'] != 'linux' && $config['platform'] != 'linux-optimised') {
+            $errmsg = '$config["platform"] version cannot be automatically optimised';
             return array(false, $errmsg);
         }
 
         // Revert to the plain Linux platform.  This will genuinely call the CAS, and
         // as a result create a new image.
-        $oldplatform = $config->platform;
+        $oldplatform = $config['platform'];
         set_config('platform', 'linux', 'qtype_stack');
         if ($oldplatform == 'linux-optimised') {
             // If we have explicitly set a path, or a --use-version = we should respect it here.
             set_config('maximacommand', '', 'qtype_stack');
             self::get_instance()->settings->maximacommand = '';
-            self::get_instance()->settings->platform = 'linux';
+            self::get_instance()->settings['platform'] = 'linux';
             stack_utils::get_config()->maximacommand = '';
-            stack_utils::get_config()->platform = 'linux';
+            stack_utils::get_config()['platform'] = 'linux';
         }
 
         // Try to make a new version of the maxima local file.
@@ -473,9 +473,9 @@ END;
             } else {
                 set_config('platform', 'linux-optimised', 'qtype_stack');
                 set_config('maximacommandopt', $commandline, 'qtype_stack');
-                stack_utils::get_config()->platform = 'linux-optimised';
+                stack_utils::get_config()['platform'] = 'linux-optimised';
                 stack_utils::get_config()->maximacommandopt = $commandline;
-                self::get_instance()->settings->platform = 'linux-optimised';
+                self::get_instance()->settings['platform'] = 'linux-optimised';
                 self::get_instance()->settings->maximacommandopt = $commandline;
                 // We need to regenerate this file to supress stackmaxima.mac and libraries being reloaded.
                 self::create_maximalocal();
@@ -497,8 +497,8 @@ END;
 
         if ($revert) {
             set_config('platform', $oldplatform, 'qtype_stack');
-            stack_utils::get_config()->platform = $oldplatform;
-            self::get_instance()->settings->platform = $oldplatform;
+            stack_utils::get_config()['platform'] = $oldplatform;
+            self::get_instance()->settings['platform'] = $oldplatform;
             self::create_maximalocal();
             return array(false, $errmsg);
         } else {

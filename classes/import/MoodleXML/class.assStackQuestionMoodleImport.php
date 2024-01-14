@@ -186,7 +186,7 @@ class assStackQuestionMoodleImport
 
 		//set standard question fields as current.
 		$this->getQuestion()->setTitle(ilUtil::secureString($question_title));
-		$this->getQuestion()->setPoints(ilUtil::secureString($points));
+		$this->getQuestion()->setPoints((float)ilUtil::secureString($points));
 		//If we do secure strings, html is lost
 		$this->getQuestion()->setQuestion($question_text);
 		$this->getQuestion()->setLifecycle(ilAssQuestionLifecycle::getDraftInstance());
@@ -351,16 +351,16 @@ class assStackQuestionMoodleImport
                 $node->sans = ilUtil::secureString((string) $node_data->sans);
                 $node->tans = ilUtil::secureString((string) $node_data->tans);
                 $node->testoptions = ilUtil::secureString((string) $node_data->testoptions);
-                $node->quiet = ilUtil::secureString((int) $node_data->quiet);
+                $node->quiet = (int) $node_data->quiet;
                 $node->truescoremode = ilUtil::secureString((string) $node_data->truescoremode);
                 $node->truescore = ilUtil::secureString((string) $node_data->truescore);
-                $node->truepenalty = ilUtil::secureString((int) $node_data->truepenalty);
+                $node->truepenalty = (float) $node_data->truepenalty;
                 $node->truenextnode = ilUtil::secureString((string) $node_data->truenextnode);
                 $node->trueanswernote = ilUtil::secureString((string) $node_data->trueanswernote);
                 $node->truefeedback = ilUtil::secureString((string) $node_data->truefeedback->text);
                 $node->falsescoremode = ilUtil::secureString((string) $node_data->falsescoremode);
                 $node->falsescore = ilUtil::secureString((string) $node_data->falsescore);
-                $node->falsepenalty = ilUtil::secureString((int) $node_data->falsepenalty);
+                $node->falsepenalty = (float) $node_data->falsepenalty;
                 $node->falsenextnode = ilUtil::secureString((string) $node_data->falsenextnode);
                 $node->falseanswernote = ilUtil::secureString((string) $node_data->falseanswernote);
                 $node->falsefeedback = ilUtil::secureString((string) $node_data->falsefeedback->text);

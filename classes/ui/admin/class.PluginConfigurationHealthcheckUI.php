@@ -41,7 +41,7 @@ class PluginConfigurationHealthcheckUI
         self::$control = $DIC->ctrl();
         self::$renderer = $DIC->ui()->renderer();
 
-        try {
+        //try {
 
             //control parameters
             self::$control->setParameterByClass(
@@ -81,9 +81,10 @@ class PluginConfigurationHealthcheckUI
                 }
             }
 
+/*
         } catch (Exception $e) {
             $sections = ['error' => self::$factory->messageBox()->failure($e->getMessage())];
-        }
+        }*/
 
         return $sections;
     }

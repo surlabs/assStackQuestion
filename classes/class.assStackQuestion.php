@@ -947,8 +947,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function getSolutionSubmit(): array
     {
+        global $DIC;
         //RETURN DATA FROM POST
-        $user_response_from_post = $_POST;
+        $user_response_from_post = $DIC->http()->request()->getParsedBody();
         unset($user_response_from_post["formtimestamp"]);
         unset($user_response_from_post["cmd"]);
 

@@ -55,6 +55,8 @@ class assStackQuestionAuthoringGUI
 	 */
 	private $template;
 
+    private bool $new_question = false;
+
 
 	/**
 	 * Object constructor
@@ -103,7 +105,7 @@ class assStackQuestionAuthoringGUI
 		//Add general properties to form like question text, title, author...
 		//ADD predefined input and validation fields
 		if ($this->getQuestionGUI()->object->getQuestion() == "[[input:ans1]] [[validation:ans1]]") {
-			$this->new_question = TRUE;
+			$this->new_question = true;
 			$this->getQuestionGUI()->object->setQuestion("[[input:ans1]] [[validation:ans1]]");
 			$this->getQuestionGUI()->object->setPoints((float)"1");
 		}
@@ -390,13 +392,13 @@ class assStackQuestionAuthoringGUI
 			$options_inverse_trigonometric->setValue($this->default["options_inverse_trigonometric"]);
 			$options_matrix_parens->setValue($this->default["options_matrix_parents"]);
 		} else {
-			$options_question_simplify->setChecked($options->get_option('simplify'));
+			$options_question_simplify->setChecked((bool)$options->get_option('simplify'));
 			$options_assume_positive->setChecked((bool)$options->get_option('assumepos'));
 			$options_prt_correct->setValue($this->getQuestionGUI()->object->prt_correct);
 			$options_prt_partially_correct->setValue($this->getQuestionGUI()->object->prt_partially_correct);
 			$options_prt_incorrect->setValue($this->getQuestionGUI()->object->prt_incorrect);
 			$options_multiplication_sign->setValue($options->get_option('multiplicationsign'));
-			$options_sqrt_sign->setChecked($options->get_option('sqrtsign'));
+			$options_sqrt_sign->setChecked((bool)$options->get_option('sqrtsign'));
 			$options_complex_numbers->setValue($options->get_option('complexno'));
 			$options_inverse_trigonometric->setValue($options->get_option('inversetrig'));
 			$options_matrix_parens->setValue($options->get_option('matrixparens'));
@@ -522,15 +524,15 @@ class assStackQuestionAuthoringGUI
 			$input_type->setValue(assStackQuestionUtils::_getInputType($input));
 			$input_model_answer->setValue($input->get_teacher_answer());
 			$input_box_size->setValue($input->get_parameter('boxWidth'));
-			$input_strict_syntax->setChecked($input->get_parameter('strictSyntax'));
-			$input_insert_stars->setValue($input->get_parameter('insertStars'));
+			$input_strict_syntax->setChecked((bool)$input->get_parameter('strictSyntax'));
+			$input_insert_stars->setValue((bool)$input->get_parameter('insertStars'));
 			$input_syntax_hint->setValue($input->get_parameter('syntaxHint'));
 			$input_forbidden_words->setValue($input->get_parameter('forbidWords'));
 			$input_allow_words->setValue($input->get_parameter('allowWords'));
-			$input_forbid_float->setChecked($input->get_parameter('forbidFloats'));
-			$input_require_lowest_terms->setChecked($input->get_parameter('lowestTerms'));
-			$input_check_answer_type->setChecked($input->get_parameter('sameType'));
-			$input_must_verify->setChecked($input->get_parameter('mustVerify'));
+			$input_forbid_float->setChecked((bool)$input->get_parameter('forbidFloats'));
+			$input_require_lowest_terms->setChecked((bool)$input->get_parameter('lowestTerms'));
+			$input_check_answer_type->setChecked((bool)$input->get_parameter('sameType'));
+			$input_must_verify->setChecked((bool)$input->get_parameter('mustVerify'));
 			$input_show_validation->setValue($input->get_parameter('showValidation'));
 			$input_options->setValue($input->get_parameter('options'));
 		}
@@ -971,7 +973,7 @@ class assStackQuestionAuthoringGUI
 			//$node_pos_next_node->setValue($this->default[""]);
 			$node_pos_answernote->setValue($this->default["prt_pos_answernote"]);
 			//$node_pos_specific_feedback->setValue($this->default[""]);
-			$node_pos_feedback_class->setValue(1);
+			//$node_pos_feedback_class->setValue(1);
 		} else {
 			$node_pos_mode->setValue($node->truescoremode);
 			$node_pos_score->setValue($node->truescore);
@@ -979,7 +981,7 @@ class assStackQuestionAuthoringGUI
 			$node_pos_answernote->setValue($node->trueanswernote);
 			$node_pos_penalty->setValue($node->truepenalty);
 			$node_pos_specific_feedback->setValue($node->truefeedback);
-			$node_pos_feedback_class->setValue($node->truefeedbackclass);
+			//$node_pos_feedback_class->setValue($node->truefeedbackclass);
 		}
 
 
@@ -1055,7 +1057,7 @@ class assStackQuestionAuthoringGUI
 			//$node_neg_next_node->setValue($this->default[""]);
 			$node_neg_answernote->setValue($this->default["prt_neg_answernote"]);
 			//$node_neg_specific_feedback->setValue($this->default[""]);
-			$node_neg_feedback_class->setValue(1);
+			//$node_neg_feedback_class->setValue(1);
 		} else {
 			$node_neg_mode->setValue($node->falsescoremode);
 			$node_neg_score->setValue($node->falsescore);
@@ -1063,7 +1065,7 @@ class assStackQuestionAuthoringGUI
 			$node_neg_answernote->setValue($node->falseanswernote);
 			$node_neg_penalty->setValue($node->falsepenalty);
 			$node_neg_specific_feedback->setValue($node->falsefeedback);
-			$node_neg_feedback_class->setValue($node->falsefeedbackclass);
+			//$node_neg_feedback_class->setValue($node->falsefeedbackclass);
 		}
 
 		//Add properties to form

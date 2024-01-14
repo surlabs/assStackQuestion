@@ -74,7 +74,7 @@ class stack_potentialresponse_tree_lite {
     public function __construct($prtdata, $value, $question = null) {
         $this->name          = $prtdata->name;
         $this->simplify      = (bool) $prtdata->autosimplify;
-        $this->feedbackstyle = (int) $prtdata->feedbackstyle;
+        $this->feedbackstyle = (int) 1;
 
         // TODO move the scaling to other levels.
         $this->value         = $value;
@@ -280,7 +280,9 @@ class stack_potentialresponse_tree_lite {
         foreach ($this->nodes as $node) {
             $n = new stdClass();
             $n->nodename        = $node->nodename;
-            $n->description     = $node->description;
+            if(isset($node->description)) {
+                $n->description          = $node->description;
+            }
             $n->truenextnode    = $node->truenextnode;
             $n->trueanswernote  = $node->trueanswernote;
             $n->truescore       = $node->truescore;
@@ -292,7 +294,7 @@ class stack_potentialresponse_tree_lite {
             $n->quiet           = $node->quiet;
             $n->answertest      = $this->compile_node_answertest($node);
             $name = (((int) $node->nodename) + 1);
-            if (trim($node->description) !== '') {
+            if (isset($node->description) && trim($node->description) !== '') {
                 $name .= ': ' . trim($node->description);
             }
             $n->displayname     = $name;
