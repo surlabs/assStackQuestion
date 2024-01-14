@@ -85,6 +85,8 @@ php setup/setup.php update
 - Instant validation for textareas not working properly
 
 # Version History
+* The stable version 8.5.x for **ILIAS 8** with the STACK Core version 4.5.0 can be found in the Github branch **ilias8_stack_dev**
+* The stable version 8.0.x for **ILIAS 8** with the STACK Core version 4.3.9 can be found in the Github branch **ilias8_stack**
 * The stable version 7.5.x for **ILIAS 7.13+** with the STACK Core version 4.5.0 can be found in the Github branch **ilias7_stack_dev**
 * The stable version 7.0.x for **ILIAS 7.13+** with the STACK Core version 4.3.9 can be found in the Github branch **ilias7_stack**
 * The stable version 3.5 for **ILIAS 7.13+** with the STACK Core version 4.2.2 can be found in the Github branch **unmaintained_ilias713_stack** is on only security issues mode.
