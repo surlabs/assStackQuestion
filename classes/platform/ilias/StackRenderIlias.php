@@ -100,8 +100,8 @@ class StackRenderIlias extends StackRender
                 // Incorrect.
                 $prt_feedback_instantiated =
                     $question->prt_incorrect_instantiated->get_rendered($question->getCasTextProcessor());
-                $standard_prt_feedback = $factory->messageBox()->failure(assStackQuestionUtils::_getLatex(
-                    $prt_feedback_instantiated . '</br>' . $feedback));
+                $standard_prt_feedback = $factory->messageBox()->failure(
+                    assStackQuestionUtils::_getLatex($prt_feedback_instantiated . '</br>' . $feedback));
                 break;
             case 0:
                 // Partially correct.

@@ -165,6 +165,7 @@ class assStackQuestionGUI extends assQuestionGUI
      */
 	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true): string
     {
+        StackRenderIlias::ensureMathJaxLoaded();
         $seed = assStackQuestionDB::_getSeed($show_correct_solution ? "correct" : "test", $this->object, (int)$active_id);
 
         //Instantiate Question if not.
@@ -210,19 +211,19 @@ class assStackQuestionGUI extends assQuestionGUI
         $display_options['feedback'] = true;
 
         //Render question (and general feedback if solution)
-        $question = StackRenderIlias::renderQuestion($attempt_data, $display_options);
+        $question = assStackQuestionUtils::_getLatex(StackRenderIlias::renderQuestion($attempt_data, $display_options));
 
         if ($show_correct_solution) {
             global $DIC;
             $question .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->divider()->horizontal());
-            $question .= StackRenderIlias::renderGeneralFeedback($attempt_data, $display_options);
+            $question .= assStackQuestionUtils::_getLatex(StackRenderIlias::renderGeneralFeedback($attempt_data, $display_options));
         }
 
         if (!$show_question_only) {
             $question = $this->getILIASPage($question);
         }
 
-        return assStackQuestionUtils::_getLatex($question);
+        return $question;
 	}
 
     /**
