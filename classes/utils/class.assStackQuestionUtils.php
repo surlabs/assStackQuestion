@@ -1,7 +1,21 @@
 <?php
 /**
- * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
- * GPLv3, see LICENSE
+ *  This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
+ *  This plugin is developed and maintained by SURLABS and is a port of STACK Question for Moodle,
+ *  originally created by Chris Sangwin.
+ *
+ *  The STACK Question plugin for ILIAS is open-source and licensed under GPL-3.0.
+ *  For license details, visit https://www.gnu.org/licenses/gpl-3.0.en.html.
+ *
+ *  To report bugs or participate in discussions, visit the Mantis system and filter by
+ *  the category "STACK Question" at https://mantis.ilias.de.
+ *
+ *  More information and source code are available at:
+ *  https://github.com/surlabs/STACK
+ *
+ *  If you need support, please contact the maintainer of this software at:
+ *  stack@surlabs.es
+ *
  */
 
 
@@ -164,7 +178,8 @@ class assStackQuestionUtils
 				$user_response[$input_name] = $input->maxima_to_response_array($user_response_from_db[$input_name]);
 			} else {
 				//We have something wrong
-				ilUtil::sendFailure("Error in manageUserResponse, inputs provided are neither ILIAS or STACK inputs", TRUE);
+                global $tpl;
+                $tpl->setOnScreenMessage('failure', "Error in manageUserResponse, inputs provided are neither ILIAS or STACK inputs", true);
 			}
 		}
 
@@ -800,7 +815,8 @@ class assStackQuestionUtils
             case is_a($input, 'stack_algebraic_input'):
                 return 'algebraic';
 			default:
-				ilUtil::sendFailure('Input type not found', true);
+                global $tpl;
+                $tpl->setOnScreenMessage('failure', 'Input type not found', true);
 				return '';
 		}
 	}
@@ -1021,7 +1037,8 @@ class assStackQuestionUtils
 			//SET OPTIONS
 			$question->options = $options;
 		} catch (stack_exception $e) {
-			ilUtil::sendFailure($e->getMessage(), true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 		}
 
 		//load Data stored in options but not part of the session options
@@ -1117,7 +1134,7 @@ class assStackQuestionUtils
 					'The $totalvalue, the marks available for the question, must be positive in question ' .
 					$question->getTitle());
 			} catch (stack_exception $e) {
-				ilUtil::sendFailure($e);
+				$tpl->setOnScreenMessage('failure', $e);
 				$total_value = 1.0;
 			}
 		}
@@ -1473,7 +1490,9 @@ class assStackQuestionUtils
 
         foreach ($components as $component) {
             list($variable, $value) = explode(":", $component, 2);
-            $htmlOutput .= "<p>\($variable\): \($value\)</p>";
+            if (strlen($value) > 0 && (strlen($variable) > 0)) {
+                $htmlOutput .= "<p>\($variable\): \($value\)</p>";
+            }
         }
 
         $htmlOutput .= "</div>";

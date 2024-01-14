@@ -783,10 +783,11 @@ class stack_utils {
 
     /**
      * Converts a PHP string object containing a Maxima string as presented by the grind command to a PHP string object.
-     * @param a string that contains ""-quotes around the content.
-     * @return a string without those quotes.
+     * @param string $string that contains ""-quotes around the content.
+     * @return string without those quotes.
      */
-    public static function maxima_string_to_php_string($string) {
+    public static function maxima_string_to_php_string($string)
+    {
         $converted = str_replace("\\\\", "\\", $string);
         $converted = str_replace("\\\"", '"', $converted);
         return substr($converted, 1, -1);

@@ -1,7 +1,22 @@
 <?php
+declare(strict_types=1);
 /**
- * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
- * GPLv3, see LICENSE
+ *  This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
+ *  This plugin is developed and maintained by SURLABS and is a port of STACK Question for Moodle,
+ *  originally created by Chris Sangwin.
+ *
+ *  The STACK Question plugin for ILIAS is open-source and licensed under GPL-3.0.
+ *  For license details, visit https://www.gnu.org/licenses/gpl-3.0.en.html.
+ *
+ *  To report bugs or participate in discussions, visit the Mantis system and filter by
+ *  the category "STACK Question" at https://mantis.ilias.de.
+ *
+ *  More information and source code are available at:
+ *  https://github.com/surlabs/STACK
+ *
+ *  If you need support, please contact the maintainer of this software at:
+ *  stack@surlabs.es
+ *
  */
 
 //require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
@@ -22,14 +37,14 @@ class assStackQuestionMoodleXMLExport
 
 	function __construct($stack_questions)
 	{
-		global $DIC;
+		global $DIC, $tpl;
 
 		$lng = $DIC->language();
 		if (is_array($stack_questions) and sizeof($stack_questions)) {
 			$this->setStackQuestions($stack_questions);
 
 		} else {
-			ilUtil::sendFailure($lng->txt('qpl_qst_xqcas_moodlexml_no_questions_selected'), true);
+			$tpl->setOnScreenMessage('failure', $lng->txt('qpl_qst_xqcas_moodlexml_no_questions_selected'), true);
 		}
 	}
 

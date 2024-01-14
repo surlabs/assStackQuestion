@@ -60,31 +60,22 @@ class assStackQuestionGUI extends assQuestionGUI
 	protected array $rte_tags = array();
 
 	/**
-	 * Stores the preview data while on preview mode
-	 * Otherwise empty
-	 * @var array
+	 * true if the question is in preview mode
+	 * @var bool
 	 */
-	private array $is_preview;
+	private bool $is_preview = false;
 
 	/**
 	 * assStackQuestionGUI constructor.
 	 */
 	public function __construct($id = -1)
 	{
+        global $tpl;
         parent::__construct();
 
         //Initialize plugin object
-        //require_once './Services/Component/classes/class.ilPlugin.php';
-        try {
-            $plugin = ilPlugin::getPluginObject(IL_COMP_MODULE, 'TestQuestionPool', 'qst', 'assStackQuestion');
-            if (!is_a($plugin, 'ilassStackQuestionPlugin')) {
-                ilUtil::sendFailure('Not ilassStackQuestionPlugin object', true);
-            } else {
-                $this->setPlugin($plugin);
-            }
-        } catch (ilPluginException $e) {
-            ilUtil::sendFailure($e, true);
-        }
+        $plugin = ilPlugin::getPluginObject(IL_COMP_MODULE, 'TestQuestionPool', 'qst', 'assStackQuestion');
+        $this->setPlugin($plugin);
 
         //Initialize and loads the Stack question from DB
         $this->object = new assStackQuestion();
@@ -96,7 +87,7 @@ class assStackQuestionGUI extends assQuestionGUI
                 $this->object->loadFromDb($id);
 
             } catch (stack_exception $e) {
-                ilUtil::sendFailure($e, true);
+                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             }
         }
         //Initialize some STACK required parameters
@@ -117,7 +108,7 @@ class assStackQuestionGUI extends assQuestionGUI
      */
 	public function getTestOutput($active_id, $pass, $is_question_postponed, $user_post_solutions, $show_specific_inline_feedback)
 	{
-        $seed = assStackQuestionDB::_getSeed("test", $this->object, (int) $active_id);
+        $seed = assStackQuestionDB::_getSeed("test", $this->object, (int) $active_id, (int) $pass);
         $this->object->questionInitialisation($seed, true);
         $user_response = StackUserResponseIlias::getStackUserResponse('test', (int) $this->object->getId(), (int) $active_id, (int) $pass);
 
@@ -139,6 +130,7 @@ class assStackQuestionGUI extends assQuestionGUI
         $display_options = [];
         $display_options['readonly'] = false;
         $display_options['feedback'] = true;
+        $display_options['feedback_style'] = 1;
 
         //Render question
         $question = StackRenderIlias::renderQuestion($attempt_data, $display_options);
@@ -150,7 +142,12 @@ class assStackQuestionGUI extends assQuestionGUI
 	}
 
     /**
-     * Returns question view with correct response filled in
+     * Returns question view with a response filled in
+     * It can be the user response
+     * It can be the correct response
+     * Depending on the context
+     * Called multiple times at execution
+     * This method is called from the test view and from the question pool view
      * @param integer $active_id The active user id
      * @param integer|null $pass The test pass
      * @param boolean $graphicalOutput Show visual feedback for right/wrong answers
@@ -165,14 +162,27 @@ class assStackQuestionGUI extends assQuestionGUI
      */
 	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true): string
     {
-        $seed = assStackQuestionDB::_getSeed($show_correct_solution ? "correct" : "test", $this->object, (int)$active_id);
+        global $tpl;
+
+        StackRenderIlias::ensureMathJaxLoaded();
+
+        if (!is_null($active_id) && (int)$active_id !== 0) {
+            $purpose = 'test';
+            if (is_null($pass)) {
+                $pass = ilObjTest::_getPass($active_id);
+            }
+        } else {
+            $purpose = 'preview';
+        }
+
+        $seed = assStackQuestionDB::_getSeed($purpose, $this->object, (int)$active_id, (int)$pass);
 
         //Instantiate Question if not.
         if (!$this->object->isInstantiated()) {
             try{
                 $this->object->questionInitialisation($seed, true);
             } catch (stack_exception|StackException $e) {
-                ilUtil::sendFailure($e->getMessage(), true);
+                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
                 return '';
             }
         }
@@ -184,7 +194,7 @@ class assStackQuestionGUI extends assQuestionGUI
             try{
                 $this->object->evaluateQuestion($user_response);
             } catch (stack_exception|StackException $e) {
-                ilUtil::sendFailure($e->getMessage(), true);
+                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
                 return '';
             }
         }
@@ -208,23 +218,22 @@ class assStackQuestionGUI extends assQuestionGUI
         $display_options = [];
         $display_options['readonly'] = true;
         $display_options['feedback'] = true;
+        $display_options['feedback_style'] = 1;
 
         //Render question (and general feedback if solution)
-        $question = '';
+        $question = assStackQuestionUtils::_getLatex(StackRenderIlias::renderQuestion($attempt_data, $display_options));
+
         if ($show_correct_solution) {
             global $DIC;
-            $question .= StackRenderIlias::renderGeneralFeedback($attempt_data, $display_options);
             $question .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->divider()->horizontal());
+            $question .= assStackQuestionUtils::_getLatex(StackRenderIlias::renderGeneralFeedback($attempt_data, $display_options));
         }
-
-        $question .= StackRenderIlias::renderQuestion($attempt_data, $display_options);
-
 
         if (!$show_question_only) {
             $question = $this->getILIASPage($question);
         }
 
-        return assStackQuestionUtils::_getLatex($question);
+        return $question;
 	}
 
     /**
@@ -236,7 +245,8 @@ class assStackQuestionGUI extends assQuestionGUI
      */
 	public function getPreview($show_question_only = false, $showInlineFeedback = false): string
 	{
-		global $DIC;
+		global $DIC, $tpl;
+        $this->is_preview = true;
 
         $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
         $user_response = StackUserResponseIlias::getStackUserResponse('preview', $this->object->getId(), $DIC->user()->getId());
@@ -246,7 +256,7 @@ class assStackQuestionGUI extends assQuestionGUI
             try{
                 $this->object->questionInitialisation($seed, true);
             } catch (stack_exception|StackException $e) {
-                ilUtil::sendFailure($e->getMessage(), true);
+                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
                 return '';
             }
         }
@@ -256,7 +266,7 @@ class assStackQuestionGUI extends assQuestionGUI
             try{
                 $this->object->evaluateQuestion($user_response);
             } catch (stack_exception|StackException $e) {
-                ilUtil::sendFailure($e->getMessage(), true);
+                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
                 return '';
             }
 		}
@@ -292,44 +302,65 @@ class assStackQuestionGUI extends assQuestionGUI
 		return assStackQuestionUtils::_getLatex($question_preview);
 	}
 
-	/**
-	 * Returns the HTML for the specific feedback output
-	 * @param $userSolution
-	 * @return string HTML Code with the rendered specific feedback text including the general feedback
-	 */
+    /**
+     * Returns the HTML for the specific feedback output
+     * @param $userSolution
+     * @return string HTML Code with the rendered specific feedback text including the general feedback
+     * @throws StackException
+     * @throws stack_exception
+     */
 	public function getSpecificFeedbackOutput($userSolution): string
 	{
-        global $DIC;
+        global $DIC, $tpl;
 
-        $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
-        $user_response = StackUserResponseIlias::getStackUserResponse('preview', (int)$this->object->getId(), $DIC->user()->getId());
+        if ($this->is_preview) {
+            $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
+            $response = StackUserResponseIlias::getStackUserResponse('preview', (int)$this->object->getId(), $DIC->user()->getId());
+        } else {
+            if (array_key_exists('active_id', $DIC->http()->request()->getQueryParams())) {
+                $active_id = $DIC->http()->request()->getQueryParams()['active_id'];
+            } else {
+                $active_id = null;
+            }
+            $pass = ilObjTest::_getPass($active_id);
+
+            $seed = assStackQuestionDB::_getSeed("test", $this->object, (int)$active_id, (int)$pass);
+            $user_response = StackUserResponseIlias::getStackUserResponse('test', (int)$this->object->getId(), (int) $active_id, (int) $pass);
+            $response = [];
+            if(isset($user_response["inputs"])) {
+                foreach ($user_response["inputs"] as $input_name => $input) {
+                    $response[$input_name] = $input["value"];
+                }
+            }
+        }
 
         //Instantiate Question if not.
         if (!$this->object->isInstantiated()) {
             try{
                 $this->object->questionInitialisation($seed, true);
             } catch (stack_exception|StackException $e) {
-                ilUtil::sendFailure($e->getMessage(), true);
+                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             }
         }
 
         //Ensure evaluation has been done
         if (empty($this->object->getEvaluation())) {
             try{
-                $this->object->evaluateQuestion($user_response);
+                $this->object->evaluateQuestion($response);
             } catch (stack_exception|StackException $e) {
-                ilUtil::sendFailure($e->getMessage(), true);
+                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             }
         }
 
         $attempt_data = [];
 
-        $attempt_data['response'] = $user_response;
+        $attempt_data['response'] = $response;
         $attempt_data['question'] = $this->object;
 
         $display_options = [];
-        $display_options['readonly'] = false;
+        $display_options['readonly'] = true;
         $display_options['feedback'] = true;
+        $display_options['feedback_style'] = 1;
 
         //Render question specific feedback
         $specific_feedback_preview = StackRenderIlias::renderSpecificFeedback($attempt_data, $display_options);
@@ -372,7 +403,7 @@ class assStackQuestionGUI extends assQuestionGUI
      */
 	public function writeQuestionSpecificPostData()
 	{
-		//require_once("./Services/RTE/classes/class.ilRTE.php");
+        global $tpl;
 
 		//Question Text - Reload it with RTE (already loaded in writeQuestionGenericPostData())
 		$question_text = ((isset($_POST['question']) and $_POST['question'] != null) ? ilUtil::stripSlashes($_POST['question'], true, $this->getRTETags()) : '');
@@ -393,7 +424,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			//SET OPTIONS
 			$this->object->options = $options;
 		} catch (stack_exception $e) {
-			ilUtil::sendFailure($e, true);
+			$tpl->setOnScreenMessage('failure', $e, true);
 		}
 
 		//Load data sent as options but not part of the session options
@@ -462,7 +493,7 @@ class assStackQuestionGUI extends assQuestionGUI
             //Is new? Then load Standard PRT
 			if (!isset($this->object->prts[$prt_name])) {
 				$this->object->loadStandardPRT($prt_name);
-				ilUtil::sendSuccess('New PRT: ' . $prt_name . ' Created', true);
+				$tpl->setOnScreenMessage('success', 'New PRT: ' . $prt_name . ' Created', true);
 			} else {
                 $prt_data = new stdClass();
 
@@ -614,7 +645,8 @@ class assStackQuestionGUI extends assQuestionGUI
 
         //35855 ensure warning if shown if no question note is added when randomised
         if(assStackQuestionUtils::_showRandomisationWarning($this->object)){
-            ilUtil::sendInfo(stack_string('questionnotempty'));
+            global $tpl;
+            $tpl->setOnScreenMessage('info', stack_string('questionnotempty'));
         }
 
 		//Returns Question Authoring form
@@ -633,7 +665,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function questionCheck(): bool
 	{
 
-		global $DIC;
+		global $DIC,$tpl;
 		$lng = $DIC->language();
 
 		if (is_array($_POST['cmd']['save'])) {
@@ -646,7 +678,7 @@ class assStackQuestionGUI extends assQuestionGUI
 					//Set prt name and question id into session
 					$_SESSION['copy_prt'] = $this->object->getId() . "_" . $prt_name;
 
-					ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_prt_copied_to_clipboard"), true);
+					$tpl->setOnScreenMessage('info', $lng->txt("qpl_qst_xqcas_prt_copied_to_clipboard"), true);
 					return true;
 				}
 
@@ -699,12 +731,12 @@ class assStackQuestionGUI extends assQuestionGUI
 					if (isset($_POST['cmd']['save']['delete_prt_' . $prt_name . '_node_' . $node->nodename])) {
 
 						if (sizeof($prt->get_nodes()) < 2) {
-							ilUtil::sendFailure($this->object->getPlugin()->txt('deletion_error_not_enought_prt_nodes'));
+							$tpl->setOnScreenMessage('failure', $this->object->getPlugin()->txt('deletion_error_not_enought_prt_nodes'));
 							return false;
 						}
 
 						if ((int)$prt->get_first_node() == (int)$node_name) {
-							ilUtil::sendFailure($this->object->getPlugin()->txt('deletion_error_first_node'));
+							$tpl->setOnScreenMessage('failure', $this->object->getPlugin()->txt('deletion_error_first_node'));
 							return false;
 						}
 
@@ -717,7 +749,7 @@ class assStackQuestionGUI extends assQuestionGUI
 						$prt->setNodes($new_nodes);
 						$this->object->prts[$prt_name] = $prt;
 
-						ilUtil::sendSuccess("nodes deleted", true);
+						$tpl->setOnScreenMessage('success', "nodes deleted", true);
 						return true;
 					}
 
@@ -726,7 +758,7 @@ class assStackQuestionGUI extends assQuestionGUI
 						//Set node into session
 						$_SESSION['copy_node'] = $this->object->getId() . "_" . $prt_name . "_" . $node->nodename;
 
-						ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_node_copied_to_clipboard"), true);
+						$tpl->setOnScreenMessage('info', $lng->txt("qpl_qst_xqcas_node_copied_to_clipboard"), true);
 						return true;
 					}
 
@@ -888,15 +920,44 @@ class assStackQuestionGUI extends assQuestionGUI
 				}
 			}
 			// edit question properties
-			$tabs->addTarget("edit_properties", $url, array("editQuestion", "save", "cancel", "addSuggestedSolution", "cancelExplorer", "linkChilds", "removeSuggestedSolution", "parseQuestion", "saveEdit", "suggestRange"), $classname, "", $force_active);
+			$tabs->addTarget("edit_properties", $url, array("editQuestion",
+                "save",
+                "cancel",
+                "addSuggestedSolution",
+                "cancelExplorer",
+                "linkChilds",
+                "removeSuggestedSolution",
+                "parseQuestion",
+                "saveEdit",
+                "suggestRange"
+            ), $classname, "", $force_active);
 
 			$this->addTab_QuestionFeedback($tabs);
 
-			if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'randomisationAndSecurity', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle','generateNewVariants', 'runAllTestsForActiveVariant', 'runAllTestsForAllVariants', 'addCustomTestForm', 'editTestcases'))) {
+			if (in_array($_GET['cmd'], array(
+                'importQuestionFromMoodleForm',
+                'importQuestionFromMoodle',
+                'editQuestion',
+                'scoringManagement',
+                'scoringManagementPanel',
+                'randomisationAndSecurity',
+                'deleteDeployedSeed',
+                'post',
+                'exportQuestiontoMoodleForm',
+                'exportQuestionToMoodle',
+                'generateNewVariants',
+                'setAsActiveVariant',
+                'runUnitTest',
+                'runAllTestsForActiveVariant',
+                'runAllTestsForAllVariants',
+                'addCustomTestForm',
+                'addStandardTest',
+                'editTestcases',
+                'deleteUnitTest'
+            ))) {
 				$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 				$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
 				$tabs->addSubTab('randomisation_and_security', $this->plugin->txt('ui_author_randomisation_and_security_title'), $this->ctrl->getLinkTargetByClass($classname, "randomisationAndSecurity"));
-				//$tabs->addSubTab('unit_tests', $this->plugin->txt('ut_title'), $this->ctrl->getLinkTargetByClass($classname, "showUnitTests"));
 				$tabs->addSubTab('import_from_moodle', $this->plugin->txt('import_from_moodle'), $this->ctrl->getLinkTargetByClass($classname, "importQuestionFromMoodleForm"));
 				$tabs->addSubTab('export_to_moodle', $this->plugin->txt('export_to_moodle'), $this->ctrl->getLinkTargetByClass($classname, "exportQuestiontoMoodleForm"));
 			}
@@ -958,11 +1019,30 @@ class assStackQuestionGUI extends assQuestionGUI
 		// edit question properties
 		$tabs->addTarget("edit_properties", $url, array("editQuestion", "save", "cancel", "addSuggestedSolution", "cancelExplorer", "linkChilds", "removeSuggestedSolution", "parseQuestion", "saveEdit", "suggestRange"), $classname, "", $force_active);
 
-		if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm', 'importQuestionFromMoodle', 'editQuestion', 'scoringManagement', 'scoringManagementPanel', 'randomisationAndSecurity', 'createNewDeployedSeed', 'deleteDeployedSeed', 'showUnitTests', 'runTestcases', 'createTestcases', 'post', 'exportQuestiontoMoodleForm', 'exportQuestionToMoodle','generateNewVariants', 'runAllTestsForActiveVariant', 'runAllTestsForAllVariants', 'addCustomTestForm'))) {
+		if (in_array($_GET['cmd'], array('importQuestionFromMoodleForm',
+            'importQuestionFromMoodleForm',
+            'importQuestionFromMoodle',
+            'editQuestion',
+            'scoringManagement',
+            'scoringManagementPanel',
+            'randomisationAndSecurity',
+            'deleteDeployedSeed',
+            'post',
+            'exportQuestiontoMoodleForm',
+            'exportQuestionToMoodle',
+            'generateNewVariants',
+            'setAsActiveVariant',
+            'runUnitTest',
+            'runAllTestsForActiveVariant',
+            'runAllTestsForAllVariants',
+            'addCustomTestForm',
+            'addStandardTest',
+            'editTestcases',
+            'deleteUnitTest'
+        ))) {
 			$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 			$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
 			$tabs->addSubTab('randomisation_and_security', $this->plugin->txt('ui_author_randomisation_and_security_title'), $this->ctrl->getLinkTargetByClass($classname, "randomisationAndSecurity"));
-			//$tabs->addSubTab('unit_tests', $this->plugin->txt('ut_title'), $this->ctrl->getLinkTargetByClass($classname, "showUnitTests"));
 		}
 
 	}
@@ -973,14 +1053,14 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function importQuestionFromMoodleForm()
 	{
-		global $DIC;
+		global $DIC, $tpl;
 
 		$lng = $DIC->language();
 		$tabs = $DIC->tabs();
 
 		//#25145
 		if (isset($_REQUEST["test_ref_id"])) {
-			ilUtil::sendFailure($lng->txt("qpl_qst_xqcas_import_in_test_error"), TRUE);
+			$tpl->setOnScreenMessage('failure', $lng->txt("qpl_qst_xqcas_import_in_test_error"), TRUE);
 			$DIC->ctrl()->redirect($this, 'editQuestion');
 		}
 
@@ -1018,7 +1098,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function importQuestionFromMoodle()
 	{
-		global $DIC;
+		global $DIC, $tpl;
 		$tabs = $DIC->tabs();
 
 		//Set all parameters required
@@ -1029,13 +1109,13 @@ class assStackQuestionGUI extends assQuestionGUI
 		if (file_exists($_FILES["questions_xml"]["tmp_name"])) {
 			$xml_file = $_FILES["questions_xml"]["tmp_name"];
 		} else {
-			ilUtil::sendFailure($this->plugin->txt('error_import_question_in_test'), true);
+			$tpl->setOnScreenMessage('failure', $this->plugin->txt('error_import_question_in_test'), true);
 			return;
 		}
 
 		//CHECK FOR NOT ALLOW IMPROT QUESTIONS DIRECTLY IN TESTS
 		if (isset($_GET['calling_test'])) {
-			ilUtil::sendFailure($this->plugin->txt('error_import_question_in_test'), true);
+			$tpl->setOnScreenMessage('failure', $this->plugin->txt('error_import_question_in_test'), true);
 		} else {
 			//Include import class and prepare object
 			//$this->plugin->includeClass('model/import/MoodleXML/class.assStackQuestionMoodleImport.php');
@@ -1054,11 +1134,11 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function exportQuestiontoMoodleForm()
 	{
 
-		global $DIC;
+		global $DIC, $tpl;
 		$tabs = $DIC->tabs();
 		$lng = $DIC->language();
 
-        ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_page_editor_compatibility_info"),true);
+        $tpl->setOnScreenMessage('info', $lng->txt("qpl_qst_xqcas_page_editor_compatibility_info"),true);
 
 		//Set all parameters required
 		$tabs->activateTab('edit_properties');
@@ -1105,7 +1185,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function exportQuestionToMoodle()
 	{
-		global $DIC;
+		global $DIC, $tpl;
 		$tabs = $DIC->tabs();
 		$lng = $DIC->language();
 
@@ -1136,11 +1216,11 @@ class assStackQuestionGUI extends assQuestionGUI
 				$export_to_moodle->toMoodleXML();
 
 			} catch (stack_exception $e) {
-				ilUtil::sendFailure($e, true);
+				$tpl->setOnScreenMessage('failure', $e, true);
 			}
 
 		} else {
-			ilUtil::sendFailure($lng->txt('qpl_qst_xqcas_error_exporting_to_moodle_question_id'), true);
+			$tpl->setOnScreenMessage('failure', $lng->txt('qpl_qst_xqcas_error_exporting_to_moodle_question_id'), true);
 		}
 	}
 
@@ -1149,6 +1229,9 @@ class assStackQuestionGUI extends assQuestionGUI
      * Redirects to the Deployed Seeds Tabs
      * @param int|null $force_active_seed
      * @return void
+     * @throws StackException
+     * @throws ilCtrlException
+     * @throws stack_exception
      */
 	public function randomisationAndSecurity(?int $force_active_seed = null): void
 	{
@@ -1182,36 +1265,13 @@ class assStackQuestionGUI extends assQuestionGUI
 		//$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_deployed_seeds_management.css'));
 
 		//Returns Deployed seeds form
-		$this->tpl->setVariable("QUESTION_DATA", $ui->show(true));
+		$this->tpl->setVariable("QUESTION_DATA", $ui->show());
 	}
 
 	/**
-	 * Deploys new seed in the Deployed Seeds Tabs
-	 * @return void
-	 */
-	public function createNewDeployedSeed()
-	{
-		global $DIC;
-		$tabs = $DIC->tabs();
-		//Set all parameters required
-		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('randomisation_and_security');
-		$this->getQuestionTemplate();
-
-		//New seed creation
-		$seed = (int)$_POST['deployed_seed'];
-		$question_id = (int)$_POST['question_id'];
-
-        //save seed
-        assStackQuestionDB::_saveStackSeeds($this->object,'add',$seed);
-
-		$this->randomisationAndSecurity();
-	}
-
-	/*
 	 * Deletes a deployed seed
 	 */
-	public function deleteDeployedSeed()
+	public function deleteDeployedSeed(): void
 	{
 		global $DIC;
         $factory = $DIC->ui()->factory();
@@ -1280,8 +1340,9 @@ class assStackQuestionGUI extends assQuestionGUI
 		if (isset($_POST['new_scoring']) and (float)$_POST['new_scoring'] > 0.0) {
 			$new_question_points = (float)ilUtil::stripSlashes($_POST['new_scoring']);
 		} else {
-			$this->question_gui->object->setErrors($this->plugin->txt('sco_invalid_value'));
+			$this->object->setErrors($this->plugin->txt('sco_invalid_value'));
 		}
+
 		//Show scoring panel with comparison
 		$this->scoringManagementPanel($new_question_points);
 	}
@@ -1292,80 +1353,24 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	public function saveNewScoring()
 	{
+        global $tpl;
+
 		//Get new points value and save it to the DB
 		if (isset($_POST['new_scoring']) and (float)$_POST['new_scoring'] > 0.0) {
 			$this->object->setPoints(ilUtil::stripSlashes($_POST['new_scoring']));
 			$this->object->saveQuestionDataToDb($this->object->getId());
 		} else {
-			$this->question_gui->object->setErrors($this->plugin->txt('sco_invalid_value'));
+            $tpl->setContent
+            ($this->plugin->txt('sco_invalid_value'));
 		}
 		//Show scoring panel
 		$this->scoringManagementPanel();
 	}
 
-    public function showUnitTests()
-    {
-        $this->object->instantiateUnitTests();
-        $unit_test_data = $this->object->getUnitTests();
-
-        $ui = new RandomisationAndSecurityUI([]);
-        $this->tpl->setContent($ui->show(true));
-    }
-
-	/**
-	 * Command for run testcases
-	 */
-	public function runTestcases()
-	{
-		global $DIC;
-		$tabs = $DIC->tabs();
-
-		//Set all parameters required
-		//$this->plugin->includeClass('utils/class.assStackQuestionStackFactory.php');
-		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('unit_tests');
-		$this->getQuestionTemplate();
-
-		//get Post vars
-		if (isset($_POST['test_id'])) {
-			$test_id = $_POST['test_id'];
-		}
-		if (isset($_POST['question_id'])) {
-			$question_id = $_POST['question_id'];
-		}
-		if (isset($_POST['testcase_name'])) {
-			$testcase_name = $_POST['testcase_name'];
-		} else {
-			$testcase_name = FALSE;
-		}
-
-		//Create STACK Question object if doesn't exists
-		if (!is_a($this->object->getStackQuestion(), 'assStackQuestionStackQuestion')) {
-			//$this->plugin->includeClass("model/class.assStackQuestionStackQuestion.php");
-			$this->object->setStackQuestion(new assStackQuestionStackQuestion());
-			$this->object->getStackQuestion()->init($this->object);
-		}
-
-		//Create Unit test object
-		//$this->plugin->includeClass("model/ilias_object/test/class.assStackQuestionUnitTests.php");
-		$unit_tests_object = new assStackQuestionUnitTests($this->plugin, $this->object);
-		$unit_test_results = $unit_tests_object->runTest($testcase_name);
-
-		//Create GUI object
-		//$this->plugin->includeClass('GUI/test/class.assStackQuestionTestGUI.php');
-		$unit_test_gui = new assStackQuestionTestGUI($this, $this->plugin, $unit_test_results);
-
-		//Add CSS
-		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
-
-		//Returns Deployed seeds form
-		$this->tpl->setVariable("QUESTION_DATA", $unit_test_gui->showUnitTestsPanel(TRUE));
-	}
-
 	/**
 	 * Command for edit testcases
 	 */
-	public function editTestcases()
+	public function editTestcases(): void
 	{
 
 		global $DIC;
@@ -1386,169 +1391,6 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 
         $globalTemplate->setContent($render);
-	}
-
-	/**
-	 * Calling command for edit testcases
-	 */
-	public function doEditTestcase()
-	{
-		if (isset($_POST['testcase_name'])) {
-			$testcase_name = $_POST['testcase_name'];
-			$test = $this->object->getTests($testcase_name);
-		} else {
-			$testcase_name = FALSE;
-		}
-
-		if (is_a($test, 'assStackQuestionTest')) {
-			//Creation of inputs
-			foreach ($this->object->getInputs() as $input_name => $q_input) {
-				$exists = FALSE;
-				foreach ($test->getTestInputs() as $input) {
-					if ($input->getTestInputName() == $input_name) {
-						if (isset($_REQUEST[$input->getTestInputName()])) {
-							$input->setTestInputValue($_REQUEST[$input->getTestInputName()]);
-							$input->checkTestInput();
-							$input->save();
-							$exists = TRUE;
-						}
-					}
-				}
-
-				//Correct current mistakes
-				if (!$exists) {
-					$new_test_input = new assStackQuestionTestInput(-1, $this->object->getId(), $testcase_name);
-					$new_test_input->setTestInputName($input_name);
-					$new_test_input->setTestInputValue("");
-					$new_test_input->save();
-				}
-			}
-
-
-			//Creation of expected results
-			foreach ($test->getTestExpected() as $index => $prt) {
-				if (isset($_REQUEST['score_' . $prt->getTestPRTName()])) {
-					$prt->setExpectedScore(ilUtil::stripSlashes($_REQUEST['score_' . $prt->getTestPRTName()]));
-				}
-				if (isset($_REQUEST['penalty_' . $prt->getTestPRTName()])) {
-					$prt->setExpectedPenalty(ilUtil::stripSlashes($_REQUEST['penalty_' . $prt->getTestPRTName()]));
-				}
-				if (isset($_REQUEST['answernote_' . $prt->getTestPRTName()])) {
-					$prt->setExpectedAnswerNote(ilUtil::stripSlashes($_REQUEST['answernote_' . $prt->getTestPRTName()]));
-				}
-				$prt->checkTestExpected();
-				$prt->save();
-			}
-		}
-
-		$this->showUnitTests();
-	}
-
-	/*
-	 * Command for create testcases
-	 */
-	public function createTestcases()
-	{
-		global $DIC;
-		$tabs = $DIC->tabs();
-		//Set all parameters required
-		//$this->plugin->includeClass('utils/class.assStackQuestionStackFactory.php');
-		$tabs->activateTab('edit_properties');
-		$tabs->activateSubTab('unit_tests');
-		$this->getQuestionTemplate();
-
-		//Create GUI object
-		//$this->plugin->includeClass('GUI/test/class.assStackQuestionTestGUI.php');
-		$unit_test_gui = new assStackQuestionTestGUI($this, $this->plugin);
-
-		//Add CSS
-		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_unit_tests.css'));
-
-		//Returns Deployed seeds form
-		$testcase_name = assStackQuestionUtils::_getNewTestCaseNumber($this->object->getId());
-		$this->tpl->setVariable("QUESTION_DATA", $unit_test_gui->createTestcaseForm($testcase_name, $this->object->getInputs(), $this->object->getPotentialResponsesTrees()));
-	}
-
-	/*
-	 * Calling command for create testcases
-	 */
-	public function doCreateTestcase()
-	{
-		//boolean correct
-		$testcase = assStackQuestionUtils::_getNewTestCaseNumber($this->object->getId());
-		$new_test = new assStackQuestionTest(-1, $this->object->getId(), $testcase);
-
-		//Creation of inputs
-		foreach ($this->object->getInputs() as $input_name => $input) {
-			$new_test_input = new assStackQuestionTestInput(-1, $this->object->getId(), $testcase);
-			$new_test_input->setTestInputName($input_name);
-
-			if (isset($_REQUEST[$input_name])) {
-				$new_test_input->setTestInputValue(ilUtil::stripSlashes($_REQUEST[$input_name]));
-			} else {
-				$new_test_input->setTestInputValue("");
-			}
-
-			$new_test_input->save();
-			$test_inputs[] = $new_test_input;
-		}
-
-		//Creation of expected results
-		foreach ($this->object->getPotentialResponsesTrees() as $prt_name => $prt) {
-			//Getting the PRT name
-			$new_test_expected = new assStackQuestionTestExpected(-1, $this->object->getId(), $testcase, $prt_name);
-
-			if (isset($_REQUEST['score_' . $prt_name])) {
-				$new_test_expected->setExpectedScore(ilUtil::stripSlashes($_REQUEST['score_' . $prt_name]));
-			} else {
-				$new_test_expected->setExpectedScore("");
-			}
-
-			if (isset($_REQUEST['penalty_' . $prt_name])) {
-				$new_test_expected->setExpectedPenalty(ilUtil::stripSlashes($_REQUEST['penalty_' . $prt_name]));
-			} else {
-				$new_test_expected->setExpectedPenalty("");
-			}
-
-			if (isset($_REQUEST['answernote_' . $prt_name])) {
-				$new_test_expected->setExpectedAnswerNote(ilUtil::stripSlashes($_REQUEST['answernote_' . $prt_name]));
-			} else {
-				$new_test_expected->setExpectedAnswerNote("");
-			}
-			$new_test_expected->save();
-			$test_expected[] = $new_test_expected;
-		}
-
-		$new_test->setTestExpected($test_expected);
-		$new_test->setTestInputs($test_inputs);
-		$new_test->save();
-
-		$this->showUnitTests();
-	}
-
-	/*
-	 * Command for deleting testcases
-	 */
-	public function doDeleteTestcase()
-	{
-		//get Post vars
-		if (isset($_POST['test_id'])) {
-			$test_id = $_POST['test_id'];
-		}
-		if (isset($_POST['question_id'])) {
-			$question_id = $_POST['question_id'];
-		}
-		if (isset($_POST['testcase_name'])) {
-			$testcase_name = $_POST['testcase_name'];
-		} else {
-			$testcase_name = FALSE;
-		}
-
-		$new_tests = assStackQuestionTest::_read($question_id, $testcase_name);
-		$new_test = $new_tests[$testcase_name];
-		$new_test->delete($question_id, $testcase_name);
-
-		$this->showUnitTests();
 	}
 
 	/* GETTERS AND SETTERS */
@@ -1608,18 +1450,18 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->rte_tags = $rte_tags;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getIsPreview(): array
+    /**
+     * @return bool
+     */
+	public function getIsPreview(): bool
 	{
 		return $this->is_preview;
 	}
 
-	/**
-	 * @param array $is_preview
-	 */
-	public function setIsPreview(array $is_preview): void
+    /**
+     * @param bool $is_preview
+     */
+	public function setIsPreview(bool $is_preview): void
 	{
 		$this->is_preview = $is_preview;
 	}
@@ -1631,6 +1473,12 @@ class assStackQuestionGUI extends assQuestionGUI
     }
 
     public function editUnitTestUI(){
+        global $DIC;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
         $ui = new RandomisationAndSecurityUI([]);
         $this->tpl->setContent($ui->show_form_in_modal());
     }
@@ -1638,19 +1486,17 @@ class assStackQuestionGUI extends assQuestionGUI
 
     public function setAsActiveVariant()
     {
+        global $DIC;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
         if(isset($_GET['variant_identifier'])){
             $variant_id = $_GET['variant_identifier'];
             assStackQuestionDB::_saveSeedForPreview($this->object->getId(),(int)$variant_id);
         }
         $this->randomisationAndSecurity();
-    }
-
-    public function changeToRandomSeed()
-    {
-        $seed = rand(1111111111,9999999999);
-        $this->object->deployed_seeds[$seed] = $seed;
-        assStackQuestionDB::_saveSeedForPreview($this->object->getId(),$seed);
-        $this->randomisationAndSecurity($seed);
     }
 
     /**
@@ -1659,6 +1505,10 @@ class assStackQuestionGUI extends assQuestionGUI
     public function generateNewVariants()
     {
         global $DIC;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
 
         $factory = $DIC->ui()->factory();
         $renderer = $DIC->ui()->renderer();
@@ -1692,7 +1542,7 @@ class assStackQuestionGUI extends assQuestionGUI
         $content = "";
 
         if ($generated_seeds > 0) {
-            $content .= $renderer->render($factory->messageBox()->success($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_sucessfully_on_seeds_generation'), $generated_seeds));
+            $content .= $renderer->render($factory->messageBox()->success((string)$generated_seeds . ' '. $DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_sucessfully_on_seeds_generation')));
         } else {
             $content .= $renderer->render($factory->messageBox()->failure($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_failed_on_seeds_generation')));
         }
@@ -1709,6 +1559,10 @@ class assStackQuestionGUI extends assQuestionGUI
     public function runAllTestsForActiveVariant()
     {
         global $DIC;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
 
         $factory = $DIC->ui()->factory();
         $renderer = $DIC->ui()->renderer();
@@ -1758,6 +1612,10 @@ class assStackQuestionGUI extends assQuestionGUI
     public function runAllTestsForAllVariants()
     {
         global $DIC;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
 
         $factory = $DIC->ui()->factory();
         $renderer = $DIC->ui()->renderer();
@@ -1806,9 +1664,13 @@ class assStackQuestionGUI extends assQuestionGUI
         $this->tpl->setContent($content);
     }
 
-    public function addCustomTestForm()
+    /**
+     * Shows the form for adding a custom test
+     * @return void
+     */
+    public function addCustomTestForm(): void
     {
-        GLOBAL $DIC;
+        global $DIC;
         $tabs = $DIC->tabs();
 
         $tabs->activateTab('edit_properties');
@@ -1819,15 +1681,17 @@ class assStackQuestionGUI extends assQuestionGUI
     }
 
     /**
+     * Called when executing a specific test
      * @throws stack_exception
      * @throws StackException
      */
     public function runUnitTest()
     {
-        global $DIC;
+        global $DIC, $tpl;
+        $tabs = $DIC->tabs();
 
-        $factory = $DIC->ui()->factory();
-        $renderer = $DIC->ui()->renderer();
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
 
         $unit_test = $this->object->getUnitTests()["test_cases"][$_GET["test_case"]];
 
@@ -1837,38 +1701,56 @@ class assStackQuestionGUI extends assQuestionGUI
             $inputs[$name] = $input["value"];
         }
 
-        $testcase = new StackUnitTest($unit_test["description"], $inputs, (int) $_GET["test_case"]);
+        $testcase = new StackUnitTest($unit_test["description"], $inputs, (int)$_GET["test_case"]);
 
         foreach ($unit_test["expected"] as $name => $expected) {
-            $testcase->addExpectedResult($name, new stack_potentialresponse_tree_state(1, true, (float) $expected["score"], (float) $expected["penalty"], '', array($expected["answer_note"])));
+            $testcase->addExpectedResult($name,
+                new stack_potentialresponse_tree_state(
+                    1,
+                    true,
+                    (float)$expected["score"],
+                    (float)$expected["penalty"],
+                    '', array($expected["answer_note"]
+                )));
         }
 
-        $result = $testcase->run($this->object->getId(), (int) $_GET["variant_identifier"]);
+        $result = $testcase->run($this->object->getId(), (int)$_GET["variant_identifier"]);
 
-        $content = "";
-
+        $message = $testcase->testCase . ': ';
         if ($result->passed() === '1') {
-            $content .= $renderer->render($factory->messageBox()->success($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_passed')));
-        } elseif ($result->passed() === '0') {
-            $content .= $renderer->render($factory->messageBox()->failure($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed_empty')));
+            $type = 'success';
+            $message .= $DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_passed');
         } else {
-            $content .= $renderer->render($factory->messageBox()->failure($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed')));
+            $type = 'failure';
+            $message .= $DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed');
         }
 
-        $content .= $renderer->render($factory->button()->standard($DIC->language()->txt("back"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
+        $tpl->setOnScreenMessage($type, $message, true);
 
-        $this->tpl->setContent($content);
+        $this->randomisationAndSecurity();
     }
 
     /**
+     * Called when adding a standard test
      * @throws stack_exception
      */
-    public function addStandardTest(){
+    public function addStandardTest(): void
+    {
+        global $DIC, $tpl;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
         if (!$this->object->isInstantiated()) {
             $this->object->questionInitialisation(0);
         }
 
         StackUnitTest::addDefaultTestcase($this->object);
+
+        $tpl->setOnScreenMessage('success',
+            $this->object->getPlugin()->txt('ui_author_randomisation_standard_unit_test_case_added'),
+            true);
 
         $this->randomisationAndSecurity();
     }
@@ -1885,16 +1767,26 @@ class assStackQuestionGUI extends assQuestionGUI
     }*/
 
     /**
+     * Called when deleting one unit test
      * @return void
      */
     public function deleteUnitTest()
     {
-        $test_case = (int) $_GET['test_case'];
+        global $DIC, $tpl;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
+        $test_case = (int)$_GET['test_case'];
 
         unset($this->object->unit_tests['ids'][$test_case]);
         unset($this->object->unit_tests['test_cases'][$test_case]);
 
         assStackQuestionDB::_deleteStackUnitTests($this->object->getId(), $test_case);
+        $tpl->setOnScreenMessage('success',
+            $this->object->getPlugin()->txt('ui_author_randomisation_unit_test_case_deleted'),
+            true);
 
         $this->randomisationAndSecurity();
     }

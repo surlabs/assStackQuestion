@@ -48,11 +48,17 @@ class StackRandomisationIlias
             $question_variables = $question->getQuestionSessionKeyvalRepresentation();
             $question_text_instantiated = $question->question_text_instantiated;
             $question_note_instantiated = $question->question_note_instantiated;
+            $feedback_variables = '';
+            foreach ($question->prts as $prt) {
+                $feedback_variables .= $prt->get_feedbackvariables_keyvals();
+            }
             $valid_seeds[$id] = array('seed' => $deployed_seed,
                 'note' => $question_note_instantiated,
                 'question_id' => $question->getId(),
                 'question_text' => $question_text_instantiated,
-                'question_variables' => $question_variables);
+                'question_variables' => $question_variables,
+                'feedback_variables' => $feedback_variables
+            );
         }
 
         return $valid_seeds;

@@ -308,7 +308,7 @@ class StackUnitTest {
 
         $raw_unit_test = array(
             'time_modified' => time(),
-            'description' => $default_unit_test->description,
+            'description' => $question->getPlugin()->txt('ui_author_randomisation_add_standard_test_title'),
             'inputs' => $raw_inputs,
             'expected' => $raw_expected_results,
             'results' => array()

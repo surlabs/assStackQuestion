@@ -1,7 +1,22 @@
 <?php
+declare(strict_types=1);
 /**
- * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
- * GPLv3, see LICENSE
+ *  This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
+ *  This plugin is developed and maintained by SURLABS and is a port of STACK Question for Moodle,
+ *  originally created by Chris Sangwin.
+ *
+ *  The STACK Question plugin for ILIAS is open-source and licensed under GPL-3.0.
+ *  For license details, visit https://www.gnu.org/licenses/gpl-3.0.en.html.
+ *
+ *  To report bugs or participate in discussions, visit the Mantis system and filter by
+ *  the category "STACK Question" at https://mantis.ilias.de.
+ *
+ *  More information and source code are available at:
+ *  https://github.com/surlabs/STACK
+ *
+ *  If you need support, please contact the maintainer of this software at:
+ *  stack@surlabs.es
+ *
  */
 
 /**
@@ -116,7 +131,7 @@ class assStackQuestionMoodleImport
                     try {
                         //Save STACK Parameters forcing insert.
                         if (assStackQuestionDB::_saveStackQuestion($this->getQuestion(), 'import')) {
-                            $this->saveMediaObjectUsages($this->getQuestion()->getId());
+                            $this->saveMediaObjectUsages((int)$this->getQuestion()->getId());
                             $number_of_questions_created++;
                         }
                     } catch (stack_exception $e) {
@@ -129,11 +144,12 @@ class assStackQuestionMoodleImport
                     foreach ($this->error_log as $error) {
                         $error_message .= $error . '</br>';
                     }
-                    ilUtil::sendFailure('fau Error message for malformed questions: ' . $this->getQuestion()->getTitle() . ' ' . $error_message, true);
+                    global $tpl;
+                    $tpl->setOnScreenMessage('failure', 'Error message for malformed questions: ' . $this->getQuestion()->getTitle() . ' ' . $error_message, true);
                     //Purge media objects as we didn't import the question
                     $this->purgeMediaObjects();
                     //Delete Question
-                    $this->getQuestion()->delete($this->getQuestion()->getId());
+                    $this->getQuestion()->delete((int)$this->getQuestion()->getId());
                 }
             }
 		}
@@ -448,6 +464,7 @@ class assStackQuestionMoodleImport
 	 */
 	private function getMediaObjectsFromXML(SimpleXMLElement $data): array
 	{
+        //TODO Images in MoodleXML
 		$mapping = array();
 		foreach ($data as $file) {
 			$name = $file['_attributes']['name'];
@@ -455,7 +472,7 @@ class assStackQuestionMoodleImport
 			$src = $file['_content'];
 
 			$temp = ilUtil::ilTempnam();
-			file_put_contents($temp, base64_decode($src));
+            //file_put_contents($temp, base64_decode($src));
 			$media_object = ilObjMediaObject::_saveTempFileAsMediaObject($name, $temp, true);
 			@unlink($temp);
 

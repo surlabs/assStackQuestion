@@ -1,12 +1,26 @@
 <?php
 /**
- * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
- * GPLv3, see LICENSE
- * @author Jesús Copado Mejías <stack@surlabs.es>
- * @version $Id: 7.1$
+ *  This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
+ *  This plugin is developed and maintained by SURLABS and is a port of STACK Question for Moodle,
+ *  originally created by Chris Sangwin.
+ *
+ *  The STACK Question plugin for ILIAS is open-source and licensed under GPL-3.0.
+ *  For license details, visit https://www.gnu.org/licenses/gpl-3.0.en.html.
+ *
+ *  To report bugs or participate in discussions, visit the Mantis system and filter by
+ *  the category "STACK Question" at https://mantis.ilias.de.
+ *
+ *  More information and source code are available at:
+ *  https://github.com/surlabs/STACK
+ *
+ *  If you need support, please contact the maintainer of this software at:
+ *  stack@surlabs.es
+ *
  */
 
 // fim: [debug] optionally set error before initialisation
+use classes\platform\StackException;
+
 error_reporting(E_ALL);
 ini_set("display_errors", "on");
 // fim.
@@ -49,7 +63,8 @@ function checkUserResponse($question_id, $input_name, $user_response)
         try{
             $question->questionInitialisation(null, false);
         } catch (stack_exception|StackException $e) {
-            ilUtil::sendFailure($e->getMessage(), true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
         }
     }
 

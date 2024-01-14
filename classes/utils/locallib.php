@@ -1,10 +1,4 @@
 <?php
-/**
- * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
- * GPLv3, see LICENSE
- * @author Jesús Copado Mejías <stack@surlabs.es>
- * @version $Id: 7.1$
- */
 // This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify

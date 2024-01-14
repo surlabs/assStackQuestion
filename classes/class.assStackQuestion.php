@@ -321,11 +321,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         StackPlatform::initialize('ilias');
 
-        try {
-            $this->setPlugin(ilPlugin::getPluginObject(IL_COMP_MODULE, "TestQuestionPool", "qst", "assStackQuestion"));
-        } catch (ilPluginException $e) {
-            ilUtil::sendFailure($e, true);
-        }
+        $this->setPlugin(ilPlugin::getPluginObject(IL_COMP_MODULE, "TestQuestionPool", "qst", "assStackQuestion"));
 
         //Get stored settings from the platform database
         $this->setPlatformConfiguration(StackConfig::getAll());
@@ -348,7 +344,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function saveWorkingData($active_id, $pass = null, $authorized = true): bool
     {
-        global $DIC;
+        global $DIC, $tpl;
         $db = $DIC->database();
 
         if (is_null($pass)) {
@@ -379,7 +375,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             try{
                 $this->evaluateQuestion($user_solution);
             } catch (stack_exception|StackException $e) {
-                ilUtil::sendFailure($e->getMessage(), true);
+                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             }
         }
 
@@ -704,7 +700,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function loadFromDb($question_id)
     {
-        global $DIC;
+        global $DIC, $tpl;
 
         $db = $DIC->database();
         //load the basic question data
@@ -754,7 +750,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 //SET OPTIONS
                 $this->options = $options;
             } catch (stack_exception $e) {
-                ilUtil::sendFailure($e, true);
+                $tpl->setOnScreenMessage('failure', $e, true);
             }
 
             //load Data stored in options but not part of the session options
@@ -1027,13 +1023,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function saveToDb($original_id = ""): void
     {
+        global $tpl;
         if ($this->getTitle() != "" and $this->getAuthor() != "" and $this->getQuestion() != "") {
             $this->saveQuestionDataToDb($this->getOriginalId());
             $this->saveAdditionalQuestionDataToDb();
 
             parent::saveToDb($this->getOriginalId());
         } else {
-            ilUtil::sendFailure($this->getPlugin()->txt('error_fields_missing'), 1);
+            $tpl->setOnScreenMessage('failure', $this->getPlugin()->txt('error_fields_missing'), true);
         }
     }
 
@@ -1043,11 +1040,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function saveAdditionalQuestionDataToDb()
     {
-        //$this->getPlugin()->includeClass('class.assStackQuestionDB.php');
+        global $tpl;
         try {
             assStackQuestionDB::_saveStackQuestion($this);
         } catch (stack_exception $e) {
-            ilUtil::sendFailure($e);
+            $tpl->setOnScreenMessage('failure', $e);
         }
     }
 
@@ -1171,6 +1168,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function loadStandardQuestion()
     {
+        global $tpl;
         $standard_question = array();
 
         //load options
@@ -1194,7 +1192,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             //Set Options
             $this->options = $options;
         } catch (stack_exception $e) {
-            ilUtil::sendFailure($e, true);
+            $tpl->setOnScreenMessage('failure', $e, true);
         }
 
         $this->question_variables = '';
@@ -1274,7 +1272,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             //Load input to the question.
             $this->inputs[$input_name] = $input;
         } else {
-            ilUtil::sendInfo('The new input ' . $input_name . ' was already created', true);
+            global $tpl;
+            $tpl->setOnScreenMessage('info', 'The new input ' . $input_name . ' was already created', true);
         }
     }
 
@@ -1285,6 +1284,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      */
     public function loadStandardPRT(string $prt_name, bool $return_standard_node = false)
     {
+        global $tpl;
         //load PRTs and PRT nodes
         //TODO LOAD PLATFORM STANDARD PRT
         $standard_prt = assStackQuestionConfig::_getStoredSettings('prts');
@@ -1378,7 +1378,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $prt->nodes[] = $newnode;
             $this->prts[$prt->name] = new stack_potentialresponse_tree_lite($prt, $prt->value, null);
         } catch (stack_exception $e) {
-            ilUtil::sendFailure($e->getMessage(), true);
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
         }
     }
 

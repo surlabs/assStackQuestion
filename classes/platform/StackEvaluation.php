@@ -34,14 +34,13 @@ class StackEvaluation {
      * is $graded_incorrect, 1 is $graded_correct, otherwise it is $graded_partcorrect.
      * Appropriate allowance is made for rounding float values.
      *
-     * @param number $fraction the grade, on the fraction scale.
      */
     public static function stateForFraction($fraction): int
     {
-        if ($fraction < 0.000001) {
-            return self::EVALUATION_INCORRECT;
-        } else if ($fraction > 0.999999) {
+        if ($fraction === 1.0) {
             return self::EVALUATION_CORRECT;
+        } else if ($fraction === 0.0) {
+            return self::EVALUATION_INCORRECT;
         } else {
             return self::EVALUATION_PARTIALLY_CORRECT;
         }

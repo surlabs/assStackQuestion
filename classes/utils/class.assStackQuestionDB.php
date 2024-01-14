@@ -1,7 +1,22 @@
-<?php /** @noinspection ALL */
+<?php
+declare(strict_types=1);
 /**
- * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
- * GPLv3, see LICENSE
+ *  This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
+ *  This plugin is developed and maintained by SURLABS and is a port of STACK Question for Moodle,
+ *  originally created by Chris Sangwin.
+ *
+ *  The STACK Question plugin for ILIAS is open-source and licensed under GPL-3.0.
+ *  For license details, visit https://www.gnu.org/licenses/gpl-3.0.en.html.
+ *
+ *  To report bugs or participate in discussions, visit the Mantis system and filter by
+ *  the category "STACK Question" at https://mantis.ilias.de.
+ *
+ *  More information and source code are available at:
+ *  https://github.com/surlabs/STACK
+ *
+ *  If you need support, please contact the maintainer of this software at:
+ *  stack@surlabs.es
+ *
  */
 
 /**
@@ -169,9 +184,9 @@ class assStackQuestionDB
 			//Reading nodes
 
 			if ($just_id) {
-				$prt_ids[$prt_name]->nodes = self::_readPRTNodes($question_id, $prt_name, true);
+				$prt_ids[$prt_name]->nodes = self::_readPRTNodes((int)$question_id, $prt_name, true);
 			} else {
-				$potential_response_trees[$prt_name]->nodes = self::_readPRTNodes($question_id, $prt_name);
+				$potential_response_trees[$prt_name]->nodes = self::_readPRTNodes((int)$question_id, $prt_name);
 			}
 		}
 		if ($just_id) {
@@ -342,9 +357,9 @@ class assStackQuestionDB
 				$unit_tests['ids'][$testcase_name] = (int)$row['id'];
                 $unit_tests['test_cases'][$testcase_name]['description'] = $row['description'] ?? '';
                 $unit_tests['test_cases'][$testcase_name]['time_modified'] = $row['time_modified'] ? (int) $row['time_modified'] : 0;
-				$unit_tests['test_cases'][$testcase_name]['inputs'] = self::_readUnitTestInputs($question_id, $testcase_name);
-				$unit_tests['test_cases'][$testcase_name]['expected'] = self::_readUnitTestExpected($question_id, $testcase_name);
-                $unit_tests['test_cases'][$testcase_name]['results'] = self::_readUnitTestResults($question_id, $testcase_name);
+				$unit_tests['test_cases'][$testcase_name]['inputs'] = self::_readUnitTestInputs((int)$question_id, $testcase_name);
+				$unit_tests['test_cases'][$testcase_name]['expected'] = self::_readUnitTestExpected((int)$question_id, $testcase_name);
+                $unit_tests['test_cases'][$testcase_name]['results'] = self::_readUnitTestResults((int)$question_id, $testcase_name);
 			}
 		}
         
@@ -595,7 +610,7 @@ class assStackQuestionDB
 
 			if (!array_key_exists($input_name, $input_ids) or empty($input_ids) or $purpose == 'import') {
 				//CREATE
-				self::_saveInput($question_id, $input);
+				self::_saveInput((string)$question_id, $input);
 			} else {
 				//UPDATE
 				$db->replace('xqcas_inputs',
@@ -658,7 +673,7 @@ class assStackQuestionDB
 
 				//Insert nodes
 				foreach ($prt->get_nodes() as $node) {
-					self::_saveStackPRTNodes($node, $question_id, $prt_name, -1);
+					self::_saveStackPRTNodes($node, (int)$question_id, $prt_name, -1);
 				}
 
 			} else {
@@ -678,18 +693,19 @@ class assStackQuestionDB
 				);
 
 				//Update/Insert Nodes
-				$prt_node_ids = self::_readPRTNodes($question_id, $prt_name, true);
+				$prt_node_ids = self::_readPRTNodes((int)$question_id, $prt_name, true);
 
 				foreach ($prt->get_nodes() as $node_name => $node) {
 					if (!array_key_exists($node_name, $prt_node_ids) or empty($prt_node_ids)) {
 						//CREATE
-						self::_saveStackPRTNodes($node, $question_id, $prt_name, -1);
+						self::_saveStackPRTNodes($node, (int)$question_id, $prt_name, -1);
 					} else {
 						//UPDATE
 						if (isset($prt_ids[$prt_name]->nodes[$node_name])) {
-							self::_saveStackPRTNodes($node, $question_id, $prt_name, $prt_ids[$prt_name]->nodes[$node_name]);
+							self::_saveStackPRTNodes($node, (int)$question_id, $prt_name, $prt_ids[$prt_name]->nodes[$node_name]);
 						} else {
-							ilUtil::sendFailure('question:' . $question_id . $prt_name . $node_name);
+                            global $tpl;
+                            $tpl->setOnScreenMessage('failure', 'question:' . (int)$question_id . $prt_name . $node_name, true);
 						}
 					}
 				}
@@ -699,12 +715,12 @@ class assStackQuestionDB
 		return true;
 	}
 
-	/**
-	 * @param stack_potentialresponse_node $node
-	 * @param int $question_id
-	 * @param string $prt_name
-	 * @param int $id
-	 */
+    /**
+     * @param stdClass $node
+     * @param int $question_id
+     * @param string $prt_name
+     * @param int $id
+     */
 	private static function _saveStackPRTNodes(stdClass $node, int $question_id, string $prt_name, int $id = -1): void
 	{
 		global $DIC;
@@ -889,12 +905,12 @@ class assStackQuestionDB
 
 					//Create Unit Tests Input
 					foreach ($test_case['inputs'] as $input_name => $input) {
-						self::_saveStackUnitTestInput($question_id, $testcase_name, $input_name, $input['value'], -1);
+						self::_saveStackUnitTestInput((int)$question_id, $testcase_name, $input_name, $input['value'], -1);
 					}
 
 					//Create Unit Tests Expected
 					foreach ($test_case['expected'] as $prt_name => $expected) {
-						self::_saveStackUnitTestExpected($question_id, $testcase_name, $prt_name, $expected, -1);
+						self::_saveStackUnitTestExpected((int)$question_id, $testcase_name, $prt_name, $expected, -1);
 					}
 
 
@@ -912,18 +928,19 @@ class assStackQuestionDB
 					);
 
 					//Manage Unit Tests Input
-					$testcase_input_ids = self::_readUnitTestInputs($question_id, $testcase_name, true);
+					$testcase_input_ids = self::_readUnitTestInputs((int)$question_id, $testcase_name, true);
 
 					foreach ($test_case['inputs'] as $input_name => $input) {
 						if (!array_key_exists($input_name, $testcase_input_ids) or empty($testcase_input_ids)) {
 							//CREATE
-							self::_saveStackUnitTestInput($question_id, $testcase_name, $input_name, $input['value'], -1);
+							self::_saveStackUnitTestInput((int)$question_id, $testcase_name, $input_name, $input['value'], -1);
 						} else {
 							//UPDATE
 							if (isset($input['value'])) {
-								self::_saveStackUnitTestInput($question_id, $testcase_name, $input_name, $input['value'], $testcase_input_ids[$input_name]);
+								self::_saveStackUnitTestInput((int)$question_id, $testcase_name, $input_name, $input['value'], $testcase_input_ids[$input_name]);
 							} else {
-								ilUtil::sendFailure('question test inputs:' . $question_id . $testcase_name . $input_name, true);
+                                global $tpl;
+                                $tpl->setOnScreenMessage('failure', 'question test inputs:' . $question_id . $testcase_name . $input_name, true);
 							}
 						}
 					}
@@ -940,7 +957,8 @@ class assStackQuestionDB
 							if (isset($expected['score']) and isset($expected['penalty']) and isset($expected['answer_note'])) {
 								self::_saveStackUnitTestExpected($question_id, $testcase_name, $prt_name, $expected, $testcase_expected_ids[$prt_name]);
 							} else {
-								ilUtil::sendFailure('question test expected:' . $question_id . $testcase_name . $prt_name, true);
+                                global $tpl;
+                                $tpl->setOnScreenMessage('failure', 'question test expected:' . $question_id . $testcase_name . $prt_name, true);
 							}
 						}
 					}
@@ -1343,14 +1361,16 @@ class assStackQuestionDB
 	 * @param int $pass
 	 * @return int
 	 */
-	public static function _getSeedForTestPass(assStackQuestion $question, int $active_id, int $pass): int
+	public static function _getSeedForTestPass(assStackQuestion $question, int $active_id, ?int $pass = null): int
 	{
 		$seed = 0;
-
 		//Does this question uses randomisation?
 		global $DIC;
 		$db = $DIC->database();
 		$question_id = $question->getId();
+        if(is_null($pass)) {
+            $pass = $question->getPass();
+        }
 		//Search for a seed in DB
 		//returns seed if exists
 		$query = /** @lang text */
@@ -1368,13 +1388,18 @@ class assStackQuestionDB
 				if ($seed_found === 0) {
 					$seed_found = $seed;
 				} else {
-					ilUtil::sendFailure("ERROR: Trying to create a new seed where there is already one assigned", true);
-					return 0;
+                    echo "ERROR: Trying to create a new seed where there is already one assigned";
+                    echo "<br>question_id: ".$question_id;
+                    echo "<br>active_id: ".$active_id;
+                    echo "<br>pass: ".$pass;
+                    echo "<br>seed: ".$seed;
+                    echo "<br>seed_found: ".$seed_found;
+                    exit;
 				}
 			}
 		}
 
-		if ($seed < 1) {
+		if ($seed <= 0) {
 			//Create new seed
 			$variants = self::_readDeployedVariants($question_id, true);
 
@@ -1438,7 +1463,8 @@ class assStackQuestionDB
                 if ($seed_found === 0) {
                     $seed_found = $seed;
                 } else {
-                    ilUtil::sendFailure("ERROR: Trying to create a new seed where there is already one assigned", true);
+                    global $tpl;
+                    $tpl->setOnScreenMessage('failure', "ERROR: Trying to create a new seed where there is already one assigned", true);
                     return 0;
                 }
             }
@@ -1496,6 +1522,7 @@ class assStackQuestionDB
 	 */
 	public static function _saveUserTestSolution(assStackQuestion $question, int $active_id, int $pass, bool $authorized): int
 	{
+        global $tpl;
         $raw_solution = array();
 
         //Save question text
@@ -1533,7 +1560,7 @@ class assStackQuestionDB
 
                 $raw_input["correct_display"] = $question->getTas($input_name)->get_display();
             } catch (stack_exception $e) {
-                ilUtil::sendFailure($e, true);
+                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             }
 
             $raw_solution["inputs"][$input_name] = $raw_input;
@@ -1643,7 +1670,8 @@ class assStackQuestionDB
 			$question->saveCurrentSolution($active_id, $pass, 'xqcas_input_' . $input_name . '_model_answer_display', $input_display);
 
 		} catch (stack_exception $e) {
-			ilUtil::sendFailure($e, true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 		}
 	}
 
@@ -1736,7 +1764,7 @@ class assStackQuestionDB
 		));
 
 		//Manage Nodes
-		$db_original_nodes = self::_readPRTNodes($original_question_id, $original_prt_name);
+		$db_original_nodes = self::_readPRTNodes((int)$original_question_id, $original_prt_name);
 		foreach ($db_original_nodes as $node_id => $node) {
 
 			//CREATE NODE WITH ORIGINAL NODE STATS IN NEW QUESTION PRT
@@ -1768,7 +1796,8 @@ class assStackQuestionDB
 		}
 
 		unset($_SESSION['copy_prt']);
-		ilUtil::sendInfo($DIC->language()->txt("qpl_qst_xqcas_prt_paste"), true);
+        global $tpl;
+		$tpl->setOnScreenMessage('info', $DIC->language()->txt("qpl_qst_xqcas_prt_paste"), true);
 
 		return true;
 	}
@@ -1818,7 +1847,8 @@ class assStackQuestionDB
 		));
 
 		unset($_SESSION['copy_node']);
-		ilUtil::sendInfo($DIC->language()->txt("qpl_qst_xqcas_node_paste"), true);
+        global $tpl;
+		$tpl->setOnScreenMessage('info', $DIC->language()->txt("qpl_qst_xqcas_node_paste"), true);
 
 		return true;
 	}
@@ -1836,7 +1866,7 @@ class assStackQuestionDB
 	public static function _copyNodeFunction(string $original_question_id, string $original_prt_name, string $original_node_id, string $new_question_id, string $new_prt_name, string $new_node_name): bool
 	{
 
-		$nodes = self::_readPRTNodes($original_question_id, $original_prt_name);
+		$nodes = self::_readPRTNodes((int)$original_question_id, $original_prt_name);
 		$db_original_node = $nodes[$original_node_id];
 
 		global $DIC;
@@ -1869,7 +1899,8 @@ class assStackQuestionDB
 		));
 
 		unset($_SESSION['copy_node']);
-		ilUtil::sendInfo($DIC->language()->txt("qpl_qst_xqcas_node_paste"), true);
+        global $tpl;
+		$tpl->setOnScreenMessage('info', $DIC->language()->txt("qpl_qst_xqcas_node_paste"), true);
 
 		return true;
 	}
