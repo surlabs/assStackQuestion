@@ -164,7 +164,8 @@ class assStackQuestionUtils
 				$user_response[$input_name] = $input->maxima_to_response_array($user_response_from_db[$input_name]);
 			} else {
 				//We have something wrong
-				ilUtil::sendFailure("Error in manageUserResponse, inputs provided are neither ILIAS or STACK inputs", TRUE);
+                global $tpl;
+                $tpl->setOnScreenMessage('failure', "Error in manageUserResponse, inputs provided are neither ILIAS or STACK inputs", true);
 			}
 		}
 
@@ -800,7 +801,8 @@ class assStackQuestionUtils
             case is_a($input, 'stack_algebraic_input'):
                 return 'algebraic';
 			default:
-				ilUtil::sendFailure('Input type not found', true);
+                global $tpl;
+                $tpl->setOnScreenMessage('failure', 'Input type not found', true);
 				return '';
 		}
 	}
@@ -1021,7 +1023,8 @@ class assStackQuestionUtils
 			//SET OPTIONS
 			$question->options = $options;
 		} catch (stack_exception $e) {
-			ilUtil::sendFailure($e->getMessage(), true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 		}
 
 		//load Data stored in options but not part of the session options
@@ -1117,7 +1120,7 @@ class assStackQuestionUtils
 					'The $totalvalue, the marks available for the question, must be positive in question ' .
 					$question->getTitle());
 			} catch (stack_exception $e) {
-				ilUtil::sendFailure($e);
+				$tpl->setOnScreenMessage('failure', $e);
 				$total_value = 1.0;
 			}
 		}

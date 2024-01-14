@@ -129,7 +129,8 @@ class assStackQuestionMoodleImport
                     foreach ($this->error_log as $error) {
                         $error_message .= $error . '</br>';
                     }
-                    ilUtil::sendFailure('fau Error message for malformed questions: ' . $this->getQuestion()->getTitle() . ' ' . $error_message, true);
+                    global $tpl;
+                    $tpl->setOnScreenMessage('failure', 'Error message for malformed questions: ' . $this->getQuestion()->getTitle() . ' ' . $error_message, true);
                     //Purge media objects as we didn't import the question
                     $this->purgeMediaObjects();
                     //Delete Question

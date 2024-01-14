@@ -6,6 +6,8 @@
  * @version $Id: 7.1$
  */
 // fim: [debug] optionally set error before initialisation
+use classes\platform\StackException;
+
 error_reporting(E_ALL);
 ini_set("display_errors", "on");
 // fim.
@@ -47,7 +49,8 @@ function checkUserResponse($question_id, $input_name, $user_response)
         try{
             $question->questionInitialisation(null, false);
         } catch (stack_exception|StackException $e) {
-            ilUtil::sendFailure($e->getMessage(), true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
         }
     }
 

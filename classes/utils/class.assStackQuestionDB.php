@@ -689,7 +689,8 @@ class assStackQuestionDB
 						if (isset($prt_ids[$prt_name]->nodes[$node_name])) {
 							self::_saveStackPRTNodes($node, $question_id, $prt_name, $prt_ids[$prt_name]->nodes[$node_name]);
 						} else {
-							ilUtil::sendFailure('question:' . $question_id . $prt_name . $node_name);
+                            global $tpl;
+                            $tpl->setOnScreenMessage('failure', 'question:' . $question_id . $prt_name . $node_name, true);
 						}
 					}
 				}
@@ -923,7 +924,8 @@ class assStackQuestionDB
 							if (isset($input['value'])) {
 								self::_saveStackUnitTestInput($question_id, $testcase_name, $input_name, $input['value'], $testcase_input_ids[$input_name]);
 							} else {
-								ilUtil::sendFailure('question test inputs:' . $question_id . $testcase_name . $input_name, true);
+                                global $tpl;
+                                $tpl->setOnScreenMessage('failure', 'question test inputs:' . $question_id . $testcase_name . $input_name, true);
 							}
 						}
 					}
@@ -940,7 +942,8 @@ class assStackQuestionDB
 							if (isset($expected['score']) and isset($expected['penalty']) and isset($expected['answer_note'])) {
 								self::_saveStackUnitTestExpected($question_id, $testcase_name, $prt_name, $expected, $testcase_expected_ids[$prt_name]);
 							} else {
-								ilUtil::sendFailure('question test expected:' . $question_id . $testcase_name . $prt_name, true);
+                                global $tpl;
+                                $tpl->setOnScreenMessage('failure', 'question test expected:' . $question_id . $testcase_name . $prt_name, true);
 							}
 						}
 					}
@@ -1368,7 +1371,8 @@ class assStackQuestionDB
 				if ($seed_found === 0) {
 					$seed_found = $seed;
 				} else {
-					ilUtil::sendFailure("ERROR: Trying to create a new seed where there is already one assigned", true);
+                    global $tpl;
+                    $tpl->setOnScreenMessage('failure', "ERROR: Trying to create a new seed where there is already one assigned", true);
 					return 0;
 				}
 			}
@@ -1438,7 +1442,8 @@ class assStackQuestionDB
                 if ($seed_found === 0) {
                     $seed_found = $seed;
                 } else {
-                    ilUtil::sendFailure("ERROR: Trying to create a new seed where there is already one assigned", true);
+                    global $tpl;
+                    $tpl->setOnScreenMessage('failure', "ERROR: Trying to create a new seed where there is already one assigned", true);
                     return 0;
                 }
             }
@@ -1496,6 +1501,7 @@ class assStackQuestionDB
 	 */
 	public static function _saveUserTestSolution(assStackQuestion $question, int $active_id, int $pass, bool $authorized): int
 	{
+        global $tpl;
         $raw_solution = array();
 
         //Save question text
@@ -1533,7 +1539,7 @@ class assStackQuestionDB
 
                 $raw_input["correct_display"] = $question->getTas($input_name)->get_display();
             } catch (stack_exception $e) {
-                ilUtil::sendFailure($e, true);
+                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             }
 
             $raw_solution["inputs"][$input_name] = $raw_input;
@@ -1643,7 +1649,8 @@ class assStackQuestionDB
 			$question->saveCurrentSolution($active_id, $pass, 'xqcas_input_' . $input_name . '_model_answer_display', $input_display);
 
 		} catch (stack_exception $e) {
-			ilUtil::sendFailure($e, true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 		}
 	}
 
@@ -1768,7 +1775,7 @@ class assStackQuestionDB
 		}
 
 		unset($_SESSION['copy_prt']);
-		ilUtil::sendInfo($DIC->language()->txt("qpl_qst_xqcas_prt_paste"), true);
+		$tpl->setOnScreenMessage('info', $DIC->language()->txt("qpl_qst_xqcas_prt_paste"), true);
 
 		return true;
 	}
@@ -1818,7 +1825,7 @@ class assStackQuestionDB
 		));
 
 		unset($_SESSION['copy_node']);
-		ilUtil::sendInfo($DIC->language()->txt("qpl_qst_xqcas_node_paste"), true);
+		$tpl->setOnScreenMessage('info', $DIC->language()->txt("qpl_qst_xqcas_node_paste"), true);
 
 		return true;
 	}
@@ -1869,7 +1876,7 @@ class assStackQuestionDB
 		));
 
 		unset($_SESSION['copy_node']);
-		ilUtil::sendInfo($DIC->language()->txt("qpl_qst_xqcas_node_paste"), true);
+		$tpl->setOnScreenMessage('info', $DIC->language()->txt("qpl_qst_xqcas_node_paste"), true);
 
 		return true;
 	}

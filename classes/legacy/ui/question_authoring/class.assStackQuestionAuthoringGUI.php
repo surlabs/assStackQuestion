@@ -662,7 +662,7 @@ class assStackQuestionAuthoringGUI
 
 			$svg = stack_abstract_graph_svg_renderer::render($prt->get_prt_graph(), $prt->get_name() . 'graphsvg');
 		} catch (stack_exception $e) {
-			ilUtil::sendFailure($e->getMessage(), true);
+			$tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 		}
 
 		//TODO Create new class to avoid deprecated custom property
@@ -1091,7 +1091,7 @@ class assStackQuestionAuthoringGUI
 
 		//Check Maxima Connection
 		if (!$this->getQuestionGUI()->object->checkMaximaConnection()) {
-			ilUtil::sendFailure($this->getPlugin()->txt('hc_connection_status_display_error'), true);
+			$tpl->setOnScreenMessage('failure', $this->getPlugin()->txt('hc_connection_status_display_error'), true);
 		}
 
 		// If exists error messages stored in session
@@ -1111,7 +1111,7 @@ class assStackQuestionAuthoringGUI
 
 		//Add </br> if there are ilias validation message between it and session error message
 		if ($session_error_message != "") {
-			ilUtil::sendFailure($session_error_message, TRUE);
+			$tpl->setOnScreenMessage('failure', $session_error_message, TRUE);
 		}
 	}
 

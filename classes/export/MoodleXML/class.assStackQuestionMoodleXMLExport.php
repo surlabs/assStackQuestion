@@ -22,14 +22,14 @@ class assStackQuestionMoodleXMLExport
 
 	function __construct($stack_questions)
 	{
-		global $DIC;
+		global $DIC, $tpl;
 
 		$lng = $DIC->language();
 		if (is_array($stack_questions) and sizeof($stack_questions)) {
 			$this->setStackQuestions($stack_questions);
 
 		} else {
-			ilUtil::sendFailure($lng->txt('qpl_qst_xqcas_moodlexml_no_questions_selected'), true);
+			$tpl->setOnScreenMessage('failure', $lng->txt('qpl_qst_xqcas_moodlexml_no_questions_selected'), true);
 		}
 	}
 
