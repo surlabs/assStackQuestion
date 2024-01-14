@@ -1,4 +1,4 @@
-<?php /** @noinspection ALL */
+<?php
 /**
  *  This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
  *  This plugin is developed and maintained by SURLABS and is a port of STACK Question for Moodle,
@@ -714,12 +714,12 @@ class assStackQuestionDB
 		return true;
 	}
 
-	/**
-	 * @param stack_potentialresponse_node $node
-	 * @param int $question_id
-	 * @param string $prt_name
-	 * @param int $id
-	 */
+    /**
+     * @param stdClass $node
+     * @param int $question_id
+     * @param string $prt_name
+     * @param int $id
+     */
 	private static function _saveStackPRTNodes(stdClass $node, int $question_id, string $prt_name, int $id = -1): void
 	{
 		global $DIC;
@@ -1789,6 +1789,7 @@ class assStackQuestionDB
 		}
 
 		unset($_SESSION['copy_prt']);
+        global $tpl;
 		$tpl->setOnScreenMessage('info', $DIC->language()->txt("qpl_qst_xqcas_prt_paste"), true);
 
 		return true;
@@ -1839,6 +1840,7 @@ class assStackQuestionDB
 		));
 
 		unset($_SESSION['copy_node']);
+        global $tpl;
 		$tpl->setOnScreenMessage('info', $DIC->language()->txt("qpl_qst_xqcas_node_paste"), true);
 
 		return true;
@@ -1890,6 +1892,7 @@ class assStackQuestionDB
 		));
 
 		unset($_SESSION['copy_node']);
+        global $tpl;
 		$tpl->setOnScreenMessage('info', $DIC->language()->txt("qpl_qst_xqcas_node_paste"), true);
 
 		return true;
