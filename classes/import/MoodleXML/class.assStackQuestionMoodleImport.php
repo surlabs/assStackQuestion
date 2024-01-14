@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  *  This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
  *  This plugin is developed and maintained by SURLABS and is a port of STACK Question for Moodle,
@@ -463,6 +464,7 @@ class assStackQuestionMoodleImport
 	 */
 	private function getMediaObjectsFromXML(SimpleXMLElement $data): array
 	{
+        //TODO Images in MoodleXML
 		$mapping = array();
 		foreach ($data as $file) {
 			$name = $file['_attributes']['name'];
@@ -470,7 +472,7 @@ class assStackQuestionMoodleImport
 			$src = $file['_content'];
 
 			$temp = ilUtil::ilTempnam();
-			file_put_contents($temp, base64_decode($src));
+            //file_put_contents($temp, base64_decode($src));
 			$media_object = ilObjMediaObject::_saveTempFileAsMediaObject($name, $temp, true);
 			@unlink($temp);
 

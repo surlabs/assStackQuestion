@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  *  This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
  *  This plugin is developed and maintained by SURLABS and is a port of STACK Question for Moodle,
@@ -609,7 +610,7 @@ class assStackQuestionDB
 
 			if (!array_key_exists($input_name, $input_ids) or empty($input_ids) or $purpose == 'import') {
 				//CREATE
-				self::_saveInput($question_id, $input);
+				self::_saveInput((string)$question_id, $input);
 			} else {
 				//UPDATE
 				$db->replace('xqcas_inputs',
@@ -1757,7 +1758,7 @@ class assStackQuestionDB
 		));
 
 		//Manage Nodes
-		$db_original_nodes = self::_readPRTNodes($original_question_id, $original_prt_name);
+		$db_original_nodes = self::_readPRTNodes((int)$original_question_id, $original_prt_name);
 		foreach ($db_original_nodes as $node_id => $node) {
 
 			//CREATE NODE WITH ORIGINAL NODE STATS IN NEW QUESTION PRT
@@ -1859,7 +1860,7 @@ class assStackQuestionDB
 	public static function _copyNodeFunction(string $original_question_id, string $original_prt_name, string $original_node_id, string $new_question_id, string $new_prt_name, string $new_node_name): bool
 	{
 
-		$nodes = self::_readPRTNodes($original_question_id, $original_prt_name);
+		$nodes = self::_readPRTNodes((int)$original_question_id, $original_prt_name);
 		$db_original_node = $nodes[$original_node_id];
 
 		global $DIC;
