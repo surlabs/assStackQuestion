@@ -63,16 +63,16 @@ php setup/setup.php update
 7. Choose action "Refresh Languages" for the assStackQuestion plugin
 8. Choose action "Configure" for the assStackQuestion plugin
 9. Set the platform type and maxima servers according your installation
-10. Go to the tab "Health Check" and click "Do Health Check"
+10. Go to the tab "Quality" and click "Do Health Check"
 
 *If you can see the 3 Plots being rendered at the end of the screen, the plugin has been properly installed*
 
 **Please, repeat this sequence everytime you update STACK**
 
 # Authors
-* This plugin includes the STACK core classes developed by Chris Sangwin, with support of Matti Harjula and Tim Hunt for its Moodle question type plugin version 4.3.9 (2021).
+* This plugin includes the STACK core classes developed by Chris Sangwin, with support of Matti Harjula and Tim Hunt for its Moodle question type plugin version 4.5.0 (2023).
 * This plugin was developed by Jesús Copado with Fred Neumann's support at the University of Erlangen between 2014 and 2022
-* This plugin is currently maintained by Jesús Copado through its Software development studio [SURLABS](https://surlabs.es)
+* This plugin is currently maintained by Jesús Copado, Saúl Díaz and Daniel Cazalla through [SURLABS](https://surlabs.es)
 
 # Bug Reports & Discussion
 - Bug Reports: [Mantis](https://www.ilias.de/mantis) (Choose project "ILIAS plugins" and filter by category "STACK Question Type")
