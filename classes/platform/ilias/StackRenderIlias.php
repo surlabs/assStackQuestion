@@ -355,8 +355,6 @@ class StackRenderIlias extends StackRender
             $overallfeedback = $this->overall_standard_prt_feedback($qa, $question, $response);
         }*/
 
-        $display_options['feedback'] = true;
-        $display_options['feedback_style'] = 1;
         // Replace PRTs.
         foreach ($formatted_feedback_placeholders as $prt_name) {
             if (!isset($question->prts[$prt_name])) {

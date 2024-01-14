@@ -60,11 +60,10 @@ class assStackQuestionGUI extends assQuestionGUI
 	protected array $rte_tags = array();
 
 	/**
-	 * Stores the preview data while on preview mode
-	 * Otherwise empty
-	 * @var array
+	 * true if the question is in preview mode
+	 * @var bool
 	 */
-	private array $is_preview;
+	private bool $is_preview = false;
 
 	/**
 	 * assStackQuestionGUI constructor.
@@ -247,6 +246,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function getPreview($show_question_only = false, $showInlineFeedback = false): string
 	{
 		global $DIC, $tpl;
+        $this->is_preview = true;
 
         $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
         $user_response = StackUserResponseIlias::getStackUserResponse('preview', $this->object->getId(), $DIC->user()->getId());
@@ -313,12 +313,26 @@ class assStackQuestionGUI extends assQuestionGUI
 	{
         global $DIC, $tpl;
 
-        if (is_int($this->object->getSeed())) {
-            $seed = $this->object->getSeed();
-        } else {
+        if ($this->is_preview) {
             $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
+            $response = StackUserResponseIlias::getStackUserResponse('preview', (int)$this->object->getId(), $DIC->user()->getId());
+        } else {
+            if (array_key_exists('active_id', $DIC->http()->request()->getQueryParams())) {
+                $active_id = $DIC->http()->request()->getQueryParams()['active_id'];
+            } else {
+                $active_id = null;
+            }
+            $pass = ilObjTest::_getPass($active_id);
+
+            $seed = assStackQuestionDB::_getSeed("test", $this->object, (int)$active_id, (int)$pass);
+            $user_response = StackUserResponseIlias::getStackUserResponse('test', (int)$this->object->getId(), (int) $active_id, (int) $pass);
+            $response = [];
+            if(isset($user_response["inputs"])) {
+                foreach ($user_response["inputs"] as $input_name => $input) {
+                    $response[$input_name] = $input["value"];
+                }
+            }
         }
-        $user_response = StackUserResponseIlias::getStackUserResponse('preview', (int)$this->object->getId(), $DIC->user()->getId());
 
         //Instantiate Question if not.
         if (!$this->object->isInstantiated()) {
@@ -332,7 +346,7 @@ class assStackQuestionGUI extends assQuestionGUI
         //Ensure evaluation has been done
         if (empty($this->object->getEvaluation())) {
             try{
-                $this->object->evaluateQuestion($user_response);
+                $this->object->evaluateQuestion($response);
             } catch (stack_exception|StackException $e) {
                 $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             }
@@ -340,12 +354,13 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $attempt_data = [];
 
-        $attempt_data['response'] = $user_response;
+        $attempt_data['response'] = $response;
         $attempt_data['question'] = $this->object;
 
         $display_options = [];
-        $display_options['readonly'] = false;
+        $display_options['readonly'] = true;
         $display_options['feedback'] = true;
+        $display_options['feedback_style'] = 1;
 
         //Render question specific feedback
         $specific_feedback_preview = StackRenderIlias::renderSpecificFeedback($attempt_data, $display_options);
@@ -1435,18 +1450,18 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->rte_tags = $rte_tags;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getIsPreview(): array
+    /**
+     * @return bool
+     */
+	public function getIsPreview(): bool
 	{
 		return $this->is_preview;
 	}
 
-	/**
-	 * @param array $is_preview
-	 */
-	public function setIsPreview(array $is_preview): void
+    /**
+     * @param bool $is_preview
+     */
+	public function setIsPreview(bool $is_preview): void
 	{
 		$this->is_preview = $is_preview;
 	}
