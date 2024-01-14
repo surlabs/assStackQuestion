@@ -159,8 +159,9 @@ ui_author_randomisation_and_security_title#:#Randomisation and Security
 ui_author_randomisation_no_randomisation_message#:#This question does not use randomisation.
 ui_author_randomisation_no_deployed_variants_message_but_has_randomisation#:#This question uses randomisation but has no deployed variants.
 ui_author_randomisation_no_variants_generate_new_variants_action_text#:#Generate 10 new variants (if possible)
-ui_author_randomisation_add_standard_test_description#:#Add a standard test
-ui_author_randomisation_add_standard_test_button_text#:#Add standard test
+ui_author_randomisation_add_standard_test_title#:#Standard testcase (Checks that model answer is evaluated as correct)
+ui_author_randomisation_add_standard_test_description#:#Add a standard testcase
+ui_author_randomisation_add_standard_test_button_text#:#Add standard testcase
 ui_author_randomisation_standard_unit_test_case_added#:#Standard unit test case added
 ui_author_randomisation_active_variant_panel_title#:#Active variant for authors at preview and unit tests
 ui_author_randomisation_deployed_variants_panel_title#:#Question's variants for students in tests
@@ -172,13 +173,13 @@ ui_author_randomisation_show_general_feedback_action_text#:#Show general feedbac
 ui_author_randomisation_question_variables_text#:#Question variables
 ui_author_randomisation_generate_new_variants_action_text#:#Generate 10 new variants
 ui_author_randomisation_change_to_random_seed_action_text#:#Change to random seed
-ui_author_randomisation_run_all_tests_for_active_variant_action_text#:#Run all tests for active variant
-ui_author_randomisation_run_all_tests_for_all_variants_action_text#:#Run all tests for all variants
-ui_author_randomisation_run_all_tests_for_this_question_action_text#:#Run all tests for this question
-ui_author_randomisation_add_unit_test_action_text#:#Add unit test
-ui_author_randomisation_run_unit_test_action_text#:#Run unit test
-ui_author_randomisation_edit_unit_test_action_text#:#Edit unit test
-ui_author_randomisation_delete_unit_test_action_text#:#Delete unit test
+ui_author_randomisation_run_all_tests_for_active_variant_action_text#:#Run all testcases for active variant
+ui_author_randomisation_run_all_tests_for_all_variants_action_text#:#Run all testcases for all variants
+ui_author_randomisation_run_all_tests_for_this_question_action_text#:#Run all testcases for this question
+ui_author_randomisation_add_unit_test_action_text#:#Add custom testacase
+ui_author_randomisation_run_unit_test_action_text#:#Run testacase
+ui_author_randomisation_edit_unit_test_action_text#:#Edit testacase
+ui_author_randomisation_delete_unit_test_action_text#:#Delete testacase
 ui_author_randomisation_unit_test_status_panel_title#:#Question's testcases
 ui_author_randomisation_unit_test_not_run#:#Not tested
 ui_author_randomisation_unit_test_passed#:#Passed
