@@ -138,11 +138,13 @@ class assStackQuestionGUI extends assQuestionGUI
         //TODO: Check if this is correct.
         // Is it necessary to store so much data in tst_solutions?
         // If it is not necessary to save so much data, do not save it and remove this part of the code.
-        $temp_user_response = array();
-        foreach ($user_response["inputs"] as $input_name => $input) {
-            $temp_user_response[$input_name] = $input["value"];
+        if (isset($user_response["inputs"])) {
+            $temp_user_response = array();
+            foreach ($user_response["inputs"] as $input_name => $input) {
+                $temp_user_response[$input_name] = $input["value"];
+            }
+            $user_response = $temp_user_response;
         }
-        $user_response = $temp_user_response;
 
 
         $attempt_data = [];
@@ -222,10 +224,10 @@ class assStackQuestionGUI extends assQuestionGUI
             }
         }
 
+        //TODO: Check if this is correct.
+        // Is it necessary to store so much data in tst_solutions?
+        // If it is not necessary to save so much data, do not save it and remove this part of the code.
         if (isset($user_response["inputs"])) {
-            //TODO: Check if this is correct.
-            // Is it necessary to store so much data in tst_solutions?
-            // If it is not necessary to save so much data, do not save it and remove this part of the code.
             $temp_user_response = array();
             foreach ($user_response["inputs"] as $input_name => $input) {
                 $temp_user_response[$input_name] = $input["value"];
