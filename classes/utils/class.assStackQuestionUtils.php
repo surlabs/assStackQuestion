@@ -1121,7 +1121,7 @@ class assStackQuestionUtils
 		foreach ($prt_from_array as $prt_name => $prt_data) {
             $prt_from_array[$prt_name] = (object) $prt_data;
 
-            $prt_data->name = $prt_name;
+            $prt_from_array[$prt_name]->name = $prt_name;
 
             if (isset($prt_data->nodes)) {
                 foreach ($prt_data->nodes as $node_name => $node_data) {
