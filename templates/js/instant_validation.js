@@ -47,7 +47,7 @@ il.instant_validation = new function () {
 
 
 		$('.ilc_question_Standard input[type="text"]').keyup(function (event) {
-			add_spinner();
+			add_spinner(this, event.target.name);
 			delay(function () {
 				var name = event.target.name;
 				name = name.replace(/xqcas_/, '', name);
@@ -91,7 +91,7 @@ il.instant_validation = new function () {
 					'input_value': input_value
 				})
 					.done(function (data) {
-						remove_spinner();
+						remove_spinner(name);
 						$('#validation_xqcas_' + question_id + '_' + input_name).html(data);
 						MathJax.Hub.Queue(["Typeset", MathJax.Hub, 'validation_xqcas_' + question_id + '_' + input_name]);
 					}).catch(function (error) {
@@ -117,7 +117,7 @@ il.instant_validation = new function () {
 		});
 
 		$('tr#xqcas_question_display textarea[rows="5"]').keyup(function (event) {
-			add_spinner();
+			add_spinner(this, event.data.name);
 			delay(function () {
 				var name = event.target.name;
 				name = name.replace(/xqcas_/, '', name);
@@ -133,7 +133,7 @@ il.instant_validation = new function () {
 				})
 
 					.done(function (data) {
-						remove_spinner();
+						remove_spinner(name);
 						$('#validation_xqcas_' + question_id + '_' + input_name).html(data);
 						MathJax.Hub.Queue(["Typeset", MathJax.Hub, 'validation_xqcas_' + question_id + '_' + input_name]);
 						$('#validation_xqcas_roll_' + question_id + '_' + input_name).html("");
@@ -170,10 +170,10 @@ il.instant_validation = new function () {
 		}
 	})();
 
-	var add_spinner = (function () {
-		if($(".spinner-container").length==0){
-			$('.xqcas_input_validation').append(`
-				<div class="spinner-container">
+	var add_spinner = (function (button, input) {
+
+		const html = `
+			<div class="spinner-container" id="${'spinner_'+input}">
 					<style>
 						.spinner {
 							border: 3px solid;
@@ -184,22 +184,51 @@ il.instant_validation = new function () {
 							animation: spin 1s linear infinite;
 						}
 						.spinner-container {
+							display:none;
+							margin: 10px auto;
+						}
+						.spinner-flex{
 							display: flex;
 							justify-content: center;
 							align-items: center;
+							width: 100%;
+							
 						}
 						@keyframes spin {
 							0% { transform: rotate(0deg); }
 							100% { transform: rotate(360deg); }
 						}
 					</style>
-					<div class="spinner ilEditModified"></div>
+					<div class="spinner-flex">
+						<div class="spinner ilEditModified"></div>
+					</div>
 				</div>
-			`);
+			`;
+		if(button.id.indexOf("_sub_") > -1){
+			if($(".spinner-container").length==0) {
+				$(button).parent().parent().parent().after(html);
+				$(".spinner-container").show(250);
+			}
+
+		} else {
+			if($("#spinner_"+input).length==0) {
+				$(button).parent().append(html);
+				$(".spinner-container").show(250);
+			}
+
+
 		}
+
 	});
 
-	var remove_spinner = (function () {
-		$(".spinner-container").remove();
+	var remove_spinner = (function (id) {
+		var selector = "#spinner_xqcas_"+id;
+		if(id.indexOf("_sub_") > -1) {
+			selector = ".spinner-container";
+		}
+
+		$(selector).hide(100, function(){
+			$(".spinner-container").remove();
+		});
 	});
 };

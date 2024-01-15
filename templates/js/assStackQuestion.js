@@ -50,7 +50,7 @@ il.assStackQuestion = new function () {
 	 * Send the current panel state per ajax
 	 */
 	this.validate = function (event) {
-		add_spinner();
+		add_spinner(this);
 		var name = "";
 		if (event.target.name === undefined) {
 			name = event.target.getAttribute('name');
@@ -112,17 +112,17 @@ il.assStackQuestion = new function () {
 				$('#validation_xqcas_' + question_id + '_' + input_name).html(data);
 				MathJax.Hub.Queue(["Typeset", MathJax.Hub, 'validation_xqcas_' + question_id + '_' + input_name]);
 			}).catch(function (error) {
-				console.log(error.responseText);
-			});
+			console.log(error.responseText);
+		});
 
 		;
 
 		return false;
 	}
 
-	var add_spinner = (function () {
+	var add_spinner = (function (button) {
 		if($(".spinner-container").length==0){
-			$('.xqcas_input_validation').append(`
+			$(button).after(`
 				<div class="spinner-container">
 					<style>
 						.spinner {
@@ -134,22 +134,33 @@ il.assStackQuestion = new function () {
 							animation: spin 1s linear infinite;
 						}
 						.spinner-container {
+							display:none;
+							margin: 10px auto;
+						}
+						.spinner-flex{
 							display: flex;
 							justify-content: center;
 							align-items: center;
+							width: 100%;
+							
 						}
 						@keyframes spin {
 							0% { transform: rotate(0deg); }
 							100% { transform: rotate(360deg); }
 						}
 					</style>
-					<div class="spinner ilEditModified"></div>
+					<div class="spinner-flex">
+						<div class="spinner ilEditModified"></div>
+					</div>
 				</div>
 			`);
+			$(".spinner-container").show(250);
 		}
 	});
 
 	var remove_spinner = (function () {
-		$(".spinner-container").remove();
+		$(".spinner-container").hide(100, function(){
+			$(".spinner-container").remove();
+		});
 	});
 };
