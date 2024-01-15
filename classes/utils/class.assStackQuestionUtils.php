@@ -1118,6 +1118,23 @@ class assStackQuestionUtils
 		//load PRTs and PRT nodes
 		$prt_from_array = $array['prts'];
 
+        if (count($prt_from_array) > 0) {
+            if (is_array($prt_from_array[array_key_first($prt_from_array)])) {
+                foreach ($prt_from_array as $prt_name => $prt_data) {
+                    $prt_from_array[$prt_name] = self::prtArrayToObject($prt_data);
+
+                    $prt_from_array[$prt_name]->name = $prt_name;
+
+                    foreach ($prt_from_array[$prt_name]->nodes as $node_name => $node_data) {
+                        $prt_from_array[$prt_name]->nodes[$node_name] = self::prtArrayToObject($node_data);
+
+                        $prt_from_array[$prt_name]->nodes[$node_name]->nodename = $node_name;
+                        $prt_from_array[$prt_name]->nodes[$node_name]->prtname = $prt_name;
+                    }
+                }
+            }
+        }
+
 		//Values
 		$total_value = 0;
 
@@ -1174,15 +1191,15 @@ class assStackQuestionUtils
 
 		//load extra info
 		$extra_info = $array['extra_information'];
-		if (is_array($extra_info)) {
-			$question->general_feedback = $extra_info['general_feedback'];
-			$question->penalty = (float)$extra_info['penalty'];
-			$question->hidden = (bool)$extra_info['hidden'];
-		} else {
-			$question->general_feedback = '';
-			$question->penalty = 0.0;
-			$question->hidden = false;
-		}
+        if (is_array($extra_info)) {
+            $question->general_feedback = $extra_info['general_feedback'];
+            $question->setPenalty((float) $extra_info['penalty']);
+            $question->setHidden((bool) $extra_info['hidden']);
+        } else {
+            $question->general_feedback = '';
+            $question->setPenalty(0.0);
+            $question->setHidden(false);
+        }
 
 		//load unit tests
 		$unit_tests = $array['unit_tests'];
@@ -1500,5 +1517,17 @@ class assStackQuestionUtils
 
         $htmlOutput .= "</div>";
         return $htmlOutput;
+    }
+
+    private static function prtArrayToObject(array $prt_data) :stdClass {
+        $new_prt = new stdClass();
+
+        foreach ($prt_data as $key => $value) {
+            $key = str_replace('_', '', $key);
+
+            $new_prt->$key = $value;
+        }
+
+        return $new_prt;
     }
 }

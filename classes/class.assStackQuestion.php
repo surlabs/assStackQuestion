@@ -1028,7 +1028,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     {
         global $tpl;
         if ($this->getTitle() != "" and $this->getAuthor() != "" and $this->getQuestion() != "") {
-            $this->saveQuestionDataToDb($this->getOriginalId());
+            $this->saveQuestionDataToDb($this->getId());
             $this->saveAdditionalQuestionDataToDb();
 
             parent::saveToDb($this->getOriginalId());
