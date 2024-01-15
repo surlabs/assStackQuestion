@@ -700,7 +700,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param int $question_id A unique key which defines the question in the database
      * @throws stack_exception
      */
-    public function loadFromDb(int $question_id)
+    public function loadFromDb($question_id)
     {
         global $DIC, $tpl;
 
