@@ -582,7 +582,7 @@ class assStackQuestionDB
 					"inverse_trig" => array("text", $question->options->get_option('inversetrig')),
 					"variants_selection_seed" => array("text", $question->variants_selection_seed),
 					"matrix_parens" => array("text", $question->options->get_option('matrixparens')),
-					"assume_real" => array("text", $question->options->get_option('assumereal')),
+					"assume_real" => array("integer", $question->options->get_option('assumereal')),
 					"logic_symbol" => array("text", $question->options->get_option('logicsymbol')),
 					"stack_version" => array("text", $question->stack_version)
 				));

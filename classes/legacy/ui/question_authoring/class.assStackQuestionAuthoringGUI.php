@@ -332,6 +332,10 @@ class assStackQuestionAuthoringGUI
 		$options_assume_positive = new ilCheckboxInputGUI($this->getPlugin()->txt('options_assume_positive'), 'options_assume_positive');
 		$options_assume_positive->setInfo($this->getPlugin()->txt('options_assume_positive_info'));
 
+        //Options assume real
+        $options_assume_real = new ilCheckboxInputGUI($this->getPlugin()->txt('options_assume_real'), 'options_assume_real');
+        $options_assume_real->setInfo($this->getPlugin()->txt('options_assume_real_info'));
+
 		//Options Standard feedback for correct answer
 		$options_prt_correct = new ilTextAreaInputGUI($this->getPlugin()->txt('options_prt_correct'), 'options_prt_correct');
 		$this->getQuestionGUI()->setRTESupport($options_prt_correct);
@@ -383,6 +387,7 @@ class assStackQuestionAuthoringGUI
 		if ($this->new_question) {
 			$options_question_simplify->setChecked((bool)$this->default["options_question_simplify"]);
 			$options_assume_positive->setChecked((bool)$this->default["options_assume_positive"]);
+            $options_assume_real->setChecked((bool)$this->default["options_assume_real"]);
 			$options_prt_correct->setValue($this->default["options_prt_correct"]);
 			$options_prt_partially_correct->setValue($this->default["options_prt_partially_correct"]);
 			$options_prt_incorrect->setValue($this->default["options_prt_incorrect"]);
@@ -394,6 +399,7 @@ class assStackQuestionAuthoringGUI
 		} else {
 			$options_question_simplify->setChecked((bool)$options->get_option('simplify'));
 			$options_assume_positive->setChecked((bool)$options->get_option('assumepos'));
+            $options_assume_real->setChecked((bool)$options->get_option('assumereal'));
 			$options_prt_correct->setValue($this->getQuestionGUI()->object->prt_correct);
 			$options_prt_partially_correct->setValue($this->getQuestionGUI()->object->prt_partially_correct);
 			$options_prt_incorrect->setValue($this->getQuestionGUI()->object->prt_incorrect);
@@ -409,6 +415,7 @@ class assStackQuestionAuthoringGUI
 		//Add to form
 		$part->addFormProperty($options_question_simplify);
 		$part->addFormProperty($options_assume_positive);
+        $part->addFormProperty($options_assume_real);
 		$part->addFormProperty($options_prt_correct);
 		$part->addFormProperty($options_prt_partially_correct);
 		$part->addFormProperty($options_prt_incorrect);
