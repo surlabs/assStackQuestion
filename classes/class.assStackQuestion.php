@@ -877,7 +877,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $prt_from_db_array = assStackQuestionDB::_readPRTs($question_id);
 
             //$this->getPlugin()->includeClass('utils/class.assStackQuestionUtils.php');
-            $prt_names = assStackQuestionUtils::_getPRTNamesFromQuestion($this->getQuestion(), $options_from_db_array['ilias_options']['specific_feedback'], $prt_from_db_array);
+            $prt_names = assStackQuestionUtils::_getPRTNamesFromQuestion($this->getQuestion(), $this->specific_feedback, $prt_from_db_array);
 
             $total_value = 0;
             $all_formative = true;
@@ -889,6 +889,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
                     $total_value += $prt_data->value;
                     $all_formative = false;
+                } else {
+                    $this->loadStandardPRT($name);
                 }
             }
 
