@@ -59,7 +59,8 @@ function checkUserResponse($question_id, $input_name, $user_response)
     //Instantiate Question if not.
     if (!$question->isInstantiated()) {
         try{
-            $question->questionInitialisation(null, false);
+            $question->questionInitialisation(1, true);
+
         } catch (stack_exception|StackException $e) {
             global $tpl;
             $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
