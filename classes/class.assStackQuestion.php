@@ -433,15 +433,17 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         $points = 0;
 
-        if (count($tst_solutions) > 0 && $tst_solutions[0]['value1'] != "xqcas_raw_data") {
-            // old format
-            foreach ($tst_solutions as $row) {
-                $points += (float) $row['points'];
-            }
-        } else {
-            $parsed_user_response_from_db = (array) json_decode($tst_solutions[0]['value2']);
+        if (count($tst_solutions) > 0) {
+            if ($tst_solutions[0]['value1'] != "xqcas_raw_data") {
+                // old format
+                foreach ($tst_solutions as $row) {
+                    $points += (float) $row['points'];
+                }
+            } else {
+                $parsed_user_response_from_db = (array) json_decode($tst_solutions[0]['value2']);
 
-            $points = (float) $parsed_user_response_from_db['total_points'];
+                $points = (float) $parsed_user_response_from_db['total_points'];
+            }
         }
 
         return $points;
@@ -695,10 +697,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * Called by assStackQuestionGUI Constructor
      * For new questions, loads the standard values from xqcas_configuration.
      *
-     * @param integer $question_id A unique key which defines the question in the database
+     * @param int $question_id A unique key which defines the question in the database
      * @throws stack_exception
      */
-    public function loadFromDb($question_id)
+    public function loadFromDb(int $question_id)
     {
         global $DIC, $tpl;
 
