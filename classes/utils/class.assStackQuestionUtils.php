@@ -1118,6 +1118,18 @@ class assStackQuestionUtils
 		//load PRTs and PRT nodes
 		$prt_from_array = $array['prts'];
 
+		foreach ($prt_from_array as $prt_name => $prt_data) {
+            $prt_from_array[$prt_name] = (object) $prt_data;
+
+            $prt_data->name = $prt_name;
+
+            if (isset($prt_data->nodes)) {
+                foreach ($prt_data->nodes as $node_name => $node_data) {
+                    $prt_from_array[$prt_name]->nodes[$node_name] = (object) $node_data;
+                }
+            }
+        }
+
 		//Values
 		$total_value = 0;
 
