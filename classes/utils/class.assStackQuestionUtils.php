@@ -1202,118 +1202,120 @@ class assStackQuestionUtils
 	public static function _fromTSTSolutionsToSTACK(array $tst_solutions,string $question_id): array {
         $parsed_user_response_from_db = array();
 
-        if (count($tst_solutions) > 0 && $tst_solutions[0]['value1'] != "xqcas_raw_data") {
-            foreach ($tst_solutions as $solution_entry) {
+		if (count($tst_solutions) > 0) {
+			if($tst_solutions[0]['value1'] != "xqcas_raw_data") {
+				foreach ($tst_solutions as $solution_entry) {
 
-                //Question text
-                if ($solution_entry['value1'] == 'xqcas_text_' . $question_id) {
-                    $parsed_user_response_from_db['question_text'] = $solution_entry['value2'];
-                }
+					//Question text
+					if ($solution_entry['value1'] == 'xqcas_text_' . $question_id) {
+						$parsed_user_response_from_db['question_text'] = $solution_entry['value2'];
+					}
 
-                //question note
-                if ($solution_entry['value1'] == 'xqcas_solution_' . $question_id) {
-                    $parsed_user_response_from_db['question_note'] = $solution_entry['value2'];
-                }
+					//question note
+					if ($solution_entry['value1'] == 'xqcas_solution_' . $question_id) {
+						$parsed_user_response_from_db['question_note'] = $solution_entry['value2'];
+					}
 
-                //General feedback
-                if ($solution_entry['value1'] == 'xqcas_general_feedback_' . $question_id) {
-                    $parsed_user_response_from_db['general_feedback'] = $solution_entry['value2'];
-                }
+					//General feedback
+					if ($solution_entry['value1'] == 'xqcas_general_feedback_' . $question_id) {
+						$parsed_user_response_from_db['general_feedback'] = $solution_entry['value2'];
+					}
 
-                //Seed
-                if ($solution_entry['value1'] == 'xqcas_question_' . $question_id . '_seed') {
-                    $parsed_user_response_from_db['seed'] = $solution_entry['value2'];
-                }
+					//Seed
+					if ($solution_entry['value1'] == 'xqcas_question_' . $question_id . '_seed') {
+						$parsed_user_response_from_db['seed'] = $solution_entry['value2'];
+					}
 
-                //Inputs
+					//Inputs
 
-                // User response value
-                if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_value') !== false) {
-                    $input_name = str_replace('xqcas_input_', '', $solution_entry['value1']);
-                    $input_name = str_replace('_value', '', $input_name);
-                    $parsed_user_response_from_db['inputs'][$input_name]['value'] = $solution_entry['value2'];
-                }
+					// User response value
+					if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_value') !== false) {
+						$input_name = str_replace('xqcas_input_', '', $solution_entry['value1']);
+						$input_name = str_replace('_value', '', $input_name);
+						$parsed_user_response_from_db['inputs'][$input_name]['value'] = $solution_entry['value2'];
+					}
 
-                // User response display
-                if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_display') !== false) {
-                    $input_name = str_replace('xqcas_input_', '', $solution_entry['value1']);
-                    $input_name = str_replace('_display', '', $input_name);
-                    $parsed_user_response_from_db['inputs'][$input_name]['display'] = $solution_entry['value2'];
-                }
+					// User response display
+					if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_display') !== false) {
+						$input_name = str_replace('xqcas_input_', '', $solution_entry['value1']);
+						$input_name = str_replace('_display', '', $input_name);
+						$parsed_user_response_from_db['inputs'][$input_name]['display'] = $solution_entry['value2'];
+					}
 
-                // Correct answer value
-                if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_model_answer') !== false) {
-                    $input_name = str_replace('xqcas_input_', '', $solution_entry['value1']);
-                    $input_name = str_replace('_model_answer', '', $input_name);
-                    $parsed_user_response_from_db['inputs'][$input_name]['correct_value'] = $solution_entry['value2'];
-                }
+					// Correct answer value
+					if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_model_answer') !== false) {
+						$input_name = str_replace('xqcas_input_', '', $solution_entry['value1']);
+						$input_name = str_replace('_model_answer', '', $input_name);
+						$parsed_user_response_from_db['inputs'][$input_name]['correct_value'] = $solution_entry['value2'];
+					}
 
-                // Correct answer display
-                if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_model_answer_display') !== false) {
-                    $input_name = str_replace('xqcas_input_', '', $solution_entry['value1']);
-                    $input_name = str_replace('_model_answer_display', '', $input_name);
-                    $parsed_user_response_from_db['inputs'][$input_name]['correct_display'] = $solution_entry['value2'];
-                }
+					// Correct answer display
+					if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_model_answer_display') !== false) {
+						$input_name = str_replace('xqcas_input_', '', $solution_entry['value1']);
+						$input_name = str_replace('_model_answer_display', '', $input_name);
+						$parsed_user_response_from_db['inputs'][$input_name]['correct_display'] = $solution_entry['value2'];
+					}
 
-                // Input validation
-                if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_validation_display') !== false) {
-                    $input_name = str_replace('xqcas_input_', '', $solution_entry['value1']);
-                    $input_name = str_replace('_validation_display', '', $input_name);
-                    $parsed_user_response_from_db['inputs'][$input_name]['validation_display'] = $solution_entry['value2'];
-                }
+					// Input validation
+					if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_validation_display') !== false) {
+						$input_name = str_replace('xqcas_input_', '', $solution_entry['value1']);
+						$input_name = str_replace('_validation_display', '', $input_name);
+						$parsed_user_response_from_db['inputs'][$input_name]['validation_display'] = $solution_entry['value2'];
+					}
 
-                //Prts
+					//Prts
 
-                //PRT name
-                if (strpos($solution_entry['value1'], 'xqcas_prt_') !== false && strpos($solution_entry['value1'], '_name') !== false) {
-                    $prt_name = str_replace('xqcas_prt_', '', $solution_entry['value1']);
-                    $prt_name = str_replace('_name', '', $prt_name);
-                    $parsed_user_response_from_db['prts'][$prt_name]['name'] = $solution_entry['value2'];
-                }
+					//PRT name
+					if (strpos($solution_entry['value1'], 'xqcas_prt_') !== false && strpos($solution_entry['value1'], '_name') !== false) {
+						$prt_name = str_replace('xqcas_prt_', '', $solution_entry['value1']);
+						$prt_name = str_replace('_name', '', $prt_name);
+						$parsed_user_response_from_db['prts'][$prt_name]['name'] = $solution_entry['value2'];
+					}
 
-                //PRT errors
-                if (strpos($solution_entry['value1'], 'xqcas_prt_') !== false && strpos($solution_entry['value1'], '_errors') !== false) {
-                    $prt_name = str_replace('xqcas_prt_', '', $solution_entry['value1']);
-                    $prt_name = str_replace('_errors', '', $prt_name);
-                    $parsed_user_response_from_db['prts'][$prt_name]['errors'] = $solution_entry['value2'];
-                }
+					//PRT errors
+					if (strpos($solution_entry['value1'], 'xqcas_prt_') !== false && strpos($solution_entry['value1'], '_errors') !== false) {
+						$prt_name = str_replace('xqcas_prt_', '', $solution_entry['value1']);
+						$prt_name = str_replace('_errors', '', $prt_name);
+						$parsed_user_response_from_db['prts'][$prt_name]['errors'] = $solution_entry['value2'];
+					}
 
-                //PRT feedback
-                if (strpos($solution_entry['value1'], 'xqcas_prt_') !== false && strpos($solution_entry['value1'], '_feedback') !== false) {
-                    $prt_name = str_replace('xqcas_prt_', '', $solution_entry['value1']);
-                    $prt_name = str_replace('_feedback', '', $prt_name);
-                    $parsed_user_response_from_db['prts'][$prt_name]['feedback'] = $solution_entry['value2'];
-                }
+					//PRT feedback
+					if (strpos($solution_entry['value1'], 'xqcas_prt_') !== false && strpos($solution_entry['value1'], '_feedback') !== false) {
+						$prt_name = str_replace('xqcas_prt_', '', $solution_entry['value1']);
+						$prt_name = str_replace('_feedback', '', $prt_name);
+						$parsed_user_response_from_db['prts'][$prt_name]['feedback'] = $solution_entry['value2'];
+					}
 
-                //PRT status
-                if (strpos($solution_entry['value1'], 'xqcas_prt_') !== false && strpos($solution_entry['value1'], '_status') !== false) {
-                    $prt_name = str_replace('xqcas_prt_', '', $solution_entry['value1']);
-                    $prt_name = str_replace('_status', '', $prt_name);
-                    $parsed_user_response_from_db['prts'][$prt_name]['status'] = $solution_entry['value2'];
-                }
+					//PRT status
+					if (strpos($solution_entry['value1'], 'xqcas_prt_') !== false && strpos($solution_entry['value1'], '_status') !== false) {
+						$prt_name = str_replace('xqcas_prt_', '', $solution_entry['value1']);
+						$prt_name = str_replace('_status', '', $prt_name);
+						$parsed_user_response_from_db['prts'][$prt_name]['status'] = $solution_entry['value2'];
+					}
 
-                //PRT answer notes
-                if (strpos($solution_entry['value1'], 'xqcas_prt_') !== false && strpos($solution_entry['value1'], '_answernote') !== false) {
-                    $prt_name = str_replace('xqcas_prt_', '', $solution_entry['value1']);
-                    $prt_name = str_replace('_answernote', '', $prt_name);
-                    $parsed_user_response_from_db['prts'][$prt_name]['answer_notes'] = $solution_entry['value2'];
-                }
-            }
-        } else {
-            $parsed_user_response_from_db = (array) json_decode($tst_solutions[0]['value2']);
+					//PRT answer notes
+					if (strpos($solution_entry['value1'], 'xqcas_prt_') !== false && strpos($solution_entry['value1'], '_answernote') !== false) {
+						$prt_name = str_replace('xqcas_prt_', '', $solution_entry['value1']);
+						$prt_name = str_replace('_answernote', '', $prt_name);
+						$parsed_user_response_from_db['prts'][$prt_name]['answer_notes'] = $solution_entry['value2'];
+					}
+				}
+			} else {
+				$parsed_user_response_from_db = (array) json_decode($tst_solutions[0]['value2']);
 
-            //Convert inputs from stdClass to array
-            $parsed_user_response_from_db['inputs'] = (array) $parsed_user_response_from_db['inputs'];
-            foreach ($parsed_user_response_from_db['inputs'] as $input_name => $input) {
-                $parsed_user_response_from_db['inputs'][$input_name] = (array) $input;
-            }
+				//Convert inputs from stdClass to array
+				$parsed_user_response_from_db['inputs'] = (array) $parsed_user_response_from_db['inputs'];
+				foreach ($parsed_user_response_from_db['inputs'] as $input_name => $input) {
+					$parsed_user_response_from_db['inputs'][$input_name] = (array) $input;
+				}
 
-            //Convert prts from stdClass to array
-            $parsed_user_response_from_db['prts'] = (array) $parsed_user_response_from_db['prts'];
-            foreach ($parsed_user_response_from_db['prts'] as $prt_name => $prt) {
-                $parsed_user_response_from_db['prts'][$prt_name] = (array) $prt;
-            }
-        }
+				//Convert prts from stdClass to array
+				$parsed_user_response_from_db['prts'] = (array) $parsed_user_response_from_db['prts'];
+				foreach ($parsed_user_response_from_db['prts'] as $prt_name => $prt) {
+					$parsed_user_response_from_db['prts'][$prt_name] = (array) $prt;
+				}
+			}
+		}
         
         return $parsed_user_response_from_db;
 	}
