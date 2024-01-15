@@ -625,7 +625,7 @@ class assStackQuestionDB
 						"strict_syntax" => array("integer", $input->get_parameter('strictSyntax') !== null ? $input->get_parameter('strictSyntax') : ''),
 						"insert_stars" => array("integer", $input->get_parameter('insertStars') !== null ? $input->get_parameter('insertStars') : ''),
 						"syntax_hint" => array("text", $input->get_parameter('syntaxHint') !== null ? $input->get_parameter('syntaxHint') : ''),
-						"syntax_attribute" => array("text", $input->get_parameter('syntaxAttribute') !== null ? $input->get_parameter('syntaxAttribute') : ''),
+						"syntax_attribute" => array("integer", $input->get_parameter('syntaxAttribute') !== null ? $input->get_parameter('syntaxAttribute') : ''),
 						"forbid_words" => array("text", $input->get_parameter('forbidWords') !== null ? $input->get_parameter('forbidWords') : ''),
 						"allow_words" => array("text", $input->get_parameter('allowWords') !== null ? $input->get_parameter('allowWords') : ''),
 						"forbid_float" => array("integer", $input->get_parameter('forbidFloats') !== null ? $input->get_parameter('forbidFloats') : ''),
