@@ -126,7 +126,9 @@ class assStackQuestionConfig
 
 		}
 
-		switch (strtolower($_GET['cmdClass']))
+        $action = $_GET['cmdClass'] ? $_GET['cmdClass'] : "";
+
+		switch (strtolower($action))
 		{
 			case 'iltestplayerfixedquestionsetgui':
 			case 'iltestplayerrandomquestionsetgui':
