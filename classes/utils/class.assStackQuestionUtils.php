@@ -1118,6 +1118,30 @@ class assStackQuestionUtils
 		//load PRTs and PRT nodes
 		$prt_from_array = $array['prts'];
 
+        // $prt_from_array siempre es un array
+        // Cada elemento puede ser un array o un objeto
+        // Si es un array, necesito convertirlo en un objeto
+        // Si es un objeto, no necesito hacer nada
+        // Si el primero es un array, entonces todos son arrays
+        // Puede estar vacío
+
+        if (count($prt_from_array) > 0) {
+            if (is_array($prt_from_array[array_key_first($prt_from_array)])) {
+                foreach ($prt_from_array as $prt_name => $prt_data) {
+                    $prt_from_array[$prt_name] = self::prtArrayToObject($prt_data);
+
+                    $prt_from_array[$prt_name]->name = $prt_name;
+
+                    foreach ($prt_from_array[$prt_name]->nodes as $node_name => $node_data) {
+                        $prt_from_array[$prt_name]->nodes[$node_name] = self::prtArrayToObject($node_data);
+
+                        $prt_from_array[$prt_name]->nodes[$node_name]->nodename = $node_name;
+                        $prt_from_array[$prt_name]->nodes[$node_name]->prtname = $prt_name;
+                    }
+                }
+            }
+        }
+
 		//Values
 		$total_value = 0;
 
@@ -1176,12 +1200,12 @@ class assStackQuestionUtils
 		$extra_info = $array['extra_information'];
 		if (is_array($extra_info)) {
 			$question->general_feedback = $extra_info['general_feedback'];
-			$question->penalty = (float)$extra_info['penalty'];
-			$question->hidden = (bool)$extra_info['hidden'];
+			$question->setPenalty((float) $extra_info['penalty']);
+			$question->setHidden((bool) $extra_info['hidden']);
 		} else {
 			$question->general_feedback = '';
-			$question->penalty = 0.0;
-			$question->hidden = false;
+			$question->setPenalty(0.0);
+			$question->setHidden(false);
 		}
 
 		//load unit tests
@@ -1500,5 +1524,17 @@ class assStackQuestionUtils
 
         $htmlOutput .= "</div>";
         return $htmlOutput;
+    }
+
+    private static function prtArrayToObject(array $prt_data) :stdClass {
+        $new_prt = new stdClass();
+
+        foreach ($prt_data as $key => $value) {
+            $key = str_replace('_', '', $key);
+
+            $new_prt->$key = $value;
+        }
+
+        return $new_prt;
     }
 }
