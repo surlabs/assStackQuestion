@@ -83,7 +83,7 @@ class assStackQuestionImport extends assQuestionImport
         $this->object->setObjId($questionpool_id);
         $this->object->setPoints((float)$item->getMetadataEntry("POINTS"));
 
-        $this->object->saveQuestionDataToDb($this->object->getId());
+        $this->object->saveQuestionDataToDb();
 
         //question
         $stack_question = unserialize(base64_decode($item->getMetadataEntry('stack_question')));

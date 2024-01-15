@@ -126,7 +126,7 @@ class assStackQuestionMoodleImport
                 if ($this->loadFromMoodleXML($question)) {
 
                     //Save standard question data
-                    $this->getQuestion()->saveQuestionDataToDb($this->getQuestion()->getId());
+                    $this->getQuestion()->saveQuestionDataToDb();
                     //$this->getPlugin()->includeClass('class.assStackQuestionDB.php');
                     try {
                         //Save STACK Parameters forcing insert.
@@ -192,7 +192,7 @@ class assStackQuestionMoodleImport
 		$this->getQuestion()->setLifecycle(ilAssQuestionLifecycle::getDraftInstance());
 
 		//Save current values, to set the Id properly.
-		$this->getQuestion()->saveQuestionDataToDb($this->getQuestion()->getId());
+		$this->getQuestion()->saveQuestionDataToDb();
 
 		//STEP 2: load xqcas_options fields
 
