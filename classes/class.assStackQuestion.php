@@ -3664,12 +3664,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $collected .= $this->prt_incorrect;
         }
 
-        if (isset($this->extra_info)) {
+        if (isset($this->general_feedback)) {
             $collected .= $this->general_feedback;
         }
 
         foreach ($this->prts as $prt) {
-            foreach ($prt->get_nodes_summary() as $node) {
+            foreach ($prt->get_nodes() as $node) {
                 $collected .= $node->truefeedback;
                 $collected .= $node->falsefeedback;
             }
