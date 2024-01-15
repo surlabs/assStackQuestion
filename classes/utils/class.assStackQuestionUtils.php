@@ -1134,7 +1134,8 @@ class assStackQuestionUtils
 					'The $totalvalue, the marks available for the question, must be positive in question ' .
 					$question->getTitle());
 			} catch (stack_exception $e) {
-				$tpl->setOnScreenMessage('failure', $e);
+                global $tpl;
+                $tpl->setOnScreenMessage('failure', $e);
 				$total_value = 1.0;
 			}
 		}
