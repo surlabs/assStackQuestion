@@ -26,6 +26,7 @@
 
 
 use classes\core\filters\StackParser;
+use classes\platform\StackPlatform;
 use classes\platform\StackConfig;
 
 class stack_cas_configuration {
@@ -65,6 +66,7 @@ class stack_cas_configuration {
      */
     public function __construct() {
         global $CFG;
+        StackPlatform::initialize('ilias');
         $this->settings = StackConfig::getAll();
         $this->date = date("F j, Y, g:i a");
 
