@@ -1,5 +1,5 @@
 <?php
-// This file is part of Stack - http://stack.bham.ac.uk//
+// This file is part of Stack - http://stack.maths.ed.ac.uk//
 //
 // Stack is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,15 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
-* German Language strings for the Stack question type.
-*
-* @package    qtype_stack
-* @copyright  2012 Michael Kallweit
-* @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
-
+ * Language strings for the STACK question type.
+ *
+ * @package    qtype_stack
+ * @copyright  2012 The Open University
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 $string['pluginname'] = 'STACK';
 $string['pluginname_help'] = 'STACK ist ein Assessmentsystem für Mathematik.';
@@ -30,131 +28,255 @@ $string['pluginnameadding'] = 'STACK-Frage hinzufügen';
 $string['pluginnameediting'] = 'STACK-Frage bearbeiten';
 $string['pluginnamesummary'] = 'STACK ermöglicht es mathematische Fragestellungen in Moodle-Tests zu verwenden. Es bedient sich dabei eines Computeralgebrasystems um mathematische Eigenschaften der eingegebenen Antworten zu ermitteln und diese dann zu bewerten.';
 
-// General strings.
-$string['errors'] = 'Fehler';
-$string['debuginfo'] = 'Debug Info';
-$string['exceptionmessage'] = '{$a}';
+$string['privacy:metadata'] = 'Das STACK-Fragetyp-Plugin speichert keine persönlichen Daten.';
+$string['cachedef_parsercache'] = 'Von STACK geparste Maxima-Ausdrücke';
 
-// Strings used on the editing form.
-$string['addanothernode'] = 'Weiteren Knoten hinzufügen';
-$string['answernote'] = 'Antworthinweis';
-$string['answernote_err'] = 'Antworthinweise dürfen nicht das Zeichen | enthalten. Dieses Zeichen wird von STACK später eingefügt, um die Antworthinweise automatisch zu trennen.';
-$string['answernote_help'] = 'Dieses Tag dient zur Berichterstattung. Es bestimmt den eindeutigen Pfad durch den Baum und das Ergebnis jeder Antwort. Es wird automatisch erzeugt, kann aber auch manuell zu etwas Sinnvollem geändert werden.';
+$string['mbstringrequired'] = 'Die Installation der MBSTRING-Bibliothek ist für STACK erforderlich.';
+$string['yamlrecommended'] = 'Die Installation der YAML-Bibliothek wird für STACK empfohlen.';
+
+// Allgemeine Strings.
+$string['errors'] = 'Fehler';
+$string['debuginfo'] = 'Debug-Informationen';
+$string['exceptionmessage'] = '{$a}';
+$string['runtimeerror'] = 'Diese Frage hat einen unerwarteten internen Fehler verursacht. Bitte suchen Sie Rat, z.B. bei einem Lehrer.';
+$string['runtimefielderr'] = 'Das Feld ""{$a->field}"" hat den folgenden Fehler verursacht: {$a->err}';
+$string['version'] = 'Version';
+
+// Berechtigungsnamen.
+$string['stack:usediagnostictools'] = 'Die STACK-Werkzeuge verwenden';
+
+// Versionen von STACK.
+$string['stackversionedited'] = 'Diese Frage wurde mit der STACK-Version {$a} erstellt.';
+$string['stackversionnow'] = 'Die aktuelle Version von STACK ist {$a}.';
+$string['stackversionnone'] = 'Diese Frage wurde seit der Einführung der Variantennummerierung in STACK 7.0 nicht bearbeitet. Bitte überprüfen Sie Ihre Frage sorgfältig.';
+$string['stackversionerror'] = 'Diese Frage verwendet {$a->pat} im {$a->qfield}, was sich in der STACK-Version {$a->ver} geändert hat und nicht mehr unterstützt wird.';
+$string['stackversionerroralt'] = 'Eine Alternative ist {$a}.';
+$string['stackversionmulerror'] = 'Diese Frage hat eine Eingabe, die die "mul"-Option verwendet, die nach STACK-Version 7.0 nicht unterstützt wird. Bitte bearbeiten Sie diese Frage.';
+$string['stackversionregexp'] = 'Der RegExp-Antworttest wird nach STACK-Version 7.5 nicht unterstützt. Bitte verwenden Sie stattdessen das neue SRegExp.';
+$string['stackfileuseerror'] = 'Mit dem {$a} sind intern eine oder mehrere Dateien (z.B. Bilder) verknüpft, aber keine scheint im aktuellen Text selbst verwendet zu werden.';
+
+// Strings, die im Bearbeitungsformular verwendet werden.
+$string['generalerrors'] = 'Es gibt Fehler in Ihrer Frage. Bitte prüfen Sie sorgfältig unten.';
+$string['addanothernode'] = 'Einen weiteren Knoten hinzufügen';
+$string['allnodefeedbackmustusethesameformat'] = 'Das gesamte Feedback für alle Knoten in einem PRT muss das gleiche Textformat verwenden.';
+$string['answernote'] = 'Antwortnotiz';
+$string['answernote_err'] = 'Antwortnotizen dürfen das Zeichen | nicht enthalten. Dieses Zeichen wird von STACK eingefügt und später verwendet, um Antwortnotizen automatisch zu trennen.';
+$string['answernote_err2'] = 'Antwortnotizen dürfen die Zeichen ; oder : nicht enthalten. Diese Zeichen werden verwendet, um Frageversuchs-Zusammenfassungszeichenfolgen in Offline-Berichtswerkzeugen zu trennen.';
+$string['answernote_help'] = 'Dies ist ein Tag, der für Berichtszwecke wichtig ist. Es soll den einzigartigen Weg durch den Baum und das Ergebnis jedes Antworttests aufzeichnen. Dies wird automatisch generiert, kann aber in etwas Sinnvolles geändert werden.';
 $string['answernote_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Potential_response_trees.md#Answer_note';
 $string['answernotedefaultfalse'] = '{$a->prtname}-{$a->nodename}-F';
 $string['answernotedefaulttrue'] = '{$a->prtname}-{$a->nodename}-T';
-$string['answernoterequired'] = 'Antworthinweis darf nicht leer sein.';
-$string['assumepositive'] = 'Positivitätsannahme';
-$string['assumepositive_help'] = 'Diese Option setzt Maxima\'s assume_pos Variable.';
+$string['answernoterequired'] = 'Antwortnotiz darf nicht leer sein.';
+$string['answernoteunique'] = 'Doppelte Antwortnotizen in diesem potenziellen Antwortbaum erkannt.';
+$string['assumepositive'] = 'Positiv annehmen';
+$string['assumepositive_help'] = 'Diese Option legt den Wert der Maxima-Variablen assume_pos fest.';
 $string['assumepositive_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Options.md#Assume_Positive';
+$string['assumereal'] = 'Real annehmen';
+$string['assumereal_help'] = 'Diese Option legt die Variable assume_real fest.';
+$string['assumereal_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Options.md#Assume_Real';
 $string['autosimplify'] = 'Auto-Vereinfachung';
-$string['autosimplify_help'] = 'Setzt die Variable "simp" in Maxima für diesen potenziellen Rückmeldungsbaum.';
-$string['autosimplify_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/CAS/Maxima.md#Simplification';
-$string['boxsize'] = 'Größe der Eingabebox';
-$string['boxsize_help'] = 'Breite der HTML-Eingabebox.';
+$string['autosimplify_help'] = 'Legt die Variable "simp" innerhalb von Maxima für diese Frage fest. Z.B. Fragevariablen, Fragetext usw. Der Wert, der in jedem potenziellen Antwortbaum festgelegt wird, hebt diesen für alle danach definierten Ausdrücke innerhalb des Baumes auf.';
+$string['autosimplify_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/CAS/Maxima.md#Vereinfachung';
+$string['autosimplifyprt'] = 'Auto-Vereinfachung';
+$string['autosimplifyprt_help'] = 'Legt die Variable "simp" innerhalb von Maxima für die Feedback-Variablen fest, die in diesem potenziellen Antwortbaum definiert sind. Ob Ausdrücke in PRT-Notizen vor der Verwendung vereinfacht werden, hängt vom Antworttest ab. Zum Beispiel werden Argumente für AlgEquiv vereinfacht, während die für EqualComAss nicht vereinfacht werden.';
+$string['autosimplifyprt_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/CAS/Maxima.md#Vereinfachung';
+$string['boxsize'] = 'Größe des Eingabefelds';
+$string['boxsize_help'] = 'Breite des HTML-Formularfelds.';
 $string['boxsize_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Inputs.md#Box_Size';
-$string['checkanswertype'] = 'Überprüfung der Antworttypen';
-$string['checkanswertype_help'] = 'Falls ja, werden Antworten mit verschiedenen Typen (Term, Gleichung, Matrix, Liste, Menge), als ungültig verworfen.';
+$string['bulktestindexintro_desc'] = 'Das <a href="{$a->link}">Massentest-Skript</a> ermöglicht es Ihnen, alle STACK-Fragentests in einem bestimmten Kontext einfach durchzuführen. Dies testet nicht nur die Fragen. Es ist auch eine gute Möglichkeit, den CAS-Cache wieder aufzufüllen, nachdem er gelöscht wurde.';
+$string['dependenciesintro_desc'] = 'Der <a href="{$a->link}">Abhängigkeitschecker</a> findet Fragen mit Abhängigkeiten wie JSXGraph oder Einbindung von externem Maxima-Code.';
+$string['checkanswertype'] = 'Den Typ der Antwort überprüfen';
+$string['checkanswertype_help'] = 'Wenn ja, werden Antworten, die von einem anderen "Typ" sind (z.B. Ausdruck, Gleichung, Matrix, Liste, Menge), als ungültig abgelehnt.';
 $string['checkanswertype_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Inputs.md#Check_Type';
-$string['complexno'] = 'Bedeutung und Anzeige von sqrt(-1)';
-$string['complexno_help'] = 'Steuert die Bedeutung und Anzeige des Symbols i und sqrt(-1)';
+$string['complexno'] = 'Bedeutung und Darstellung von sqrt(-1)';
+$string['complexno_help'] = 'Steuert die Bedeutung und Darstellung des Symbols i und sqrt(-1)';
 $string['complexno_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Options.md#sqrt_minus_one.';
-$string['defaultprtcorrectfeedback'] = 'Richtige Antwort, gut gemacht!';
+$string['defaultmarkzeroifnoprts'] = 'Die Standardbewertung muss 0 sein, wenn diese Frage keine PRTs hat.';
+$string['defaultprtcorrectfeedback'] = 'Richtige Antwort, gut gemacht.';
 $string['defaultprtincorrectfeedback'] = 'Falsche Antwort.';
-$string['defaultprtpartiallycorrectfeedback'] = 'Ihre Antwort ist teilweise korrekt.';
-$string['branchfeedback'] = 'Knotenzweig Feedback';
-$string['branchfeedback_help'] = 'Dieser CASText kann die Aufgabenvariablen, die Eingabeelemente oder andere Feedbackvariablen verwenden. Er wird ausgewertet und angezeigt, sobald ein Studierender diesen Zweig erreicht.';
-$string['inputtest'] ='Eingabetest';
-$string['falsebranch'] = 'FALSCH-Zweig';
-$string['falsebranch_help'] = 'Diese Felder kontrollieren was passiert, wenn die Antwortüberprüfung negativ ausfällt
-### Mod und Punkte
-Wie die Bepunktung angepasst wird. "=" setzt die Punkte auf einen bestimmten Wert. "+/-" addieren oder subtrahieren Punkte von der aktuellen Summe.
+$string['defaultprtpartiallycorrectfeedback'] = 'Ihre Antwort ist teilweise richtig.';
+$string['symbolicprtcorrectfeedback'] = '<span style="font-size: 1.5em; color:green;"><i class="fa fa-check"></i></span>';
+$string['symbolicprtincorrectfeedback'] = '<span style="font-size: 1.5em; color:red;"><i class="fa fa-times"></i></span>';
+$string['symbolicprtpartiallycorrectfeedback'] = '<span style="font-size: 1.5em; color:orange;"><i class="fa fa-adjust"></i></span>';
+$string['branchfeedback'] = 'Feedback zum Knotenast';
+$string['branchfeedback_help'] = 'Dies ist CASText, der von allen Fragevariablen, Eingabeelementen oder Feedback-Variablen abhängen kann. Dieser wird ausgewertet und dem Studenten angezeigt, wenn er diesen Ast passiert.';
+$string['inputtest'] = 'Eingabetest';
+$string['inversetrig'] = 'Inverse trigonometrische Funktionen';
+$string['inversetrig_help'] = 'Steuert, wie inverse trigonometrische Funktionen in CAS-Ausgaben dargestellt werden.';
+$string['inversetrig_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Options.md#inverse_trig';
+$string['logicsymbol'] = 'Logiksymbole';
+$string['logicsymbol_help'] = 'Steuert, wie logische Symbole in CAS-Ausgaben dargestellt werden.';
+$string['logicsymbol_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Options.md#logicsymbol';
+$string['logicsymbollang'] = 'Sprache';
+$string['logicsymbolsymbol'] = 'Symbolisch';
+$string['matrixparens'] = 'Standardform von Matrixklammern';
+$string['matrixparens_help'] = 'Steuert die Standardform von Matrixklammern, wenn sie in CAS-Ausgaben angezeigt werden.';
+$string['matrixparens_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/CAS/Matrix.md#matrixparens';
+$string['falsebranch'] = 'Falscher Ast';
+$string['falsebranch_help'] = 'Diese Felder steuern, was passiert, wenn der Antworttest nicht besteht.
+### Mod und Punktzahl
+Wie die Punktzahl angepasst wird. = bedeutet, die Punktzahl auf einen bestimmten Wert zu setzen, +/- bedeutet, die angegebene Punktzahl zum aktuellen Gesamt hinzuzufügen oder abzuziehen.
 
-### Abzüge
-Im adaptiven oder interaktiven Modus, ziehe so viele Punkte ab.
+### Strafe
+In adaptiven oder interaktiven Modi wird so viel Strafe angesammelt.
 
-### Nächster
-Soll zu einem nächsten Knoten gesprungen werden, falls ja zu welchen, ansonsten stoppe.
+### Weiter
+Ob zu einem anderen Knoten gegangen werden soll, und wenn ja, zu welchem, oder ob gestoppt wird.
 
-### Antworthinweis
-Dieses Tag dient zur Berichterstattung. Es bestimmt den eindeutigen Pfad durch den Baum und das Ergebnis jeder Antwort. Es wird automatisch erzeugt, kann aber auch manuell zu etwas Sinnvollem geändert werden.
+### Antwortnotiz
+Dies ist ein Tag, der für Berichtszwecke wichtig ist. Es soll den einzigartigen Weg durch den Baum und das Ergebnis jedes Antworttests aufzeichnen. Dies wird automatisch generiert, kann aber in etwas Sinnvolles geändert werden.
 ';
+$string['feedbackfromprtx'] = '[ Feedback von {$a}. ]';
 $string['feedbackvariables'] = 'Feedback-Variablen';
-$string['feedbackvariables_help'] = 'Die Feedback-Variablen erlauben es die Eingabe zusammen mit den Aufgabenvariablen zu manipulieren, bevor der Rückmeldebaum durchlaufen wird. Variablen, die hier definiert werden, können überall im Rückmeldebaum benutzt werden.';
-$string['feedbackvariables_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/KeyVals.md#Feedback_variables';
-$string['fieldshouldnotcontainplaceholder'] = '{$a->field} sollten keine [[{$a->type}:...]] Platzhalter enthalten.';
-$string['forbidfloat'] = 'Verbiete Fließkommazahlen';
-$string['forbidfloat_help'] = 'Falls JA werden Antworten von Studierenden, die Fließkommazahlen enthalten als ungültig verworfen.';
+$string['feedbackvariables_help'] = 'Die Feedback-Variablen ermöglichen es Ihnen, alle Eingaben zusammen mit den Fragevariablen vor dem Durchlaufen des Baums zu manipulieren. Variablen, die hier definiert sind, können überall in diesem Baum verwendet werden.';
+$string['feedbackvariables_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Variables.md#Feedback_variables';
+$string['fieldshouldnotcontainplaceholder'] = '{$a->field} sollte keine [[{$a->type}:...]] Platzhalter enthalten.';
+$string['firstnodemusthavelowestnumber'] = 'Der erste Knoten muss die niedrigste Nummer haben.';
+$string['fixdollars'] = 'Dollarzeichen korrigieren';
+$string['fixdollarslabel'] = 'Ersetzen Sie <code>$...$</code> mit <code></code>, <code>.</code> mit <code></code> und <code>@...@</code> mit <code>{@...@}</code> beim Speichern.';
+$string['fixdollars_help'] = 'Diese Option ist nützlich, wenn Sie TeX mit <code>$...$</code> und <code></code> Begrenzern kopieren und einfügen (oder tippen). Diese Begrenzer werden während des Speicherprozesses durch die empfohlenen Begrenzer ersetzt.';
+$string['forbiddendoubledollars'] = 'Bitte verwenden Sie die Begrenzer <code></code> für Inline-Mathematik und <code></code> für angezeigte Mathematik. <code>$...$</code> und <code></code> sind nicht erlaubt. Am Ende des Formulars gibt es eine Option, um dies automatisch zu korrigieren.';
+$string['forbidfloat'] = 'Gleitkommazahlen verbieten';
+$string['forbidfloat_help'] = 'Wenn auf Ja gesetzt, wird jede Antwort des Schülers, die eine Gleitkommazahl enthält, als ungültig abgelehnt.';
 $string['forbidfloat_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Inputs.md#Forbid_Floats';
 $string['forbidwords'] = 'Verbotene Wörter ';
-$string['forbidwords_help'] = 'Dies ist eine Komma-separierte Liste von Zeichenketten, die in den Studierendenantworten verboten sind.';
-$string['forbidwords_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/CASText.md#Forbidden_Words';
+$string['forbidwords_help'] = 'Dies ist eine durch Kommas getrennte Liste von Textzeichenfolgen, die in der Antwort eines Schülers verboten sind.';
+$string['forbidwords_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Inputs.md#Forbidden_Words';
+$string['allowwords'] = 'Erlaubte Wörter ';
+$string['allowwords_help'] = 'Standardmäßig sind willkürliche Funktions- oder Variablennamen mit mehr als zwei Zeichen Länge nicht gestattet. Dies ist eine durch Kommas getrennte Liste von Funktions- oder Variablennamen, die in einer Antwort eines Schülers erlaubt sind.';
+$string['allowwords_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Inputs.md#Allow_Words';
 $string['generalfeedback'] = 'Allgemeines Feedback';
-$string['generalfeedback_help'] = 'Das allgemeine Feedback ist ein CASText. Das allgemeine Feedback, auch Musterlösung genannt, wird den Studierenden nach seinem Beantwortungsversuch gezeigt. Im Gegensatz zum (spezifischen) Feedback wird es allen Studierenden gleichermaßen gezeigt, unabhängig von ihrer eingegebenen Antwort. Hier können Variablen aus dem Aufgabentext verwendet werden.';
+$string['generalfeedback_help'] = 'Allgemeines Feedback ist CASText. Allgemeines Feedback, auch bekannt als "ausgearbeitete Lösung", wird dem Schüler gezeigt, nachdem er die Frage versucht hat. Im Gegensatz zum Feedback, das davon abhängt, welche Antwort der Schüler gegeben hat, wird allen Schülern der gleiche allgemeine Feedback-Text gezeigt. Es kann von den in der Variante der Frage verwendeten Fragevariablen abhängen.';
 $string['generalfeedback_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/CASText.md#general_feedback';
-$string['showvalidation'] = 'Zeige die Validierung';
-$string['showvalidation_help'] = 'Zeigt eine validierte Darstellung der Eingabe an. Dies schließt auch die traditionelle zweidimensionale Darstellung ein.';
+$string['showvalidation'] = 'Die Validierung anzeigen';
+$string['showvalidation_help'] = 'Zeigt jedes Validierungsfeedback von dieser Eingabe an, einschließlich des Zurückspiegelns ihres Ausdrucks in traditioneller zweidimensionaler Notation. Syntaxfehler werden immer zurückgemeldet.';
 $string['showvalidation_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Inputs.md#Show_validation';
-$string['htmlfragment'] = 'Sie scheinen HTML-Elemente in ihrem Ausdruck zu verwenden.';
-$string['illegalcaschars'] = 'Die Zeichen @ und \$ sind in der CAS Eingabe nicht erlaubt.';
+$string['showvalidationno'] = 'Nein';
+$string['showvalidationyes'] = 'Ja, mit Variablenliste';
+$string['showvalidationyesnovars'] = 'Ja, ohne Variablenliste';
+$string['showvalidationcompact'] = 'Ja, kompakt';
+$string['inputinvalidparamater'] = 'Ungültiger Parameter';
+$string['mustverifyshowvalidation'] = 'Sie können nicht wählen, eine zweistufige Validierung zu verlangen, aber nicht die Ergebnisse der Validierung nach dem ersten Schritt dem Schüler zu zeigen. Das setzt den Schüler in eine unmögliche Lage.';
+$string['htmlfragment'] = 'Es scheint, dass Sie einige HTML-Elemente in Ihrem Ausdruck haben.';
+$string['illegalcaschars'] = 'Die Zeichen @, $ und \ sind in CAS-Eingaben nicht erlaubt.';
+$string['inputextraoptions'] = 'Zusätzliche Optionen';
+$string['inputextraoptions_help'] = 'Einige Eingabetypen erfordern zusätzliche Optionen, um zu funktionieren. Sie können sie hier eingeben. Dieser Wert ist ein CAS-Ausdruck.';
+$string['inputextraoptions_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Inputs.md#Extra_options';
+$string['inputoptionunknown'] = 'Dieser Eingabetyp unterstützt die Option {$a} nicht.';
 $string['inputheading'] = 'Eingabe: {$a}';
+$string['inputnamelength'] = 'Eingabenamen dürfen nicht länger als 18 Zeichen sein. {$a} ist zu lang.';
+$string['inputnameform'] = 'Eingabenamen müssen nur aus Buchstaben bestehen, denen (optional) Zahlen folgen können. {$a} ist ungültig.';
+$string['inputremovedconfirmbelow'] = 'Eingabe {$a} wurde entfernt. Bitte bestätigen Sie dies unten.';
+$string['inputremovedconfirm'] = 'Ich bestätige, dass ich diese Eingabe aus dieser Frage entfernen möchte.';
+$string['inputlanguageproblems'] = 'Es gibt Inkonsistenzen in den Eingabe- und Validierungstags zwischen den Sprachen.';
+$string['inputs'] = 'Eingaben';
 $string['inputtype'] = 'Eingabetyp';
-$string['inputtype_help'] = 'Dies bestimmt die Art des Eingabeelements, z.B. Formularfeld, Wahr/Falsch, oder Textfeld.';
+$string['inputtype_help'] = 'Dies bestimmt den Typ des Eingabeelements, z.B. Formularfeld, Wahr/Falsch, Textbereich.';
 $string['inputtype_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Inputs.md';
 $string['inputtypealgebraic'] = 'Algebraische Eingabe';
 $string['inputtypeboolean'] = 'Wahr/Falsch';
 $string['inputtypedropdown'] = 'Dropdown-Liste';
-$string['inputtypesinglechar'] = 'Einzelnes Zeichen';
-$string['inputtypetextarea'] = 'Textfeld';
+$string['inputtypecheckbox'] = 'Kontrollkästchen';
+$string['inputtyperadio'] = 'Radio';
+$string['inputtypesinglechar'] = 'Einzelner Buchstabe';
+$string['inputtypetextarea'] = 'Textbereich';
 $string['inputtypematrix'] = 'Matrix';
-$string['insertstars'] = 'Sternchen einfügen';
-$string['insertstars_help'] = 'Wenn JA, dann wird das System automatisch * an passende Muster (strikte Syntax Einstellung) hinzufügen. Andernfalls wird ein Fehler angezeigt.';
+$string['inputtypevarmatrix'] = 'Matrix variabler Größe';
+$string['inputtypenotes'] = 'Notizen';
+$string['inputtypeunits'] = 'Einheiten';
+$string['inputtypeequiv'] = 'Äquivalenzbegründung';
+$string['inputtypestring'] = 'String';
+$string['inputtypenumerical'] = 'Numerisch';
+$string['inputtypegeogebra'] = 'GeoGebra';
+$string['numericalinputmustnumber'] = 'Diese Eingabe erwartet eine Zahl.';
+$string['numericalinputvarsforbidden'] = 'Diese Eingabe erwartet eine Zahl und darf daher keine Variablen enthalten.';
+$string['numericalinputmustfloat'] = 'Diese Eingabe erwartet eine Gleitkommazahl.';
+$string['numericalinputmustint'] = 'Diese Eingabe erwartet eine explizite ganze Zahl.';
+$string['numericalinputmustrational'] = 'Diese Eingabe erwartet einen Bruch oder eine rationale Zahl.';
+$string['numericalinputdp'] = 'Sie müssen genau {$a} Dezimalstellen angeben.';
+$string['numericalinputsf'] = 'Sie müssen genau {$a} signifikante Stellen angeben.';
+$string['numericalinputmindp'] = 'Sie müssen mindestens {$a} Dezimalstellen angeben.';
+$string['numericalinputmaxdp'] = 'Sie dürfen höchstens {$a} Dezimalstellen angeben.';
+$string['numericalinputminsf'] = 'Sie müssen mindestens {$a} signifikante Stellen angeben.';
+$string['numericalinputmaxsf'] = 'Sie dürfen höchstens {$a} signifikante Stellen angeben.';
+$string['numericalinputminmaxerr'] = 'Die erforderliche Mindestanzahl von Dezimalstellen übersteigt die maximal zulässige Anzahl von Stellen!';
+$string['numericalinputminsfmaxdperr'] = 'Geben Sie keine Anforderungen für Dezimalstellen und signifikante Stellen in derselben Eingabe an.';
+$string['numericalinputoptinterr'] = 'Der Wert der Option <code>{$a->opt}</code> sollte eine ganze Zahl sein, ist aber tatsächlich <code>{$a->val}</code>.';
+$string['numericalinputoptboolerr'] = 'Der Wert der Option <code>{$a->opt}</code> sollte boolesch sein, ist aber tatsächlich <code>{$a->val}</code>.';
+$string['inputvalidatorerr'] = 'Der Name einer Validierungsfunktion muss ein gültiger Maxima-Bezeichner in Form von Buchstaben a-zA-Z sein, optional gefolgt von Ziffern.';
+$string['inputvalidatorerrcouldnot'] = 'Die optionale Validierungsfunktion hat interne Maxima-Fehler verursacht.';
+$string['inputvalidatorerrors'] = 'Die optionale Validierungsfunktion gab die Fehler {$a->err} zurück.';
+$string['inputopterr'] = 'Der Wert der Option <code>{$a->opt}</code> kann nicht als <code>{$a->val}</code> angegeben werden.';
+$string['inputwillberemoved'] = 'Diese Eingabe wird im Fragetext nicht mehr erwähnt. Wenn Sie die Frage jetzt speichern, gehen die Daten zu dieser Eingabe verloren. Bitte bestätigen Sie, dass Sie dies tun möchten. Alternativ bearbeiten Sie den Fragetext, um die Platzhalter '."[[input:x]]".' und [[validation:{x}]] zurückzusetzen.';
+$string['insertstars'] = 'Sterne einfügen';
+$string['insertstars_help'] = 'Diese Option bietet verschiedene Möglichkeiten, Sterne einzufügen, wo Multiplikation impliziert ist. Bitte lesen Sie die detailliertere Dokumentation.';
 $string['insertstars_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Inputs.md#Insert_Stars';
+$string['insertstarsno'] = 'Keine Sterne einfügen';
+$string['insertstarsyes'] = 'Sterne nur bei implizierter Multiplikation einfügen';
+$string['insertstarsassumesinglechar'] = 'Sterne einfügen unter der Annahme von einstelligen Variablennamen';
+$string['insertspaces'] = 'Sterne nur für Leerzeichen einfügen';
+$string['insertstarsspaces'] = 'Sterne für implizierte Multiplikation und für Leerzeichen einfügen';
+$string['insertstarsspacessinglechar'] = 'Sterne einfügen unter der Annahme von einstelligen Variablen, impliziert und für Leerzeichen';
+$string['decimals'] = 'Dezimaltrennzeichen';
+$string['decimals_help'] = 'Wählen Sie das Symbol und die Optionen für das Dezimaltrennzeichen.';
+$string['decimals_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Options.md#decimals';
+$string['multcross'] = 'Kreuz';
+$string['multdot'] = 'Punkt';
+$string['multonlynumbers'] = 'Nur Zahlen';
 $string['multiplicationsign'] = 'Multiplikationszeichen';
 $string['multiplicationsign_help'] = 'Steuert, wie Multiplikationszeichen angezeigt werden.';
 $string['multiplicationsign_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Options.md#multiplication';
-$string['multcross'] = 'Kreuz';
-$string['multdot'] = 'Punkt';
-$string['mustverify'] = 'Studierende müssen validieren lassen';
-$string['mustverify_help'] = 'Steuert, ob die eingegebene Antwort vor der Bewertung nochmals in validierter Form angezeigt wird.';
+$string['mustverify'] = 'Student muss verifizieren';
+$string['mustverify_help'] = 'Gibt an, ob die Eingabe des Studenten ihm als erzwungener Zwei-Schritte-Prozess zurückgegeben wird, bevor diese Eingabe dem Bewertungsmechanismus zur Verfügung gestellt wird. Syntaxfehler werden immer zurückgemeldet.';
 $string['mustverify_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Inputs.md#Student_must_verify';
+$string['namealreadyused'] = 'Sie haben diesen Namen bereits verwendet.';
+$string['newnameforx'] = 'Neuer Name für \'{$a}\'';
 $string['next'] = 'Nächster';
 $string['nextcannotbeself'] = 'Ein Knoten kann sich nicht selbst als nächsten Knoten verlinken.';
-$string['nodehelp'] = 'Knoten des Rückmeldebaums';
-$string['nodehelp_help'] = '### Antwortüberprüfung
-Eine Antwortüberprüfung ist ein Test um zwei Ausdrücke dahingehend zu vergleichen, ob sie bestimmte mathematische Eigenschaften erfüllen.
+$string['nodehelp'] = 'Knoten des Antwortbaums';
+$string['nodehelp_help'] = '### Antworttest
+Ein Antworttest wird verwendet, um zwei Ausdrücke zu vergleichen, um festzustellen, ob sie bestimmte mathematische Kriterien erfüllen.
 
-### SAns
-Dies ist das erste Argument der Antwortüberprüfungsfunktion. In asymmetrischen Tests wird dies als die Studierendenantwort angesehen, obwohl es jeder gültige CAS Ausdruck sein könnte. Es können darin auch Variablen aus der Aufgabe oder dem Feedback benutzt werden.
+SAns
+Dies ist das erste Argument für die Antworttestfunktion. Bei asymmetrischen Tests wird dies als "Antwort des Studenten" betrachtet, obwohl es jeder gültige CAS-Ausdruck sein kann und von den Fragevariablen oder den Feedback-Variablen abhängen kann.
 
-### TAns
-Dies ist das zweite Argument der Antwortüberprüfungsfunktion. In asymmetrischen Tests wird dies als die Dozentenantwort angesehen, obwohl es jeder gültige CAS Ausdruck sein könnte. Es können darin auch Variablen aus der Aufgabe oder dem Feedback benutzt werden.
+TAns
+Dies ist das zweite Argument für die Antworttestfunktion. Bei asymmetrischen Tests wird dies als "Antwort des Lehrers" betrachtet, obwohl es jeder gültige CAS-Ausdruck sein kann und von den Fragevariablen oder den Feedback-Variablen abhängen kann.
 
-### Test-Optionen
-Dieses Feld erlaubt Antwortüberprüfung eine Option zu verwenden, z.B. eine Variable oder eine bestimmte numerische Präzision.
+Testoptionen
+Dieses Feld ermöglicht es Antworttests, eine Option zu akzeptieren, z. B. eine Variable oder eine numerische Präzision.
 
-### Feedback unterdrücken
-Falls JA, wird jedes von der Antwortüberprüfung automatisch generierte Feedback unterdrückt und dem Studierenden nicht angezeigt. Dies betrifft aber nicht die Feedback-Felder der Verzweigungen des Rückmeldebaums.
+Quiet
+Wenn auf ja gesetzt, wird jedes Feedback, das automatisch von den Antworttests generiert wird, unterdrückt und nicht dem Studenten angezeigt. Die Feedbackfelder in den Verzweigungen werden von dieser Option nicht beeinflusst.
 
 ';
-$string['nodeloopdetected'] = 'Ein Kreis wurde in diesem PRT entdeckt.';
-$string['nodenotused'] = 'Kein anderer Knoten des PRT verweist auf diesen Knoten.';
+$string['nodeloopdetected'] = 'Dieser Link erzeugt eine Schleife in diesem Rückmeldebaum.';
+$string['nodenotused'] = 'Keine anderen Knoten im Rückmeldebaum verlinken zu diesem Knoten.';
 $string['nodex'] = 'Knoten {$a}';
-$string['nodexdelete'] = 'Lösche Knoten {$a}';
-$string['nodexfalsefeedback'] = 'Knoten {$a} FALSCH Feedback';
-$string['nodextruefeedback'] = 'Knoten {$a} WAHR feedback';
-$string['nodexwhenfalse'] = 'Knoten {$a} wenn FALSCH';
-$string['nodexwhentrue'] = 'Knoten {$a} wenn WAHR';
+$string['nodexdelete'] = 'Knoten {$a} löschen';
+$string['nodexfalsefeedback'] = 'Knoten {$a} falsches Feedback';
+$string['nodextruefeedback'] = 'Knoten {$a} richtiges Feedback';
+$string['nodexwhenfalse'] = 'Knoten {$a} wenn falsch';
+$string['nodexwhentrue'] = 'Knoten {$a} wenn wahr';
 $string['nonempty'] = 'Dies darf nicht leer sein.';
-$string['penalty'] = 'Abzüge';
-$string['penalty_help'] = 'Das Punktabzugsschema ermittels diesen Wert für jeden Rückmeldebaum aus den verschiedenen gültigen Antwortversuchen, die nicht vollständig korrekt waren.';
+$string['noprtsifnoinputs'] = 'Eine Frage ohne Eingaben kann keine Rückmeldebäume haben.';
+$string['notavalidname'] = 'Kein gültiger Name';
+$string['optionsnotrequired'] = 'Dieser Eingabetyp erfordert keine Optionen.';
+$string['penalty'] = 'Strafe';
+$string['penalty_help'] = 'Das Strafsystem zieht diesen Wert von dem Ergebnis jedes Rückmeldebaums für jeden unterschiedlichen und gültigen Versuch ab, der nicht vollständig korrekt ist.';
 $string['penalty_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Feedback.md';
-$string['penaltyerror'] = 'Der Punktabzug muss eine numerischer Wert zwischen 0 und 1 sein.';
-$string['penaltyerror2'] = 'Der Punktabzug muss leer oder ein numerischer Wert zwischen 0 und 1 sein.';
-$string['prtcorrectfeedback'] = 'Standard Feedback für richtige Antworten';
-$string['prtheading'] = 'Rückmeldebaum (PRT): {$a}';
-$string['prtincorrectfeedback'] = 'Standard Feedback für falsche Antworten';
-$string['prtpartiallycorrectfeedback'] = 'Standard Feedback für teilweise richtige Antworten';
+$string['penaltyerror'] = 'Die Strafe muss ein numerischer Wert zwischen 0 und 1 oder eine Variable sein (die nicht überprüft wird).';
+$string['penaltyerror2'] = 'Die Strafe muss leer sein oder ein numerischer Wert zwischen 0 und 1.';
+$string['prtcorrectfeedback'] = 'Standard-Feedback für korrekt';
+$string['prtheading'] = 'Möglicher Rückmeldebaum: {$a}';
+$string['prtmustbesetup'] = 'Dieser Rückmeldebaum muss eingerichtet werden, bevor die Frage gespeichert werden kann.';
+$string['prtnamelength'] = 'Rückmeldebaum-Namen dürfen nicht länger als 18 Zeichen sein. \'{$a}\' ist zu lang.';
+$string['prtnodesheading'] = 'Knoten des möglichen Rückmeldebaums ({$a})';
+$string['prtincorrectfeedback'] = 'Standard-Feedback für falsch';
+$string['prtpartiallycorrectfeedback'] = 'Standard-Feedback für teilweise korrekt';
+$string['prtremovedconfirmbelow'] = 'Möglicher Rückmeldebaum \'{$a}\' wurde entfernt. Bitte bestätigen Sie dies unten.';
+$string['prtremovedconfirm'] = 'Ich bestätige, dass ich diesen Rückmeldebäume aus dieser Frage entfernen möchte.';
+$string['prts'] = 'Rückmeldebäume';
 $string['prtwillbecomeactivewhen'] = 'Dieser potenzielle Rückmeldebaum wird aktiv, wenn der Studierenden folgendes geantwortet hat: {$a}';
 $string['questionnote'] = 'Aufgabenhinweis';
 $string['questionnote_help'] = 'Der Aufgabenhinweis ist ein CASText. Damit soll zwischen den verschiedenen zufälligen Versionen einer Frage unterschieden werden. Zwei Fragen sind gleich, genau dann wenn die Aufgabenhinweise gleich sind. Für die spätere Analyse ist es hilfreich sinnvolle Antworthinweise zu erstellen.';
@@ -863,9 +985,6 @@ $string['Lowest_Terms'] = 'Ihre Antwort enthält Brüche, die nicht vollständig
 $string['Maxima_DivisionZero'] = 'Division durch Null.';
 $string['multcross'] = 'Kreuz';
 $string['multdot'] = 'Punkt';
-$string['multiplicationsign'] = 'Multiplikationszeichen';
-$string['multiplicationsign_help'] = 'Steuert, wie Multiplikationszeichen angezeigt werden.';
-$string['multiplicationsign_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Options.md#multiplication';
 $string['mustverify'] = 'Teilnehmende müssen validieren lassen';
 $string['mustverify_help'] = 'Steuert, ob die eingegebene Antwort vor der Bewertung nochmals in validierter Form angezeigt wird.';
 $string['mustverify_link'] = '%%WWWROOT%%/question/type/stack/doc/doc.php/Authoring/Inputs.md#Student_must_verify';
