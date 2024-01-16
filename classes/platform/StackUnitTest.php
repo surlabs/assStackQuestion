@@ -299,10 +299,11 @@ class StackUnitTest {
         $raw_expected_results = array();
 
         foreach ($default_unit_test->expectedResults as $prt_name => $expected_result) {
+            $answernotes = $expected_result->answernotes;
             $raw_expected_results[$prt_name] = array(
                 'score' => $expected_result->score,
                 'penalty' => $expected_result->penalty,
-                'answer_note' => end($expected_result->answernotes)
+                'answer_note' => end($answernotes)
             );
         }
 
