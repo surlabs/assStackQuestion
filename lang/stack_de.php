@@ -1294,3 +1294,4 @@ $string['castext_debug_no_vars'] = 'Diese Frage hat keine zu debuggenden Fragenv
 $string['castext_error_header'] = 'Darstellung des Textinhalts fehlgeschlagen.';
 $string['castext_error_unevaluated'] = 'Dieser Textinhalt wurde nie ausgewertet.';
 
+$string['autotestcase'] = 'Test case assuming the teacher\'s input gets full marks.';
