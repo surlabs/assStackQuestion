@@ -233,7 +233,7 @@ $query = 'SELECT * FROM xqcas_configuration WHERE group_name = "connection"';
 $result = $db->query($query);
 if (!$db->fetchAssoc($result)) {
 	//Default values for connection
-	$connection_default_values = array('platform_type' => 'server', 'maxima_version' => '5.31.2', 'cas_connection_timeout' => '5', 'cas_result_caching' => 'db', 'maxima_command' => '', 'plot_command' => '', 'cas_debugging' => '0');
+	$connection_default_values = array('platform_type' => 'server', 'maxima_version' => '5.31.2', 'cas_connection_timeout' => '250', 'cas_result_caching' => 'db', 'maxima_command' => '', 'plot_command' => '', 'cas_debugging' => '1');
 	foreach ($connection_default_values as $paremeter_name => $value) {
 		$db->insert("xqcas_configuration", array('parameter_name' => array('text', $paremeter_name), 'value' => array('clob', $value), 'group_name' => array('text', 'connection')));
 	}
@@ -1126,6 +1126,25 @@ if (!$db->tableExists('xqcas_preview')) {
     }
     if (!$db->indexExistsByFields('xqcas_preview', array('stamp'))) {
         $db->addIndex('xqcas_preview', array('stamp'), 'ts3');
+    }
+}
+?>
+<#52>
+<?php
+global $DIC;
+$db = $DIC->database();
+
+if ($db->tableExists('xqcas_configuration')) {
+    $result = $db->query("SELECT parameter_name, value FROM xqcas_configuration WHERE parameter_name IN ('cas_connection_timeout', 'cas_debugging')");
+
+    while ($row = $db->fetchAssoc($result)) {
+        $parameterName = $row['parameter_name'];
+        $value = (int)$row['value'];
+
+        if (($parameterName === 'cas_connection_timeout' && $value < 250) || ($parameterName === 'cas_debugging' && $value == 0)) {
+            $newValue = ($parameterName === 'cas_connection_timeout') ? 250 : 1;
+            $db->update("xqcas_configuration", ["value" => ["clob", $newValue]], ["parameter_name" => ["text", $parameterName]]);
+        }
     }
 }
 ?>
