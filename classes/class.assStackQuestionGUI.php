@@ -1557,7 +1557,7 @@ class assStackQuestionGUI extends assQuestionGUI
             $temp_question->questionInitialisation($seed, true);
             $question_note_instantiated = $temp_question->question_note_instantiated->get_rendered();
 
-            if (!$question_notes[$question_note_instantiated]) {
+            if (!isset($question_notes[$question_note_instantiated])) {
                 $generated_seeds++;
                 $this->object->deployed_seeds[$seed] = $seed;
                 $question_notes[$question_note_instantiated] = true;
@@ -1768,8 +1768,10 @@ class assStackQuestionGUI extends assQuestionGUI
         $tabs->activateTab('edit_properties');
         $tabs->activateSubTab('randomisation_and_security');
 
+        $seed = assStackQuestionDB::_getSeed('preview', $this->object, $DIC->user()->getId());
+
         if (!$this->object->isInstantiated()) {
-            $this->object->questionInitialisation(0);
+            $this->object->questionInitialisation($seed, true);
         }
 
         StackUnitTest::addDefaultTestcase($this->object);

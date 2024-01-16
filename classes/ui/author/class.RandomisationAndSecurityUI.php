@@ -117,7 +117,11 @@ class RandomisationAndSecurityUI
 
         //Instantiate Question if not.
         if (!$this->data["question"]->isInstantiated()) {
-            $this->data["question"]->questionInitialisation((int)$this->data["active_variant_identifier"] ?? 1, true);
+            if (isset($this->data["active_variant_identifier"])) {
+                $this->data["question"]->questionInitialisation((int)$this->data["active_variant_identifier"], true);
+            } else {
+                $this->data["question"]->questionInitialisation(1, true);
+            }
         }
 
         if (assStackQuestionUtils::_hasRandomVariables($this->data["question"]->question_variables)) {
@@ -334,6 +338,9 @@ class RandomisationAndSecurityUI
             //$path = './src/UI/examples/Symbol/Icon/Custom/my_custom_icon.svg';
             //$ico = $this->factory->symbol()->icon()->custom($path, 'Example');
 
+            if(!isset($this->data["active_variant_identifier"])){
+                $this->data["active_variant_identifier"] = 1;
+            }
             if ((string)$deployed_variant_identifier != $this->data["active_variant_identifier"]) {
                 $link = $this->factory->button()->standard($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_set_as_active_variant_action_text"),
                     $this->control->getLinkTargetByClass("assstackquestiongui", "setAsActiveVariant"));
