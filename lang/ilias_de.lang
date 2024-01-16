@@ -45,9 +45,7 @@ ui_admin_configuration_connection_preparse_all_no#:#Nicht vorab parsen (nicht em
 ui_admin_configuration_connection_maxima_command_title#:#Maxima-Befehl
 ui_admin_configuration_connection_maxima_command_description#:#Wenn dies leer ist, wird STACK eine gebildete Vermutung anstellen, wo Maxima zu finden ist. Wenn das scheitert, sollte dies auf den vollständigen Pfad des maxima- oder maxima-optimierten ausführbaren Programms gesetzt werden. Nur für Entwicklung und Debugging verwenden. Nicht auf einem Produktionssystem verwenden: Verwenden Sie optimiertes oder besser, die Maxima-Pool-Option.
 ui_admin_configuration_connection_optimized_maxima_command_title#:#Optimierter Maxima-Befehl
-ui_admin_configuration_connection_optimized_maxima_command_description#:#Dies sollte auf den vollständigen Pfad des maxima-optimierten ausführbaren Programms gesetzt werden. Er
-
-wägen Sie die Verwendung des Timeout-Befehls auf Linux-basierten Systemen. Z.B. timeout --kill-after=10s 10s maxima
+ui_admin_configuration_connection_optimized_maxima_command_description#:#Dies sollte auf den vollständigen Pfad des maxima-optimierten ausführbaren Programms gesetzt werden. Erwägen Sie die Verwendung des Timeout-Befehls auf Linux-basierten Systemen. Z.B. timeout --kill-after=10s 10s maxima
 ui_admin_configuration_connection_maxima_pool_url_title#:#Maxima Pool URL
 ui_admin_configuration_connection_maxima_pool_url_description#:#Für Plattformtyp: Server, dies muss auf die URL des Maxima Pool Servlets gesetzt werden
 ui_admin_configuration_connection_maxima_pool_server_username_password_title#:#Maxima Pool Server Benutzername:Passwort
