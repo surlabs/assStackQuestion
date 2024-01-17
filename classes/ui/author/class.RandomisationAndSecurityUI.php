@@ -206,11 +206,11 @@ class RandomisationAndSecurityUI
      * Returns the UI subcomponent for the currently active variant panel
      * which is a Sub section of a panel
      * @param bool $uses_randomisation
-     * @return Sub
+     * @return \ILIAS\UI\Component\Panel\Panel
      * @throws StackException
      * @throws stack_exception
      */
-    private function getCurrentActiveVariantPanelUIComponent(bool $uses_randomisation): Sub
+    private function getCurrentActiveVariantPanelUIComponent(bool $uses_randomisation): \ILIAS\UI\Component\Panel\Panel
     {
         $this->control->setParameterByClass(
             'assStackQuestionGUI',
@@ -290,17 +290,13 @@ class RandomisationAndSecurityUI
                 $this->renderer->render($this->factory->divider()->vertical()) .
                 $this->renderer->render([$button_general_feedback, $modal_general_feedback])
             )
-        );
-            /*
-            ->withCard($this->factory->card()->standard(
-                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_question_variables_text")
-            )
-                ->withSections(array(
-                    $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithLatex($active_variant_question_variables)),
-                    $this->factory->divider()->horizontal(),
-                    $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithLatex($active_variant_feedback_variables))
-                )))
-            ->withActions($current_active_variant_panel_actions);*/
+        )->withFurtherInformation($this->factory->card()->standard(
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_question_variables_text")
+        )->withSections(array(
+            $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithLatex($active_variant_question_variables)),
+            $this->factory->divider()->horizontal(),
+            $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithLatex($active_variant_feedback_variables))
+        )))->withActions($current_active_variant_panel_actions);
     }
 
     /**

@@ -1516,7 +1516,16 @@ class assStackQuestionUtils
         $htmlOutput = "<div>";
 
         foreach ($components as $component) {
-            list($variable, $value) = explode(":", $component, 2);
+            $values = explode(":", $component, 2);
+
+            if (count($values) == 2) {
+                $variable = $values[0];
+                $value = $values[1];
+            } else {
+                $variable = "";
+                $value = "";
+            }
+
             if (strlen($value) > 0 && (strlen($variable) > 0)) {
                 $htmlOutput .= "<p>\($variable\): \($value\)</p>";
             }
