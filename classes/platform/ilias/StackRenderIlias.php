@@ -96,21 +96,21 @@ class StackRenderIlias extends StackRender
         //}
 
         switch ($state) {
-            case -1:
+            case 'incorrect':
                 // Incorrect.
                 $prt_feedback_instantiated =
                     $question->prt_incorrect_instantiated->get_rendered($question->getCasTextProcessor());
                 $standard_prt_feedback = $factory->messageBox()->failure(
                     assStackQuestionUtils::_getLatex($prt_feedback_instantiated . '</br>' . $feedback));
                 break;
-            case 0:
+            case 'partially_correct':
                 // Partially correct.
                 $prt_feedback_instantiated =
                     $question->prt_partially_correct_instantiated->get_rendered($question->getCasTextProcessor());
                 $standard_prt_feedback = $factory->messageBox()->info(
                     assStackQuestionUtils::_getLatex($prt_feedback_instantiated . '</br>' . $feedback));
                 break;
-            case 1:
+            case 'correct':
                 // Correct.
                 $prt_feedback_instantiated =
                     $question->prt_correct_instantiated->get_rendered($question->getCasTextProcessor());

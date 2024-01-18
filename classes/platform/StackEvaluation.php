@@ -25,9 +25,9 @@ namespace classes\platform;
 
 class StackEvaluation {
 
-    const EVALUATION_CORRECT = 1;
-    const EVALUATION_PARTIALLY_CORRECT = -1;
-    const EVALUATION_INCORRECT = 0;
+    const EVALUATION_CORRECT = 'correct';
+    const EVALUATION_PARTIALLY_CORRECT = 'partially_correct';
+    const EVALUATION_INCORRECT = 'incorrect';
 
     /**
      * Return the appropriate graded state based on a fraction. That is 0 or less
@@ -35,7 +35,7 @@ class StackEvaluation {
      * Appropriate allowance is made for rounding float values.
      *
      */
-    public static function stateForFraction($fraction): int
+    public static function stateForFraction($fraction): string
     {
         if ($fraction === 1.0) {
             return self::EVALUATION_CORRECT;
