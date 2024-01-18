@@ -26,8 +26,8 @@
 
 
 use classes\core\filters\StackParser;
-use classes\platform\StackConfig;
 use classes\platform\StackPlatform;
+use classes\platform\StackConfig;
 
 class stack_cas_configuration {
     protected static $instance = null;
@@ -81,7 +81,7 @@ class stack_cas_configuration {
 
             $this->logpath = stack_utils::convert_slash_paths(
             //TODO SET DATADIR + PATH COMO GLOBAL EN LUGAR DE USAR ILIAS EN CORE
-                realpath(ILIAS_WEB_DIR."/".CLIENT_ID) .
+                realpath(ILIAS_DATA_DIR) .
                 '/stack/logs');
 
             //SUR maximaversion to maxima_version
@@ -92,11 +92,11 @@ class stack_cas_configuration {
             $this->blocksettings['MAXIMA_PLATFORM'] = $this->settings["platform_type"];
             $this->blocksettings['maxima_tempdir'] = stack_utils::convert_slash_paths(
             //TODO SET DATADIR + PATH COMO GLOBAL EN LUGAR DE USAR ILIAS EN CORE
-                realpath(ILIAS_WEB_DIR."/".CLIENT_ID) .
+                realpath(ILIAS_DATA_DIR) .
                 '/stack/tmp/');
             $this->blocksettings['IMAGE_DIR'] = stack_utils::convert_slash_paths(
             //TODO SET DATADIR + PATH COMO GLOBAL EN LUGAR DE USAR ILIAS EN CORE
-                realpath(ILIAS_WEB_DIR."/".CLIENT_ID) .
+                realpath(ILIAS_DATA_DIR) .
                 '/stack/plots/');
 
             $this->blocksettings['PLOT_SIZE'] = '[450,300]';
@@ -169,13 +169,13 @@ class stack_cas_configuration {
         $plotcommands[] = $maximalocation. 'gnuplot/bin/wgnuplot.exe';
 
         // I'm really now totally and finally fed up with dealing with spaces in MS filenames.
-        $newplotlocation = stack_utils::convert_slash_paths(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/wgnuplot.exe');
+        $newplotlocation = stack_utils::convert_slash_paths($CFG->dataroot . '/stack/wgnuplot.exe');
         foreach ($plotcommands as $plotcommand) {
             if (file_exists($plotcommand)) {
                 if (substr_count($plotcommand, ' ') === 0) {
-                    $newplotlocation = stack_utils::convert_slash_paths(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/wgnuplot.bat');
+                    $newplotlocation = stack_utils::convert_slash_paths($CFG->dataroot . '/stack/wgnuplot.bat');
                     if (!file_put_contents($newplotlocation, $this->maxima_win_location() .
-                            "gnuplot/bin/wgnuplot.exe %1 %2 %3 %3 %5 %6 %7 \n\n")) {
+                        "gnuplot/bin/wgnuplot.exe %1 %2 %3 %3 %5 %6 %7 \n\n")) {
                         throw new stack_exception('Failed to write wgnuplot batch file to:'. $newplotlocation);
                     }
                 } else {
@@ -236,16 +236,16 @@ class stack_cas_configuration {
         if (substr_count($batchfilename, ' ') === 0) {
             $batchfilecontents = "rem Auto-generated Maxima batch file.  \n\n";
             $batchfilecontents .= $batchfilename."\n\n";
-            if (!file_put_contents(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/maxima.bat', $batchfilecontents)) {
+            if (!file_put_contents($CFG->dataroot . '/stack/maxima.bat', $batchfilecontents)) {
                 throw new stack_exception('Failed to write Maxima batch file.');
             }
             return true;
         }
 
         // If there are spaces within the pathname to the windows batch file we need to copy the batch file.
-        if (!copy($batchfilename, realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/maxima.bat')) {
+        if (!copy($batchfilename, $CFG->dataroot . '/stack/maxima.bat')) {
             throw new stack_exception('Could not copy the Maxima batch file ' . $batchfilename .
-                    ' to location ' . realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/maxima.bat');
+                ' to location ' . $CFG->dataroot . '/stack/maxima.bat');
         }
         return true;
     }
@@ -340,7 +340,7 @@ END;
      */
     public static function maximalocal_location() {
         global $CFG;
-        return stack_utils::convert_slash_paths(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/maximalocal.mac');
+        return stack_utils::convert_slash_paths(realpath(ILIAS_DATA_DIR) . '/stack/maximalocal.mac');
     }
 
     /**
@@ -349,18 +349,18 @@ END;
      */
     public static function images_location() {
         global $CFG;
-        return stack_utils::convert_slash_paths(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/plots');
+        return stack_utils::convert_slash_paths(realpath(ILIAS_DATA_DIR) . '/stack/plots');
     }
 
     /**
      * Create the maximalocal.mac file, overwriting it if it already exists.
      */
     public static function create_maximalocal() {
-        if (!is_dir(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack')) {
-            mkdir(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack', 0700, true);
-            mkdir(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack/logs');
-            mkdir(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack/plots');
-            mkdir(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack/tmp');
+        if (!is_dir(realpath("./" . ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack')) {
+            mkdir(realpath("./" . ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack', 0700, true);
+            mkdir(realpath("./" . ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack/logs');
+            mkdir(realpath("./" . ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack/plots');
+            mkdir(realpath("./" . ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack/tmp');
         }
 
         if (!file_put_contents(self::maximalocal_location(), self::generate_maximalocal_contents())) {

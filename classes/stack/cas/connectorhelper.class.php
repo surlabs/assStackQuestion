@@ -395,7 +395,7 @@ abstract class stack_connection_helper {
         global $CFG;
         self::ensure_config_loaded();
 
-        $imagename = stack_utils::convert_slash_paths(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/maxima_opt_auto');
+        $imagename = stack_utils::convert_slash_paths($CFG->dataroot . '/stack/maxima_opt_auto');
 
         $lisp = '1';
         // Try to guess the lisp version.

@@ -98,13 +98,13 @@ class stack_cas_healthcheck {
 
                 stack_cas_configuration::copy_maxima_bat();
 
-                if (!is_readable(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/maxima.bat')) {
+                if (!is_readable($CFG->dataroot . '/stack/maxima.bat')) {
                     $this->ishealthy = false;
                     $test = array();
                     $test['tag'] = 'healthcheckmaximabat';
                     $test['result'] = false;
-                    $test['summary'] = stack_string('healthcheckmaximabatinfo', realpath(ILIAS_WEB_DIR."/".CLIENT_ID));
-                    $test['details'] = html_writer::tag('p', stack_string('healthcheckmaximabatinfo', realpath(ILIAS_WEB_DIR."/".CLIENT_ID)));
+                    $test['summary'] = stack_string('healthcheckmaximabatinfo', $CFG->dataroot);
+                    $test['details'] = html_writer::tag('p', stack_string('healthcheckmaximabatinfo', $CFG->dataroot));
                     $this->tests[] = $test;
                 }
 
