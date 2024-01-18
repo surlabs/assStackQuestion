@@ -514,7 +514,6 @@ class assStackQuestionAuthoringGUI
 		//Set value if exists if not default values
 		if ($this->new_question) {
 			$input_type->setValue($this->default["input_type"]);
-			//$input_model_answer->setValue($this->default[""]);
 			$input_box_size->setValue($this->default["input_box_size"]);
 			$input_strict_syntax->setChecked((bool)$this->default["input_strict_syntax"]);
 			$input_insert_stars->setValue((bool)$this->default["input_insert_stars"]);
@@ -529,7 +528,6 @@ class assStackQuestionAuthoringGUI
 			$input_options->setValue($this->default["input_extra_options"]);
 		} else {
 			$input_type->setValue(assStackQuestionUtils::_getInputType($input));
-			$input_model_answer->setValue($input->get_teacher_answer());
 			$input_box_size->setValue($input->get_parameter('boxWidth'));
 			$input_strict_syntax->setChecked((bool)$input->get_parameter('strictSyntax'));
 			$input_insert_stars->setValue((bool)$input->get_parameter('insertStars'));
@@ -544,7 +542,9 @@ class assStackQuestionAuthoringGUI
 			$input_options->setValue($input->get_parameter('options'));
 		}
 
-		//Add form properties
+        $input_model_answer->setValue($input->get_teacher_answer());
+
+        //Add form properties
 		$part->addFormProperty($input_type);
 		$part->addFormProperty($input_model_answer);
 		$part->addFormProperty($input_box_size);
@@ -880,18 +880,17 @@ class assStackQuestionAuthoringGUI
 
 		if ($this->new_question) {
 			$answer_test->setValue($this->default["prt_node_answer_test"]);
-			//$node_student_answer->setValue($this->default[""]);
-			//$node_teacher_answer->setValue($this->default[""]);
 			$node_options->setValue($this->default["prt_node_options"]);
 			$node_quiet->setValue($this->default["prt_node_quiet"]);
 		} else {
 			$answer_test->setValue($node->answertest);
-			$node_student_answer->setValue($node->sans);
-			$node_teacher_answer->setValue($node->tans);
 			//TODO no extra options
             $node_options->setValue("");
 			$node_quiet->setValue($node->quiet ? 1 : 0);
 		}
+
+        $node_student_answer->setValue($node->sans);
+        $node_teacher_answer->setValue($node->tans);
 
 		$common_node_part->addFormProperty($answer_test);
 		$common_node_part->addFormProperty($node_student_answer);
