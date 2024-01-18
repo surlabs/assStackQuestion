@@ -357,7 +357,7 @@ END;
      */
     public static function create_maximalocal() {
         if (!is_dir(realpath("./" . ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack')) {
-            mkdir(realpath("./" . ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack', 0777, true);
+            mkdir(realpath("./" . ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack', 0755, true);
             mkdir(realpath("./" . ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack/logs');
             mkdir(realpath("./" . ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack/plots');
             mkdir(realpath("./" . ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack/tmp');
