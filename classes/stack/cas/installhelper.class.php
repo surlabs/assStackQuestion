@@ -350,7 +350,7 @@ END;
      */
     public static function create_maximalocal() {
         if (!is_dir(realpath(ilUtil::getWebspaceDir('filesystem')) . '/xqcas' . '/stack')) {
-            mkdir(realpath(ilUtil::getWebspaceDir('filesystem')) . '/xqcas' . '/stack', 0777, true);
+            mkdir(realpath(ilUtil::getWebspaceDir('filesystem')) . '/xqcas' . '/stack', 0755, true);
             mkdir(realpath(ilUtil::getWebspaceDir('filesystem')) . '/xqcas' . '/stack/logs');
             mkdir(realpath(ilUtil::getWebspaceDir('filesystem')) . '/xqcas' . '/stack/plots');
             mkdir(realpath(ilUtil::getWebspaceDir('filesystem')) . '/xqcas' . '/stack/tmp');
