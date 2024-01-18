@@ -333,7 +333,7 @@ END;
      */
     public static function maximalocal_location() {
         global $CFG;
-        return stack_utils::convert_slash_paths(realpath(ILIAS_DATA_DIR) . '/stack/maximalocal.mac');
+        return stack_utils::convert_slash_paths(ilUtil::getWebspaceDir('filesystem') . '/xqcas/stack/maximalocal.mac');
     }
 
     /**
@@ -342,7 +342,7 @@ END;
      */
     public static function images_location() {
         global $CFG;
-        return stack_utils::convert_slash_paths(realpath(ILIAS_DATA_DIR) . '/stack/plots');
+        return stack_utils::convert_slash_paths(ilUtil::getWebspaceDir('filesystem') . '/xqcas/stack/plots');
     }
 
     /**
