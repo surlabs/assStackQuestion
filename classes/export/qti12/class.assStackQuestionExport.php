@@ -61,11 +61,7 @@ class assStackQuestionExport extends assQuestionExport
 
 		// add question description
 		$a_xml_writer->xmlElement("qticomment", NULL, $this->object->getComment());
-
-		// add estimated working time
-		$duration = sprintf("P0Y0M0DT%dH%dM%dS", $workingtime["h"], $workingtime["m"], $workingtime["s"]);
-		$a_xml_writer->xmlElement("duration", NULL, $duration);
-
+        
 		// add ILIAS specific metadata
 		$a_xml_writer->xmlStartTag("itemmetadata");
 
