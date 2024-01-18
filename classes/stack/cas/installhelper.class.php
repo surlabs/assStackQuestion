@@ -356,11 +356,11 @@ END;
      * Create the maximalocal.mac file, overwriting it if it already exists.
      */
     public static function create_maximalocal() {
-        if (!is_dir(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack')) {
-            mkdir(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack', 0700, true);
-            mkdir(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/logs');
-            mkdir(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/plots');
-            mkdir(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/tmp');
+        if (!is_dir(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack')) {
+            mkdir(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack', 0700, true);
+            mkdir(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack/logs');
+            mkdir(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack/plots');
+            mkdir(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/xqcas' . '/stack/tmp');
         }
 
         if (!file_put_contents(self::maximalocal_location(), self::generate_maximalocal_contents())) {

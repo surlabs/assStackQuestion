@@ -107,7 +107,7 @@ class stack_cas_connection_server_proxy extends stack_cas_connection_base {
 
                 } else {
                     // Otherwise this is a plot.
-                    $filename =  realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . "/stack/plots/" . $filenameinzip;
+                    $filename =  realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . "/xqcas/stack/plots/" . $filenameinzip;
                     file_put_contents($filename, $zip->getFromIndex($i));
                 }
             }
