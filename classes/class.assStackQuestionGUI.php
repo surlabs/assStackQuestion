@@ -65,6 +65,12 @@ class assStackQuestionGUI extends assQuestionGUI
 	 */
 	private bool $is_preview = false;
 
+    /**
+     * Auxiliary array to store the specific post data that needs to be modified
+     * because from ilias8 onwards the post data cannot be modified directly
+     */
+    private array $specific_post_data = array();
+
 	/**
 	 * assStackQuestionGUI constructor.
 	 */
@@ -383,6 +389,7 @@ class assStackQuestionGUI extends assQuestionGUI
 	{
 		$hasErrors = !$always && $this->editQuestion(TRUE);
 		if (!$hasErrors) {
+            $this->generateSpecificPostData();
 
 			$this->questionCheck();
 
@@ -397,6 +404,22 @@ class assStackQuestionGUI extends assQuestionGUI
 		}
 		return 1;
 	}
+
+    private function generateSpecificPostData() :void
+    {
+        $this->specific_post_data = array();
+
+        $this->specific_post_data["options_specific_feedback"] = ((isset($_POST['options_specific_feedback']) and $_POST['options_specific_feedback'] != null) ? ilUtil::stripSlashes($_POST['options_specific_feedback'], true, $this->getRTETags()) : '');
+
+        foreach ($this->object->prts as $prt_name => $prt) {
+            foreach ($this->object->prts[$prt_name]->get_nodes_summary() as $name => $node) {
+                $prefix = 'prt_' . $prt_name . '_node_' . $name;
+
+                $this->specific_post_data[$prefix . '_pos_next'] = ((isset($_POST[$prefix . '_pos_next']) and $_POST[$prefix . '_pos_next'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_pos_next'])) : -1);
+                $this->specific_post_data[$prefix . '_neg_next'] = ((isset($_POST[$prefix . '_neg_next']) and $_POST[$prefix . '_neg_next'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_neg_next'])) : -1);
+            }
+        }
+    }
 
     /**
      * Writes the data from $_POST into assStackQuestion
@@ -433,7 +456,7 @@ class assStackQuestionGUI extends assQuestionGUI
 		$this->object->question_variables = ((isset($_POST['options_question_variables']) and $_POST['options_question_variables'] != null) ? assStackQuestionUtils::_debugText($_POST['options_question_variables']) : '');
 		$this->object->question_note = ((isset($_POST['options_question_note']) and $_POST['options_question_note'] != null) ? ilUtil::secureString($_POST['options_question_note']) : '');
 
-		$this->object->specific_feedback = ((isset($_POST['options_specific_feedback']) and $_POST['options_specific_feedback'] != null) ? ilUtil::stripSlashes($_POST['options_specific_feedback'], true, $this->getRTETags()) : '');
+        $this->object->specific_feedback = $this->specific_post_data["options_specific_feedback"];
 		$this->object->specific_feedback_format = 1;
 
 		$this->object->prt_correct = ((isset($_POST['options_prt_correct']) and $_POST['options_prt_correct'] != null) ? ilUtil::stripSlashes($_POST['options_prt_correct'], true, $this->getRTETags()) : '');
@@ -517,8 +540,8 @@ class assStackQuestionGUI extends assQuestionGUI
                     $node->nodename = $name;
                     $node->description = (isset($_POST[$prefix . '_description']) and $_POST[$prefix . '_description'] != null) ? $_POST[$prefix . '_description'] : '';
                     $node->prtname = $prt_name;
-                    $node->truenextnode = ((isset($_POST[$prefix . '_pos_next']) and $_POST[$prefix . '_pos_next'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_pos_next'])) : -1);
-                    $node->falsenextnode = ((isset($_POST[$prefix . '_neg_next']) and $_POST[$prefix . '_neg_next'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_neg_next'])) : -1);
+                    $node->truenextnode = $this->specific_post_data[$prefix . '_pos_next'];
+                    $node->falsenextnode = $this->specific_post_data[$prefix . '_neg_next'];
                     $node->answertest = ((isset($_POST[$prefix . '_answer_test']) and $_POST[$prefix . '_answer_test'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_answer_test'])) : '');
                     $node->sans = ((isset($_POST[$prefix . '_student_answer']) and $_POST[$prefix . '_student_answer'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_student_answer'])) : '');
                     $node->tans = ((isset($_POST[$prefix . '_teacher_answer']) and $_POST[$prefix . '_teacher_answer'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_teacher_answer'])) : '');
