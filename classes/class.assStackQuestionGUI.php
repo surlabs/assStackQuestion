@@ -748,6 +748,22 @@ class assStackQuestionGUI extends assQuestionGUI
 						$new_nodes = $prt->get_nodes();
 						unset($new_nodes[$node_name]);
 
+                        //Recorre los nodos de ese prt y actualiza los nextnode
+                        foreach ($new_nodes as $n_name => $n) {
+                            if ($n->truenextnode == $node_name) {
+                                $n->truenextnode = "-1";
+                                if (isset($_POST['prt_' . $prt_name . '_node_' . $n_name . '_pos_next'])) {
+                                    $_POST['prt_' . $prt_name . '_node_' . $n_name . '_pos_next'] = "-1";
+                                }
+                            }
+                            if ($n->falsenextnode == $node_name) {
+                                $n->falsenextnode = "-1";
+                                if (isset($_POST['prt_' . $prt_name . '_node_' . $n_name . '_neg_next'])) {
+                                    $_POST['prt_' . $prt_name . '_node_' . $n_name . '_neg_next'] = "-1";
+                                }
+                            }
+                        }
+
 						$prt->setNodes($new_nodes);
 						$this->object->prts[$prt_name] = $prt;
 
