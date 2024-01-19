@@ -47,7 +47,7 @@ class stack_maths_output_oumaths extends stack_maths_output_filter_base {
         global $CFG;
 
         if (!self::filter_is_installed()) {
-            throw new coding_exception('The OU maths filter is not installed.');
+            throw new stack_exception('The OU maths filter is not installed.');
         }
 
         //require_once($CFG->dirroot . '/filter/oumaths/filter.php');
