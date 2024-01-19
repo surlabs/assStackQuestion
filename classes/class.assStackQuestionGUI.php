@@ -767,8 +767,6 @@ class assStackQuestionGUI extends assQuestionGUI
 							return false;
 						}
 
-						assStackQuestionDB::_deleteStackPrtNodes($this->object->getId(), $prt_name, $node->nodename);
-
 						//Actualize current question values
 						$new_nodes = $prt->get_nodes();
 						unset($new_nodes[$node_name]);
@@ -792,7 +790,9 @@ class assStackQuestionGUI extends assQuestionGUI
 						$prt->setNodes($new_nodes);
 						$this->object->prts[$prt_name] = $prt;
 
-						$tpl->setOnScreenMessage('success', "nodes deleted", true);
+                        assStackQuestionDB::_deleteStackPrtNodes($this->object->getId(), $prt_name, $node->nodename);
+
+                        $tpl->setOnScreenMessage('success', "nodes deleted", true);
 						return true;
 					}
 
