@@ -788,47 +788,45 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
             //load only those inputs appearing in the question text
             foreach (stack_utils::extract_placeholders($this->getQuestion(), 'input') as $name) {
+                if (array_key_exists($name, $inputs_from_db_array['inputs'])) {
+                    $input_data = $inputs_from_db_array['inputs'][$name];
 
-                $input_data = $inputs_from_db_array['inputs'][$name];
+                    //Adjust syntax Hint for Textareas
+                    //Firstline shown as irstlin
 
-                //Adjust syntax Hint for Textareas
-                //Firstline shown as irstlin
+                    /*
+                     * str_starts_with NOT available until ilias8
+                    if ($input_data['type'] == 'equiv' || $input_data['type'] == 'textarea') {
+                        if (strlen($input_data['syntax_hint']) and !str_starts_with($input_data['syntax_hint'], '[')) {
+                            $input_data['syntax_hint'] = '[' . $input_data['syntax_hint'] . ']';
+                        }
+                        if (strlen($input_data['tans']) and !str_starts_with($input_data['tans'], '[')) {
+                            $input_data['tans'] = '[' . $input_data['tans'] . ']';
+                        }
+                    }*/
 
-                /*
-                 * str_starts_with NOT available until ilias8
-				if ($input_data['type'] == 'equiv' || $input_data['type'] == 'textarea') {
-					if (strlen($input_data['syntax_hint']) and !str_starts_with($input_data['syntax_hint'], '[')) {
-						$input_data['syntax_hint'] = '[' . $input_data['syntax_hint'] . ']';
-					}
-					if (strlen($input_data['tans']) and !str_starts_with($input_data['tans'], '[')) {
-						$input_data['tans'] = '[' . $input_data['tans'] . ']';
-					}
-				}*/
+                    $all_parameters = array(
+                        'boxWidth' => $input_data['box_size'],
+                        'strictSyntax' => $input_data['strict_syntax'],
+                        'insertStars' => $input_data['insert_stars'],
+                        'syntaxHint' => $input_data['syntax_hint'],
+                        'syntaxAttribute' => $input_data['syntax_attribute'],
+                        'forbidWords' => $input_data['forbid_words'],
+                        'allowWords' => $input_data['allow_words'],
+                        'forbidFloats' => $input_data['forbid_float'],
+                        'lowestTerms' => $input_data['require_lowest_terms'],
+                        'sameType' => $input_data['check_answer_type'],
+                        'mustVerify' => $input_data['must_verify'],
+                        'showValidation' => $input_data['show_validation'],
+                        'options' => $input_data['options'],
+                    );
 
-                $all_parameters = array(
-                    'boxWidth' => $input_data['box_size'],
-                    'strictSyntax' => $input_data['strict_syntax'],
-                    'insertStars' => $input_data['insert_stars'],
-                    'syntaxHint' => $input_data['syntax_hint'],
-                    'syntaxAttribute' => $input_data['syntax_attribute'],
-                    'forbidWords' => $input_data['forbid_words'],
-                    'allowWords' => $input_data['allow_words'],
-                    'forbidFloats' => $input_data['forbid_float'],
-                    'lowestTerms' => $input_data['require_lowest_terms'],
-                    'sameType' => $input_data['check_answer_type'],
-                    'mustVerify' => $input_data['must_verify'],
-                    'showValidation' => $input_data['show_validation'],
-                    'options' => $input_data['options'],
-                );
+                    $parameters = array();
 
-                $parameters = array();
+                    //We collect the non-existing inputs present in the question text
+                    //We take care about them later
+                    //Otherwise we proceed we normal loading
 
-                //We collect the non-existing inputs present in the question text
-                //We take care about them later
-                //Otherwise we proceed we normal loading
-                if ($input_data == null) {
-                    $new_inputs[$name] = '';
-                } else {
                     foreach ($required_parameters[$input_data['type']] as $parameter_name) {
                         if ($parameter_name == 'inputType') {
                             continue;
@@ -838,8 +836,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
                     //SET INPUTS
                     $this->inputs[$name] = stack_input_factory::make($input_data['type'], $input_data['name'], $input_data['tans'], $this->options, $parameters);
+                } else {
+                    $new_inputs[$name] = '';
                 }
-
             }
 
             //If an input placeholder has appeared in the text, but it is not in the DB
