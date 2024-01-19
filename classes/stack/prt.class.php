@@ -292,7 +292,7 @@ class stack_potentialresponse_tree_lite {
             $n->quiet           = $node->quiet;
             $n->answertest      = $this->compile_node_answertest($node);
             $name = (((int) $node->nodename) + 1);
-            if (isset($node->description) && trim($node->description) !== '') {
+            if (trim($node->description) !== '') {
                 $name .= ': ' . trim($node->description);
             }
             $n->displayname     = $name;
