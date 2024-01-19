@@ -539,6 +539,7 @@ class assStackQuestionGUI extends assQuestionGUI
                     $node = new stdClass();
 
                     $node->nodename = $name;
+                    $node->description = (isset($_POST[$prefix . '_description']) and $_POST[$prefix . '_description'] != null) ? $_POST[$prefix . '_description'] : '';
                     $node->prtname = $prt_name;
                     $node->truenextnode = ((isset($_POST[$prefix . '_pos_next']) and $_POST[$prefix . '_pos_next'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_pos_next'])) : -1);
                     $node->falsenextnode = ((isset($_POST[$prefix . '_neg_next']) and $_POST[$prefix . '_neg_next'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_neg_next'])) : -1);
