@@ -77,7 +77,7 @@ class stack_cas_castext2_iframe extends stack_cas_castext2_block {
     }
 
     public function postprocess(array $params, castext2_processor $processor): string {
-        global $PAGE;
+        global $DIC;
 
         if (count($params) < 3) {
             // Nothing at all.
@@ -168,8 +168,8 @@ class stack_cas_castext2_iframe extends stack_cas_castext2_block {
         $code .= '</head><body style="margin:0px;">' . $content . '</body></html>';
 
         // Ensure plots get their full URL at this point.
-        $code = str_replace('!ploturl!',
-            moodle_url::make_file_url('/question/type/stack/plot.php', '/'), $code);
+        $code = str_replace('!ploturl!', ILIAS_HTTP_PATH . "/" . ILIAS_WEB_DIR . "/" . CLIENT_ID . "/xqcas/stack/plots/", $code);
+
         // Escape some JavaScript strings.
         $args = [
             json_encode($frameid),
@@ -181,9 +181,11 @@ class stack_cas_castext2_iframe extends stack_cas_castext2_block {
         ];
 
         // As the content is large we cannot simply use the js_amd_call.
-        $PAGE->requires->js_amd_inline(
-            'require(["qtype_stack/stackjsvle"], '
-            . 'function(stackjsvle,){stackjsvle.create_iframe(' . implode(',', $args). ');});');
+        $DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/stackjsvle.js');
+
+        $DIC->globalScreen()->layout()->meta()->addOnloadCode(
+            'create_iframe(' . implode(',', $args). ');');
+
 
         self::$counters['///IFRAME_COUNT///'] = self::$counters['///IFRAME_COUNT///'] + 1;
 
