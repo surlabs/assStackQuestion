@@ -48,7 +48,7 @@ class stack_radio_input extends stack_dropdown_input {
 
         foreach ($values as $key => $ansid) {
             if($readonly){
-                $solution_input_id = (string)rand(1000000000, 9999999999);
+                $solution_input_id = $fieldname . '_sol';
                 $fieldname = $solution_input_id;
             }
             $inputattributes = array(

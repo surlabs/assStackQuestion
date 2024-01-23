@@ -53,7 +53,7 @@ class stack_boolean_input extends stack_input {
         $attributes = array();
         if ($readonly) {
             $attributes['disabled'] = 'disabled';
-            $solution_input_id = (string)rand(1000000000, 9999999999);
+            $solution_input_id = $fieldname . '_sol';
             $fieldname = $solution_input_id;
         }
 

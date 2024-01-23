@@ -37,7 +37,7 @@ class stack_singlechar_input extends stack_input {
         }
 
         if ($readonly) {
-            $solution_input_id = (string)rand(1000000000, 9999999999);
+            $solution_input_id = $fieldname . '_sol';
             $fieldname = $solution_input_id;
         }
         $attributes = array(

@@ -40,7 +40,7 @@ class stack_notes_input extends stack_input {
         // Note that at the moment, $this->boxHeight and $this->boxWidth are only
         // used as minimums. If the current input is bigger, the box is expanded.
         if($readonly){
-            $solution_input_id = (string)rand(1000000000, 9999999999);
+            $solution_input_id = $fieldname . '_sol';
             $fieldname = $solution_input_id;
         }
         $attributes = array(
@@ -191,7 +191,7 @@ class stack_notes_input extends stack_input {
             $render .= html_writer::tag('p', $contents[0]);
         }
         $render .= html_writer::tag('p', stack_string('studentValidation_notes'), array('class' => 'stackinputnotice'));
-        return format_text(stack_maths::process_display_castext($render));
+        return stack_maths::process_display_castext($render);
     }
 
     public function summarise_response($name, $state, $response) {

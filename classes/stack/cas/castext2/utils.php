@@ -606,4 +606,9 @@ class castext2_parser_utils {
         // Not a case.
         return false;
     }
+
+    public static function stack_cors_link(string $filename): string {
+        $url = '/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/corsscripts/cors.php?name=' . urlencode($filename);
+        return $url;
+    }
 }
