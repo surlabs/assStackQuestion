@@ -44,10 +44,6 @@ class StackConfig {
                 }
             }
 
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $row['value'] = $json_decoded;
-            }
-
             self::$config[$row['parameter_name']] = $row['value'];
 
             if (!isset(self::$categories[$row['group_name']])) {
