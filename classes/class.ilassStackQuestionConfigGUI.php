@@ -152,13 +152,15 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
      */
     private function renderForm(array $data, string $form_action, array $sections): string
     {
-        //Create the form
+        //ensure there is no message box in the sections
+        //if there is one, render it and return
         foreach ($sections as $section) {
             if (is_a($section, "ILIAS\UI\Implementation\Component\MessageBox\MessageBox")) {
                 return $this->renderer->render($section);
             }
         }
 
+        //Create the form
         $form = $this->factory->input()->container()->form()->standard(
             $form_action,
             $sections
