@@ -147,7 +147,13 @@ class assStackQuestionGUI extends assQuestionGUI
         if (isset($user_response["inputs"])) {
             $temp_user_response = array();
             foreach ($user_response["inputs"] as $input_name => $input) {
-                $temp_user_response[$input_name] = $input["value"];
+                if (strpos($input["value"], 'matrix(') !== false) {
+                    foreach (assStackQuestionUtils::matrixResponseToResponse($input["value"], $input_name) as $key => $value) {
+                        $temp_user_response[$key] = $value;
+                    }
+                } else {
+                    $temp_user_response[$input_name] = $input["value"];
+                }
             }
             $user_response = $temp_user_response;
         }
@@ -236,7 +242,13 @@ class assStackQuestionGUI extends assQuestionGUI
         if (isset($user_response["inputs"])) {
             $temp_user_response = array();
             foreach ($user_response["inputs"] as $input_name => $input) {
-                $temp_user_response[$input_name] = $input["value"];
+                if (strpos($input["value"], 'matrix(') !== false) {
+                    foreach (assStackQuestionUtils::matrixResponseToResponse($input["value"], $input_name) as $key => $value) {
+                        $temp_user_response[$key] = $value;
+                    }
+                } else {
+                    $temp_user_response[$input_name] = $input["value"];
+                }
             }
             $user_response = $temp_user_response;
         }

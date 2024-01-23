@@ -1546,4 +1546,29 @@ class assStackQuestionUtils
 
         return $new_prt;
     }
+
+    /**
+     * @param string $data
+     * @param string $key
+     * @return array
+     */
+    public static function matrixResponseToResponse(string $data, string $key): array
+    {
+        // Extract numbers from the string using regular expressions
+        preg_match_all("/\d+/", $data, $matches);
+
+        // Get the numbers in a two-dimensional array
+        $matrix = array_chunk($matches[0], 2);
+
+        // Create the new array in the desired format
+        $newArray = array();
+        foreach ($matrix as $i => $row) {
+            foreach ($row as $j => $value) {
+                $newKey = "{$key}_sub_{$i}_{$j}";
+                $newArray[$newKey] = $value;
+            }
+        }
+
+        return $newArray;
+    }
 }
