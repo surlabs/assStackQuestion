@@ -161,9 +161,9 @@ ui_author_randomisation_and_security_title#:#Randomisierung und Sicherheit
 ui_author_randomisation_no_randomisation_message#:#Diese Frage verwendet keine Randomisierung.
 ui_author_randomisation_no_deployed_variants_message_but_has_randomisation#:#Diese Frage verwendet Randomisierung, hat aber keine eingesetzten Varianten.
 ui_author_randomisation_no_variants_generate_new_variants_action_text#:#10 neue Varianten generieren (wenn möglich)
-ui_author_randomisation_add_standard_test_title#:#Standard-Testfall (Überprüft, ob die Musterantwort als korrekt bewertet wird)
-ui_author_randomisation_add_standard_test_description#:#Einen Standard-Testfall hinzufügen
-ui_author_randomisation_add_standard_test_button_text#:#Standard-Testfall hinzufügen
+ui_author_randomisation_add_standard_test_title#:#Automatisch-Testfall (Überprüft, ob die Musterantwort als korrekt bewertet wird)
+ui_author_randomisation_add_standard_test_description#:#Einen Automatisch-Testfall hinzufügen
+ui_author_randomisation_add_standard_test_button_text#:#Automatisch-Testfall hinzufügen
 ui_author_randomisation_standard_unit_test_case_added#:#Standard-Einheitstestfall hinzugefügt
 ui_author_randomisation_active_variant_panel_title#:#Aktive Variante für Autoren bei Vorschau und Einheitstests
 ui_author_randomisation_deployed_variants_panel_title#:#Varianten der Frage für Studenten in Tests
