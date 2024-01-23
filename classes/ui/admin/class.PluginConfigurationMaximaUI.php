@@ -159,14 +159,14 @@ class PluginConfigurationMaximaUI
         $cache_parsed_expressions_longer_than = self::$factory->input()->field()->text(
             $plugin_object->txt("ui_admin_configuration_connection_cache_parsed_expressions_longer_than_title"),
             $plugin_object->txt("ui_admin_configuration_connection_cache_parsed_expressions_longer_than_description")
-        )->withValue($cache_parsed_expressions_longer_than_value);
+        )->withValue((string)$cache_parsed_expressions_longer_than_value);
 
         //Maxima libraries
         $maxima_libraries_value = $data["cas_maxima_libraries"] ?? "";
         $maxima_libraries = self::$factory->input()->field()->text(
             $plugin_object->txt("ui_admin_configuration_connection_maxima_libraries_title"),
             $plugin_object->txt("ui_admin_configuration_connection_maxima_libraries_description")
-        )->withValue($maxima_libraries_value);
+        )->withValue((string)$maxima_libraries_value);
 
         return self::$factory->input()->field()->section(
             [
