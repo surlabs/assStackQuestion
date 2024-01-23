@@ -873,12 +873,12 @@ class stack_potentialresponse_tree_lite {
             if ($node->truenextnode == -1) {
                 $left = null;
             } else {
-                $left = $node->truenextnode + 1;
+                $left = $node->truenextnode;
             }
             if ($node->falsenextnode == -1) {
                 $right = null;
             } else {
-                $right = $node->falsenextnode + 1;
+                $right = $node->falsenextnode;
             }
             $llabel = $node->truescoremode . round((float)$node->truescore, 2);
             if ($labels && array_key_exists($node->trueanswernote, $labels)) {

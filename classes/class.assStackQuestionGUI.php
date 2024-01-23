@@ -596,7 +596,7 @@ class assStackQuestionGUI extends assQuestionGUI
             $all_formative = true;
 
             foreach ($prts_array as $name => $prt_data) {
-                $total_value += $prt_data->value;
+                $total_value += (float) $prt_data->value;
                 $all_formative = false;
             }
 
@@ -608,7 +608,7 @@ class assStackQuestionGUI extends assQuestionGUI
             foreach ($prts_array as $name => $prt_data) {
                 $prt_value = 0;
                 if (!$all_formative) {
-                    $prt_value = $prt_data->value / $total_value;
+                    $prt_value = (float) $prt_data->value / $total_value;
                 }
                 $this->object->prts[$name] = new stack_potentialresponse_tree_lite($prt_data, $prt_value);
             }
@@ -755,6 +755,23 @@ class assStackQuestionGUI extends assQuestionGUI
 					}
 
 				}
+
+                if (isset($_POST['cmd']['save']['add_prt'])) {
+                    $generated_prt_name = "prt" . rand(20, 1000);
+
+                    if (assStackQuestionDB::_addPRTFunction((string) $this->object->getId(), $generated_prt_name, $this->object->loadStandardPRT($generated_prt_name, true))) {
+                        $this->generateSpecificPostData();
+
+                        //Include placeholder in specific feedback
+                        $current_specific_feedback = $this->object->specific_feedback;
+                        $new_specific_feedback = "<p>" . $current_specific_feedback . "[[feedback:" . $generated_prt_name . "]]</p>";
+                        $this->specific_post_data["options_specific_feedback"] = $new_specific_feedback;
+
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
 
 				//NODE OPERATIONS
 				foreach ($prt->get_nodes() as $node_name => $node) {

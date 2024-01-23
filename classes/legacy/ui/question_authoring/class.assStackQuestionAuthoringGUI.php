@@ -260,6 +260,13 @@ class assStackQuestionAuthoringGUI
 	 */
 	public function addPRTs()
 	{
+        // Button to add prt
+        $create_prt = new ilButtonFormProperty($this->getPlugin()->txt('add_prt'), 'add_prt');
+        $create_prt->setAction('add_prt');
+        $create_prt->setCommand('save');
+
+        $this->getForm()->addItem($create_prt);
+
 		$prts = new ilTabsFormPropertyGUI($this->getPlugin()->txt('prts'), "question_prts", 12, FALSE);
 
 		if (!empty($this->getQuestionGUI()->object->prts)) {
