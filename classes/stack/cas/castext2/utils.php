@@ -608,7 +608,6 @@ class castext2_parser_utils {
     }
 
     public static function stack_cors_link(string $filename): string {
-        // Asegúrate de que la URL sea correcta para tu instalación de Ilias
         $url = '/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/corsscripts/cors.php?name=' . urlencode($filename);
         return $url;
     }
