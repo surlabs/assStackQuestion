@@ -1693,7 +1693,7 @@ class assStackQuestionDB
 									AND qpl.question_type_fi = %s", array('integer', 'integer'), array($question_id, $q_type_id));
 
 			while ($row = $db->fetchAssoc($result)) {
-				$new_question_id = $row['question_id'];
+				$new_question_id = (int) $row['question_id'];
 
 				$ilias_question = new assStackQuestion();
 				$ilias_question->loadFromDb($new_question_id);
