@@ -889,9 +889,9 @@ class stack_potentialresponse_tree_lite {
                 $rlabel = $labels[$node->falseanswernote];
             }
             $key = (int) $key;
-            $graph->add_prt_node($key + 1, $node->description, $left, $right, $llabel, $rlabel,
+            $graph->add_prt_node($key, $node->description, $left, $right, $llabel, $rlabel,
                 '#fgroup_id_' . $this->name . 'node_' . $key);
-            $graph->add_prt_text($node->nodename + 1, $node->answertest, $node->quiet,
+            $graph->add_prt_text($node->nodename, $node->answertest, $node->quiet,
                 $node->trueanswernote, $node->falseanswernote);
         }
 
