@@ -4,7 +4,7 @@ declare(strict_types=1);
 use ILIAS\UI\Factory;
 use ILIAS\UI\Implementation\Component\Button\Standard;
 use ILIAS\UI\Renderer;
-use classes\core\security\StackException;
+use classes\platform\StackException;
 
 /**
  * This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.

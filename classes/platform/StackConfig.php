@@ -36,7 +36,14 @@ class StackConfig {
         $config = StackDatabase::select('xqcas_configuration');
 
         foreach ($config as $row) {
-            $json_decoded = json_decode($row['value'], true);
+            if(isset($row['value']) && $row['value'] !== ''){
+                $json_decoded = json_decode($row['value'], true);
+
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $row['value'] = $json_decoded;
+                }
+            }
+
 
             if (json_last_error() === JSON_ERROR_NONE) {
                 $row['value'] = $json_decoded;

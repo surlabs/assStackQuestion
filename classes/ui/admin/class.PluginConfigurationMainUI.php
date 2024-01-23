@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
+use classes\platform\StackException;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Implementation\Component\Input\Field\Section;
-use classes\core\security\StackException;
 
 /**
  * This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
