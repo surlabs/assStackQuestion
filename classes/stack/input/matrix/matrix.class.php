@@ -296,7 +296,7 @@ class stack_matrix_input extends stack_input {
                 }
                 $name = $fieldname.'_sub_'.$i.'_'.$j;
                 if ($readonly) {
-                    $solution_input_id = (string)rand(1000000000, 9999999999);
+                    $solution_input_id = $fieldname . '_sol';
                     $xhtml .= '<td><input type="text" id="' . $solution_input_id . '" name="' . $solution_input_id . '" ' . $field . '="' . $val . '" size="' .
                         $this->parameters['boxWidth'] . '"' . $attr . '></td>';
 
