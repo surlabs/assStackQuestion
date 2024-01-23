@@ -39,7 +39,7 @@ class StackEvaluation {
     {
         if ($fraction === 1.0) {
             return self::EVALUATION_CORRECT;
-        } else if ($fraction === 0.0) {
+        } else if ($fraction === 0.0 or $fraction === null) {
             return self::EVALUATION_INCORRECT;
         } else {
             return self::EVALUATION_PARTIALLY_CORRECT;
