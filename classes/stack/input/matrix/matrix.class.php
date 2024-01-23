@@ -267,7 +267,12 @@ class stack_matrix_input extends stack_input {
             $matrixbrackets = 'matrixbarbrackets';
         } else if ($matrixparens == '') {
             $matrixbrackets = 'matrixnobrackets';
+        } else if ($matrixparens == '{') {
+            $matrixbrackets = 'matrixcurlybrackets';
         }
+
+
+
         // Build the html table to contain these values.
         $xhtml = '<div class="' . $matrixbrackets . '"><table class="matrixtable" id="' . $fieldname .
                 '_container" style="display:inline; vertical-align: middle;" ' .

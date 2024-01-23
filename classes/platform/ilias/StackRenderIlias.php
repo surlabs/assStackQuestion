@@ -282,6 +282,8 @@ class StackRenderIlias extends StackRender
         //Validation
         $jsconfig = new stdClass();
 
+        $DIC->globalScreen()->layout()->meta()->addCss('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/css/styles.css');
+
         if ($instant_validation) {
             //Instant Validation
             $jsconfig->validate_url = ilUtil::_getHttpPath() . "/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/instant_validation.php";
@@ -423,7 +425,7 @@ class StackRenderIlias extends StackRender
      */
     public static function _renderValidationButton(int $question_id, string $input_name): string
     {
-        return "<button style=\"height:1.8em;\" class=\"xqcas\" name=\"cmd[xqcas_" . $question_id . '_' . $input_name . "]\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></button>";
+        return "<button class=\"xqcas btn btn-default\" name=\"cmd[xqcas_" . $question_id . '_' . $input_name . "]\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></button>";
     }
 
 
