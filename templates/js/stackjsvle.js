@@ -99,10 +99,10 @@ function vle_get_input_element(name, srciframe) {
        something with the `formulation`-class. */
     let initialcandidate = document.getElementById(srciframe);
     let iter = initialcandidate;
-    while (iter && !iter.classList.contains('il_ass_question_preview_container')) {
+    while (iter && !iter.classList.contains('.ilc_question_Standard')) {
         iter = iter.parentElement;
     }
-    if (iter && iter.classList.contains('il_ass_question_preview_container')) {
+    if (iter && iter.classList.contains('.ilc_question_Standard')) {
         // iter now represents the borders of the question containing
         // this IFRAME.
         let possible = iter.querySelector('input[id$="_' + name + '"]');
@@ -120,7 +120,12 @@ function vle_get_input_element(name, srciframe) {
         }
     }
     // If none found within the question itself, search everywhere.
-    let possible = document.querySelector('.il_ass_question_preview_container input[id$="_' + name + '"]');
+    let possible = document.querySelector('.ilc_question_Standard input[id$="_' + name + '"]');
+
+    if($(".ilc_question_Standard").length>1 && srciframe !== 'stack-iframe-1'){
+        return $(".ilc_question_Standard")[1].querySelector('input[id$="_' + name + '_sol"]');
+    }
+
     if (possible !== null) {
         return possible;
     }
@@ -431,7 +436,6 @@ window.addEventListener("message", (e) => {
         case 'changed-input':
             // 1. Find the input.
             input = vle_get_input_element(msg.name, msg.src);
-
             if (input === null) {
                 // Requested something that is not available.
                 const ret = {
@@ -622,7 +626,11 @@ function create_iframe(iframeid, content, targetdivid, title, scrolling, evil) {
     // This allows that div to contain some sort of loading
     // indicator until we plug in the frame.
     // Naturally the frame will then start to load itself.
-    document.getElementById(targetdivid).replaceChildren(frm);
+
+    if(document.getElementById(targetdivid)){
+        document.getElementById(targetdivid).replaceChildren(frm);
+
+    }
     IFRAMES[iframeid] = frm;
 }
 
