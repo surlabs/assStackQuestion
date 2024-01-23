@@ -93,6 +93,12 @@ class assStackQuestionImport extends assQuestionImport
 
             $this->object = assStackQuestionUtils::_arrayToQuestion($stack_question, $this->object);
 
+            foreach ($this->object->prts as $prt) {
+                foreach ($prt->get_nodes() as $node) {
+                    $node->truefeedback = $this->processNonAbstractedImageReferences($node->truefeedback, $item->getIliasSourceNic());
+                    $node->falsefeedback = $this->processNonAbstractedImageReferences($node->falsefeedback, $item->getIliasSourceNic());
+                }
+            }
         } else {
 
             //Old Style
@@ -371,6 +377,13 @@ class assStackQuestionImport extends assQuestionImport
                 $this->object->prt_incorrect = str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $this->object->prt_incorrect);
 
                 $this->object->general_feedback = str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $this->object->general_feedback);
+
+                foreach ($this->object->prts as $prt) {
+                    foreach ($prt->get_nodes() as $node) {
+                        $node->truefeedback = str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $node->truefeedback);
+                        $node->falsefeedback = str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $node->falsefeedback);
+                    }
+                }
             }
         }
 
@@ -383,6 +396,13 @@ class assStackQuestionImport extends assQuestionImport
         $this->object->prt_incorrect = ilRTE::_replaceMediaObjectImageSrc($this->object->prt_incorrect, 1);
 
         $this->object->general_feedback = ilRTE::_replaceMediaObjectImageSrc($this->object->general_feedback, 1);
+
+        foreach ($this->object->prts as $prt) {
+            foreach ($prt->get_nodes() as $node) {
+                $node->truefeedback = ilRTE::_replaceMediaObjectImageSrc($node->truefeedback, 1);
+                $node->falsefeedback = ilRTE::_replaceMediaObjectImageSrc($node->falsefeedback, 1);
+            }
+        }
 
         // now save the question as a whole
         $this->object->saveToDb();
@@ -397,5 +417,47 @@ class assStackQuestionImport extends assQuestionImport
         }
 
         return $import_mapping;
+    }
+
+    /**
+     * We overwrite this method and modify it so that instead of
+     * repacking the elements of import_mob_xhtml, it simply adds them
+     *
+     * @param $text
+     * @param $sourceNic
+     * @return string
+     */
+    protected function processNonAbstractedImageReferences($text, $sourceNic): string
+    {
+        $reg = '/<img.*src=".*\\/mm_(\\d+)\\/(.*?)".*>/m';
+        $matches = null;
+
+        if (preg_match_all($reg, $text, $matches)) {
+            $mobs = array();
+            for ($i = 0, $max = count($matches[1]); $i < $max; $i++) {
+                $mobSrcId = $matches[1][$i];
+                $mobSrcName = $matches[2][$i];
+                $mobSrcLabel = 'il_' . $sourceNic . '_mob_' . $mobSrcId;
+
+                //if (!is_array(ilSession::get("import_mob_xhtml"))) {
+                //    ilSession::set("import_mob_xhtml", array());
+                //}
+
+                //$_SESSION["import_mob_xhtml"][] = array(
+                $mobs[] = array(
+                    "mob" => $mobSrcLabel, "uri" => 'objects/' . $mobSrcLabel . '/' . $mobSrcName
+                );
+            }
+
+            if (is_array($_SESSION["import_mob_xhtml"])) {
+                foreach ($_SESSION["import_mob_xhtml"] as $mob) {
+                    $mobs[] = $mob;
+                }
+            }
+
+            ilSession::set("import_mob_xhtml", $mobs);
+        }
+
+        return ilRTE::_replaceMediaObjectImageSrc($text, 0, $sourceNic);
     }
 }
