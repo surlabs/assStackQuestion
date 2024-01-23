@@ -55,7 +55,7 @@ class PluginConfigurationMainUI
             ];
 
         } catch (Exception $e) {
-            $content = [self::$factory->messageBox()->failure($e->getMessage())];
+            $content = ["error" => self::$factory->messageBox()->failure($e->getMessage())];
         }
 
         return $content;
