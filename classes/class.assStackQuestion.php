@@ -1284,8 +1284,12 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param bool $return_standard_node
      * @return void || stack_potentialresponse_node
      */
-    public function loadStandardPRT(string $prt_name, bool $return_standard_node = false)
-    {
+    /**
+     * @param string $prt_name
+     * @param bool $return_standard_node
+     * @return stack_potentialresponse_tree_lite
+     */
+    public function loadStandardPRT(string $prt_name, bool $onlyreturn = false) :?stack_potentialresponse_tree_lite {
         global $tpl;
         //load PRTs and PRT nodes
         //TODO LOAD PLATFORM STANDARD PRT
@@ -1378,10 +1382,19 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $newnode->trueanswernote = $prt_name . '-2-T';
             $newnode->truenextnode = '-1';
             $prt->nodes[] = $newnode;
-            $this->prts[$prt->name] = new stack_potentialresponse_tree_lite($prt, $prt->value, null);
+
+            if ($onlyreturn) {
+                return new stack_potentialresponse_tree_lite($prt, $prt->value, null);
+            } else {
+                $this->prts[$prt->name] = new stack_potentialresponse_tree_lite($prt, $prt->value, null);
+
+                return $this->prts[$prt->name];
+            }
         } catch (stack_exception $e) {
             $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
         }
+
+        return null;
     }
 
     /* ILIAS SPECIFIC METHODS END */

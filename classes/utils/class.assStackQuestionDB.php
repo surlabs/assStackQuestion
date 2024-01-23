@@ -1735,6 +1735,67 @@ class assStackQuestionDB
 		return $questions_array;
 	}
 
+    /**
+     * Manages the add PRT function from Authoring interface
+     *
+     * @param string $question_id
+     * @param string $prt_name
+     * @param stack_potentialresponse_tree_lite $prt
+     * @return bool
+     */
+    public static function _addPRTFunction(string $question_id, string $prt_name, stack_potentialresponse_tree_lite $prt): bool
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        //CREATE PRT WITH ORIGINAL PRT STATS IN NEW QUESTION
+        $db->insert("xqcas_prts", array(
+            "id" => array("integer", $db->nextId('xqcas_prts')),
+            "question_id" => array("integer", (int)$question_id),
+            "name" => array("text", $prt_name),
+            "value" => array("text", $prt->get_value()),
+            "auto_simplify" => array("integer", (int)$prt->isSimplify()),
+            "feedback_variables" => array("clob", $prt->get_feedbackvariables_keyvals()),
+            "first_node_name" => array("text", $prt->get_first_node()),
+        ));
+
+        //Manage Nodes
+        $nodes = $prt->get_nodes();
+        foreach ($nodes as $node_id => $node) {
+            //CREATE NODE WITH ORIGINAL NODE STATS IN NEW QUESTION PRT
+            $db->insert("xqcas_prt_nodes", array(
+                "id" => array("integer", $DIC->database()->nextId('xqcas_prt_nodes')),
+                "question_id" => array("integer", (int)$question_id),
+                "prt_name" => array("text", $prt_name),
+                "node_name" => array("text", $node_id),
+                "answer_test" => array("text", $node->answertest),
+                "sans" => array("text", $node->sans),
+                "tans" => array("text", $node->tans),
+                "test_options" => array("text", $node->testoptions),
+                "quiet" => array("integer", (int)$node->quiet),
+                "true_score_mode" => array("text", $node->truescoremode),
+                "true_score" => array("text", $node->truescore),
+                "true_penalty" => array("text", $node->truepenalty),
+                "true_next_node" => array("text", $node->truenextnode),
+                "true_answer_note" => array("text", $prt_name . '-' . $node_id . '-T'),
+                "true_feedback" => array("clob", $node->truefeedback),
+                "true_feedback_format" => array("integer", (int)$node->truefeedbackformat),
+                "false_score_mode" => array("text", $node->falsescoremode),
+                "false_score" => array("text", $node->falsescore),
+                "false_penalty" => array("text", $node->falsepenalty),
+                "false_next_node" => array("text", $node->falsenextnode),
+                "false_answer_note" => array("text", $prt_name . '-' . $node_id . '-F'),
+                "false_feedback" => array("clob", $node->falsefeedback),
+                "false_feedback_format" => array("integer", (int)$node->falsefeedbackformat),
+            ));
+        }
+
+        global $tpl;
+        $tpl->setOnScreenMessage('info', $DIC->language()->txt("qpl_qst_xqcas_prt_created"), true);
+
+        return true;
+    }
+
 	/**
 	 * Manages the copy PRT function from Authoring interface
 	 * @param string $original_question_id
