@@ -467,11 +467,12 @@ class assStackQuestionMoodleImport
         //TODO Images in MoodleXML
 		$mapping = array();
 		foreach ($data as $file) {
-			$name = $file['_attributes']['name'];
+			$name = (string) $file->attributes()["name"];
 			//$path = $file['_attributes']['path'];
-			$src = $file['_content'];
+			$src = (string) $file->attributes()["_content"];
 
-			$temp = ilUtil::ilTempnam();
+            global $CFG;
+			$temp = tempnam($CFG->dataroot . '/stack/tmp/', 'img');
             //file_put_contents($temp, base64_decode($src));
 			$media_object = ilObjMediaObject::_saveTempFileAsMediaObject($name, $temp, true);
 			@unlink($temp);
