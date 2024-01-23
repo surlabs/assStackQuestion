@@ -560,7 +560,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         $clone->onCopy($source_questionpool_id, $original_id, $clone->getObjId(), $clone->getId());
 
-        return $clone->id;
+        return (int)$clone->id;
     }
 
     /**
@@ -599,7 +599,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         $clone->onCopy($sourceParentId, $sourceQuestionId, $clone->getObjId(), $clone->getId());
 
-        return $clone->id;
+        return (int)$clone->id;
     }
 
     //iQuestionCondition methods
