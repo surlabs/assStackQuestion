@@ -16,5 +16,5 @@ JSXGraph is a cross-browser JavaScript library for interactive geometry, functio
 ## How is JSXGraph integrated in STACK for ILIAS?
 **JSXGraph integration in STACK is an advanced topic**. Please ensure your knowledge in STACK questions and JSXGraph before creating your own JSXGraphs.
 
-As in STACK's Moodle version, JSXGraph are question blocks ``[[jsxgraph]] JAVASCRIPT CODE [[/jsxgraph]]``, which include javascript code from the User to create the JSXGraph and other settings if binding with STACK inputs is desired.
+As in STACK's Moodle version, JSXGraph are question blocks ``[[jsxgraph]] JAVASCRIPT CODE [[/jsxgraph]]``, which include javascript code from the User to create the JSXGraph and other settings if binding with STACK inputs is desired, **from 8.5.0 JSXGraph integration is automatic and works exactly like in moodle**.
 You can find a detailed guide made for Moodle here: https://docs.stack-assessment.org/en/Authoring/JSXGraph/
