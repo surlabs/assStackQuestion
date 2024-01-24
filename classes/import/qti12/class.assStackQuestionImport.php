@@ -458,6 +458,6 @@ class assStackQuestionImport extends assQuestionImport
             ilSession::set("import_mob_xhtml", $mobs);
         }
 
-        return ilRTE::_replaceMediaObjectImageSrc($text, 0, $sourceNic);
+        return preg_replace('/src="([^"]*?\/mobs\/mm_([0-9]+)\/.*?)\"/', 'src="il_' . $sourceNic . '_mob_\\2"', $text);
     }
 }
