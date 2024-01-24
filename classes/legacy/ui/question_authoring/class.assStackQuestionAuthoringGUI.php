@@ -983,22 +983,20 @@ class assStackQuestionAuthoringGUI
 			$node_pos_mode->setValue($this->default["prt_pos_mod"]);
 			$node_pos_score->setValue($this->default["prt_pos_score"]);
 			$node_pos_penalty->setValue($this->default["prt_pos_penalty"]);
-			//$node_pos_next_node->setValue($this->default[""]);
 			$node_pos_answernote->setValue($this->default["prt_pos_answernote"]);
-			//$node_pos_specific_feedback->setValue($this->default[""]);
 			//$node_pos_feedback_class->setValue(1);
 		} else {
 			$node_pos_mode->setValue($node->truescoremode);
 			$node_pos_score->setValue($node->truescore);
-			$node_pos_next_node->setValue($node->truenextnode);
 			$node_pos_answernote->setValue($node->trueanswernote);
 			$node_pos_penalty->setValue($node->truepenalty);
-			$node_pos_specific_feedback->setValue($node->truefeedback);
 			//$node_pos_feedback_class->setValue($node->truefeedbackclass);
 		}
 
+        $node_pos_next_node->setValue($node->truenextnode);
+        $node_pos_specific_feedback->setValue($node->truefeedback);
 
-		//Add part to form
+        //Add part to form
 		$positive_part->addFormProperty($node_pos_mode);
 		$positive_part->addFormProperty($node_pos_score);
 		$positive_part->addFormProperty($node_pos_penalty);
@@ -1067,21 +1065,20 @@ class assStackQuestionAuthoringGUI
 			$node_neg_mode->setValue($this->default["prt_neg_mod"]);
 			$node_neg_score->setValue($this->default["prt_neg_score"]);
 			$node_neg_penalty->setValue($this->default["prt_neg_penalty"]);
-			//$node_neg_next_node->setValue($this->default[""]);
 			$node_neg_answernote->setValue($this->default["prt_neg_answernote"]);
-			//$node_neg_specific_feedback->setValue($this->default[""]);
 			//$node_neg_feedback_class->setValue(1);
 		} else {
 			$node_neg_mode->setValue($node->falsescoremode);
 			$node_neg_score->setValue($node->falsescore);
-			$node_neg_next_node->setValue($node->falsenextnode);
 			$node_neg_answernote->setValue($node->falseanswernote);
 			$node_neg_penalty->setValue($node->falsepenalty);
-			$node_neg_specific_feedback->setValue($node->falsefeedback);
 			//$node_neg_feedback_class->setValue($node->falsefeedbackclass);
 		}
 
-		//Add properties to form
+        $node_neg_next_node->setValue($node->falsenextnode);
+        $node_neg_specific_feedback->setValue($node->falsefeedback);
+
+        //Add properties to form
 		$negative_part->addFormProperty($node_neg_mode);
 		$negative_part->addFormProperty($node_neg_score);
 		$negative_part->addFormProperty($node_neg_penalty);
