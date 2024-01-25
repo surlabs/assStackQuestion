@@ -164,7 +164,6 @@ class assStackQuestionConfig
 	 */
 	public function saveConnectionSettings()
 	{
-		global $CFG;
 		//Old settings
 
 		$saved_connection_data = self::_getStoredSettings('connection');
@@ -204,15 +203,16 @@ class assStackQuestionConfig
 		}
 
 		//Force re-creation of maxima local file with new content from stack4.
-		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
+		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
 		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php');
+        global $CFG;
 
-		if (!file_exists(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/maximalocal.mac'))
+		if (!file_exists($CFG->dataroot . '/stack/maximalocal.mac'))
 		{
 			stack_cas_configuration::create_maximalocal();
 		} else
 		{
-			unlink(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/maximalocal.mac');
+			unlink($CFG->dataroot . '/stack/maximalocal.mac');
 			stack_cas_configuration::create_maximalocal();
 		}
 
@@ -494,7 +494,6 @@ class assStackQuestionConfig
 	 */
 	public function setDefaultSettingsForConnection()
 	{
-		global $CFG;
 		//Default values for connection
         /*
 		$connection_default_values = array('platform_type' => 'unix', 'maxima_version' => '5.31.2', 'cas_connection_timeout' => '5', 'cas_result_caching' => 'db', 'maxima_command' => '', 'plot_command' => '', 'cas_debugging' => '0', 'cas_debugging' => '0', 'cas_maxima_libraries' => 'stats, distrib, descriptive, simplex');
@@ -505,15 +504,16 @@ class assStackQuestionConfig
         */
 
 		//Force re-creation of maxima local file with new content from stack4.
-		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
+		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
 		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php');
+        global $CFG;
 
-		if (!file_exists(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/maximalocal.mac'))
+		if (!file_exists($CFG->dataroot . '/stack/maximalocal.mac'))
 		{
 			stack_cas_configuration::create_maximalocal();
 		} else
 		{
-			unlink(realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack/maximalocal.mac');
+			unlink($CFG->dataroot . '/stack/maximalocal.mac');
 			stack_cas_configuration::create_maximalocal();
 		}
 
