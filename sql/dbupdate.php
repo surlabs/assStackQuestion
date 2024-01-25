@@ -233,7 +233,7 @@ $query = 'SELECT * FROM xqcas_configuration WHERE group_name = "connection"';
 $result = $db->query($query);
 if (!$db->fetchAssoc($result)) {
 	//Default values for connection
-	$connection_default_values = array('platform_type' => 'server', 'maxima_version' => '5.31.2', 'cas_connection_timeout' => '250', 'cas_result_caching' => 'db', 'maxima_command' => '', 'plot_command' => '', 'cas_debugging' => '1');
+    $connection_default_values = array('platform_type' => 'server', 'maxima_version' => '5.31.2', 'cas_connection_timeout' => '250', 'cas_result_caching' => 'db', 'maxima_command' => '', 'plot_command' => '', 'cas_debugging' => '1', 'cas_maxima_libraries' => 'stats, distrib, descriptive, simplex');
 	foreach ($connection_default_values as $paremeter_name => $value) {
 		$db->insert("xqcas_configuration", array('parameter_name' => array('text', $paremeter_name), 'value' => array('clob', $value), 'group_name' => array('text', 'connection')));
 	}
