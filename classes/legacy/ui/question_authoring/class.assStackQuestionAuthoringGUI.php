@@ -356,8 +356,8 @@ class assStackQuestionAuthoringGUI
 		$options_assume_positive->setInfo($this->getPlugin()->txt('options_assume_positive_info'));
 
 		//Options assume real
-		$options_assume_real = new ilCheckboxInputGUI($this->getPlugin()->txt('options_assume_real'), 'options_assume_real');
-		$options_assume_real->setInfo($this->getPlugin()->txt('options_assume_real_info'));
+		$options_assume_real = new ilCheckboxInputGUI($this->getPlugin()->txt('ui_admin_configuration_defaults_assume_real_title'), 'options_assume_real');
+		$options_assume_real->setInfo($this->getPlugin()->txt('ui_admin_configuration_defaults_assume_real_description'));
 
 		//Options Standard feedback for correct answer
 		$options_prt_correct = new ilTextAreaInputGUI($this->getPlugin()->txt('options_prt_correct'), 'options_prt_correct');
