@@ -1359,7 +1359,7 @@ class assStackQuestionDB
      *
 	 * @param assStackQuestion $question
 	 * @param int $active_id
-	 * @param int $pass
+	 * @param int|null $pass
 	 * @return int
 	 */
 	public static function _getSeedForTestPass(assStackQuestion $question, int $active_id, ?int $pass = null): int
@@ -1400,6 +1400,10 @@ class assStackQuestionDB
 			}
 		}
 
+        if ($seed <= 0) {
+            $seed = self::_getSeedForSolution($question, $active_id, $pass);
+        }
+
 		if ($seed <= 0) {
 			//Create new seed
 			$variants = self::_readDeployedVariants($question_id, true);
@@ -1430,6 +1434,49 @@ class assStackQuestionDB
 
 		return $seed;
 	}
+
+    /**
+     * Get the seed for a test pass
+     *
+     * @param assStackQuestion $question
+     * @param int $active_id
+     * @param int $pass
+     * @return int
+     */
+    public static function _getSeedForSolution(assStackQuestion $question, int $active_id, int $pass)
+    {
+        global $DIC;
+        $db = $DIC->database();
+        $solution = $db->query("SELECT value1, value2, points FROM tst_solutions WHERE question_fi = " .
+            $db->quote($question->getId(), 'integer') . " AND active_fi = " .
+            $db->quote($active_id, 'integer') . " AND pass = " .
+            $db->quote($pass, 'integer'));
+
+        $tst_solutions = array();
+
+        while ($row = $db->fetchAssoc($solution)) {
+            $tst_solutions[] = $row;
+        }
+
+        $seed = 0;
+
+        if (count($tst_solutions) > 0) {
+            if ($tst_solutions[0]['value1'] != "xqcas_raw_data") {
+                // old format
+                foreach ($tst_solutions as $row) {
+                    if ($row['value1'] == "xqcas_question_" . $question->getId() . "_seed") {
+                        $seed = (int) $row['value2'];
+                    }
+                }
+            } else {
+                $parsed_user_response_from_db = (array) json_decode($tst_solutions[0]['value2']);
+
+                $seed = $parsed_user_response_from_db['question_seed'];
+            }
+        }
+
+        return $seed;
+    }
 
     /**
      * Get the seed for a preview
