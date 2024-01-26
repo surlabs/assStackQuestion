@@ -447,11 +447,37 @@ class assStackQuestionGUI extends assQuestionGUI
         $this->specific_post_data["options_specific_feedback"] = ((isset($_POST['options_specific_feedback']) and $_POST['options_specific_feedback'] != null) ? ilUtil::stripSlashes($_POST['options_specific_feedback'], true, $this->getRTETags()) : '');
 
         foreach ($this->object->prts as $prt_name => $prt) {
+            $this->specific_post_data['prt_' . $prt_name . '_value'] = ((isset($_POST['prt_' . $prt_name . '_value']) and $_POST['prt_' . $prt_name . '_value'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_value'])) : '');
+            $this->specific_post_data['prt_' . $prt_name . '_simplify'] = ((isset($_POST['prt_' . $prt_name . '_simplify']) and $_POST['prt_' . $prt_name . '_simplify'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_simplify'])) : '');
+            $this->specific_post_data['prt_' . $prt_name . '_feedback_variables'] = ((isset($_POST['prt_' . $prt_name . '_feedback_variables']) and $_POST['prt_' . $prt_name . '_feedback_variables'] != null) ? assStackQuestionUtils::_debugText($_POST['prt_' . $prt_name . '_feedback_variables']) : '');
+            $this->specific_post_data['prt_' . $prt_name . '_first_node'] = ((isset($_POST['prt_' . $prt_name . '_first_node']) and $_POST['prt_' . $prt_name . '_first_node'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_first_node'])) : '');
+
             foreach ($this->object->prts[$prt_name]->get_nodes_summary() as $name => $node) {
                 $prefix = 'prt_' . $prt_name . '_node_' . $name;
 
+                $this->specific_post_data[$prefix . '_description'] = (isset($_POST[$prefix . '_description']) and $_POST[$prefix . '_description'] != null) ? $_POST[$prefix . '_description'] : '';
                 $this->specific_post_data[$prefix . '_pos_next'] = ((isset($_POST[$prefix . '_pos_next']) and $_POST[$prefix . '_pos_next'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_pos_next'])) : -1);
                 $this->specific_post_data[$prefix . '_neg_next'] = ((isset($_POST[$prefix . '_neg_next']) and $_POST[$prefix . '_neg_next'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_neg_next'])) : -1);
+                $this->specific_post_data[$prefix . '_answer_test'] = ((isset($_POST[$prefix . '_answer_test']) and $_POST[$prefix . '_answer_test'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_answer_test'])) : '');
+                $this->specific_post_data[$prefix . '_student_answer'] = ((isset($_POST[$prefix . '_student_answer']) and $_POST[$prefix . '_student_answer'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_student_answer'])) : '');
+                $this->specific_post_data[$prefix . '_teacher_answer'] = ((isset($_POST[$prefix . '_teacher_answer']) and $_POST[$prefix . '_teacher_answer'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_teacher_answer'])) : '');
+                $this->specific_post_data[$prefix . '_options'] = ((isset($_POST[$prefix . '_options']) and $_POST[$prefix . '_options'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_options'])) : '');
+                $this->specific_post_data[$prefix . '_quiet'] = ((isset($_POST[$prefix . '_quiet']) and $_POST[$prefix . '_quiet'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_quiet'])) : '');
+
+                $this->specific_post_data[$prefix . '_pos_score'] = ((isset($_POST[$prefix . '_pos_score']) and $_POST[$prefix . '_pos_score'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_score'])) : '');
+                $this->specific_post_data[$prefix . '_pos_mod'] = ((isset($_POST[$prefix . '_pos_mod']) and $_POST[$prefix . '_pos_mod'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_mod'])) : '');
+                $this->specific_post_data[$prefix . '_pos_penalty'] = ((isset($_POST[$prefix . '_pos_penalty']) and $_POST[$prefix . '_pos_penalty'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_penalty'])) : '');
+                $this->specific_post_data[$prefix . '_pos_answernote'] = ((isset($_POST[$prefix . '_pos_answernote']) and $_POST[$prefix . '_pos_answernote'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_answernote'])) : '');
+                $this->specific_post_data[$prefix . '_pos_specific_feedback'] = ((isset($_POST[$prefix . '_pos_specific_feedback']) and $_POST[$prefix . '_pos_specific_feedback'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST[$prefix . '_pos_specific_feedback'], false))) : '');
+                $this->specific_post_data[$prefix . '_pos_feedback_class'] = ((isset($_POST[$prefix . '_pos_feedback_class']) and $_POST[$prefix . '_pos_feedback_class'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_pos_feedback_class'])) : '');
+
+                $this->specific_post_data[$prefix . '_neg_score'] = ((isset($_POST[$prefix . '_neg_score']) and $_POST[$prefix . '_neg_score'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_score'])) : '');
+                $this->specific_post_data[$prefix . '_neg_mod'] = ((isset($_POST[$prefix . '_neg_mod']) and $_POST[$prefix . '_neg_mod'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_mod'])) : '');
+                $this->specific_post_data[$prefix . '_neg_penalty'] = ((isset($_POST[$prefix . '_neg_penalty']) and $_POST[$prefix . '_neg_penalty'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_penalty'])) : '');
+                $this->specific_post_data[$prefix . '_neg_answernote'] = ((isset($_POST[$prefix . '_neg_answernote']) and $_POST[$prefix . '_neg_answernote'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_answernote'])) : '');
+                $this->specific_post_data[$prefix . '_neg_specific_feedback'] = ((isset($_POST[$prefix . '_neg_specific_feedback']) and $_POST[$prefix . '_neg_specific_feedback'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST[$prefix . '_neg_specific_feedback'], false))) : '');
+                $this->specific_post_data[$prefix . '_neg_feedback_class'] = ((isset($_POST[$prefix . '_neg_feedback_class']) and $_POST[$prefix . '_neg_feedback_class'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_neg_feedback_class'])) : '');
+
             }
         }
     }
@@ -560,10 +586,10 @@ class assStackQuestionGUI extends assQuestionGUI
 
 				//LOAD STORED DATA
                 $prt_data->name = $prt_name;
-                $prt_data->value = ((isset($_POST['prt_' . $prt_name . '_value']) and $_POST['prt_' . $prt_name . '_value'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_value'])) : '');
-                $prt_data->autosimplify = ((isset($_POST['prt_' . $prt_name . '_simplify']) and $_POST['prt_' . $prt_name . '_simplify'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_simplify'])) : '');
-                $prt_data->feedbackvariables = ((isset($_POST['prt_' . $prt_name . '_feedback_variables']) and $_POST['prt_' . $prt_name . '_feedback_variables'] != null) ? assStackQuestionUtils::_debugText($_POST['prt_' . $prt_name . '_feedback_variables']) : '');
-                $prt_data->firstnodename = ((isset($_POST['prt_' . $prt_name . '_first_node']) and $_POST['prt_' . $prt_name . '_first_node'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_first_node'])) : '');
+                $prt_data->value = $this->specific_post_data['prt_' . $prt_name . '_value'];
+                $prt_data->autosimplify = $this->specific_post_data['prt_' . $prt_name . '_simplify'];
+                $prt_data->feedbackvariables = $this->specific_post_data['prt_' . $prt_name . '_feedback_variables'];
+                $prt_data->firstnodename = $this->specific_post_data['prt_' . $prt_name . '_first_node'];
 
                 $prt_data->nodes = array();
 
@@ -578,26 +604,25 @@ class assStackQuestionGUI extends assQuestionGUI
                     $node->prtname = $prt_name;
                     $node->truenextnode = $this->specific_post_data[$prefix . '_pos_next'];
                     $node->falsenextnode = $this->specific_post_data[$prefix . '_neg_next'];
-                    $node->answertest = ((isset($_POST[$prefix . '_answer_test']) and $_POST[$prefix . '_answer_test'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_answer_test'])) : '');
-                    $node->sans = ((isset($_POST[$prefix . '_student_answer']) and $_POST[$prefix . '_student_answer'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_student_answer'])) : '');
-                    $node->tans = ((isset($_POST[$prefix . '_teacher_answer']) and $_POST[$prefix . '_teacher_answer'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_teacher_answer'])) : '');
-                    $node->testoptions = ((isset($_POST[$prefix . '_options']) and $_POST[$prefix . '_options'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_options'])) : '');
-                    $node->quiet = ((isset($_POST[$prefix . '_quiet']) and $_POST[$prefix . '_quiet'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_quiet'])) : '');
+                    $node->answertest = $this->specific_post_data[$prefix . '_answer_test'];
+                    $node->sans = $this->specific_post_data[$prefix . '_student_answer'];
+                    $node->tans = $this->specific_post_data[$prefix . '_teacher_answer'];
+                    $node->testoptions = $this->specific_post_data[$prefix . '_options'];
+                    $node->quiet = $this->specific_post_data[$prefix . '_quiet'];
 
-                    $node->truescore = ((isset($_POST[$prefix . '_pos_score']) and $_POST[$prefix . '_pos_score'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_score'])) : '');
-                    $node->truescoremode = ((isset($_POST[$prefix . '_pos_mod']) and $_POST[$prefix . '_pos_mod'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_mod'])) : '');
-                    $node->truepenalty = ((isset($_POST[$prefix . '_pos_penalty']) and $_POST[$prefix . '_pos_penalty'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_penalty'])) : '');
-                    $node->trueanswernote = ((isset($_POST[$prefix . '_pos_answernote']) and $_POST[$prefix . '_pos_answernote'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_pos_answernote'])) : '');
-                    $node->truefeedback = ((isset($_POST[$prefix . '_pos_specific_feedback']) and $_POST[$prefix . '_pos_specific_feedback'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST[$prefix . '_pos_specific_feedback'], false))) : '');
-                    $node->truefeedbackformat = ((isset($_POST[$prefix . '_pos_feedback_class']) and $_POST[$prefix . '_pos_feedback_class'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_pos_feedback_class'])) : '');
+                    $node->truescore = $this->specific_post_data[$prefix . '_pos_score'];
+                    $node->truescoremode = $this->specific_post_data[$prefix . '_pos_mod'];
+                    $node->truepenalty = $this->specific_post_data[$prefix . '_pos_penalty'];
+                    $node->trueanswernote = $this->specific_post_data[$prefix . '_pos_answernote'];
+                    $node->truefeedback = $this->specific_post_data[$prefix . '_pos_specific_feedback'];
+                    $node->truefeedbackformat = $this->specific_post_data[$prefix . '_pos_feedback_class'];
 
-                    $node->falsescore = ((isset($_POST[$prefix . '_neg_score']) and $_POST[$prefix . '_neg_score'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_score'])) : '');
-                    $node->falsescoremode = ((isset($_POST[$prefix . '_neg_mod']) and $_POST[$prefix . '_neg_mod'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_mod'])) : '');
-                    $node->falsepenalty = ((isset($_POST[$prefix . '_neg_penalty']) and $_POST[$prefix . '_neg_penalty'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_penalty'])) : '');
-                    $node->falseanswernote = ((isset($_POST[$prefix . '_neg_answernote']) and $_POST[$prefix . '_neg_answernote'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_neg_answernote'])) : '');
-                    $node->falsefeedback = ((isset($_POST[$prefix . '_neg_specific_feedback']) and $_POST[$prefix . '_neg_specific_feedback'] != null) ? ilRTE::_replaceMediaObjectImageSrc(trim(ilUtil::secureString($_POST[$prefix . '_neg_specific_feedback'], false))) : '');
-                    $node->falsefeedbackformat = ((isset($_POST[$prefix . '_neg_feedback_class']) and $_POST[$prefix . '_neg_feedback_class'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_neg_feedback_class'])) : '');
-
+                    $node->falsescore = $this->specific_post_data[$prefix . '_neg_score'];
+                    $node->falsescoremode = $this->specific_post_data[$prefix . '_neg_mod'];
+                    $node->falsepenalty = $this->specific_post_data[$prefix . '_neg_penalty'];
+                    $node->falseanswernote = $this->specific_post_data[$prefix . '_neg_answernote'];
+                    $node->falsefeedback = $this->specific_post_data[$prefix . '_neg_specific_feedback'];
+                    $node->falsefeedbackformat = $this->specific_post_data[$prefix . '_neg_feedback_class'];
                     $prt_data->nodes[$name] = $node;
                 }
 
@@ -745,27 +770,54 @@ class assStackQuestionGUI extends assQuestionGUI
 				}
 
 				//PRT Paste
-				if (isset($_POST['cmd']['save']['paste_prt'])) {
+				if (isset($_POST['cmd']['save']['paste_prt_' . $prt_name])) {
 
 					$raw_data = explode("_", $_SESSION['copy_prt']);
 					$original_question_id = $raw_data[0];
 					$original_prt_name = $raw_data[1];
 
-					//Generate the new prt name,
-					$generated_prt_name = "prt" . (string)rand(20, 1000);
+                    if (assStackQuestionDB::_copyPRTFunction($original_question_id, $original_prt_name, (string)$this->object->getId(), $prt_name)) {
+                        $prt_from_db_array = assStackQuestionDB::_readPRTs($this->object->getId());
 
-					if (assStackQuestionDB::_copyPRTFunction($original_question_id, $original_prt_name, (string)$this->object->getId(), $generated_prt_name)) {
+                        $prt_names = assStackQuestionUtils::_getPRTNamesFromQuestion($this->object->getQuestion(), $this->object->specific_feedback, $prt_from_db_array);
 
-						//Include placeholder in specific feedback
-						$current_specific_feedback = $this->object->specific_feedback;
-						$new_specific_feedback = "<p>" . $current_specific_feedback . "[[feedback:" . $generated_prt_name . "]]</p>";
-                        $this->specific_post_data["options_specific_feedback"] = $new_specific_feedback;
+                        $total_value = 0;
+                        $all_formative = true;
 
-						return true;
-					} else {
-						return false;
-					}
+                        foreach ($prt_names as $name) {
+                            // If not then we have just created the PRT.
+                            if (array_key_exists($name, $prt_from_db_array)) {
+                                $prt_data = $prt_from_db_array[$name];
 
+                                $total_value += $prt_data->value;
+                                $all_formative = false;
+                            } else {
+                                $this->object->loadStandardPRT($name);
+                            }
+                        }
+
+                        if ($prt_from_db_array && !$all_formative && $total_value < 0.0000001) {
+                            throw new stack_exception('There is an error authoring your question. ' .
+                                'The $totalvalue, the marks available for the question, must be positive in question ' .
+                                $this->object->getTitle());
+                        }
+
+                        foreach ($prt_names as $name) {
+                            if (array_key_exists($name, $prt_from_db_array)) {
+                                $prt_value = 0;
+                                if (!$all_formative) {
+                                    $prt_value = $prt_from_db_array[$name]->value / $total_value;
+                                }
+                                $this->object->prts[$name] = new stack_potentialresponse_tree_lite($prt_from_db_array[$name], $prt_value);
+                            } // If not we just added a PRT.
+                        }
+
+                        $this->generateSpecificPostData();
+
+                        return true;
+                    } else {
+                        return false;
+                    }
 				}
 
                 if (isset($_POST['cmd']['save']['add_prt'])) {

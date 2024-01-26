@@ -634,7 +634,7 @@ class assStackQuestionAuthoringGUI
 		//Paste prt
 		if (isset($_SESSION["copy_prt"])) {
 			$paste_prt = new ilButtonFormProperty($this->getPlugin()->txt('paste_prt'), 'paste_prt');
-			$paste_prt->setAction('paste_prt');
+			$paste_prt->setAction('paste_prt_' . $prt_name);
 			$paste_prt->setCommand('save');
 			$settings_column->addFormProperty($paste_prt);
 		} else {
