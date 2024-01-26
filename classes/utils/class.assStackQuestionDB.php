@@ -1855,11 +1855,23 @@ class assStackQuestionDB
 	 */
 	public static function _copyPRTFunction(string $original_question_id, string $original_prt_name, string $new_question_id, string $new_prt_name): bool
 	{
+        global $DIC;
+
+        //DELETE PRT
+        $delete_query = /** @lang text */
+            'DELETE FROM xqcas_prts WHERE question_id = ' . $DIC->database()->quote($new_question_id, 'integer') . ' AND name = ' . $DIC->database()->quote($new_prt_name, 'text');
+
+        $DIC->database()->manipulate($delete_query);
+
+        //DELETE NODES
+        $delete_query = /** @lang text */
+            'DELETE FROM xqcas_prt_nodes WHERE question_id = ' . $DIC->database()->quote($new_question_id, 'integer') . ' AND prt_name = ' . $DIC->database()->quote($new_prt_name, 'text');
+
+        $DIC->database()->manipulate($delete_query);
+
 		//Manage PRTS
 		$prts = self::_readPRTs($original_question_id);
 		$db_original_prt = $prts[$original_prt_name];
-
-		global $DIC;
 
 		//CREATE PRT WITH ORIGINAL PRT STATS IN NEW QUESTION
 		$DIC->database()->insert("xqcas_prts", array(
