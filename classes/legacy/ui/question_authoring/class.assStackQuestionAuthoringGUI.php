@@ -907,8 +907,7 @@ class assStackQuestionAuthoringGUI
 			$node_quiet->setValue($this->default["prt_node_quiet"]);
 		} else {
 			$answer_test->setValue($node->answertest);
-			//TODO no extra options
-            $node_options->setValue("");
+            $node_options->setValue($node->testoptions);
 			$node_quiet->setValue($node->quiet ? 1 : 0);
 		}
 
