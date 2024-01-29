@@ -630,6 +630,7 @@ prt_copied_to_clipboard#:#Rückmeldebaum in die Zwischenablage kopiert
 node_copied_to_clipboard#:#Knoten in die Zwischenablage kopiert
 node_paste#:#In dieser Frage wurde ein Knoten eingefügt
 prt_paste#:#In dieser Frage wurde ein Rückmeldebaum eingefügt
+prt_paste_error#:#Es gab einen Fehler beim Einfügen des PRT, vielleicht wurde das ursprüngliche PRT gelöscht
 srv_purpose#:#Verwendung
 srv_purpose_info#:#Wählen Sie "Testdurchlauf" um einen Maxima-Server exklusiv für zeitkritische Anfragen währen eines Tests zu reservieren, z.B. für E-Klausuren. Stellen Sie dann einen zweiten Server für alle anderen Anfragen bereit ("Erstellung/Bewertung").
 srv_purpose_run#:#Testdurchlauf

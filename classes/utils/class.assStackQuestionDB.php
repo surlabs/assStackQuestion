@@ -1868,68 +1868,77 @@ class assStackQuestionDB
 	{
         global $DIC;
 
-        //DELETE PRT
-        $delete_query = /** @lang text */
-            'DELETE FROM xqcas_prts WHERE question_id = ' . $DIC->database()->quote($new_question_id, 'integer') . ' AND name = ' . $DIC->database()->quote($new_prt_name, 'text');
-
-        $DIC->database()->manipulate($delete_query);
-
-        //DELETE NODES
-        $delete_query = /** @lang text */
-            'DELETE FROM xqcas_prt_nodes WHERE question_id = ' . $DIC->database()->quote($new_question_id, 'integer') . ' AND prt_name = ' . $DIC->database()->quote($new_prt_name, 'text');
-
-        $DIC->database()->manipulate($delete_query);
-
 		//Manage PRTS
 		$prts = self::_readPRTs($original_question_id);
-		$db_original_prt = $prts[$original_prt_name];
+        if (array_key_exists($original_prt_name, $prts)) {
+            $db_original_prt = $prts[$original_prt_name];
 
-		//CREATE PRT WITH ORIGINAL PRT STATS IN NEW QUESTION
-		$DIC->database()->insert("xqcas_prts", array(
-			"id" => array("integer", $DIC->database()->nextId('xqcas_prts')),
-			"question_id" => array("integer", (int)$new_question_id),
-			"name" => array("text", $new_prt_name),
-			"value" => array("text", $db_original_prt->value),
-			"auto_simplify" => array("integer", (int)$db_original_prt->autosimplify),
-			"feedback_variables" => array("clob", $db_original_prt->feedbackvariables),
-			"first_node_name" => array("text", $db_original_prt->firstnodename),
-		));
+            //DELETE PRT
+            $delete_query = /** @lang text */
+                'DELETE FROM xqcas_prts WHERE question_id = ' . $DIC->database()->quote($new_question_id, 'integer') . ' AND name = ' . $DIC->database()->quote($new_prt_name, 'text');
 
-		//Manage Nodes
-		$db_original_nodes = self::_readPRTNodes((int)$original_question_id, $original_prt_name);
-		foreach ($db_original_nodes as $node_id => $node) {
+            $DIC->database()->manipulate($delete_query);
 
-			//CREATE NODE WITH ORIGINAL NODE STATS IN NEW QUESTION PRT
-			$DIC->database()->insert("xqcas_prt_nodes", array(
-				"id" => array("integer", $DIC->database()->nextId('xqcas_prt_nodes')),
-				"question_id" => array("integer", (int)$new_question_id),
-				"prt_name" => array("text", $new_prt_name),
-				"node_name" => array("text", $node_id),
-				"answer_test" => array("text", $node->answertest),
-				"sans" => array("text", $node->sans),
-				"tans" => array("text", $node->tans),
-				"test_options" => array("text", $node->testoptions),
-				"quiet" => array("integer", (int)$node->quiet),
-				"true_score_mode" => array("text", $node->truescoremode),
-				"true_score" => array("text", $node->truescore),
-				"true_penalty" => array("text", $node->truepenalty),
-				"true_next_node" => array("text", $node->truenextnode),
-				"true_answer_note" => array("text", $new_prt_name . '-' . $node_id . '-T'),
-				"true_feedback" => array("clob", $node->truefeedback),
-				"true_feedback_format" => array("integer", (int)$node->truefeedbackformat),
-				"false_score_mode" => array("text", $node->falsescoremode),
-				"false_score" => array("text", $node->falsescore),
-				"false_penalty" => array("text", $node->falsepenalty),
-				"false_next_node" => array("text", $node->falsenextnode),
-				"false_answer_note" => array("text", $new_prt_name . '-' . $node_id . '-F'),
-				"false_feedback" => array("clob", $node->falsefeedback),
-				"false_feedback_format" => array("integer", (int)$node->falsefeedbackformat),
-			));
-		}
+
+            //CREATE PRT WITH ORIGINAL PRT STATS IN NEW QUESTION
+            $DIC->database()->insert("xqcas_prts", array(
+                "id" => array("integer", $DIC->database()->nextId('xqcas_prts')),
+                "question_id" => array("integer", (int)$new_question_id),
+                "name" => array("text", $new_prt_name),
+                "value" => array("text", $db_original_prt->value),
+                "auto_simplify" => array("integer", (int)$db_original_prt->autosimplify),
+                "feedback_variables" => array("clob", $db_original_prt->feedbackvariables),
+                "first_node_name" => array("text", $db_original_prt->firstnodename),
+            ));
+
+            //Manage Nodes
+            $db_original_nodes = self::_readPRTNodes((int)$original_question_id, $original_prt_name);
+
+            //DELETE NODES
+            $delete_query = /** @lang text */
+                'DELETE FROM xqcas_prt_nodes WHERE question_id = ' . $DIC->database()->quote($new_question_id, 'integer') . ' AND prt_name = ' . $DIC->database()->quote($new_prt_name, 'text');
+
+            $DIC->database()->manipulate($delete_query);
+
+            foreach ($db_original_nodes as $node_id => $node) {
+
+                //CREATE NODE WITH ORIGINAL NODE STATS IN NEW QUESTION PRT
+                $DIC->database()->insert("xqcas_prt_nodes", array(
+                    "id" => array("integer", $DIC->database()->nextId('xqcas_prt_nodes')),
+                    "question_id" => array("integer", (int)$new_question_id),
+                    "prt_name" => array("text", $new_prt_name),
+                    "node_name" => array("text", $node_id),
+                    "answer_test" => array("text", $node->answertest),
+                    "sans" => array("text", $node->sans),
+                    "tans" => array("text", $node->tans),
+                    "test_options" => array("text", $node->testoptions),
+                    "quiet" => array("integer", (int)$node->quiet),
+                    "true_score_mode" => array("text", $node->truescoremode),
+                    "true_score" => array("text", $node->truescore),
+                    "true_penalty" => array("text", $node->truepenalty),
+                    "true_next_node" => array("text", $node->truenextnode),
+                    "true_answer_note" => array("text", $new_prt_name . '-' . $node_id . '-T'),
+                    "true_feedback" => array("clob", $node->truefeedback),
+                    "true_feedback_format" => array("integer", (int)$node->truefeedbackformat),
+                    "false_score_mode" => array("text", $node->falsescoremode),
+                    "false_score" => array("text", $node->falsescore),
+                    "false_penalty" => array("text", $node->falsepenalty),
+                    "false_next_node" => array("text", $node->falsenextnode),
+                    "false_answer_note" => array("text", $new_prt_name . '-' . $node_id . '-F'),
+                    "false_feedback" => array("clob", $node->falsefeedback),
+                    "false_feedback_format" => array("integer", (int)$node->falsefeedbackformat),
+                ));
+            }
+
+            global $tpl;
+            $tpl->setOnScreenMessage('info', $DIC->language()->txt("qpl_qst_xqcas_prt_paste"), true);
+        } else {
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $DIC->language()->txt("qpl_qst_xqcas_prt_paste_error"), true);
+        }
+
 
 		unset($_SESSION['copy_prt']);
-        global $tpl;
-		$tpl->setOnScreenMessage('info', $DIC->language()->txt("qpl_qst_xqcas_prt_paste"), true);
 
 		return true;
 	}
