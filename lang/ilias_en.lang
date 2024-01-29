@@ -614,6 +614,7 @@ copy_node#:#Copy Node
 paste_node#:#Paste Node
 copy_prt#:#Copy Potential Response Tree
 paste_prt#:#Paste Potential Response Tree
+prt_paste_error#:#There was an error pasting the PRT maybe the original PRT has been deleted
 prt_copied_to_clipboard#:#Potential Response Tree copied to Clipboard
 node_copied_to_clipboard#:#Node copied to Clipboard
 node_paste#:#A Node has been pasted in this question

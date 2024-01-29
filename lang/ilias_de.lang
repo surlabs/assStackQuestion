@@ -624,6 +624,7 @@ copy_node#:#Knoten kopieren
 paste_node#:#Knoten einfügen
 copy_prt#:# Rückmeldebaum kopieren
 paste_prt#:#Rückmeldebaum einfügen
+prt_paste_error#:#Es gab einen Fehler beim Einfügen des PRT, vielleicht wurde das ursprüngliche PRT gelöscht
 prt_copied_to_clipboard#:#Rückmeldebaum in die Zwischenablage kopiert
 node_copied_to_clipboard#:#Knoten in die Zwischenablage kopiert
 node_paste#:#In dieser Frage wurde ein Knoten eingefügt
