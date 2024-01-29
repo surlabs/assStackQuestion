@@ -1092,7 +1092,7 @@ class assStackQuestionUtils
 				'strictSyntax' => $input_data['strict_syntax'],
 				'insertStars' => $input_data['insert_stars'],
 				'syntaxHint' => $input_data['syntax_hint'],
-				'syntaxAttribute' => $input_data['syntax_attribute'],
+				'syntaxAttribute' => array_key_exists('syntax_attribute', $input_data) ? $input_data['syntax_attribute'] : '', // To support old questions
 				'forbidWords' => $input_data['forbid_words'],
 				'allowWords' => $input_data['allow_words'],
 				'forbidFloats' => $input_data['forbid_float'],
