@@ -216,7 +216,7 @@ class assStackQuestionMoodleImport
 
 		//question note
 		if (isset($question->questionnote->text)) {
-			$this->getQuestion()->question_note = ilUtil::secureString((string)$question->questionnote->text);
+			$this->getQuestion()->question_note = (string)$question->questionnote->text;
 		}
 
 		//prt correct feedback
@@ -225,7 +225,7 @@ class assStackQuestionMoodleImport
 			$mapping = $this->getMediaObjectsFromXML($question->prtcorrect->file);
 			$prt_correct = $this->replaceMediaObjectReferences($prt_correct, $mapping);
 		}
-		$this->getQuestion()->prt_correct = ilUtil::secureString($prt_correct);
+		$this->getQuestion()->prt_correct = $prt_correct;
 
 		$this->getQuestion()->prt_correct_format = 1;
 
@@ -235,7 +235,7 @@ class assStackQuestionMoodleImport
 			$mapping = $this->getMediaObjectsFromXML($question->prtpartiallycorrect->file);
 			$prt_partially_correct = $this->replaceMediaObjectReferences($prt_partially_correct, $mapping);
 		}
-		$this->getQuestion()->prt_partially_correct = ilUtil::secureString($prt_partially_correct);
+		$this->getQuestion()->prt_partially_correct = $prt_partially_correct;
 
 		$this->getQuestion()->prt_partially_correct_format = 1;
 
@@ -245,7 +245,7 @@ class assStackQuestionMoodleImport
 			$mapping = $this->getMediaObjectsFromXML($question->prtincorrect->file);
 			$prt_incorrect = $this->replaceMediaObjectReferences($prt_incorrect, $mapping);
 		}
-		$this->getQuestion()->prt_incorrect = ilUtil::secureString($prt_incorrect);
+		$this->getQuestion()->prt_incorrect = $prt_incorrect;
 		$this->getQuestion()->prt_incorrect_format = 1;
 
 		//variants selection seeds
@@ -357,13 +357,13 @@ class assStackQuestionMoodleImport
                 $node->truepenalty = (float) $node_data->truepenalty;
                 $node->truenextnode = ilUtil::secureString((string) $node_data->truenextnode);
                 $node->trueanswernote = ilUtil::secureString((string) $node_data->trueanswernote);
-                $node->truefeedback = ilUtil::secureString((string) $node_data->truefeedback->text);
+                $node->truefeedback = (string) $node_data->truefeedback->text;
                 $node->falsescoremode = ilUtil::secureString((string) $node_data->falsescoremode);
                 $node->falsescore = ilUtil::secureString((string) $node_data->falsescore);
                 $node->falsepenalty = (float) $node_data->falsepenalty;
                 $node->falsenextnode = ilUtil::secureString((string) $node_data->falsenextnode);
                 $node->falseanswernote = ilUtil::secureString((string) $node_data->falseanswernote);
-                $node->falsefeedback = ilUtil::secureString((string) $node_data->falsefeedback->text);
+                $node->falsefeedback = (string) $node_data->falsefeedback->text;
 
                 $temp_prt_data->nodes[$node->nodename] = $node;
             }
@@ -400,7 +400,7 @@ class assStackQuestionMoodleImport
 				$mapping = $this->getMediaObjectsFromXML($question->generalfeedback->file);
 				$general_feedback = $this->replaceMediaObjectReferences($general_feedback, $mapping);
 			}
-			$this->getQuestion()->general_feedback = ilUtil::secureString($general_feedback);
+			$this->getQuestion()->general_feedback = $general_feedback;
 		}
 
 		//Penalty
