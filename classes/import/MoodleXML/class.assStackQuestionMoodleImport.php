@@ -209,7 +209,7 @@ class assStackQuestionMoodleImport
 				$mapping = $this->getMediaObjectsFromXML($question->specificfeedback->file);
 				$specific_feedback = $this->replaceMediaObjectReferences($specific_feedback, $mapping);
 			}
-			$this->getQuestion()->specific_feedback = ilUtil::secureString($specific_feedback);
+			$this->getQuestion()->specific_feedback = $specific_feedback;
 
 			$this->getQuestion()->specific_feedback_format = 1;
 		}
