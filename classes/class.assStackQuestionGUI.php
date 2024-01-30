@@ -421,6 +421,8 @@ class assStackQuestionGUI extends assQuestionGUI
     {
         $this->specific_post_data = array();
 
+        $this->specific_post_data["question_text"] = ((isset($_POST['question']) and $_POST['question'] != null) ? ilUtil::stripSlashes($_POST['question'], true, $this->getRTETags()) : '');
+
         $this->specific_post_data["options_specific_feedback"] = ((isset($_POST['options_specific_feedback']) and $_POST['options_specific_feedback'] != null) ? ilUtil::stripSlashes($_POST['options_specific_feedback'], true, $this->getRTETags()) : '');
 
         foreach ($this->object->prts as $prt_name => $prt) {
@@ -469,7 +471,7 @@ class assStackQuestionGUI extends assQuestionGUI
         global $tpl;
 
 		//Question Text - Reload it with RTE (already loaded in writeQuestionGenericPostData())
-		$question_text = ((isset($_POST['question']) and $_POST['question'] != null) ? ilUtil::stripSlashes($_POST['question'], true, $this->getRTETags()) : '');
+		$question_text = $this->specific_post_data["question_text"];
 		$this->object->setQuestion(ilRTE::_replaceMediaObjectImageSrc($question_text, 1));
 
 		//stack_options
@@ -795,6 +797,33 @@ class assStackQuestionGUI extends assQuestionGUI
                         return false;
                     }
 				}
+
+                //Delete PRT
+                if (isset($_POST['cmd']['save']['delete_full_prt_' . $prt_name])) {
+
+                    if (sizeof($this->object->prts) < 2) {
+                        $tpl->setOnScreenMessage('failure', $this->object->getPlugin()->txt('deletion_error_not_enought_prts'));
+                        return false;
+                    }
+
+                    $new_prts = $this->object->prts;
+                    unset($new_prts[$prt_name]);
+
+                    $current_question_text = $this->object->getQuestion();
+                    $new_question_text = str_replace("[[feedback:" . $prt_name . "]]", "", $current_question_text);
+                    $this->specific_post_data["question_text"] = $new_question_text;
+
+                    $current_specific_feedback = $this->object->specific_feedback;
+                    $new_specific_feedback = str_replace("[[feedback:" . $prt_name . "]]", "", $current_specific_feedback);
+                    $this->specific_post_data["options_specific_feedback"] = $new_specific_feedback;
+
+                    $this->object->prts = $new_prts;
+
+                    assStackQuestionDB::_deleteStackPrts($this->object->getId(), $prt_name);
+
+                    $tpl->setOnScreenMessage('success', "prt deleted", true);
+                    return true;
+                }
 
 				//NODE OPERATIONS
 				foreach ($prt->get_nodes() as $node_name => $node) {

@@ -628,6 +628,11 @@ class assStackQuestionAuthoringGUI
 		}
 		$settings_column->addFormProperty($prt_name_input);
 
+        $delete_prt = new ilButtonFormProperty($this->getPlugin()->txt('delete_prt'), 'delete_full_prt_' . $prt_name);
+        $delete_prt->setAction('delete_full_prt_' . $prt_name);
+        $delete_prt->setCommand('save');
+        $settings_column->addFormProperty($delete_prt);
+
 		$prt_first_node = new ilSelectInputGUI($this->getPlugin()->txt('prt_first_node'), 'prt_' . $prt_name . '_first_node');
 		$node_list = array();
 		//Get list of nodes
@@ -731,10 +736,6 @@ class assStackQuestionAuthoringGUI
 		$prt_feedback_variables_info_text .= $this->addInfoTooltip("cas_expression");
 		$prt_feedback_variables->setInfo($prt_feedback_variables_info_text);
 
-		//$delete_prt = new ilButtonFormProperty($this->getPlugin()->txt('delete_prt'), 'delete_full_prt_' . $prt_name);
-		//$delete_prt->setAction('delete_full_prt_' . $prt_name);
-		//$delete_prt->setCommand('save');
-
 		//Set value of parts in case there are parts.
 		$prt_value->setValue($prt->get_value());
 		//Set value if exists if not default values
@@ -749,7 +750,6 @@ class assStackQuestionAuthoringGUI
 		$settings->addFormProperty($prt_value);
 		$settings->addFormProperty($prt_simplify);
 		$settings->addFormProperty($prt_feedback_variables);
-		//$settings->addFormProperty($delete_prt);
 
 		$part->addPart($settings);
 

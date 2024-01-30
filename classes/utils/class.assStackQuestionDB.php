@@ -1158,7 +1158,7 @@ class assStackQuestionDB
 	 * @param string $prt_name
 	 * @return bool
 	 */
-	private static function _deleteStackPrts(int $question_id, string $prt_name = ''): bool
+	public static function _deleteStackPrts(int $question_id, string $prt_name = ''): bool
 	{
 		global $DIC;
 		$db = $DIC->database();
