@@ -73,6 +73,11 @@ class StackRenderIlias extends StackRender
         }
 
         $feedback = $result->get_feedback($question->getCasTextProcessor());
+
+        if ($feedback === null || $feedback === "") {
+            return "";
+        }
+
         // The feedback does not come as bits anymore the whole thing is concatenated in CAS
         // and CASText converts any formats to HTML already, plugin files as well.
         $feedback = stack_maths::process_display_castext($feedback);
