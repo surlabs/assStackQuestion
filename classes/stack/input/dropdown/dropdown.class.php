@@ -599,7 +599,7 @@ class stack_dropdown_input extends stack_input {
         return false;
     }
 
-    protected function get_input_ddl_key($value) {
+    public function get_input_ddl_key($value) {
         foreach ($this->ddlvalues as $key => $val) {
             if ($val['value'] == $value) {
                 return $key;

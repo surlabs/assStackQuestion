@@ -1571,4 +1571,27 @@ class assStackQuestionUtils
 
         return $newArray;
     }
+
+    /**
+     * @param string $data
+     * @param stack_dropdown_input $input
+     * @return array
+     */
+    public static function checkBoxResponseToResponse(string $data, stack_dropdown_input $input): array
+    {
+        $data = str_replace('[', '', $data);
+        $data = str_replace(']', '', $data);
+        $data = explode(',', $data);
+
+        $newArray = array();
+
+        foreach ($data as $value) {
+            $index = $input->get_input_ddl_key($value);
+
+            $key = $input->get_name() . "_" . $index;
+            $newArray[$key] = $index;
+        }
+
+        return $newArray;
+    }
 }
