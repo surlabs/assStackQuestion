@@ -452,7 +452,7 @@ class assStackQuestionGUI extends assQuestionGUI
             $this->specific_post_data['prt_' . $prt_name . '_feedback_variables'] = ((isset($_POST['prt_' . $prt_name . '_feedback_variables']) and $_POST['prt_' . $prt_name . '_feedback_variables'] != null) ? assStackQuestionUtils::_debugText($_POST['prt_' . $prt_name . '_feedback_variables']) : '');
             $this->specific_post_data['prt_' . $prt_name . '_first_node'] = ((isset($_POST['prt_' . $prt_name . '_first_node']) and $_POST['prt_' . $prt_name . '_first_node'] != null) ? trim(ilUtil::secureString($_POST['prt_' . $prt_name . '_first_node'])) : '');
 
-            foreach ($this->object->prts[$prt_name]->get_nodes_summary() as $name => $node) {
+            foreach ($this->object->prts[$prt_name]->get_nodes() as $name => $node) {
                 $prefix = 'prt_' . $prt_name . '_node_' . $name;
 
                 $this->specific_post_data[$prefix . '_description'] = (isset($_POST[$prefix . '_description']) and $_POST[$prefix . '_description'] != null) ? $_POST[$prefix . '_description'] : '';
@@ -593,7 +593,7 @@ class assStackQuestionGUI extends assQuestionGUI
                 $prt_data->nodes = array();
 
 				//Look for node info
-				foreach ($this->object->prts[$prt_name]->get_nodes_summary() as $name => $node) {
+				foreach ($this->object->prts[$prt_name]->get_nodes() as $name => $node) {
 					$prefix = 'prt_' . $prt_name . '_node_' . $name;
 
                     $node = new stdClass();
@@ -811,7 +811,37 @@ class assStackQuestionGUI extends assQuestionGUI
                             } // If not we just added a PRT.
                         }
 
-                        $this->generateSpecificPostData();
+                        $this->specific_post_data['prt_' . $prt_name . '_value'] = $prt_from_db_array[$prt_name]->value;
+                        $this->specific_post_data['prt_' . $prt_name . '_simplify'] = $prt_from_db_array[$prt_name]->autosimplify;
+                        $this->specific_post_data['prt_' . $prt_name . '_feedback_variables'] = $prt_from_db_array[$prt_name]->feedbackvariables;
+                        $this->specific_post_data['prt_' . $prt_name . '_first_node'] = $prt_from_db_array[$prt_name]->firstnodename;
+
+                        foreach ($this->object->prts[$prt_name]->get_nodes() as $node_name => $node) {
+                            $prefix = 'prt_' . $prt_name . '_node_' . $node_name;
+
+                            $this->specific_post_data[$prefix . '_description'] = $node->description;
+                            $this->specific_post_data[$prefix . '_pos_next'] = $node->truenextnode;
+                            $this->specific_post_data[$prefix . '_neg_next'] = $node->falsenextnode;
+                            $this->specific_post_data[$prefix . '_answer_test'] = $node->answertest;
+                            $this->specific_post_data[$prefix . '_student_answer'] = $node->sans;
+                            $this->specific_post_data[$prefix . '_teacher_answer'] = $node->tans;
+                            $this->specific_post_data[$prefix . '_options'] = $node->testoptions;
+                            $this->specific_post_data[$prefix . '_quiet'] = $node->quiet;
+
+                            $this->specific_post_data[$prefix . '_pos_score'] = $node->truescore;
+                            $this->specific_post_data[$prefix . '_pos_mod'] = $node->truescoremode;
+                            $this->specific_post_data[$prefix . '_pos_penalty'] = $node->truepenalty;
+                            $this->specific_post_data[$prefix . '_pos_answernote'] = $node->trueanswernote;
+                            $this->specific_post_data[$prefix . '_pos_specific_feedback'] = $node->truefeedback;
+                            $this->specific_post_data[$prefix . '_pos_feedback_class'] = $node->truefeedbackformat;
+
+                            $this->specific_post_data[$prefix . '_neg_score'] = $node->falsescore;
+                            $this->specific_post_data[$prefix . '_neg_mod'] = $node->falsescoremode;
+                            $this->specific_post_data[$prefix . '_neg_penalty'] = $node->falsepenalty;
+                            $this->specific_post_data[$prefix . '_neg_answernote'] = $node->falseanswernote;
+                            $this->specific_post_data[$prefix . '_neg_specific_feedback'] = $node->falsefeedback;
+                            $this->specific_post_data[$prefix . '_neg_feedback_class'] = $node->falsefeedbackformat;
+                        };
 
                         return true;
                     } else {
