@@ -134,6 +134,9 @@ class assStackQuestionGUI extends assQuestionGUI
                     foreach (assStackQuestionUtils::checkBoxResponseToResponse($input["value"], $this->object->inputs[$input_name]) as $key => $value) {
                         $temp_user_response[$key] = $value;
                     }
+
+                } else if ($input_type == "stack_radio_input") {
+                    $temp_user_response[$input_name] = $this->object->inputs[$input_name]->get_input_ddl_key($input["value"]);
                 } else if ($input_type == "stack_dropdown_input") {
                     $temp_user_response[$input_name] = $this->object->inputs[$input_name]->get_input_ddl_key($input["value"]);
                 } else {
@@ -237,6 +240,8 @@ class assStackQuestionGUI extends assQuestionGUI
                     foreach (assStackQuestionUtils::checkBoxResponseToResponse($input["value"], $this->object->inputs[$input_name]) as $key => $value) {
                         $temp_user_response[$key] = $value;
                     }
+                } else if ($input_type == "stack_radio_input") {
+                    $temp_user_response[$input_name] = $this->object->inputs[$input_name]->get_input_ddl_key($input["value"]);
                 } else if ($input_type == "stack_dropdown_input") {
                     $temp_user_response[$input_name] = $this->object->inputs[$input_name]->get_input_ddl_key($input["value"]);
                 } else {
