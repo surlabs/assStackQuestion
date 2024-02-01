@@ -3641,4 +3641,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     {
         $this->cas_text_processor = $cas_text_processor;
     }
+
+    public function saveQuestionDataToDb($original_id = "")
+    {
+        parent::saveQuestionDataToDb(((int) $original_id != -1 && (int) $original_id != 0) ? $original_id : null);
+    }
 }
