@@ -142,6 +142,8 @@ class assStackQuestionGUI extends assQuestionGUI
                 } else {
                     $temp_user_response[$input_name] = $input["value"];
                 }
+
+                $temp_user_response[$input_name . '_validation'] = $input["validation_display"];
             }
             $user_response = $temp_user_response;
         }
@@ -247,6 +249,8 @@ class assStackQuestionGUI extends assQuestionGUI
                 } else {
                     $temp_user_response[$input_name] = $input["value"];
                 }
+
+                $temp_user_response[$input_name . '_validation'] = $input["validation_display"];
             }
             $user_response = $temp_user_response;
         }
