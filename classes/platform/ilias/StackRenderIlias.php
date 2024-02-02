@@ -72,11 +72,8 @@ class StackRenderIlias extends StackRender
             $error_message = $renderer->render($factory->messageBox()->failure($error_message));
         }
 
+        $feedback = '';
         $feedback = $result->get_feedback($question->getCasTextProcessor());
-
-        if ($feedback === null || $feedback === "") {
-            return "";
-        }
 
         // The feedback does not come as bits anymore the whole thing is concatenated in CAS
         // and CASText converts any formats to HTML already, plugin files as well.
@@ -99,6 +96,8 @@ class StackRenderIlias extends StackRender
         //$s = get_string('symbolicprt' . $class . 'feedback', 'qtype_stack');
         //return html_writer::tag('span', $s, array('class' => $class));
         //}
+
+        $prt_feedback_instantiated = '';
 
         switch ($state) {
             case 'incorrect':
@@ -124,6 +123,11 @@ class StackRenderIlias extends StackRender
                 break;
             default:
                 throw new StackException('Invalid state.');
+        }
+
+
+        if (trim($prt_feedback_instantiated) === '' && trim($feedback) === '') {
+            return '';
         }
 
         //$tag = 'div';
