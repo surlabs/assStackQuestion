@@ -188,10 +188,6 @@ class assStackQuestionImport extends assQuestionImport
             }
 
             //PRTs
-            /* @var assStackQuestionPRT $prt */
-            /* @var assStackQuestionPRTNode $node */
-            //$this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionPRT.php");
-            //$this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionPRTNode.php");
             $prts_from_import = unserialize(base64_decode($item->getMetadataEntry('prts')));
             foreach ($prts_from_import as $prt_name => $prt) {
                 foreach ($prt->getPRTNodes() as $node_name => $node) {
