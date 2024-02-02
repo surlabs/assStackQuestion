@@ -1862,13 +1862,6 @@ class assStackQuestionDB
         if (array_key_exists($original_prt_name, $prts)) {
             $db_original_prt = $prts[$original_prt_name];
 
-            //DELETE PRT
-            $delete_query = /** @lang text */
-                'DELETE FROM xqcas_prts WHERE question_id = ' . $DIC->database()->quote($new_question_id, 'integer') . ' AND name = ' . $DIC->database()->quote($new_prt_name, 'text');
-
-            $DIC->database()->manipulate($delete_query);
-
-
             //CREATE PRT WITH ORIGINAL PRT STATS IN NEW QUESTION
             $DIC->database()->insert("xqcas_prts", array(
                 "id" => array("integer", $DIC->database()->nextId('xqcas_prts')),
@@ -1882,12 +1875,6 @@ class assStackQuestionDB
 
             //Manage Nodes
             $db_original_nodes = self::_readPRTNodes((int)$original_question_id, $original_prt_name);
-
-            //DELETE NODES
-            $delete_query = /** @lang text */
-                'DELETE FROM xqcas_prt_nodes WHERE question_id = ' . $DIC->database()->quote($new_question_id, 'integer') . ' AND prt_name = ' . $DIC->database()->quote($new_prt_name, 'text');
-
-            $DIC->database()->manipulate($delete_query);
 
             foreach ($db_original_nodes as $node_id => $node) {
 
