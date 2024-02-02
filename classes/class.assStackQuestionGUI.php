@@ -803,49 +803,35 @@ class assStackQuestionGUI extends assQuestionGUI
 					$original_question_id = $raw_data[0];
 					$original_prt_name = $raw_data[1];
 
-                    if (assStackQuestionDB::_copyPRTFunction($original_question_id, $original_prt_name, (string)$this->object->getId(), $prt_name)) {
+                    $generated_prt_name = "prt" . rand(20, 1000);
+
+                    if (assStackQuestionDB::_copyPRTFunction($original_question_id, $original_prt_name, (string)$this->object->getId(), $generated_prt_name)) {
+                        //Include placeholder in specific feedback
+                        $current_specific_feedback = $this->object->specific_feedback;
+                        $new_specific_feedback = "<p>" . $current_specific_feedback . "[[feedback:" . $generated_prt_name . "]]</p>";
+                        $this->specific_post_data["options_specific_feedback"] = $new_specific_feedback;
+
                         $prt_from_db_array = assStackQuestionDB::_readPRTs($this->object->getId());
 
-                        $prt_names = assStackQuestionUtils::_getPRTNamesFromQuestion($this->object->getQuestion(), $this->object->specific_feedback, $prt_from_db_array);
-
                         $total_value = 0;
-                        $all_formative = true;
 
-                        foreach ($prt_names as $name) {
-                            // If not then we have just created the PRT.
-                            if (array_key_exists($name, $prt_from_db_array)) {
-                                $prt_data = $prt_from_db_array[$name];
 
-                                $total_value += $prt_data->value;
-                                $all_formative = false;
-                            } else {
-                                $this->object->loadStandardPRT($name);
-                            }
+                        foreach ($prt_from_db_array as $prtdt) {
+                            $total_value += $prtdt->value;
                         }
 
-                        if ($prt_from_db_array && !$all_formative && $total_value < 0.0000001) {
-                            throw new stack_exception('There is an error authoring your question. ' .
-                                'The $totalvalue, the marks available for the question, must be positive in question ' .
-                                $this->object->getTitle());
+                        foreach ($prt_from_db_array as $name => $prtdt) {
+                            $prt_value = $prtdt->value / $total_value;
+                            $this->object->prts[$name] = new stack_potentialresponse_tree_lite($prtdt, $prt_value);
                         }
 
-                        foreach ($prt_names as $name) {
-                            if (array_key_exists($name, $prt_from_db_array)) {
-                                $prt_value = 0;
-                                if (!$all_formative) {
-                                    $prt_value = $prt_from_db_array[$name]->value / $total_value;
-                                }
-                                $this->object->prts[$name] = new stack_potentialresponse_tree_lite($prt_from_db_array[$name], $prt_value);
-                            } // If not we just added a PRT.
-                        }
+                        $this->specific_post_data['prt_' . $generated_prt_name . '_value'] = $prt_from_db_array[$generated_prt_name]->value;
+                        $this->specific_post_data['prt_' . $generated_prt_name . '_simplify'] = $prt_from_db_array[$generated_prt_name]->autosimplify;
+                        $this->specific_post_data['prt_' . $generated_prt_name . '_feedback_variables'] = $prt_from_db_array[$generated_prt_name]->feedbackvariables;
+                        $this->specific_post_data['prt_' . $generated_prt_name . '_first_node'] = $prt_from_db_array[$generated_prt_name]->firstnodename;
 
-                        $this->specific_post_data['prt_' . $prt_name . '_value'] = $prt_from_db_array[$prt_name]->value;
-                        $this->specific_post_data['prt_' . $prt_name . '_simplify'] = $prt_from_db_array[$prt_name]->autosimplify;
-                        $this->specific_post_data['prt_' . $prt_name . '_feedback_variables'] = $prt_from_db_array[$prt_name]->feedbackvariables;
-                        $this->specific_post_data['prt_' . $prt_name . '_first_node'] = $prt_from_db_array[$prt_name]->firstnodename;
-
-                        foreach ($this->object->prts[$prt_name]->get_nodes() as $node_name => $node) {
-                            $prefix = 'prt_' . $prt_name . '_node_' . $node_name;
+                        foreach ($this->object->prts[$generated_prt_name]->get_nodes() as $node_name => $node) {
+                            $prefix = 'prt_' . $generated_prt_name . '_node_' . $node_name;
 
                             $this->specific_post_data[$prefix . '_description'] = $node->description;
                             $this->specific_post_data[$prefix . '_pos_next'] = $node->truenextnode;
