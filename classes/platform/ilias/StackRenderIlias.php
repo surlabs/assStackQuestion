@@ -223,6 +223,7 @@ class StackRenderIlias extends StackRender
 
             //Do not show validation in some inputs
             $validation_button = '';
+            $validation_rendered = '';
             if (($input->get_parameter('showValidation') != 0)) {
                 if (!is_a($input, 'stack_radio_input') &&
                     !is_a($input, 'stack_dropdown_input') &&
@@ -231,6 +232,7 @@ class StackRenderIlias extends StackRender
                 ) {
                     if (!$instant_validation) {
                         $validation_button = self::_renderValidationButton((int)$question->getId(), $input_name);
+                        $validation_rendered = $response[$input_name . '_validation'] ?? '';
                     }
                 }
             }
@@ -244,7 +246,7 @@ class StackRenderIlias extends StackRender
 
             //Validation Placeholders
             if (is_a($input, 'stack_matrix_input')) {
-                $ilias_validation = '<div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '"></div>
+                $ilias_validation = '<div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">' . $validation_rendered. '</div>
                 <div class="xqcas_input_validation">
                     <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '"></div>
                 </div>' .
@@ -253,7 +255,7 @@ class StackRenderIlias extends StackRender
             } else {
                 $ilias_validation = '<div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '"></div>
                 <div class="xqcas_input_validation">
-                    <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '"></div>
+                    <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">' . $validation_rendered. '</div>
                 </div>';
             }
 
