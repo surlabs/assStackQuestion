@@ -18,13 +18,13 @@ STACK is the world-leading open-source online assessment system for mathematics 
 ## Installation & Update
 
 ### Software Requirements
-STACK requires [PHP](https://php.net) version 7.4 to work properly on your ILIAS platform
+STACK requires [PHP](https://php.net) version 7.4 to work properly on your ILIAS 7 platform
 
 STACK requires the [mbstring](https://www.php.net/manual/en/book.mbstring.php) PHP library to run properly, this library is by default included in ILIAS, but please ensure your installation includes that library on the composer.json dependencies.
 
 STACK requires [Maxima](https://maxima.sourceforge.io/), an Open-Source Computer Algebra System to work. Ensure you have Maxima instance installed on the web server running your ILIAS installation, or you have a Maxima Pool / Goemaxima connection before installing this plugin in your platform.
 * If you are using a local Maxima Installation, ensure it is at least Maxima **5.44**
-* If you are using MaximaPool or GoeMaxima, the expected compiled version is **2023121100**
+* If you are using MaximaPool or GoeMaxima, the currently expected compiled version is **2023121100**
 
 STACK requires [GNUPlot](https://www.gnuplot.info), which is used by Maxima to generate graphical plots of functions etc. It is freely available
 and part of most Linux distrubutions. GNUplot needs to be installed on the web server
@@ -37,7 +37,7 @@ to display maths in question, user input validation and feedback. It can either 
 cdn.mathjax.org or downloaded to your own web server. It has to be configured in ILIAS:
 
 1. Administration > Third Party Software > MathJax
-2. Enable MathJax and enter the URL to MathJax (local or proposed cdn)
+2. Enable MathJax and enter the URL to MathJax (Currently only MathJax rendered in browser option is supported)
 3. Save
 
 ### Installation steps
@@ -47,7 +47,7 @@ cdn.mathjax.org or downloaded to your own web server. It has to be configured in
 ```bash
 git clone https://github.com/surlabs/STACK.git ./assStackQuestion
 cd assStackQuestion
-git checkout ilias7_stack_dev
+git checkout ilias7_stack
 ```
 3. STACK uses the ILIAS composer autoloader functionality so, after installing or update the plugin, ensure you run on the ILIAS root folder
 ```bash
@@ -79,12 +79,12 @@ php setup/setup.php update
 - SIG Mathe [Forum](https://docu.ilias.de/goto_docu_frm_7004.html)
 
 # Version History
-* The stable version 8.5.x for **ILIAS 8** with the STACK Core version 4.5.0 can be found in the Github branch **ilias8_stack_dev**
-* The stable version 8.0.x for **ILIAS 8** with the STACK Core version 4.3.9 can be found in the Github branch **ilias8_stack**
-* The stable version 7.5.x for **ILIAS 7.13+** with the STACK Core version 4.5.0 can be found in the Github branch **ilias7_stack_dev**
-* The stable version 7.0.x for **ILIAS 7.13+** with the STACK Core version 4.3.9 can be found in the Github branch **ilias7_stack**
-* The stable version 3.5 for **ILIAS 7.13+** with the STACK Core version 4.2.2 can be found in the Github branch **unmaintained_ilias713_stack** is on only security issues mode.
-* The stable version 3.4.3 for **ILIAS <= 7.12** with the STACK Core version 4.2.2 can be found in the Github branch **unmaintained_ilias7_stack** is on only security issues mode.
+* The stable version 8.5.x for **ILIAS 8** with the STACK Core version 4.5.0 can be found in the Github branch **ilias8_stack**
+* The stable version 8.0.x for **ILIAS 8** with the STACK Core version 4.3.9 can be found in the Github branch **unmaintained_ilias8_stack** is on only security issues mode.
+* The stable version 7.5.x for **ILIAS 7.13+** with the STACK Core version 4.5.0 can be found in the Github branch **ilias7_stack**
+* The stable version 7.0.x for **ILIAS 7.13+** with the STACK Core version 4.3.9 can be found in the Github branch **unmaintained_ilias7_stack** is on only security issues mode.
+* The stable version 3.5 for **ILIAS 7.13+** with the STACK Core version 4.2.2 can be found in the Github branch **unmaintained_ilias713_stack** is no longer maintained.
+* The stable version 3.4.3 for **ILIAS <= 7.12** with the STACK Core version 4.2.2 can be found in the Github branch **unmaintained_ilias7_stack** is no longer maintained.
 * The stable version 3.2.x for **ILIAS 6** is no longer maintained.
 * The stable version 3.1.x for **ILIAS 5.4** is no longer maintained
 * The stable version 3.0.x for **ILIAS 5.3** is no longer maintained
