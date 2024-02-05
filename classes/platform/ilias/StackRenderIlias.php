@@ -236,8 +236,8 @@ class StackRenderIlias extends StackRender
                 ) {
                     if (!$instant_validation) {
                         $validation_button = self::_renderValidationButton((int)$question->getId(), $input_name);
-                        $validation_rendered = $response[$input_name . '_validation'] ?? '';
                     }
+                    $validation_rendered = $response[$input_name . '_validation'] ?? '';
                 }
             }
 
