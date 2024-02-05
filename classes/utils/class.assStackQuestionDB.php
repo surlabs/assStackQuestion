@@ -2147,18 +2147,60 @@ class assStackQuestionDB
     /**
      * Save a preview solution for a question
      *
-     * @param int $question_id
+     * @param assStackQuestion $question
      * @param array $data
      * @return void
+     * @throws stack_exception
      */
-    public static function _savePreviewSolution(int $question_id, array $data) :void {
+    public static function _savePreviewSolution(assStackQuestion $question, array $data) :void {
         global $DIC;
         $db = $DIC->database();
+
+        //Instantiate Question if not.
+        if (!$question->isInstantiated()) {
+            try{
+                $question->questionInitialisation(1, true);
+            } catch (stack_exception $e) {
+                global $tpl;
+                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
+            }
+        }
+
+        foreach ($data as $input_name => $response) {
+            if (array_key_exists($input_name, $question->inputs)) {
+                if (array_key_exists($input_name, $question->getTas())) {
+                    if ($question->getTas($input_name)->is_correctly_evaluated()) {
+                        $teacher_answer = $question->getTas($input_name)->get_value();
+
+                        if (is_a($input = $question->inputs[$input_name], 'stack_matrix_input')) {
+                            $user_response[$input_name] = $input->maxima_to_response_array($data[$input_name]);
+                        } else {
+                            $user_response[$input_name] = $data[$input_name];
+                        }
+                        if ($question->getCached('statement-qv') !== null) {
+                            /** @var TYPE_NAME $question */
+                            $question->inputs[$input_name]->add_contextsession(new stack_secure_loader($question->getCached('statement-qv'), 'qv'));
+                        }
+                        $status = $question->inputs[$input_name]->validate_student_response($user_response, $question->options, $teacher_answer, $question->getSecurity());
+
+                        $data[$input_name . "_validation"] = stack_maxima_latex_tidy($question->inputs[$input_name]->render_validation($status, $input_name));
+                    } else {
+                        global $tpl;
+                        $tpl->setOnScreenMessage('failure', "not properly evaluated", true);
+                        break;
+                    }
+                } else {
+                    global $tpl;
+                    $tpl->setOnScreenMessage('failure', "no teacher answer on this input", true);
+                    break;
+                }
+            }
+        }
 
         $db->update("xqcas_preview", array(
             'submitted_answer' => array('clob', json_encode($data))
         ), array(
-            'question_id' => array('integer', $question_id),
+            'question_id' => array('integer', $question->getId()),
             'user_id' => array('integer', $DIC->user()->getId()),
             'is_active' => array('integer', 1)
         ));
