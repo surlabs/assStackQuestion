@@ -1260,14 +1260,14 @@ class assStackQuestionUtils
                     }
 
                     // User response display
-                    if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_display') !== false) {
+                    if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_display') !== false && strpos($solution_entry['value1'], '_model_answer') === false && strpos($solution_entry['value1'], '_validation') === false) {
                         $input_name = str_replace('xqcas_input_', '', $solution_entry['value1']);
                         $input_name = str_replace('_display', '', $input_name);
                         $parsed_user_response_from_db['inputs'][$input_name]['display'] = $solution_entry['value2'];
                     }
 
                     // Correct answer value
-                    if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_model_answer') !== false) {
+                    if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_model_answer') !== false && strpos($solution_entry['value1'], '_model_answer_display') === false) {
                         $input_name = str_replace('xqcas_input_', '', $solution_entry['value1']);
                         $input_name = str_replace('_model_answer', '', $input_name);
                         $parsed_user_response_from_db['inputs'][$input_name]['correct_value'] = $solution_entry['value2'];
