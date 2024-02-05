@@ -54,10 +54,12 @@ ui_admin_configuration_connection_plot_command_title#:#Plot command
 ui_admin_configuration_connection_plot_command_description#:#This should be set to the full path of the gnuplot executable.
 ui_admin_configuration_connection_maxima_libraries_title#:#Maxima libraries
 ui_admin_configuration_connection_maxima_libraries_description#:#This is a comma separated list of Maxima library names which will be automatically loaded into Maxima.  Only supported library names can be used: "stats, distrib, descriptive, simplex". When you change the listed libraties you must rebuild the Maxima optimised image
+ui_admin_configuration_connection_maxima_libraries_validation#:#The value must be a comma separated list of Maxima library names.
 ui_admin_configuration_connection_cas_debugging_title#:#CAS debugging
 ui_admin_configuration_connection_cas_debugging_description#:#Whether to store debugging information about the CAS connection.
 ui_admin_configuration_connection_cache_parsed_expressions_longer_than_title#:#Cache parsed expressions longer than
 ui_admin_configuration_connection_cache_parsed_expressions_longer_than_description#:#The expression parser gets quite slow on long expressions (for example complicated question variables). Therefore we cache the result of parsing expressions longer than a this limit. Ideally, this setting should be set to a value where doing the cache lookup takes about as long as doing the parsing. 50 characters is an educated guess at this. If set to 0, the cache is disabled.
+ui_admin_configuration_connection_cache_parsed_expressions_longer_than_validation#:#The value must be a number.
 ui_admin_configuration_connection_maxima_uses_proxy_title#:#Maxima uses proxy
 ui_admin_configuration_connection_maxima_uses_proxy_description#:#To be described
 ui_admin_configuration_defaults_options_title#:#Default options settings
@@ -122,6 +124,7 @@ ui_admin_configuration_defaults_input_insert_stars_title#:#Insert stars
 ui_admin_configuration_defaults_input_insert_stars_description#:#If set to yes then the system will automatically insert *s into any patterns identified by Strict Syntax. Otherwise, it shows an error.
 ui_admin_configuration_defaults_input_forbidden_words_title#:#Forbidden words
 ui_admin_configuration_defaults_input_forbidden_words_description#:#This is a comma separated list of text strings which are forbidden in a student's answer.
+ui_admin_configuration_defaults_input_forbidden_words_validation#:#The value must be a comma separated list of text strings.
 ui_admin_configuration_defaults_input_forbid_float_title#:#Forbid float
 ui_admin_configuration_defaults_input_forbid_float_description#:#If set to yes, then any answer of the student which has a floating point number will be rejected as invalid.
 ui_admin_configuration_defaults_input_require_lowest_terms_title#:#Require lowest terms

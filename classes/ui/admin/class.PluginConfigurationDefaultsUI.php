@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use classes\platform\StackConfig;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Implementation\Component\Input\Field\Section;
 
@@ -38,103 +39,100 @@ class PluginConfigurationDefaultsUI
         self::$factory = $DIC->ui()->factory();
         self::$control = $DIC->ctrl();
 
-        try {
+        //control parameters
+        self::$control->setParameterByClass(
+            'ilassStackQuestionConfigGUI',
+            'defaults',
+            'saveDefaults'
+        );
 
-            //control parameters
-            self::$control->setParameterByClass(
-                'ilassStackQuestionConfigGUI',
-                'defaults',
-                'saveDefaults'
-            );
+        //get sections
+        $content = [
+            'options' => self::getOptionsDefaultsSection($data, $plugin_object),
+            'inputs' => self::getInputsDefaultsSection($data, $plugin_object)
+        ];
 
-            //get sections
-            $content = [
-                'options' => self::getOptionsDefaultsSection($data, $plugin_object),
-                'inputs' => self::getInputsDefaultsSection($data, $plugin_object)
-            ];
-
-        } catch (Exception $e) {
-            $content = [self::$factory->messageBox()->failure($e->getMessage())];
-        }
 
         return $content;
     }
 
-    /**
-     * Gets the defaults options section
-     * @throws StackException
-     */
     private static function getOptionsDefaultsSection(array $data, ilPlugin $plugin_object): Section
     {
+        global $DIC;
         //Question level simplify
-        if (isset($data["options_question_simplify"]) && $data["options_question_simplify"] == "1") {
-            $options_question_level_simplify_value = true;
-        } else {
-            $options_question_level_simplify_value = false;
-        }
         $options_question_level_simplify = self::$factory->input()->field()->checkbox(
             $plugin_object->txt("ui_admin_configuration_defaults_question_simplify_title"),
             $plugin_object->txt("ui_admin_configuration_defaults_question_simplify_description")
-        )->withValue($options_question_level_simplify_value);
+        )->withValue($data["options_question_simplify"] == "1")
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    StackConfig::set('options_question_simplify', $v ? "1" : "0", "options");
+                }
+            ));
 
         //Assume positive
-        if (isset($data["options_assume_positive"]) && $data["options_assume_positive"] == "1") {
-            $options_assume_positive_value = true;
-        } else {
-            $options_assume_positive_value = false;
-        }
         $options_assume_positive = self::$factory->input()->field()->checkbox(
             $plugin_object->txt("ui_admin_configuration_defaults_assume_positive_title"),
             $plugin_object->txt("ui_admin_configuration_defaults_assume_positive_description")
-        )->withValue($options_assume_positive_value);
+        )->withValue($data["options_assume_positive"] == "1")
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    StackConfig::set('options_assume_positive', $v ? "1" : "0", "options");
+                }
+            ));
 
         //Assume real
-        if (isset($data["options_assume_real"]) && $data["options_assume_real"] == "1") {
-            $options_assume_real_value = true;
-        } else {
-            $options_assume_real_value = false;
-        }
-
         $options_assume_real = self::$factory->input()->field()->checkbox(
             $plugin_object->txt("ui_admin_configuration_defaults_assume_real_title"),
             $plugin_object->txt("ui_admin_configuration_defaults_assume_real_description")
-        )->withValue($options_assume_real_value);
+        )->withValue($data["options_assume_real"] == "1")
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    StackConfig::set('options_assume_real', $v ? "1" : "0", "options");
+                }
+            ));
 
         //Feedback for fully correct question
-        if (isset($data["options_prt_correct"]) && is_string($data["options_prt_correct"])) {
-            $options_feedback_fully_correct_value = $data["options_prt_correct"];
-        } else {
-            $options_feedback_fully_correct_value = $plugin_object->txt("ui_admin_configuration_defaults_feedback_fully_correct_default");
-        }
-
+        $default_value = $plugin_object->txt("ui_admin_configuration_defaults_feedback_fully_correct_default");
         $options_feedback_fully_correct = self::$factory->input()->field()->textarea(
             $plugin_object->txt("ui_admin_configuration_defaults_feedback_fully_correct_title"),
             $plugin_object->txt("ui_admin_configuration_defaults_feedback_fully_correct_description")
-        )->withValue($options_feedback_fully_correct_value);
+        )->withValue($data["feedback_fully_correct"] ?: $default_value)
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    global $DIC;
+                    $default_value = $DIC->language()->txt("qpl_qst_xqcas_ui_admin_configuration_defaults_feedback_fully_correct_default");
+                    StackConfig::set('feedback_fully_correct', $v ?: $default_value, "options");
+                }
+            ));
 
         //Feedback for partially correct question
-        if (isset($data["options_prt_partially_correct"]) && is_string($data["options_prt_partially_correct"])) {
-            $options_feedback_partially_correct_value = $data["options_prt_partially_correct"];
-        } else {
-            $options_feedback_partially_correct_value = $plugin_object->txt("ui_admin_configuration_defaults_feedback_partially_correct_default");
-        }
-
+        $default_value = $plugin_object->txt("ui_admin_configuration_defaults_feedback_partially_correct_default");
         $options_feedback_partially_correct = self::$factory->input()->field()->textarea(
             $plugin_object->txt("ui_admin_configuration_defaults_feedback_partially_correct_title"),
             $plugin_object->txt("ui_admin_configuration_defaults_feedback_partially_correct_description")
-        )->withValue($options_feedback_partially_correct_value);
+        )->withValue($data["feedback_partially_correct"] ?: $default_value)
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    global $DIC;
+                    $default_value = $DIC->language()->txt("qpl_qst_xqcas_ui_admin_configuration_defaults_feedback_partially_correct_default");
+                    StackConfig::set('feedback_partially_correct', $v ?: $default_value, "options");
+                }
+            ));
 
         //Feedback for fully incorrect question
-        if (isset($data["options_prt_incorrect"]) && is_string($data["options_prt_incorrect"])) {
-            $options_feedback_fully_incorrect_value = $data["options_prt_incorrect"];
-        } else {
-            $options_feedback_fully_incorrect_value = $plugin_object->txt("ui_admin_configuration_defaults_feedback_fully_incorrect_default");
-        }
-
+        $default_value = $plugin_object->txt("ui_admin_configuration_defaults_feedback_fully_incorrect_default");
         $options_feedback_fully_incorrect = self::$factory->input()->field()->textarea(
             $plugin_object->txt("ui_admin_configuration_defaults_feedback_fully_incorrect_title"),
             $plugin_object->txt("ui_admin_configuration_defaults_feedback_fully_incorrect_description")
-        )->withValue($options_feedback_fully_incorrect_value);
+        )->withValue($data["feedback_fully_incorrect"] ?: $default_value)
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    global $DIC;
+                    $default_value = $DIC->language()->txt("qpl_qst_xqcas_ui_admin_configuration_defaults_feedback_fully_incorrect_default");
+                    StackConfig::set('feedback_fully_incorrect', $v ?: $default_value, "options");
+                }
+            ));
 
         //Multiplication sign
         $multiplication_sign_options = [
@@ -143,29 +141,27 @@ class PluginConfigurationDefaultsUI
             "none" => $plugin_object->txt("ui_admin_configuration_defaults_multiplication_sign_none")
         ];
 
-        if (isset($data["options_multiplication_sign"]) && array_key_exists($data["options_multiplication_sign"], $multiplication_sign_options)) {
-            $options_multiplication_sign_value = $data["options_multiplication_sign"];
-        } else {
-            throw new StackException("Invalid value for multiplication sign.");
-        }
-
         $options_multiplication_sign = self::$factory->input()->field()->select(
             $plugin_object->txt("ui_admin_configuration_defaults_multiplication_sign_title"),
             $multiplication_sign_options,
             $plugin_object->txt("ui_admin_configuration_defaults_multiplication_sign_description")
-        )->withValue($options_multiplication_sign_value)->withRequired(true);
+        )->withValue($data["multiplication_sign"] ?: "dot")->withRequired(true)
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    StackConfig::set('multiplication_sign', $v, "options");
+                }
+            ));
 
         //Surd for sqrt
-        if (isset($data["options_sqrt_sign"]) && $data["options_sqrt_sign"] == "1") {
-            $options_sqrt_sign_value = true;
-        } else {
-            $options_sqrt_sign_value = false;
-        }
-
         $options_surd_for_sqrt = self::$factory->input()->field()->checkbox(
             $plugin_object->txt("ui_admin_configuration_defaults_surd_for_sqrt_title"),
             $plugin_object->txt("ui_admin_configuration_defaults_surd_for_sqrt_description")
-        )->withValue($options_sqrt_sign_value);
+        )->withValue($data["options_sqrt_sign"] == "1")
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    StackConfig::set('options_sqrt_sign', $v ? "1" : "0", "options");
+                }
+            ));
 
         //Complex numbers
         $complex_numbers_options = [
@@ -175,17 +171,16 @@ class PluginConfigurationDefaultsUI
             "symj" => $plugin_object->txt("ui_admin_configuration_defaults_complex_numbers_symj")
         ];
 
-        if (isset($data["options_complex_numbers"]) && array_key_exists($data["options_complex_numbers"], $complex_numbers_options)) {
-            $options_complex_numbers_value = $data["options_complex_numbers"];
-        } else {
-            throw new StackException("Invalid value for complex numbers.");
-        }
-
         $options_complex_numbers = self::$factory->input()->field()->select(
             $plugin_object->txt("ui_admin_configuration_defaults_complex_numbers_title"),
             $complex_numbers_options,
             $plugin_object->txt("ui_admin_configuration_defaults_complex_numbers_description")
-        )->withValue($options_complex_numbers_value)->withRequired(true);
+        )->withValue($data["options_complex_numbers"] ?: "i")->withRequired(true)
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    StackConfig::set('options_complex_numbers', $v, "options");
+                }
+            ));
 
         //Inverse trigonometric functions
         $inverse_trigonometric_options = [
@@ -195,17 +190,16 @@ class PluginConfigurationDefaultsUI
             "arccos-arcosh" => $plugin_object->txt("ui_admin_configuration_defaults_inverse_trigonometric_arccos_arcosh")
         ];
 
-        if (isset($data["options_inverse_trigonometric"]) && array_key_exists($data["options_inverse_trigonometric"], $inverse_trigonometric_options)) {
-            $options_inverse_trigonometric_value = $data["options_inverse_trigonometric"];
-        } else {
-            throw new StackException("Invalid value for inverse trigonometric functions.");
-        }
-
         $options_inverse_trigonometric = self::$factory->input()->field()->select(
             $plugin_object->txt("ui_admin_configuration_defaults_inverse_trigonometric_title"),
             $inverse_trigonometric_options,
             $plugin_object->txt("ui_admin_configuration_defaults_inverse_trigonometric_description")
-        )->withValue($options_inverse_trigonometric_value)->withRequired(true);
+        )->withValue($data["options_inverse_trigonometric"] ?: "cos-1")->withRequired(true)
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    StackConfig::set('options_inverse_trigonometric', $v, "options");
+                }
+            ));
 
         //Logic symbols
         $logic_symbols_options = [
@@ -213,38 +207,36 @@ class PluginConfigurationDefaultsUI
             "symbol" => $plugin_object->txt("ui_admin_configuration_defaults_logic_symbols_symbolic")
         ];
 
-        if (isset($data["options_logic_symbol"]) && array_key_exists($data["options_logic_symbol"], $logic_symbols_options)) {
-            $options_logic_symbols_value = $data["options_logic_symbol"];
-        } else {
-            throw new StackException("Invalid value for logic symbols");
-        }
-
         $options_logic_symbols = self::$factory->input()->field()->select(
             $plugin_object->txt("ui_admin_configuration_defaults_logic_symbols_title"),
             $logic_symbols_options,
             $plugin_object->txt("ui_admin_configuration_defaults_logic_symbols_description")
-        )->withValue($options_logic_symbols_value)->withRequired(true);
+        )->withValue($data["options_logic_symbol"] ?: "lang")->withRequired(true)
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    StackConfig::set('options_logic_symbol', $v, "options");
+                }
+            ));
 
         //Shape of Matrix Parentheses
         $matrix_parentheses_options = [
             '[' => '[',
             '(' => '(',
-            '' => '',
+            ' ' => '',
             '{' => '{',
             '|' => '|',
         ];
-
-        if (isset($data["options_matrix_parents"]) && array_key_exists($data["options_matrix_parents"], $matrix_parentheses_options)) {
-            $options_matrix_parentheses_value = $data["options_matrix_parents"];
-        } else {
-            throw new StackException("Invalid value for matrix parentheses");
-        }
 
         $options_matrix_parentheses = self::$factory->input()->field()->select(
             $plugin_object->txt("ui_admin_configuration_defaults_matrix_parentheses_title"),
             $matrix_parentheses_options,
             $plugin_object->txt("ui_admin_configuration_defaults_matrix_parentheses_description")
-        )->withValue($options_matrix_parentheses_value)->withRequired(true);
+        )->withValue($data["options_matrix_parents"] ?: "[")->withRequired(true)
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    StackConfig::set('options_matrix_parents', $v, "options");
+                }
+            ));
 
         return self::$factory->input()->field()->section(
             [
@@ -271,6 +263,7 @@ class PluginConfigurationDefaultsUI
      */
     private static function getInputsDefaultsSection(array $data, ilPlugin $plugin_object): Section
     {
+        global $DIC;
 
         //Default type of input
         $input_default_type_options = [
@@ -279,18 +272,16 @@ class PluginConfigurationDefaultsUI
             'matrix' => $plugin_object->txt('ui_admin_configuration_defaults_input_type_matrix')
         ];
 
-        if (isset($data["input_type"]) && array_key_exists($data["input_type"], $input_default_type_options)) {
-            $default_input_options_value = $data["input_type"];
-        } else {
-            //Default value is algebraic
-            $default_input_options_value = "algebraic";
-        }
-
         $inputs_default_type = self::$factory->input()->field()->select(
             $plugin_object->txt("ui_admin_configuration_defaults_input_type_title"),
             $input_default_type_options,
             $plugin_object->txt("ui_admin_configuration_defaults_input_type_description")
-        )->withValue($default_input_options_value)->withRequired(true);
+        )->withValue($data["input_type"] ?: "algebraic")->withRequired(true)
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    StackConfig::set('input_type', $v, "inputs");
+                }
+            ));
 
         //Box size
         $input_box_size_value = (string)$data["input_box_size"] ?? "15";
@@ -298,19 +289,31 @@ class PluginConfigurationDefaultsUI
         $input_box_size = self::$factory->input()->field()->text(
             $plugin_object->txt("ui_admin_configuration_defaults_input_box_size_title"),
             $plugin_object->txt("ui_admin_configuration_defaults_input_box_size_description")
-        )->withValue($input_box_size_value);
+        )->withValue($input_box_size_value)
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    if(is_numeric($v)){
+                        StackConfig::set('input_box_size', $v, "inputs");
+                    } else {
+                        global $DIC;
+                        throw new ILIAS\Refinery\ConstraintViolationException(
+                            $DIC->language()->txt("qpl_qst_xqcas_ui_admin_configuration_connection_cache_parsed_expressions_longer_than_validation"),
+                            'not_boolean'
+                        );
+                    }
+                }
+            ));
 
         //Strict syntax
-        if (isset($data["input_strict_syntax"]) && $data["input_strict_syntax"] == "1") {
-            $input_strict_syntax_value = true;
-        } else {
-            $input_strict_syntax_value = false;
-        }
-
         $input_strict_syntax = self::$factory->input()->field()->checkbox(
             $plugin_object->txt("ui_admin_configuration_defaults_input_strict_syntax_title"),
             $plugin_object->txt("ui_admin_configuration_defaults_input_strict_syntax_description")
-        )->withValue($input_strict_syntax_value);
+        )->withValue($data["strict_syntax"] == "1")
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    StackConfig::set('strict_syntax', $v ? "1" : "0", "inputs");
+                }
+            ));
 
         //Insert stars
         $input_insert_stars_options = [
@@ -326,63 +329,86 @@ class PluginConfigurationDefaultsUI
             $plugin_object->txt("ui_admin_configuration_defaults_input_insert_stars_title"),
             $input_insert_stars_options,
             $plugin_object->txt("ui_admin_configuration_defaults_input_insert_stars_description")
-        )->withValue(true)->withRequired(true);
+        )->withValue($data["insert_stars"] ?: "0")->withRequired(true)
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    StackConfig::set('insert_stars', $v, "inputs");
+                }
+            ));
 
         //Forbidden words
-        $input_forbidden_words_value = $data["input_forbidden_words"] ?? "";
+        $input_forbidden_words_value = $data["forbidden_words"] ?? "";
 
         $input_forbidden_words = self::$factory->input()->field()->text(
             $plugin_object->txt("ui_admin_configuration_defaults_input_forbidden_words_title"),
             $plugin_object->txt("ui_admin_configuration_defaults_input_forbidden_words_description")
-        )->withValue($input_forbidden_words_value);
+        )->withValue((string)$input_forbidden_words_value)
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    if(is_string($v)){
+                        if(preg_match('/^([a-zA-Z0-9]+(?:,\s*[a-zA-Z0-9]+)*)?$/', $v)){
+                            StackConfig::set('forbidden_words', $v, "inputs");
+                        } else {
+                            global $DIC;
+                            throw new ILIAS\Refinery\ConstraintViolationException(
+                                $DIC->language()->txt("qpl_qst_xqcas_ui_admin_configuration_defaults_input_forbidden_words_validation"),
+                                'not_list'
+                            );
+                        }
+                    } else {
+                        global $DIC;
+                        throw new ILIAS\Refinery\ConstraintViolationException(
+                            $DIC->language()->txt("qpl_qst_xqcas_ui_admin_configuration_defaults_input_forbidden_words_validation"),
+                            'not_list'
+                        );
+                    }
+                }
+            ));
+
 
         //Forbid floats
-        if (isset($data["input_forbid_float"]) && $data["input_forbid_float"] == "1") {
-            $input_forbid_float_value = true;
-        } else {
-            $input_forbid_float_value = false;
-        }
-
         $input_forbid_float = self::$factory->input()->field()->checkbox(
             $plugin_object->txt("ui_admin_configuration_defaults_input_forbid_float_title"),
             $plugin_object->txt("ui_admin_configuration_defaults_input_forbid_float_description")
-        )->withValue($input_forbid_float_value);
+        )->withValue($data["input_forbid_float"] == "1")
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    StackConfig::set('input_forbid_float', $v ? "1" : "0", "inputs");
+                }
+           ));
 
         //Require the lowest terms
-        if (isset($data["input_require_lowest_terms"]) && $data["input_require_lowest_terms"] == "1") {
-            $input_require_lowest_terms_value = true;
-        } else {
-            $input_require_lowest_terms_value = false;
-        }
-
         $input_require_lowest_terms = self::$factory->input()->field()->checkbox(
             $plugin_object->txt("ui_admin_configuration_defaults_input_require_lowest_terms_title"),
             $plugin_object->txt("ui_admin_configuration_defaults_input_require_lowest_terms_description")
-        )->withValue($input_require_lowest_terms_value);
+        )->withValue($data["input_require_lowest_terms"] == "1")
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    StackConfig::set('input_require_lowest_terms', $v ? "1" : "0", "inputs");
+                }
+            ));
 
         //Check answer type
-        if (isset($data["input_check_answer_type"]) && $data["input_check_answer_type"] == "1") {
-            $input_check_answer_type_value = true;
-        } else {
-            $input_check_answer_type_value = false;
-        }
-
         $input_check_answer_type = self::$factory->input()->field()->checkbox(
             $plugin_object->txt("ui_admin_configuration_defaults_input_check_answer_type_title"),
             $plugin_object->txt("ui_admin_configuration_defaults_input_check_answer_type_description")
-        )->withValue($input_check_answer_type_value);
+        )->withValue($data["input_check_answer_type"] == "1")
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    StackConfig::set('input_check_answer_type', $v ? "1" : "0", "inputs");
+                }
+            ));
 
         //Input must verify
-        if (isset($data["input_must_verify"]) && $data["input_must_verify"] == "1") {
-            $input_must_verify_value = true;
-        } else {
-            $input_must_verify_value = false;
-        }
-
         $input_must_verify_type = self::$factory->input()->field()->checkbox(
             $plugin_object->txt("ui_admin_configuration_defaults_input_must_verify_title"),
             $plugin_object->txt("ui_admin_configuration_defaults_input_must_verify_description")
-        )->withValue($input_must_verify_value);
+        )->withValue($data["input_must_verify"] == "1")
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    StackConfig::set('input_must_verify', $v ? "1" : "0", "inputs");
+                }
+            ));
 
         //Input show validation
         $input_show_validation_options = [
