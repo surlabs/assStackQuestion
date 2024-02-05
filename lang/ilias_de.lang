@@ -36,6 +36,7 @@ ui_admin_configuration_defaults_cas_connection_timeout_title#:#CAS-Verbindungs-T
 ui_admin_configuration_defaults_cas_connection_timeout_description#:#Diese Option legt das Timeout fest, das beim Versuch der Verbindung zu Maxima verwendet wird.
 ui_admin_configuration_connection_cas_result_caching_title#:#CAS-Ergebniscaching
 ui_admin_configuration_connection_cas_result_caching_description#:#Diese Option bestimmt, ob Aufrufe an das CAS gecacht werden. Diese Einstellung sollte eingeschaltet sein, es sei denn, Sie entwickeln und ändern den Maxima-Code. Der aktuelle Status des Caches wird auf der Healthcheck-Seite angezeigt. Wenn Sie Ihre Einstellungen ändern, z.B. den gnuplot-Befehl, müssen Sie den Cache löschen, bevor Sie die Auswirkungen dieser Änderungen sehen können.
+ui_admin_configuration_connection_cache_parsed_expressions_longer_than_validation#:#Der Wert muss eine Zahl sein.
 ui_admin_configuration_connection_cas_result_caching_db#:#Cache in der Datenbank
 ui_admin_configuration_connection_cas_result_caching_none#:#Nicht cachen
 ui_admin_configuration_connection_preparse_all_title#:#Alles vorab parsen
@@ -54,6 +55,7 @@ ui_admin_configuration_connection_plot_command_title#:#Plot-Befehl
 ui_admin_configuration_connection_plot_command_description#:#Dies sollte auf den vollständigen Pfad des gnuplot ausführbaren Programms gesetzt werden.
 ui_admin_configuration_connection_maxima_libraries_title#:#Maxima-Bibliotheken
 ui_admin_configuration_connection_maxima_libraries_description#:#Dies ist eine durch Kommas getrennte Liste von Maxima-Bibliotheksnamen, die automatisch in Maxima geladen werden. Nur unterstützte Bibliotheksnamen können verwendet werden: "stats, distrib, descriptive, simplex". Wenn Sie die aufgeführten Bibliotheken ändern, müssen Sie das Maxima optimierte Image neu erstellen
+ui_admin_configuration_connection_maxima_libraries_validation#:#Die Liste der Maxima-Bibliotheken ist ungültig.
 ui_admin_configuration_connection_cas_debugging_title#:#CAS-Debugging
 ui_admin_configuration_connection_cas_debugging_description#:#Ob Debugging-Informationen zur CAS-Verbindung gespeichert werden sollen.
 ui_admin_configuration_connection_cache_parsed_expressions_longer_than_title#:#Geparste Ausdrücke länger als cachen
@@ -124,6 +126,7 @@ ui_admin_configuration_defaults_input_insert_stars_title#:#Sterne einfügen
 ui_admin_configuration_defaults_input_insert_stars_description#:#Wenn auf Ja gesetzt, fügt das System automatisch *s in alle Muster ein, die von Strict Syntax identifiziert wurden. Andernfalls wird ein Fehler angezeigt.
 ui_admin_configuration_defaults_input_forbidden_words_title#:#Verbotene Wörter
 ui_admin_configuration_defaults_input_forbidden_words_description#:#Dies ist eine durch Kommas getrennte Liste von Textstrings, die in einer Antwort eines Schülers verboten sind.
+ui_admin_configuration_defaults_input_forbidden_words_validation#:#Die Liste der verbotenen Wörter ist ungültig.
 ui_admin_configuration_defaults_input_forbid_float_title#:#Float verbieten
 ui_admin_configuration_defaults_input_forbid_float_description#:#Wenn auf Ja gesetzt, wird jede Antwort des Schülers, die eine Gleitkommazahl enthält, als ungültig abgelehnt.
 ui_admin_configuration_defaults_input_require_lowest_terms_title#:#Niedrigste Terme fordern

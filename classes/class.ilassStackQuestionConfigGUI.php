@@ -158,13 +158,15 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
             $sections
         );
 
+        $saving_info = "";
+
         //Check if the form has been submitted
         if ($this->request->getMethod() == "POST") {
             $form = $form->withRequest($this->request);
             $result = $form->getData();
-            $saving_info = $this->save($result);
-        } else {
-            $saving_info = "";
+            if($result){
+                $saving_info = $this->save();
+            }
         }
 
         return $saving_info . $this->renderer->render($form);
@@ -251,14 +253,8 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
     /**
      * Saves the configuration
      */
-    private function save(array $form_data): string
+    private function save(): string
     {
-        foreach ($form_data as $category => $input) {
-            foreach ($input as $key => $value) {
-                StackConfig::set($key, $value, $category);
-            }
-        }
-
         $result = StackConfig::save();
 
         if ($result === true) {
