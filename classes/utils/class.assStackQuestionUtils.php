@@ -1558,7 +1558,7 @@ class assStackQuestionUtils
         preg_match_all("/\d+/", $data, $matches);
 
         // Get the numbers in a two-dimensional array
-        $matrix = array_chunk($matches[0], 2);
+        $matrix = array_chunk($matches[0], count($matches[0]) / substr_count($data, '['));
 
         // Create the new array in the desired format
         $newArray = array();
