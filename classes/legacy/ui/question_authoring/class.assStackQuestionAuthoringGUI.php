@@ -682,6 +682,9 @@ class assStackQuestionAuthoringGUI
 		} catch (stack_exception $e) {
             global $tpl;
 			$tpl->setOnScreenMessage('failure', $e->getMessage(), true);
+        } catch (DivisionByZeroError $e) {
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', "It is not possible to render the PRT graph", true);
 		}
 
 		//TODO Create new class to avoid deprecated custom property
