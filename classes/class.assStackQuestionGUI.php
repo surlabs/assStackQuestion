@@ -272,6 +272,8 @@ class assStackQuestionGUI extends assQuestionGUI
             global $DIC;
             $question .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->divider()->horizontal());
             $question .= assStackQuestionUtils::_getLatex(StackRenderIlias::renderGeneralFeedback($attempt_data, $display_options));
+        } else {
+            $question .= assStackQuestionUtils::_getLatex(StackRenderIlias::renderSpecificFeedback($attempt_data, $display_options));
         }
 
         if (!$show_question_only) {
