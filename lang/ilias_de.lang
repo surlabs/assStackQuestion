@@ -71,13 +71,13 @@ ui_admin_configuration_defaults_assume_positive_description#:#Diese Option legt 
 ui_admin_configuration_defaults_assume_real_title#:#Real annehmen
 ui_admin_configuration_defaults_assume_real_description#:#Diese Option legt den Standardwert der Maxima-Variable 'assume real' in neuen Fragen fest.
 ui_admin_configuration_defaults_feedback_fully_correct_default#:#Herzlichen Glückwunsch! Alle Ihre Antworten sind richtig.
-ui_admin_configuration_defaults_feedback_fully_correct_title#:#Standard-Feedback für vollständig korrekte Fragen
+ui_admin_configuration_defaults_feedback_fully_correct_title#:#Standard-Feedback für vollständig korrekte PRT
 ui_admin_configuration_defaults_feedback_fully_correct_description#:#Dies ist das Feedback, das dem Schüler angezeigt wird, wenn er alle Antworten richtig hat.
 ui_admin_configuration_defaults_feedback_partially_correct_default#:#Einige Ihrer Antworten sind richtig.
-ui_admin_configuration_defaults_feedback_partially_correct_title#:#Standard-Feedback für teilweise korrekte Fragen
+ui_admin_configuration_defaults_feedback_partially_correct_title#:#Standard-Feedback für teilweise korrekte PRT
 ui_admin_configuration_defaults_feedback_partially_correct_description#:#Dies ist das Feedback, das dem Schüler angezeigt wird, wenn er einige der Antworten richtig hat.
 ui_admin_configuration_defaults_feedback_fully_incorrect_default#:#Keine Ihrer Antworten ist richtig.
-ui_admin_configuration_defaults_feedback_fully_incorrect_title#:#Standard-Feedback für vollständig falsche Fragen
+ui_admin_configuration_defaults_feedback_fully_incorrect_title#:#Standard-Feedback für vollständig falsche PRT
 ui_admin_configuration_defaults_feedback_fully_incorrect_description#:#Dies ist das Feedback, das dem Schüler angezeigt wird, wenn er keine der Antworten richtig hat.
 ui_admin_configuration_defaults_surd_for_sqrt_title#:#Wurzelausdruck für Quadratwurzel
 ui_admin_configuration_defaults_surd_for_sqrt_description#:#Steuert, wie Wurzelausdrücke angezeigt werden.
