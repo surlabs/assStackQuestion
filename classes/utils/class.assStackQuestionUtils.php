@@ -37,18 +37,15 @@ class assStackQuestionUtils
 	 * Prevent comparison operators being interpreted as HTML tags
 	 * This would cause errors if CASText is processed with strip_tags.
 	 *
-	 * Not used anymore because RTE fields convert < and >to &lt; and &gt;
-	 * The question variables field is now read without strip_tags
-	 *
 	 * @param $text
 	 * @return mixed
 	 */
 	public static function _debugText($text)
 	{
-		$text1 = str_replace("<", "< ", $text);
-		$text2 = str_replace(">", " >", $text1);
-
-		return $text2;
+        $text = preg_replace('/<([^<>]+)>/', '< $1 >', $text);
+        $text = str_replace('< =', '<=', $text);
+        $text = str_replace('= >', '=>', $text); // I know this is not a valid operator, but i prfer to avoid it being interpreted as a tag
+		return $text;
 	}
 
 	/**
