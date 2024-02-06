@@ -373,6 +373,7 @@ class StackRenderIlias extends StackRender
             if (!isset($question->prts[$prt_name])) {
                 throw new StackException('PRT ' . $prt_name . 'not found.');
             }
+            $feedback = '';
             if (!empty($response)) {
                 $attempt_data['prt_name'] = $prt_name;
                 $feedback = self::renderPRTFeedback($attempt_data, $display_options);
