@@ -1556,11 +1556,16 @@ class assStackQuestionUtils
 
         $rows_count = substr_count($data, '[');
 
-        if ($rows_count == 0) {
+        if (isset($matches[0]) && is_array($matches[0]) && count($matches[0]) > 0 && $rows_count > 0) {
+            $partSize = intval(ceil(count($matches[0]) / $rows_count));
+            if ($partSize > 0) {
+                $matrix = array_chunk($matches[0], $partSize);
+            } else {
+                return array();
+            }
+        } else {
             return array();
         }
-
-        $matrix = array_chunk($matches[0], count($matches[0]) / $rows_count);
 
         // Create the new array in the desired format
         $newArray = array();
