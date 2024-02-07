@@ -283,7 +283,14 @@ class assStackQuestionGUI extends assQuestionGUI
         $this->is_preview = true;
 
         $seed = assStackQuestionDB::_getSeed("preview", $this->object, $DIC->user()->getId());
-        $user_response = StackUserResponseIlias::getStackUserResponse('preview', $this->object->getId(), $DIC->user()->getId());
+
+        $user_response = [];
+
+        if ($this->getPreviewSession()->getParticipantsSolution() !== null) {
+            $user_response = StackUserResponseIlias::getStackUserResponse('preview', $this->object->getId(), $DIC->user()->getId());
+        } else {
+            assStackQuestionDB::_savePreviewSolution($this->object, array());
+        }
 
         //Instantiate Question if not.
         if (!$this->object->isInstantiated()) {
