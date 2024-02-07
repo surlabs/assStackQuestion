@@ -490,8 +490,8 @@ class assStackQuestionAuthoringGUI
 		$input_box_size = new ilTextInputGUI($this->getPlugin()->txt('input_box_size'), $input_name . '_input_box_size');
 		$input_box_size->setInfo($this->getPlugin()->txt('input_box_size_info'));
 
-		$input_strict_syntax = new ilCheckboxInputGUI($this->getPlugin()->txt('input_strict_syntax'), $input_name . '_input_strict_syntax');
-		$input_strict_syntax->setInfo($this->getPlugin()->txt("input_strict_syntax_info"));
+		// $input_strict_syntax = new ilCheckboxInputGUI($this->getPlugin()->txt('input_strict_syntax'), $input_name . '_input_strict_syntax');
+        // $input_strict_syntax->setInfo($this->getPlugin()->txt("input_strict_syntax_info"));
 
 		$input_insert_stars = new ilSelectInputGUI($this->getPlugin()->txt('input_insert_stars'), $input_name . '_input_insert_stars');
 		$input_insert_stars->setOptions(array(
@@ -538,7 +538,7 @@ class assStackQuestionAuthoringGUI
 		if ($this->new_question) {
 			$input_type->setValue($this->default["input_type"]);
 			$input_box_size->setValue($this->default["input_box_size"]);
-			$input_strict_syntax->setChecked((int)$this->default["input_strict_syntax"]);
+            // $input_strict_syntax->setChecked((int)$this->default["input_strict_syntax"]);
 			$input_insert_stars->setValue((int)$this->default["input_insert_stars"]);
 			$input_syntax_hint->setValue($this->default["input_syntax_hint"]);
 			$input_forbidden_words->setValue($this->default["input_forbidden_words"]);
@@ -552,7 +552,7 @@ class assStackQuestionAuthoringGUI
 		} else {
 			$input_type->setValue(assStackQuestionUtils::_getInputType($input));
 			$input_box_size->setValue($input->get_parameter('boxWidth'));
-			$input_strict_syntax->setChecked($input->get_parameter('strictSyntax'));
+            // $input_strict_syntax->setChecked($input->get_parameter('strictSyntax'));
 			$input_insert_stars->setValue($input->get_parameter('insertStars'));
 			$input_syntax_hint->setValue($input->get_parameter('syntaxHint'));
 			$input_forbidden_words->setValue($input->get_parameter('forbidWords'));
@@ -571,7 +571,7 @@ class assStackQuestionAuthoringGUI
 		$part->addFormProperty($input_type);
 		$part->addFormProperty($input_model_answer);
 		$part->addFormProperty($input_box_size);
-		$part->addFormProperty($input_strict_syntax);
+        // $part->addFormProperty($input_strict_syntax);
 		$part->addFormProperty($input_insert_stars);
 		$part->addFormProperty($input_syntax_hint);
 		$part->addFormProperty($input_forbidden_words);
