@@ -118,29 +118,11 @@ class assStackQuestionGUI extends assQuestionGUI
         $this->object->questionInitialisation($seed, true);
         $user_response = StackUserResponseIlias::getStackUserResponse('test', (int) $this->object->getId(), (int) $active_id, (int) $pass);
 
-        //TODO: Check if this is correct.
-        // Is it necessary to store so much data in tst_solutions?
-        // If it is not necessary to save so much data, do not save it and remove this part of the code.
         if (isset($user_response["inputs"])) {
             $temp_user_response = array();
             foreach ($user_response["inputs"] as $input_name => $input) {
-                $input_type = get_class($this->object->inputs[$input_name]);
-
-                if ($input_type == "stack_matrix_input") {
-                    foreach (assStackQuestionUtils::matrixResponseToResponse($input["value"], $input_name) as $key => $value) {
-                        $temp_user_response[$key] = $value;
-                    }
-                } else if ($input_type == "stack_checkbox_input") {
-                    foreach (assStackQuestionUtils::checkBoxResponseToResponse($input["value"], $this->object->inputs[$input_name]) as $key => $value) {
-                        $temp_user_response[$key] = $value;
-                    }
-
-                } else if ($input_type == "stack_radio_input") {
-                    $temp_user_response[$input_name] = $this->object->inputs[$input_name]->get_input_ddl_key($input["value"]);
-                } else if ($input_type == "stack_dropdown_input") {
-                    $temp_user_response[$input_name] = $this->object->inputs[$input_name]->get_input_ddl_key($input["value"]);
-                } else {
-                    $temp_user_response[$input_name] = $input["value"];
+                foreach ($this->object->inputs[$input_name]->maxima_to_response_array($input["value"]) as $key => $value) {
+                    $temp_user_response[$key] = $value;
                 }
 
                 $temp_user_response[$input_name . '_validation'] = $input["validation_display"];
@@ -226,28 +208,11 @@ class assStackQuestionGUI extends assQuestionGUI
             }
         }
 
-		//TODO: Check if this is correct.
-		// Is it necessary to store so much data in tst_solutions?
-		// If it is not necessary to save so much data, do not save it and remove this part of the code.
-		if (isset($user_response["inputs"])) {
+        if (isset($user_response["inputs"])) {
             $temp_user_response = array();
             foreach ($user_response["inputs"] as $input_name => $input) {
-                $input_type = get_class($this->object->inputs[$input_name]);
-
-                if ($input_type == "stack_matrix_input") {
-                    foreach (assStackQuestionUtils::matrixResponseToResponse($input["value"], $input_name) as $key => $value) {
-                        $temp_user_response[$key] = $value;
-                    }
-                } else if ($input_type == "stack_checkbox_input") {
-                    foreach (assStackQuestionUtils::checkBoxResponseToResponse($input["value"], $this->object->inputs[$input_name]) as $key => $value) {
-                        $temp_user_response[$key] = $value;
-                    }
-                } else if ($input_type == "stack_radio_input") {
-                    $temp_user_response[$input_name] = $this->object->inputs[$input_name]->get_input_ddl_key($input["value"]);
-                } else if ($input_type == "stack_dropdown_input") {
-                    $temp_user_response[$input_name] = $this->object->inputs[$input_name]->get_input_ddl_key($input["value"]);
-                } else {
-                    $temp_user_response[$input_name] = $input["value"];
+                foreach ($this->object->inputs[$input_name]->maxima_to_response_array($input["value"]) as $key => $value) {
+                    $temp_user_response[$key] = $value;
                 }
 
                 $temp_user_response[$input_name . '_validation'] = $input["validation_display"];
