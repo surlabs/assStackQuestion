@@ -125,7 +125,7 @@ ui_admin_configuration_defaults_insert_star_options_3#:#Sterne nur für Leerzeic
 ui_admin_configuration_defaults_insert_star_options_4#:#Sterne für implizierte Multiplikation und für Leerzeichen einfügen
 ui_admin_configuration_defaults_insert_star_options_5#:#Sterne einfügen unter der Annahme von Einzelzeichen-Variablen, implizierte und für Leerzeichen
 ui_admin_configuration_defaults_input_insert_stars_title#:#Sterne einfügen
-ui_admin_configuration_defaults_input_insert_stars_description#:#Wenn auf Ja gesetzt, fügt das System automatisch *s in alle Muster ein, die von Strict Syntax identifiziert wurden. Andernfalls wird ein Fehler angezeigt.
+ui_admin_configuration_defaults_input_insert_stars_description#:#Diese Option bietet verschiedene Möglichkeiten, Sterne einzufügen, wo Multiplikation impliziert ist. Bitte lesen Sie die detailliertere Dokumentation.
 ui_admin_configuration_defaults_input_forbidden_words_title#:#Verbotene Wörter
 ui_admin_configuration_defaults_input_forbidden_words_description#:#Dies ist eine durch Kommas getrennte Liste von Textstrings, die in einer Antwort eines Schülers verboten sind.
 ui_admin_configuration_defaults_input_forbidden_words_validation#:#Die Liste der verbotenen Wörter ist ungültig.
