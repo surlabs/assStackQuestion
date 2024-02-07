@@ -361,10 +361,16 @@ class assStackQuestionGUI extends assQuestionGUI
             $seed = assStackQuestionDB::_getSeed("test", $this->object, (int)$active_id, (int)$pass);
             $user_response = StackUserResponseIlias::getStackUserResponse('test', (int)$this->object->getId(), (int) $active_id, (int) $pass);
             $response = [];
-            if(isset($user_response["inputs"])) {
+            if (isset($user_response["inputs"])) {
+                $temp_user_response = array();
                 foreach ($user_response["inputs"] as $input_name => $input) {
-                    $response[$input_name] = $input["value"];
+                    foreach ($this->object->inputs[$input_name]->maxima_to_response_array($input["value"]) as $key => $value) {
+                        $temp_user_response[$key] = $value;
+                    }
+
+                    $temp_user_response[$input_name . '_validation'] = $input["validation_display"];
                 }
+                $response = $temp_user_response;
             }
         }
 
