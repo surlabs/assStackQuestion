@@ -714,8 +714,7 @@ class assStackQuestionAuthoringGUI
 		$prt_value = new ilTextInputGUI($this->getPlugin()->txt('prt_value'), 'prt_' . $prt_name . '_value');
 		$prt_value->setInfo($this->getPlugin()->txt('prt_value_info'));
 
-		$prt_simplify = new ilSelectInputGUI($this->getPlugin()->txt('prt_simplify'), 'prt_' . $prt_name . '_simplify');
-		$prt_simplify->setOptions(array(TRUE => $lng->txt('yes'), FALSE => $lng->txt('no'),));
+		$prt_simplify = new ilCheckboxInputGUI($this->getPlugin()->txt('prt_simplify'), 'prt_' . $prt_name . '_simplify');
 		$prt_simplify->setInfo($this->getPlugin()->txt('prt_simplify_info'));
 
 		$prt_feedback_variables = new ilTextAreaInputGUI($this->getPlugin()->txt('prt_feedback_variables'), 'prt_' . $prt_name . '_feedback_variables');
@@ -727,9 +726,9 @@ class assStackQuestionAuthoringGUI
 		$prt_value->setValue($prt->get_value());
 		//Set value if exists if not default values
 		if ($this->new_question) {
-			$prt_simplify->setValue($this->default["prt_simplify"]);
+			$prt_simplify->setChecked($this->default["prt_simplify"]);
 		} else {
-			$prt_simplify->setValue($prt->isSimplify());
+			$prt_simplify->setChecked($prt->isSimplify());
 		}
 		$prt_feedback_variables->setValue($prt->get_feedbackvariables_keyvals());
 
