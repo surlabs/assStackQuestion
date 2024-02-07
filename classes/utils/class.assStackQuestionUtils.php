@@ -501,6 +501,12 @@ class assStackQuestionUtils
         //Search for all &lt;span class="latex"&gt;...&lt;/span&gt; and change it to the current limiter in Mathjaxsettings
         $text = preg_replace('/<span class="latex">(.*?)<\/span>/', $start . '$1' . $end, $text);
 
+        //Search for all pmatrix and change \ to \\ inside the pmatrix
+        $text = preg_replace_callback('/\\\\begin{pmatrix}(.*?)\\\\end{pmatrix}/s', function($matches) {
+            // Realizar el reemplazo solo dentro de los paréntesis del entorno pmatrix
+            return str_replace("}\\{", "}\\\\{", $matches[0]);
+        }, $text);
+
         // replace special characters to prevent problems with the ILIAS template system
         // eg. if someone uses {1} as an answer, nothing will be shown without the replacement
         $text = str_replace("{", "&#123;", $text);
