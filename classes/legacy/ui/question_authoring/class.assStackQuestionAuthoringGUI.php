@@ -742,7 +742,7 @@ class assStackQuestionAuthoringGUI
 		$prt_value->setValue($prt->get_value());
 		//Set value if exists if not default values
 		if ($this->new_question) {
-			$prt_simplify->setChecked($this->default["prt_simplify"]);
+            $prt_simplify->setChecked((bool)$this->default["prt_simplify"]);
 		} else {
 			$prt_simplify->setChecked($prt->isSimplify());
 		}
