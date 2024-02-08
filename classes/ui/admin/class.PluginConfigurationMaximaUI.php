@@ -154,12 +154,11 @@ class PluginConfigurationMaximaUI
                     StackConfig::set('cas_debugging', $v ? "1" : "0", "common");
                 }
             ));
-
         //Cache parsed expressions longer than
         $cache_parsed_expressions_longer_than = self::$factory->input()->field()->text(
             $plugin_object->txt("ui_admin_configuration_connection_cache_parsed_expressions_longer_than_title"),
             $plugin_object->txt("ui_admin_configuration_connection_cache_parsed_expressions_longer_than_description")
-        )->withValue(is_numeric($data["cache_parsed_expressions_longer_than"]) ? (string)$data["cache_parsed_expressions_longer_than"] : 0)
+        )->withValue(is_numeric($data["cache_parsed_expressions_longer_than"]) ? (string)$data["cache_parsed_expressions_longer_than"] : "0")
             ->withRequired(true)
             ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
                 function ($v) {
