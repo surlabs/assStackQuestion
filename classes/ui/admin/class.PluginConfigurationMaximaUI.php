@@ -87,7 +87,6 @@ class PluginConfigurationMaximaUI
             'default' => 'default'
         ];
 
-
         $maxima_version = self::$factory->input()->field()->select(
             $plugin_object->txt("ui_admin_configuration_connection_maxima_version_title"),
             $maxima_version_options,
@@ -159,7 +158,7 @@ class PluginConfigurationMaximaUI
         $cache_parsed_expressions_longer_than = self::$factory->input()->field()->text(
             $plugin_object->txt("ui_admin_configuration_connection_cache_parsed_expressions_longer_than_title"),
             $plugin_object->txt("ui_admin_configuration_connection_cache_parsed_expressions_longer_than_description")
-        )->withValue(is_numeric($data["cache_parsed_expressions_longer_than"]) ? (string)$data["cache_parsed_expressions_longer_than"] : 0)
+        )->withValue(is_numeric($data["cache_parsed_expressions_longer_than"]) ? (string)$data["cache_parsed_expressions_longer_than"] : "0")
             ->withRequired(true)
             ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
                 function ($v) {
