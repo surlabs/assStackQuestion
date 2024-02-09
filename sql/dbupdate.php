@@ -934,9 +934,12 @@ if ($db->tableExists("xqcas_configuration")) {
         $existing_entries[] = $row["parameter_name"];
     }
 
-    if (!in_array("allow_jsx_graph", $existing_entries)) {
+    if (in_array("allow_jsx_graph", $existing_entries)) {
+        $db->update("xqcas_configuration", array("value" => array("clob", "1")), array("parameter_name" => array("text", "allow_jsx_graph")));
+    } else {
         $db->insert("xqcas_configuration", array("parameter_name" => array("text", "allow_jsx_graph"), "value" => array("clob", "1"), "group_name" => array("text", "display")));
     }
+	
     if (!in_array("preparse_all", $existing_entries)) {
         $db->insert("xqcas_configuration", array("parameter_name" => array("text", "preparse_all"), "value" => array("clob", "1"), "group_name" => array("text", "common")));
     }
