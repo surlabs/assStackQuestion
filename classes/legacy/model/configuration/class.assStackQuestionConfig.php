@@ -495,13 +495,10 @@ class assStackQuestionConfig
 	public function setDefaultSettingsForConnection()
 	{
 		//Default values for connection
-        /*
-		$connection_default_values = array('platform_type' => 'unix', 'maxima_version' => '5.31.2', 'cas_connection_timeout' => '5', 'cas_result_caching' => 'db', 'maxima_command' => '', 'plot_command' => '', 'cas_debugging' => '0', 'cas_debugging' => '0', 'cas_maxima_libraries' => 'stats, distrib, descriptive, simplex');
-		foreach ($connection_default_values as $paremeter_name => $value)
+        $connection_default_values = array('platform_type' => 'server', 'maxima_version' => '5.44.0', 'cas_connection_timeout' => '250', 'cas_result_caching' => 'db', 'maxima_command' => '', 'plot_command' => '', 'cas_debugging' => '1', 'cas_maxima_libraries' => 'stats, distrib, descriptive, simplex');		foreach ($connection_default_values as $paremeter_name => $value)
 		{
 			$this->saveToDB($paremeter_name, $value, 'connection');
 		}
-        */
 
 		//Force re-creation of maxima local file with new content from stack4.
 		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
