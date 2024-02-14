@@ -1093,7 +1093,7 @@ if (!$db->tableExists("xqcas_qtest_results")) {
         'question_id' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
         'test_case' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
         'seed' => array('type' => 'integer', 'length' => 8, 'notnull' => true),
-        'result' => array('type' => 'integer', 'length' => 4, 'notnull' => true),
+        'result' => array('type' => 'clob', 'notnull' => true),
         'timerun' => array('type' => 'integer', 'length' => 8, 'notnull' => true)
     );
 
@@ -1147,6 +1147,21 @@ if ($db->tableExists('xqcas_configuration')) {
             $newValue = ($parameterName === 'cas_connection_timeout') ? 250 : 1;
             $db->update("xqcas_configuration", ["value" => ["clob", $newValue]], ["parameter_name" => ["text", $parameterName]]);
         }
+    }
+}
+?>
+<#53>
+<?php
+global $DIC;
+$db = $DIC->database();
+
+$result = $db->query("SHOW COLUMNS FROM xqcas_qtest_results");
+while ($row = $result->fetchAssoc()) {
+    if ($row["Field"] == "result" && $row["Type"] == "int(11)") {
+        // Change result column type to longtext and not null
+        $db->manipulate("ALTER TABLE xqcas_qtest_results MODIFY result LONGTEXT NOT NULL");
+        $db->manipulate("UPDATE xqcas_qtest_results SET result = CONCAT('{\"passed\":', result, '}')");
+        break;
     }
 }
 ?>
