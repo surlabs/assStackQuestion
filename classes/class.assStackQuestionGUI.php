@@ -1121,6 +1121,7 @@ class assStackQuestionGUI extends assQuestionGUI
                 'generateNewVariants',
                 'setAsActiveVariant',
                 'runUnitTest',
+                'runUnitTestForAllVariants',
                 'runAllTestsForActiveVariant',
                 'runAllTestsForAllVariants',
                 'addCustomTestForm',
@@ -1206,6 +1207,7 @@ class assStackQuestionGUI extends assQuestionGUI
             'generateNewVariants',
             'setAsActiveVariant',
             'runUnitTest',
+            'runUnitTestForAllVariants',
             'runAllTestsForActiveVariant',
             'runAllTestsForAllVariants',
             'addCustomTestForm',
@@ -1901,6 +1903,62 @@ class assStackQuestionGUI extends assQuestionGUI
         $tpl->setOnScreenMessage($type, $message, true);
 
         $this->randomisationAndSecurity();
+    }
+
+    /**
+     * Called when executing a specific test for all variants
+     * @throws stack_exception
+     * @throws StackException
+     */
+    public function runUnitTestForAllVariants() :void {
+        global $DIC, $tpl;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
+        $unit_test = $this->object->getUnitTests()["test_cases"][$_GET["test_case"]];
+
+        $inputs = array();
+
+        foreach ($unit_test["inputs"] as $name => $input) {
+            $inputs[$name] = $input["value"];
+        }
+
+        $testcase = new StackUnitTest($unit_test["description"], $inputs, (int)$_GET["test_case"]);
+
+        foreach ($unit_test["expected"] as $name => $expected) {
+            $testcase->addExpectedResult($name,
+                new stack_potentialresponse_tree_state(
+                    1,
+                    true,
+                    (float)$expected["score"],
+                    (float)$expected["penalty"],
+                    '', array($expected["answer_note"]
+                )));
+        }
+
+        $unit_test_results = array();
+
+        foreach ($this->object->deployed_seeds as $seed) {
+            $result = $testcase->run($this->object->getId(), (int)$seed);
+            $unit_test_results[] = array(
+                'seed' => $seed,
+                'result' => $result->passed()
+            );
+        }
+
+        $content = "";
+
+        foreach ($unit_test_results as $result) {
+            if ($result['result'] === '1') {
+                $content .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->messageBox()->success(sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_passed_for_seed'), $_GET["test_case"], $result['seed'])));
+            } else {
+                $content .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->messageBox()->failure(sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed_empty_for_seed'), $_GET["test_case"], $result['seed'])));
+            }
+        }
+
+        $tpl->setContent($content);
     }
 
     /**

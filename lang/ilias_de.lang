@@ -183,6 +183,7 @@ ui_author_randomisation_run_all_tests_for_all_variants_action_text#:#Alle Testf�
 ui_author_randomisation_run_all_tests_for_this_question_action_text#:#Alle Testfälle für diese Frage ausführen
 ui_author_randomisation_add_unit_test_action_text#:#Benutzerdefinierten Testfall hinzufügen
 ui_author_randomisation_run_unit_test_action_text#:#Testfall ausführen
+ui_author_randomisation_run_unit_test_for_all_variants_action_text#:#Testfall für alle Varianten ausführen
 ui_author_randomisation_edit_unit_test_action_text#:#Testfall bearbeiten
 ui_author_randomisation_delete_unit_test_action_text#:#Testfall löschen
 ui_author_randomisation_unit_test_status_panel_title#:#Testfälle der Frage
