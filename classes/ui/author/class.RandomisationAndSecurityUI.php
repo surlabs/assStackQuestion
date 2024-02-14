@@ -392,15 +392,16 @@ class RandomisationAndSecurityUI
 
             $last_run = $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_not_run");
             $status = $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_not_run");
+            $last_case = null;
 
             foreach ($unit_test["results"] as $result) {
-                if ((int)$result["result"] == 1) {
-                    $status = 1;
-                } else {
-                    $status = 0;
-                }
+                $last_case = $result;
+            }
 
-                $last_run = date('d-m-Y H:i:s', $result["timerun"]);
+            if ($last_case) {
+                $result = json_decode($last_case["result"]);
+                $status = (int) $result->passed ?? 0;
+                $last_run = date('d-m-Y H:i:s', $last_case["timerun"]);
             }
 
             if ($status === 1) {

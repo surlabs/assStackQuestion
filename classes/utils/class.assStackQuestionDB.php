@@ -460,7 +460,7 @@ class assStackQuestionDB
         //If there is a result returns array, otherwise returns false.
         while ($row = $db->fetchAssoc($res)) {
             $seed = (int) $row['seed'];
-            $result = (int) $row['result'];
+            $result = $row['result'];
             $timerun = (int) $row['timerun'];
 
             $testcase_results[] = array(
