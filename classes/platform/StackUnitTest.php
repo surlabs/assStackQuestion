@@ -248,11 +248,32 @@ class StackUnitTest {
 
         $raw_result['test_case'] = $this->testCase;
         $raw_result['seed'] = $question->seed;
+        $raw_result['result'] = array();
+
         if($result->passed() === '1') {
-            $raw_result['result'] = 1;
+            $raw_result['result']["passed"] = 1;
         } else {
-            $raw_result['result'] = 0;
+            $raw_result['result']["passed"] = 0;
         }
+
+        $raw_result['result']["prts"] = array();
+
+        foreach ($result->getPrtStates() as $prtname => $prtstate) {
+            $raw_result['result']["prts"][$prtname] = array(
+                'expectedscore' => $prtstate->expectedscore,
+                'score' => $prtstate->score,
+                'expectedpenalty' => $prtstate->expectedpenalty,
+                'penalty' => $prtstate->penalty,
+                'expectedanswernote' => $prtstate->expectedanswernote,
+                'answernote' => $prtstate->answernote,
+                'feedback' => $prtstate->feedback,
+                'passed' => (int) $prtstate->testoutcome,
+                'trace' => $prtstate->trace
+            );
+        }
+
+        $raw_result['result'] = json_encode($raw_result['result']);
+
         $raw_result['timerun'] = time();
 
         assStackQuestionDB::_saveQtestResult($question->getId(), $raw_result);
