@@ -480,7 +480,7 @@ class RandomisationAndSecurityUI
             $formFields = [];
 
             foreach ($inputs as $key => $input) {
-                $ans = $this->factory->input()->field()->text($key, '')->withRequired(true);
+                $ans = $this->factory->input()->field()->text($key, '');
                 if ($expected) {
                     $ans = $ans->withValue($input["value"]);
                 }
@@ -495,8 +495,8 @@ class RandomisationAndSecurityUI
             $formFields = [];
 
             foreach ($prts as $key => $prt) {
-                $rating = $this->factory->input()->field()->text($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_rating"), '')->withRequired(true);
-                $penalization = $this->factory->input()->field()->text($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_penalization"), '')->withRequired(true);
+                $rating = $this->factory->input()->field()->text($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_rating"), '');
+                $penalization = $this->factory->input()->field()->text($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_penalization"), '');
 
                 $options = [];
                 $options["NULL"] = "NULL";
@@ -513,7 +513,7 @@ class RandomisationAndSecurityUI
 
                 }
 
-                $responseNote = $this->factory->input()->field()->select($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_response_note"), $options)->withRequired(true);
+                $responseNote = $this->factory->input()->field()->select($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_response_note"), $options);
 
                 if ($expected) {
                     $rating = $rating->withValue($expected[$key]["score"]);
