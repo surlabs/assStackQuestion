@@ -1120,7 +1120,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     {
         $fraction = 0;
         $total_weight = 0;
-        $evaluation_data = [];
+        $evaluation_data = [
+            'points' => [],
+            'inputs' => [
+                'states' => [],
+                'validation' => []
+            ],
+            'prts' => []
+        ];
 
         foreach ($this->prts as $prt_name => $prt) {
             if ($prt->is_formative()) {
@@ -1174,7 +1181,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         $evaluation_data['points']['total'] = (float)$ilias_points;
 
 
-        if ($fraction > $this->getMaximumPoints()) {
+        if ($ilias_points > $this->getMaximumPoints()) {
             throw new StackException('Error,  more points given than MAX Points');
         }
 
