@@ -873,25 +873,25 @@ class stack_potentialresponse_tree_lite {
             if ($node->truenextnode == -1) {
                 $left = null;
             } else {
-                $left = $node->truenextnode;
+                $left = $node->truenextnode + 1;
             }
             if ($node->falsenextnode == -1) {
                 $right = null;
             } else {
-                $right = $node->falsenextnode;
+                $right = $node->falsenextnode + 1;
             }
-            $llabel = $node->truescoremode . round($node->truescore, 2);
+            $llabel = $node->truescoremode . round((float)$node->truescore, 2);
             if ($labels && array_key_exists($node->trueanswernote, $labels)) {
                 $llabel = $labels[$node->trueanswernote];
             }
-            $rlabel = $node->falsescoremode . round($node->falsescore, 2);
+            $rlabel = $node->falsescoremode . round((float)$node->falsescore, 2);
             if ($labels && array_key_exists($node->falseanswernote, $labels)) {
                 $rlabel = $labels[$node->falseanswernote];
             }
             $key = (int) $key;
-            $graph->add_prt_node($key, $node->description, $left, $right, $llabel, $rlabel,
+            $graph->add_prt_node($key + 1, $node->description, $left, $right, $llabel, $rlabel,
                 '#fgroup_id_' . $this->name . 'node_' . $key);
-            $graph->add_prt_text($node->nodename, $node->answertest, $node->quiet,
+            $graph->add_prt_text($node->nodename + 1, $node->answertest, $node->quiet,
                 $node->trueanswernote, $node->falseanswernote);
         }
 
