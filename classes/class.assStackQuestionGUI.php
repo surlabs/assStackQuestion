@@ -1440,7 +1440,13 @@ class assStackQuestionGUI extends assQuestionGUI
 		//$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_deployed_seeds_management.css'));
 
 		//Returns Deployed seeds form
-		$this->tpl->setVariable("QUESTION_DATA", $ui->show());
+        try {
+            $this->tpl->setVariable("QUESTION_DATA", $ui->show());
+        } catch (stack_exception $e) {
+            $this->tpl->setVariable("QUESTION_DATA", $DIC->ui()->renderer()->render(
+                $DIC->ui()->factory()->messageBox()->failure($e->getMessage()))
+            );
+        }
 	}
 
 	/**
