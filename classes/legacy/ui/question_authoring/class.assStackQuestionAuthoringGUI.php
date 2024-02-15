@@ -621,11 +621,10 @@ class assStackQuestionAuthoringGUI
 		$node_list = array();
 		//Get list of nodes
 		foreach ($prt->get_nodes_summary() as $node_name => $prt_node) {
-			$node_list[$node_name] = $node_name;
+			$node_list[$node_name] = $node_name + 1;
 		}
 		$prt_first_node->setOptions($node_list);
-        //TODO eliminar value 0
-		$prt_first_node->setValue(0);
+		$prt_first_node->setValue($prt->get_first_node());
 		$settings_column->addFormProperty($prt_first_node);
 
 		//Paste node
@@ -818,7 +817,7 @@ class assStackQuestionAuthoringGUI
 	public function getNodePart(stack_potentialresponse_tree_lite $prt, object $node)
 	{
 		//Create columns property
-		$part = new ilMultipartFormPart($node->nodename);
+		$part = new ilMultipartFormPart($node->nodename + 1);
 
 		$positive_negative_columns = new ilColumnsFormPropertyGUI($this->getPlugin()->txt('prt_node_posneg'), 'prt_' . $prt->get_name() . '_node_' . $node->nodename . '_positive_negative', 12, TRUE);
 
