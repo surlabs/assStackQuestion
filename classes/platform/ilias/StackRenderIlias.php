@@ -414,6 +414,8 @@ class StackRenderIlias extends StackRender
 
         $general_feedback_text = stack_maths::process_display_castext($general_feedback_text);
 
+        $general_feedback_text .= "<hr>" . $question->formatCorrectResponse();
+
         // Ensure that the MathJax library is loaded.
         self::ensureMathJaxLoaded();
         return $general_feedback_text;
