@@ -1920,7 +1920,7 @@ class assStackQuestionGUI extends assQuestionGUI
             $message .= $DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_passed');
         } else {
             $type = 'failure';
-            $message .= $DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed');
+            $message .= sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed'), $result->passed());
         }
 
         $tpl->setOnScreenMessage($type, $message, true);

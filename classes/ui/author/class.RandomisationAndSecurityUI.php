@@ -390,64 +390,32 @@ class RandomisationAndSecurityUI
                     $this->control->getLinkTargetByClass("assstackquestiongui", "deleteUnitTest")),
             ));
 
-            $last_run = $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_not_run");
-            $status = $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_not_run");
-            $last_case = null;
-
-            foreach ($unit_test["results"] as $result) {
-                $last_case = $result;
-            }
+            $status_text = "<span style='font-weight: bold; color: orange;'>" . $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_not_run") . "</span>";
+            $test_results_view = $this->factory->legacy("");
+            $last_case = end($unit_test["results"]);
 
             if ($last_case) {
-                $result = json_decode($last_case["result"]);
-                $status = (int) $result->passed ?? 0;
-                $last_run = date('d-m-Y H:i:s', $last_case["timerun"]);
+                $last_result = json_decode($last_case["result"]);
+
+                if ((int) $last_result->passed === 1) {
+                    $count_passed++;
+
+                    $status_text = "<span style='font-weight: bold; color: green;'>" . $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed") . "</span>";
+                } else {
+                    $status_text = "<span style='font-weight: bold; color: red;'>" . $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_failed") . "</span>";
+                }
+
+                $test_results_view = $this->factory->legacy($this->renderQtestResults((int) $last_case["seed"], (int) $last_case["timerun"], $last_result->prts));
             }
 
-            if ($status === 1) {
-                $count_passed++;
-
-                $status_text = $this->renderer->render($this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed")));
-            } else {
-                $status_text = $this->renderer->render($this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_failed")));
-            }
-
-            $results_overview = $this->language->txt(
-                    "qpl_qst_xqcas_ui_author_randomisation_unit_test_last_run") . ": " . $last_run;
-
-            if ($status === 0) {
-                $test_results_view = $this->factory->messageBox()->failure(
-                    $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_failed") .
-                    $this->renderer->render($this->factory->divider()->vertical()) .
-                    $results_overview
-                );
-            } elseif ($status === 1) {
-                $test_results_view = $this->factory->messageBox()->success(
-                    $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed") .
-                    $this->renderer->render($this->factory->divider()->vertical()) .
-                    $results_overview
-                );
-            } else {
-                $test_results_view = $this->factory->messageBox()->confirmation(
-                    $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_not_run") .
-                    $this->renderer->render($this->factory->divider()->vertical()) .
-                    $results_overview
-                );
-            }
-
-            $list[$unit_test_number] = $this->factory->item()->group((string)$unit_test_number .
+            $list[$unit_test_number] = $this->factory->item()->group($status_text .
+                $this->renderer->render($this->factory->divider()->vertical()) .
+                $unit_test_number .
                 $this->renderer->render($this->factory->divider()->vertical()) .
                 $unit_test["description"],
                 array(
                     $test_results_view
                 ))->withActions($actions);
-
-            /*
-            $list[$unit_test_number] = $this->factory->item()->group((string)$unit_test_number, array(
-                $this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_description") . ": " . $unit_test["description"]),
-                $this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_last_run") . ": " . $last_run),
-                $this->factory->legacy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status") . ": " . $status_text),
-            ))->withActions($actions);*/
         }
 
         return $this->factory->panel()->listing()->standard(
@@ -455,6 +423,66 @@ class RandomisationAndSecurityUI
             array(
                 $this->factory->item()->group("", $list)
             ));
+    }
+
+    /**
+     * @param int $seed
+     * @param int $timerun
+     * @param object|null $result
+     * @return string
+     */
+    public function renderQtestResults(int $seed, int $timerun, object $result = null): string
+    {
+        $html = "<div style='margin-left: 20px;'>";
+        $html .= "<strong>Seed</strong>: " . $seed . "<br>";
+        $html .= "<strong>" . $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_last_run") . "</strong>: " . date('d-m-Y H:i:s', $timerun) . "<br>";
+        $html .= "</div>";
+
+        $html .= "<div style='padding: 20px;'>";
+        // Crear una tabla con los resultados
+        $html .= "<table class='table'>";
+        $html .= "<thead class='thead-dark'>";
+        $html .= "<tr>";
+        $html .= "<th>PRT Name</th>";
+        $html .= "<th>Score</th>";
+        $html .= "<th>Expected score</th>";
+        $html .= "<th>Penalty</th>";
+        $html .= "<th>Expected penalty</th>";
+        $html .= "<th>Answer note</th>";
+        $html .= "<th>Expected answer note</th>";
+        $html .= "<th>Feedback</th>";
+        $html .= "<th>Passed</th>";
+        $html .= "</tr>";
+        $html .= "</thead>";
+
+        if (isset($result)) {
+            $html .= "<tbody>";
+
+            foreach ($result as $key => $prt) {
+                $html .= "<tr class='alert alert-" . ((int) $prt->passed == 1 ? "success" : "danger") . "'>";
+                $html .= "<td>" . $key . "</td>";
+                $html .= "<td>" . $prt->score . "</td>";
+                $html .= "<td>" . $prt->expectedscore . "</td>";
+                $html .= "<td>" . $prt->penalty . "</td>";
+                $html .= "<td>" . $prt->expectedpenalty . "</td>";
+                $html .= "<td>"
+                    . $prt->answernote .
+                    "<div style='background-color: white; border-radius: 5px; font-size: 0.6rem'>" .
+                    str_replace("\n", "<br>", $prt->trace) . "</div>" .
+                    "</td>";
+                $html .= "<td>" . $prt->expectedanswernote . "</td>";
+                $html .= "<td>" . str_replace("\n", "<br>", $prt->feedback) . "</td>";
+                $html .= "<td>" . ($prt->passed ? "Yes" : "No") . "</td>";
+                $html .= "</tr>";
+            }
+
+            $html .= "</tbody>";
+        }
+
+        $html .= "</table>";
+        $html .= "</div>";
+
+        return $html;
     }
 
     public function showCustomTestForm(array $inputs, array $prts, assStackQuestion $question): string
