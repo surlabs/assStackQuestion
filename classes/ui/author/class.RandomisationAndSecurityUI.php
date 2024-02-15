@@ -181,7 +181,7 @@ class RandomisationAndSecurityUI
         }
 
         $panel = $this->getUnitTestStatusPanelUIComponent($count_passed, $unit_tests);
-        $total_unit_tests = count($this->data['unit_tests']["test_cases"]);
+        $total_unit_tests = !empty($this->data['unit_tests']) ? count($this->data['unit_tests']["test_cases"]) : 0;
 
         if ($total_unit_tests < $count_passed) {
             $total_unit_tests = $count_passed;
