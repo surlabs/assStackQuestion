@@ -1084,7 +1084,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			if ($classname) {
 				$url = $this->ctrl->getLinkTargetByClass($classname, "editQuestion");
 			}
-			$commands = $_POST["cmd"];
+            $commands = $_POST["cmd"] ?? array();
 			if (is_array($commands)) {
 				foreach ($commands as $key => $value) {
 					if (preg_match("/^suggestrange_.*/", $key, $matches)) {
