@@ -1143,7 +1143,8 @@ class assStackQuestionGUI extends assQuestionGUI
 			$tabs->addTarget("statistics", $this->ctrl->getLinkTargetByClass($classname, "assessment"), array("assessment"), $classname, "");
 		}
 
-		if (($_GET["calling_test"] > 0) || ($_GET["test_ref_id"] > 0)) {
+        if ((isset($_GET["calling_test"]) && $_GET["calling_test"] > 0) ||
+            (isset($_GET["test_ref_id"]) && ($_GET["test_ref_id"] > 0))) {
 			$ref_id = $_GET["calling_test"];
 			if (strlen($ref_id) == 0) {
 				$ref_id = $_GET["test_ref_id"];
