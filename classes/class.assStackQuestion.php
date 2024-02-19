@@ -3654,8 +3654,8 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         parent::saveQuestionDataToDb(((int) $original_id != -1 && (int) $original_id != 0) ? $original_id : null);
     }
 
-    public function setExportDetailsXLS(ilAssExcelFormatHelper $worksheet, int $startrow, int $active_id, int $pass) : int {
-        $solutions = assStackQuestionDB::_readTestSolution($this->getId(), $active_id, $pass);
+    public function setExportDetailsXLS($worksheet, $startrow, $active_id, $pass) : int {
+        $solutions = assStackQuestionDB::_readTestSolution($this->getId(), (int)$active_id, (int)$pass);
 
         //dump($solutions); exit();
 
