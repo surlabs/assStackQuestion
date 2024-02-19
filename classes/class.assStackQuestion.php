@@ -3669,4 +3669,54 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
     {
         $this->cas_text_processor = $cas_text_processor;
     }
+
+    public function setExportDetailsXLS(ilAssExcelFormatHelper $worksheet, int $startrow, int $active_id, int $pass) : int {
+        $solutions = assStackQuestionDB::_readTestSolution($this->getId(), $active_id, $pass);
+
+        //dump($solutions); exit();
+
+        // Set the question title
+        $worksheet->setFormattedExcelTitle($worksheet->getColumnCoord(0) . $startrow, $this->lng->txt("qpl_qst_xqcas_" . $this->getQuestionType()));
+        $worksheet->setFormattedExcelTitle($worksheet->getColumnCoord(1) . $startrow, $this->getTitle());
+
+        // Next line
+        $startrow++;
+
+        // Reached points
+        $worksheet->setCell($startrow, 0, $this->lng->txt("qpl_qst_xqcas_message_points"));
+        $worksheet->setBold($worksheet->getColumnCoord(0) . $startrow);
+        $worksheet->setCell($startrow, 1, $solutions['total_points']);
+
+        // Next line
+        $startrow++;
+
+        // Question seed
+        $worksheet->setCell($startrow, 0, "Seed:");
+        $worksheet->setBold($worksheet->getColumnCoord(0) . $startrow);
+        $worksheet->setCell($startrow, 1, $solutions['question_seed']);
+
+        // Next line
+        $startrow++;
+
+        // Question inputs
+        foreach ($solutions["inputs"] as $input_name => $input) {
+            $worksheet->setCell($startrow, 0, "Input " . $input_name . " value: ");
+            $worksheet->setCell($startrow, 1, $input["value"]);
+
+            // Next line
+            $startrow++;
+        }
+
+        // Question prts
+        foreach ($solutions["prts"] as $prt_name => $prt) {
+            $worksheet->setCell($startrow, 0, "Prt " . $prt_name . " points: ");
+            $worksheet->setCell($startrow, 1, $prt["points"]);
+
+            // Next line
+            $startrow++;
+        }
+
+        // Leave a blank line between questions
+        return $startrow + 1;
+    }
 }
