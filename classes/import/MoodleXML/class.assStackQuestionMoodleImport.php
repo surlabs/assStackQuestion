@@ -348,7 +348,7 @@ class assStackQuestionMoodleImport
                 $node->nodename = ilUtil::secureString((string) $node_data->name);
                 $node->prtname = ilUtil::secureString((string) $node_data->prtname);
                 $node->answertest = ilUtil::secureString((string) $node_data->answertest);
-                $node->sans = ilUtil::secureString((string) $node_data->sans);
+                $node->sans = assStackQuestionUtils::secureString((string) $node_data->sans);
                 $node->tans = ilUtil::secureString((string) $node_data->tans);
                 $node->testoptions = ilUtil::secureString((string) $node_data->testoptions);
                 $node->quiet = (int) $node_data->quiet;
