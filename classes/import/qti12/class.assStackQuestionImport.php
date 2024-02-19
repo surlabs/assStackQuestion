@@ -238,7 +238,7 @@ class assStackQuestionImport extends assQuestionImport
                         $node->falsefeedback = $xml_node->getFalseFeedback();
                         $node->falsefeedbackformat = $xml_node->getFalseFeedbackFormat();
 
-                        $prt_data->nodes[$node_name] = $node;
+                        $prt_data->nodes[$node->nodename] = $node;
                     } catch (stack_exception $e) {
                         $this->error_log[] = $this->object->getTitle() . ': ' . $e;
                     }
