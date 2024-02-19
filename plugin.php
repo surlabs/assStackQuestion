@@ -22,7 +22,7 @@ $id = "xqcas";
  
 $version = "7.5.13";
 
-$ilias_min_version = "7.13";
+$ilias_min_version = "7.14";
 $ilias_max_version = "7.999";
  
 $responsible = "Jesús Copado Mejías";
