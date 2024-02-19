@@ -3685,7 +3685,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         // Reached points
         $worksheet->setCell($startrow, 0, $this->lng->txt("qpl_qst_xqcas_message_points"));
         $worksheet->setBold($worksheet->getColumnCoord(0) . $startrow);
-        $worksheet->setCell($startrow, 1, $solutions['total_points']);
+        $worksheet->setCell($startrow, 1, $solutions['total_points'] ?? 0);
 
         // Next line
         $startrow++;
@@ -3693,27 +3693,31 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         // Question seed
         $worksheet->setCell($startrow, 0, "Seed:");
         $worksheet->setBold($worksheet->getColumnCoord(0) . $startrow);
-        $worksheet->setCell($startrow, 1, $solutions['question_seed']);
+        $worksheet->setCell($startrow, 1, $solutions['question_seed'] ?? 0);
 
         // Next line
         $startrow++;
 
         // Question inputs
-        foreach ($solutions["inputs"] as $input_name => $input) {
-            $worksheet->setCell($startrow, 0, "Input " . $input_name . " value: ");
-            $worksheet->setCell($startrow, 1, $input["value"]);
+        if (!empty($solutions["inputs"])) {
+            foreach ($solutions["inputs"] as $input_name => $input) {
+                $worksheet->setCell($startrow, 0, "Input " . $input_name . " value: ");
+                $worksheet->setCell($startrow, 1, $input["value"] ?? "");
 
-            // Next line
-            $startrow++;
+                // Next line
+                $startrow++;
+            }
         }
 
         // Question prts
-        foreach ($solutions["prts"] as $prt_name => $prt) {
-            $worksheet->setCell($startrow, 0, "Prt " . $prt_name . " points: ");
-            $worksheet->setCell($startrow, 1, $prt["points"]);
+        if (!empty($solutions["prts"])) {
+            foreach ($solutions["prts"] as $prt_name => $prt) {
+                $worksheet->setCell($startrow, 0, "Prt " . $prt_name . " points: ");
+                $worksheet->setCell($startrow, 1, $prt["points"] ?? 0);
 
-            // Next line
-            $startrow++;
+                // Next line
+                $startrow++;
+            }
         }
 
         // Leave a blank line between questions
