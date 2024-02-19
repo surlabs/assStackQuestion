@@ -1512,7 +1512,7 @@ class assStackQuestionUtils
         return $castext;
     }
 
-    public static function parseToHTMLWithLatex($input): string
+    public static function parseToHTMLWithoutLatex($input): string
     {
         $components = explode(";", $input);
 
@@ -1530,7 +1530,7 @@ class assStackQuestionUtils
             }
 
             if (strlen($value) > 0 && (strlen($variable) > 0)) {
-                $htmlOutput .= "<p>\($variable\): \($value\)</p>";
+                $htmlOutput .= "<p>$variable: $value</p>";
             }
         }
 
