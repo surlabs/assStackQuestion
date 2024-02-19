@@ -399,7 +399,7 @@ $string['ddl_duplicates'] = 'Doppelte Werte wurden bei der Generierung der Einga
 $string['ddl_badanswer'] = 'Das Feld für die Musterantwort dieser Eingabe ist fehlerhaft: <code>{$a}</code>.';
 $string['ddl_unknown'] = 'STACK hat <code>{$a}</code> erhalten, aber dies ist nicht als Option vom Lehrer aufgelistet.';
 
-$string['teacheranswershow'] = 'Die Antwort {$a->display}, die als {$a->value} eingegeben werden kann, wäre korrekt.';
+$string['teacheranswershow'] = 'Die Antwort \( {$a->display} \), die als {$a->value} eingegeben werden kann, wäre korrekt.';
 $string['teacheranswershow_disp'] = 'Die Antwort {$a->display} wäre korrekt.';
 $string['teacheranswershow_mcq'] = 'Eine korrekte Antwort ist: {$a->display}';
 $string['teacheranswershownotes'] = 'Für diese Eingabe wird keine korrekte Antwort bereitgestellt.';
