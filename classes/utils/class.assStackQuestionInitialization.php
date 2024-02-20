@@ -141,7 +141,12 @@ if (!function_exists('get_config')) {
         $configs->casresultscache = $saved_config['cas_result_caching'];
         //Maxima command - If blank: maxima
         if ($saved_config['platform_type'] == 'server') {
+            $configs->maximacommand = $saved_config['maxima_pool_url'];
             $configs->maximacommandserver = $saved_config['maxima_pool_url'];
+
+            if ($saved_config["maxima_uses_proxy"]  == "1") {
+                $configs->platform = "server-proxy";
+            }
         } elseif (!$saved_config['maxima_command'] or $saved_config['platform_type'] == 'unix') {
             $configs->maximacommand = "maxima";
         } else {
