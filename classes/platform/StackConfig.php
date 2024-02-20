@@ -182,14 +182,25 @@ class StackConfig {
     public static function clearCache(): bool
     {
         global $DIC;
+        global $CFG;
         $db = $DIC->database();
         $query = "TRUNCATE table xqcas_cas_cache";
         $db->manipulate($query);
 
-        //TODO 31702
-        /*Additional this two pathes should be flushed too:
-        ./data/<client_id>/xqcas/stack/plots
-        ./data/<client_id>/xqcas/stack/tmp*/
+        $folders_to_truncate = array("tmp", "plots");
+        $base_path = realpath($CFG->dataroot) . '/stack';
+
+        foreach ($folders_to_truncate as $folder) {
+            $path = $base_path . '/' . $folder;
+            if (is_dir($path)) {
+                $files = glob($path . '/*');
+                foreach ($files as $file) {
+                    if (is_file($file)) {
+                        unlink($file);
+                    }
+                }
+            }
+        }
 
         return TRUE;
     }
