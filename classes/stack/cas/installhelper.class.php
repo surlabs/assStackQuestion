@@ -70,10 +70,7 @@ class stack_cas_configuration {
         $this->settings = StackConfig::getAll();
         $this->date = date("F j, Y, g:i a");
 
-        $this->maximacodepath = stack_utils::convert_slash_paths(
-        //TODO SET WEBDIR + PATH COMO GLOBAL EN LUGAR DE USAR ILIAS EN CORE
-            realpath(ILIAS_DATA_DIR) .
-            '/Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/core/external/maxima');
+        $this->maximacodepath = stack_utils::convert_slash_paths(realpath(dirname(__DIR__)) . '/maxima');
 
         $this->logpath = stack_utils::convert_slash_paths(
         //TODO SET DATADIR + PATH COMO GLOBAL EN LUGAR DE USAR ILIAS EN CORE
