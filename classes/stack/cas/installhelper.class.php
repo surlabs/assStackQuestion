@@ -72,10 +72,7 @@ class stack_cas_configuration {
 
         $this->maximacodepath = stack_utils::convert_slash_paths(realpath(dirname(__DIR__)) . '/maxima');
 
-        $this->logpath = stack_utils::convert_slash_paths(
-        //TODO SET DATADIR + PATH COMO GLOBAL EN LUGAR DE USAR ILIAS EN CORE
-            realpath(ILIAS_DATA_DIR) .
-            '/stack/logs');
+        $this->logpath = stack_utils::convert_slash_paths(realpath($CFG->dataroot) . '/stack/logs');
 
         //SUR maximaversion to maxima_version
         $this->vnum = (float) substr($this->settings["maxima_version"], 2);
@@ -83,14 +80,8 @@ class stack_cas_configuration {
         $this->blocksettings = array();
         //SUR platform to platform_type
         $this->blocksettings['MAXIMA_PLATFORM'] = $this->settings["platform_type"];
-        $this->blocksettings['maxima_tempdir'] = stack_utils::convert_slash_paths(
-        //TODO SET DATADIR + PATH COMO GLOBAL EN LUGAR DE USAR ILIAS EN CORE
-            realpath(ILIAS_DATA_DIR) .
-            '/stack/tmp/');
-        $this->blocksettings['IMAGE_DIR'] = stack_utils::convert_slash_paths(
-        //TODO SET DATADIR + PATH COMO GLOBAL EN LUGAR DE USAR ILIAS EN CORE
-            realpath(ILIAS_DATA_DIR) .
-            '/stack/plots/');
+        $this->blocksettings['maxima_tempdir'] = stack_utils::convert_slash_paths(realpath($CFG->dataroot) . '/stack/tmp/');
+        $this->blocksettings['IMAGE_DIR'] = stack_utils::convert_slash_paths(realpath($CFG->dataroot) . '/stack/plots/');
 
         $this->blocksettings['PLOT_SIZE'] = '[450,300]';
         // These are used by the GNUplot "set terminal" command. Currently no user interface...
