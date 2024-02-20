@@ -124,6 +124,7 @@ if (!function_exists('get_config')) {
     {
         //require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
 
+        global $CFG;
         $configs = new stdClass();
 
         $saved_config = StackConfig::getAll();
@@ -217,7 +218,7 @@ if (!function_exists('get_config')) {
         //Show validation button
         $configs->inputshowvalidation = $saved_config['input_show_validation'];
 
-        $configs->maximalocalfolder = ilUtil::getWebspaceDir('filesystem') . '/xqcas/stack';
+        $configs->maximalocalfolder = realpath($CFG->dataroot) . '/stack';
         $configs->stackmaximaversion = "2023121100";
         $configs->version = "2023121100";
 
