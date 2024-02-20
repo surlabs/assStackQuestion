@@ -79,7 +79,7 @@ class PluginConfigurationMaximaUI
         global $DIC;
         //Maxima version
         $maxima_version_options = [
-            '5.32.1' => $plugin_object->txt("ui_admin_configuration_connection_maxima_version_5_32_1"),
+            '5.32.1' => "5.32.1",
             '5.40.0' => '5.40.0', '5.41.0' => '5.41.0',
             '5.42.0' => '5.42.0', '5.42.1' => '5.42.1', '5.42.2' => '5.42.2',
             '5.43.0' => '5.43.0', '5.43.1' => '5.43.1', '5.43.2' => '5.43.2',
@@ -87,14 +87,21 @@ class PluginConfigurationMaximaUI
             'default' => 'default'
         ];
 
+        if (!isset($data["maxima_version"]) || !array_key_exists($data["maxima_version"], $maxima_version_options)) {
+            $data["maxima_version"] = "default";
+
+            StackConfig::set('maxima_version', 'default', "connection");
+            StackConfig::save();
+        }
+
         $maxima_version = self::$factory->input()->field()->select(
             $plugin_object->txt("ui_admin_configuration_connection_maxima_version_title"),
             $maxima_version_options,
             $plugin_object->txt("ui_admin_configuration_connection_maxima_version_description")
-        )->withValue($data["maxima_version"]?:"5.44.0")->withRequired(true)
+        )->withValue($data["maxima_version"])->withRequired(true)
             ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
                 function ($v) {
-                    StackConfig::set('maxima_version', $v ?: '5.44.0', "common");
+                    StackConfig::set('maxima_version', $v ?: '5.44.0', "connection");
                 }
             ));
 
@@ -105,7 +112,7 @@ class PluginConfigurationMaximaUI
         )->withValue((string)$data["cas_connection_timeout"]?:"10")
             ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
                 function ($v) {
-                    StackConfig::set('cas_connection_timeout', (string)$v ?: '10', "common");
+                    StackConfig::set('cas_connection_timeout', (string)$v ?: '10', "connection");
                 }
             ));
 
@@ -121,7 +128,7 @@ class PluginConfigurationMaximaUI
         )->withValue( $data["cas_result_caching"]?:'db')->withRequired(true)
             ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
                 function ($v) {
-                    StackConfig::set('cas_result_caching', $v ?: 'db', "common");
+                    StackConfig::set('cas_result_caching', $v ?: 'db', "connection");
                 }
             ));
 
@@ -150,10 +157,9 @@ class PluginConfigurationMaximaUI
         )->withValue($data["cas_debugging"] == "1")
             ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
                 function ($v) {
-                    StackConfig::set('cas_debugging', $v ? "1" : "0", "common");
+                    StackConfig::set('cas_debugging', $v ? "1" : "0", "connection");
                 }
             ));
-
         //Cache parsed expressions longer than
         $cache_parsed_expressions_longer_than = self::$factory->input()->field()->text(
             $plugin_object->txt("ui_admin_configuration_connection_cache_parsed_expressions_longer_than_title"),
@@ -184,7 +190,7 @@ class PluginConfigurationMaximaUI
                 function ($v) {
                     if(is_string($v)){
                         if(preg_match('/^([a-zA-Z]+(?:,\s*[a-zA-Z]+)*)?$/', $v)){
-                            StackConfig::set('cas_maxima_libraries', $v, "common");
+                            StackConfig::set('cas_maxima_libraries', $v, "connection");
                         } else {
                             global $DIC;
                             throw new ILIAS\Refinery\ConstraintViolationException(
@@ -295,7 +301,7 @@ class PluginConfigurationMaximaUI
         )->withValue($data["maxima_command"] ?? "")
             ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
                 function ($v) {
-                    StackConfig::set('maxima_command', $v ?? "", "linux");
+                    StackConfig::set('maxima_command', $v ?? "", "connection");
                 }
             ));
 
