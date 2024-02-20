@@ -116,7 +116,6 @@ class stack_cas_healthcheck {
                 $test['tag'] = 'healthcheckmaximaavailable';
                 $test['result'] = null;
                 $test['summary'] = null;
-                $test['details'] = html_writer::tag('pre', $connection->get_maxima_available());
                 $this->tests[] = $test;
                 break;
             case 'server':
