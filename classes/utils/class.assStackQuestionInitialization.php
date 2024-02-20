@@ -30,6 +30,9 @@
 /**
  * Simulating moodles global configuration
  */
+
+use classes\platform\StackConfig;
+
 $CFG = new stdClass;
 // the base url of the installation (without script)
 $CFG->wwwroot = ilUtil::_getHttpPath();
@@ -123,8 +126,7 @@ if (!function_exists('get_config')) {
 
         $configs = new stdClass();
 
-        $saved_config = assStackQuestionConfig::_getStoredSettings('all');
-
+        $saved_config = StackConfig::getAll();
         /*
          * CONNECTION CONFIGURATION
          */
@@ -138,11 +140,7 @@ if (!function_exists('get_config')) {
         $configs->casresultscache = $saved_config['cas_result_caching'];
         //Maxima command - If blank: maxima
         if ($saved_config['platform_type'] == 'server') {
-            // prevent a second database query
-            assStackQuestionConfig::_readServers($saved_config);
-
-            // dynamically get the server address for the current request
-            $configs->maximacommand = assStackQuestionConfig::_getServerAddress();
+            $configs->maximacommandserver = $saved_config['maxima_pool_url'];
         } elseif (!$saved_config['maxima_command'] or $saved_config['platform_type'] == 'unix') {
             $configs->maximacommand = "maxima";
         } else {
@@ -155,7 +153,7 @@ if (!function_exists('get_config')) {
             $configs->plotcommand = $saved_config['plot_command'];
         }
         //CAS debug
-        $configs->casdebugging = $saved_config['cas_debugging'];
+        $configs->casdebugging = $saved_config['cas_debugging'] == 1;
 
         /*
          * DISPLAY CONFIGURATION
@@ -219,7 +217,7 @@ if (!function_exists('get_config')) {
         //Show validation button
         $configs->inputshowvalidation = $saved_config['input_show_validation'];
 
-        $configs->maximalocalfolder = realpath(ILIAS_WEB_DIR."/".CLIENT_ID) . '/stack';
+        $configs->maximalocalfolder = ilUtil::getWebspaceDir('filesystem') . '/xqcas/stack';
         $configs->stackmaximaversion = "2023121100";
         $configs->version = "2023121100";
 
