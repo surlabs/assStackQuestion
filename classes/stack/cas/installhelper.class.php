@@ -85,6 +85,11 @@ class stack_cas_configuration {
             $this->blocksettings = array();
             //SUR platform to platform_type
             $this->blocksettings['MAXIMA_PLATFORM'] = $this->settings["platform_type"];
+            if ($this->blocksettings['MAXIMA_PLATFORM'] == "server") {
+                if ($this->settings['maxima_uses_proxy'] == "1") {
+                    $this->blocksettings['MAXIMA_PLATFORM'] = "server-proxy";
+                }
+            }
             $this->blocksettings['maxima_tempdir'] = stack_utils::convert_slash_paths(realpath($CFG->dataroot) . '/stack/tmp/');
             $this->blocksettings['IMAGE_DIR'] = stack_utils::convert_slash_paths(realpath($CFG->dataroot) . '/stack/plots/');
 
