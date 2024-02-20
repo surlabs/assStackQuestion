@@ -1930,6 +1930,9 @@ class assStackQuestionGUI extends assQuestionGUI
             $message .= sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed'), $result->passed());
         }
 
+        $unit_tests = assStackQuestionDB::_readUnitTests($this->object->getId());
+        $this->object->setUnitTests($unit_tests);
+
         $tpl->setOnScreenMessage($type, $message, true);
 
         $this->randomisationAndSecurity();
