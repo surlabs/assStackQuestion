@@ -1049,14 +1049,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param string $original_id
      *
      */
-    public function saveToDb($original_id = ""): void
+    public function saveToDb($original_id = -1): void
     {
         global $tpl;
         if ($this->getTitle() != "" and $this->getAuthor() != "" and $this->getQuestion() != "") {
-            $this->saveQuestionDataToDb($this->getId());
+            $this->saveQuestionDataToDb((int) $original_id);
             $this->saveAdditionalQuestionDataToDb();
 
-            parent::saveToDb($this->getOriginalId());
+            parent::saveToDb();
         } else {
             $tpl->setOnScreenMessage('failure', $this->getPlugin()->txt('error_fields_missing'), true);
         }
