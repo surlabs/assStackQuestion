@@ -121,11 +121,6 @@ function vle_get_input_element(name, srciframe) {
     }
     // If none found within the question itself, search everywhere.
     let possible = document.querySelector('.ilc_question_Standard input[id$="_' + name + '"]');
-
-    if($(".ilc_question_Standard").length>1 && srciframe !== 'stack-iframe-1'){
-        return $(".ilc_question_Standard")[1].querySelector('input[id$="_' + name + '_sol"]');
-    }
-
     if (possible !== null) {
         return possible;
     }
@@ -280,7 +275,7 @@ window.addEventListener("message", (e) => {
     switch (msg.type) {
         case 'register-input-listener':
             // 1. Find the input.
-            input = vle_get_input_element(msg.name, msg.src);
+            input = vle_get_input_element(msg.name, msg.src) ?? vle_get_input_element(msg.name + "_sol", msg.src);
 
             if (input === null) {
 
@@ -435,7 +430,7 @@ window.addEventListener("message", (e) => {
             break;
         case 'changed-input':
             // 1. Find the input.
-            input = vle_get_input_element(msg.name, msg.src);
+            input = vle_get_input_element(msg.name, msg.src) ?? vle_get_input_element(msg.name + "_sol", msg.src);
             if (input === null) {
                 // Requested something that is not available.
                 const ret = {
