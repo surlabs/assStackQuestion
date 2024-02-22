@@ -464,18 +464,23 @@ class assStackQuestionMoodleImport
 	 */
 	private function getMediaObjectsFromXML(SimpleXMLElement $data): array
 	{
-        //TODO Images in MoodleXML
 		$mapping = array();
-		foreach ($data as $file) {
-			$name = (string) $file->attributes()["name"];
-			//$path = $file['_attributes']['path'];
-			$src = (string) $file->attributes()["_content"];
 
+		foreach ($data as $file) {
             global $CFG;
-			$temp = tempnam($CFG->dataroot . '/stack/tmp/', 'img');
-            //file_put_contents($temp, base64_decode($src));
-			$media_object = ilObjMediaObject::_saveTempFileAsMediaObject($name, $temp, true);
-			@unlink($temp);
+
+            $name = (string) $file->attributes()["name"];
+            $base64 = (string) $file;
+
+            $temp = $CFG->dataroot . '/stack/tmp/' . $name;
+
+            file_put_contents($temp, base64_decode($base64));
+
+            $compiled_media_object = ilObjMediaObject::_saveTempFileAsMediaObject($name, realpath($temp), false);
+            $media_object =& $compiled_media_object;
+            ilObjMediaObject::_saveUsage($media_object->getId(), "qpl:html", $this->getQuestion()->getId());
+
+            unlink($temp);
 
 			$this->media_objects[$media_object->getId()] = $media_object;
 			$mapping[$name] = $media_object->getId();
