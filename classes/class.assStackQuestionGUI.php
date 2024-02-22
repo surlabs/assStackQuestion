@@ -289,7 +289,7 @@ class assStackQuestionGUI extends assQuestionGUI
         if (!is_null($this->getPreviewSession()) && $this->getPreviewSession()->getParticipantsSolution() !== null) {
             $user_response = StackUserResponseIlias::getStackUserResponse('preview', $this->object->getId(), $DIC->user()->getId());
         } else {
-            assStackQuestionDB::_savePreviewSolution($this->object, array());
+            assStackQuestionDB::_savePreviewSolution($this->object, array(), $seed);
         }
 
         //Instantiate Question if not.
