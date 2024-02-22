@@ -2138,17 +2138,18 @@ class assStackQuestionDB
      *
      * @param assStackQuestion $question
      * @param array $data
+     * @param int|null $seed
      * @return void
      * @throws stack_exception
      */
-    public static function _savePreviewSolution(assStackQuestion $question, array $data) :void {
+    public static function _savePreviewSolution(assStackQuestion $question, array $data, ?int $seed = 1) :void {
         global $DIC;
         $db = $DIC->database();
 
         //Instantiate Question if not.
         if (!$question->isInstantiated()) {
             try{
-                $question->questionInitialisation(1, true);
+                $question->questionInitialisation($seed, true);
             } catch (stack_exception $e) {
                 global $tpl;
                 $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
