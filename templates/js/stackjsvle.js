@@ -96,13 +96,12 @@ function vle_get_element(id) {
  */
 function vle_get_input_element(name, srciframe) {
     /* In the case of Moodle we are happy as long as the element is inside
-       something with the `formulation`-class. */
-    let initialcandidate = document.getElementById(srciframe);
-    let iter = initialcandidate;
-    while (iter && !iter.classList.contains('.ilc_question_Standard')) {
+       something with the `ilc_question_Standard`-class. */
+    let iter = document.getElementById(srciframe);
+    while (iter && !iter.classList.contains('ilc_question_Standard')) {
         iter = iter.parentElement;
     }
-    if (iter && iter.classList.contains('.ilc_question_Standard')) {
+    if (iter && iter.classList.contains('ilc_question_Standard')) {
         // iter now represents the borders of the question containing
         // this IFRAME.
         let possible = iter.querySelector('input[id$="_' + name + '"]');
@@ -119,18 +118,10 @@ function vle_get_input_element(name, srciframe) {
             return possible;
         }
     }
-    // If none found within the question itself, search everywhere.
-    let possible = document.querySelector('.ilc_question_Standard input[id$="_' + name + '"]');
-    if (possible !== null) {
-        return possible;
-    }
-    // Radios have interesting ids, but the name makes sense
-    possible = document.querySelector('.il_ass_question_preview_container input[id$="_' + name + '_1"][type=radio]');
-    if (possible !== null) {
-        return possible;
-    }
-    possible = document.querySelector('.il_ass_question_preview_container select[id$="_' + name + '"]');
-    return possible;
+
+    // If we did not find anything we return null. Because if we search everywhere we might find something that is not in the question.
+
+    return null;
 }
 
 /**
@@ -424,6 +415,7 @@ window.addEventListener("message", (e) => {
             // 4. Let the requester know that we have bound things
             //    and let it know the initial value.
             if (!(msg.src in INPUTS[input.id])) {
+                console.log(msg.name, response);
                 IFRAMES[msg.src].contentWindow.postMessage(JSON.stringify(response), '*');
             }
 

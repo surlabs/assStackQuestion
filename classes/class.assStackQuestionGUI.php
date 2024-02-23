@@ -249,6 +249,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $display_options = [];
         $display_options['readonly'] = true;
+        $display_options['show_correct_solution'] = $show_correct_solution;
         $display_options['feedback'] = true;
         $display_options['feedback_style'] = 1;
 
