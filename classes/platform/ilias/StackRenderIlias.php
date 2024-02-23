@@ -245,7 +245,7 @@ class StackRenderIlias extends StackRender
             $state = $question->getInputState($input_name, $response);
 
             $question_text = str_replace("[[input:$input_name]]",
-                $input->render($state, $field_name, $display_options['readonly'], $teacher_answer_value)." ".$validation_button,
+                $input->render($state, $field_name, $display_options['show_correct_solution'] ?? false, $teacher_answer_value)." ".$validation_button,
                 $question_text);
 
             //Validation Placeholders
