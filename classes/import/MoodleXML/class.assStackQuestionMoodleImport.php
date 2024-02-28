@@ -358,12 +358,20 @@ class assStackQuestionMoodleImport
                 $node->truenextnode = ilUtil::secureString((string) $node_data->truenextnode);
                 $node->trueanswernote = ilUtil::secureString((string) $node_data->trueanswernote);
                 $node->truefeedback = (string) $node_data->truefeedback->text;
+                if (isset($node_data->truefeedback->file)) {
+                    $mapping = $this->getMediaObjectsFromXML($node_data->truefeedback->file);
+                    $node->truefeedback = $this->replaceMediaObjectReferences($node->truefeedback, $mapping);
+                }
                 $node->falsescoremode = ilUtil::secureString((string) $node_data->falsescoremode);
                 $node->falsescore = ilUtil::secureString((string) $node_data->falsescore);
                 $node->falsepenalty = ilUtil::secureString((int) $node_data->falsepenalty);
                 $node->falsenextnode = ilUtil::secureString((string) $node_data->falsenextnode);
                 $node->falseanswernote = ilUtil::secureString((string) $node_data->falseanswernote);
                 $node->falsefeedback = (string) $node_data->falsefeedback->text;
+                if (isset($node_data->falsefeedback->file)) {
+                    $mapping = $this->getMediaObjectsFromXML($node_data->falsefeedback->file);
+                    $node->falsefeedback = $this->replaceMediaObjectReferences($node->falsefeedback, $mapping);
+                }
 
                 $temp_prt_data->nodes[$node->nodename] = $node;
             }
