@@ -50,6 +50,7 @@ il.assStackQuestion = new function () {
 	 * Send the current panel state per ajax
 	 */
 	this.validate = function (event) {
+		add_spinner(this);
 		var name = "";
 		if (event.target.name === undefined) {
 			name = event.target.getAttribute('name');
@@ -59,6 +60,7 @@ il.assStackQuestion = new function () {
 		} else {
 			name = event.target.name;
 		}
+
 		name = name.replace(/cmd\[xqcas_/, '', name);
 		name = name.replace(/\]/, '', name);
 		var i = name.indexOf('_');
@@ -100,17 +102,65 @@ il.assStackQuestion = new function () {
 		$(".test_specific_feedback").hide();
 		/*
 		$(".ilAssQuestionRelatedNavigationContainer:first").nextUntil(".ilAssQuestionRelatedNavigationContainer").hide();*/
-
 		$.get(config.validate_url, {
 			'question_id': question_id,
 			'input_name': input_name,
 			'input_value': input_value
 		})
 			.done(function (data) {
+				remove_spinner();
 				$('#validation_xqcas_' + question_id + '_' + input_name).html(data);
 				MathJax.Hub.Queue(["Typeset", MathJax.Hub, 'validation_xqcas_' + question_id + '_' + input_name]);
+			}).catch(function (error) {
+				console.log(error.responseText);
 			});
+
+		;
 
 		return false;
 	}
+
+	var add_spinner = (function (button) {
+		if($(".spinner-container").length==0){
+			$(button).after(`
+				<div class="spinner-container">
+					<style>
+						.spinner {
+							border: 3px solid;
+							border-top: 3px solid transparent !important;
+							border-radius: 50%;
+							width: 32px;
+							height: 32px;
+							animation: spin 1s linear infinite;
+						}
+						.spinner-container {
+							display:none;
+							margin: 10px auto;
+						}
+						.spinner-flex{
+							display: flex;
+							justify-content: center;
+							align-items: center;
+							width: 100%;
+							
+						}
+						@keyframes spin {
+							0% { transform: rotate(0deg); }
+							100% { transform: rotate(360deg); }
+						}
+					</style>
+					<div class="spinner-flex">
+						<div class="spinner ilEditModified"></div>
+					</div>
+				</div>
+			`);
+			$(".spinner-container").show(250);
+		}
+	});
+
+	var remove_spinner = (function () {
+		$(".spinner-container").hide(100, function(){
+			$(".spinner-container").remove();
+		});
+	});
 };

@@ -38,11 +38,19 @@ class stack_options {
                 'caskey'     => 'OPT_OUTPUT',
                 'castype'    => 'string',
              ),
+            'decimals'       => array(
+                'type'       => 'list',
+                'value'      => '.',
+                'strict'     => true,
+                'values'     => array('.', ','),
+                'caskey'     => 'texput_decimal',
+                'castype'    => 'fun',
+            ),
             'multiplicationsign'   => array(
                 'type'       => 'list',
                 'value'      => 'dot',
                 'strict'     => true,
-                'values'     => array('dot', 'cross', 'none'),
+                'values'     => array('dot', 'cross', 'onum', 'none'),
                 'caskey'     => 'make_multsgn',
                 'castype'    => 'fun',
             ),
@@ -58,7 +66,7 @@ class stack_options {
                 'type'       => 'list',
                 'value'      => 'cos-1',
                 'strict'     => true,
-                'values'     => array('cos-1', 'acos', 'arccos'),
+                'values'     => array('cos-1', 'acos', 'arccos', 'arccos-arcosh'),
                 'caskey'     => 'make_arccos',
                 'castype'    => 'fun',
             ),
@@ -69,14 +77,6 @@ class stack_options {
                 'values'     => array('lang', 'symbol'),
                 'caskey'     => 'make_logic',
                 'castype'    => 'fun',
-            ),
-            'floats'   => array(
-                'type'       => 'boolean',
-                'value'      => 1,
-                'strict'     => true,
-                'values'     => array(),
-                'caskey'     => 'OPT_NoFloats',
-                'castype'    => 'ex',
             ),
             'sqrtsign'   => array(
                 'type'       => 'boolean',
@@ -137,12 +137,12 @@ class stack_options {
     public function set_site_defaults() {
         $stackconfig = stack_utils::get_config();
         // Display option does not match up to $stackconfig->mathsdisplay).
+        $this->set_option('decimals', $stackconfig->decimals);
         $this->set_option('multiplicationsign', $stackconfig->multiplicationsign);
         $this->set_option('complexno', $stackconfig->complexno);
         $this->set_option('inversetrig', $stackconfig->inversetrig);
         $this->set_option('logicsymbol', $stackconfig->logicsymbol);
         $this->set_option('matrixparens', $stackconfig->matrixparens);
-        $this->set_option('floats', (bool) $stackconfig->inputforbidfloat);
         $this->set_option('sqrtsign', (bool) $stackconfig->sqrtsign);
         $this->set_option('simplify', (bool) $stackconfig->questionsimplify);
         $this->set_option('assumepos', (bool) $stackconfig->assumepositive);
@@ -256,12 +256,23 @@ class stack_options {
     }
 
     /**
+     * @return array of choices for the decimal sign select menu.
+     */
+    public static function get_decimals_sign_options() {
+        return array(
+            '.'    => '.',
+            ','    => ',',
+        );
+    }
+
+    /**
      * @return array of choices for the multiplication sign select menu.
      */
     public static function get_multiplication_sign_options() {
         return array(
             'dot'   => get_string('multdot', 'qtype_stack'),
             'cross' => get_string('multcross', 'qtype_stack'),
+            'onum'  => get_string('multonlynumbers', 'qtype_stack'),
             'none'  => get_string('none'),
         );
     }
@@ -283,9 +294,10 @@ class stack_options {
      */
     public static function get_inverse_trig_options() {
         return array(
-            'cos-1'  => "cos\xe2\x81\xbb\xc2\xb9(x)",
-            'acos'   => 'acos(x)',
-            'arccos' => 'arccos(x)',
+            'cos-1'         => "cos\xe2\x81\xbb\xc2\xb9(x)",
+            'acos'          => 'acos(x)',
+            'arccos'        => 'arccos(x)',
+            'arccos-arcosh' => 'arccos(x)/arcosh(x)'
         );
     }
 

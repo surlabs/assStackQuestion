@@ -1,10 +1,4 @@
 <?php
-/**
- * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
- * GPLv3, see LICENSE
- * @author Jesús Copado Mejías <stack@surlabs.es>
- * @version $Id: 7.1$
- */
 // This file is part of Stack - http://stack.maths.ed.ac.uk/
 //
 // Stack is free software: you can redistribute it and/or modify
@@ -21,12 +15,13 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 require_once(__DIR__ . '/../stack/mathsoutput/mathsoutput.class.php');
-include_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/exceptions/class.assStackQuestionException.php');
+require_once(__DIR__ . '/../stack/mathsoutput/mathsoutputmathjax.class.php');
+//include_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php');
 
 /**
  * Base class for all the types of exception we throw.
  */
-class stack_exception extends assStackQuestionException
+class stack_exception extends ilException
 {
 	public function __construct($error)
 	{
@@ -43,8 +38,7 @@ class stack_exception extends assStackQuestionException
  */
 function stack_ouput_castext($castext)
 {
-	return format_text(stack_maths::process_display_castext($castext),
-		1, array('noclean' => true));
+	return stack_maths::process_display_castext($castext);
 }
 
 /**
@@ -56,8 +50,10 @@ function stack_ouput_castext($castext)
  */
 function stack_string($key, $a = null)
 {
-	require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php';
-	$user_language = getLanguage();
+	//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php';
+    global $DIC;
+    $lng = $DIC->language();
+    $user_language = $lng->getUserLanguage();
 	switch ($user_language) {
 		case 'en':
 			static $string = array();
@@ -85,7 +81,7 @@ function stack_string($key, $a = null)
  */
 function stack_string_error($key, $a = null)
 {
-	$key = stack_maths::process_lang_string(get_string($key, 'qtype_stack', $a));
+	$key = stack_maths::process_lang_string(stack_string($key, 'qtype_stack', $a));
 	return '<i class="icon fa fa-exclamation-circle text-danger fa-fw " title="' . $key . '" aria-label="' .
 		$key . '"></i>' . $key;
 }
@@ -100,7 +96,7 @@ function get_stack_maxima_latex_replacements()
 	// This is an array language code => replacements array.
 	static $replacements = [];
 
-	require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php';
+	//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/cas/installhelper.class.php';
 	$lang = getLanguage();
 	if (!isset($replacements[$lang])) {
 		$replacements[$lang] = [

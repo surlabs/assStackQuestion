@@ -15,8 +15,8 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/../options.class.php');
-require_once(__DIR__ . '/inputbase.class.php');
+//require_once(__DIR__ . '/../options.class.php');
+//require_once(__DIR__ . '/inputbase.class.php');
 
 // Input factory. Provides a convenient way to create an input of any type,
 // and to get metadata about the input types.
@@ -67,7 +67,7 @@ class stack_input_factory {
         if (!is_readable($file)) {
             throw new stack_exception('stack_input_factory: unknown input type ' . $type);
         }
-        include_once($file);
+        //include_once($file);
 
         if (!class_exists($class)) {
             throw new stack_exception('stack_input_factory: input type ' . $type .
@@ -90,7 +90,7 @@ class stack_input_factory {
         $types = array();
         foreach (new DirectoryIterator(__DIR__) as $item) {
             // Skip . and .. and non-dirs.
-            if ($item->isDot() or !$item->isDir()) {
+            if ($item->isDot() || !$item->isDir()) {
                 continue;
             }
 
@@ -115,7 +115,7 @@ class stack_input_factory {
             }
 
             // Skip folders that don't define the right class.
-            include_once($file);
+            //include_once($file);
             $class = "stack_{$inputname}_input";
             if (!class_exists($class)) {
                 continue;

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once(__DIR__ . '/filter.interface.php');
+//require_once(__DIR__ . '/filter.interface.php');
 
 /**
  * AST filter that spots one inconvenient parser missconception dealing
@@ -83,8 +83,7 @@ class stack_ast_filter_003_no_dot_dot implements stack_cas_astfilter {
                         $node->position['invalid'] = true;
                         // No need to warn about this if we are already invalid due to whatever reason.
                         $answernotes[] = 'MatrixMultWithFloat';
-                        $errors[] = 'Due to syntactical reasons matrix multiplication "." with scalar floats is ' .
-                                'forbidden, use normal multiplication "*" instead for the same result. ' . $node->toString();
+                        $errors[] = stack_string('stackCas_baddotdot') . $node->toString();
                     }
                 }
             }

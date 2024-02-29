@@ -25,11 +25,14 @@ class stack_algebraic_input extends stack_input {
 
     protected $extraoptions = array(
         'hideanswer' => false,
+        'allowempty' => false,
         'simp' => false,
         'rationalized' => false,
-        'allowempty' => false,
         'nounits' => false,
-        'align' => 'left'
+        'align' => 'left',
+        'consolidatesubscripts' => false,
+        'checkvars' => 0,
+        'validator' => false
     );
 
     public function render(stack_input_state $state, $fieldname, $readonly, $tavalue) {
@@ -38,11 +41,11 @@ class stack_algebraic_input extends stack_input {
             return $this->render_error($this->errors);
         }
 
-        //fau-jcopado: returns ILIAS renderer in case we are in an ILIAS platform
-		//if(class_exists('assStackQuestion')){
-		//	include_once('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/class.assStackQuestionRenderer.php');
-		//	return assStackQuestionRenderer::_renderAlgebraicInput($state, $fieldname, $readonly, $tavalue);
-		//}
+        if ($readonly) {
+            //ensures input id and name are different for solution than for student input
+            $solution_input_id = $fieldname . '_sol';
+            $fieldname = $solution_input_id;
+        }
 
         $size = $this->parameters['boxWidth'] * 0.9 + 0.1;
         $attributes = array(
@@ -55,6 +58,11 @@ class stack_algebraic_input extends stack_input {
             'spellcheck'     => 'false',
             'class' => 'algebraic',
         );
+
+        if ($readonly) {
+            $attributes['readonly'] = 'readonly';
+        }
+
         if ($this->extraoptions['align'] === 'right') {
             $attributes['class'] = 'algebraic-right';
         }
@@ -71,10 +79,6 @@ class stack_algebraic_input extends stack_input {
             $attributes[$field] = $this->parameters['syntaxHint'];
         } else {
             $attributes['value'] = $value;
-        }
-
-        if ($readonly) {
-            $attributes['readonly'] = 'readonly';
         }
 
         return html_writer::empty_tag('input', $attributes);
@@ -133,7 +137,7 @@ class stack_algebraic_input extends stack_input {
         }
         $cs = stack_ast_container::make_from_teacher_source($value, '', new stack_cas_security());
         $cs->set_nounify(0);
-        $value = $cs->get_inputform(true, 0, true);
+        $value = $cs->get_inputform(true, 0, true, $this->options->get_option('decimals'));
         return stack_string('teacheranswershow', array('value' => '<code>'.$value.'</code>', 'display' => $display));
     }
 }

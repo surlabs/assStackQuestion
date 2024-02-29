@@ -99,6 +99,8 @@ stack_unit_si_to_si_base(expression) := block([ui, pfi, ex, workex, oldsimp],
   oldsimp:simp,
   simp:false,
   ex:stackunits_make(expression),
+  /* Remove intert dp/df display functions at this point. */
+  ex:ev(ex, displaydp=lambda([a,b],a),  displaysf=lambda([a,b],a)),  
   workex:stack_units_units(ex),
   if debug then (print("stack_unit_si_to_si_base: working with the following."), print(ex), print(workex)),
   /* If we don't have units there is nothing to do. */
@@ -206,8 +208,8 @@ stackunits_make(ex) := block([oldsimp, exn, exu, exl],
   if is_simp(listofunits(ex)=[]) then
     return(stackunits(ex, NULLUNITS)),
   /* Edge case like s^(-1). */
-  if is_simp(op(exn)="noun^") then
-    exn:[exn] elseif not(is_simp(op(exn)="noun*")) then
+  if is_simp(op(exn)="nounpow") then
+    exn:[exn] elseif not(is_simp(op(exn)="nounmul")) then
     return(stackunits(ex, NULLUNITS)),
   exu:sublist(args(exn), lambda([ex2], not(stackunits_make_p(ex2)))),
   exn:sublist(args(exn), lambda([ex2], stackunits_make_p(ex2))),
@@ -227,13 +229,13 @@ stackunits_make(ex) := block([oldsimp, exn, exu, exl],
   exn:maplist(unary_minus_remove, exn),
   exn:stack_units_rational_number(exn),
   if (debug) then (print("stackunits_make: (2) reformulated numbers as "), print(exn)),
-  if is(first(exn) = UNARY_MINUS) then
-    (
+  if is(first(exn) = UNARY_MINUS) then block(
       exn:rest(exn),
       exn[1]:ev(-1*exn[1],simp)
-    ),
-  if length(exn)=1 then exn:first(exn) else exn:apply("noun*", exn),
-  if length(exu)=1 then exu:first(exu) else exu:apply("noun*", exu),
+  ),
+  if length(exn)=1 then exn:first(exn) else exn:apply("nounmul", exn),
+  if length(exu)=1 then exu:first(exu) else exu:apply("nounmul", exu),
+  if (debug) then (print("stackunits_make: (3) reformulated numbers as "), print(exn)),
   if (debug) then (print("stackunits_make: (3) reformulated units as "), print(exu)),
   verb_arith(stackunits(exn, exu))
 )$
@@ -258,18 +260,18 @@ stackunits_make_p(ex) := block(
     return(true),
   if emptyp(listofvars(ex)) then
     return(true),
-  if simp_numberp(ev(float(verb_arith(ex)), simp)) then
+  if simp_complex_number_p(ev(float(verb_arith(ex)), simp)) then
      return(true),
   return(false)
 )$
 
 /* Does something look like a rational number? */
 stack_units_rational_number(ex) := block(
-  if length(ex)=1 and safe_op(first(ex))="noun^" and is(second(args(first(ex)))=-1) then return([1/first(args(first(ex)))]),
+  if length(ex)=1 and safe_op(first(ex))="nounpow" and is(second(args(first(ex)))=-1) then return([1/first(args(first(ex)))]),
   if not(length(ex)=2) then
     return(ex),
   if not(integerp(first(ex))) or atom(second(ex)) then return(ex),
-  if safe_op(second(ex))="noun^" and is(second(args(second(ex)))=-1) then return([first(ex)/first(args(second(ex)))]),
+  if safe_op(second(ex))="nounpow" and is(second(args(second(ex)))=-1) then return([first(ex)/first(args(second(ex)))]),
   ex
 )$
 
@@ -429,7 +431,7 @@ ATUnitsSigFigs_CASSigFigsWrapper(SA, SB, SO, SR, strict) := ATUnitsFun(SA, SB, S
 ATUnitsRelative(SA, SB, SO) := ATUnitsFun(SA, SB, SO, "", false, "Relative")$
 ATUnitsStrictRelative(SA, SB, SO) := ATUnitsFun(SA, SB, SO, "", true, "Relative")$
 ATUnitsAbsolute(SA, SB, SO) := ATUnitsFun(SA, SB, SO, "", false, "Absolute")$
-ATUnitsStrictAbsolute(SA, SB, SO, SR) := ATUnitsFun(SA, SB, SO, SR, true, "Absolute")$
+ATUnitsStrictAbsolute(SA, SB, SO) := ATUnitsFun(SA, SB, SO, "", true, "Absolute")$
 
 
 /* This function has two options:

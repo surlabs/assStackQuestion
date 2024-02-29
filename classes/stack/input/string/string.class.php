@@ -15,7 +15,7 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/../algebraic/algebraic.class.php');
+//require_once(__DIR__ . '/../algebraic/algebraic.class.php');
 
 /**
  * A basic text-field input which is always interpreted as a Maxima string.
@@ -28,7 +28,8 @@ class stack_string_input extends stack_algebraic_input {
 
     protected $extraoptions = array(
         'hideanswer' => false,
-        'allowempty' => false
+        'allowempty' => false,
+        'validator' => false
     );
 
     public function render(stack_input_state $state, $fieldname, $readonly, $tavalue) {
@@ -38,6 +39,11 @@ class stack_string_input extends stack_algebraic_input {
         }
 
         $size = $this->parameters['boxWidth'] * 0.9 + 0.1;
+
+        if ($readonly){
+            $solution_input_id = $fieldname . '_sol';
+            $fieldname = $solution_input_id;
+        }
         $attributes = array(
             'type'  => 'text',
             'name'  => $fieldname,
@@ -71,7 +77,6 @@ class stack_string_input extends stack_algebraic_input {
      * Transforms the student's response input into an array.
      * Most return the same as went in.
      *
-	 * ILI-FAU
      * @param array|string $in
      * @return string
      */
@@ -99,8 +104,8 @@ class stack_string_input extends stack_algebraic_input {
             return '';
         }
 
-        $value = stack_utils::maxima_string_to_php_string($value);
-        return stack_string('teacheranswershow', array('value' => '<code>'.$value.'</code>', 'display' => $display));
+        $display = stack_utils::maxima_string_strip_mbox($display);
+        return stack_string('teacheranswershow_disp', array('display' => $display));
     }
 
     /**

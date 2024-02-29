@@ -1,7 +1,21 @@
 <?php
 /**
- * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
- * GPLv3, see LICENSE
+ *  This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
+ *  This plugin is developed and maintained by SURLABS and is a port of STACK Question for Moodle,
+ *  originally created by Chris Sangwin.
+ *
+ *  The STACK Question plugin for ILIAS is open-source and licensed under GPL-3.0.
+ *  For license details, visit https://www.gnu.org/licenses/gpl-3.0.en.html.
+ *
+ *  To report bugs or participate in discussions, visit the Mantis system and filter by
+ *  the category "STACK Question" at https://mantis.ilias.de.
+ *
+ *  More information and source code are available at:
+ *  https://github.com/surlabs/STACK
+ *
+ *  If you need support, please contact the maintainer of this software at:
+ *  stack@surlabs.es
+ *
  */
 
 
@@ -14,23 +28,24 @@
  */
 class assStackQuestionUtils
 {
+    const FORMAT_HTML = 0;
+    const FORMAT_MARKDOWN = 1;
+    const FORMAT_MOODLE = 2;
+    const FORMAT_PLAIN = 3;
 
-	/**
+    /**
 	 * Prevent comparison operators being interpreted as HTML tags
 	 * This would cause errors if CASText is processed with strip_tags.
-	 *
-	 * Not used anymore because RTE fields convert < and >to &lt; and &gt;
-	 * The question variables field is now read without strip_tags
 	 *
 	 * @param $text
 	 * @return mixed
 	 */
 	public static function _debugText($text)
 	{
-		$text1 = str_replace("<", "< ", $text);
-		$text2 = str_replace(">", " >", $text1);
-
-		return $text2;
+        $text = preg_replace('/<([^<>]+)>/', '< $1 >', $text);
+        $text = str_replace('< =', '<=', $text);
+        $text = str_replace('= >', '=>', $text); // I know this is not a valid operator, but i prfer to avoid it being interpreted as a tag
+		return $text;
 	}
 
 	/**
@@ -160,7 +175,8 @@ class assStackQuestionUtils
 				$user_response[$input_name] = $input->maxima_to_response_array($user_response_from_db[$input_name]);
 			} else {
 				//We have something wrong
-				ilUtil::sendFailure("Error in manageUserResponse, inputs provided are neither ILIAS or STACK inputs", TRUE);
+                global $tpl;
+                $tpl->setOnScreenMessage('failure', "Error in manageUserResponse, inputs provided are neither ILIAS or STACK inputs", true);
 			}
 		}
 
@@ -280,12 +296,16 @@ class assStackQuestionUtils
 	}
 
 	/**
+     * @depracated
 	 * @param array $response_array
 	 * @param stack_input[] $inputs
 	 * @return bool
 	 */
 	public static function _isEmptyResponse(array $response_array, array $inputs): bool
 	{
+        //No longer needed
+        return false;
+        /*
 		if (empty($response_array)) {
 			return true;
 		}
@@ -313,18 +333,19 @@ class assStackQuestionUtils
 			}
 		}
 
-		return true;
+		return true;*/
 	}
 
 	/**
 	 * Checks wheter a question uses randomisation or not
-	 * @param $question_variables_text string the question variables
+	 * @param $text string the text to analyze
 	 * @return boolean
 	 */
-	public static function _questionHasRandomVariables($question_variables_text)
-	{
-		return (boolean)preg_match('~\brand~', $question_variables_text);
-	}
+    public static function _hasRandomVariables($text): bool
+    {
+        return preg_match('~\brand~', $text) || preg_match('~\bmultiselqn~', $text)
+            || preg_match('~\bstack_seed~', $text);
+    }
 
 	/**
 	 * Checks wheter a question uses randomisation or not
@@ -480,6 +501,12 @@ class assStackQuestionUtils
         //Search for all &lt;span class="latex"&gt;...&lt;/span&gt; and change it to the current limiter in Mathjaxsettings
         $text = preg_replace('/<span class="latex">(.*?)<\/span>/', $start . '$1' . $end, $text);
 
+        //Search for all pmatrix and change \ to \\ inside the pmatrix
+        $text = preg_replace_callback('/\\\\begin{pmatrix}(.*?)\\\\end{pmatrix}/s', function($matches) {
+            // Realizar el reemplazo solo dentro de los paréntesis del entorno pmatrix
+            return str_replace("}\\{", "}\\\\{", $matches[0]);
+        }, $text);
+
         // replace special characters to prevent problems with the ILIAS template system
         // eg. if someone uses {1} as an answer, nothing will be shown without the replacement
         $text = str_replace("{", "&#123;", $text);
@@ -495,8 +522,8 @@ class assStackQuestionUtils
         /*
          * Step 3 User ilMathJax::getInstance()->insertLatexImages to deliver the LaTeX code.
          */
-        include_once './Services/MathJax/classes/class.ilMathJax.php';
-        require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
+        //include_once './Services/MathJax/classes/class.ilMathJax.php';
+        //require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
         //ilMathJax::getInstance()->insertLatexImages cannot render \( delimiters so we change it to [tex]
         if ($start == '\(') {
             return stack_maths::process_display_castext(ilMathJax::getInstance()->insertLatexImages($text));
@@ -546,17 +573,17 @@ class assStackQuestionUtils
 	public static function _getAvailableTypes()
 	{
 
-		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/algebraic/algebraic.class.php';
-		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/boolean/boolean.class.php';
-		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/checkbox/checkbox.class.php';
-		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/dropdown/dropdown.class.php';
-		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/equiv/equiv.class.php';
-		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/matrix/matrix.class.php';
-		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/notes/notes.class.php';
-		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/radio/radio.class.php';
-		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/singlechar/singlechar.class.php';
-		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/textarea/textarea.class.php';
-		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/units/units.class.php';
+		//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/algebraic/algebraic.class.php';
+		//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/boolean/boolean.class.php';
+		//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/checkbox/checkbox.class.php';
+		//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/dropdown/dropdown.class.php';
+		//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/equiv/equiv.class.php';
+		//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/matrix/matrix.class.php';
+		//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/notes/notes.class.php';
+		//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/radio/radio.class.php';
+		//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/singlechar/singlechar.class.php';
+		//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/textarea/textarea.class.php';
+		//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/input/units/units.class.php';
 
 		$types = array('algebraic' => 'stack_algebraic_input', 'boolean' => 'stack_boolean_input', 'checkbox' => 'stack_checkbox_input', 'dropdown' => 'stack_dropdown_input', 'equiv' => 'stack_equiv_input', 'matrix' => 'stack_matrix_input', 'notes' => 'stack_notes_input', 'radio' => 'stack_radio_input', 'singlechar' => 'stack_singlechar_input', 'textarea' => 'stack_textarea_input', 'units' => 'stack_units_input');
 
@@ -572,9 +599,9 @@ class assStackQuestionUtils
 	{
 		global $DIC;
 		$lng = $DIC->language();
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
 		//Initialize some STACK required parameters
-		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
+		//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
 		//Do replacement
 		//#22779 a_strip_html must be false
 		$new_text = ilUtil::secureString(stack_maths::replace_dollars($a_text), FALSE);
@@ -606,9 +633,9 @@ class assStackQuestionUtils
 
 	public static function stack_output_castext($castext)
 	{
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
+		//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/stack/mathsoutput/mathsoutput.class.php';
 		//Initialize some STACK required parameters
-		include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
+		//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionInitialization.php';
 		return stack_maths::process_display_castext($castext);
 	}
 
@@ -638,11 +665,11 @@ class assStackQuestionUtils
 	 */
 	public static function _getFeedbackStyledText($a_text, $a_format)
 	{
-		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
+		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
 
 		//Get Styles assigned to Formats
 		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
-		require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
+		//require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
 
 		//Return text depending Format
 		if (strlen($a_text)) {
@@ -682,7 +709,7 @@ class assStackQuestionUtils
 
 	public static function _replaceFeedbackPlaceHolders($feedback)
 	{
-		require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
+		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
 
 		//Get Styles assigned to Formats
 		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
@@ -791,7 +818,8 @@ class assStackQuestionUtils
             case is_a($input, 'stack_algebraic_input'):
                 return 'algebraic';
 			default:
-				ilUtil::sendFailure('Input type not found', true);
+                global $tpl;
+                $tpl->setOnScreenMessage('failure', 'Input type not found', true);
 				return '';
 		}
 	}
@@ -1012,7 +1040,8 @@ class assStackQuestionUtils
 			//SET OPTIONS
 			$question->options = $options;
 		} catch (stack_exception $e) {
-			ilUtil::sendFailure($e->getMessage(), true);
+            global $tpl;
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 		}
 
 		//load Data stored in options but not part of the session options
@@ -1066,7 +1095,7 @@ class assStackQuestionUtils
 				'strictSyntax' => $input_data['strict_syntax'],
 				'insertStars' => $input_data['insert_stars'],
 				'syntaxHint' => $input_data['syntax_hint'],
-				'syntaxAttribute' => $input_data['syntax_attribute'],
+                'syntaxAttribute' => array_key_exists('syntax_attribute', $input_data) ? $input_data['syntax_attribute'] : '', // To support old questions
 				'forbidWords' => $input_data['forbid_words'],
 				'allowWords' => $input_data['allow_words'],
 				'forbidFloats' => $input_data['forbid_float'],
@@ -1092,6 +1121,23 @@ class assStackQuestionUtils
 		//load PRTs and PRT nodes
 		$prt_from_array = $array['prts'];
 
+        if (count($prt_from_array) > 0) {
+            if (is_array($prt_from_array[array_key_first($prt_from_array)])) {
+                foreach ($prt_from_array as $prt_name => $prt_data) {
+                    $prt_from_array[$prt_name] = self::prtArrayToObject($prt_data);
+
+                    $prt_from_array[$prt_name]->name = $prt_name;
+
+                    foreach ($prt_from_array[$prt_name]->nodes as $node_name => $node_data) {
+                        $prt_from_array[$prt_name]->nodes[$node_name] = self::prtArrayToObject($node_data);
+
+                        $prt_from_array[$prt_name]->nodes[$node_name]->nodename = $node_name;
+                        $prt_from_array[$prt_name]->nodes[$node_name]->prtname = $prt_name;
+                    }
+                }
+            }
+        }
+
 		//Values
 		$total_value = 0;
 
@@ -1099,7 +1145,7 @@ class assStackQuestionUtils
 		$grade_all = true;
 
 		foreach ($prt_from_array as $prt_name => $prt_data) {
-			$total_value += $prt_data['value'];
+			$total_value += $prt_data->value;
 		}
 
 		if ($prt_from_array && $grade_all && $total_value < 0.0000001) {
@@ -1108,76 +1154,33 @@ class assStackQuestionUtils
 					'The $totalvalue, the marks available for the question, must be positive in question ' .
 					$question->getTitle());
 			} catch (stack_exception $e) {
-				ilUtil::sendFailure($e);
+                global $tpl;
+                $tpl->setOnScreenMessage('failure', $e);
 				$total_value = 1.0;
 			}
 		}
 
 		//get PRT and PRT Nodes from DB
-			foreach ($prt_from_array as $prt_name => $prt_data) {
+        $total_value = 0;
+        $all_formative = true;
 
-				$nodes = array();
+        foreach ($prt_from_array as $name => $prt_data) {
+            $total_value += $prt_data->value;
+            $all_formative = false;
+        }
 
-				if (isset($prt_data['nodes']) and !empty($prt_data['nodes'])) {
-					foreach ($prt_data['nodes'] as $node_name => $node_data) {
+        if ($prt_from_array && !$all_formative && $total_value < 0.0000001) {
+            throw new stack_exception('There is an error authoring your question. ' .
+                'The $totalvalue, the marks available for the question, must be positive in question ' . $question->getTitle());
+        }
 
-						$sans = stack_ast_container::make_from_teacher_source('PRSANS' . $node_name . ':' . $node_data['sans'], '', new stack_cas_security());
-						$tans = stack_ast_container::make_from_teacher_source('PRTANS' . $node_name . ':' . $node_data['tans'], '', new stack_cas_security());
-
-						//Penalties management, penalties are not an ILIAS Feature
-						if (is_null($node_data['false_penalty']) || $node_data['false_penalty'] === '') {
-							$false_penalty = 0;
-						} else {
-							$false_penalty = $node_data['false_penalty'];
-						}
-
-						if (is_null(($node_data['true_penalty']) || $node_data['true_penalty'] === '')) {
-							$true_penalty = 0;
-						} else {
-							$true_penalty = $node_data['true_penalty'];
-						}
-
-						try {
-							//Create Node and add it to the
-							$node = new stack_potentialresponse_node($sans, $tans, $node_data['answer_test'], $node_data['test_options'], (bool)$node_data['quiet'], '', (int)$node_name, $node_data['sans'], $node_data['tans']);
-
-							$node->add_branch(0, $node_data['false_score_mode'], $node_data['false_score'], $false_penalty, $node_data['false_next_node'], $node_data['false_feedback'], $node_data['false_feedback_format'], $node_data['false_answer_note']);
-							$node->add_branch(1, $node_data['true_score_mode'], $node_data['true_score'], $true_penalty, $node_data['true_next_node'], $node_data['true_feedback'], $node_data['true_feedback_format'], $node_data['true_answer_note']);
-
-							$nodes[$node_name] = $node;
-						} catch (stack_exception $e) {
-							ilUtil::sendFailure($e->getMessage(), true);
-						}
-					}
-				} else {
-					break;
-				}
-
-				if ($prt_data['feedback_variables']) {
-					try {
-						$feedback_variables = new stack_cas_keyval($prt_data['feedback_variables']);
-						$feedback_variables = $feedback_variables->get_session();
-					} catch (stack_exception $e) {
-						ilUtil::sendFailure($e->getMessage(), true);
-					}
-				} else {
-					$feedback_variables = null;
-				}
-
-				if ($total_value == 0) {
-					//TODO Non gradable question
-					$prt_value = 0.0;
-				} else {
-					$prt_value = $prt_data['value'];
-				}
-
-				try {
-					$question->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt_data['auto_simplify'], $prt_value, $feedback_variables, $nodes, (string)$prt_data['first_node_name'], 1);
-				} catch (stack_exception $e) {
-					ilUtil::sendFailure($e, true);
-				}
-			}
-
+        foreach ($prt_from_array as $name => $prt_data) {
+            $prt_value = 0;
+            if (!$all_formative) {
+                $prt_value = $prt_data->value / $total_value;
+            }
+            $question->prts[$name] = new stack_potentialresponse_tree_lite($prt_data, $prt_value);
+        }
 
 		//load seeds
 		$deployed_seeds = $array['deployed_variants'];
@@ -1191,15 +1194,15 @@ class assStackQuestionUtils
 
 		//load extra info
 		$extra_info = $array['extra_information'];
-		if (is_array($extra_info)) {
-			$question->general_feedback = $extra_info['general_feedback'];
-			$question->penalty = (float)$extra_info['penalty'];
-			$question->hidden = (bool)$extra_info['hidden'];
-		} else {
-			$question->general_feedback = '';
-			$question->penalty = 0.0;
-			$question->hidden = false;
-		}
+        if (is_array($extra_info)) {
+            $question->general_feedback = $extra_info['general_feedback'];
+            $question->setPenalty((float) $extra_info['penalty']);
+            $question->setHidden((bool) $extra_info['hidden']);
+        } else {
+            $question->general_feedback = '';
+            $question->setPenalty(0.0);
+            $question->setHidden(false);
+        }
 
 		//load unit tests
 		$unit_tests = $array['unit_tests'];
@@ -1216,93 +1219,220 @@ class assStackQuestionUtils
 	 * @param array $prts
 	 * @return array
 	 */
-	public static function _fromTSTSolutionsToSTACK(array $tst_solutions,string $question_id, array $inputs, array $prts ): array
-	{
-		$parsed_user_response_from_db = array();
+	public static function _fromTSTSolutionsToSTACK(array $tst_solutions,string $question_id): array {
+        $parsed_user_response_from_db = array();
 
-		foreach ($tst_solutions as $solution_entry) {
+		if (count($tst_solutions) > 0) {
+			if($tst_solutions[0]['value1'] != "xqcas_raw_data") {
+				foreach ($tst_solutions as $solution_entry) {
 
-			//Question text
-			if ($solution_entry['value1'] == 'xqcas_text_' . $question_id) {
-				$parsed_user_response_from_db['question_text'] = $solution_entry['value2'];
-			}
+					//Question text
+					if ($solution_entry['value1'] == 'xqcas_text_' . $question_id) {
+						$parsed_user_response_from_db['question_text'] = $solution_entry['value2'];
+					}
 
-			//question note
-			if ($solution_entry['value1'] == 'xqcas_solution_' . $question_id) {
-				$parsed_user_response_from_db['question_note'] = $solution_entry['value2'];
-			}
+					//question note
+					if ($solution_entry['value1'] == 'xqcas_solution_' . $question_id) {
+						$parsed_user_response_from_db['question_note'] = $solution_entry['value2'];
+					}
 
-			//General feedback
-			if ($solution_entry['value1'] == 'xqcas_general_feedback_' . $question_id) {
-				$parsed_user_response_from_db['general_feedback'] = $solution_entry['value2'];
-			}
+					//General feedback
+					if ($solution_entry['value1'] == 'xqcas_general_feedback_' . $question_id) {
+						$parsed_user_response_from_db['general_feedback'] = $solution_entry['value2'];
+					}
 
-			//Seed
-			if ($solution_entry['value1'] == 'xqcas_question_' . $question_id . '_seed') {
-				$parsed_user_response_from_db['seed'] = $solution_entry['value2'];
-			}
+					//Seed
+					if ($solution_entry['value1'] == 'xqcas_question_' . $question_id . '_seed') {
+						$parsed_user_response_from_db['seed'] = $solution_entry['value2'];
+					}
 
-			foreach ($inputs as $input_name => $input) {
+					//Inputs
 
-				//User response value
-				if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_value') {
-					$parsed_user_response_from_db['inputs'][$input_name]['value'] = $solution_entry['value2'];
+					// User response value
+					if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_value') !== false) {
+						$input_name = str_replace('xqcas_input_', '', $solution_entry['value1']);
+						$input_name = str_replace('_value', '', $input_name);
+						$parsed_user_response_from_db['inputs'][$input_name]['value'] = $solution_entry['value2'];
+					}
+
+					// User response display
+                    if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_display') !== false && strpos($solution_entry['value1'], '_model_answer') === false && strpos($solution_entry['value1'], '_validation') === false) {
+						$input_name = str_replace('xqcas_input_', '', $solution_entry['value1']);
+						$input_name = str_replace('_display', '', $input_name);
+						$parsed_user_response_from_db['inputs'][$input_name]['display'] = $solution_entry['value2'];
+					}
+
+					// Correct answer value
+                    if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_model_answer') !== false && strpos($solution_entry['value1'], '_model_answer_display') === false) {
+						$input_name = str_replace('xqcas_input_', '', $solution_entry['value1']);
+						$input_name = str_replace('_model_answer', '', $input_name);
+						$parsed_user_response_from_db['inputs'][$input_name]['correct_value'] = $solution_entry['value2'];
+					}
+
+					// Correct answer display
+					if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_model_answer_display') !== false) {
+						$input_name = str_replace('xqcas_input_', '', $solution_entry['value1']);
+						$input_name = str_replace('_model_answer_display', '', $input_name);
+						$parsed_user_response_from_db['inputs'][$input_name]['correct_display'] = $solution_entry['value2'];
+					}
+
+					// Input validation
+					if (strpos($solution_entry['value1'], 'xqcas_input_') !== false && strpos($solution_entry['value1'], '_validation_display') !== false) {
+						$input_name = str_replace('xqcas_input_', '', $solution_entry['value1']);
+						$input_name = str_replace('_validation_display', '', $input_name);
+						$parsed_user_response_from_db['inputs'][$input_name]['validation_display'] = $solution_entry['value2'];
+					}
+
+					//Prts
+
+					//PRT name
+					if (strpos($solution_entry['value1'], 'xqcas_prt_') !== false && strpos($solution_entry['value1'], '_name') !== false) {
+						$prt_name = str_replace('xqcas_prt_', '', $solution_entry['value1']);
+						$prt_name = str_replace('_name', '', $prt_name);
+						$parsed_user_response_from_db['prts'][$prt_name]['name'] = $solution_entry['value2'];
+					}
+
+					//PRT errors
+					if (strpos($solution_entry['value1'], 'xqcas_prt_') !== false && strpos($solution_entry['value1'], '_errors') !== false) {
+						$prt_name = str_replace('xqcas_prt_', '', $solution_entry['value1']);
+						$prt_name = str_replace('_errors', '', $prt_name);
+						$parsed_user_response_from_db['prts'][$prt_name]['errors'] = $solution_entry['value2'];
+					}
+
+					//PRT feedback
+					if (strpos($solution_entry['value1'], 'xqcas_prt_') !== false && strpos($solution_entry['value1'], '_feedback') !== false) {
+						$prt_name = str_replace('xqcas_prt_', '', $solution_entry['value1']);
+						$prt_name = str_replace('_feedback', '', $prt_name);
+						$parsed_user_response_from_db['prts'][$prt_name]['feedback'] = $solution_entry['value2'];
+					}
+
+					//PRT status
+					if (strpos($solution_entry['value1'], 'xqcas_prt_') !== false && strpos($solution_entry['value1'], '_status') !== false) {
+						$prt_name = str_replace('xqcas_prt_', '', $solution_entry['value1']);
+						$prt_name = str_replace('_status', '', $prt_name);
+						$parsed_user_response_from_db['prts'][$prt_name]['status'] = $solution_entry['value2'];
+					}
+
+					//PRT answer notes
+					if (strpos($solution_entry['value1'], 'xqcas_prt_') !== false && strpos($solution_entry['value1'], '_answernote') !== false) {
+						$prt_name = str_replace('xqcas_prt_', '', $solution_entry['value1']);
+						$prt_name = str_replace('_answernote', '', $prt_name);
+						$parsed_user_response_from_db['prts'][$prt_name]['answer_notes'] = $solution_entry['value2'];
+					}
+				}
+			} else {
+				$parsed_user_response_from_db = (array) json_decode($tst_solutions[0]['value2']);
+
+				//Convert inputs from stdClass to array
+				$parsed_user_response_from_db['inputs'] = (array) $parsed_user_response_from_db['inputs'];
+				foreach ($parsed_user_response_from_db['inputs'] as $input_name => $input) {
+					$parsed_user_response_from_db['inputs'][$input_name] = (array) $input;
 				}
 
-				//User response display
-				if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_display') {
-					$parsed_user_response_from_db['inputs'][$input_name]['display'] = $solution_entry['value2'];
+				//Convert prts from stdClass to array
+				$parsed_user_response_from_db['prts'] = (array) $parsed_user_response_from_db['prts'];
+				foreach ($parsed_user_response_from_db['prts'] as $prt_name => $prt) {
+					$parsed_user_response_from_db['prts'][$prt_name] = (array) $prt;
 				}
-
-				//correct answer value
-				if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_model_answer') {
-					$parsed_user_response_from_db['inputs'][$input_name]['correct_value'] = $solution_entry['value2'];
-				}
-
-				//correct answer display
-				if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_model_answer_display') {
-					$parsed_user_response_from_db['inputs'][$input_name]['correct_display'] = $solution_entry['value2'];
-				}
-
-				//Input validation
-				if ($solution_entry['value1'] == 'xqcas_input_' . $input_name . '_validation_display') {
-					$parsed_user_response_from_db['inputs'][$input_name]['validation_display'] = $solution_entry['value2'];
-				}
-			}
-
-			foreach ($prts as $prt_name => $prt) {
-
-				//PRT name
-				if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_name') {
-					$parsed_user_response_from_db['prts'][$prt_name]['name'] = $solution_entry['value2'];
-					$parsed_user_response_from_db['prts'][$prt_name]['points'] = $solution_entry['points'];
-				}
-
-				//PRT errors
-				if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_errors') {
-					$parsed_user_response_from_db['prts'][$prt_name]['errors'] = $solution_entry['value2'];
-				}
-
-				//PRT feedback
-				if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_feedback') {
-					$parsed_user_response_from_db['prts'][$prt_name]['feedback'] = $solution_entry['value2'];
-				}
-
-				//PRT status
-				if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_status') {
-					$parsed_user_response_from_db['prts'][$prt_name]['status'] = $solution_entry['value2'];
-				}
-
-				//PRT answer notes
-				if ($solution_entry['value1'] == 'xqcas_prt_' . $prt_name . '_answernote') {
-					$parsed_user_response_from_db['prts'][$prt_name]['answer_notes'] = $solution_entry['value2'];
-				}
-
 			}
 		}
-
-		return $parsed_user_response_from_db;
+        
+        return $parsed_user_response_from_db;
 	}
+
+    public static function _fromDBToReadableFormat(array $db_values): array
+    {
+        //Prepare array;
+        $results = array();
+
+        foreach ($db_values as $index => $value) {
+            //if ($value['value1'] == 'xqcas_text_' . $question_id)
+            if ($value['value1'] == 'xqcas_text_' . $value['question_fi']) {
+                $results['question_text'] = $value['value2'];
+                $results['id'] = $value['question_fi'];
+                $results['points'] = (float) $value['points'];
+
+                unset($db_values[$index]);
+            } elseif ($value['value1'] == 'xqcas_solution_' . $value['question_fi']) {
+                $results['question_note'] = $value['value2'];
+
+                unset($db_values[$index]);
+            } elseif ($value['value1'] == 'xqcas_general_feedback_' . $value['question_fi']) {
+                $results['general_feedback'] = $value['value2'];
+
+                unset($db_values[$index]);
+            } elseif ($value['value1'] == 'xqcas_question_' . $value['question_fi']. '_seed') {
+                $results['seed'] = $value['value2'];
+
+                unset($db_values[$index]);
+            } else {
+                if (strpos($db_values['value1'], 'xqcas_prt_') !== false && strpos($db_values['value1'], '_name') !== false) {
+                    $prt_name = str_replace('xqcas_prt_', '', $db_values['value1']);
+                    $prt_name = str_replace('_name', '', $prt_name);
+                    $results['prt'][$prt_name]['points'] = $value['points'];
+
+                    unset($db_values[$index]);
+                } elseif (strpos($db_values['value1'], 'xqcas_prt_') !== false && strpos($db_values['value1'], '_errors') !== false) {
+                    $prt_name = str_replace('xqcas_prt_', '', $db_values['value1']);
+                    $prt_name = str_replace('_errors', '', $prt_name);
+                    $results['prt'][$prt_name]['errors'] = $value['value2'];
+
+                    unset($db_values[$index]);
+                } elseif (strpos($db_values['value1'], 'xqcas_prt_') !== false && strpos($db_values['value1'], '_feedback') !== false) {
+                    $prt_name = str_replace('xqcas_prt_', '', $db_values['value1']);
+                    $prt_name = str_replace('_feedback', '', $prt_name);
+                    $results['prt'][$prt_name]['feedback'] = $value['value2'];
+
+                    unset($db_values[$index]);
+                } elseif (strpos($db_values['value1'], 'xqcas_prt_') !== false && strpos($db_values['value1'], '_status') !== false) {
+                    $prt_name = str_replace('xqcas_prt_', '', $db_values['value1']);
+                    $prt_name = str_replace('_status', '', $prt_name);
+                    $results['prt'][$prt_name]['status']['value'] = $value['value2'];
+
+                    unset($db_values[$index]);
+                } elseif (strpos($db_values['value1'], 'xqcas_prt_') !== false && strpos($db_values['value1'], '_status_message') !== false) {
+                    $prt_name = str_replace('xqcas_prt_', '', $db_values['value1']);
+                    $prt_name = str_replace('_status_message', '', $prt_name);
+                    $results['prt'][$prt_name]['status']['message'] = $value['value2'];
+
+                    unset($db_values[$index]);
+                } elseif (strpos($db_values['value1'], 'xqcas_prt_') !== false && strpos($db_values['value1'], '_answernote') !== false) {
+                    $prt_name = str_replace('xqcas_prt_', '', $db_values['value1']);
+                    $prt_name = str_replace('_answernote', '', $prt_name);
+                    $results['prt'][$prt_name]['answernote'] = $value['value2'];
+
+                    unset($db_values[$index]);
+                } else {
+                    $prt_name = str_replace('xqcas_prt_', '', $db_values['value1']);
+                    $prt_name = substr($prt_name, 0, strpos($prt_name, '_'));
+
+                    if (strpos($value['value1'], 'xqcas_prt_' . $prt_name . '_value_') !== false) {
+                        $input_name = str_replace('xqcas_prt_' . $prt_name . '_value_', '', $value['value1']);
+                        $results['prt'][$prt_name]['response'][$input_name]['value'] = $value['value2'];
+
+                        unset($db_values[$index]);
+                    } elseif (strpos($value['value1'], 'xqcas_prt_' . $prt_name . '_display_') !== false) {
+                        $input_name = str_replace('xqcas_prt_' . $prt_name . '_display_', '', $value['value1']);
+                        $results['prt'][$prt_name]['response'][$input_name]['display'] = $value['value2'];
+
+                        unset($db_values[$index]);
+                    } elseif (strpos($value['value1'], 'xqcas_prt_' . $prt_name . '_model_answer_') !== false) {
+                        $input_name = str_replace('xqcas_prt_' . $prt_name . '_model_answer_', '', $value['value1']);
+                        $results['prt'][$prt_name]['response'][$input_name]['model_answer'] = $value['value2'];
+
+                        unset($db_values[$index]);
+                    } elseif (strpos($value['value1'], 'xqcas_prt_' . $prt_name . '_model_answer_display_') !== false) {
+                        $input_name = str_replace('xqcas_prt_' . $prt_name . '_model_answer_display_', '', $value['value1']);
+                        $results['prt'][$prt_name]['response'][$input_name]['model_answer_display'] = $value['value2'];
+
+                        unset($db_values[$index]);
+                    }
+                }
+            }
+        }
+
+        return $results;
+    }
 
     public static function _showRandomisationWarning(assStackQuestion $question): bool
     {
@@ -1318,5 +1448,117 @@ class assStackQuestionUtils
         return $found_random;
     }
 
+    /**
+     * Return the appropriate graded state based on a fraction. That is 0 or less
+     * is $graded_incorrect, 1 is $graded_correct, otherwise it is $graded_partcorrect.
+     * Appropriate allowance is made for rounding float values.
+     *
+     * @param number $fraction the grade, on the fraction scale.
+     * @return int one of the state constants.
+     */
+    public static function graded_state_for_fraction($fraction) {
+        if ($fraction < 0.000001) {
+            return -1;
+        } else if ($fraction > 0.999999) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
 
+    public static function stack_castext_file_filter(string $castext, array $identifiers): string {
+        if ($castext === '') {
+            // Nothing to do with empty strings.
+            return $castext;
+        }
+
+        // In Moodle these are easy to spot.
+        if (mb_strpos($castext, '@@PLUGINFILE@@') !== false) {
+            // We use the PFS block that has been specicifally
+            // built for Moodle to pass on the relevant details.
+            $block = '[[pfs';
+            switch ($identifiers['field']) {
+                case 'questiontext':
+                case 'generalfeedback':
+                    $block .= ' component="question"';
+                    $block .= ' filearea="' . $identifiers['field'] . '"';
+                    $block .= ' itemid="' . $identifiers['questionid'] . '"';
+                    break;
+                case 'specificfeedback':
+                case 'prtcorrect': // These three are not in actual use.
+                case 'prtpartiallycorrect':
+                case 'prtincorrect':
+                    $block .= ' component="qtype_stack"';
+                    $block .= ' filearea="' . $identifiers['field'] . '"';
+                    $block .= ' itemid="' . $identifiers['questionid'] . '"';
+                    break;
+                case 'prtnodetruefeedback':
+                case 'prtnodefalsefeedback':
+                    $block .= ' component="qtype_stack"';
+                    $block .= ' filearea="' . $identifiers['field'] . '"';
+                    $block .= ' itemid="' . $identifiers['prtnodeid'] . '"';
+                    break;
+            }
+            $block .= ']]';
+            return $block . $castext . '[[/pfs]]';
+        }
+        return $castext;
+    }
+
+    public static function parseToHTMLWithoutLatex($input): string
+    {
+        $components = explode(";", $input);
+
+        $htmlOutput = "<div>";
+
+        foreach ($components as $component) {
+            $values = explode(":", $component, 2);
+
+            if (count($values) == 2) {
+                $variable = $values[0];
+                $value = $values[1];
+            } else {
+                $variable = "";
+                $value = "";
+            }
+
+            if (strlen($value) > 0 && (strlen($variable) > 0)) {
+                $htmlOutput .= "<p>$variable: $value</p>";
+            }
+        }
+
+        $htmlOutput .= "</div>";
+        return $htmlOutput;
+    }
+
+    private static function prtArrayToObject(array $prt_data) :stdClass {
+        $new_prt = new stdClass();
+
+        foreach ($prt_data as $key => $value) {
+            $key = str_replace('_', '', $key);
+
+            $new_prt->$key = $value;
+        }
+
+        return $new_prt;
+    }
+
+    /**
+     * This method is a better alternative to ilUtil::secureString because ensure that the tag is really a tag and not a comparator.
+     *
+     * @param string $a_str
+     * @return string
+     */
+    public static function secureString(string $a_str) : string {
+        $sec_tags = ilUtil::getSecureTags();
+
+        //
+        return preg_replace_callback('/<[^>]*>/', function ($matches) use ($sec_tags) {
+            if (in_array($matches[0], $sec_tags)) {
+                return $matches[0];
+            } else {
+                return '';
+            }
+        }, $a_str);
+    }
 }

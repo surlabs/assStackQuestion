@@ -1,10 +1,24 @@
 <?php
 /**
- * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
- * GPLv3, see LICENSE
+ *  This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
+ *  This plugin is developed and maintained by SURLABS and is a port of STACK Question for Moodle,
+ *  originally created by Chris Sangwin.
+ *
+ *  The STACK Question plugin for ILIAS is open-source and licensed under GPL-3.0.
+ *  For license details, visit https://www.gnu.org/licenses/gpl-3.0.en.html.
+ *
+ *  To report bugs or participate in discussions, visit the Mantis system and filter by
+ *  the category "STACK Question" at https://mantis.ilias.de.
+ *
+ *  More information and source code are available at:
+ *  https://github.com/surlabs/STACK
+ *
+ *  If you need support, please contact the maintainer of this software at:
+ *  stack@surlabs.es
+ *
  */
 
-require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/FormProperties/class.ilMultipartFormPropertyGUI.php';
+//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/FormProperties/class.ilMultipartFormPropertyGUI.php';
 
 /**
  * Columns property GUI class
@@ -104,44 +118,44 @@ class ilColumnsFormPropertyGUI extends ilMultipartFormPropertyGUI
 				$lng = $DIC->language();
 
 				//Student answer
-				include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+				//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 				if (assStackQuestionUtils::_endsWith($form_property->postvar, "_student_answer"))
 				{
 					$comment_id = rand(100000, 999999);
-					require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+					//require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
 					ilTooltipGUI::addTooltip('ilAssStackQuestion' . $comment_id, $lng->getUserLanguage() == "de" ? $casexpresion_german : $casexpresion_english);
 					$this->getTemplate()->setVariable("COMMENT_ID", $comment_id);
 					$this->getTemplate()->setVariable("SPECIFIC_TEXT_INFO", $lng->getUserLanguage() == "de" ? "<a href='javascript:;'>[CAS Ausdruck]</a>" : "<a href='javascript:;'>[CAS Expresion]</a>");
 				}
 
 				//Teacher answer
-				include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+				//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 				if (assStackQuestionUtils::_endsWith($form_property->postvar, "_teacher_answer"))
 				{
 					$comment_id = rand(100000, 999999);
-					require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+					//require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
 					ilTooltipGUI::addTooltip('ilAssStackQuestion' . $comment_id, $lng->getUserLanguage() == "de" ? $casexpresion_german : $casexpresion_english);
 					$this->getTemplate()->setVariable("COMMENT_ID", $comment_id);
 					$this->getTemplate()->setVariable("SPECIFIC_TEXT_INFO", $lng->getUserLanguage() == "de" ? "<a href='javascript:;'>[CAS Ausdruck]</a>" : "<a href='javascript:;'>[CAS Expresion]</a>");
 				}
 
 				//Node options
-				include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+				//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 				if (assStackQuestionUtils::_endsWith($form_property->postvar, "_options"))
 				{
 					$comment_id = rand(100000, 999999);
-					require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+					//require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
 					ilTooltipGUI::addTooltip('ilAssStackQuestion' . $comment_id, $lng->getUserLanguage() == "de" ? $casexpresion_german : $casexpresion_english);
 					$this->getTemplate()->setVariable("COMMENT_ID", $comment_id);
 					$this->getTemplate()->setVariable("SPECIFIC_TEXT_INFO", $lng->getUserLanguage() == "de" ? "<a href='javascript:;'>[CAS Ausdruck]</a>" : "<a href='javascript:;'>[CAS Expresion]</a>");
 				}
 
 				//specific feedback
-				include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+				//include_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 				if (assStackQuestionUtils::_endsWith($form_property->postvar, "_specific_feedback"))
 				{
 					$comment_id = rand(100000, 999999);
-					require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+					//require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
 					ilTooltipGUI::addTooltip('ilAssStackQuestion' . $comment_id, $lng->getUserLanguage() == "de" ? $castext_german : $castext_english);
 					$this->getTemplate()->setVariable("COMMENT_ID", $comment_id);
 					$this->getTemplate()->setVariable("SPECIFIC_TEXT_INFO", "<a href='javascript:;'>[CAS Text]</a>");

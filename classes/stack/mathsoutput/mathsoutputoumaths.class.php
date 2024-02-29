@@ -16,8 +16,8 @@
 
 
 global $CFG;
-//require_once($CFG->libdir . '/filterlib.php');
-require_once(__DIR__ . '/mathsoutputfilterbase.class.php');
+////require_once($CFG->libdir . '/filterlib.php');
+//require_once(__DIR__ . '/mathsoutputfilterbase.class.php');
 
 
 /**
@@ -33,7 +33,7 @@ class stack_maths_output_oumaths extends stack_maths_output_filter_base {
      */
     public static function filter_is_installed() {
         global $CFG;
-        return file_exists($CFG->dirroot . '/filter/maths/filter.php');
+        return file_exists($CFG->dirroot . '/filter/oumaths/filter.php');
     }
 
     protected function initialise_delimiters() {
@@ -47,10 +47,10 @@ class stack_maths_output_oumaths extends stack_maths_output_filter_base {
         global $CFG;
 
         if (!self::filter_is_installed()) {
-            throw new coding_exception('The OU maths filter is not installed.');
+            throw new stack_exception('The OU maths filter is not installed.');
         }
 
-        require_once($CFG->dirroot . '/filter/oumaths/filter.php');
+        //require_once($CFG->dirroot . '/filter/oumaths/filter.php');
         return new filter_oumaths(context_system::instance(), array());
     }
 }

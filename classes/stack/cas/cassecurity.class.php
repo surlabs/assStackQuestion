@@ -15,7 +15,7 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/casstring.units.class.php');
+//require_once(__DIR__ . '/casstring.units.class.php');
 
 // CAS identifier related security data-lookups.
 //
@@ -333,7 +333,8 @@ class stack_cas_security {
         }
 
         // If the identifer is less than three char then students have permissions.
-        if ($security === 's' && mb_strlen($identifier) <= 2) {
+        // Unless it is actually a function name!
+        if ($security === 's' && mb_strlen($identifier) <= 2 && !$this->has_feature($identifier, 'function')) {
             return true;
         }
 

@@ -15,8 +15,8 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/filter.interface.php');
-require_once(__DIR__ . '/../../maximaparser/utils.php');
+//require_once(__DIR__ . '/filter.interface.php');
+//require_once(__DIR__ . '/../../maximaparser/utils.php');
 
 /**
  * AST filter that splits function calls to implied variable names

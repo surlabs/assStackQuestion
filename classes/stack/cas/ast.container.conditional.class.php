@@ -20,15 +20,15 @@
 // @copyright  2019 University of Aalto.
 // @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
-require_once(__DIR__ . '/parsingrules/parsingrule.factory.php');
-require_once(__DIR__ . '/cassecurity.class.php');
-require_once(__DIR__ . '/ast.container.silent.class.php');
-require_once(__DIR__ . '/evaluatable_object.interfaces.php');
-require_once(__DIR__ . '/../../utils/locallib.php');
-require_once(__DIR__ . '/../utils.class.php');
-require_once(__DIR__ . '/../maximaparser/utils.php');
-require_once(__DIR__ . '/../maximaparser/corrective_parser.php');
-require_once(__DIR__ . '/../maximaparser/MP_classes.php');
+//require_once(__DIR__ . '/parsingrules/parsingrule.factory.php');
+//require_once(__DIR__ . '/cassecurity.class.php');
+//require_once(__DIR__ . '/ast.container.silent.class.php');
+//require_once(__DIR__ . '/evaluatable_object.interfaces.php');
+//require_once(__DIR__ . '/../../utils/locallib.php');
+//require_once(__DIR__ . '/../utils.class.php');
+//require_once(__DIR__ . '/../maximaparser/utils.php');
+//require_once(__DIR__ . '/../maximaparser/corrective_parser.php');
+//require_once(__DIR__ . '/../maximaparser/MP_classes.php');
 
 
 class stack_ast_container_conditional extends stack_ast_container {
@@ -139,7 +139,7 @@ class stack_ast_container_conditional_value extends stack_ast_container_silent i
         if (null === $this->evaluated) {
             throw new stack_exception('stack_ast_container: tried to get the value from of an unevaluated casstring.');
         }
-        return $this->ast_to_string($this->evaluated);
+        return $this->ast_to_string($this->evaluated, array('checkinggroup' => true));
     }
 }
 
@@ -205,13 +205,11 @@ class stack_ast_container_conditional_latex_and_value extends stack_ast_containe
         if (null === $this->evaluated) {
             throw new stack_exception('stack_ast_container: tried to get the value from of an unevaluated casstring.');
         }
-        return $this->ast_to_string($this->evaluated);
+        return $this->ast_to_string($this->evaluated, array('checkinggroup' => true));
     }
 
     public function set_cas_latex_value(string $latex) {
-    	//fau: use getlatex from ilias
-		require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
-		$this->latex = assStackQuestionUtils::_getLatex($latex);
+        $this->latex = stack_maxima_latex_tidy($latex);
     }
 
     public function get_display() {

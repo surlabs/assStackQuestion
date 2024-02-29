@@ -1,7 +1,22 @@
 <?php
+declare(strict_types=1);
 /**
- * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
- * GPLv3, see LICENSE
+ *  This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
+ *  This plugin is developed and maintained by SURLABS and is a port of STACK Question for Moodle,
+ *  originally created by Chris Sangwin.
+ *
+ *  The STACK Question plugin for ILIAS is open-source and licensed under GPL-3.0.
+ *  For license details, visit https://www.gnu.org/licenses/gpl-3.0.en.html.
+ *
+ *  To report bugs or participate in discussions, visit the Mantis system and filter by
+ *  the category "STACK Question" at https://mantis.ilias.de.
+ *
+ *  More information and source code are available at:
+ *  https://github.com/surlabs/STACK
+ *
+ *  If you need support, please contact the maintainer of this software at:
+ *  stack@surlabs.es
+ *
  */
 
 /**
@@ -13,8 +28,8 @@
  *
  */
 
-require_once './Services/MediaObjects/classes/class.ilObjMediaObject.php';
-require_once './Modules/TestQuestionPool/classes/import/qti12/class.assQuestionImport.php';
+//require_once './Services/MediaObjects/classes/class.ilObjMediaObject.php';
+//require_once './Modules/TestQuestionPool/classes/import/qti12/class.assQuestionImport.php';
 
 
 class assStackQuestionImport extends assQuestionImport
@@ -60,31 +75,37 @@ class assStackQuestionImport extends assQuestionImport
         //Obtain question general data
         $this->addGeneralMetadata($item);
         $this->object->setTitle($item->getTitle());
-        $this->object->setNrOfTries($item->getMaxattempts());
+        $this->object->setNrOfTries((int) $item->getMaxattempts());
         $this->object->setComment($item->getComment());
         $this->object->setAuthor($item->getAuthor());
         $this->object->setOwner($ilUser->getId());
         $this->object->setQuestion($this->object->QTIMaterialToString($item->getQuestiontext()));
         $this->object->setObjId($questionpool_id);
         $this->object->setPoints((float)$item->getMetadataEntry("POINTS"));
-        $this->object->setEstimatedWorkingTime($duration["h"], $duration["m"], $duration["s"]);
 
         $this->object->saveQuestionDataToDb();
 
         //question
-        $stack_question = unserialize(base64_decode($item->getMetadataEntry('stack_question')));
+        $stack_question = $item->getMetadataEntry('stack_question');
 
         //New style
-        if (is_array($stack_question)) {
+        if ($stack_question != null) {
+            $stack_question = unserialize(base64_decode($stack_question));
 
             $this->object = assStackQuestionUtils::_arrayToQuestion($stack_question, $this->object);
 
+            foreach ($this->object->prts as $prt) {
+                foreach ($prt->get_nodes() as $node) {
+                    $node->truefeedback = $this->processNonAbstractedImageReferences($node->truefeedback, $item->getIliasSourceNic());
+                    $node->falsefeedback = $this->processNonAbstractedImageReferences($node->falsefeedback, $item->getIliasSourceNic());
+                }
+            }
         } else {
 
             //Old Style
 
             //Objects
-            $this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionOptions.php");
+            //$this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionOptions.php");
             /* @var assStackQuestionOptions $options_obj */
             $options_obj = unserialize(base64_decode($item->getMetadataEntry('options')));
             $this->object->question_variables = $options_obj->getQuestionVariables();
@@ -122,7 +143,7 @@ class assStackQuestionImport extends assQuestionImport
 
             //STEP 3: load xqcas_inputs fields
             //old format load
-            $this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionInput.php");
+            //$this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionInput.php");
             $inputs_raw = unserialize(base64_decode($item->getMetadataEntry('inputs')));
             $required_parameters = stack_input_factory::get_parameters_used();
 
@@ -167,12 +188,8 @@ class assStackQuestionImport extends assQuestionImport
             }
 
             //PRTs
-            /* @var assStackQuestionPRT $prt */
-            /* @var assStackQuestionPRTNode $node */
-            $this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionPRT.php");
-            $this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionPRTNode.php");
-            $prts = unserialize(base64_decode($item->getMetadataEntry('prts')));
-            foreach ($prts as $prt_name => $prt) {
+            $prts_from_import = unserialize(base64_decode($item->getMetadataEntry('prts')));
+            foreach ($prts_from_import as $prt_name => $prt) {
                 foreach ($prt->getPRTNodes() as $node_name => $node) {
                     $node->setFalseFeedback($this->processNonAbstractedImageReferences($node->getFalseFeedback(), $item->getIliasSourceNic()));
                     $node->setTrueFeedback($this->processNonAbstractedImageReferences($node->getTrueFeedback(), $item->getIliasSourceNic()));
@@ -180,113 +197,74 @@ class assStackQuestionImport extends assQuestionImport
             }
 
             //STEP 4:load PRTs and PRT nodes
+            $prts_array = array();
 
-            //Values
-            $total_value = 0;
-            foreach ($prts as $prt_data) {
-                $total_value += (float)ilUtil::secureString((string)$prt_data->getPRTValue());
-            }
+            foreach ($prts_from_import as $prt) {
+                $prt_data = new stdClass();
 
-            if ($total_value < 0.0000001) {
-                $total_value = 1.0;
-            }
+                $prt_data->name = $prt->getPRTName();
+                $prt_data->value = $prt->getPRTValue();
+                $prt_data->autosimplify = $prt->getAutoSimplify();
+                $prt_data->feedbackvariables = $prt->getPRTFeedbackVariables();
+                $prt_data->firstnodename = $prt->getFirstNodeName();
 
-            /* @var assStackQuestionPRT $prt */
-            foreach ($prts as $prt) {
-                $first_node = 1;
 
-                $prt_name = ilUtil::secureString((string)$prt->getPRTName());
-                $nodes = array();
-                $is_first_node = true;
-                $invalid_node = false;
-
-                //Check for non "0" nodes
-                /*
-                foreach ($prt->node as $xml_node) {
-                    if ($xml_node->name == '0') {
-                        $invalid_node = true;
-                    }
-                }*/
-
-                /* @var assStackQuestionPRTNode $xml_node */
                 foreach ($prt->getPRTNodes() as $xml_node) {
-
-                    $node_name = ilUtil::secureString((string)$xml_node->getNodeName());
-
-                    $raw_sans = assStackQuestionUtils::_debugText((string)$xml_node->getStudentAnswer());
-                    $raw_tans = assStackQuestionUtils::_debugText((string)$xml_node->getTeacherAnswer());
-
-                    $sans = stack_ast_container::make_from_teacher_source('PRSANS' . $node_name . ':' . $raw_sans, '', new stack_cas_security());
-                    $tans = stack_ast_container::make_from_teacher_source('PRTANS' . $node_name . ':' . $raw_tans, '', new stack_cas_security());
-
-                    //Penalties management, penalties are not an ILIAS Feature
-                    $false_penalty = ilUtil::secureString((string)$xml_node->getFalsePenalty());
-                    $true_penalty = ilUtil::secureString((string)$xml_node->getTruePenalty());
-
                     try {
-                        //Create Node and add it to the
-                        $node = new stack_potentialresponse_node($sans, $tans, ilUtil::secureString((string)$xml_node->getAnswerTest()), ilUtil::secureString((string)$xml_node->getTestOptions()), (bool)(string)$xml_node->getQuiet(), '', (int)$node_name, $raw_sans, $raw_tans);
+                        $node = new stdClass();
 
-                        //manage images in false feedback 37259
-                        if (isset($xml_node->falsefeedback->text)) {
-                            $false_feedback = (string) $xml_node->falsefeedback->text;
-                        } elseif ($xml_node->getFalseFeedback() !== null) {
-                            $false_feedback = $xml_node->getFalseFeedback();
-                        } else {
-                            $false_feedback = '';
-                        }
+                        $node->nodename = $xml_node->getNodeName();
+                        $node->description = '';
+                        $node->prtname = $prt->getPRTName();
+                        $node->truenextnode = $xml_node->getTrueNextNode();
+                        $node->falsenextnode = $xml_node->getFalseNextNode();
+                        $node->answertest = $xml_node->getAnswerTest() != '' ? $xml_node->getAnswerTest() : 'AlgEquiv';
+                        $node->sans = $xml_node->getStudentAnswer() != '' ? $xml_node->getStudentAnswer() : 'ans1';
+                        $node->tans = $xml_node->getTeacherAnswer() != '' ? $xml_node->getTeacherAnswer() : '0';
+                        $node->testoptions = $xml_node->getTestOptions();
+                        $node->quiet = $xml_node->getQuiet();
 
-                        //manage images in true feedback 37259
-                        if (isset($xml_node->truefeedback->text)) {
-                            $true_feedback = (string) $xml_node->truefeedback->text;
-                        } elseif ($xml_node->getTrueFeedback() !== null) {
-                            $true_feedback = $xml_node->getTrueFeedback();
-                        } else {
-                            $true_feedback = '';
-                        }
+                        $node->truescore = $xml_node->getTrueScore();
+                        $node->truescoremode = $xml_node->getTrueScoreMode();
+                        $node->truepenalty = $xml_node->getTruePenalty();
+                        $node->trueanswernote = $xml_node->getTrueAnswerNote();
+                        $node->truefeedback = $xml_node->getTrueFeedback();
+                        $node->truefeedbackformat = $xml_node->getTrueFeedbackFormat();
 
-                        $false_next_node = $xml_node->getFalseNextNode();
-                        $true_next_node = $xml_node->getTrueNextNode();
-                        $false_answer_note = $xml_node->getFalseAnswerNote();
-                        $true_answer_note = $xml_node->getTrueAnswerNote();
+                        $node->falsescore = $xml_node->getFalseScore();
+                        $node->falsescoremode = $xml_node->getFalseScoreMode();
+                        $node->falsepenalty = $xml_node->getFalsePenalty();
+                        $node->falseanswernote = $xml_node->getFalseAnswerNote();
+                        $node->falsefeedback = $xml_node->getFalseFeedback();
+                        $node->falsefeedbackformat = $xml_node->getFalseFeedbackFormat();
 
-                        $node->add_branch(0, ilUtil::secureString((string)$xml_node->getFalseScoreMode()), ilUtil::secureString((string)$xml_node->getFalseScore()), $false_penalty, ilUtil::secureString((string)$false_next_node), ilUtil::secureString($false_feedback, false), 1, ilUtil::secureString((string)$false_answer_note));
-                        $node->add_branch(1, ilUtil::secureString((string)$xml_node->getTrueScoreMode()), ilUtil::secureString((string)$xml_node->getTrueScore()), $true_penalty, ilUtil::secureString((string)$true_next_node), ilUtil::secureString($true_feedback, false), 1, ilUtil::secureString((string)$true_answer_note));
-
-                        $nodes[$node_name] = $node;
-
-                        //set first node
-                        if ($is_first_node) {
-                            $first_node = $node_name;
-                            $is_first_node = false;
-                        }
-
+                        $prt_data->nodes[$node->nodename] = $node;
                     } catch (stack_exception $e) {
                         $this->error_log[] = $this->object->getTitle() . ': ' . $e;
                     }
                 }
 
-                $feedback_variables = null;
-                if ((string)$prt->getPRTFeedbackVariables()) {
-                    try {
-                        $feedback_variables = new stack_cas_keyval(assStackQuestionUtils::_debugText((string)$prt->getPRTFeedbackVariables()));
-                        $feedback_variables = $feedback_variables->get_session();
-                    } catch (stack_exception $e) {
-                        $this->error_log[] = $this->object->getTitle() . ': ' . $e;
-                    }
-                }
+                $prts_array[$prt->getPRTName()] = $prt_data;
+            }
 
-                $prt_value = (float)$prt->getPRTValue() / $total_value;
+            $total_value = 0;
+            $all_formative = true;
 
-                try {
-                    $this->object->prts[$prt_name] = new stack_potentialresponse_tree($prt_name, '', (bool)$prt->getAutoSimplify(), $prt_value, $feedback_variables, $nodes, (string)$first_node, 1);
-                } catch (stack_exception $e) {
-                    $this->error_log[] = $this->object->getTitle() . ': ' . $e;
+            foreach ($prts_array as $name => $prt_data) {
+                $total_value += (float) $prt_data->value;
+                $all_formative = false;
+            }
+
+            foreach ($prts_array as $name => $prt_data) {
+                $prt_value = 0;
+                if (!$all_formative) {
+                    $prt_value = (float) $prt_data->value / $total_value;
                 }
+                $this->object->prts[$name] = new stack_potentialresponse_tree_lite($prt_data, $prt_value);
             }
 
             //SEEDS
-            $this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionDeployedSeed.php");
+            //$this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionDeployedSeed.php");
             $deployed_seeds = unserialize(base64_decode($item->getMetadataEntry('seeds')));
 
             //TODO Not done
@@ -300,14 +278,14 @@ class assStackQuestionImport extends assQuestionImport
             $this->object->deployed_seeds = $seeds;
 
             //TESTS
-            $this->object->getPlugin()->includeClass("model/ilias_object/test/class.assStackQuestionTest.php");
-            $this->object->getPlugin()->includeClass("model/ilias_object/test/class.assStackQuestionTestInput.php");
-            $this->object->getPlugin()->includeClass("model/ilias_object/test/class.assStackQuestionTestExpected.php");
+            //$this->object->getPlugin()->includeClass("model/ilias_object/test/class.assStackQuestionTest.php");
+            //$this->object->getPlugin()->includeClass("model/ilias_object/test/class.assStackQuestionTestInput.php");
+            //$this->object->getPlugin()->includeClass("model/ilias_object/test/class.assStackQuestionTestExpected.php");
             $unit_tests = unserialize(base64_decode($item->getMetadataEntry('tests')));
 
             //EXTRA INFO
             /* @var assStackQuestionExtraInfo $extra_info */
-            $this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionExtraInfo.php");
+            //$this->object->getPlugin()->includeClass("model/ilias_object/class.assStackQuestionExtraInfo.php");
             $extra_info = unserialize(base64_decode($item->getMetadataEntry('extra_info')));
             $extra_info->setHowToSolve($this->processNonAbstractedImageReferences($extra_info->getHowToSolve(), $item->getIliasSourceNic()));
 
@@ -329,8 +307,8 @@ class assStackQuestionImport extends assQuestionImport
 
         if (is_array($_SESSION["import_mob_xhtml"])) {
 
-            include_once "./Services/MediaObjects/classes/class.ilObjMediaObject.php";
-            include_once "./Services/RTE/classes/class.ilRTE.php";
+            //include_once "./Services/MediaObjects/classes/class.ilObjMediaObject.php";
+            //include_once "./Services/RTE/classes/class.ilRTE.php";
 
             foreach ($_SESSION["import_mob_xhtml"] as $mob) {
                 if ($tst_id > 0) {
@@ -359,10 +337,9 @@ class assStackQuestionImport extends assQuestionImport
                 $this->object->general_feedback = str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $this->object->general_feedback);
 
                 foreach ($this->object->prts as $prt) {
-                    foreach ($prt->getNodes() as $node) {
-                        $feedback = $node->getFeedbackFromNode();
-                        $node->setBranchFeedback(0, str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $feedback['false_feedback']));
-                        $node->setBranchFeedback(1, str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $feedback['true_feedback']));
+                    foreach ($prt->get_nodes() as $node) {
+                        $node->truefeedback = str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $node->truefeedback);
+                        $node->falsefeedback = str_replace("src=\"" . $mob["mob"] . "\"", "src=\"" . "il_" . IL_INST_ID . "_mob_" . $media_object->getId() . "\"", $node->falsefeedback);
                     }
                 }
             }
@@ -379,12 +356,9 @@ class assStackQuestionImport extends assQuestionImport
         $this->object->general_feedback = ilRTE::_replaceMediaObjectImageSrc($this->object->general_feedback, 1);
 
         foreach ($this->object->prts as $prt) {
-            foreach ($prt->getNodes() as $node) {
-
-                $feedback = $node->getFeedbackFromNode();
-
-                $node->setBranchFeedback(0, ilRTE::_replaceMediaObjectImageSrc($feedback['false_feedback'], 1));
-                $node->setBranchFeedback(1, ilRTE::_replaceMediaObjectImageSrc($feedback['true_feedback'], 1));
+            foreach ($prt->get_nodes() as $node) {
+                $node->truefeedback = ilRTE::_replaceMediaObjectImageSrc($node->truefeedback, 1);
+                $node->falsefeedback = ilRTE::_replaceMediaObjectImageSrc($node->falsefeedback, 1);
             }
         }
 
@@ -401,5 +375,47 @@ class assStackQuestionImport extends assQuestionImport
         }
 
         return $import_mapping;
+    }
+
+    /**
+     * We overwrite this method and modify it so that instead of
+     * repacking the elements of import_mob_xhtml, it simply adds them
+     *
+     * @param $text
+     * @param $sourceNic
+     * @return string
+     */
+    protected function processNonAbstractedImageReferences($text, $sourceNic): string
+    {
+        $reg = '/<img.*src=".*\\/mm_(\\d+)\\/(.*?)".*>/m';
+        $matches = null;
+
+        if (preg_match_all($reg, $text, $matches)) {
+            $mobs = array();
+            for ($i = 0, $max = count($matches[1]); $i < $max; $i++) {
+                $mobSrcId = $matches[1][$i];
+                $mobSrcName = $matches[2][$i];
+                $mobSrcLabel = 'il_' . $sourceNic . '_mob_' . $mobSrcId;
+
+                //if (!is_array(ilSession::get("import_mob_xhtml"))) {
+                //    ilSession::set("import_mob_xhtml", array());
+                //}
+
+                //$_SESSION["import_mob_xhtml"][] = array(
+                $mobs[] = array(
+                    "mob" => $mobSrcLabel, "uri" => 'objects/' . $mobSrcLabel . '/' . $mobSrcName
+                );
+            }
+
+            if (is_array($_SESSION["import_mob_xhtml"])) {
+                foreach ($_SESSION["import_mob_xhtml"] as $mob) {
+                    $mobs[] = $mob;
+                }
+            }
+
+            ilSession::set("import_mob_xhtml", $mobs);
+        }
+
+        return preg_replace('/src="([^"]*?\/mobs\/mm_([0-9]+)\/.*?)\"/', 'src="il_' . $sourceNic . '_mob_\\2"', $text);
     }
 }

@@ -15,8 +15,8 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/../../maximaparser/MP_classes.php');
-require_once(__DIR__ . '/../cassecurity.class.php');
+//require_once(__DIR__ . '/../../maximaparser/MP_classes.php');
+//require_once(__DIR__ . '/../cassecurity.class.php');
 
 interface stack_cas_astfilter {
 

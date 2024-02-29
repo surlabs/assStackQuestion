@@ -20,8 +20,8 @@
 // @copyright  2015 University of Edinburgh.
 // @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
-require_once(__DIR__ . '/../../utils/locallib.php');
-require_once(__DIR__ . '/../utils.class.php');
+//require_once(__DIR__ . '/../../utils/locallib.php');
+//require_once(__DIR__ . '/../utils.class.php');
 
 class stack_cas_casstring_units {
 
@@ -103,7 +103,7 @@ class stack_cas_casstring_units {
         array('rad', 'rad', 'rad', 'radian'),
         array('sr', 'sr', 'sr', 'steradian'),
         array('K', 'K', 'K', 'Kelvin'),
-        array('VA', '(kg*m^2)/(s^3)', 'VA', 'volt-ampere'),
+        array('VA', 'VA', 'VA', 'volt-ampere'),
         array('eV', '1.602176634E-19*J', 'eV', 'electronvolt'),
         array('Ci', 'Ci', 'Ci', 'curie'),
         // @codingStandardsIgnoreStart

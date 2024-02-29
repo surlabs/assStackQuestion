@@ -16,9 +16,9 @@
 
 
 //SURLABS
-//require_once($CFG->libdir . '/filterlib.php');
-//require_once(__DIR__ . '/filter/maths/filter.php');
-//require_once(__DIR__ . '/mathsoutputfilterbase.class.php');
+////require_once($CFG->libdir . '/filterlib.php');
+////require_once(__DIR__ . '/filter/maths/filter.php');
+////require_once(__DIR__ . '/mathsoutputfilterbase.class.php');
 
 
 /**

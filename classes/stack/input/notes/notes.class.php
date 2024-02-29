@@ -15,7 +15,7 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/../../utils.class.php');
+//require_once(__DIR__ . '/../../utils.class.php');
 
 /**
  * Input that is a text area.
@@ -28,6 +28,7 @@ class stack_notes_input extends stack_input {
 
     protected $extraoptions = array(
         'hideanswer' => false,
+        'allowempty' => false,
         'manualgraded' => false,
     );
 
@@ -38,6 +39,10 @@ class stack_notes_input extends stack_input {
 
         // Note that at the moment, $this->boxHeight and $this->boxWidth are only
         // used as minimums. If the current input is bigger, the box is expanded.
+        if($readonly){
+            $solution_input_id = $fieldname . '_sol';
+            $fieldname = $solution_input_id;
+        }
         $attributes = array(
             'name' => $fieldname,
             'id'   => $fieldname,
@@ -51,7 +56,7 @@ class stack_notes_input extends stack_input {
 
         // Sort out size of text area.
         $rows = stack_utils::list_to_array($current, false);
-        $attributes['rows'] = max(5, count($rows) + 1);
+        $attributes['rows'] = max(3, count($rows) + 1);
 
         $boxwidth = $this->parameters['boxWidth'];
         foreach ($rows as $row) {
@@ -63,7 +68,7 @@ class stack_notes_input extends stack_input {
             $attributes['readonly'] = 'readonly';
         }
 
-        return html_writer::tag('textarea', htmlspecialchars($current), $attributes) .
+        return html_writer::tag('textarea', htmlspecialchars($current, ENT_COMPAT), $attributes) .
             html_writer::tag('div', "", array('class' => 'clearfix'));
     }
 
@@ -197,4 +202,5 @@ class stack_notes_input extends stack_input {
         }
         return $name . ': ' . $val . ' [' . $state->status . ']';
     }
+
 }

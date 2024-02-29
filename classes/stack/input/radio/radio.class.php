@@ -21,7 +21,7 @@
 // @author     Chris Sangwin.
 // @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
-require_once(__DIR__ . '/../dropdown/dropdown.class.php');
+//require_once(__DIR__ . '/../dropdown/dropdown.class.php');
 class stack_radio_input extends stack_dropdown_input {
 
     protected $ddltype = 'radio';
@@ -47,6 +47,10 @@ class stack_radio_input extends stack_dropdown_input {
         $classes = array();
 
         foreach ($values as $key => $ansid) {
+            if($readonly){
+                $solution_input_id = $fieldname . '_sol';
+                $fieldname = $solution_input_id;
+            }
             $inputattributes = array(
                 'type' => 'radio',
                 'name' => $fieldname,
@@ -62,9 +66,8 @@ class stack_radio_input extends stack_dropdown_input {
             if ($readonly) {
                 $inputattributes['disabled'] = 'disabled';
             }
-			//ILI-FAU added &nbsp;
             $radiobuttons[] = html_writer::empty_tag('input', $inputattributes) .
-                html_writer::tag('label', '&nbsp'.$ansid, $labelattributes);
+                html_writer::tag('label', $ansid, $labelattributes);
             if ('' === $key) {
                 // This separates the "not answered" input from the others.
                 $radiobuttons[] = '<br />';

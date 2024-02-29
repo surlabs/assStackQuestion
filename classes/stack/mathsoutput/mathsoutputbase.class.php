@@ -16,7 +16,7 @@
 
 
 //fau: #34 change access to class.
-require_once(dirname(__FILE__) . '/fact_sheets.class.php');
+//require_once(dirname(__FILE__) . '/fact_sheets.class.php');
 //fau.
 
 /**
@@ -85,13 +85,12 @@ abstract class stack_maths_output {
         if ($replacedollars) {
             $text = $this->replace_dollars($text);
         }
-
 		//fau: #35 Use ILIAS plotting system instead of Moodle
-		global $CFG;
-		$text = str_replace('!ploturl!', $CFG->dataurl . '/stack/plots/', $text);
+
+        $text = str_replace('!ploturl!', ILIAS_HTTP_PATH . "/" . ILIAS_WEB_DIR . "/" . CLIENT_ID . "/xqcas/stack/plots/", $text);
 		//fau.
 
-		$text = stack_fact_sheets::display($text, $renderer);
+        $text = stack_fact_sheets::display($text, $renderer);
 
         return $text;
     }
@@ -104,48 +103,21 @@ abstract class stack_maths_output {
      * @return string the text with delimiters replaced.
      */
     public function replace_dollars($text, $markup = false) {
-		//fau: #36 Use platform inline delimiters instead of default \(...\)
-		$old_text = $text;
-		$mathJaxSetting = new ilSetting("MathJax");
-		switch ((int)$mathJaxSetting->setting['limiter']) {
-			case 0:
-				/*\(...\)*/
-				$start = '\(';
-				$end = '\)';
-				break;
-			case 1:
-				/*[tex]...[/tex]*/
-				$start = '[tex]';
-				$end = '[/tex]';
-				break;
-			case 2:
-				/*&lt;span class="math"&gt;...&lt;/span&gt;*/
-				$start = '&lt;span class="math"&gt;';
-				$end = '&lt;/span&gt;';
-				break;
-			default:
-				/*\(...\)*/
-				$start = '\(';
-				$end = '\)';
-				break;
-		}
-
-		if ($markup) {
-			$displaystart = '<ins>\[</ins>';
-			$displayend = '<ins>\]</ins>';
-			$inlinestart = '<ins>' . $start . '</ins>';
-			$inlineend = '<ins>' . $end . '</ins>';
-			$v4start = '<ins>{@</ins>';
-			$v4end = '<ins>@}</ins>';
-		} else {
-			$displaystart = '\[';
-			$displayend = '\]';
-			$inlinestart = '\(';
-			$inlineend = '\)';
-			$v4start = '{@';
-			$v4end = '@}';
-		}
-		//fau.
+        if ($markup) {
+            $displaystart = '<ins>\[</ins>';
+            $displayend   = '<ins>\]</ins>';
+            $inlinestart  = '<ins>\(</ins>';
+            $inlineend    = '<ins>\)</ins>';
+            $v4start      = '<ins>{@</ins>';
+            $v4end        = '<ins>@}</ins>';
+        } else {
+            $displaystart = '\[';
+            $displayend   = '\]';
+            $inlinestart  = '\(';
+            $inlineend    = '\)';
+            $v4start      = '{@';
+            $v4end        = '@}';
+        }
         $text = preg_replace('~(?<!\\\\)\$\$(.*?)(?<!\\\\)\$\$~', $displaystart . '$1' . $displayend, $text);
         $text = preg_replace('~(?<!\\\\)\$(.*?)(?<!\\\\)\$~', $inlinestart . '$1' . $inlineend, $text);
 
@@ -171,20 +143,6 @@ abstract class stack_maths_output {
             $i = $pos + strlen($v4start);
         }
 
-		//fau: #37 Use ILIAS Insert LaTeX images and add alert if text has been changed
-		if ($old_text != $text) {
-			global $DIC;
-			$lng = $DIC->language();
-			ilUtil::sendInfo($lng->txt("qpl_qst_xqcas_update_to_version_3_2"), TRUE);
-
-		}
-		include_once './Services/MathJax/classes/class.ilMathJax.php';
-		//ilMathJax::getInstance()->insertLatexImages cannot render \( delimiters so we change it to [tex]
-		if ($start == '\(') {
-			return ilMathJax::getInstance()->insertLatexImages($text);
-		} else {
-			return ilMathJax::getInstance()->insertLatexImages($text, $start, $end);
-		}
-		//fau.
+        return $text;
     }
 }

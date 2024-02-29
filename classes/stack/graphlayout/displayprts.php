@@ -29,8 +29,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__ . '/../../../../../config.php');
-require_once(__DIR__ . '/graph.php');
+//require_once(__DIR__ . '/../../../../../config.php');
+//require_once(__DIR__ . '/graph.php');
 
 $PAGE->set_url('/prt.php');
 $PAGE->set_context(context_system::instance());
@@ -83,7 +83,7 @@ foreach ($frequency as $key => $count) {
         } else {
             $right += 1;
         }
-        $tree->add_node($node + 1, $left, $right);
+        $tree->add_node($node + 1, '', $left, $right);
     }
     reset($uniquetree);
     echo $OUTPUT->heading('Tree used ' . $count . ' times');

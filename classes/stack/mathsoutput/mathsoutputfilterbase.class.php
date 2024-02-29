@@ -16,8 +16,8 @@
 
 
 //fau: #38 Do not use filterlib and filter system from Moodle
-//require_once($CFG->libdir . '/filterlib.php');
-//require_once($CFG->dirroot . '/filter/tex/filter.php');
+////require_once($CFG->libdir . '/filterlib.php');
+////require_once($CFG->dirroot . '/filter/tex/filter.php');
 //fau.
 
 /**
@@ -46,8 +46,7 @@ abstract class stack_maths_output_filter_base extends stack_maths_output {
     public function process_lang_string($string) {
         $string = $this->find_and_render_equations($string);
 		//fau: #35 Use ILIAS plotting system instead of Moodle
-		global $CFG;
-		$string = str_replace('!ploturl!', $CFG->dataurl . '/stack/plots/', $string);
+        $string = str_replace('!ploturl!', ILIAS_HTTP_PATH . "/" . ILIAS_WEB_DIR . "/" . CLIENT_ID . "/xqcas/stack/plots/", $string);
 		//fau.
         return $string;
     }
@@ -92,7 +91,7 @@ abstract class stack_maths_output_filter_base extends stack_maths_output {
      */
     protected function render_equation($tex, $displaystyle) {
 		//fau: #39 do not use Moodle filters.
-		//WARNING; Have a look, it maybe make equations not be properly shown.
+		//TODO Have a look, it maybe make equations not be properly shown.
 		if ($displaystyle) {
 			return $this->displaywrapstart .
 				$this->displaystart . $tex .

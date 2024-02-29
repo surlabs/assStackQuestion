@@ -22,7 +22,7 @@
 // @copyright  2019 Aalto University.
 // @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later.
 
-require_once(__DIR__ . '/evaluatable_object.interfaces.php');
+//require_once(__DIR__ . '/evaluatable_object.interfaces.php');
 
 
 class stack_secure_loader implements cas_evaluatable {
@@ -62,10 +62,18 @@ class stack_secure_loader implements cas_evaluatable {
     }
 
     public function get_errors($raw = 'implode') {
-        if ($raw === 'implode') {
-            return implode(' ', array_unique($this->errors));
+        if ($raw === 'objects') {
+            return $this->errors;
         }
-        return $this->errors;
+        $errors = [];
+        foreach ($this->errors as $err) {
+            $errors[] = $err->get_legacy_error();
+        }
+
+        if ($raw === 'implode') {
+            return implode(' ', array_unique($errors));
+        }
+        return $errors;
     }
 
     public function get_key(): string {

@@ -34,11 +34,6 @@ class stack_boolean_input extends stack_input {
         );
     }
 
-    protected $extraoptions = array(
-        'hideanswer' => false,
-        'allowempty' => false
-    );
-
     protected function extra_validation($contents) {
         $validation = $contents[0];
         if ($validation === 'EMPTYANSWER') {
@@ -58,6 +53,8 @@ class stack_boolean_input extends stack_input {
         $attributes = array();
         if ($readonly) {
             $attributes['disabled'] = 'disabled';
+            $solution_input_id = $fieldname . '_sol';
+            $fieldname = $solution_input_id;
         }
 
         $value = $this->contents_to_maxima($state->contents);

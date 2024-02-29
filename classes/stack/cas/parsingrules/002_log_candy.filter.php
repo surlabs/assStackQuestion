@@ -15,8 +15,8 @@
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require_once(__DIR__ . '/filter.interface.php');
-require_once(__DIR__ . '/../../maximaparser/corrective_parser.php');
+//require_once(__DIR__ . '/filter.interface.php');
+//require_once(__DIR__ . '/../../maximaparser/corrective_parser.php');
 
 /**
  * AST filter that handles the logarithm base syntax-extension.

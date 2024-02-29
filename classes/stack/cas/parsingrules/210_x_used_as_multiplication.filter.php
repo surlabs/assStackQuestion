@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once(__DIR__ . '/filter.interface.php');
-require_once(__DIR__ . '/../../utils.class.php');
+//require_once(__DIR__ . '/filter.interface.php');
+//require_once(__DIR__ . '/../../utils.class.php');
 
 /**
  * AST filter that examines whether we have a pattern like a*x*b which might have arisen from axb, indicating

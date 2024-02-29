@@ -1,10 +1,25 @@
 <?php
+declare(strict_types=1);
 /**
- * Copyright (c) Laboratorio de Soluciones del Sur, Sociedad Limitada
- * GPLv3, see LICENSE
+ *  This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
+ *  This plugin is developed and maintained by SURLABS and is a port of STACK Question for Moodle,
+ *  originally created by Chris Sangwin.
+ *
+ *  The STACK Question plugin for ILIAS is open-source and licensed under GPL-3.0.
+ *  For license details, visit https://www.gnu.org/licenses/gpl-3.0.en.html.
+ *
+ *  To report bugs or participate in discussions, visit the Mantis system and filter by
+ *  the category "STACK Question" at https://mantis.ilias.de.
+ *
+ *  More information and source code are available at:
+ *  https://github.com/surlabs/STACK
+ *
+ *  If you need support, please contact the maintainer of this software at:
+ *  stack@surlabs.es
+ *
  */
 
-require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
+//require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 
 /**
  * STACK Question MoodleXML Export
@@ -22,14 +37,14 @@ class assStackQuestionMoodleXMLExport
 
 	function __construct($stack_questions)
 	{
-		global $DIC;
+		global $DIC, $tpl;
 
 		$lng = $DIC->language();
 		if (is_array($stack_questions) and sizeof($stack_questions)) {
 			$this->setStackQuestions($stack_questions);
 
 		} else {
-			ilUtil::sendFailure($lng->txt('qpl_qst_xqcas_moodlexml_no_questions_selected'), true);
+			$tpl->setOnScreenMessage('failure', $lng->txt('qpl_qst_xqcas_moodlexml_no_questions_selected'), true);
 		}
 	}
 
@@ -55,7 +70,7 @@ class assStackQuestionMoodleXMLExport
 	{
 		global $ilias;
 
-		include_once("./Services/Xml/classes/class.ilXmlWriter.php");
+		//include_once("./Services/Xml/classes/class.ilXmlWriter.php");
 		$a_xml_writer = new ilXmlWriter;
 
 
@@ -197,45 +212,41 @@ class assStackQuestionMoodleXMLExport
 					$a_xml_writer->xmlEndTag("feedbackvariables");
 
 					//Nodes
-					if (sizeof($prt->getNodes())) {
-						foreach ($prt->getNodes() as $node) {
-
-							$branches_info = $node->summarise_branches();
-							$feedback_info = $node->getFeedbackFromNode();
-
+					if (sizeof($prt->get_nodes())) {
+						foreach ($prt->get_nodes() as $node) {
 							$a_xml_writer->xmlStartTag("node");
 
-							$a_xml_writer->xmlElement("name", NULL, (string)$node->nodeid);
-							$a_xml_writer->xmlElement("answertest", NULL, $node->get_test());
-							$a_xml_writer->xmlElement("sans", NULL, $node->getRawSans());
-							$a_xml_writer->xmlElement("tans", NULL, $node->getRawTans());
-							$a_xml_writer->xmlElement("testoptions", NULL, assStackQuestionUtils::_serializeExtraOptions($node->getAtoptions()));
-							$a_xml_writer->xmlElement("quiet", NULL, (int)$node->isQuiet());
+							$a_xml_writer->xmlElement("name", NULL, (string)$node->nodename);
+							$a_xml_writer->xmlElement("answertest", NULL, $node->answertest);
+							$a_xml_writer->xmlElement("sans", NULL, $node->sans);
+							$a_xml_writer->xmlElement("tans", NULL, $node->tans);
+							$a_xml_writer->xmlElement("testoptions", NULL, assStackQuestionUtils::_serializeExtraOptions($node->testoptions));
+							$a_xml_writer->xmlElement("quiet", NULL, (int) $node->quiet);
 
-							$a_xml_writer->xmlElement("truescoremode", NULL, $branches_info->truescoremode);
-							$a_xml_writer->xmlElement("truescore", NULL, $branches_info->truescore);
-							$a_xml_writer->xmlElement("truepenalty", NULL, $feedback_info['true_penalty']);
-							$a_xml_writer->xmlElement("truenextnode", NULL, $branches_info->truenextnode);
-							$a_xml_writer->xmlElement("trueanswernote", NULL, $branches_info->truenote);
-							$a_xml_writer->xmlElement("truefeedbackformat", NULL, (int)$feedback_info['true_feedback_format']);
+							$a_xml_writer->xmlElement("truescoremode", NULL, $node->truescoremode);
+							$a_xml_writer->xmlElement("truescore", NULL, $node->truescore);
+							$a_xml_writer->xmlElement("truepenalty", NULL, $node->truepenalty);
+							$a_xml_writer->xmlElement("truenextnode", NULL, $node->truenextnode);
+							$a_xml_writer->xmlElement("trueanswernote", NULL, $node->trueanswernote);
+							$a_xml_writer->xmlElement("truefeedbackformat", NULL, (int)$node->truefeedbackformat);
 
 							$a_xml_writer->xmlStartTag("truefeedback", array("format" => "html"));
-							$media = $this->getRTEMedia($feedback_info['true_feedback']);
-							$this->addRTEText($a_xml_writer, $feedback_info['true_feedback']);
+							$media = $this->getRTEMedia($node->truefeedback);
+							$this->addRTEText($a_xml_writer, $node->truefeedback);
 							$this->addRTEMedia($a_xml_writer, $media);
 							$a_xml_writer->xmlEndTag("truefeedback");
 
-							$a_xml_writer->xmlElement("falsescoremode", NULL, $branches_info->falsescoremode);
-							$a_xml_writer->xmlElement("falsescore", NULL, $branches_info->falsescore);
-							$a_xml_writer->xmlElement("falsepenalty", NULL, $feedback_info['false_penalty']);
-							$a_xml_writer->xmlElement("falsenextnode", NULL, $branches_info->falsenextnode);
-							$a_xml_writer->xmlElement("falseanswernote", NULL, $branches_info->falsenote);
-							$a_xml_writer->xmlElement("falsefeedbackformat", NULL, (int)$feedback_info['false_feedback_format']);
+							$a_xml_writer->xmlElement("falsescoremode", NULL, $node->falsescoremode);
+							$a_xml_writer->xmlElement("falsescore", NULL, $node->falsescore);
+							$a_xml_writer->xmlElement("falsepenalty", NULL, $node->falsepenalty);
+							$a_xml_writer->xmlElement("falsenextnode", NULL, $node->falsenextnode);
+							$a_xml_writer->xmlElement("falseanswernote", NULL, $node->falseanswernote);
+							$a_xml_writer->xmlElement("falsefeedbackformat", NULL, (int)$node->falsefeedbackformat);
 
 
 							$a_xml_writer->xmlStartTag("falsefeedback", array("format" => "html"));
-							$media = $this->getRTEMedia($feedback_info['false_feedback']);
-							$this->addRTEText($a_xml_writer, $feedback_info['false_feedback']);
+							$media = $this->getRTEMedia($node->falsefeedback);
+							$this->addRTEText($a_xml_writer, $node->falsefeedback);
 							$this->addRTEMedia($a_xml_writer, $media);
 							$a_xml_writer->xmlEndTag("falsefeedback");
 
@@ -293,7 +304,7 @@ class assStackQuestionMoodleXMLExport
 
 		$a_xml_writer->xmlEndTag("quiz");
 
-		$xml = $a_xml_writer->xmlDumpMem(FALSE);
+		$xml = $a_xml_writer->xmlDumpMem(false);
 
 		if (is_array($this->getStackQuestions())) {
 			if (sizeof($this->getStackQuestions()) > 1) {

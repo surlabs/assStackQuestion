@@ -102,7 +102,7 @@ body.ie .stack_abstract_graph {
     background: #FFFFFF;
     margin: 5px;
     width: 100%;
-    height: 100%;
+    overflow:visible;
 }
 .stack_abstract_graph path {
     stroke-width: 3px;
@@ -148,14 +148,23 @@ body.ie .stack_abstract_graph {
     fill: #BBCCDD;
 }
 #mpcolp_type_positive_column{
-    background-color: rgba(198, 255, 188, 0.43);
-    padding: 0.75em;
+    background: linear-gradient(45deg, #e2fff1, #a3ffd0);
+    padding: 2em;
+    border-radius:10px;
+
 }
 #mpcolp_type_negative_column{
-    background-color: rgba(255, 204, 204, 0.44);
-    padding: 0.75em;
+    background: linear-gradient(45deg, #ffe2e3, #ffa3a3);
+    padding: 2em;
+    border-radius:10px;
+
 }
 #mpcolp_type_common_node{
     background-color: rgba(203, 209, 207, 0.34);
-    padding: 0.75em;
+    padding: 2em;
+    border-radius:10px;
+}
+
+.row h3{
+    margin-top:0;
 }

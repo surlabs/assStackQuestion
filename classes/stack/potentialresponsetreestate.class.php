@@ -113,6 +113,9 @@ class stack_potentialresponse_tree_state {
         $this->_debuginfo   = $debuginfo;
     }
 
+    /**
+     * @throws stack_exception
+     */
     public function __get($field) {
         switch ($field) {
             case 'weight':
@@ -144,20 +147,15 @@ class stack_potentialresponse_tree_state {
         }
     }
 
-    public function get_cas_context(): stack_cas_session2 {
-        return $this->cascontext;
-    }
-
     /**
      * Store the CAS context, so we can use it later if we want to output the
      * feedback.
      * @param stack_cas_session2 $cascontext the case context containing the
-     *                                       feedback variables, sans and tans for each node, etc.
-     * @param int                $seed       the random seed used.
-     * @param bool               $simp
+     *      feedback variables, sans and tans for each node, etc.
+     * @param int $seed the random seed used.
+     * @param bool $simp
      */
-    public function set_cas_context(stack_cas_session2 $cascontext, $seed, $simp)
-    {
+    public function set_cas_context(stack_cas_session2 $cascontext, $seed, $simp) {
         $this->cascontext = $cascontext;
         $this->seed = $seed;
         $this->simplify = $simp;
@@ -238,8 +236,13 @@ class stack_potentialresponse_tree_state {
         $cleanvars[] = stack_ast_container::make_from_teacher_source('simp:' . $simp, '', new stack_cas_security());
 
         $cleansession = new stack_cas_session2($cleanvars, $options, $this->seed);
-        $feedbackct = new stack_cas_text($feedback, $cleansession, $this->seed);
-        $result = $feedbackct->get_display_castext();
+        $feedbackct = castext2_evaluatable::make_from_source($feedback, 'PRT-feedback');
+        $result = '';
+        if ($feedbackct->get_valid()) {
+            $cleansession->add_statement($feedbackct);
+            $cleansession->instantiate();
+            $result = $feedbackct->get_rendered();
+        }
         $this->_errors = trim($this->_errors . ' ' . $feedbackct->get_errors());
         $this->_errors = trim($this->_errors . ' ' . $this->cascontext->get_errors());
         return $result;
@@ -277,6 +280,4 @@ class stack_prt_feedback_element {
         $this->filearea = $filearea;
         $this->itemid   = $itemid;
     }
-
-
 }
