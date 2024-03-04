@@ -82,11 +82,11 @@ php setup/setup.php update
 
 # Version History
 * The stable version 8.5.x for **ILIAS 8** with the STACK Core version 4.5.0 can be found in the Github branch **ilias8_stack**
-* The stable version 8.0.x for **ILIAS 8** with the STACK Core version 4.3.9 can be found in the Github branch **unmaintained_ilias8_stack** is on only security issues mode.
+* The stable version 8.0.x for **ILIAS 8** with the STACK Core version 4.3.9 can be found in the Github branch **old_ilias8_stack2021** is on only security issues mode.
 * The stable version 7.5.x for **ILIAS 7.13+** with the STACK Core version 4.5.0 can be found in the Github branch **ilias7_stack**
-* The stable version 7.0.x for **ILIAS 7.13+** with the STACK Core version 4.3.9 can be found in the Github branch **unmaintained_ilias7_stack** is on only security issues mode.
-* The stable version 3.5 for **ILIAS 7.13+** with the STACK Core version 4.2.2 can be found in the Github branch **unmaintained_ilias713_stack** is no longer maintained.
-* The stable version 3.4.3 for **ILIAS <= 7.12** with the STACK Core version 4.2.2 can be found in the Github branch **unmaintained_ilias7_stack** is no longer maintained.
+* The stable version 7.0.x for **ILIAS 7.13+** with the STACK Core version 4.3.9 can be found in the Github branch **old_ilias7_stack2021** is on only security issues mode.
+* The stable version 3.5 for **ILIAS 7.13+** with the STACK Core version 4.2.2 can be found in the Github branch **unmaintained_ilias713_stack2019** is no longer maintained.
+* The stable version 3.4.3 for **ILIAS <= 7.12** with the STACK Core version 4.2.2 can be found in the Github branch **unmaintained_ilias712_stack2019** is no longer maintained.
 * The stable version 3.2.x for **ILIAS 6** is no longer maintained.
 * The stable version 3.1.x for **ILIAS 5.4** is no longer maintained
 * The stable version 3.0.x for **ILIAS 5.3** is no longer maintained
