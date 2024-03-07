@@ -86,7 +86,7 @@ class stack_cas_configuration {
             //SUR platform to platform_type
             $this->blocksettings['MAXIMA_PLATFORM'] = $this->settings["platform_type"];
             if ($this->blocksettings['MAXIMA_PLATFORM'] == "server") {
-                if ($this->settings['maxima_uses_proxy'] == "1") {
+                if (isset($this->settings['maxima_uses_proxy']) && $this->settings['maxima_uses_proxy'] == "1") {
                     $this->blocksettings['MAXIMA_PLATFORM'] = "server-proxy";
                 }
             }
