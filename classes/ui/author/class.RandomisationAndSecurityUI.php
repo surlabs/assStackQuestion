@@ -550,7 +550,7 @@ class RandomisationAndSecurityUI
 
                 $responseNote = $this->factory->input()->field()->select($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_addform_response_note"), $options);
 
-                if ($expected) {
+                if (isset($expected) && array_key_exists($key, $expected)) {
                     $rating = $rating->withValue($expected[$key]["score"]);
                     $penalization = $penalization->withValue($expected[$key]["penalty"]);
                     $responseNote = $responseNote->withValue($expected[$key]["answer_note"]);
