@@ -250,16 +250,14 @@ class StackRenderIlias extends StackRender
 
             //Validation Placeholders
             if (is_a($input, 'stack_matrix_input')) {
-                $ilias_validation = '<div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">' . $validation_rendered. '</div>
-                <div class="xqcas_input_validation">
-                    <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '"></div>
-                </div>' .
+                $ilias_validation = '<div class="xqcas_input_validation">
+                    <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">' . $validation_rendered. '</div>
+                </div>'.
                     '<div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input->getWidth() . '</div>
                 <div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden">' . $input->getHeight() . '</div>';
             } else {
-                $ilias_validation = '<div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">' . $validation_rendered. '</div>
-                <div class="xqcas_input_validation">
-                    <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '"></div>
+                $ilias_validation = '<div class="xqcas_input_validation">
+                    <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">' . $validation_rendered. '</div>
                 </div>';
             }
 
