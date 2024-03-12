@@ -345,7 +345,10 @@ class assStackQuestionDB
 			'SELECT * FROM xqcas_qtests WHERE question_id = ' . $db->quote($question_id, 'integer') . ' ORDER BY xqcas_qtests.id';
 		$res = $db->query($query);
 
-		$unit_tests = array();
+		$unit_tests = array(
+            'ids' => array(),
+            'test_cases' => array()
+        );
 
 		//If there is a result returns array, otherwise returns false.
 		while ($row = $db->fetchAssoc($res)) {

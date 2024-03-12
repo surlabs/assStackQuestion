@@ -425,7 +425,11 @@ class assStackQuestionMoodleImport
 		$this->getQuestion()->setHidden(0);
 
 		//Unit Tests
-		$unit_tests = array();
+        $unit_tests = array(
+            'ids' => array(),
+            'test_cases' => array()
+        );
+
 		if (isset($question->qtest)) {
 			foreach ($question->qtest as $testcase) {
 
