@@ -466,8 +466,8 @@ class assStackQuestionGUI extends assQuestionGUI
                 $this->specific_post_data[$prefix . '_pos_next'] = ((isset($_POST[$prefix . '_pos_next']) and $_POST[$prefix . '_pos_next'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_pos_next'])) : -1);
                 $this->specific_post_data[$prefix . '_neg_next'] = ((isset($_POST[$prefix . '_neg_next']) and $_POST[$prefix . '_neg_next'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_neg_next'])) : -1);
                 $this->specific_post_data[$prefix . '_answer_test'] = ((isset($_POST[$prefix . '_answer_test']) and $_POST[$prefix . '_answer_test'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_answer_test'])) : '');
-                $this->specific_post_data[$prefix . '_student_answer'] = ((isset($_POST[$prefix . '_student_answer']) and $_POST[$prefix . '_student_answer'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_student_answer'])) : '');
-                $this->specific_post_data[$prefix . '_teacher_answer'] = ((isset($_POST[$prefix . '_teacher_answer']) and $_POST[$prefix . '_teacher_answer'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_teacher_answer'])) : '');
+                $this->specific_post_data[$prefix . '_student_answer'] = ((isset($_POST[$prefix . '_student_answer']) and $_POST[$prefix . '_student_answer'] != null) ? assStackQuestionUtils::_debugText($_POST[$prefix . '_student_answer']) : '');
+                $this->specific_post_data[$prefix . '_teacher_answer'] = ((isset($_POST[$prefix . '_teacher_answer']) and $_POST[$prefix . '_teacher_answer'] != null) ? assStackQuestionUtils::_debugText($_POST[$prefix . '_teacher_answer']) : '');
                 $this->specific_post_data[$prefix . '_options'] = ((isset($_POST[$prefix . '_options']) and $_POST[$prefix . '_options'] != null) ? trim(ilUtil::secureString($_POST[$prefix . '_options'])) : '');
                 $this->specific_post_data[$prefix . '_quiet'] = ((isset($_POST[$prefix . '_quiet']) and $_POST[$prefix . '_quiet'] != null) ? (int)trim(ilUtil::secureString($_POST[$prefix . '_quiet'])) : '');
 
