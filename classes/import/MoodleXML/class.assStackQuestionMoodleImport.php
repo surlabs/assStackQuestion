@@ -219,6 +219,11 @@ class assStackQuestionMoodleImport
 			$this->getQuestion()->question_note = (string)$question->questionnote->text;
 		}
 
+        //question description
+        if (isset($question->questiondescription->text)) {
+            $this->getQuestion()->setComment((string) $question->questiondescription->text);
+        }
+
 		//prt correct feedback
 		$prt_correct = (string)$question->prtcorrect->text;
 		if (isset($question->prtcorrect->file)) {

@@ -132,6 +132,10 @@ class assStackQuestionMoodleXMLExport
 			$a_xml_writer->xmlElement("text", NULL, $question->question_note);
 			$a_xml_writer->xmlEndTag("questionnote");
 
+            $a_xml_writer->xmlStartTag("questiondescription", array("format" => "html"));
+            $a_xml_writer->xmlElement("text", NULL, $question->getComment());
+            $a_xml_writer->xmlEndTag("questiondescription");
+
 			$a_xml_writer->xmlStartTag("prtcorrect", array("format" => "html"));
 			$media = $this->getRTEMedia($question->prt_correct);
 			$this->addRTEText($a_xml_writer, $question->prt_correct);
