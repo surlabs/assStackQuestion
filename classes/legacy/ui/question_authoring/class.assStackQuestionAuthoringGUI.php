@@ -833,7 +833,7 @@ class assStackQuestionAuthoringGUI
 	public function getNodePart(stack_potentialresponse_tree_lite $prt, object $node)
 	{
 		//Create columns property
-		$part = new ilMultipartFormPart($node->nodename);
+		$part = new ilMultipartFormPart($node->nodename + 1);
 
 		$positive_negative_columns = new ilColumnsFormPropertyGUI($this->getPlugin()->txt('prt_node_posneg'), 'prt_' . $prt->get_name() . '_node_' . $node->nodename . '_positive_negative', 12, TRUE);
 
