@@ -749,14 +749,14 @@ class assStackQuestionDB
                 "true_next_node" => array("text", $node->truenextnode),
                 "true_answer_note" => array("text", $node->trueanswernote),
                 "true_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($node->truefeedback)),
-                "true_feedback_format" => array("integer", 0),
+                "true_feedback_format" => array("integer", (int) $node->truefeedbackformat),
                 "false_score_mode" => array("text", $node->falsescoremode),
                 "false_score" => array("text", $node->falsescore),
                 "false_penalty" => array("text", $node->falsepenalty),
                 "false_next_node" => array("text", $node->falsenextnode),
                 "false_answer_note" => array("text", $node->falseanswernote),
                 "false_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($node->falsefeedback)),
-                "false_feedback_format" => array("integer", 0),
+                "false_feedback_format" => array("integer", (int) $node->falsefeedbackformat),
 			));
 		} else {
 			//UPDATE
@@ -778,14 +778,14 @@ class assStackQuestionDB
                     "true_next_node" => array("text", $node->truenextnode),
                     "true_answer_note" => array("text", $node->trueanswernote),
                     "true_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($node->truefeedback)),
-                    "true_feedback_format" => array("integer", 0),
+                    "true_feedback_format" => array("integer", (int) $node->truefeedbackformat),
                     "false_score_mode" => array("text", $node->falsescoremode),
                     "false_score" => array("text", $node->falsescore),
                     "false_penalty" => array("text", $node->falsepenalty),
                     "false_next_node" => array("text", $node->falsenextnode),
                     "false_answer_note" => array("text", $node->falseanswernote),
                     "false_feedback" => array("clob", ilRTE::_replaceMediaObjectImageSrc($node->falsefeedback)),
-                    "false_feedback_format" => array("integer", 0),
+                    "false_feedback_format" => array("integer", (int) $node->falsefeedbackformat),
 				)
 			);
 		}
@@ -2008,14 +2008,14 @@ class assStackQuestionDB
 			"true_next_node" => array("text", "-1"),
 			"true_answer_note" => array("text", $new_prt_name . '-' . $new_node_name . '-T'),
 			"true_feedback" => array("clob", $db_original_node->true_feedback),
-			"true_feedback_format" => array("integer", 0),
+			"true_feedback_format" => array("integer", $db_original_node->true_feedback_format),
 			"false_score_mode" => array("text", $db_original_node->false_score_mode),
 			"false_score" => array("text", $db_original_node->false_score),
 			"false_penalty" => array("text", $db_original_node->false_penalty),
 			"false_next_node" => array("text", "-1"),
 			"false_answer_note" => array("text", $new_prt_name . '-' . $new_node_name . '-F'),
 			"false_feedback" => array("clob", $db_original_node->false_feedback),
-			"false_feedback_format" => array("integer", 0),
+			"false_feedback_format" => array("integer", $db_original_node->false_feedback_format),
 		));
 
 		unset($_SESSION['copy_node']);
