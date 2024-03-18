@@ -1175,7 +1175,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         if ($total_weight > 0) {
             $ilias_points = ($fraction / $total_weight) * $this->getMaximumPoints();
         } else {
-            throw new StackException('No points available for evaluation');
+            $ilias_points = 0;
         }
 
         $evaluation_data['points']['total'] = (float)$ilias_points;
