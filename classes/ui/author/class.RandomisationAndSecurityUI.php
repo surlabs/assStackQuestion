@@ -473,7 +473,7 @@ class RandomisationAndSecurityUI
                     str_replace("\n", "<br>", $prt->trace) . "</div>" .
                     "</td>";
                 $html .= "<td>" . $prt->expectedanswernote . "</td>";
-                $html .= "<td>" . str_replace("\n", "<br>", $prt->feedback) . "</td>";
+                $html .= "<td>" . str_replace("\n", "<br>", assStackQuestionUtils::_getLatex($prt->feedback)) . "</td>";
                 $html .= "<td>" . ($prt->passed ? "Yes" : "No") . "</td>";
                 $html .= "</tr>";
             }
