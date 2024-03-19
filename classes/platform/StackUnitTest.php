@@ -115,8 +115,8 @@ class StackUnitTest {
         $results->setQuestionPenalty($question->getPenalty());
         foreach ($this->inputs as $inputname => $notused) {
             // Check input still exits, could have been deleted in a question.
-            if (array_key_exists($inputname, $question->getEvaluation()['inputs'])) {
-                $inputstate = $question->getEvaluation()['inputs'][$inputname];
+            if (array_key_exists($inputname, $question->getEvaluation()['inputs']["states"])) {
+                $inputstate = $question->getEvaluation()['inputs']["states"][$inputname];
                 // The _val below is a hack.  Not all inputnames exist explicitly in
                 // the response, but the _val does. Some inputs, e.g. matrices have
                 // many entries in the response so none match $response[$inputname].
@@ -269,6 +269,18 @@ protected function saveResult(assStackQuestion $question, StackUnitTestResult $r
                 'feedback' => $prtstate->feedback,
                 'passed' => (int) $prtstate->testoutcome,
                 'trace' => $prtstate->trace
+            );
+        }
+
+        $raw_result['result']["inputs"] = array();
+
+        foreach ($result->getInputStates() as $inputname => $input) {
+            $raw_result['result']["inputs"][$inputname] = array(
+                'value' => $input->value,
+                'valuemodified' => $input->valuemodified,
+                'displayed' => $input->displayed,
+                'status' => $input->status,
+                'error' => $input->error
             );
         }
 

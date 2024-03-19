@@ -403,7 +403,7 @@ class RandomisationAndSecurityUI
                     $status_text = "<span style='font-weight: bold; color: red;'>" . $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_failed") . "</span>";
                 }
 
-                $test_results_view = $this->factory->legacy($this->renderQtestResults((int) $last_case["seed"], (int) $last_case["timerun"], $last_result->prts));
+                $test_results_view = $this->factory->legacy($this->renderQtestResults((int) $last_case["seed"], (int) $last_case["timerun"], $last_result));
             }
 
             $list[$unit_test_number] = $this->factory->item()->group($status_text .
@@ -437,7 +437,40 @@ class RandomisationAndSecurityUI
         $html .= "</div>";
 
         $html .= "<div style='padding: 20px;'>";
-        // Crear una tabla con los resultados
+        // Crear una tabla con los inputs
+        $html .= "<table class='table'>";
+        $html .= "<thead class='thead-dark'>";
+        $html .= "<tr>";
+        $html .= "<th>Input Name</th>";
+        $html .= "<th>Value</th>";
+        $html .= "<th>Displayed value</th>";
+        $html .= "<th>Status</th>";
+        $html .= "<th>Errors</th>";
+        $html .= "</tr>";
+        $html .= "</thead>";
+
+        if (isset($result) && isset($result->inputs)) {
+            $html .= "<tbody>";
+
+            foreach ($result->inputs as $key => $input) {
+                $html .= "<tr>";
+                $html .= "<td>" . $key . "</td>";
+                $html .= "<td>" . $input->value . "</td>";
+                $html .= "<td>" . assStackQuestionUtils::_getLatex($input->displayed) . "</td>";
+                $html .= "<td>" . $input->status . "</td>";
+                $html .= "<td>" . $input->error . "</td>";
+                $html .= "</tr>";
+            }
+
+            $html .= "</tbody>";
+        }
+
+        $html .= "</table>";
+        $html .= "</div>";
+
+
+        $html .= "<div style='padding: 20px;'>";
+        // Crear una tabla con los prts
         $html .= "<table class='table'>";
         $html .= "<thead class='thead-dark'>";
         $html .= "<tr>";
@@ -453,10 +486,10 @@ class RandomisationAndSecurityUI
         $html .= "</tr>";
         $html .= "</thead>";
 
-        if (isset($result)) {
+        if (isset($result) && isset($result->prts)) {
             $html .= "<tbody>";
 
-            foreach ($result as $key => $prt) {
+            foreach ($result->prts as $key => $prt) {
                 $html .= "<tr class='alert alert-" . ((int) $prt->passed == 1 ? "success" : "danger") . "'>";
                 $html .= "<td>" . $key . "</td>";
                 $html .= "<td>" . $prt->score . "</td>";
