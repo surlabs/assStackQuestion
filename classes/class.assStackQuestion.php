@@ -1348,14 +1348,14 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             $newnode->falsescoremode = '=';
             $newnode->falsepenalty = 0;
             $newnode->falsefeedback = '';
-            $newnode->falsefeedbackformat = '1';
+            $newnode->falsefeedbackformat = '0';
             $newnode->falseanswernote = $prt_name . '-0-F';
             $newnode->falsenextnode = '-1';
             $newnode->truescore = '1';
             $newnode->truescoremode = '=';
             $newnode->truepenalty = 0;
             $newnode->truefeedback = '';
-            $newnode->truefeedbackformat = '1';
+            $newnode->truefeedbackformat = '0';
             $newnode->trueanswernote = $prt_name . '-0-T';
             $newnode->truenextnode = '-1';
             $prt->nodes[] = $newnode;

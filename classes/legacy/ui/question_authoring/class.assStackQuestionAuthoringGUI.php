@@ -1240,12 +1240,12 @@ class assStackQuestionAuthoringGUI
 		 * QUESTION WHICH USES THIS STYLES AND THOSE WHICH NOT.
 		 */
 
-		$options[1] = $lng->txt("default");
-		$options[2] = $this->getPlugin()->txt("feedback_node_right");
-		$options[3] = $this->getPlugin()->txt("feedback_node_wrong");
-		$options[4] = $this->getPlugin()->txt("feedback_solution_hint");
-		$options[5] = $this->getPlugin()->txt("feedback_extra_info");
-		$options[6] = $this->getPlugin()->txt("feedback_plot_feedback");
+		$options[0] = $lng->txt("default");
+		$options[1] = $this->getPlugin()->txt("feedback_node_right");
+		$options[2] = $this->getPlugin()->txt("feedback_node_wrong");
+		$options[3] = $this->getPlugin()->txt("feedback_solution_hint");
+		$options[4] = $this->getPlugin()->txt("feedback_extra_info");
+		$options[5] = $this->getPlugin()->txt("feedback_plot_feedback");
 
 		return $options;
 	}

@@ -555,7 +555,7 @@ class assStackQuestionPRTNode
 		}
 		if ($this->getTrueFeedbackFormat() == NULL OR $this->getTrueFeedbackFormat() == "") {
 			if ($solve_problems) {
-				$this->setTrueFeedbackFormat(1);
+				$this->setTrueFeedbackFormat(0);
 			} else {
 				return false;
 			}
@@ -590,7 +590,7 @@ class assStackQuestionPRTNode
 		}
 		if ($this->getFalseFeedbackFormat() == NULL OR $this->getFalseFeedbackFormat() == "") {
 			if ($solve_problems) {
-				$this->setFalseFeedbackFormat(1);
+				$this->setFalseFeedbackFormat(0);
 			} else {
 				return false;
 			}
