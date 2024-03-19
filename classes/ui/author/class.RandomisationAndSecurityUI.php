@@ -256,7 +256,9 @@ class RandomisationAndSecurityUI
         $display_options['feedback'] = true;
 
         //Render question text
-        $question_text = StackRenderIlias::renderQuestion($attempt_data, $display_options);
+        $question_text = "<div class='ilc_question_Standard'>" .
+            StackRenderIlias::renderQuestion($attempt_data, $display_options)
+            . "</div>";
 
         $page_text = $this->factory->modal()->lightboxTextPage(assStackQuestionUtils::_getLatex($question_text), $this->language->txt("qpl_qst_xqcas_message_question_text"));
         $modal_text = $this->factory->modal()->lightbox($page_text);
