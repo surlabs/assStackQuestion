@@ -367,6 +367,8 @@ class assStackQuestionMoodleImport
                     $mapping = $this->getMediaObjectsFromXML($node_data->truefeedback->file);
                     $node->truefeedback = $this->replaceMediaObjectReferences($node->truefeedback, $mapping);
                 }
+                $node->truefeedbackformat = 1;
+
                 $node->falsescoremode = ilUtil::secureString((string) $node_data->falsescoremode);
                 $node->falsescore = ilUtil::secureString((string) $node_data->falsescore);
                 $node->falsepenalty = ilUtil::secureString((int) $node_data->falsepenalty);
@@ -377,6 +379,7 @@ class assStackQuestionMoodleImport
                     $mapping = $this->getMediaObjectsFromXML($node_data->falsefeedback->file);
                     $node->falsefeedback = $this->replaceMediaObjectReferences($node->falsefeedback, $mapping);
                 }
+                $node->falsefeedbackformat = 1;
 
                 $temp_prt_data->nodes[$node->nodename] = $node;
             }
