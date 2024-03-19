@@ -78,6 +78,11 @@ class StackUnitTestResult {
      */
     public function __construct(StackUnitTest $testcase) {
         $this->testcase = $testcase;
+        $this->inputvalues = array();
+        $this->inputvaluesmodified = array();
+        $this->inputdisplayed = array();
+        $this->inputstatuses = array();
+        $this->inputerrors = array();
     }
 
     /**
@@ -197,6 +202,33 @@ class StackUnitTestResult {
             }
 
             $states[$prtname] = $state;
+        }
+
+        return $states;
+    }
+
+    /**
+     * @return array input name => object with fields ->value, ->valuemodified,
+     *      ->displayed, ->status, ->error.
+     */
+    public function getInputStates(): array
+    {
+        $states = array();
+
+        foreach ($this->testcase->inputs as $inputname => $input) {
+            $state = new stdClass();
+
+            if (array_key_exists($inputname, $this->inputvalues)) {
+                $state->value = $this->inputvalues[$inputname];
+                $state->valuemodified = $this->inputvaluesmodified[$inputname];
+                $state->displayed = $this->inputdisplayed[$inputname];
+                $state->status = $this->inputstatuses[$inputname];
+                $state->error = $this->inputerrors[$inputname];
+            } else {
+                $state->value = '';
+            }
+
+            $states[$inputname] = $state;
         }
 
         return $states;
