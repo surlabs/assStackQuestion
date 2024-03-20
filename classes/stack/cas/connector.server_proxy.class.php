@@ -27,7 +27,7 @@
 class stack_cas_connection_server_proxy extends stack_cas_connection_base {
 
     protected function guess_maxima_command($path) {
-        return 'http://localhost:8080/MaximaPool/MaximaPool';
+        return assStackQuestionConfig::_getServerAddress();
     }
 
     protected function call_maxima($command) {
@@ -56,24 +56,10 @@ class stack_cas_connection_server_proxy extends stack_cas_connection_base {
         // proxy bypass then, this will just
         // carry on as if we're using the server platform.
         // Based on auth/cas/auth.php/auth_plugin_cas->connectCAS() checks.
-        if (!empty($CFG->proxyhost) && !is_proxybypass($this->command)) {
-            curl_setopt($request, CURLOPT_PROXY, $CFG->proxyhost);
-            if (!empty($CFG->proxyport)) {
-                curl_setopt($request, CURLOPT_PROXYPORT, $CFG->proxyport);
-            }
-            if (!empty($CFG->proxytype)) {
-                // Only set CURLOPT_PROXYTYPE if it's something other than the curl-default http.
-                if ($CFG->proxytype == 'SOCKS5') {
-                    curl_setopt($request, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
-                }
-            }
-            if (!empty($CFG->proxyuser) && !empty($CFG->proxypassword)) {
-                curl_setopt($request, CURLOPT_PROXYUSERPWD, $CFG->proxyuser.':'.$CFG->proxypassword);
-                if (defined('CURLOPT_PROXYAUTH')) {
-                    // Use any proxy authentication if required - PHP 5.1+.
-                    curl_setopt($request, CURLOPT_PROXYAUTH, CURLAUTH_BASIC | CURLAUTH_NTLM);
-                }
-            }
+        $iliasProxy = ilProxySettings::_getInstance();
+        if ($iliasProxy->isActive()) {
+            curl_setopt($request, CURLOPT_PROXY, $iliasProxy->getHost());
+            curl_setopt($request, CURLOPT_PROXYPORT, $iliasProxy->getPort());
         }
 
         $ret = curl_exec($request);
