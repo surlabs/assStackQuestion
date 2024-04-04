@@ -22,6 +22,7 @@ declare(strict_types=1);
 use classes\platform\ilias\StackRandomisationIlias;
 use classes\platform\ilias\StackRenderIlias;
 use classes\platform\ilias\StackUserResponseIlias;
+use classes\platform\StackCheckPrtPlaceholders;
 use classes\platform\StackException;
 use classes\platform\StackPlatform;
 use classes\platform\StackUnitTest;
