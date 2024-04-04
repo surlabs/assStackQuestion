@@ -199,6 +199,15 @@ class RandomisationAndSecurityUI
         );
         $html .= $this->renderer->render($test_overview_panel);
 
+        $html .= $this->renderer->render($this->factory->divider()->horizontal());
+
+        $html .= $this->renderer->render(
+            $this->factory->panel()->standard(
+                $this->language->txt("qpl_qst_xqcas_ui_admin_configuration_quality_check_prt_placeholders_button_label"),
+                $this->factory->button()->standard($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_ckeck_prt_placeholders_button_label"), $this->control->getLinkTargetByClass("assStackQuestionGUI", "checkPrtPlaceholders"))
+            )
+        );
+
         return $html;
     }
 

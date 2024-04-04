@@ -1741,7 +1741,7 @@ class assStackQuestionDB
 	 * @return assStackQuestion[]
 	 * @throws stack_exception
 	 */
-	public static function _getAllQuestionsFromPool(int $question_id, int $q_type_id): array
+	public static function _getAllQuestionsFromPool(int $question_id, int $q_type_id, bool $only_id = false): array
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -1753,14 +1753,22 @@ class assStackQuestionDB
 									WHERE qpl.obj_fi = (SELECT obj_fi FROM qpl_questions WHERE question_id = %s)
 									AND qpl.question_type_fi = %s", array('integer', 'integer'), array($question_id, $q_type_id));
 
-			while ($row = $db->fetchAssoc($result)) {
-				$new_question_id = (int) $row['question_id'];
+            if ($only_id) {
+                while ($row = $db->fetchAssoc($result)) {
+                    $new_question_id = (int)$row['question_id'];
 
-				$ilias_question = new assStackQuestion();
-				$ilias_question->loadFromDb($new_question_id);
+                    $questions_array[] = $new_question_id;
+                }
+            } else {
+                while ($row = $db->fetchAssoc($result)) {
+                    $new_question_id = (int)$row['question_id'];
 
-				$questions_array[$new_question_id] = $ilias_question;
-			}
+                    $ilias_question = new assStackQuestion();
+                    $ilias_question->loadFromDb($new_question_id);
+
+                    $questions_array[$new_question_id] = $ilias_question;
+                }
+            }
 		}
 
 		return $questions_array;
@@ -1770,7 +1778,7 @@ class assStackQuestionDB
 	 * @return assStackQuestion[]
 	 * @throws stack_exception
 	 */
-	public static function _getAllQuestionsFromTest(int $question_id, int $q_type_id): array
+	public static function _getAllQuestionsFromTest(int $question_id, int $q_type_id, bool $only_id = false): array
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -1778,19 +1786,27 @@ class assStackQuestionDB
 		$questions_array = array();
 
 		if ($question_id > 0 and $q_type_id) {
-			$result = $db->queryF(/** @lang text */ "SELECT question_fi FROM tst_test_question AS tst INNER JOIN qpl_questions AS qpl
+            $result = $db->queryF(/** @lang text */ "SELECT question_fi FROM tst_test_question AS tst INNER JOIN qpl_questions AS qpl
 								WHERE tst.question_fi = qpl.question_id
 								AND tst.test_fi = (SELECT test_fi FROM tst_test_question WHERE question_fi = %s)
 								AND qpl.question_type_fi = %s", array('integer', 'integer'), array($question_id, $q_type_id));
 
-			while ($row = $db->fetchAssoc($result)) {
-				$new_question_id = $row['question_fi'];
+            if ($only_id) {
+                while ($row = $db->fetchAssoc($result)) {
+                    $new_question_id = $row['question_fi'];
 
-				$ilias_question = new assStackQuestion();
-				$ilias_question->loadFromDb($new_question_id);
+                    $questions_array[] = $new_question_id;
+                }
+            } else {
+                while ($row = $db->fetchAssoc($result)) {
+                    $new_question_id = $row['question_fi'];
 
-				$questions_array[$new_question_id] = $ilias_question;
-			}
+                    $ilias_question = new assStackQuestion();
+                    $ilias_question->loadFromDb($new_question_id);
+
+                    $questions_array[$new_question_id] = $ilias_question;
+                }
+            }
 		}
 
 		return $questions_array;

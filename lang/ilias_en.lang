@@ -153,6 +153,7 @@ ui_admin_configuration_quality_check_prt_placeholders_button_label#:#Check PRT p
 ui_admin_configuration_quality_check_prt_placeholders_no_prts#:#The STACK question with ID %s does not have any PRT so its evaluation will always be 0
 ui_admin_configuration_quality_check_prt_placeholders_missing_placeholders#:#The STACK question with ID %s has the following missing PRT placeholders: (%s)
 ui_admin_configuration_quality_check_prt_placeholders_fixed#:#The missing PRT placeholders have been fixed
+ui_admin_configuration_quality_check_prt_placeholders_all_ok#:#All PRT placeholders are OK
 ui_admin_configuration_quality_healthcheck_mbstring_true#:#The PHP mbstring extension is installed and enabled
 ui_admin_configuration_quality_healthcheck_mbstring_false#:#STACK requires the PHP mbstring extension to be used, and it is not installed on the Server where ILIAS is running. STACK questions might not work properly until this is installed.
 ui_author_main_title#:#STACK Question Authoring
@@ -213,6 +214,7 @@ ui_author_randomisation_cannot_delete_active_variant#:#You cannot delete the act
 ui_author_randomisation_sucessfully_on_seeds_generation#:#Seeds were successfully generated
 ui_author_randomisation_failed_on_seeds_generation#:#Failed on seeds generation
 ui_author_randomisation_no_test_case_selected#:#No test case selected
+ui_author_randomisation_ckeck_prt_placeholders_button_label#:#Check PRT placeholders for question pool/test
 assStackQuestion#:#STACK Question
 question_imported_successfully#:#Question was imported successfully
 error_importing_question#:#Error importing question

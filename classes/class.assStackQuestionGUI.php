@@ -22,6 +22,7 @@ declare(strict_types=1);
 use classes\platform\ilias\StackRandomisationIlias;
 use classes\platform\ilias\StackRenderIlias;
 use classes\platform\ilias\StackUserResponseIlias;
+use classes\platform\StackCheckPrtPlaceholders;
 use classes\platform\StackException;
 use classes\platform\StackPlatform;
 use classes\platform\StackUnitTest;
@@ -1151,7 +1152,8 @@ class assStackQuestionGUI extends assQuestionGUI
                 'addCustomTestForm',
                 'addStandardTest',
                 'editTestcases',
-                'deleteUnitTest'
+                'deleteUnitTest',
+                'checkPrtPlaceholders'
             ))) {
 				$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 				$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
@@ -1238,7 +1240,8 @@ class assStackQuestionGUI extends assQuestionGUI
             'addCustomTestForm',
             'addStandardTest',
             'editTestcases',
-            'deleteUnitTest'
+            'deleteUnitTest',
+            'checkPrtPlaceholders'
         ))) {
 			$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 			$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
@@ -2056,5 +2059,80 @@ class assStackQuestionGUI extends assQuestionGUI
             true);
 
         $this->randomisationAndSecurity();
+    }
+
+    /**
+     * Check if the PRT placeholders are correctly set
+     * @return void
+     * @throws ilCtrlException|stack_exception
+     */
+    public function checkPrtPlaceholders()
+    {
+        global $DIC;
+
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
+        $rendered = "";
+
+        if (isset($_GET['calling_test'])) {
+            $questions = assStackQuestionDB::_getAllQuestionsFromTest($this->object->getId(), $this->object->getQuestionTypeID(), true);
+        } else {
+            $questions = assStackQuestionDB::_getAllQuestionsFromPool($this->object->getId(), $this->object->getQuestionTypeID(), true);
+        }
+
+        foreach (StackCheckPrtPlaceholders::getMissing($questions) as $question_id => $missing) {
+            if (empty($missing["missing"])) {
+                $pane = sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_admin_configuration_quality_check_prt_placeholders_no_prts'), $question_id);
+                $pane .= '<br><br><strong>Title: </strong>' . $missing["title"];
+
+                $rendered .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->messageBox()->failure($pane));
+            } else {
+                $pane = '<div style="display: flex; width: 100%; justify-content: space-between;">';
+                $pane .= sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_admin_configuration_quality_check_prt_placeholders_missing_placeholders'), $question_id, implode(', ', $missing["missing"]));
+                $this->ctrl->setParameterByClass("assStackQuestionGUI", "question_id", $question_id);
+                $pane .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->button()->standard("Fix", $this->ctrl->getLinkTargetByClass("assStackQuestionGUI", "fixPrtPlaceholders")));
+                $pane .= '</div>';
+                $pane .= '<br><strong>Title: </strong>' . $missing["title"];
+
+                $rendered .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->messageBox()->confirmation($pane));
+            }
+        }
+
+        if ($rendered == "") {
+            $rendered = $DIC->ui()->renderer()->render($DIC->ui()->factory()->messageBox()->success($DIC->language()->txt('qpl_qst_xqcas_ui_admin_configuration_quality_check_prt_placeholders_all_ok')));
+        }
+
+        $this->tpl->setContent($rendered);
+    }
+
+    /**
+     * Fix the PRT placeholders
+     */
+    public function fixPrtPlaceholders() {
+        global $DIC;
+
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
+
+        if (isset($_GET['question_id'])) {
+            $result = StackCheckPrtPlaceholders::fixMissings($_GET['question_id']);
+
+            $rendered = "<h2>" . $DIC->language()->txt('qpl_qst_xqcas_ui_admin_configuration_quality_check_prt_placeholders_fixed') . "</h2>";
+            $rendered .= "<br><strong>Title: </strong><br>" . $result["title"];
+            $rendered .= "<br><br><strong>" . $DIC->language()->txt('qpl_qst_xqcas_options_specific_feedback') . "</strong>:<br>" . $result["specific_feedback"];
+
+            $rendered = $DIC->ui()->renderer()->render($DIC->ui()->factory()->messageBox()->success($rendered));
+        } else {
+            $rendered = $DIC->ui()->renderer()->render($DIC->ui()->factory()->messageBox()->failure("Unknown error"));
+        }
+
+
+        $this->tpl->setContent($rendered);
     }
 }

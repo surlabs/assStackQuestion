@@ -155,6 +155,10 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
                     }
                 }
 
+                if ($rendered == "") {
+                    $rendered = $this->renderer->render($this->factory->messageBox()->success($DIC->language()->txt('qpl_qst_xqcas_ui_admin_configuration_quality_check_prt_placeholders_all_ok')));
+                }
+
                 break;
             case "fixPrtPlaceholders":
                 $result = StackCheckPrtPlaceholders::fixMissings($this->request->getQueryParams()["question_id"]);

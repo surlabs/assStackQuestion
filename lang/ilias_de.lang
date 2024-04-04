@@ -157,6 +157,7 @@ ui_admin_configuration_quality_check_prt_placeholders_button_label#:#Überprüfe
 ui_admin_configuration_quality_check_prt_placeholders_no_prts#:#Die STACK-Frage mit der ID %s hat keine PRT, daher wird ihre Bewertung immer 0 sein.
 ui_admin_configuration_quality_check_prt_placeholders_missing_placeholders#:#Die STACK-Frage mit der ID %s hat folgende PRTs mit fehlenden Platzhaltern: (%s)
 ui_admin_configuration_quality_check_prt_placeholders_fixed#:#Die fehlenden Platzhalter wurden hinzugefügt.
+ui_admin_configuration_quality_check_prt_placeholders_all_ok#:#Alle PRTs haben Platzhalter.
 ui_admin_configuration_quality_healthcheck_mbstring_true#:#Die PHP mbstring-Erweiterung ist installiert und aktiviert
 ui_admin_configuration_quality_healthcheck_mbstring_false#:#STACK benötigt die PHP mbstring-Erweiterung, und sie ist nicht auf dem Server installiert, auf dem ILIAS läuft. STACK-Fragen funktionieren möglicherweise nicht ordnungsgemäß, bis dies installiert ist.
 ui_author_main_title#:#STACK Fragenautor
@@ -217,6 +218,7 @@ ui_author_randomisation_cannot_delete_active_variant#:#Sie können die aktive Va
 ui_author_randomisation_sucessfully_on_seeds_generation#:#Seeds wurden erfolgreich generiert
 ui_author_randomisation_failed_on_seeds_generation#:#Fehlgeschlagen bei der Generierung von Seeds
 ui_author_randomisation_no_test_case_selected#:#Kein Testfall ausgewählt
+ui_author_randomisation_ckeck_prt_placeholders_button_label#:#PRT-Platzhalter für Fragenpool/Test prüfen
 assStackQuestion#:#STACK Frage
 question_imported_successfully#:#Die Frage(n) wurde(n) erfolgreich importiert.
 error_importing_question#:#Beim Import trat ein Fehler auf.
