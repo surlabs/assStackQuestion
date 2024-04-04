@@ -48,7 +48,8 @@ class PluginConfigurationQualityUI
                 $plugin_object->txt('ui_admin_configuration_quality_title'),
                 [
                     self::getHealthcheckButton($plugin_object),
-                    self::getClearCacheButton($plugin_object)
+                    self::getClearCacheButton($plugin_object),
+                    self::getCheckPrtPlaceholderButton($plugin_object)
                 ]
             );
 
@@ -94,6 +95,17 @@ class PluginConfigurationQualityUI
         return self::$factory->button()->standard(
             $plugin_object->txt('clear_cache'),
             self::$control->getLinkTargetByClass("ilassStackQuestionConfigGUI", "clearCache")
+        );
+    }
+
+    /**
+     * Gets the Check PRT Placeholder button for the plugin configuration
+     */
+    private static function getCheckPrtPlaceholderButton(ilPlugin $plugin_object): Standard
+    {
+        return self::$factory->button()->standard(
+            $plugin_object->txt('ui_admin_configuration_quality_check_prt_placeholders_button_label'),
+            self::$control->getLinkTargetByClass("ilassStackQuestionConfigGUI", "checkPrtPlaceholder")
         );
     }
 }

@@ -1730,7 +1730,7 @@ class assStackQuestionDB
 	 * @return assStackQuestion[]
 	 * @throws stack_exception
 	 */
-	public static function _getAllQuestionsFromPool(int $question_id, int $q_type_id): array
+	public static function _getAllQuestionsFromPool(int $question_id, int $q_type_id, bool $only_id = false): array
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -1742,14 +1742,22 @@ class assStackQuestionDB
 									WHERE qpl.obj_fi = (SELECT obj_fi FROM qpl_questions WHERE question_id = %s)
 									AND qpl.question_type_fi = %s", array('integer', 'integer'), array($question_id, $q_type_id));
 
-			while ($row = $db->fetchAssoc($result)) {
-				$new_question_id = (int) $row['question_id'];
+            if ($only_id) {
+                while ($row = $db->fetchAssoc($result)) {
+                    $new_question_id = (int)$row['question_id'];
 
-				$ilias_question = new assStackQuestion();
-				$ilias_question->loadFromDb($new_question_id);
+                    $questions_array[] = $new_question_id;
+                }
+            } else {
+                while ($row = $db->fetchAssoc($result)) {
+                    $new_question_id = (int)$row['question_id'];
 
-				$questions_array[$new_question_id] = $ilias_question;
-			}
+                    $ilias_question = new assStackQuestion();
+                    $ilias_question->loadFromDb($new_question_id);
+
+                    $questions_array[$new_question_id] = $ilias_question;
+                }
+            }
 		}
 
 		return $questions_array;
@@ -1759,7 +1767,7 @@ class assStackQuestionDB
 	 * @return assStackQuestion[]
 	 * @throws stack_exception
 	 */
-	public static function _getAllQuestionsFromTest(int $question_id, int $q_type_id): array
+	public static function _getAllQuestionsFromTest(int $question_id, int $q_type_id, bool $only_id = false): array
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -1767,19 +1775,27 @@ class assStackQuestionDB
 		$questions_array = array();
 
 		if ($question_id > 0 and $q_type_id) {
-			$result = $db->queryF(/** @lang text */ "SELECT question_fi FROM tst_test_question AS tst INNER JOIN qpl_questions AS qpl
+            $result = $db->queryF(/** @lang text */ "SELECT question_fi FROM tst_test_question AS tst INNER JOIN qpl_questions AS qpl
 								WHERE tst.question_fi = qpl.question_id
 								AND tst.test_fi = (SELECT test_fi FROM tst_test_question WHERE question_fi = %s)
 								AND qpl.question_type_fi = %s", array('integer', 'integer'), array($question_id, $q_type_id));
 
-			while ($row = $db->fetchAssoc($result)) {
-				$new_question_id = $row['question_fi'];
+            if ($only_id) {
+                while ($row = $db->fetchAssoc($result)) {
+                    $new_question_id = $row['question_fi'];
 
-				$ilias_question = new assStackQuestion();
-				$ilias_question->loadFromDb($new_question_id);
+                    $questions_array[] = $new_question_id;
+                }
+            } else {
+                while ($row = $db->fetchAssoc($result)) {
+                    $new_question_id = $row['question_fi'];
 
-				$questions_array[$new_question_id] = $ilias_question;
-			}
+                    $ilias_question = new assStackQuestion();
+                    $ilias_question->loadFromDb($new_question_id);
+
+                    $questions_array[$new_question_id] = $ilias_question;
+                }
+            }
 		}
 
 		return $questions_array;
@@ -2260,5 +2276,78 @@ class assStackQuestionDB
         }
 
         return $solution_db_parsed;
+    }
+
+    /**
+     * Get the question type id from plugin name
+     * @return int
+     */
+    public static function getQuestionTypeID(): int
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $result = $db->queryF("SELECT question_type_id FROM qpl_qst_type WHERE type_tag = 'assStackQuestion'", array(), array());
+        if ($db->numRows($result) == 1) {
+            $row = $db->fetchAssoc($result);
+            return (int) $row["question_type_id"];
+        }
+        return 0;
+    }
+
+    /**
+     * Get the needed information for check the prt placeholders
+     * @param string|null $question_id
+     * @return array
+     */
+    public static function getPrtsAndPlaceholders(?string $question_id = null) :array {
+        global $DIC;
+        $db = $DIC->database();
+
+        $retval = array();
+
+        if (isset($question_id)) {
+            $result = $db->queryF("SELECT qpl_questions.title, qpl_questions.question_text, xqcas_prts.name, xqcas_options.specific_feedback FROM qpl_questions LEFT JOIN xqcas_prts ON qpl_questions.question_id = xqcas_prts.question_id INNER JOIN xqcas_options ON qpl_questions.question_id = xqcas_options.question_id WHERE qpl_questions.question_id = %s", array('integer'), array($question_id));
+
+            while ($row = $db->fetchAssoc($result)) {
+                $retval['question_text'] = $row['question_text'];
+                if (isset($row['name'])) {
+                    $retval['prts'][] = $row['name'];
+                }
+                $retval['specific_feedback'] = $row['specific_feedback'];
+                $retval['title'] = $row['title'];
+            }
+        } else {
+            $result = $db->queryF("SELECT qpl_questions.question_id, qpl_questions.title, qpl_questions.question_text, xqcas_prts.name, xqcas_options.specific_feedback FROM qpl_questions LEFT JOIN xqcas_prts ON qpl_questions.question_id = xqcas_prts.question_id INNER JOIN xqcas_options ON qpl_questions.question_id = xqcas_options.question_id WHERE qpl_questions.question_type_fi = %s", array('integer'), array(self::getQuestionTypeID()));
+
+            while ($row = $db->fetchAssoc($result)) {
+                $retval[$row['question_id']]['question_text'] = $row['question_text'];
+                if (isset($row['name'])) {
+                    $retval[$row['question_id']]['prts'][] = $row['name'];
+                }
+                $retval[$row['question_id']]['specific_feedback'] = $row['specific_feedback'];
+                $retval[$row['question_id']]['title'] = $row['title'];
+            }
+        }
+
+        return $retval;
+    }
+
+    /**
+     * Update the specific feedback for a question
+     *
+     * @param string $question_id
+     * @param string $specific_feedback
+     * @return void
+     */
+    public static function updateSpecificFeedback(string $question_id, string $specific_feedback) :void {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->update("xqcas_options", array(
+            'specific_feedback' => array('clob', $specific_feedback)
+        ), array(
+            'question_id' => array('integer', $question_id)
+        ));
     }
 }

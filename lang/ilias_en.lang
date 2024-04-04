@@ -149,6 +149,11 @@ ui_admin_configuration_defaults_section_title_healthcheck_healthcheckplots#:#Hea
 ui_admin_configuration_defaults_section_title_healthcheck_healthchecksstackmaximaversion#:#Health Checks Stack Maxima version
 ui_admin_configuration_defaults_section_title_healthcheck_healthchecksstacklibrariesworking#:#Health Checks Stack libraries working
 ui_admin_configuration_quality_healthcheck_button_label#:#Do Health Check
+ui_admin_configuration_quality_check_prt_placeholders_button_label#:#Check PRT placeholders
+ui_admin_configuration_quality_check_prt_placeholders_no_prts#:#The STACK question with ID %s does not have any PRT so its evaluation will always be 0
+ui_admin_configuration_quality_check_prt_placeholders_missing_placeholders#:#The STACK question with ID %s has the following missing PRT placeholders: (%s)
+ui_admin_configuration_quality_check_prt_placeholders_fixed#:#The missing PRT placeholders have been fixed
+ui_admin_configuration_quality_check_prt_placeholders_all_ok#:#All PRT placeholders are OK
 ui_admin_configuration_quality_healthcheck_mbstring_true#:#The PHP mbstring extension is installed and enabled
 ui_admin_configuration_quality_healthcheck_mbstring_false#:#STACK requires the PHP mbstring extension to be used, and it is not installed on the Server where ILIAS is running. STACK questions might not work properly until this is installed.
 ui_author_main_title#:#STACK Question Authoring

@@ -151,6 +151,11 @@ ui_admin_configuration_defaults_section_title_healthcheck_healthcheckplots#:#Fun
 ui_admin_configuration_defaults_section_title_healthcheck_healthchecksstackmaximaversion#:#Funktionstest Stack Maxima-Version
 ui_admin_configuration_defaults_section_title_healthcheck_healthchecksstacklibrariesworking#:#Funktionstest Stack Bibliotheken funktionieren
 ui_admin_configuration_quality_healthcheck_button_label#:#Funktionstest durchführen
+ui_admin_configuration_quality_check_prt_placeholders_button_label#:#Überprüfen Sie PRT-Platzhalter
+ui_admin_configuration_quality_check_prt_placeholders_no_prts#:#Die STACK-Frage mit der ID %s hat keine PRT, daher wird ihre Bewertung immer 0 sein.
+ui_admin_configuration_quality_check_prt_placeholders_missing_placeholders#:#Die STACK-Frage mit der ID %s hat folgende PRTs mit fehlenden Platzhaltern: (%s)
+ui_admin_configuration_quality_check_prt_placeholders_fixed#:#Die fehlenden Platzhalter wurden hinzugefügt.
+ui_admin_configuration_quality_check_prt_placeholders_all_ok#:#Alle PRTs haben Platzhalter.
 ui_admin_configuration_quality_healthcheck_mbstring_true#:#Die PHP mbstring-Erweiterung ist installiert und aktiviert
 ui_admin_configuration_quality_healthcheck_mbstring_false#:#STACK benötigt die PHP mbstring-Erweiterung, und sie ist nicht auf dem Server installiert, auf dem ILIAS läuft. STACK-Fragen funktionieren möglicherweise nicht ordnungsgemäß, bis dies installiert ist.
 ui_author_main_title#:#STACK Fragenautor

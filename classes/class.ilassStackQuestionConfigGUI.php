@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use classes\platform\ilias\StackBulktestingIlias;
+use classes\platform\StackCheckPrtPlaceholders;
 use classes\platform\StackConfig;
 use classes\platform\StackPlatform;
 use ILIAS\HTTP\GlobalHttpState;
@@ -37,6 +38,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
     protected ilCtrl $control;
     protected GlobalHttpState $http;
     protected Factory $factory;
+    protected ilCtrl $ctrl;
     protected $request;
     protected Renderer $renderer;
     private ilLanguage $language;
@@ -53,6 +55,7 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
         $this->control = $DIC->ctrl();
         $this->http = $DIC->http();
         $this->factory = $DIC->ui()->factory();
+        $this->ctrl = $DIC->ctrl();
         $this->request = $DIC->http()->request();
         $this->renderer = $DIC->ui()->renderer();
         $this->language = $DIC->language();
@@ -130,6 +133,42 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
                 $sections = $this->bulktesting($data);
                 $form_action = $this->control->getLinkTargetByClass("ilassStackQuestionConfigGUI", "bulktesting");
                 $rendered = $this->renderPanel($data, $form_action, $sections);
+                break;
+            case "checkPrtPlaceholder":
+                $rendered = "";
+
+                foreach (StackCheckPrtPlaceholders::getMissing() as $question_id => $missing) {
+                    if (empty($missing["missing"])) {
+                        $pane = sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_admin_configuration_quality_check_prt_placeholders_no_prts'), $question_id);
+                        $pane .= '<br><br><strong>Title: </strong>' . $missing["title"];
+
+                        $rendered .= $this->renderer->render($this->factory->messageBox()->failure($pane));
+                    } else {
+                        $pane = '<div style="display: flex; width: 100%; justify-content: space-between;">';
+                        $pane .= sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_admin_configuration_quality_check_prt_placeholders_missing_placeholders'), $question_id, implode(', ', $missing["missing"]));
+                        $this->ctrl->setParameterByClass("ilassStackQuestionConfigGUI", "question_id", $question_id);
+                        $pane .= $this->renderer->render($this->factory->button()->standard("Fix", $this->ctrl->getLinkTargetByClass("ilassStackQuestionConfigGUI", "fixPrtPlaceholders")));
+                        $pane .= '</div>';
+                        $pane .= '<br><strong>Title: </strong>' . $missing["title"];
+
+                        $rendered .= $this->renderer->render($this->factory->messageBox()->confirmation($pane));
+                    }
+                }
+
+                if ($rendered == "") {
+                    $rendered = $this->renderer->render($this->factory->messageBox()->success($DIC->language()->txt('qpl_qst_xqcas_ui_admin_configuration_quality_check_prt_placeholders_all_ok')));
+                }
+
+                break;
+            case "fixPrtPlaceholders":
+                $result = StackCheckPrtPlaceholders::fixMissings($this->request->getQueryParams()["question_id"]);
+
+
+                $rendered = "<h2>" . $DIC->language()->txt('qpl_qst_xqcas_ui_admin_configuration_quality_check_prt_placeholders_fixed') . "</h2>";
+                $rendered .= "<br><strong>Title: </strong><br>" . $result["title"];
+                $rendered .= "<br><br><strong>" . $DIC->language()->txt('qpl_qst_xqcas_options_specific_feedback') . "</strong>:<br>" . $result["specific_feedback"];
+
+                $rendered = $this->renderer->render($this->factory->messageBox()->success($rendered));
                 break;
             default:
                 throw new stack_exception("Unknown configuration command: " . $cmd);
