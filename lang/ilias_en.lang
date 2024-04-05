@@ -214,6 +214,7 @@ ui_author_randomisation_cannot_delete_active_variant#:#You cannot delete the act
 ui_author_randomisation_sucessfully_on_seeds_generation#:#Seeds were successfully generated
 ui_author_randomisation_failed_on_seeds_generation#:#Failed on seeds generation
 ui_author_randomisation_no_test_case_selected#:#No test case selected
+ui_author_randomisation_ckeck_prt_placeholders_button_label#:#Check PRT placeholders for question pool/test
 assStackQuestion#:#STACK Question
 question_imported_successfully#:#Question was imported successfully
 error_importing_question#:#Error importing question
