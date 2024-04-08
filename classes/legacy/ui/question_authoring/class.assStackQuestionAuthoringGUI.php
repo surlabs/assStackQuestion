@@ -621,7 +621,7 @@ class assStackQuestionAuthoringGUI
 		$node_list = array();
 		//Get list of nodes
 		foreach ($prt->get_nodes_summary() as $node_name => $prt_node) {
-			$node_list[$node_name] = $node_name + 1;
+			$node_list[$node_name] = $node_name;
 		}
 		$prt_first_node->setOptions($node_list);
 		$prt_first_node->setValue($prt->get_first_node());
@@ -817,7 +817,7 @@ class assStackQuestionAuthoringGUI
 	public function getNodePart(stack_potentialresponse_tree_lite $prt, object $node)
 	{
 		//Create columns property
-		$part = new ilMultipartFormPart($node->nodename + 1);
+		$part = new ilMultipartFormPart($node->nodename);
 
 		$positive_negative_columns = new ilColumnsFormPropertyGUI($this->getPlugin()->txt('prt_node_posneg'), 'prt_' . $prt->get_name() . '_node_' . $node->nodename . '_positive_negative', 12, TRUE);
 

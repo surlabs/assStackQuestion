@@ -211,7 +211,7 @@ class stack_potentialresponse_tree_lite {
         $sans = array();
         foreach ($this->nodes as $key => $node) {
             if (stack_ans_test_controller::required_raw($node->answertest)) {
-                $name = (string) $this->get_name() . '-' . ($key + 1);
+                $name = (string) $this->get_name() . '-' . ($key);
                 $sans[$name] = $node->sans;
             }
         }
@@ -224,7 +224,7 @@ class stack_potentialresponse_tree_lite {
     public function get_raw_arguments_used() {
         $ans = array();
         foreach ($this->nodes as $key => $node) {
-            $name = (string) $this->get_name() . '-' . ($key + 1);
+            $name = (string) $this->get_name() . '-' . ($key);
             if (trim($node->sans) != '') {
                 $ans[$name . '-sans'] = $node->sans;
             }
@@ -291,7 +291,7 @@ class stack_potentialresponse_tree_lite {
             $n->falsescoremode  = $node->falsescoremode;
             $n->quiet           = $node->quiet;
             $n->answertest      = $this->compile_node_answertest($node);
-            $name = (((int) $node->nodename) + 1);
+            $name = (((int) $node->nodename));
             if (trim($node->description) !== '') {
                 $name .= ': ' . trim($node->description);
             }
@@ -873,12 +873,12 @@ class stack_potentialresponse_tree_lite {
             if ($node->truenextnode == -1) {
                 $left = null;
             } else {
-                $left = $node->truenextnode + 1;
+                $left = $node->truenextnode;
             }
             if ($node->falsenextnode == -1) {
                 $right = null;
             } else {
-                $right = $node->falsenextnode + 1;
+                $right = $node->falsenextnode;
             }
             $llabel = $node->truescoremode . round((float)$node->truescore, 2);
             if ($labels && array_key_exists($node->trueanswernote, $labels)) {
@@ -889,9 +889,9 @@ class stack_potentialresponse_tree_lite {
                 $rlabel = $labels[$node->falseanswernote];
             }
             $key = (int) $key;
-            $graph->add_prt_node($key + 1, $node->description, $left, $right, $llabel, $rlabel,
+            $graph->add_prt_node($key, $node->description, $left, $right, $llabel, $rlabel,
                 '#fgroup_id_' . $this->name . 'node_' . $key);
-            $graph->add_prt_text($node->nodename + 1, $node->answertest, $node->quiet,
+            $graph->add_prt_text($node->nodename, $node->answertest, $node->quiet,
                 $node->trueanswernote, $node->falseanswernote);
         }
 
