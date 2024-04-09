@@ -1340,70 +1340,70 @@ class assStackQuestionUtils
         return $parsed_user_response_from_db;
 	}
 
-    public static function _fromDBToReadableFormat(array $db_values): array
+    public static function _fromDBToReadableFormat(array $db_values, string $question_id): array
     {
         //Prepare array;
         $results = array();
 
         foreach ($db_values as $index => $value) {
             //if ($value['value1'] == 'xqcas_text_' . $question_id)
-            if ($value['value1'] == 'xqcas_text_' . $value['question_fi']) {
+            if ($value['value1'] == 'xqcas_text_' . $question_id) {
                 $results['question_text'] = $value['value2'];
-                $results['id'] = $value['question_fi'];
+                $results['id'] = $question_id;
                 $results['points'] = (float) $value['points'];
 
                 unset($db_values[$index]);
-            } elseif ($value['value1'] == 'xqcas_solution_' . $value['question_fi']) {
+            } elseif ($value['value1'] == 'xqcas_solution_' . $question_id) {
                 $results['question_note'] = $value['value2'];
 
                 unset($db_values[$index]);
-            } elseif ($value['value1'] == 'xqcas_general_feedback_' . $value['question_fi']) {
+            } elseif ($value['value1'] == 'xqcas_general_feedback_' . $question_id) {
                 $results['general_feedback'] = $value['value2'];
 
                 unset($db_values[$index]);
-            } elseif ($value['value1'] == 'xqcas_question_' . $value['question_fi']. '_seed') {
+            } elseif ($value['value1'] == 'xqcas_question_' . $question_id. '_seed') {
                 $results['seed'] = $value['value2'];
 
                 unset($db_values[$index]);
             } else {
-                if (strpos($db_values['value1'], 'xqcas_prt_') !== false && strpos($db_values['value1'], '_name') !== false) {
-                    $prt_name = str_replace('xqcas_prt_', '', $db_values['value1']);
+                if (strpos($value['value1'], 'xqcas_prt_') !== false && strpos($value['value1'], '_name') !== false) {
+                    $prt_name = str_replace('xqcas_prt_', '', $value['value1']);
                     $prt_name = str_replace('_name', '', $prt_name);
                     $results['prt'][$prt_name]['points'] = $value['points'];
 
                     unset($db_values[$index]);
-                } elseif (strpos($db_values['value1'], 'xqcas_prt_') !== false && strpos($db_values['value1'], '_errors') !== false) {
-                    $prt_name = str_replace('xqcas_prt_', '', $db_values['value1']);
+                } elseif (strpos($value['value1'], 'xqcas_prt_') !== false && strpos($value['value1'], '_errors') !== false) {
+                    $prt_name = str_replace('xqcas_prt_', '', $value['value1']);
                     $prt_name = str_replace('_errors', '', $prt_name);
                     $results['prt'][$prt_name]['errors'] = $value['value2'];
 
                     unset($db_values[$index]);
-                } elseif (strpos($db_values['value1'], 'xqcas_prt_') !== false && strpos($db_values['value1'], '_feedback') !== false) {
-                    $prt_name = str_replace('xqcas_prt_', '', $db_values['value1']);
+                } elseif (strpos($value['value1'], 'xqcas_prt_') !== false && strpos($value['value1'], '_feedback') !== false) {
+                    $prt_name = str_replace('xqcas_prt_', '', $value['value1']);
                     $prt_name = str_replace('_feedback', '', $prt_name);
                     $results['prt'][$prt_name]['feedback'] = $value['value2'];
 
                     unset($db_values[$index]);
-                } elseif (strpos($db_values['value1'], 'xqcas_prt_') !== false && strpos($db_values['value1'], '_status') !== false) {
-                    $prt_name = str_replace('xqcas_prt_', '', $db_values['value1']);
+                } elseif (strpos($value['value1'], 'xqcas_prt_') !== false && strpos($value['value1'], '_status') !== false) {
+                    $prt_name = str_replace('xqcas_prt_', '', $value['value1']);
                     $prt_name = str_replace('_status', '', $prt_name);
                     $results['prt'][$prt_name]['status']['value'] = $value['value2'];
 
                     unset($db_values[$index]);
-                } elseif (strpos($db_values['value1'], 'xqcas_prt_') !== false && strpos($db_values['value1'], '_status_message') !== false) {
-                    $prt_name = str_replace('xqcas_prt_', '', $db_values['value1']);
+                } elseif (strpos($value['value1'], 'xqcas_prt_') !== false && strpos($value['value1'], '_status_message') !== false) {
+                    $prt_name = str_replace('xqcas_prt_', '', $value['value1']);
                     $prt_name = str_replace('_status_message', '', $prt_name);
                     $results['prt'][$prt_name]['status']['message'] = $value['value2'];
 
                     unset($db_values[$index]);
-                } elseif (strpos($db_values['value1'], 'xqcas_prt_') !== false && strpos($db_values['value1'], '_answernote') !== false) {
-                    $prt_name = str_replace('xqcas_prt_', '', $db_values['value1']);
+                } elseif (strpos($value['value1'], 'xqcas_prt_') !== false && strpos($value['value1'], '_answernote') !== false) {
+                    $prt_name = str_replace('xqcas_prt_', '', $value['value1']);
                     $prt_name = str_replace('_answernote', '', $prt_name);
                     $results['prt'][$prt_name]['answernote'] = $value['value2'];
 
                     unset($db_values[$index]);
                 } else {
-                    $prt_name = str_replace('xqcas_prt_', '', $db_values['value1']);
+                    $prt_name = str_replace('xqcas_prt_', '', $value['value1']);
                     $prt_name = substr($prt_name, 0, strpos($prt_name, '_'));
 
                     if (strpos($value['value1'], 'xqcas_prt_' . $prt_name . '_value_') !== false) {
@@ -1416,14 +1416,14 @@ class assStackQuestionUtils
                         $results['prt'][$prt_name]['response'][$input_name]['display'] = $value['value2'];
 
                         unset($db_values[$index]);
-                    } elseif (strpos($value['value1'], 'xqcas_prt_' . $prt_name . '_model_answer_') !== false) {
-                        $input_name = str_replace('xqcas_prt_' . $prt_name . '_model_answer_', '', $value['value1']);
-                        $results['prt'][$prt_name]['response'][$input_name]['model_answer'] = $value['value2'];
-
-                        unset($db_values[$index]);
                     } elseif (strpos($value['value1'], 'xqcas_prt_' . $prt_name . '_model_answer_display_') !== false) {
                         $input_name = str_replace('xqcas_prt_' . $prt_name . '_model_answer_display_', '', $value['value1']);
                         $results['prt'][$prt_name]['response'][$input_name]['model_answer_display'] = $value['value2'];
+
+                        unset($db_values[$index]);
+                    } elseif (strpos($value['value1'], 'xqcas_prt_' . $prt_name . '_model_answer_') !== false) {
+                        $input_name = str_replace('xqcas_prt_' . $prt_name . '_model_answer_', '', $value['value1']);
+                        $results['prt'][$prt_name]['response'][$input_name]['model_answer'] = $value['value2'];
 
                         unset($db_values[$index]);
                     }
