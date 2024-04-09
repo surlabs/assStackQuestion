@@ -2252,7 +2252,7 @@ class assStackQuestionDB
         global $DIC;
         $db = $DIC->database();
 
-        $solution = $db->query("SELECT value1, value2 FROM tst_solutions WHERE question_fi = " .
+        $solution = $db->query("SELECT value1, value2, points FROM tst_solutions WHERE question_fi = " .
             $db->quote($question_id, 'integer') . " AND active_fi = " .
             $db->quote($active_id, 'integer') . " AND pass = " .
             $db->quote($pass, 'integer'));
@@ -2267,7 +2267,7 @@ class assStackQuestionDB
 
         //Old Test
         if (!isset($solution_db_parsed['inputs'])) {
-            $old_student_solutions = assStackQuestionUtils::_fromDBToReadableFormat($solution_db);
+            $old_student_solutions = assStackQuestionUtils::_fromDBToReadableFormat($solution_db, (string) $question_id);
 
             if (isset($old_student_solutions["prt"])) {
                 foreach ($old_student_solutions["prt"] as $prt_name => $prt_info) {
