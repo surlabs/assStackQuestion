@@ -531,12 +531,12 @@ class RandomisationAndSecurityUI
 
     public function showCustomTestForm(array $inputs, array $prts, assStackQuestion $question): string
     {
-        $sections = $this->initCustomTest("", $inputs, null, $prts);
+        $sections = $this->initCustomTest("", $inputs, null, $prts, $question->inputs);
         $form_action = $this->control->getLinkTargetByClass("assStackQuestionGUI", "addCustomTestForm");
         return $this->renderCustomTest($form_action, $sections, $question);
     }
 
-    public function initCustomTest(string $description = "", array $inputs = null, array $expected = null, array $prts = null): array
+    public function initCustomTest(string $description = "", array $inputs = null, array $expected = null, array $prts = null, array $question_inputs = null): array
     {
 
         try {
@@ -558,10 +558,10 @@ class RandomisationAndSecurityUI
             //ENTRIES SECTION
             $formFields = [];
 
-            foreach ($inputs as $key => $input) {
+            foreach ($question_inputs as $key => $input) {
                 $ans = $this->factory->input()->field()->text($key, '');
-                if ($expected) {
-                    $ans = $ans->withValue($input["value"]);
+                if ($expected && array_key_exists($key, $inputs)) {
+                    $ans = $ans->withValue($inputs[$key]["value"]);
                 }
                 $formFields[$key] = $ans;
 
@@ -647,7 +647,7 @@ class RandomisationAndSecurityUI
 
     public function showEditCustomTestForm(array $unit_tests, array $prts, assStackQuestion $question): string
     {
-        $sections = $this->initCustomTest($unit_tests["description"], $unit_tests["inputs"], $unit_tests["expected"], $prts);
+        $sections = $this->initCustomTest($unit_tests["description"], $unit_tests["inputs"], $unit_tests["expected"], $prts, $question->inputs);
         $this->control->setParameterByClass(
             'assStackQuestionGUI',
             'test_case',
