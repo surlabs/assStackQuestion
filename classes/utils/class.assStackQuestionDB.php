@@ -960,16 +960,16 @@ class assStackQuestionDB
 					}
 
 					//Manage Unit Tests Expected
-					$testcase_expected_ids = self::_readUnitTestExpected($question_id, $testcase_name, true);
+					$testcase_expected_ids = self::_readUnitTestExpected((int) $question_id, $testcase_name, true);
 
 					foreach ($test_case['expected'] as $prt_name => $expected) {
 						if (!array_key_exists($prt_name, $testcase_expected_ids) or empty($testcase_expected_ids)) {
 							//CREATE
-							self::_saveStackUnitTestExpected($question_id, $testcase_name, $prt_name, $expected, -1);
+							self::_saveStackUnitTestExpected((int) $question_id, $testcase_name, $prt_name, $expected, -1);
 						} else {
 							//UPDATE
 							if (isset($expected['score']) and isset($expected['penalty']) and isset($expected['answer_note'])) {
-								self::_saveStackUnitTestExpected($question_id, $testcase_name, $prt_name, $expected, $testcase_expected_ids[$prt_name]);
+								self::_saveStackUnitTestExpected((int) $question_id, $testcase_name, $prt_name, $expected, $testcase_expected_ids[$prt_name]);
 							} else {
                                 global $tpl;
                                 $tpl->setOnScreenMessage('failure', 'question test expected:' . $question_id . $testcase_name . $prt_name, true);
