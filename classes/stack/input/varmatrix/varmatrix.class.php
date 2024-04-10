@@ -57,7 +57,7 @@ class stack_varmatrix_input extends stack_input {
             return $this->render_error($this->errors);
         }
 
-        $size = $this->parameters['boxWidth'] * 0.9 + 0.1;
+        $size = $this->parameters['boxWidth'] + 0.2;
         if ($readonly) {
             $solution_input_id = $fieldname . '_sol';
             $fieldname = $solution_input_id;
@@ -68,7 +68,7 @@ class stack_varmatrix_input extends stack_input {
             'autocapitalize' => 'none',
             'spellcheck'     => 'false',
             'class'          => 'varmatrixinput',
-            'size'           => $this->parameters['boxWidth'] * 1.1,
+            'size'           => $size,
             'style'          => 'width: '.$size.'em',
         );
 
