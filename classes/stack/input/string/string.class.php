@@ -38,7 +38,7 @@ class stack_string_input extends stack_algebraic_input {
             return $this->render_error($this->errors);
         }
 
-        $size = $this->parameters['boxWidth'] * 0.9 + 0.1;
+        $size = $this->parameters['boxWidth'] + 0.2;
 
         if ($readonly){
             $solution_input_id = $fieldname . '_sol';
@@ -48,7 +48,7 @@ class stack_string_input extends stack_algebraic_input {
             'type'  => 'text',
             'name'  => $fieldname,
             'id'    => $fieldname,
-            'size'  => $this->parameters['boxWidth'] * 1.1,
+            'size'  => $size,
             'style' => 'width: '.$size.'em',
             'autocapitalize' => 'none',
             'spellcheck'     => 'false',
