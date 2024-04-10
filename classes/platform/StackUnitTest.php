@@ -130,7 +130,7 @@ class StackUnitTest {
                 if ($inputresponse != '') {
                     $emptytestcase = false;
                 }
-                $results->setInputState($inputname, $inputresponse, $inputstate->contentsmodified,
+                $results->setInputState($inputname, (string) $inputresponse, $inputstate->contentsmodified,
                     $inputstate->contentsdisplayed, $inputstate->status, $inputstate->errors);
             }
         }
