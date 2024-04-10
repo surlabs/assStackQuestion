@@ -46,7 +46,6 @@ exit;
  */
 function checkUserResponse($question_id, $input_name, $user_response)
 {
-    global $DIC;
 	require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/class.assStackQuestion.php';
 
 	$question = new assStackQuestion();
@@ -60,46 +59,21 @@ function checkUserResponse($question_id, $input_name, $user_response)
     if (!$question->isInstantiated()) {
         try{
             $question->questionInitialisation(1, true);
-
         } catch (stack_exception|StackException $e) {
             global $tpl;
             $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
         }
     }
 
-
-
-	//Secure input
-	$user_response = array($input_name => ilutil::stripScriptHTML($user_response));
-
-	//Get Teacher answer
-	if (array_key_exists($input_name, $question->getTas())) {
-		if ($question->getTas($input_name)->is_correctly_evaluated()) {
-			try {
-				$teacher_answer = $question->getTas($input_name)->get_value();
-			} catch (stack_exception $e) {
-				return $e->getMessage();
-			}
-		} else {
-			return "not properly evaluated";
-		}
-	} else {
-		return "no teacher answer on this input";
-	}
-
-	try {
-		if (is_a($input = $question->inputs[$input_name], 'stack_matrix_input')) {
-			$user_response = $input->maxima_to_response_array($user_response[$input_name]);
-		}
-        if ($question->getCached('statement-qv') !== null) {
-            $question->inputs[$input_name]->add_contextsession( new stack_secure_loader($question->getCached('statement-qv'), 'qv'));
+	$user_response = array($input_name => $user_response);
+    try {
+        if (is_a($input = $question->inputs[$input_name], 'stack_matrix_input')) {
+            $user_response = $input->maxima_to_response_array($user_response[$input_name]);
         }
-		$status = $question->inputs[$input_name]->validate_student_response($user_response, $question->options, $teacher_answer, $question->getSecurity());
-	} catch (stack_exception $e) {
-		return $e->getMessage();
-	}
+        $status = $question->getInputState($input_name, $user_response);
+    } catch (stack_exception $e) {
+        return $e->getMessage();
+    }
 
-	$result = array('input' => $user_response, 'status' => $status->status, 'message' => stack_maxima_latex_tidy($question->inputs[$input_name]->render_validation($status, $input_name)));
-
-    return $result['message'];
+    return stack_maxima_latex_tidy($question->inputs[$input_name]->render_validation($status, $input_name));
 }
