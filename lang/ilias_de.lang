@@ -521,7 +521,7 @@ delete_prt#:#Lösche Rückmeldebaum
 authoring_points_info#:#Die Gesamtpunktzahl der Frage können Sie unter "Bewertung" festlegen.
 authoring_input_creation_info#:#Um ein neues Eingabefeld anzulegen, geben Sie im Fragetext die Platzhalter "[[input:Eingabename]]" und "[[validation:Eingabename]]" ein. Um es zu löschen, löschen Sie die Platzhalter im Fragentext.
 input_hint#:#Hinweis
-options_question_variables_info#:#Der Aufgabenwert gibt an, wie die Rückmeldebäume in den Gesamtpunkten im Verhältnis zueinander gewichtet werden. Haben zwei Rückmeldebäume den gleichen Aufgabenwert, wird ihnen die gleiche maximale Punktzahl zugeordnet.
+options_question_variables_info#:#Dieses Feld ermöglicht es Ihnen, CAS-Variablen zu definieren und zu manipulieren, z.B. um zufällige Varianten zu erstellen.
 options_how_to_solve#:#Allgemeines Feedback
 options_how_to_solve_info#:#Das allgemeine Feedback, auch Musterlösung genannt, wird den Studierenden nach seinem Beantwortungsversuch gezeigt. Im Gegensatz zum (spezifischen) Feedback wird es allen Studierenden gleichermaßen gezeigt, unabhängig von ihrer eingegebenen Antwort. Hier können Variablen aus dem Aufgabentext verwendet werden.
 node_creation_hint#:#Hinweis zur Knotenerstellung
