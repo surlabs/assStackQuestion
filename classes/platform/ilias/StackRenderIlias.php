@@ -104,22 +104,40 @@ class StackRenderIlias extends StackRender
                 // Incorrect.
                 $prt_feedback_instantiated =
                     $question->prt_incorrect_instantiated->get_rendered($question->getCasTextProcessor());
-                $standard_prt_feedback = $factory->messageBox()->failure(
-                    assStackQuestionUtils::_getLatex($prt_feedback_instantiated . '</br>' . $feedback));
+
+                if (trim($feedback) === '') {
+                    $feedback = $prt_feedback_instantiated;
+                } elseif (trim($prt_feedback_instantiated) !== '' && trim($prt_feedback_instantiated) !== "<p></p>\n<p></p>") {
+                    $feedback = $prt_feedback_instantiated . '</br>' . $feedback;
+                }
+
+                $standard_prt_feedback = $factory->messageBox()->failure(assStackQuestionUtils::_getLatex($feedback));
                 break;
             case 'partially_correct':
                 // Partially correct.
                 $prt_feedback_instantiated =
                     $question->prt_partially_correct_instantiated->get_rendered($question->getCasTextProcessor());
-                $standard_prt_feedback = $factory->messageBox()->info(
-                    assStackQuestionUtils::_getLatex($prt_feedback_instantiated . '</br>' . $feedback));
+
+                if (trim($feedback) === '') {
+                    $feedback = $prt_feedback_instantiated;
+                } elseif (trim($prt_feedback_instantiated) !== '' && trim($prt_feedback_instantiated) !== "<p></p>\n<p></p>") {
+                    $feedback = $prt_feedback_instantiated . '</br>' . $feedback;
+                }
+
+                $standard_prt_feedback = $factory->messageBox()->info(assStackQuestionUtils::_getLatex($feedback));
                 break;
             case 'correct':
                 // Correct.
                 $prt_feedback_instantiated =
                     $question->prt_correct_instantiated->get_rendered($question->getCasTextProcessor());
-                $standard_prt_feedback = $factory->messageBox()->success(
-                    assStackQuestionUtils::_getLatex($prt_feedback_instantiated . '</br>' . $feedback));
+
+                if (trim($feedback) === '') {
+                    $feedback = $prt_feedback_instantiated;
+                } elseif (trim($prt_feedback_instantiated) !== '' && trim($prt_feedback_instantiated) !== "<p></p>\n<p></p>") {
+                    $feedback = $prt_feedback_instantiated . '</br>' . $feedback;
+                }
+
+                $standard_prt_feedback = $factory->messageBox()->success(assStackQuestionUtils::_getLatex($feedback));
                 break;
             default:
                 throw new StackException('Invalid state.');
