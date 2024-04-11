@@ -597,7 +597,11 @@ class RandomisationAndSecurityUI
                 if (isset($expected) && array_key_exists($key, $expected)) {
                     $rating = $rating->withValue($expected[$key]["score"]);
                     $penalization = $penalization->withValue($expected[$key]["penalty"]);
-                    $responseNote = $responseNote->withValue($expected[$key]["answer_note"]);
+                    if (array_key_exists($expected[$key]["answer_note"], $options)) {
+                        $responseNote = $responseNote->withValue($expected[$key]["answer_note"]);
+                    } else {
+                        $responseNote = $responseNote->withValue("NULL");
+                    }
                 }
 
                 $formFields['score'] = $rating;
