@@ -2197,11 +2197,7 @@ class assStackQuestionDB
                         } else {
                             $user_response[$input_name] = $data[$input_name];
                         }
-                        if ($question->getCached('statement-qv') !== null) {
-                            /** @var TYPE_NAME $question */
-                            $question->inputs[$input_name]->add_contextsession(new stack_secure_loader($question->getCached('statement-qv'), 'qv'));
-                        }
-                        $status = $question->inputs[$input_name]->validate_student_response($user_response, $question->options, $teacher_answer, $question->getSecurity());
+                        $status = $question->getInputState($input_name, $user_response);
 
                         $data[$input_name . "_validation"] = stack_maxima_latex_tidy($question->inputs[$input_name]->render_validation($status, $input_name));
                     } else {
