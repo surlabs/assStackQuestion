@@ -46,9 +46,11 @@ class StackCheckPrtPlaceholders {
         foreach ($placeholders as $question_id => $data) {
             if (isset($data["prts"]) && !empty($data["prts"])) {
                 foreach ($data["prts"] as $prt) {
-                    if (strpos($data["question_text"], "[[feedback:". $prt . "]]") === false && strpos($data["specific_feedback"], "[[feedback:". $prt . "]]") === false) {
-                        $missing[$question_id]["title"] = $data["title"];
-                        $missing[$question_id]["missing"][] = $prt;
+                    if (isset($data["question_text"]) && isset($data["specific_feedback"])) {
+                        if (strpos($data["question_text"], "[[feedback:" . $prt . "]]") === false && strpos($data["specific_feedback"], "[[feedback:" . $prt . "]]") === false) {
+                            $missing[$question_id]["title"] = $data["title"];
+                            $missing[$question_id]["missing"][] = $prt;
+                        }
                     }
                 }
             } else {
