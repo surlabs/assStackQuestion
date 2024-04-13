@@ -19,11 +19,6 @@ ui_admin_configuration_defaults_user_validation_title#:#Benutzervalidierung
 ui_admin_configuration_defaults_user_validation_description#:#Diese Option aktiviert manuelle Validierung für alle Fragen.
 ui_admin_configuration_defaults_instant_validation_title#:#Sofortige Validierung
 ui_admin_configuration_defaults_instant_validation_description#:#Diese Option aktiviert sofortige Validierung für alle Fragen.
-ui_admin_configuration_allow_jsxgraph_title#:#JSXGraph zulassen
-ui_admin_configuration_dont_allow_jsxgraph_title#:#JSXGraph nicht zulassen
-ui_admin_configuration_dont_allow_jsxgraph_description#:#Diese Option deaktiviert JSXGraph für alle Fragen.
-ui_admin_configuration_do_allow_jsxgraph_title#:#JSXGraph zulassen
-ui_admin_configuration_do_allow_jsxgraph_description#:#Diese Option aktiviert JSXGraph für alle Fragen.
 ui_admin_configuration_connection_maxima_connection_common_title#:#Allgemeine Maxima-Verbindungseinstellungen
 ui_admin_configuration_connection_maxima_connection_common_description#:#Dies sind die allgemeinen Maxima-Verbindungseinstellungen.
 ui_admin_configuration_connection_maxima_connection_local_title#:#Lokales Maxima (Linux)
@@ -681,6 +676,4 @@ input_stars_implied_spaces#:#Sternchen für implizierte Multiplikation und für 
 input_type_implied_spaces_single#:#Sternchen einfügen, indem von Variablennamen mit nur einem Zeichen ausgegangen wird, implizierte und für Leerzeichen
 add_node#:#Knoten hinzufügen
 add_prt#:#Rückmeldebaum hinzufügen
-allow_jsx_graph#:#JSXGraph Rendering aktivieren
-allow_jsx_graph_info#:#Wenn Sie diese Option aktivieren, erlauben Sie STACK-Fragenautoren, JavaScript-Codeblöcke innerhalb der STACK-Fragen einzufügen. Bitte beachten Sie, dass dieser Code während der Ausführung der Fragen ausgeführt wird. Vorsicht: Die Ausführung von JavaScript kann ein potentielles Sicherheitsrisiko darstellen.
 page_editor_compatibility_info#:#Bitte beachten Sie, dass Änderungen, die über den ILIAS Seiten-Editor für Stack-Fragen vorgenommen werden, nicht im Moodle-XML-Format exportiert werden können. Diese Funktionalität ist speziell für den ILIAS-Kontext entwickelt worden. Bitte machen Sie sich insbesondere mit dieser Einschränkung vertraut, wenn Sie Inhalte außerhalb von ILIAS verwenden oder exportieren möchten.

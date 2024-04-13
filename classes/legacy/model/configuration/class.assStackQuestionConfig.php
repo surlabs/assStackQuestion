@@ -238,12 +238,6 @@ class assStackQuestionConfig
 		{
 			$new_display_data['replace_dollars'] = 0;
 		}
-        if (!array_key_exists('allow_jsx_graph', $new_display_data))
-        {
-            $new_display_data['allow_jsx_graph'] = 0;
-        }else{
-            $new_display_data['allow_jsx_graph'] = 1;
-        }
 
 		//Save to DB
 		foreach ($saved_display_data as $paremeter_name => $saved_value)

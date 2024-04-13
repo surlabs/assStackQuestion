@@ -872,10 +872,6 @@ if ($db->tableExists('xqcas_configuration')) {
     while ($row = $db->fetchAssoc($result)) {
         $existing_entries[$row["parameter_name"]] = "";
     }
-
-    if (!array_key_exists("allow_jsx_graph", $existing_entries)) {
-        $db->insert("xqcas_configuration", array('parameter_name' => array('text', "allow_jsx_graph"), 'value' => array('clob', ''), 'group_name' => array('text', 'display')));
-    }
 }
 ?>
 <#44>
@@ -932,12 +928,6 @@ if ($db->tableExists("xqcas_configuration")) {
     $result = $db->query("SELECT * FROM xqcas_configuration");
     while ($row = $db->fetchAssoc($result)) {
         $existing_entries[] = $row["parameter_name"];
-    }
-
-    if (in_array("allow_jsx_graph", $existing_entries)) {
-        $db->update("xqcas_configuration", array("value" => array("clob", "1")), array("parameter_name" => array("text", "allow_jsx_graph")));
-    } else {
-        $db->insert("xqcas_configuration", array("parameter_name" => array("text", "allow_jsx_graph"), "value" => array("clob", "1"), "group_name" => array("text", "display")));
     }
 	
     if (!in_array("preparse_all", $existing_entries)) {
@@ -1164,4 +1154,11 @@ while ($row = $result->fetchAssoc()) {
         break;
     }
 }
+?>
+<#54>
+<?php
+global $DIC;
+$db = $DIC->database();
+
+$db->manipulate("DELETE FROM xqcas_configuration WHERE parameter_name = 'allow_jsx_graph'");
 ?>
