@@ -196,6 +196,7 @@ class assStackQuestionMoodleXMLExport
 					$a_xml_writer->xmlElement("mustverify", NULL, (int)$input->get_parameter('mustVerify'));
 					$a_xml_writer->xmlElement("showvalidation", NULL, (int)$input->get_parameter('showValidation'));
 					$a_xml_writer->xmlElement("options", NULL, $input->get_parameter('options'));
+
 					$a_xml_writer->xmlEndTag("input");
 				}
 			}
