@@ -119,29 +119,9 @@ class PluginConfigurationMainUI
                 }
             ));
 
-        //Allow JSXGraph
-        $allow_jsxgraph_options = self::$factory->input()->field()->radio(
-            $plugin_object->txt("ui_admin_configuration_allow_jsxgraph_title"),
-            ""
-        )
-            ->withOption('0',
-                $plugin_object->txt("ui_admin_configuration_dont_allow_jsxgraph_title"),
-                $plugin_object->txt("ui_admin_configuration_dont_allow_jsxgraph_description"))
-            ->withOption('1',
-                $plugin_object->txt("ui_admin_configuration_do_allow_jsxgraph_title"),
-                $plugin_object->txt("ui_admin_configuration_do_allow_jsxgraph_description")
-            )
-            ->withValue($data['allow_jsx_graph'] ?: "0")
-            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
-                function ($v) {
-                    StackConfig::set('allow_jsx_graph', $v ?: 0, "display");
-                }
-            ));
-
         return self::$factory->input()->field()->section(
             [
                 'instant_validation' => $validation_options,
-                'allow_jsx_graph' => $allow_jsxgraph_options
             ],
             $plugin_object->txt("ui_admin_configuration_defaults_display_title"),
             $plugin_object->txt("ui_admin_configuration_defaults_display_description")

@@ -19,11 +19,6 @@ ui_admin_configuration_defaults_user_validation_title#:#User validation
 ui_admin_configuration_defaults_user_validation_description#:#This option activates manual validation for all questions.
 ui_admin_configuration_defaults_instant_validation_title#:#Instant validation
 ui_admin_configuration_defaults_instant_validation_description#:#This option activates instant validation for all questions.
-ui_admin_configuration_allow_jsxgraph_title#:#Allow JSXGraph
-ui_admin_configuration_dont_allow_jsxgraph_title#:#Don't allow JSXGraph
-ui_admin_configuration_dont_allow_jsxgraph_description#:#This option deactivates JSXGraph for all questions.
-ui_admin_configuration_do_allow_jsxgraph_title#:#Do allow JSXGraph
-ui_admin_configuration_do_allow_jsxgraph_description#:#This option activates JSXGraph for all questions.
 ui_admin_configuration_connection_maxima_connection_common_title#:#Common Maxima connection settings
 ui_admin_configuration_connection_maxima_connection_common_description#:#These are the common Maxima connection settings.
 ui_admin_configuration_connection_maxima_connection_local_title#:#Local Maxima (Linux)
@@ -670,6 +665,4 @@ input_stars_implied_spaces#:#Insert stars for implied multiplication and for spa
 input_type_implied_spaces_single#:#Insert stars assuming single-character variables, implied and for spaces
 add_node#:#Add Node
 add_prt#:#Add Prt
-allow_jsx_graph#:#Allow JSXGraph Rendering
-allow_jsx_graph_info#:#By activating this option, you will allow STACK question authors to include JavaScript code blocks within the STACK questions. Please note that this code will be executed during the execution of the questions. Caution: Allowing JavaScript execution may pose a potential security risk.
 page_editor_compatibility_info#:#Please be aware that any edits made via the ILIAS page editor for stack-questions will not be exportable to the moodle-xml-format. This functionality is specifically designed for the ILIAS context. Ensure you familiarize yourself with this limitation, especially if you plan to use or export content outside of ILIAS.

@@ -433,18 +433,12 @@ class assStackQuestionUtils
 	 */
     public static function _getLatex($text): string
     {
-        $display_data = assStackQuestionConfig::_getStoredSettings('display');
-        $allow_jsx = (bool) $display_data['allow_jsx_graph'];
+        $matches = [];
+        preg_match_all('/<script>(.*?)<\/script>/s', $text, $matches);
+        $scriptBlocks = $matches[0];
 
-        if ($allow_jsx) {
-            $matches = [];
-            preg_match_all('/<script>(.*?)<\/script>/s', $text, $matches);
-            $scriptBlocks = $matches[0];
-            $scriptContents = $matches[1];
-
-            foreach ($scriptBlocks as $index => $block) {
-                $text = str_replace($block, "##SCRIPTBLOCK{$index}##", $text);
-            }
+        foreach ($scriptBlocks as $index => $block) {
+            $text = str_replace($block, "##SCRIPTBLOCK{$index}##", $text);
         }
 
         /*
@@ -513,10 +507,8 @@ class assStackQuestionUtils
         $text = str_replace("}", "&#125;", $text);
         $text = str_replace("\\", "&#92;", $text);
 
-        if ($allow_jsx) {
-            foreach ($scriptBlocks as $index => $block) {
-                $text = str_replace("##SCRIPTBLOCK{$index}##", $block, $text);
-            }
+        foreach ($scriptBlocks as $index => $block) {
+            $text = str_replace("##SCRIPTBLOCK{$index}##", $block, $text);
         }
 
         /*
