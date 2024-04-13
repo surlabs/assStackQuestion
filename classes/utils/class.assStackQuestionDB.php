@@ -2187,29 +2187,22 @@ class assStackQuestionDB
         }
 
         foreach ($data as $input_name => $response) {
-            if (array_key_exists($input_name, $question->inputs)) {
-                if (array_key_exists($input_name, $question->getTas())) {
-                    if ($question->getTas($input_name)->is_correctly_evaluated()) {
-                        $teacher_answer = $question->getTas($input_name)->get_value();
+            if (strpos($input_name, '_sub_') !== false) {
+                $input_name = substr($input_name, 0, strpos($input_name, '_sub_'));
+            }
 
-                        if (is_a($input = $question->inputs[$input_name], 'stack_matrix_input')) {
-                            $user_response[$input_name] = $input->maxima_to_response_array($data[$input_name]);
-                        } else {
-                            $user_response[$input_name] = $data[$input_name];
-                        }
-                        $status = $question->getInputState($input_name, $user_response);
-
-                        $data[$input_name . "_validation"] = stack_maxima_latex_tidy($question->inputs[$input_name]->render_validation($status, $input_name));
-                    } else {
-                        global $tpl;
-                        $tpl->setOnScreenMessage('failure', "not properly evaluated", true);
-                        break;
+            if (array_key_exists($input_name, $question->inputs) && !array_key_exists($input_name . "_validation", $data)) {
+                if (is_a($input = $question->inputs[$input_name], 'stack_matrix_input')) {
+                    foreach ($input->maxima_to_response_array($input->contents_to_maxima($input->response_to_contents($data))) as $key => $value) {
+                        $user_response[$key] = $value;
                     }
                 } else {
-                    global $tpl;
-                    $tpl->setOnScreenMessage('failure', "no teacher answer on this input", true);
-                    break;
+                    $user_response[$input_name] = $data[$input_name];
                 }
+
+                $status = $question->getInputState($input_name, $user_response);
+
+                $data[$input_name . "_validation"] = stack_maxima_latex_tidy($question->inputs[$input_name]->render_validation($status, $input_name));
             }
         }
 
