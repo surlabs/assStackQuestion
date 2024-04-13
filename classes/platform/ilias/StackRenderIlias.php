@@ -287,17 +287,19 @@ class StackRenderIlias extends StackRender
         }
 
         // Replace PRTs.
-        foreach ($formatted_feedback_placeholders as $prt_name) {
-            if (!isset($question->prts[$prt_name])) {
-                throw new StackException('PRT ' . $prt_name . 'not found.');
+        if (!isset($display_options['show_correct_solution']) || $display_options['show_correct_solution'] == false) {
+            foreach ($formatted_feedback_placeholders as $prt_name) {
+                if (!isset($question->prts[$prt_name])) {
+                    throw new StackException('PRT ' . $prt_name . 'not found.');
+                }
+                $prt = $question->prts[$prt_name];
+                $feedback = '';
+                if ($display_options['feedback'] && !empty($response)) {
+                    $attempt_data['prt_name'] = $prt->get_name();
+                    $feedback = self::renderPRTFeedback($attempt_data, $display_options);
+                }
+                $question_text = str_replace("[[feedback:$prt_name]]", $feedback, $question_text);
             }
-            $prt = $question->prts[$prt_name];
-            $feedback = '';
-            if ($display_options['feedback'] && !empty($response)) {
-                $attempt_data['prt_name'] = $prt->get_name();
-                $feedback = self::renderPRTFeedback($attempt_data, $display_options);
-            }
-            $question_text = str_replace("[[feedback:$prt_name]]", $feedback, $question_text);
         }
 
         // Ensure that the MathJax library is loaded.
