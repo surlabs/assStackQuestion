@@ -539,7 +539,7 @@ class assStackQuestionAuthoringGUI
 			$input_type->setValue($this->default["input_type"]);
 			$input_box_size->setValue($this->default["input_box_size"]);
             // $input_strict_syntax->setChecked((int)$this->default["input_strict_syntax"]);
-			$input_insert_stars->setValue((int)$this->default["input_insert_stars"]);
+			$input_insert_stars->setValue($this->default["input_insert_stars"]);
 			$input_syntax_hint->setValue($this->default["input_syntax_hint"]);
 			$input_forbidden_words->setValue($this->default["input_forbidden_words"]);
 			$input_allow_words->setValue($this->default["input_allow_words"]);
