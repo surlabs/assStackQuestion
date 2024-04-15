@@ -2078,9 +2078,9 @@ class assStackQuestionGUI extends assQuestionGUI
         $rendered = "";
 
         if (isset($_GET['calling_test'])) {
-            $questions = assStackQuestionDB::_getAllQuestionsFromTest((int) $this->object->getId(), $this->object->getQuestionTypeID(), true);
+            $questions = assStackQuestionDB::_getAllQuestionsFromTest((int) $this->object->getId(), (int) $this->object->getQuestionTypeID(), true);
         } else {
-            $questions = assStackQuestionDB::_getAllQuestionsFromPool((int) $this->object->getId(), $this->object->getQuestionTypeID(), true);
+            $questions = assStackQuestionDB::_getAllQuestionsFromPool((int) $this->object->getId(), (int) $this->object->getQuestionTypeID(), true);
         }
 
         foreach (StackCheckPrtPlaceholders::getMissing($questions) as $question_id => $missing) {
