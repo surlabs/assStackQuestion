@@ -104,7 +104,7 @@ il.instant_validation = new function () {
 				/**
 				 * Hide current question feedback
 				 */
-				$(".alert").hide();
+				// $(".alert").hide();
 				$(".test_specific_feedback").hide();
 				/*$(".ilAssQuestionRelatedNavigationContainer:first").nextUntil(".ilAssQuestionRelatedNavigationContainer").hide();*/
 
