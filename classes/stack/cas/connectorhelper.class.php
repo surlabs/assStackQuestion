@@ -152,12 +152,14 @@ abstract class stack_connection_helper {
         }
 
         foreach ($result as $res) {
-            if (array_key_exists('error', $res)) {
-                if (!(false === strpos($res['error'], 'The CAS timed out'))) {
+            if (is_array($res)) {
+                if (array_key_exists('error', $res)) {
+                    if (!(false === strpos($res['error'], 'The CAS timed out'))) {
+                        return true;
+                    }
+                } else {
                     return true;
                 }
-            } else {
-                return true;
             }
         }
         return false;
