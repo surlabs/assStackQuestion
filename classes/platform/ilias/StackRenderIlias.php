@@ -426,12 +426,12 @@ class StackRenderIlias extends StackRender
         $general_feedback_text = $question->general_feedback_instantiated->get_rendered($question->getCasTextProcessor());
 
         if (!$general_feedback_text) {
-            return '';
+            $general_feedback_text = '';
         }
 
         $general_feedback_text = stack_maths::process_display_castext($general_feedback_text);
 
-        $general_feedback_text .= "<hr>" . $question->formatCorrectResponse();
+        $general_feedback_text .= $question->formatCorrectResponse();
 
         // Ensure that the MathJax library is loaded.
         self::ensureMathJaxLoaded();
