@@ -2196,13 +2196,28 @@ class assStackQuestionDB
                     foreach ($input->maxima_to_response_array($input->contents_to_maxima($input->response_to_contents($data))) as $key => $value) {
                         $user_response[$key] = $value;
                     }
+
+                    // Prevent decide empty matrix when syntax is wrong
+                    if (isset($user_response)) {
+                        foreach ($input->response_to_contents($data) as $key => $value) {
+                            if (isset($value)) {
+                                foreach ($value as $sub_key => $sub_value) {
+                                    if (isset($user_response[$input_name . "_sub_" . $key . "_" . $sub_key]) && $user_response[$input_name . "_sub_" . $key . "_" . $sub_key] != $sub_value) {
+                                        $data[$input_name . "_validation"] = html_writer::tag('div', $DIC->language()->txt("qpl_qst_xqcas_matrix_syntax_error"), array('class' => 'alert alert-danger stackinputerror'));
+                                    }
+                                }
+                            }
+                        }
+                    }
                 } else {
                     $user_response[$input_name] = $data[$input_name];
                 }
 
-                $status = $question->getInputState($input_name, $user_response);
+                if (!isset($data[$input_name . "_validation"])) {
+                    $status = $question->getInputState($input_name, $user_response);
 
-                $data[$input_name . "_validation"] = stack_maxima_latex_tidy($question->inputs[$input_name]->render_validation($status, $input_name));
+                    $data[$input_name . "_validation"] = stack_maxima_latex_tidy($question->inputs[$input_name]->render_validation($status, $input_name));
+                }
             }
         }
 

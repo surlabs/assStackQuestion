@@ -666,3 +666,4 @@ input_type_implied_spaces_single#:#Insert stars assuming single-character variab
 add_node#:#Add Node
 add_prt#:#Add Prt
 page_editor_compatibility_info#:#Please be aware that any edits made via the ILIAS page editor for stack-questions will not be exportable to the moodle-xml-format. This functionality is specifically designed for the ILIAS context. Ensure you familiarize yourself with this limitation, especially if you plan to use or export content outside of ILIAS.
+matrix_syntax_error#:#Your answer contains syntax errors.
