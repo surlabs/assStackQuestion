@@ -48,7 +48,8 @@ exit;
  */
 function checkUserResponse($question_id, $input_name, $user_response)
 {
-	require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/class.assStackQuestion.php';
+    global $DIC;
+    require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/class.assStackQuestion.php';
 
 	$question = new assStackQuestion();
     try {
@@ -71,6 +72,22 @@ function checkUserResponse($question_id, $input_name, $user_response)
     try {
         if (is_a($input = $question->inputs[$input_name], 'stack_matrix_input')) {
             $user_response = $input->maxima_to_response_array($user_response[$input_name]);
+
+            // Prevent decide empty matrix when syntax is wrong
+            if (isset($user_response)) {
+                $temp = array();
+
+                foreach ($user_response as $key => $value) {
+                    // Comprobar si la key contiene la siguiente estructura: "$input_name_sub_X_Y" y en ese caso extraer x e y
+                    if (preg_match('/^' . $input_name . '_sub_(\d+)_(\d+)$/', $key, $matches)) {
+                        $temp[$matches[1]][$matches[2]] = $value;
+                    }
+                }
+
+                if (isset($user_response[$input_name . '_val']) && $input->contents_to_maxima($temp) != $user_response[$input_name . '_val']) {
+                    return html_writer::tag('div', $DIC->language()->txt("qpl_qst_xqcas_matrix_syntax_error"), array('class' => 'alert alert-danger stackinputerror'));
+                }
+            }
         }
         $status = $question->getInputState($input_name, $user_response);
     } catch (stack_exception $e) {
