@@ -194,7 +194,7 @@ class assStackQuestionGUI extends assQuestionGUI
      */
 	public function getSolutionOutput($active_id, $pass = null, $graphicalOutput = false, $result_output = false, $show_question_only = true, $show_feedback = false, $show_correct_solution = false, $show_manual_scoring = false, $show_question_text = true): string
     {
-        global $tpl;
+        global $DIC, $tpl;
 
         StackRenderIlias::ensureMathJaxLoaded();
 
@@ -205,6 +205,7 @@ class assStackQuestionGUI extends assQuestionGUI
             }
         } else {
             $purpose = 'preview';
+            $active_id = $DIC->user()->getId();
         }
 
         $seed = assStackQuestionDB::_getSeed($purpose, $this->object, (int)$active_id, (int)$pass);
@@ -1496,18 +1497,10 @@ class assStackQuestionGUI extends assQuestionGUI
 		$seed = (int) $_GET['variant_identifier'];
 		$question_id = (int) $_GET['q_id'];
 
-        if ($seed != $active_variant) {
-            //delete seed
-            assStackQuestionDB::_deleteStackSeeds($question_id, '', $seed);
+        //delete seed
+        assStackQuestionDB::_deleteStackSeeds($question_id, '', $seed);
 
-            $this->randomisationAndSecurity();
-        } else {
-            $content = $renderer->render($factory->messageBox()->failure($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_cannot_delete_active_variant')));
-
-            $content .= $renderer->render($factory->button()->standard($DIC->language()->txt("back"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
-
-            $this->tpl->setContent($content);
-        }
+        $this->randomisationAndSecurity();
 	}
 
 	/**
