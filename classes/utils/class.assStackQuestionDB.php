@@ -2354,4 +2354,76 @@ class assStackQuestionDB
             'question_id' => array('integer', $question_id)
         ));
     }
+
+    /**
+     * Update the question text for a question
+     *
+     * @param string $question_id
+     * @param string $question_text
+     * @return void
+     */
+
+    public static function updateQuestionText(string $question_id, string $question_text) :void
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $db->update("qpl_questions", array(
+            'question_text' => array('clob', $question_text)
+        ), array(
+            'question_id' => array('integer', $question_id)
+        ));
+    }
+
+    /**
+     * Update the title for a question
+     *
+     * @param string $question_id
+     * @param string $prt
+     * @param string $new_prt
+     * @return void
+     */
+    public static function updatePrtName(string $question_id, string $prt, string $new_prt)
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $answer_notes_result = $db->query("SELECT node_name, true_answer_note, false_answer_note FROM xqcas_prt_nodes WHERE question_id = " . $db->quote($question_id, 'integer') . " AND prt_name = " . $db->quote($prt, 'text'));
+
+        while ($row = $db->fetchAssoc($answer_notes_result)) {
+            $true_answer_note = $row['true_answer_note'];
+            $false_answer_note = $row['false_answer_note'];
+
+            if ($true_answer_note == $prt . '-' . $row['node_name'] . '-T') {
+                $true_answer_note = $new_prt . '-' . $row['node_name'] . '-T';
+            }
+
+            if ($false_answer_note == $prt . '-' . $row['node_name'] . '-F') {
+                $false_answer_note = $new_prt . '-' . $row['node_name'] . '-F';
+            }
+
+            $db->update("xqcas_prt_nodes", array(
+                'true_answer_note' => array('text', $true_answer_note),
+                'false_answer_note' => array('text', $false_answer_note)
+            ), array(
+                'question_id' => array('integer', $question_id),
+                'prt_name' => array('text', $prt),
+                'node_name' => array('text', $row['node_name'])
+            ));
+        }
+
+        $db->update("xqcas_prts", array(
+            'name' => array('text', $new_prt)
+        ), array(
+            'question_id' => array('integer', $question_id),
+            'name' => array('text', $prt)
+        ));
+
+        $db->update("xqcas_prt_nodes", array(
+            'prt_name' => array('text', $new_prt)
+        ), array(
+            'question_id' => array('integer', $question_id),
+            'prt_name' => array('text', $prt)
+        ));
+    }
 }

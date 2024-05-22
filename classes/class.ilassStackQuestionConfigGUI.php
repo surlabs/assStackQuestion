@@ -137,13 +137,8 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
             case "checkPrtPlaceholder":
                 $rendered = "";
 
-                foreach (StackCheckPrtPlaceholders::getMissing() as $question_id => $missing) {
-                    if (empty($missing["missing"])) {
-                        $pane = sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_admin_configuration_quality_check_prt_placeholders_no_prts'), $question_id);
-                        $pane .= '<br><br><strong>Title: </strong>' . $missing["title"];
-
-                        $rendered .= $this->renderer->render($this->factory->messageBox()->failure($pane));
-                    } else {
+                foreach (StackCheckPrtPlaceholders::getErrors() as $question_id => $missing) {
+                    if (!empty($missing["missing"])) {
                         $pane = '<div style="display: flex; width: 100%; justify-content: space-between;">';
                         $pane .= sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_admin_configuration_quality_check_prt_placeholders_missing_placeholders'), $question_id, implode(', ', $missing["missing"]));
                         $this->ctrl->setParameterByClass("ilassStackQuestionConfigGUI", "question_id", $question_id);
@@ -151,7 +146,21 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
                         $pane .= '</div>';
                         $pane .= '<br><strong>Title: </strong>' . $missing["title"];
 
-                        $rendered .= $this->renderer->render($this->factory->messageBox()->confirmation($pane));
+                        $rendered .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->messageBox()->confirmation($pane));
+                    } else if (!empty($missing["badname"])) {
+                        $pane = '<div style="display: flex; width: 100%; justify-content: space-between;">';
+                        $pane .= sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_admin_configuration_quality_check_prt_placeholders_bad_name'), $question_id, implode(', ', $missing["badname"]));
+                        $this->ctrl->setParameterByClass("ilassStackQuestionConfigGUI", "question_id", $question_id);
+                        $pane .= $this->renderer->render($DIC->ui()->factory()->button()->standard("Fix", $this->ctrl->getLinkTargetByClass("ilassStackQuestionConfigGUI", "fixPrtName")));
+                        $pane .= '</div>';
+                        $pane .= '<br><strong>Title: </strong>' . $missing["title"];
+
+                        $rendered .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->messageBox()->info($pane));
+                    } else {
+                        $pane = sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_admin_configuration_quality_check_prt_placeholders_no_prts'), $question_id);
+                        $pane .= '<br><br><strong>Title: </strong>' . $missing["title"];
+
+                        $rendered .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->messageBox()->failure($pane));
                     }
                 }
 
@@ -169,6 +178,16 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
                 $rendered .= "<br><br><strong>" . $DIC->language()->txt('qpl_qst_xqcas_options_specific_feedback') . "</strong>:<br>" . $result["specific_feedback"];
 
                 $rendered = $this->renderer->render($this->factory->messageBox()->success($rendered));
+                break;
+            case "fixPrtName":
+                $result = StackCheckPrtPlaceholders::fixBadNames($this->request->getQueryParams()["question_id"]);
+
+                $rendered = "<h2>" . $DIC->language()->txt('qpl_qst_xqcas_ui_admin_configuration_quality_check_prt_names_fixed') . "</h2>";
+                $rendered .= "<br><strong>Title: </strong><br>" . $result["title"];
+                $rendered .= "<br><br>" . $result["changed"];
+
+                $rendered = $DIC->ui()->renderer()->render($DIC->ui()->factory()->messageBox()->success($rendered));
+
                 break;
             default:
                 throw new stack_exception("Unknown configuration command: " . $cmd);
