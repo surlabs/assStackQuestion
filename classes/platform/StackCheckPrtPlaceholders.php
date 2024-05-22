@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace classes\platform;
 
 use assStackQuestionDB;
+use stack_utils;
 
 /**
  * This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
@@ -27,11 +28,11 @@ use assStackQuestionDB;
 class StackCheckPrtPlaceholders {
 
     /**
-     * Get the missing placeholders for a given question
+     * Get the missing placeholders for a given question and errors in prt name
      * @param array|null $questions
      * @return array
      */
-    public static function getMissing(?array $questions = null) :array {
+    public static function getErrors(?array $questions = null) :array {
         $placeholders = [];
         $missing = [];
 
@@ -50,6 +51,9 @@ class StackCheckPrtPlaceholders {
                         if (strpos($data["question_text"], "[[feedback:" . $prt . "]]") === false && strpos($data["specific_feedback"], "[[feedback:" . $prt . "]]") === false) {
                             $missing[$question_id]["title"] = $data["title"];
                             $missing[$question_id]["missing"][] = $prt;
+                        } else if (!stack_utils::is_valid_name($prt) && is_numeric($prt)) {
+                            $missing[$question_id]["title"] = $data["title"];
+                            $missing[$question_id]["badname"][] = $prt;
                         }
                     }
                 }
@@ -98,6 +102,44 @@ class StackCheckPrtPlaceholders {
         return array(
             "title" => "",
             "specific_feedback" => ""
+        );
+    }
+
+    /**
+     * Fix the bad prt names for a given question
+     * @param string $question_id
+     * @return array
+     */
+    public static function fixBadNames(string $question_id) :array
+    {
+        $data = assStackQuestionDB::getPrtsAndPlaceholders($question_id);
+        $changed = "";
+
+        if (isset($data) && !empty($data)) {
+            $question_text = $data["question_text"];
+            $specific_feedback = $data["specific_feedback"];
+
+            if (isset($data["prts"]) && !empty($data["prts"])) {
+                foreach ($data["prts"] as $prt) {
+                    if (!stack_utils::is_valid_name($prt) && is_numeric($prt)) {
+                        $new_prt = "prt" . $prt;
+                        $question_text = str_replace("[[feedback:" . $prt . "]]", "[[feedback:" . $new_prt . "]]", $question_text);
+                        $specific_feedback = str_replace("[[feedback:" . $prt . "]]", "[[feedback:" . $new_prt . "]]", $specific_feedback);
+
+                        assStackQuestionDB::updateQuestionText($question_id, $question_text);
+                        assStackQuestionDB::updateSpecificFeedback($question_id, $specific_feedback);
+
+                        assStackQuestionDB::updatePrtName($question_id, $prt, $new_prt);
+
+                        $changed = $prt . " -> " . $new_prt . "\n";
+                    }
+                }
+            }
+        }
+
+        return array(
+            "title" => $data["title"],
+            "changed" => $changed,
         );
     }
 }
