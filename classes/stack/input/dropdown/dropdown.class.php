@@ -408,6 +408,10 @@ class stack_dropdown_input extends stack_input {
      * @return string
      */
     public function contents_to_maxima($contents) {
+        if (empty($contents)) {
+            return "";
+        }
+
         return $this->get_input_ddl_value($contents[0]);
     }
 
