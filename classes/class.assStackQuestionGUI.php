@@ -343,7 +343,9 @@ class assStackQuestionGUI extends assQuestionGUI
 			$question_preview = $this->getILIASPage($question_preview);
 		}
 
-		return assStackQuestionUtils::_getLatex($question_preview);
+        $question_preview .= StackRenderIlias::renderQuestionVariables(StackRandomisationIlias::getRandomisationData($this->object, $this->object->getSeed()));
+
+        return assStackQuestionUtils::_getLatex($question_preview);
 	}
 
     /**
@@ -1152,6 +1154,8 @@ class assStackQuestionGUI extends assQuestionGUI
                 'runAllTestsForAllVariants',
                 'addCustomTestForm',
                 'addStandardTest',
+                'confirmDeleteAllVariants',
+                'deleteAllVariants',
                 'editTestcases',
                 'deleteUnitTest',
                 'checkPrtPlaceholders'
@@ -1240,6 +1244,8 @@ class assStackQuestionGUI extends assQuestionGUI
             'runAllTestsForAllVariants',
             'addCustomTestForm',
             'addStandardTest',
+            'confirmDeleteAllVariants',
+            'deleteAllVariants',
             'editTestcases',
             'deleteUnitTest',
             'checkPrtPlaceholders'
@@ -2013,6 +2019,45 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $tpl->setOnScreenMessage('success',
             $this->object->getPlugin()->txt('ui_author_randomisation_standard_unit_test_case_added'),
+            true);
+
+        $this->randomisationAndSecurity();
+    }
+
+    /**
+     * Called to delete all seeds
+     */
+    public function confirmDeleteAllVariants(): void
+    {
+        global $DIC, $tpl;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
+        $content = $DIC->ui()->renderer()->render($DIC->ui()->factory()->messageBox()->confirmation($this->object->getPlugin()->txt('ui_author_randomisation_confirm_delete_all_seeds')));
+
+        $content .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->button()->standard($DIC->language()->txt("yes"), $this->ctrl->getLinkTarget($this, "deleteAllVariants")));
+        $content .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->button()->standard($DIC->language()->txt("no"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
+
+        $tpl->setContent($content);
+    }
+
+    /**
+     * Called to delete all seeds
+     */
+    public function deleteAllVariants(): void
+    {
+        global $DIC, $tpl;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
+        assStackQuestionDB::_deleteStackSeeds($this->object->getId());
+
+        $tpl->setOnScreenMessage('success',
+            $this->object->getPlugin()->txt('ui_author_randomisation_all_seeds_deleted'),
             true);
 
         $this->randomisationAndSecurity();

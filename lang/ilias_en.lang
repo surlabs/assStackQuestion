@@ -167,6 +167,9 @@ ui_author_randomisation_no_variants_generate_new_variants_action_text#:#Generate
 ui_author_randomisation_add_standard_test_title#:#Standard testcase (Checks that model answer is evaluated as correct)
 ui_author_randomisation_add_standard_test_description#:#Add a standard testcase
 ui_author_randomisation_add_standard_test_button_text#:#Add standard testcase
+ui_author_randomisation_delete_all_variants_action_text#:#Delete all variants
+ui_author_randomisation_all_seeds_deleted#:#All seeds have been deleted
+ui_author_randomisation_confirm_delete_all_seeds#:#Are you sure you want to delete all seeds?
 ui_author_randomisation_standard_unit_test_case_added#:#Standard unit test case added
 ui_author_randomisation_active_variant_panel_title#:#Active variant for authors at preview and unit tests
 ui_author_randomisation_deployed_variants_panel_title#:#Question's variants for students in tests
@@ -672,3 +675,6 @@ matrix_syntax_error#:#Your answer contains syntax errors.
 placeholder#:#Placeholder
 value#:#Value
 hint_mode#:#Hint mode
+debug_info_message#:#Debug information (not shown to the students in Tests)
+debug_info_question_variables#:#Question variables
+debug_info_feedback_variables#:#Feedback variables

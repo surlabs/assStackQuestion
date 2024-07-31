@@ -171,6 +171,9 @@ ui_author_randomisation_no_variants_generate_new_variants_action_text#:#10 neue 
 ui_author_randomisation_add_standard_test_title#:#Automatisch-Testfall (Überprüft, ob die Musterantwort als korrekt bewertet wird)
 ui_author_randomisation_add_standard_test_description#:#Einen Automatisch-Testfall hinzufügen
 ui_author_randomisation_add_standard_test_button_text#:#Automatisch-Testfall hinzufügen
+ui_author_randomisation_delete_all_variants_action_text#:#Alle Varianten löschen
+ui_author_randomisation_all_seeds_deleted#:#Alle Seeds wurden gelöscht
+ui_author_randomisation_confirm_delete_all_seeds#:#Möchten Sie wirklich alle Seeds löschen?
 ui_author_randomisation_standard_unit_test_case_added#:#Standard-Einheitstestfall hinzugefügt
 ui_author_randomisation_active_variant_panel_title#:#Aktive Variante für Autoren bei Vorschau und Einheitstests
 ui_author_randomisation_deployed_variants_panel_title#:#Varianten der Frage für Studenten in Tests
@@ -683,3 +686,6 @@ matrix_syntax_error#:#Ihre Antwort enthält Syntaxfehler.
 placeholder#:#Platzhalter
 value#:#Wert
 hint_mode#:#Hinweis-Modus
+debug_info_message#:#Debug-Informationen (wird in Tests nicht angezeigt)
+debug_info_question_variables#:#Fragevariablen
+debug_info_feedback_variables#:#Feedback-Variablen
