@@ -82,8 +82,11 @@ class StackRenderIlias extends StackRender
         //ILIAS: NO GRADING DETAILS
 
         if (!$result->is_evaluated()) {
-            //TODO throw new StackException('PRT ' . $prt_name . 'not evaluated.');
+            if ($question->isAnyInputBlank($response)) {
+                return $renderer->render($factory->messageBox()->failure(stack_string('pleaseananswerallparts')));
+            }
         }
+
         // Don't give standard feedback when we have errors.
         if (count($result->get_errors()) != 0) {
             //TODO throw new StackException('PRT' . $prt_name . ' has errors.');
