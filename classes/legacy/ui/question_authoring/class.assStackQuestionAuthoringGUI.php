@@ -245,7 +245,7 @@ class assStackQuestionAuthoringGUI
 				'strictSyntax' => $standard_input['input_strict_syntax'],
 				'insertStars' => $standard_input['input_insert_stars'],
 				'syntaxHint' => $standard_input['input_syntax_hint'],
-				'syntaxAttribute' => '',
+				'syntaxAttribute' => $standard_input['input_syntax_attribute'],
 				'forbidWords' => $standard_input['input_forbidden_words'],
 				'allowWords' => $standard_input['input_allow_words'],
 				'forbidFloats' => $standard_input['input_forbid_float'],
@@ -507,6 +507,9 @@ class assStackQuestionAuthoringGUI
 		$input_syntax_hint = new ilTextInputGUI($this->getPlugin()->txt('input_syntax_hint'), $input_name . '_input_syntax_hint');
 		$input_syntax_hint->setInfo($this->getPlugin()->txt('input_syntax_hint_info'));
 
+        $input_syntax_attribute = new ilSelectInputGUI($this->getPlugin()->txt('hint_mode'), $input_name . '_input_syntax_attribute');
+        $input_syntax_attribute->setOptions(array(0 => $this->getPlugin()->txt('value'), 1 => $this->getPlugin()->txt('placeholder')));
+
 		$input_forbidden_words = new ilTextInputGUI($this->getPlugin()->txt('input_forbidden_words'), $input_name . '_input_forbidden_words');
 		$input_forbidden_words->setInfo($this->getPlugin()->txt('input_forbidden_words_info'));
 
@@ -541,6 +544,7 @@ class assStackQuestionAuthoringGUI
             // $input_strict_syntax->setChecked((int)$this->default["input_strict_syntax"]);
 			$input_insert_stars->setValue($this->default["input_insert_stars"]);
 			$input_syntax_hint->setValue($this->default["input_syntax_hint"]);
+            $input_syntax_attribute->setValue($this->default["input_syntax_attribute"]);
 			$input_forbidden_words->setValue($this->default["input_forbidden_words"]);
 			$input_allow_words->setValue($this->default["input_allow_words"]);
 			$input_forbid_float->setChecked((int)$this->default["input_forbid_float"]);
@@ -555,6 +559,7 @@ class assStackQuestionAuthoringGUI
             // $input_strict_syntax->setChecked($input->get_parameter('strictSyntax'));
 			$input_insert_stars->setValue($input->get_parameter('insertStars'));
 			$input_syntax_hint->setValue($input->get_parameter('syntaxHint'));
+            $input_syntax_attribute->setValue($input->get_parameter('syntaxAttribute'));
 			$input_forbidden_words->setValue($input->get_parameter('forbidWords'));
 			$input_allow_words->setValue($input->get_parameter('allowWords'));
 			$input_forbid_float->setChecked($input->get_parameter('forbidFloats'));
@@ -574,6 +579,7 @@ class assStackQuestionAuthoringGUI
         // $part->addFormProperty($input_strict_syntax);
 		$part->addFormProperty($input_insert_stars);
 		$part->addFormProperty($input_syntax_hint);
+        $part->addFormProperty($input_syntax_attribute);
 		$part->addFormProperty($input_forbidden_words);
 		$part->addFormProperty($input_forbid_float);
 		$part->addFormProperty($input_allow_words);
