@@ -247,6 +247,9 @@ class RandomisationAndSecurityUI
         $array_of_actions[] = $this->factory->button()->shy(
             $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_add_standard_test_button_text"),
             $this->control->getLinkTargetByClass("assstackquestiongui", "addStandardTest"));
+        $array_of_actions[] = $this->factory->button()->shy(
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_delete_all_variants_action_text"),
+            $this->control->getLinkTargetByClass("assstackquestiongui", "confirmDeleteAllVariants"));
 
         //Actions for the currently active variant
         $current_active_variant_panel_actions = $this->factory->dropdown()->standard($array_of_actions);

@@ -463,5 +463,49 @@ class StackRenderIlias extends StackRender
         return "<button class=\"xqcas btn btn-default\" name=\"cmd[xqcas_" . $question_id . '_' . $input_name . "]\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></button>";
     }
 
+    public static function renderQuestionVariables(array $randomisation_data): string
+    {
+        global $DIC;
+        $factory = $DIC->ui()->factory();
+        $renderer = $DIC->ui()->renderer();
+        $language = $DIC->language();
 
+        $active_variant_question_variables = "Not found";
+        $active_variant_feedback_variables = "Not found";
+
+        if (isset($randomisation_data[""])) {
+            $active_variant_question_variables = $randomisation_data[""]["question_variables"];
+            $active_variant_feedback_variables = $randomisation_data[""]["feedback_variables"];
+        }
+
+        $randomisation = "";
+
+        if (trim($active_variant_question_variables) != "") {
+            $randomisation = "<strong>" . $language->txt("qpl_qst_xqcas_debug_info_question_variables") . "</strong>";
+            $randomisation .= assStackQuestionUtils::parseToHTMLWithoutLatex($active_variant_question_variables);
+        }
+
+        if (trim($active_variant_feedback_variables) != "") {
+            if ($randomisation != "") {
+                $randomisation .= $renderer->render($factory->divider()->horizontal());
+            }
+
+            $randomisation .= "<strong>" . $language->txt("qpl_qst_xqcas_debug_info_feedback_variables") . "</strong>";
+            $randomisation .= assStackQuestionUtils::parseToHTMLWithoutLatex($active_variant_feedback_variables);
+        }
+
+        if ($randomisation != "") {
+            if (isset($randomisation_data[""]["seed"])) {
+                $randomisation .= $renderer->render($factory->divider()->horizontal()) . "<strong>Seed: </strong>" . $randomisation_data[""]["seed"];
+            }
+
+            $panel = $factory->panel()->standard($language->txt("qpl_qst_xqcas_debug_info_message"), $factory->legacy(
+                $randomisation
+            ));
+
+            return $renderer->render($panel);
+        } else  {
+            return "";
+        }
+    }
 }
