@@ -5,7 +5,7 @@
 	</picture>
 </div>
 
-# STACK Question plugin for ILIAS
+# STACK Question plugin for ILIAS 9 (BETA) Do not use on productive Platforms
 
 Welcome to the official repository for [STACK for ILIAS](https://stackforilias.com).
 
