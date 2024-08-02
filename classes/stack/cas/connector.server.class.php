@@ -13,6 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Stack.  If not, see <http://www.gnu.org/licenses/>.
+use classes\platform\StackConfig;
+use classes\platform\StackException;
 
 /**
  * Connection to Maxima running in a tomcat-server using the MaximaPool-servlet.
@@ -26,10 +28,11 @@
  */
 class stack_cas_connection_server extends stack_cas_connection_base {
 
+    /**
+     * @throws StackException
+     */
     protected function guess_maxima_command($path) {
-        //fau: add server from DB
-        return assStackQuestionConfig::_getServerAddress();
-        //fau.
+        return StackConfig::get("maxima_pool_url");
     }
 
     protected function call_maxima($command) {

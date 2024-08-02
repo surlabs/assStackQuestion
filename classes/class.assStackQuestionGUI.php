@@ -71,8 +71,13 @@ class assStackQuestionGUI extends assQuestionGUI
      * because from ilias8 onwards the post data cannot be modified directly
      */
     private array $specific_post_data = array();
+    /**
+     * @var array|string[]
+     */
+    private array $required_tags;
+    private stdClass $info_config;
 
-	/**
+    /**
 	 * assStackQuestionGUI constructor.
 	 */
 	public function __construct($id = -1)
@@ -522,7 +527,7 @@ class assStackQuestionGUI extends assQuestionGUI
 			//SET OPTIONS
 			$this->object->options = $options;
 		} catch (stack_exception $e) {
-			$tpl->setOnScreenMessage('failure', $e, true);
+			$tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 		}
 
 		//Load data sent as options but not part of the session options
@@ -1426,7 +1431,7 @@ class assStackQuestionGUI extends assQuestionGUI
 				$export_to_moodle->toMoodleXML();
 
 			} catch (stack_exception $e) {
-				$tpl->setOnScreenMessage('failure', $e, true);
+				$tpl->setOnScreenMessage('failure', $e->getMessage(), true);
 			}
 
 		} else {

@@ -122,8 +122,6 @@ if (!function_exists('stack_trans')) {
 if (!function_exists('get_config')) {
     function get_config($section = 'qtype_stack')
     {
-        //require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
-
         global $CFG;
         $configs = new stdClass();
 

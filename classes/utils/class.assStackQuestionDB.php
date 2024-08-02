@@ -19,6 +19,8 @@ declare(strict_types=1);
  *
  */
 
+use classes\platform\StackConfig;
+
 /**
  * STACK Question DB Manager Class
  * All DB Stuff is placed here
@@ -1962,7 +1964,7 @@ class assStackQuestionDB
 	public static function _addNodeFunction(string $question_id, string $prt_name, string $new_node_name): bool
 	{
 
-		$standard_prt = assStackQuestionConfig::_getStoredSettings('prts');
+		$standard_prt = StackConfig::getAll('prts');
 
 		global $DIC;
 

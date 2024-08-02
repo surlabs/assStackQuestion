@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 //require_once './Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/utils/class.assStackQuestionUtils.php';
 //require_once('Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php');
+use classes\platform\StackConfig;
 
 /**
  * STACK Question authoring GUI class
@@ -56,9 +57,10 @@ class assStackQuestionAuthoringGUI
 	private $template;
 
     private bool $new_question = false;
+    private array $default;
 
 
-	/**
+    /**
 	 * Object constructor
 	 * @param $plugin ilassStackQuestionPlugin
 	 * @param $question assStackQuestionGUI
@@ -99,8 +101,7 @@ class assStackQuestionAuthoringGUI
 		//$this->getPlugin()->includeClass('utils/FormProperties/class.ilButtonFormPropertyGUI.php');
 
 		//https://mantis.ilias.de/view.php?id=25290
-		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
-		$this->default = assStackQuestionConfig::_getStoredSettings("all");
+		$this->default = StackConfig::getAll();
 
 		//Add general properties to form like question text, title, author...
 		//ADD predefined input and validation fields
@@ -220,7 +221,7 @@ class assStackQuestionAuthoringGUI
 			$this->getForm()->addItem($inputs);
 		} else {
 			//load standard input
-			$standard_input = assStackQuestionConfig::_getStoredSettings('inputs');
+			$standard_input = StackConfig::getAll('inputs');
 
 			$required_parameters = stack_input_factory::get_parameters_used();
 

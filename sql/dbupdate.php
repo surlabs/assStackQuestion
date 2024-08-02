@@ -25,7 +25,7 @@ if ($res->numRows() == 0) {
 	$data = $db->fetchAssoc($res);
 	$max = $data["maxid"] + 1;
 
-	$affectedRows = $db->manipulateF("INSERT INTO qpl_qst_type (question_type_id, type_tag, plugin) VALUES (%s, %s, %s)", array("integer", "text", "integer"), array($max, 'assStackQuestion', 1));
+	$affectedRows = $db->manipulateF("INSERT INTO qpl_qst_type (question_type_id, type_tag, plugin, plugin_name) VALUES (%s, %s, %s, %s)", array("integer", "text", "integer", "text"), array($max, 'assStackQuestion', 1, 'assStackQuestion'));
 }
 ?>
 <#2>
@@ -270,8 +270,6 @@ if (!$db->fetchAssoc($result)) {
 		$db->insert("xqcas_configuration", array('parameter_name' => array('text', $paremeter_name), 'value' => array('clob', $value), 'group_name' => array('text', 'inputs')));
 	}
 }
-$config = new assStackQuestionConfig();
-$config->setDefaultSettingsForConnection();
 ?>
 <#19>
 <?php

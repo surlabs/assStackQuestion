@@ -434,7 +434,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param false $return_details
      * @return float|int
      */
-    public function calculateReachedPoints($active_id, $pass = null, $authorized_solution = true, $return_details = false)
+    public function calculateReachedPoints($active_id, $pass = null, $authorized_solution = true, $return_details = false): float|array
     {
         global $DIC;
         $db = $DIC->database();
@@ -484,7 +484,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
      * @param null $test_obj_id
      * @return int|null the duplicated question id
      */
-    public function duplicate(bool $for_test = true, string $title = "", string $author = "", string $owner = "", $testObjId = null): int
+    public function duplicate(bool $for_test = true, string $title = "", string $author = "", int $owner = -1, $testObjId = null): int
     {
         if ($this->id <= 0) {
             // The question has not been saved. It cannot be duplicated
@@ -737,7 +737,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         $this->setId($question_id);
         $this->setTitle($data["title"] ?? '');
         $this->setComment($data["description"] ?? '');
-        $this->setSuggestedSolution($data["solution_hint"] ?? '');
         $this->setOriginalId((int)$data["original_id"]);
         $this->setObjId((int)$data["obj_fi"]);
         $this->setAuthor($data["author"]);
@@ -776,7 +775,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                 //SET OPTIONS
                 $this->options = $options;
             } catch (stack_exception $e) {
-                $tpl->setOnScreenMessage('failure', $e, true);
+                $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
             }
 
             //load Data stored in options but not part of the session options
@@ -1078,7 +1077,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         try {
             assStackQuestionDB::_saveStackQuestion($this);
         } catch (stack_exception $e) {
-            $tpl->setOnScreenMessage('failure', $e);
+            $tpl->setOnScreenMessage('failure', $e->getMessage());
         }
     }
 
@@ -1213,7 +1212,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         $standard_question = array();
 
         //load options
-        //require_once __DIR__ . '/model/configuration/class.assStackQuestionConfig.php';
         $standard_options = StackConfig::getAll();
         $options_array = array();
 
@@ -1233,7 +1231,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
             //Set Options
             $this->options = $options;
         } catch (stack_exception $e) {
-            $tpl->setOnScreenMessage('failure', $e, true);
+            $tpl->setOnScreenMessage('failure', $e->getMessage(), true);
         }
 
         $this->question_variables = '';
@@ -1280,7 +1278,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         //Ensure input doesn't exists
         if (!isset($this->inputs[$input_name])) {
             //load standard input
-            $standard_input = assStackQuestionConfig::_getStoredSettings('inputs');
+            $standard_input = StackConfig::getAll('inputs');
 
             $required_parameters = stack_input_factory::get_parameters_used();
 
@@ -1327,7 +1325,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         global $tpl;
         //load PRTs and PRT nodes
         //TODO LOAD PLATFORM STANDARD PRT
-        $standard_prt = assStackQuestionConfig::_getStoredSettings('prts');
+        $standard_prt = StackConfig::getAll('prts');
 
         try {
 
@@ -3728,5 +3726,21 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         // Leave a blank line between questions
         return $startrow + 1;
+    }
+
+    /**
+     * @return string|array Or Array?
+     */
+    public function getAdditionalTableName(): string|array
+    {
+        return '';
+    }
+
+    /**
+     * @return string|array Or Array?
+     */
+    public function getAnswerTableName(): string|array
+    {
+        return '';
     }
 }

@@ -18,6 +18,8 @@
  *
  */
 
+use classes\platform\StackConfig;
+
 
 /**
  * Class with STATIC METHODS used in the whole STACK Question
@@ -657,10 +659,9 @@ class assStackQuestionUtils
 	 */
 	public static function _getFeedbackStyledText($a_text, $a_format)
 	{
-		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
 
 		//Get Styles assigned to Formats
-		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
+		$config_options = StackConfig::getAll("feedback");
 		//require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
 
 		//Return text depending Format
@@ -701,10 +702,9 @@ class assStackQuestionUtils
 
 	public static function _replaceFeedbackPlaceHolders($feedback)
 	{
-		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
 
 		//Get Styles assigned to Formats
-		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
+		$config_options = StackConfig::getAll("feedback");
 
 		$text = $feedback;
 		//Search for right feedback
