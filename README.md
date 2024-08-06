@@ -49,7 +49,7 @@ cdn.mathjax.org or downloaded to your own web server. It has to be configured in
 ```bash
 git clone https://github.com/surlabs/STACK.git ./assStackQuestion
 cd assStackQuestion
-git checkout ilias8_stack
+git checkout ilias9_stack
 ```
 3. STACK uses the ILIAS composer autoloader functionality so, after installing or update the plugin, ensure you run on the ILIAS root folder
 ```bash
