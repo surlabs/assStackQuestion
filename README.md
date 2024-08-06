@@ -1,4 +1,4 @@
-<div alt style="text-align: center; transform: scale(.5);">
+	<div alt style="text-align: center; transform: scale(.5);">
 	<picture>
 		<source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/surlabs/STACK/ilias7_stack2021/templates/assets/stack-collage.png" />
 		<img alt="STACK" src="https://raw.githubusercontent.com/surlabs/STACK/ilias7_stack2021/templates/assets/stack-collage.png" />
@@ -18,7 +18,7 @@ STACK is the world-leading open-source online assessment system for mathematics 
 ## Installation & Update
 
 ### Software Requirements
-STACK requires [PHP](https://php.net) version 7.4 or 8.0 to work properly on your ILIAS 8 platform
+STACK requires [PHP](https://php.net) version 8.1 or 8.2 to work properly on your ILIAS 9 platform
 
 STACK requires the [mbstring](https://www.php.net/manual/en/book.mbstring.php) PHP library to run properly, this library is by default included in ILIAS, but please ensure your installation includes that library on the composer.json dependencies.
 
@@ -81,6 +81,7 @@ php setup/setup.php update
 - SIG Mathe [Forum](https://docu.ilias.de/goto_docu_frm_7004.html)
 
 # Version History
+* The **beta** version 9.0.x for **ILIAS 9** with the STACK Core version 4.5.0 can be found in the Github branch **ilias9_stack**
 * The stable version 8.5.x for **ILIAS 8** with the STACK Core version 4.5.0 can be found in the Github branch **ilias8_stack**
 * The stable version 8.0.x for **ILIAS 8** with the STACK Core version 4.3.9 can be found in the Github branch **old_ilias8_stack2021** is on only security issues mode.
 * The stable version 7.5.x for **ILIAS 7.13+** with the STACK Core version 4.5.0 can be found in the Github branch **ilias7_stack**
