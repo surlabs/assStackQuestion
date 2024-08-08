@@ -314,6 +314,7 @@ input_type_info#:#Typ des Eingabeelements, z.B. Formularfeld, Wahr/Falsch, mehrz
 input_type_algebraic#:#Algebraische Eingabe
 input_type_boolean#:#Wahr/Falsch
 input_type_matrix#:#Matrix
+input_type_varmatrix#:#Variable Matrix
 input_type_singlechar#:#Einzelzeichen
 input_type_textarea#:#Mehrzeilig
 input_box_size#:#Eingabebreite
@@ -520,6 +521,7 @@ add_new_prt#:#Neuer Rückmeldebaum (PRT)
 add_new_node#:#Neuer Knoten
 delete_node#:#Lösche Knoten
 delete_prt#:#Lösche Rückmeldebaum
+change_prt_name#:#Ändere Rückmeldebaum-Namen
 authoring_points_info#:#Die Gesamtpunktzahl der Frage können Sie unter "Bewertung" festlegen.
 authoring_input_creation_info#:#Um ein neues Eingabefeld anzulegen, geben Sie im Fragetext die Platzhalter "[[input:Eingabename]]" und "[[validation:Eingabename]]" ein. Um es zu löschen, löschen Sie die Platzhalter im Fragentext.
 input_hint#:#Hinweis

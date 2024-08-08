@@ -669,7 +669,7 @@ class assStackQuestionDB
 					"id" => array("integer", $db->nextId('xqcas_prts')),
 					"question_id" => array("integer", $question_id),
 					"name" => array("text", $question->prts[$prt_name]->get_name()),
-					"value" => array("text", $question->prts[$prt_name]->get_value() == null ? "1.0" : $question->prts[$prt_name]->get_value()),
+					"value" => array("text", $question->prts[$prt_name]->get_value() === null ? "1.0" : $question->prts[$prt_name]->get_value()),
 					"auto_simplify" => array("integer", $question->prts[$prt_name]->isSimplify() == null ? 0 : $question->prts[$prt_name]->isSimplify()),
 					"feedback_variables" => array("clob", $question->prts[$prt_name]->get_feedbackvariables_keyvals() == null ? "" : $question->prts[$prt_name]->get_feedbackvariables_keyvals()),
 					"first_node_name" => array("text", $question->prts[$prt_name]->get_first_node() == null ? '-1' : $question->prts[$prt_name]->get_first_node()),
@@ -689,7 +689,7 @@ class assStackQuestionDB
 					array(
 						"question_id" => array("integer", $question_id),
 						"name" => array("text", $question->prts[$prt_name]->get_name()),
-						"value" => array("text", $question->prts[$prt_name]->get_value() == null ? "1.0" : $question->prts[$prt_name]->get_value()),
+						"value" => array("text", $question->prts[$prt_name]->get_value() === null ? "1.0" : $question->prts[$prt_name]->get_value()),
 						"auto_simplify" => array("integer", $question->prts[$prt_name]->isSimplify() == null ? 0 : $question->prts[$prt_name]->isSimplify()),
 						"feedback_variables" => array("clob", $question->prts[$prt_name]->get_feedbackvariables_keyvals() == null ? "" : $question->prts[$prt_name]->get_feedbackvariables_keyvals()),
 						"first_node_name" => array("text", $question->prts[$prt_name]->get_first_node() == null ? '-1' : $question->prts[$prt_name]->get_first_node()),
@@ -1197,6 +1197,30 @@ class assStackQuestionDB
 			return false;
 		}
 	}
+
+    /**
+     * @param int $question_id
+     * @param string $old_prt_name
+     * @param string $new_prt_name
+     * @return bool
+     */
+    public static function _changePrtName(int $question_id, string $old_prt_name, string $new_prt_name): bool
+    {
+        global $DIC;
+        $db = $DIC->database();
+        $query = /** @lang text */
+            'UPDATE xqcas_prts SET name = ' . $db->quote($new_prt_name, 'text') . ' WHERE question_id = ' . $db->quote($question_id, 'integer') . ' AND name = ' . $db->quote($old_prt_name, 'text');
+
+        $query_nodes = /** @lang text */
+            'UPDATE xqcas_prt_nodes SET prt_name = ' . $db->quote($new_prt_name, 'text') . ' WHERE question_id = ' . $db->quote($question_id, 'integer') . ' AND prt_name = ' . $db->quote($old_prt_name, 'text');
+
+
+        if ($db->manipulate($query) && $db->manipulate($query_nodes)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 	/**
 	 * @param int $question_id

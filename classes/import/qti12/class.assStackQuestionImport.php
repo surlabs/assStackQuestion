@@ -229,14 +229,14 @@ class assStackQuestionImport extends assQuestionImport
                         $node->truepenalty = $xml_node->getTruePenalty();
                         $node->trueanswernote = $xml_node->getTrueAnswerNote();
                         $node->truefeedback = $xml_node->getTrueFeedback();
-                        $node->truefeedbackformat = $xml_node->getTrueFeedbackFormat();
+                        $node->truefeedbackformat = 0;
 
                         $node->falsescore = $xml_node->getFalseScore();
                         $node->falsescoremode = $xml_node->getFalseScoreMode();
                         $node->falsepenalty = $xml_node->getFalsePenalty();
                         $node->falseanswernote = $xml_node->getFalseAnswerNote();
                         $node->falsefeedback = $xml_node->getFalseFeedback();
-                        $node->falsefeedbackformat = $xml_node->getFalseFeedbackFormat();
+                        $node->falsefeedbackformat = 0;
 
                         $prt_data->nodes[$node->nodename] = $node;
                     } catch (stack_exception $e) {
@@ -252,7 +252,9 @@ class assStackQuestionImport extends assQuestionImport
 
             foreach ($prts_array as $name => $prt_data) {
                 $total_value += (float) $prt_data->value;
-                $all_formative = false;
+                if ((float) $prt_data->value > 0) {
+                    $all_formative = false;
+                }
             }
 
             foreach ($prts_array as $name => $prt_data) {

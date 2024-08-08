@@ -1165,7 +1165,9 @@ class assStackQuestionUtils
 
         foreach ($prt_from_array as $name => $prt_data) {
             $total_value += $prt_data->value;
-            $all_formative = false;
+            if ($prt_data->value > 0) {
+                $all_formative = false;
+            }
         }
 
         if ($prt_from_array && !$all_formative && $total_value < 0.0000001) {

@@ -305,6 +305,7 @@ input_type_info#:#This determines the type of the input element, e.g. form field
 input_type_algebraic#:#Algebraic input
 input_type_boolean#:#True/False
 input_type_matrix#:#Matrix
+input_type_varmatrix#:#Variable matrix
 input_type_singlechar#:#Single character
 input_type_textarea#:#Text area
 input_box_size#:#Input box size
@@ -511,6 +512,7 @@ add_new_prt#:#New Potential response Tree
 add_new_node#:#New Node
 delete_node#:#Delete node
 delete_prt#:#Delete Potential response Tree
+change_prt_name#:#Change Potential response Tree name
 authoring_points_info#:#To set the total points of the question, go to label Scoring.
 authoring_input_creation_info#:#To create new inputs just type on the question text the placeholder: "[[input:your_input_name]]" and "[[validation:your_input_name]]", to delete an input just delete the input placeholder from question text.
 input_hint#:#Hint
