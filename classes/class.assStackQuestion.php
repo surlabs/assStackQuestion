@@ -496,7 +496,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
 
         $clone = $this;
         //include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
-        $original_id = assQuestion::_getOriginalId($this->id);
+        $original_id = $this->questioninfo->getOriginalId($this->id);
         $clone->id = -1;
 
         if ((int)$testObjId > 0) {
@@ -545,7 +545,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         $clone = $this;
         //include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
 
-        $original_id = assQuestion::_getOriginalId($this->id);
+        $original_id = $this->questioninfo->getOriginalId($this->id);
         $clone->id = -1;
         $source_questionpool_id = $this->getObjId();
         $clone->setObjId($target_questionpool_id);
@@ -888,7 +888,10 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                     $prt_data = $prt_from_db_array[$name];
 
                     $total_value += $prt_data->value;
-                    $all_formative = false;
+
+                    if ($prt_data->value > 0) {
+                        $all_formative = false;
+                    }
                 } else {
                     $this->loadStandardPRT($name);
                 }

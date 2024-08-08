@@ -225,6 +225,8 @@ if (!function_exists('get_config')) {
         $configs->stackmaximaversion = "2023121100";
         $configs->version = "2023121100";
 
+        $configs->geogebrabaseurl = $saved_config['geogebra_base_url'] ?? '';
+
         return $configs;
     }
 }

@@ -109,22 +109,22 @@ class assStackQuestionExport extends assQuestionExport
 		$a_xml_writer->xmlStartTag("flow");
 
 		$question_text = $this->object->getQuestion() ?: '&nbsp;';
-		$this->object->addQTIMaterial($a_xml_writer, $question_text);
+		$this->addQTIMaterial($a_xml_writer, $question_text);
 
 		foreach ($this->object->prts as $prt) {
 			foreach ($prt->get_nodes() as $node) {
-				$this->object->addQTIMaterial($a_xml_writer, $node->truefeedback);
-				$this->object->addQTIMaterial($a_xml_writer, $node->falsefeedback);
+				$this->addQTIMaterial($a_xml_writer, $node->truefeedback);
+				$this->addQTIMaterial($a_xml_writer, $node->falsefeedback);
 			}
 		}
 
-		$this->object->addQTIMaterial($a_xml_writer, $this->object->specific_feedback);
+		$this->addQTIMaterial($a_xml_writer, $this->object->specific_feedback);
 
-		$this->object->addQTIMaterial($a_xml_writer, $this->object->prt_correct);
-		$this->object->addQTIMaterial($a_xml_writer, $this->object->prt_partially_correct);
-		$this->object->addQTIMaterial($a_xml_writer, $this->object->prt_incorrect);
+		$this->addQTIMaterial($a_xml_writer, $this->object->prt_correct);
+		$this->addQTIMaterial($a_xml_writer, $this->object->prt_partially_correct);
+		$this->addQTIMaterial($a_xml_writer, $this->object->prt_incorrect);
 
-		$this->object->addQTIMaterial($a_xml_writer, $this->object->general_feedback);
+		$this->addQTIMaterial($a_xml_writer, $this->object->general_feedback);
 
 		$a_xml_writer->xmlEndTag("flow");
 		$a_xml_writer->xmlEndTag("presentation");
