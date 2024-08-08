@@ -865,7 +865,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                     $prt_data = $prt_from_db_array[$name];
 
                     $total_value += $prt_data->value;
-                    $all_formative = false;
+                    if ($prt_data->value > 0) {
+                        $all_formative = false;
+                    }
                 } else {
                     $this->loadStandardPRT($name);
                 }

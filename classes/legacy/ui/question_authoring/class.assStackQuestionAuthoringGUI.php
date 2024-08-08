@@ -468,7 +468,8 @@ class assStackQuestionAuthoringGUI
 		$input_type->setOptions(array("algebraic" => $this->getPlugin()->txt('input_type_algebraic'),
 			"boolean" => $this->getPlugin()->txt('input_type_boolean'),
 			"matrix" => $this->getPlugin()->txt('input_type_matrix'),
-			"singlechar" => $this->getPlugin()->txt('input_type_singlechar'),
+            "varmatrix" => $this->getPlugin()->txt('input_type_varmatrix'),
+            "singlechar" => $this->getPlugin()->txt('input_type_singlechar'),
 			"textarea" => $this->getPlugin()->txt('input_type_textarea'),
 			"checkbox" => $this->getPlugin()->txt('input_type_checkbox'),
 			"dropdown" => $this->getPlugin()->txt('input_type_dropdown'),
@@ -618,21 +619,28 @@ class assStackQuestionAuthoringGUI
 
 		//Add general settings
 		//Creation of properties of this part
-		if ($prt_name == 'new_prt') {
-			$prt_name_input = new ilTextInputGUI($this->getPlugin()->txt('prt_name'), 'prt_' . $prt_name . '_name');
-		} else {
-			$prt_name_input = new ilNonEditableValueGUI($this->getPlugin()->txt('prt_name'), 'prt_' . $prt_name . '_name');
-		}
-		$prt_name_input->setInfo($this->getPlugin()->txt('prt_name_info'));
-		$prt_name_input->setRequired(TRUE);
+        $prt_name_input = new ilTextInputGUI($this->getPlugin()->txt('prt_name'), 'prt_' . $prt_name . '_name');
+        $prt_name_input->setInfo($this->getPlugin()->txt('prt_name_info'));
+        $prt_name_input->setRequired(TRUE);
+        $prt_name_input->setMaxLength(20);
 
-		//If new question, name first prt directly as prt1
-		if ($this->new_question == TRUE) {
-			$prt_name_input->setValue("prt1");
-		} else {
-			$prt_name_input->setValue($prt_name);
-		}
-		$settings_column->addFormProperty($prt_name_input);
+        if ($this->new_question == TRUE) {
+            $prt_name_input->setValue("prt1");
+        } else {
+            $prt_name_input->setValue($prt_name);
+        }
+
+        $settings_column->addFormProperty($prt_name_input);
+
+        if ($prt_name != 'new_prt') {
+            $change_prt_name = new ilButtonFormProperty($this->getPlugin()->txt('change_prt_name'), 'change_prt_name_' . $prt_name);
+            $change_prt_name->setAction('change_prt_name_' . $prt_name);
+            $change_prt_name->setCommand('save');
+
+            $settings_column->addFormProperty($change_prt_name);
+        } else {
+            $settings_column->addFormProperty($prt_name_input);
+        }
 
         $delete_prt = new ilButtonFormProperty($this->getPlugin()->txt('delete_prt'), 'delete_full_prt_' . $prt_name);
         $delete_prt->setAction('delete_full_prt_' . $prt_name);

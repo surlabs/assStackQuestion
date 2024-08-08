@@ -326,8 +326,9 @@ class assStackQuestionMoodleImport
         $allformative = true;
 
         foreach ($question->prt as $prt_data) {
-            if ($prt_data->feedbackstyle > 0) {
-                $totalvalue += $prt_data->value;
+            $totalvalue += $prt_data->value;
+
+            if ($prt_data->value > 0) {
                 $allformative = false;
             }
         }
@@ -389,10 +390,10 @@ class assStackQuestionMoodleImport
             $prt_data = $temp_prt_data;
 
             $prtvalue = 0;
+
             if (!$allformative) {
                 $prtvalue = $prt_data->value / $totalvalue;
             }
-
 
             $this->getQuestion()->prts[(string) $prt_data->name] = new stack_potentialresponse_tree_lite($prt_data, $prtvalue);
         }
