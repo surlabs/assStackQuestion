@@ -168,3 +168,34 @@ body.ie .stack_abstract_graph {
 .row h3{
     margin-top:0;
 }
+
+.tab-pane{
+	display:none;
+	opacity:0;
+	transform:scale(0.98);
+}
+
+.tab-pane.active{
+	display:block;
+	animation: 0.3s scale-in forwards ease-in-out;
+}
+
+.nav-tabs{
+	display:flex;
+	flex-wrap: wrap;
+}
+
+.nav-tabs li.active{
+	background-color: #dfdfdf;
+}
+
+@keyframes scale-in{
+	0%{
+		opacity:0;
+		transform:scale(0.98);
+	}
+	100%{
+		opacity:100;
+		transform:scale(1);
+	}
+}
