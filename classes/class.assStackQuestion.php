@@ -2597,30 +2597,6 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return $session->get_keyval_representation(true);
     }
 
-    public function getFeedbackSessionKeyvalRepresentation(): string
-    {
-        $tmp = $this->session->get_session();
-        $tmp = array_filter($tmp, function ($v) {
-            return method_exists($v, 'is_correctly_evaluated');
-        });
-
-        $feedback_variables = '';
-        foreach ($this->prts as $prt) {
-            $feedback_variables .= $prt->get_feedbackvariables_keyvals();
-        }
-
-        $kv = new stack_cas_keyval($feedback_variables, $this->options, $this->seed);
-        $kv->get_valid();
-        $session = $kv->get_session();
-        $session->add_statements($tmp);
-        $session->get_valid();
-        if ($session->get_valid()) {
-            $session->instantiate();
-        }
-
-        return $session->get_keyval_representation(true);
-    }
-
     /**
      * add_question_vars_to_session(stack_cas_session2 $session) in Moodle
      * Add all the question variables to a give CAS session. This can be used to
