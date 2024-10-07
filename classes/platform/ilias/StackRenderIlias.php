@@ -188,9 +188,6 @@ class StackRenderIlias extends StackRender
     public static function renderQuestion(array $attempt_data, array $display_options): string
     {
         global $DIC;
-        $factory = $DIC->ui()->factory();
-        $renderer = $DIC->ui()->renderer();
-
 
         $response = $attempt_data['response'];
         if (!is_array($response)) {
@@ -289,7 +286,7 @@ class StackRenderIlias extends StackRender
                 }
             } else {
                 if (StackConfig::get("correct_solution_in_validation") == "1") {
-                    $ilias_validation = $renderer->render($factory->messageBox()->info($question->formatCorrectResponseForInput($input_name)));
+                    $ilias_validation = "<div style='padding: 10px; margin-bottom: 5px'>{$question->formatCorrectResponseForInput($input_name)}</div>";
                 }
             }
 
