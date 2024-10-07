@@ -187,6 +187,9 @@ class StackRenderIlias extends StackRender
     public static function renderQuestion(array $attempt_data, array $display_options): string
     {
         global $DIC;
+        $factory = $DIC->ui()->factory();
+        $renderer = $DIC->ui()->renderer();
+
 
         $response = $attempt_data['response'];
         if (!is_array($response)) {
@@ -233,7 +236,7 @@ class StackRenderIlias extends StackRender
             $formatted_feedback_placeholders !== $original_feedback_placeholders) {
             throw new StackException('Inconsistent placeholders. Possibly due to multi-lang filtter not being active.');
         }
-
+//
         foreach ($formatted_input_placeholders as $input_name) {
 
             if (isset($question->inputs[$input_name])) {
@@ -254,7 +257,7 @@ class StackRenderIlias extends StackRender
                     !is_a($input, 'stack_checkbox_input') &&
                     !is_a($input, 'stack_boolean_input')
                 ) {
-                    if (!$instant_validation) {
+                    if (!$instant_validation && (!isset($display_options['show_correct_solution']) || !$display_options['show_correct_solution'])) {
                         $validation_button = self::_renderValidationButton((int)$question->getId(), $input_name);
                     }
                     $validation_rendered = $response[$input_name . '_validation'] ?? '';
@@ -268,17 +271,25 @@ class StackRenderIlias extends StackRender
                 $input->render($state, $field_name, $display_options['show_correct_solution'] ?? false, $teacher_answer_value)." ".$validation_button,
                 $question_text);
 
+            $ilias_validation = "";
+
             //Validation Placeholders
-            if (is_a($input, 'stack_matrix_input')) {
-                $ilias_validation = '<div class="xqcas_input_validation">
-                    <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">' . $validation_rendered. '</div>
-                </div>'.
-                    '<div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input->getWidth() . '</div>
-                <div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden">' . $input->getHeight() . '</div>';
+            if (!isset($display_options['show_correct_solution']) || !$display_options['show_correct_solution']) {
+                if (is_a($input, 'stack_matrix_input')) {
+                    $ilias_validation = '<div class="xqcas_input_validation">
+                        <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">' . $validation_rendered. '</div>
+                    </div>'.
+                        '<div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input->getWidth() . '</div>
+                    <div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden">' . $input->getHeight() . '</div>';
+                } else {
+                    $ilias_validation = '<div class="xqcas_input_validation">
+                        <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">' . $validation_rendered. '</div>
+                    </div>';
+                }
             } else {
-                $ilias_validation = '<div class="xqcas_input_validation">
-                    <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">' . $validation_rendered. '</div>
-                </div>';
+                if (StackConfig::get("correct_solution_in_validation") == "1") {
+                    $ilias_validation = $renderer->render($factory->messageBox()->info($question->formatCorrectResponseForInput($input_name)));
+                }
             }
 
             $question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
@@ -434,7 +445,9 @@ class StackRenderIlias extends StackRender
 
         $general_feedback_text = stack_maths::process_display_castext($general_feedback_text);
 
-        $general_feedback_text .= $question->formatCorrectResponse();
+        if (!StackConfig::get("correct_solution_in_validation") == "1") {
+            $general_feedback_text .= $question->formatCorrectResponse();
+        }
 
         // Ensure that the MathJax library is loaded.
         self::ensureMathJaxLoaded();
