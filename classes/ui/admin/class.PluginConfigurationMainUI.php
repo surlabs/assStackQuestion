@@ -119,9 +119,18 @@ class PluginConfigurationMainUI
                 }
             ));
 
+        $correct_solution_in_validation = self::$factory->input()->field()->checkbox($plugin_object->txt("ui_admin_configuration_correct_solution_in_validation"), $plugin_object->txt("ui_admin_configuration_correct_solution_in_validation_info"))
+            ->withValue($data["correct_solution_in_validation"] == "1")
+            ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                function ($v) {
+                    StackConfig::set('correct_solution_in_validation', $v, "display");
+                }
+            ));
+
         return self::$factory->input()->field()->section(
             [
                 'instant_validation' => $validation_options,
+                'correct_solution_in_validation' => $correct_solution_in_validation
             ],
             $plugin_object->txt("ui_admin_configuration_defaults_display_title"),
             $plugin_object->txt("ui_admin_configuration_defaults_display_description")

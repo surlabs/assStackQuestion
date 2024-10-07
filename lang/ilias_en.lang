@@ -19,6 +19,8 @@ ui_admin_configuration_defaults_user_validation_title#:#User validation
 ui_admin_configuration_defaults_user_validation_description#:#This option activates manual validation for all questions.
 ui_admin_configuration_defaults_instant_validation_title#:#Instant validation
 ui_admin_configuration_defaults_instant_validation_description#:#This option activates instant validation for all questions.
+ui_admin_configuration_correct_solution_in_validation#:#Display best solution in validation
+ui_admin_configuration_correct_solution_in_validation_info#:#This option enables the display of the best solution in the validation of each entry instead of at the bottom of the question.
 ui_admin_configuration_connection_maxima_connection_common_title#:#Common Maxima connection settings
 ui_admin_configuration_connection_maxima_connection_common_description#:#These are the common Maxima connection settings.
 ui_admin_configuration_connection_maxima_connection_local_title#:#Local Maxima (Linux)
