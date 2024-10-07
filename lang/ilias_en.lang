@@ -179,6 +179,7 @@ ui_author_randomisation_delete_deployed_variant_action_text#:#Delete deployed va
 ui_author_randomisation_show_question_text_action_text#:#Show question text
 ui_author_randomisation_show_general_feedback_action_text#:#Show general feedback
 ui_author_randomisation_question_variables_text#:#Question variables
+ui_author_randomisation_feedback_variables_text#:#Feedback variables
 ui_author_randomisation_generate_new_variants_action_text#:#Generate 10 new variants
 ui_author_randomisation_change_to_random_seed_action_text#:#Change to random seed
 ui_author_randomisation_run_all_tests_for_active_variant_action_text#:#Run all testcases for active variant
