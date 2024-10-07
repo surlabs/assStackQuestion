@@ -59,6 +59,8 @@ class StackRandomisationIlias
                 'question_variables' => $question_variables,
                 'feedback_variables' => $feedback_variables
             );
+
+            dump($feedback_variables, $question->getFeedbackSessionKeyvalRepresentation()); exit();
         }
 
         return $valid_seeds;

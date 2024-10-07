@@ -300,16 +300,14 @@ class RandomisationAndSecurityUI
                 $this->renderer->render($this->factory->divider()->vertical()) .
                 $this->renderer->render([$button_general_feedback, $modal_general_feedback])
             )
-        )
-            ->withCard($this->factory->card()->standard(
-                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_question_variables_text")
-            )
-                ->withSections(array(
-                    $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithoutLatex($active_variant_question_variables)),
-                    $this->factory->divider()->horizontal(),
-                    $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithoutLatex($active_variant_feedback_variables))
-                )))
-            ->withActions($current_active_variant_panel_actions);
+        )->withCard($this->factory->card()->standard(
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_question_variables_text")
+        )->withSections(array(
+            $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithoutLatex($active_variant_question_variables)),
+            $this->factory->divider()->horizontal(),
+            $this->factory->legacy("<span class='card-title'>" . $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_feedback_variables_text") . "</span>"),
+            $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithoutLatex($active_variant_feedback_variables))
+        )))->withActions($current_active_variant_panel_actions);
     }
 
     /**
