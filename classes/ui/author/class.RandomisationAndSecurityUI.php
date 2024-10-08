@@ -333,7 +333,7 @@ class RandomisationAndSecurityUI
             );
             $this->control->setParameterByClass(
                 'assStackQuestionGUI',
-                'active_variant',
+                'active_variant_identifier',
                 $this->data["active_variant_identifier"] ?? '1'
             );
 
