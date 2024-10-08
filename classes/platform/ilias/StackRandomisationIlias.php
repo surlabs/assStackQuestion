@@ -33,7 +33,7 @@ class StackRandomisationIlias
     /**
      * @throws stack_exception
      */
-    public static function getRandomisationData(assStackQuestion $question, ?int $force_active_seed): array
+    public static function getRandomisationData(assStackQuestion $question, ?int $force_active_seed = null): array
     {
         $valid_seeds = array();
         $number_of_valid_seeds = 0;
