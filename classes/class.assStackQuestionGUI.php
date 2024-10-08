@@ -2019,24 +2019,21 @@ class assStackQuestionGUI extends assQuestionGUI
                 )));
         }
 
-        $unit_test_results = array();
+        $content = "";
 
         foreach ($this->object->deployed_seeds as $seed) {
             $result = $testcase->run($this->object->getId(), (int)$seed);
-            $unit_test_results[] = array(
-                'seed' => $seed,
-                'result' => $result->passed()
-            );
-        }
 
-        $content = "";
+            $unit_test["results"][] = $testcase->resultToArray((int)$seed, $result);
 
-        foreach ($unit_test_results as $result) {
-            if ($result['result'] === '1') {
-                $content .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->messageBox()->success(sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_passed_for_seed'), $_GET["test_case"], $result['seed'])));
-            } else {
-                $content .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->messageBox()->failure(sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed_empty_for_seed'), $_GET["test_case"], $result['seed'])));
-            }
+            $ui = new RandomisationAndSecurityUI(array(
+                'unit_tests' => array(
+                    'ids' => array($_GET["test_case"]),
+                    'test_cases' => array($_GET["test_case"] => $unit_test)
+                )
+            ));
+
+            $content .= $ui->getTestOverviewPanel();
         }
 
         $tpl->setContent($content);
