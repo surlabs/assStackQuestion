@@ -5,9 +5,7 @@
 2. In plugin configuration, go to display settings.
 3. Activate JSXGraph rendering.
 
-> **Note** JSXGraph rendering is by default **deactivated** in STACK for ILIAS. By activating this option on plugin configuration / display options, you will allow STACK question authors to include JavaScript code blocks within the STACK questions. Please note that this code will be executed during the execution of the questions.
-
-> **Caution** Allowing User's JavaScript code execution may pose a potential security risk.
+> **Note** JSXGraph rendering is by default **activated** in STACK for ILIAS.
 
 ## What is JSXGraph?
 JSXGraph is a cross-browser JavaScript library for interactive geometry, function plotting, charting, and data visualization in the web browser.
