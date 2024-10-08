@@ -1821,9 +1821,9 @@ class assStackQuestionGUI extends assQuestionGUI
 
     /**
      * @throws stack_exception
-     * @throws StackException
+     * @throws StackException|ilCtrlException
      */
-    public function runAllTestsForActiveVariant()
+    public function runAllTestsForActiveVariant(): void
     {
         global $DIC;
         $tabs = $DIC->tabs();
@@ -1835,7 +1835,6 @@ class assStackQuestionGUI extends assQuestionGUI
         $renderer = $DIC->ui()->renderer();
 
         $unit_tests = $this->object->getUnitTests();
-        $unit_test_results = array();
 
         foreach ($unit_tests["test_cases"] as $test_case => $unit_test) {
             $inputs = array();
@@ -1852,20 +1851,14 @@ class assStackQuestionGUI extends assQuestionGUI
 
             $result = $testcase->run($this->object->getId(), (int) $_GET["active_variant_identifier"]);
 
-            $unit_test_results[$test_case] = $result->passed();
+            $unit_tests['test_cases'][$test_case]['results'][] = $testcase->resultToArray((int) $_GET["active_variant_identifier"], $result);
         }
 
-        $content = "";
+        $ui = new RandomisationAndSecurityUI(array(
+            'unit_tests' => $unit_tests
+        ));
 
-        foreach ($unit_test_results as $test_case => $result) {
-            if ($result === '1') {
-                $content .= $renderer->render($factory->messageBox()->success(sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_passed_for_seed'), $test_case, $_GET["active_variant_identifier"])));
-            } elseif ($result === '0') {
-                $content .= $renderer->render($factory->messageBox()->failure(sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed_empty_for_seed'), $test_case, $_GET["active_variant_identifier"])));
-            } else {
-                $content .= $renderer->render($factory->messageBox()->failure(sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed_for_seed'), $test_case, $result, $_GET["active_variant_identifier"])));
-            }
-        }
+        $content = $ui->getTestOverviewPanel();
 
         $content .= $renderer->render($factory->button()->standard($DIC->language()->txt("back"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
 
@@ -1874,9 +1867,9 @@ class assStackQuestionGUI extends assQuestionGUI
 
     /**
      * @throws stack_exception
-     * @throws StackException
+     * @throws StackException|ilCtrlException
      */
-    public function runAllTestsForAllVariants()
+    public function runAllTestsForAllVariants(): void
     {
         global $DIC;
         $tabs = $DIC->tabs();
@@ -1888,7 +1881,9 @@ class assStackQuestionGUI extends assQuestionGUI
         $renderer = $DIC->ui()->renderer();
 
         $unit_tests = $this->object->getUnitTests();
-        $unit_test_results = array();
+        $unit_tests_to_show = array();
+
+        $content = "";
 
         foreach ($this->object->deployed_seeds as $seed) {
             foreach ($unit_tests["test_cases"] as $test_case => $unit_test) {
@@ -1906,25 +1901,16 @@ class assStackQuestionGUI extends assQuestionGUI
 
                 $result = $testcase->run($this->object->getId(), (int) $seed);
 
-                $unit_test_results[] = array(
-                    'test_case' => $test_case,
-                    'seed' => $seed,
-                    'result' => $result->passed()
-                );
+                $unit_tests['test_cases'][$test_case]['results'][] = $testcase->resultToArray((int) $seed, $result);
             }
+
+            $ui = new RandomisationAndSecurityUI(array(
+                'unit_tests' => $unit_tests,
+            ));
+
+            $content .= $ui->getTestOverviewPanel();
         }
 
-        $content = "";
-
-        foreach ($unit_test_results as $result) {
-            if ($result['result'] === '1') {
-                $content .= $renderer->render($factory->messageBox()->success(sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_passed_for_seed'), $result['test_case'], $result['seed'])));
-            } elseif ($result['result'] === '0') {
-                $content .= $renderer->render($factory->messageBox()->failure(sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed_empty_for_seed'), $result['test_case'], $result['seed'])));
-            } else {
-                $content .= $renderer->render($factory->messageBox()->failure(sprintf($DIC->language()->txt('qpl_qst_xqcas_ui_author_randomisation_unit_test_case_failed_for_seed'), $result['test_case'], $result['result'], $result['seed'])));
-            }
-        }
 
         $content .= $renderer->render($factory->button()->standard($DIC->language()->txt("back"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
 
