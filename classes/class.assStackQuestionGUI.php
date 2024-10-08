@@ -1542,8 +1542,6 @@ class assStackQuestionGUI extends assQuestionGUI
 	public function deleteDeployedSeed(): void
 	{
 		global $DIC;
-        $factory = $DIC->ui()->factory();
-        $renderer = $DIC->ui()->renderer();
 
         $tabs = $DIC->tabs();
 		//Set all parameters required
@@ -1551,7 +1549,6 @@ class assStackQuestionGUI extends assQuestionGUI
 		$tabs->activateSubTab('randomisation_and_security');
 
 		//New seed creation
-        $active_variant = (int) $_GET['active_variant'];
 		$seed = (int) $_GET['variant_identifier'];
 		$question_id = (int) $_GET['q_id'];
 
@@ -1960,7 +1957,7 @@ class assStackQuestionGUI extends assQuestionGUI
                 )));
         }
 
-        $result = $testcase->run($this->object->getId(), (int)$_GET["variant_identifier"]);
+        $result = $testcase->run($this->object->getId(), (int)$_GET["active_variant_identifier"]);
 
         $message = $testcase->testCase . ': ';
         if ($result->passed() === '1') {
