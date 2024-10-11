@@ -198,6 +198,8 @@ class StackRenderIlias extends StackRender
             throw new StackException('Invalid question type.');
         }
 
+        $show_correct_solution = $display_options['show_correct_solution'] ?? false;
+
         $instant_validation = StackConfig::getAll()["instant_validation"];
 
         // We need to provide a processor for the CASText2 post-processing,
@@ -254,7 +256,7 @@ class StackRenderIlias extends StackRender
                     !is_a($input, 'stack_checkbox_input') &&
                     !is_a($input, 'stack_boolean_input')
                 ) {
-                    if (!$instant_validation && (!isset($display_options['show_correct_solution']) || !$display_options['show_correct_solution'])) {
+                    if (!$instant_validation && !$show_correct_solution) {
                         $validation_button = self::_renderValidationButton((int)$question->getId(), $input_name);
                     }
                     $validation_rendered = $response[$input_name . '_validation'] ?? '';
@@ -265,13 +267,13 @@ class StackRenderIlias extends StackRender
             $state = $question->getInputState($input_name, $response);
 
             $question_text = str_replace("[[input:$input_name]]",
-                $input->render($state, $field_name, $display_options['show_correct_solution'] ?? false, $teacher_answer_value)." ".$validation_button,
+                $input->render($state, $field_name, $show_correct_solution, $teacher_answer_value)." ".$validation_button,
                 $question_text);
 
             $ilias_validation = "";
 
             //Validation Placeholders
-            if (!isset($display_options['show_correct_solution']) || !$display_options['show_correct_solution']) {
+            if (!$show_correct_solution) {
                 if (is_a($input, 'stack_matrix_input')) {
                     $ilias_validation = '<div class="xqcas_input_validation">
                         <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">' . $validation_rendered. '</div>
@@ -304,7 +306,7 @@ class StackRenderIlias extends StackRender
             }
             $prt = $question->prts[$prt_name];
             $feedback = '';
-            if (!isset($display_options['show_correct_solution']) || $display_options['show_correct_solution'] == false) {
+            if (!$show_correct_solution || ($_GET["cmd"] == "post" && $_GET["fallbackCmd"] == "print")) {
                 if ($display_options['feedback'] && !empty($response)) {
                     $attempt_data['prt_name'] = $prt->get_name();
                     $feedback = self::renderPRTFeedback($attempt_data, $display_options);
