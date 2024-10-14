@@ -50,7 +50,11 @@ class StackRandomisationIlias
             $question_note_instantiated = $question->question_note_instantiated;
             $feedback_variables = '';
             foreach ($question->prts as $prt) {
-                $feedback_variables .= $prt->get_feedbackvariables_keyvals();
+                $vars = $prt->get_feedbackvariables_keyvals();
+
+                if (!empty($vars)) {
+                    $feedback_variables .= "<h3><u><i>Prt: " . $prt->get_name() . "</i></u></h3>" . $vars . "<br>";
+                }
             }
             $valid_seeds[$id] = array('seed' => $deployed_seed,
                 'note' => $question_note_instantiated,
