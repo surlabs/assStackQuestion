@@ -270,6 +270,8 @@ class StackRenderIlias extends StackRender
                 $input->render($state, $field_name, $show_correct_solution, $teacher_answer_value)." ".$validation_button,
                 $question_text);
 
+            $ilias_validation = "";
+
             //Validation Placeholders
             if (!$show_correct_solution) {
                 if (is_a($input, 'stack_matrix_input')) {
@@ -284,9 +286,9 @@ class StackRenderIlias extends StackRender
                     </div>';
                 }
             } else {
-                $ilias_validation = '<div class="xqcas_input_validation">
-                    <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">' . $validation_rendered. '</div>
-                </div>';
+                if (StackConfig::get("correct_solution_in_validation") == "1") {
+                    $ilias_validation = "<div style='padding: 10px; margin-bottom: 5px'>{$question->formatCorrectResponseForInput($input_name)}</div>";
+                }
             }
 
             $question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
@@ -442,7 +444,9 @@ class StackRenderIlias extends StackRender
 
         $general_feedback_text = stack_maths::process_display_castext($general_feedback_text);
 
-        $general_feedback_text .= $question->formatCorrectResponse();
+        if (!StackConfig::get("correct_solution_in_validation") == "1") {
+            $general_feedback_text .= $question->formatCorrectResponse();
+        }
 
         // Ensure that the MathJax library is loaded.
         self::ensureMathJaxLoaded();

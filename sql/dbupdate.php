@@ -1160,3 +1160,16 @@ $db = $DIC->database();
 
 $db->manipulate("DELETE FROM xqcas_configuration WHERE parameter_name = 'allow_jsx_graph'");
 ?>
+<#55>
+<?php
+global $DIC;
+$db = $DIC->database();
+
+$query = 'SELECT * FROM xqcas_configuration WHERE parameter_name = "correct_solution_in_validation"';
+
+$result = $db->query($query);
+
+if (!$db->fetchAssoc($result)) {
+    $db->insert("xqcas_configuration", array('parameter_name' => array('text', "correct_solution_in_validation"), 'value' => array('clob', 0), 'group_name' => array('text', 'display')));
+}
+?>
