@@ -36,7 +36,6 @@ class StackRandomisationIlias
     public static function getRandomisationData(assStackQuestion $question, ?int $force_active_seed = null): array
     {
         $valid_seeds = array();
-        $number_of_valid_seeds = 0;
 
         $variants = assStackQuestionDB::_readDeployedVariants($question->getId());
 
