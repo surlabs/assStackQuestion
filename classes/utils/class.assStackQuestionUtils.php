@@ -1509,7 +1509,7 @@ class assStackQuestionUtils
 
     public static function parseToHTMLWithoutLatex($input): string
     {
-        $components = explode(";", $input);
+        $components = explode(";\n", $input);
 
         $htmlOutput = "<div>";
 
