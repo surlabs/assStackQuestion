@@ -19,6 +19,8 @@ declare(strict_types=1);
  *
  */
 
+use classes\platform\StackConfig;
+
 /**
  * STACK Question IMPORT OF QUESTIONS from an ILIAS file
  *
@@ -122,7 +124,7 @@ class assStackQuestionImport extends assQuestionImport
             $options = array();
             $options['simplify'] = ((int)$options_obj->getQuestionSimplify());
             $options['assumepos'] = ((int)$options_obj->getAssumePositive());
-            $options['assumereal'] = ((int)1);
+            $options['assumereal'] = ((int) StackConfig::get("options_assume_real"));
             $options['multiplicationsign'] = ilUtil::secureString((string)$options_obj->getMultiplicationSign());
             $options['sqrtsign'] = ((int)$options_obj->getSqrtSign());
             $options['complexno'] = ilUtil::secureString((string)$options_obj->getComplexNumbers());

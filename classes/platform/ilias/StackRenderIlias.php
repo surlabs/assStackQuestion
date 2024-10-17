@@ -50,6 +50,7 @@ class StackRenderIlias extends StackRender
         global $DIC;
         $factory = $DIC->ui()->factory();
         $renderer = $DIC->ui()->renderer();
+        $language = $DIC->language();
 
         $prt_name = $attempt_data['prt_name'];
 
@@ -83,7 +84,7 @@ class StackRenderIlias extends StackRender
 
         if (!$result->is_evaluated()) {
             if ($question->isAnyInputBlank($response)) {
-                return $renderer->render($factory->messageBox()->failure(stack_string('pleaseananswerallparts')));
+                return $renderer->render($factory->messageBox()->failure($language->txt('qpl_qst_xqcas_error_inputs_missing')));
             }
         }
 
