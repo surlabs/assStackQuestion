@@ -166,7 +166,7 @@ class assStackQuestionGUI extends assQuestionGUI
 
         $display_options = [];
         $display_options['readonly'] = false;
-        $display_options['feedback'] = true;
+        $display_options['feedback'] = false;
         $display_options['feedback_style'] = 1;
 
         //Render question
