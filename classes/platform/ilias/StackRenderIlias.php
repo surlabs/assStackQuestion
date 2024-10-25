@@ -16,6 +16,7 @@ use stack_maths;
 use stack_utils;
 use castext2_default_processor;
 use stdClass;
+use Expand;
 
 /**
  * This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
@@ -513,6 +514,8 @@ class StackRenderIlias extends StackRender
 
             $panel = $factory->panel()->standard($language->txt("qpl_qst_xqcas_debug_info_message"), $factory->legacy(
                 $randomisation
+            ))->withViewControls(array(
+                new Expand(),
             ));
 
             return $renderer->render($panel);
