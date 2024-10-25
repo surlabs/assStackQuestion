@@ -94,5 +94,9 @@ function checkUserResponse($question_id, $input_name, $user_response)
         return $e->getMessage();
     }
 
-    return stack_maxima_latex_tidy($question->inputs[$input_name]->render_validation($status, $input_name));
+    if (isset($question->inputs[$input_name])) {
+        return stack_maxima_latex_tidy($question->inputs[$input_name]->render_validation($status, $input_name));
+    } else {
+        return '';
+    }
 }
