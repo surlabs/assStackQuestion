@@ -1509,6 +1509,10 @@ class assStackQuestionUtils
 
     public static function parseToHTMLWithoutLatex($input): string
     {
+        if (strpos($input, "\r\n") !== false) {
+            return str_replace("\r\n", "<br>", $input);
+        }
+
         $components = explode(";\n", $input);
 
         $htmlOutput = "<div>";
