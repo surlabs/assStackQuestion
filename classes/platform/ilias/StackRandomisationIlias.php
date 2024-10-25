@@ -57,7 +57,7 @@ class StackRandomisationIlias
                 $vars = $prt->get_feedbackvariables_keyvals();
 
                 if (!empty($vars)) {
-                    $feedback_variables .= "<h3><u><i>Prt: " . $prt->get_name() . "</i></u></h3>" . $vars . "<br>";
+                    $feedback_variables .= "<h3><u><i>Prt: " . $prt->get_name() . "</i></u></h3>" . htmlspecialchars($vars) . "<br>";
                 }
             }
 
