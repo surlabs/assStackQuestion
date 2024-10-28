@@ -7,6 +7,7 @@ namespace classes\platform\ilias;
 use assStackQuestion;
 use assStackQuestionDB;
 use maxima_parser_utils;
+use stack_exception;
 
 /**
  * This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
@@ -29,10 +30,12 @@ use maxima_parser_utils;
 class StackRandomisationIlias
 {
 
-    public static function getRandomisationData(assStackQuestion $question, ?int $force_active_seed): array
+    /**
+     * @throws stack_exception
+     */
+    public static function getRandomisationData(assStackQuestion $question, ?int $force_active_seed = null): array
     {
         $valid_seeds = array();
-        $number_of_valid_seeds = 0;
 
         $variants = assStackQuestionDB::_readDeployedVariants($question->getId());
 
@@ -49,9 +52,15 @@ class StackRandomisationIlias
             $question_text_instantiated = $question->question_text_instantiated;
             $question_note_instantiated = $question->question_note_instantiated;
             $feedback_variables = '';
+
             foreach ($question->prts as $prt) {
-                $feedback_variables .= $prt->get_feedbackvariables_keyvals();
+                $vars = $prt->get_feedbackvariables_keyvals();
+
+                if (!empty($vars)) {
+                    $feedback_variables .= "<h3><u><i>Prt: " . $prt->get_name() . "</i></u></h3>" . htmlspecialchars($vars) . "<br>";
+                }
             }
+
             $valid_seeds[$id] = array('seed' => $deployed_seed,
                 'note' => $question_note_instantiated,
                 'question_id' => $question->getId(),
@@ -63,6 +72,4 @@ class StackRandomisationIlias
 
         return $valid_seeds;
     }
-
-
 }

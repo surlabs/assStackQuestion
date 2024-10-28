@@ -328,7 +328,7 @@ class assStackQuestionMoodleImport
         foreach ($question->prt as $prt_data) {
             $totalvalue += $prt_data->value;
 
-            if ($prt_data->value > 0) {
+            if ((float) $prt_data->value > 0) {
                 $allformative = false;
             }
         }

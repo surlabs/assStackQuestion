@@ -1814,6 +1814,17 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return stack_ouput_castext($feedback);
     }
 
+    public function formatCorrectResponseForInput(string $input_name): string
+    {
+        $feedback = '';
+
+        $input = $this->inputs[$input_name];
+
+        $feedback .= html_writer::tag('p', $input->get_teacher_answer_display($this->tas[$input_name]->get_dispvalue(), $this->tas[$input_name]->get_latex()));
+
+        return stack_ouput_castext($feedback);
+    }
+
     /**
      * Used in testing
      * @return array

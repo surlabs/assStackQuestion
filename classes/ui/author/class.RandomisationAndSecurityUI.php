@@ -300,16 +300,14 @@ class RandomisationAndSecurityUI
                 $this->renderer->render($this->factory->divider()->vertical()) .
                 $this->renderer->render([$button_general_feedback, $modal_general_feedback])
             )
-        )
-            ->withCard($this->factory->card()->standard(
-                $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_question_variables_text")
-            )
-                ->withSections(array(
-                    $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithoutLatex($active_variant_question_variables)),
-                    $this->factory->divider()->horizontal(),
-                    $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithoutLatex($active_variant_feedback_variables))
-                )))
-            ->withActions($current_active_variant_panel_actions);
+        )->withCard($this->factory->card()->standard(
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_question_variables_text")
+        )->withSections(array(
+            $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithoutLatex($active_variant_question_variables)),
+            $this->factory->divider()->horizontal(),
+            $this->factory->legacy("<span class='card-title'>" . $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_feedback_variables_text") . "</span>"),
+            $this->factory->legacy(assStackQuestionUtils::parseToHTMLWithoutLatex($active_variant_feedback_variables))
+        )))->withActions($current_active_variant_panel_actions);
     }
 
     /**
@@ -335,7 +333,7 @@ class RandomisationAndSecurityUI
             );
             $this->control->setParameterByClass(
                 'assStackQuestionGUI',
-                'active_variant',
+                'active_variant_identifier',
                 $this->data["active_variant_identifier"] ?? '1'
             );
 
@@ -370,7 +368,29 @@ class RandomisationAndSecurityUI
         return $array_of_deployed_variants;
     }
 
-        public function getUnitTestStatusPanelUIComponent(&$count_passed, &$status_text): Listing
+    public function getTestOverviewPanel(): string
+    {
+        $panel = $this->getUnitTestStatusPanelUIComponent($count_passed, $status_text);
+        $total_unit_tests = !empty($this->data["unit_tests"]) ? count($this->data["unit_tests"]["test_cases"]) : 0;;
+
+        if ($total_unit_tests < $count_passed) {
+            $total_unit_tests = $count_passed;
+        }
+
+        $test_overview_panel = $this->factory->panel()->standard(
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status_panel_title") .
+            $this->renderer->render($this->factory->divider()->vertical()) .
+            $total_unit_tests .
+            $this->renderer->render($this->factory->divider()->vertical()) .
+            '(' . $count_passed . '/' . $total_unit_tests . ') ' .
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed"),
+            $panel
+        );
+
+        return $this->renderer->render($test_overview_panel);
+    }
+
+    public function getUnitTestStatusPanelUIComponent(&$count_passed, &$status_text): Listing
     {
         $count_passed = 0;
 
