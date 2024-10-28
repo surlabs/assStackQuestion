@@ -336,7 +336,7 @@ class RandomisationAndSecurityUI
             );
             $this->control->setParameterByClass(
                 'assStackQuestionGUI',
-                'active_variant',
+                'active_variant_identifier',
                 $this->data["active_variant_identifier"] ?? '1'
             );
 
@@ -372,6 +372,28 @@ class RandomisationAndSecurityUI
 
         //Return the UI component
         return $array_of_deployed_variants;
+    }
+
+    public function getTestOverviewPanel(): string
+    {
+        $panel = $this->getUnitTestStatusPanelUIComponent($count_passed, $status_text);
+        $total_unit_tests = !empty($this->data["unit_tests"]) ? count($this->data["unit_tests"]["test_cases"]) : 0;;
+
+        if ($total_unit_tests < $count_passed) {
+            $total_unit_tests = $count_passed;
+        }
+
+        $test_overview_panel = $this->factory->panel()->standard(
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_status_panel_title") .
+            $this->renderer->render($this->factory->divider()->vertical()) .
+            $total_unit_tests .
+            $this->renderer->render($this->factory->divider()->vertical()) .
+            '(' . $count_passed . '/' . $total_unit_tests . ') ' .
+            $this->language->txt("qpl_qst_xqcas_ui_author_randomisation_unit_test_passed"),
+            $panel
+        );
+
+        return $this->renderer->render($test_overview_panel);
     }
 
     public function getUnitTestStatusPanelUIComponent(&$count_passed, &$status_text): Listing

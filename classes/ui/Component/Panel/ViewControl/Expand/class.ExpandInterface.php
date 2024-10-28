@@ -1,6 +1,8 @@
 <?php
+declare(strict_types=1);
+
 /**
- *  This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
+ * This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
  *  This plugin is developed and maintained by SURLABS and is a port of STACK Question for Moodle,
  *  originally created by Chris Sangwin.
  *
@@ -18,15 +20,12 @@
  *
  */
 
-$id = "xqcas";
- 
-$version = "9.0.3";
+use ILIAS\UI\Component\Component;
 
-$ilias_min_version = "9.00";
-$ilias_max_version = "9.999";
- 
-$responsible = "Jesús Copado Mejías";
-$responsible_mail = "jcopado@surlabs.es";
+/**
+ * Interface ExpandInterface
+ */
+interface ExpandInterface extends Component
+{
 
-$supports_export = true;
-$supports_cli_setup = true;
+}
