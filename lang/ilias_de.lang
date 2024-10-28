@@ -19,6 +19,8 @@ ui_admin_configuration_defaults_user_validation_title#:#Benutzervalidierung
 ui_admin_configuration_defaults_user_validation_description#:#Diese Option aktiviert manuelle Validierung für alle Fragen.
 ui_admin_configuration_defaults_instant_validation_title#:#Sofortige Validierung
 ui_admin_configuration_defaults_instant_validation_description#:#Diese Option aktiviert sofortige Validierung für alle Fragen.
+ui_admin_configuration_correct_solution_in_validation#:#Display best solution in validation
+ui_admin_configuration_correct_solution_in_validation_info#:#Diese Option aktiviert die Anzeige der besten Lösung in der Validierung jedes Eintrags anstatt am Ende der Frage.
 ui_admin_configuration_connection_maxima_connection_common_title#:#Allgemeine Maxima-Verbindungseinstellungen
 ui_admin_configuration_connection_maxima_connection_common_description#:#Dies sind die allgemeinen Maxima-Verbindungseinstellungen.
 ui_admin_configuration_connection_maxima_connection_local_title#:#Lokales Maxima (Linux)
@@ -691,3 +693,4 @@ hint_mode#:#Hinweis-Modus
 debug_info_message#:#Debug-Informationen (wird in Tests nicht angezeigt)
 debug_info_question_variables#:#Fragevariablen
 debug_info_feedback_variables#:#Feedback-Variablen
+error_inputs_missing#:#Es fehlen noch einige Einträge

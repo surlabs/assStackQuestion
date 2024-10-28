@@ -243,11 +243,17 @@ class StackUnitTest {
      * @param assStackQuestion $question the question being tested.
      * @param StackUnitTestResult $result the test result.
      */
-    protected function saveResult(assStackQuestion $question, StackUnitTestResult $result) {
+    protected function saveResult(assStackQuestion $question, StackUnitTestResult $result): void
+    {
+        assStackQuestionDB::_saveQtestResult($question->getId(), $this->resultToArray($question->seed, $result));
+    }
+
+    public function resultToArray(int $seed, StackUnitTestResult $result): array
+    {
         $raw_result = array();
 
         $raw_result['test_case'] = $this->testCase;
-        $raw_result['seed'] = $question->seed;
+        $raw_result['seed'] = $seed;
         $raw_result['result'] = array();
 
         if($result->passed() === '1') {
@@ -288,7 +294,7 @@ class StackUnitTest {
 
         $raw_result['timerun'] = time();
 
-        assStackQuestionDB::_saveQtestResult($question->getId(), $raw_result);
+        return $raw_result;
     }
 
 

@@ -19,6 +19,8 @@ ui_admin_configuration_defaults_user_validation_title#:#User validation
 ui_admin_configuration_defaults_user_validation_description#:#This option activates manual validation for all questions.
 ui_admin_configuration_defaults_instant_validation_title#:#Instant validation
 ui_admin_configuration_defaults_instant_validation_description#:#This option activates instant validation for all questions.
+ui_admin_configuration_correct_solution_in_validation#:#Display best solution in validation
+ui_admin_configuration_correct_solution_in_validation_info#:#This option enables the display of the best solution in the validation of each entry instead of at the bottom of the question.
 ui_admin_configuration_connection_maxima_connection_common_title#:#Common Maxima connection settings
 ui_admin_configuration_connection_maxima_connection_common_description#:#These are the common Maxima connection settings.
 ui_admin_configuration_connection_maxima_connection_local_title#:#Local Maxima (Linux)
@@ -179,6 +181,7 @@ ui_author_randomisation_delete_deployed_variant_action_text#:#Delete deployed va
 ui_author_randomisation_show_question_text_action_text#:#Show question text
 ui_author_randomisation_show_general_feedback_action_text#:#Show general feedback
 ui_author_randomisation_question_variables_text#:#Question variables
+ui_author_randomisation_feedback_variables_text#:#Feedback variables
 ui_author_randomisation_generate_new_variants_action_text#:#Generate 10 new variants
 ui_author_randomisation_change_to_random_seed_action_text#:#Change to random seed
 ui_author_randomisation_run_all_tests_for_active_variant_action_text#:#Run all testcases for active variant
@@ -680,3 +683,4 @@ hint_mode#:#Hint mode
 debug_info_message#:#Debug information (not shown to the students in Tests)
 debug_info_question_variables#:#Question variables
 debug_info_feedback_variables#:#Feedback variables
+error_inputs_missing#:#Some entries are still missing

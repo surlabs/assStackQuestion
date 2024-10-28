@@ -16,6 +16,7 @@ use stack_maths;
 use stack_utils;
 use castext2_default_processor;
 use stdClass;
+use Expand;
 
 /**
  * This file is part of the STACK Question plugin for ILIAS, an advanced STEM assessment tool.
@@ -50,6 +51,7 @@ class StackRenderIlias extends StackRender
         global $DIC;
         $factory = $DIC->ui()->factory();
         $renderer = $DIC->ui()->renderer();
+        $language = $DIC->language();
 
         $prt_name = $attempt_data['prt_name'];
 
@@ -83,7 +85,7 @@ class StackRenderIlias extends StackRender
 
         if (!$result->is_evaluated()) {
             if ($question->isAnyInputBlank($response)) {
-                return $renderer->render($factory->messageBox()->failure(stack_string('pleaseananswerallparts')));
+                return $renderer->render($factory->messageBox()->failure($language->txt('qpl_qst_xqcas_error_inputs_missing')));
             }
         }
 
@@ -198,6 +200,8 @@ class StackRenderIlias extends StackRender
             throw new StackException('Invalid question type.');
         }
 
+        $show_correct_solution = $display_options['show_correct_solution'] ?? false;
+
         $instant_validation = StackConfig::getAll()["instant_validation"];
 
         // We need to provide a processor for the CASText2 post-processing,
@@ -233,7 +237,7 @@ class StackRenderIlias extends StackRender
             $formatted_feedback_placeholders !== $original_feedback_placeholders) {
             throw new StackException('Inconsistent placeholders. Possibly due to multi-lang filtter not being active.');
         }
-
+//
         foreach ($formatted_input_placeholders as $input_name) {
 
             if (isset($question->inputs[$input_name])) {
@@ -254,7 +258,7 @@ class StackRenderIlias extends StackRender
                     !is_a($input, 'stack_checkbox_input') &&
                     !is_a($input, 'stack_boolean_input')
                 ) {
-                    if (!$instant_validation) {
+                    if (!$instant_validation && !$show_correct_solution) {
                         $validation_button = self::_renderValidationButton((int)$question->getId(), $input_name);
                     }
                     $validation_rendered = $response[$input_name . '_validation'] ?? '';
@@ -265,20 +269,28 @@ class StackRenderIlias extends StackRender
             $state = $question->getInputState($input_name, $response);
 
             $question_text = str_replace("[[input:$input_name]]",
-                $input->render($state, $field_name, $display_options['show_correct_solution'] ?? false, $teacher_answer_value)." ".$validation_button,
+                $input->render($state, $field_name, $show_correct_solution, $teacher_answer_value)." ".$validation_button,
                 $question_text);
 
+            $ilias_validation = "";
+
             //Validation Placeholders
-            if (is_a($input, 'stack_matrix_input')) {
-                $ilias_validation = '<div class="xqcas_input_validation">
-                    <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">' . $validation_rendered. '</div>
-                </div>'.
-                    '<div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input->getWidth() . '</div>
-                <div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden">' . $input->getHeight() . '</div>';
+            if (!$show_correct_solution) {
+                if (is_a($input, 'stack_matrix_input')) {
+                    $ilias_validation = '<div class="xqcas_input_validation">
+                        <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">' . $validation_rendered. '</div>
+                    </div>'.
+                        '<div id="xqcas_input_matrix_width_' . $input_name . '" style="visibility: hidden">' . $input->getWidth() . '</div>
+                    <div id="xqcas_input_matrix_height_' . $input_name . '" style="visibility: hidden">' . $input->getHeight() . '</div>';
+                } else {
+                    $ilias_validation = '<div class="xqcas_input_validation">
+                        <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">' . $validation_rendered. '</div>
+                    </div>';
+                }
             } else {
-                $ilias_validation = '<div class="xqcas_input_validation">
-                    <div id="validation_xqcas_' . $question->getId() . '_' . $input_name . '">' . $validation_rendered. '</div>
-                </div>';
+                if (StackConfig::get("correct_solution_in_validation") == "1") {
+                    $ilias_validation = "<div style='padding: 10px; margin-bottom: 5px'>{$question->formatCorrectResponseForInput($input_name)}</div>";
+                }
             }
 
             $question_text = $input->replace_validation_tags($state, $field_name, $question_text, $ilias_validation);
@@ -296,7 +308,7 @@ class StackRenderIlias extends StackRender
             }
             $prt = $question->prts[$prt_name];
             $feedback = '';
-            if (!isset($display_options['show_correct_solution']) || $display_options['show_correct_solution'] == false) {
+            if (!$show_correct_solution || ($_GET["cmd"] == "post" && $_GET["fallbackCmd"] == "print")) {
                 if ($display_options['feedback'] && !empty($response)) {
                     $attempt_data['prt_name'] = $prt->get_name();
                     $feedback = self::renderPRTFeedback($attempt_data, $display_options);
@@ -434,7 +446,9 @@ class StackRenderIlias extends StackRender
 
         $general_feedback_text = stack_maths::process_display_castext($general_feedback_text);
 
-        $general_feedback_text .= $question->formatCorrectResponse();
+        if (!StackConfig::get("correct_solution_in_validation") == "1") {
+            $general_feedback_text .= $question->formatCorrectResponse();
+        }
 
         // Ensure that the MathJax library is loaded.
         self::ensureMathJaxLoaded();
@@ -500,6 +514,8 @@ class StackRenderIlias extends StackRender
 
             $panel = $factory->panel()->standard($language->txt("qpl_qst_xqcas_debug_info_message"), $factory->legacy(
                 $randomisation
+            ))->withViewControls(array(
+                new Expand(),
             ));
 
             return $renderer->render($panel);
