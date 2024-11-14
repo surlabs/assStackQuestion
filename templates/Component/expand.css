@@ -10,5 +10,8 @@
 
 .viewcontrol-expand:hover {
     background-color: #d3d9e0;
+}
+
+.panel .panel-heading.ilHeader:has(.viewcontrol-expand):hover {
     cursor: pointer;
 }
