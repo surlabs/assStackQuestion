@@ -289,7 +289,7 @@ class StackRenderIlias extends StackRender
                 }
             } else {
                 if (StackConfig::get("correct_solution_in_validation") == "1") {
-                    $ilias_validation = "<div style='padding: 10px; margin-bottom: 5px'>{$question->formatCorrectResponseForInput($input_name)}</div>";
+                    $ilias_validation = "<div style='padding: 20px; margin-bottom: 5px'>{$question->getTeacherAnswerDisplay($input_name)}</div>";
                 }
             }
 

@@ -1845,6 +1845,11 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return stack_ouput_castext($feedback);
     }
 
+    public function getTeacherAnswerDisplay(string $input_name): string
+    {
+        return stack_ouput_castext('\( '. $this->tas[$input_name]->get_latex() .' \)');
+    }
+
     /**
      * Used in testing
      * @return array
