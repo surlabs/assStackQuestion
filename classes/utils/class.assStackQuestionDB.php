@@ -1629,7 +1629,7 @@ class assStackQuestionDB
             //Ensure only input data is stored
             if (array_key_exists($input_name, $question->inputs)) {
                 if (isset($question->inputs[$input_name]) && is_a($question->inputs[$input_name], "stack_notes_input")) {
-                    $raw_input["value"] = $input_state->__get("contents")[0];
+                    $raw_input["value"] = implode('',$input_state->__get("contents"));
                 } else {
                     $raw_input["value"] = $input_state->contentsmodified;
                 }
