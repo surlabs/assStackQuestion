@@ -3733,7 +3733,7 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         return $startrow + 1;
     }
 
-    public function lookupForExistingSolutions(int $activeId, int $pass): array
+    public function lookupForExistingSolutions($activeId, $pass): array
     {
         $return = array(
             'authorized' => false,
