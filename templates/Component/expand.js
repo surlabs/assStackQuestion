@@ -1,26 +1,28 @@
-$(".panel .panel-heading.ilHeader").click(function() {
-  $child = $(this).find(".viewcontrol-expand");
+$(document).ready(function() {
+  $(".viewcontrol-expand").each(function () {
+    // Poner el boton como primer elemento del div
+    $(this).parent().prepend($(this));
 
-  if ($child.length > 0) {
-    triggerExpand($child);
-  }
-});
+    $(this).parent().css("justify-content", "normal").css("align-items", "center");
 
-$(".viewcontrol-expand").each(function() {
-  // Poner el boton como primer elemento del div
-  $(this).parent().prepend($(this));
+    $(this).css("margin-right", "10px");
 
-  $(this).parent().css("justify-content", "normal").css("align-items", "center");
+    if ($(this).attr("data-state") === "collapsed") {
+      $(this).parent().parent().find(".panel-body").hide();
+    }
 
-  $(this).css("margin-right", "10px");
+    if ($(this).parent().find(".panel-viewcontrols").empty()) {
+      $(this).parent().find(".panel-viewcontrols").remove();
+    }
+  });
 
-  if ($(this).attr("data-state") === "collapsed") {
-    $(this).parent().parent().find(".panel-body").hide();
-  }
+  $(".panel .panel-heading.ilHeader").click(function() {
+    $child = $(this).find(".viewcontrol-expand");
 
-  if ($(this).parent().find(".panel-viewcontrols").empty()) {
-    $(this).parent().find(".panel-viewcontrols").remove();
-  }
+    if ($child.length > 0) {
+      triggerExpand($child);
+    }
+  });
 });
 
 function triggerExpand($this) {
