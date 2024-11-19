@@ -3732,4 +3732,51 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
         // Leave a blank line between questions
         return $startrow + 1;
     }
+
+    public function lookupForExistingSolutions(int $activeId, int $pass): array
+    {
+        $return = array(
+            'authorized' => false,
+            'intermediate' => false
+        );
+
+        $query = "
+			SELECT authorized, value2, COUNT(*) cnt
+			FROM tst_solutions
+			WHERE active_fi = %s
+			AND question_fi = %s
+			AND pass = %s
+		";
+
+        if ($this->getStep() !== null) {
+            $query .= " AND step = " . $this->db->quote((int) $this->getStep(), 'integer') . " ";
+        }
+
+        $query .= "
+			GROUP BY authorized
+		";
+
+        $result = $this->db->queryF($query, array('integer', 'integer', 'integer'), array($activeId, $this->getId(), $pass));
+
+        while ($row = $this->db->fetchAssoc($result)) {
+            $value2 = json_decode($row['value2'], true);
+            $inputs_empty = true;
+
+            foreach ($value2['inputs'] as $input) {
+                if (!empty($input['value'])) {
+                    $inputs_empty = false;
+                    break;
+                }
+            }
+
+            if ($row['authorized']) {
+                if (!$inputs_empty) {
+                    $return['authorized'] = $row['cnt'] > 0;
+                }
+            } else {
+                $return['intermediate'] = $row['cnt'] > 0;
+            }
+        }
+        return $return;
+    }
 }
