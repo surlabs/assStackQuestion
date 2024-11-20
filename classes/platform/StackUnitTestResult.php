@@ -156,11 +156,12 @@ class StackUnitTestResult {
                 }
                 //TODO volver a $state->penalty = $actualpenalty;
                 $state->penalty = $expectedresult->penalty;
-                // Remove empty answernotes from the list
+                // Remove empty & duplicated answernotes from the list
                 $answernotes = $actualresult->get_answernotes();
                 $answernotes = array_filter($answernotes, function ($note) {
                     return !empty(trim($note));
                 });
+                $answernotes = array_unique($answernotes);
                 $state->answernote = implode(' | ', $answernotes);
                 $state->trace = implode("\n", $actualresult->get_trace());
                 $state->feedback = $actualresult->get_feedback();
