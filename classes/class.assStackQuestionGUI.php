@@ -1209,6 +1209,8 @@ class assStackQuestionGUI extends assQuestionGUI
                 'confirmDeleteAllVariants',
                 'deleteAllVariants',
                 'editTestcases',
+                'confirmRegenerateUnitTest',
+                'regenerateUnitTest',
                 'deleteUnitTest',
                 'checkPrtPlaceholders'
             ))) {
@@ -1299,6 +1301,8 @@ class assStackQuestionGUI extends assQuestionGUI
             'confirmDeleteAllVariants',
             'deleteAllVariants',
             'editTestcases',
+            'confirmRegenerateUnitTest',
+            'regenerateUnitTest',
             'deleteUnitTest',
             'checkPrtPlaceholders'
         ))) {
@@ -2129,6 +2133,60 @@ class assStackQuestionGUI extends assQuestionGUI
             true);
 
         $this->randomisationAndSecurity();
+    }
+
+    /**
+     * @throws ilCtrlException
+     */
+    public function confirmRegenerateUnitTest()
+    {
+        global $DIC, $tpl;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
+        $content = $DIC->ui()->renderer()->render($DIC->ui()->factory()->messageBox()->confirmation($this->object->getPlugin()->txt('ui_author_randomisation_confirm_regenerate_unit_test')));
+
+        $DIC->ctrl()->setParameter($this, 'test_case', $_GET['test_case']);
+        $content .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->button()->standard($DIC->language()->txt("yes"), $this->ctrl->getLinkTarget($this, "regenerateUnitTest")));
+        $content .= $DIC->ui()->renderer()->render($DIC->ui()->factory()->button()->standard($DIC->language()->txt("no"), $this->ctrl->getLinkTarget($this, "randomisationAndSecurity")));
+
+        $tpl->setContent($content);
+    }
+
+    /**
+     * @throws ilCtrlException
+     * @throws stack_exception
+     * @throws StackException
+     */
+    public function regenerateUnitTest(): void
+    {
+        global $DIC, $tpl;
+        $tabs = $DIC->tabs();
+
+        $tabs->activateTab('edit_properties');
+        $tabs->activateSubTab('randomisation_and_security');
+
+        $test_case = (int)$_GET['test_case'];
+
+        if (isset($this->object->unit_tests['test_cases'][$test_case])) {
+            $seed = assStackQuestionDB::_getSeed('preview', $this->object, $DIC->user()->getId());
+
+            if (!$this->object->isInstantiated()) {
+                $this->object->questionInitialisation($seed, true);
+            }
+
+            $this->object->unit_tests['test_cases'][$test_case] = StackUnitTest::generateDefaultTestcase($this->object, $test_case);
+
+            assStackQuestionDB::_deleteStackUnitTestResults($this->object->getId(), $test_case);
+
+            assStackQuestionDB::_saveStackUnitTests($this->object, "");
+
+            $tpl->setOnScreenMessage('success', $this->object->getPlugin()->txt('ui_author_randomisation_unit_test_case_regenerated'), true);
+
+            $this->randomisationAndSecurity();
+        }
     }
 
     /**
