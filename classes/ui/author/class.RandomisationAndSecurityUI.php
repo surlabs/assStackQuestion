@@ -422,6 +422,8 @@ class RandomisationAndSecurityUI
                     $this->control->getLinkTargetByClass("assstackquestiongui", "runUnitTestForAllVariants")),
                 $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_edit_unit_test_action_text"),
                     $this->control->getLinkTargetByClass("assstackquestiongui", "editTestcases")),
+                $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_regenerate_unit_test_action_text"),
+                    $this->control->getLinkTargetByClass("assstackquestiongui", "confirmRegenerateUnitTest")),
                 $this->factory->button()->shy($this->language->txt("qpl_qst_xqcas_ui_author_randomisation_delete_unit_test_action_text"),
                     $this->control->getLinkTargetByClass("assstackquestiongui", "deleteUnitTest")),
             ));
