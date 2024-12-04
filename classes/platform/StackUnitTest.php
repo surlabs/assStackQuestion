@@ -304,13 +304,20 @@ class StackUnitTest {
     public static function addDefaultTestcase(assStackQuestion $question) {
         $test_case = $question->getNextTestCaseNumber();
 
+        $question->addUnitTest($test_case, self::generateDefaultTestcase($question, (int) $test_case));
+
+        assStackQuestionDB::_saveStackUnitTests($question, "");
+    }
+
+    public static function generateDefaultTestcase(assStackQuestion $question, int $test_case): array
+    {
         $inputs = array();
 
         foreach ($question->inputs as $input_name => $input) {
             $inputs[$input_name] = $input->get_teacher_answer_testcase();
         }
 
-        $default_unit_test = new self(stack_string('autotestcase'), $inputs, (int) $test_case);
+        $default_unit_test = new self(stack_string('autotestcase'), $inputs, $test_case);
 
         $response = self::computeResponse($question, $inputs);
 
@@ -353,9 +360,7 @@ class StackUnitTest {
             'results' => array()
         );
 
-        $question->addUnitTest($test_case, $raw_unit_test);
-
-        assStackQuestionDB::_saveStackUnitTests($question, "");
+        return $raw_unit_test;
     }
 
     public static function saveTestCase(?string $test_case, array $unit_test, assStackQuestion $question): bool

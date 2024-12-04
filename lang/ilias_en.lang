@@ -191,6 +191,7 @@ ui_author_randomisation_add_unit_test_action_text#:#Add custom testcase
 ui_author_randomisation_run_unit_test_action_text#:#Run testcase
 ui_author_randomisation_run_unit_test_for_all_variants_action_text#:#Run testcase for all variants
 ui_author_randomisation_edit_unit_test_action_text#:#Edit testcase
+ui_author_randomisation_regenerate_unit_test_action_text#:#Regenerate testcase
 ui_author_randomisation_delete_unit_test_action_text#:#Delete testcase
 ui_author_randomisation_unit_test_status_panel_title#:#Question's testcases
 ui_author_randomisation_unit_test_not_run#:#Not tested
@@ -213,6 +214,8 @@ ui_author_randomisation_unit_test_case_passed_for_seed#:#Test case %s passed for
 ui_author_randomisation_unit_test_case_failed_empty_for_seed#:#Test case %s failed due to empty testcases not allowed for seed %s
 ui_author_randomisation_unit_test_case_failed_for_seed#:#Test case %s failed due to: %s for seed %s
 ui_author_randomisation_unit_test_case_deleted#:#Test case deleted
+ui_author_randomisation_confirm_regenerate_unit_test#:#Are you sure you want to regenerate this test case? If you confirm, a new test case will be generated and the current results will be lost. Also, please note that if the current case is non-standard, the new one will be generated as a standard case. This action is irreversible.
+ui_author_randomisation_unit_test_case_regenerated#:#Test case regenerated
 ui_author_randomisation_cannot_delete_active_variant#:#You cannot delete the active variant
 ui_author_randomisation_sucessfully_on_seeds_generation#:#Seeds were successfully generated
 ui_author_randomisation_failed_on_seeds_generation#:#Failed on seeds generation

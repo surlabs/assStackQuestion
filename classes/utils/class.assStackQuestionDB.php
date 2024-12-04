@@ -1310,7 +1310,7 @@ class assStackQuestionDB
         }
 
 		if ($db->manipulate($query) != false) {
-			return self::_deleteStackUnitTestInputs($question_id, $test_case) and self::_deleteStackUnitTestExpected($question_id, $test_case);
+			return self::_deleteStackUnitTestInputs($question_id, $test_case) and self::_deleteStackUnitTestExpected($question_id, $test_case) and self::_deleteStackUnitTestResults($question_id, $test_case);
 		} else {
 			return false;
 		}
@@ -1356,6 +1356,25 @@ class assStackQuestionDB
         }
 
         if ($db->manipulate($query) != false) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static function _deleteStackUnitTestResults(int $question_id, ?int $test_case = null): bool
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $query = /** @lang text */
+            'DELETE FROM xqcas_qtest_results WHERE question_id = ' . $db->quote($question_id, 'integer');
+
+        if ($test_case !== null) {
+            $query .= ' AND test_case = ' . $db->quote($test_case, 'integer');
+        }
+
+        if ($db->manipulate($query)) {
             return true;
         } else {
             return false;
