@@ -492,11 +492,15 @@ class assStackQuestionMoodleImport
             $name = (string) $file->attributes()["name"];
             $base64 = (string) $file;
 
-            $temp = $CFG->dataroot . '/stack/tmp/' . $name;
+            $name = rawurlencode($name);
+
+            $name_to_save = preg_replace('/[^a-zA-Z0-9]/', '', $name);
+
+            $temp = $CFG->dataroot . '/stack/tmp/' . $name_to_save;
 
             file_put_contents($temp, base64_decode($base64));
 
-            $compiled_media_object = ilObjMediaObject::_saveTempFileAsMediaObject($name, realpath($temp), false);
+            $compiled_media_object = ilObjMediaObject::_saveTempFileAsMediaObject($name_to_save, realpath($temp), false);
             $media_object =& $compiled_media_object;
             ilObjMediaObject::_saveUsage($media_object->getId(), "qpl:html", $this->getQuestion()->getId());
 
