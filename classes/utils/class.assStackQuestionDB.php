@@ -125,7 +125,7 @@ class assStackQuestionDB
 			$inputs[$input_name]['box_size'] = $row['box_size'];
 			$inputs[$input_name]['strict_syntax'] = $row['strict_syntax'];
 			$inputs[$input_name]['insert_stars'] = (int)$row['insert_stars'];
-			$inputs[$input_name]['syntax_attribute'] = (isset($row['syntax_attribute']) and $row['syntax_attribute'] != null) ? trim($row['syntax_attribute']) : 0;
+			$inputs[$input_name]['syntax_attribute'] = (isset($row['syntax_attribute']) and $row['syntax_attribute'] != null) ? $row['syntax_attribute'] : 0;
 			$inputs[$input_name]['syntax_hint'] = (isset($row['syntax_hint']) and $row['syntax_hint'] != null) ? trim($row['syntax_hint']) : '';
 			$inputs[$input_name]['forbid_words'] = $row['forbid_words'];
 			$inputs[$input_name]['allow_words'] = $row['allow_words'];
