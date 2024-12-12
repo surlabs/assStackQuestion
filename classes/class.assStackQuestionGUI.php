@@ -27,6 +27,7 @@ use classes\platform\StackException;
 use classes\platform\StackPlatform;
 use classes\platform\StackUnitTest;
 use classes\ui\author\RandomisationAndSecurityUI;
+use classes\ui\author\StackQuestionAuthoringUI;
 
 
 /**
@@ -421,26 +422,16 @@ class assStackQuestionGUI extends assQuestionGUI
      * Called before editQuestion()
      *
      * @return integer    0: question can be saved / 1: form is not complete
-     * @throws stack_exception
+     * @throws ilCtrlException
      */
 	public function writePostData($always = FALSE): int
 	{
-		$hasErrors = !$always && $this->editQuestion(TRUE);
-		if (!$hasErrors) {
-            $this->generateSpecificPostData();
+        // TODO (Saaweel): Delete unnecessary methods like generateSpecificPostData(), etc....
+        $authoring_ui = new StackQuestionAuthoringUI($this->plugin, $this->object);
 
-			$this->questionCheck();
+        $authoring_ui->writePostData();
 
-			//Parent
-			$this->writeQuestionGenericPostData();
-			$this->writeQuestionSpecificPostData();
-
-			//Taxonomies
-			$this->saveTaxonomyAssignments();
-
-			return 0;
-		}
-		return 1;
+        return 0;
 	}
 
     private function generateSpecificPostData() :void
@@ -688,65 +679,24 @@ class assStackQuestionGUI extends assQuestionGUI
 
 	/* ILIAS GUI COMMANDS METHODS BEGIN */
 
-	/**
-	 * Creates an output of the edit form for the question
-	 *
-	 * @param bool $check_only
-	 *
-	 */
+    /**
+     * Creates an output of the edit form for the question
+     *
+     * @param bool $check_only
+     */
 	public function editQuestion(bool $check_only = false)
 	{
-		$save = $this->isSaveCommand();
-
 		global $DIC;
 
-		//Tabs management
-		//TODO Aware on the Learning Modules tab if $this->object->getSelfAssessmentEditingMode() is active
 		$tabs = $DIC->tabs();
 		$tabs->activateTab('edit_properties');
 		$tabs->activateSubTab('edit_question');
 
-		//TODO Is working still in ILIAS7? see comments
 		$this->getQuestionTemplate();
 
-		//Create GUI object
-		//$this->plugin->includeClass('GUI/question_authoring/class.assStackQuestionAuthoringGUI.php');
-		$authoring_gui = new assStackQuestionAuthoringGUI($this->plugin, $this);
+		$authoring_gui = new StackQuestionAuthoringUI($this->plugin, $this->object);
 
-		//Add CSS
-		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/qpl_xqcas_authoring.css'));
-		$DIC->globalScreen()->layout()->meta()->addCss($this->plugin->getStyleSheetLocation('css/multipart_form.css'));
-
-		//Javascript
-
-		//Show info messages
-		$this->info_config = new stdClass();
-		$ctrl = $DIC->ctrl();
-		$this->info_config->ajax_url = $ctrl->getLinkTargetByClass("assstackquestiongui", "saveInfoState", "", TRUE);
-
-		//Set to user's session value
-		if (isset($_SESSION['stack_authoring_show'])) {
-			$this->info_config->show = (int)$_SESSION['stack_authoring_show'];
-		} else {
-			//first time must be shown
-			$this->info_config->show = 1;
-		}
-		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/ilEnableDisableInfo.js');
-		$DIC->globalScreen()->layout()->meta()->addOnLoadCode('il.EnableDisableInfo.initInfoMessages(' . json_encode($this->info_config) . ')');
-
-		//Reform authoring interface
-		$DIC->globalScreen()->layout()->meta()->addJs('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/js/ilMultipartFormProperty.js');
-
-        //35855 ensure warning if shown if no question note is added when randomised
-        if(assStackQuestionUtils::_showRandomisationWarning($this->object)){
-            global $tpl;
-            $tpl->setOnScreenMessage('info', stack_string('questionnotempty'));
-        }
-
-		//Returns Question Authoring form
-		if (!$check_only) {
-			$this->tpl->setVariable("QUESTION_DATA", $authoring_gui->showAuthoringPanel());
-		}
+        $this->tpl->setVariable("QUESTION_DATA", $authoring_gui->showAuthoringPanel());
 	}
 
 
