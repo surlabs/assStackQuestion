@@ -3,5 +3,10 @@
         <div class="panel-title"><h2>{LABEL}</h2><div class="il-section-input-header-byline">{BYLINE}</div></div>
         <div class="panel-viewcontrols l-bar__space-keeper">{VIEW_CONTROL}</div>
     </div>
-    <div class="panel-body">{INPUTS}</div>
+    <div class="panel-body">
+        <div class="help-block alert alert-danger" role="alert" style="display: none;">
+            {ERROR}
+        </div>
+        {INPUTS}
+    </div>
 </div>

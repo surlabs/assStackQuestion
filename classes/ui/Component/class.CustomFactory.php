@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component;
 
 use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\ExpandableSection;
+use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\TabSection;
 use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\TextareaRTE;
 
 /**
@@ -43,5 +44,10 @@ class CustomFactory
     public function expandableSection(array $inputs, string $label, ?string $by_line = null): ExpandableSection
     {
         return new ExpandableSection($inputs, $label, $by_line);
+    }
+
+    public function tabSection(array $tabs, string $label, ?string $by_line = null): TabSection
+    {
+        return new TabSection($tabs, $label, $by_line);
     }
 }

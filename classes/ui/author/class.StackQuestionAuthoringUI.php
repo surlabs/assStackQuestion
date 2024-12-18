@@ -39,6 +39,7 @@ use JetBrains\PhpStorm\NoReturn;
 use stack_exception;
 use stack_input;
 use stack_input_factory;
+use stack_potentialresponse_tree_lite;
 
 /**
  * StackQuestionAuthoringUI
@@ -81,7 +82,7 @@ class StackQuestionAuthoringUI
             "basic" => $this->factory->input()->field()->section($this->buildBasicSection(), $this->plugin->txt("edit_cas_question")),
             "options" => $this->factory->input()->field()->section($this->buildOptionsSection(), $this->plugin->txt("options")),
             "inputs" => $this->factory->input()->field()->section($this->buildInputsSection(), $this->plugin->txt("inputs")),
-            "prt" => $this->factory->input()->field()->section($this->buildPrtSection(), $this->plugin->txt("prts"))
+            "prt" => $this->customFactory->tabSection($this->buildPrtSection(), $this->plugin->txt("prts"))
         ];
 
         return $this->factory->input()->container()->form()->standard(
@@ -248,11 +249,11 @@ class StackQuestionAuthoringUI
                 $parameters[$parameter_name] = $all_parameters[$parameter_name];
             }
 
-            $inputs[] = $this->buildInput("ans1", stack_input_factory::make('algebraic', 'ans1', 1, $this->question->options, $parameters), true);
+            $inputs["ans1"] = $this->buildInput("ans1", stack_input_factory::make('algebraic', 'ans1', 1, $this->question->options, $parameters), true);
         } else {
             $isFirst = true;
             foreach ($this->question->inputs as $name => $input) {
-                $inputs[] = $this->buildInput($name, $input, $isFirst);
+                $inputs[$name] = $this->buildInput($name, $input, $isFirst);
                 $isFirst = false;
             }
         }
@@ -328,6 +329,24 @@ class StackQuestionAuthoringUI
 
     private function buildPrtSection(): array
     {
-        return [];
+        $prts = [];
+
+        if (!empty($this->question->prts)) {
+            foreach ($this->question->prts as $prt_name => $prt) {
+                $prts[$prt_name] = $this->buildPrt($prt);
+            }
+        }
+
+        return $prts;
+    }
+
+    private function buildPrt(stack_potentialresponse_tree_lite $prt): array
+    {
+        $inputs = [];
+
+        $inputs["prt_name"] = $this->factory->input()->field()->text($this->plugin->txt("prt_name"), $this->plugin->txt("prt_name_info"))
+            ->withValue($prt->get_name());
+
+        return $inputs;
     }
 }
