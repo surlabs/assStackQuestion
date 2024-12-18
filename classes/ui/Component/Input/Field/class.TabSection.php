@@ -25,47 +25,72 @@ namespace Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStack
 
 use Closure;
 use ILIAS\Data\Factory;
+use ILIAS\Data\Result;
+use ILIAS\Data\Result\Ok;
 use ILIAS\Refinery\Constraint;
 use ILIAS\UI\Component\Input\Container\Form\FormInput;
-use ILIAS\UI\Component\Input\Group as GroupInterface;
 use ILIAS\UI\Component\Signal;
-use ILIAS\UI\Implementation\Component\Input\Group as GroupInternals;
-use ILIAS\UI\Implementation\Component\Input\GroupInternal;
 use ILIAS\UI\Implementation\Component\Input\Input;
+use ILIAS\UI\Implementation\Component\Input\InputData;
 use ILIAS\UI\Implementation\Component\Input\NameSource;
 use ILIAS\UI\Implementation\Component\JavaScriptBindable;
 use ILIAS\UI\Implementation\Component\Triggerer;
 use ilLanguage;
 
 /**
- * Class ExpandableSection
+ * Class TabSection
  */
-class ExpandableSection extends Input implements FormInput, GroupInterface, GroupInternal
+class TabSection extends Input implements FormInput
 {
-    use GroupInternals;
     use JavaScriptBindable;
     use Triggerer;
 
+    protected array $tabs;
     protected string $label;
     protected ?string $byline;
-    private bool $expanded_by_default = false;
     protected bool $is_required = false;
     protected bool $is_disabled = false;
     protected ?Constraint $requirement_constraint = null;
+    protected ?string $error = null;
 
     private ilLanguage $lng;
 
-    public function __construct(array $inputs, string $label, ?string $by_line = null)
+    public function __construct(array $tabs, string $label, ?string $by_line = null)
     {
         global $DIC;
 
         $this->lng = $DIC->language();
 
-        $this->setInputs($inputs);
+        $this->tabs = $tabs;
         $this->label = $label;
         $this->byline = $by_line;
 
         parent::__construct(new Factory(), $DIC->refinery());
+    }
+
+    public function getTabs(): array
+    {
+        return $this->tabs;
+    }
+
+    public function setTabs(array $tabs): void
+    {
+        $this->tabs = $tabs;
+    }
+
+    protected function nameTabs(NameSource $source, string $parent_name): array
+    {
+        $named_tabs = [];
+
+        foreach ($this->getTabs() as $key => $tab) {
+            $named_tabs[$key] = array();
+
+            foreach ($tab as $key_input => $input) {
+                $named_tabs[$key][$key_input] = $input->withNameFrom($source, $parent_name);
+            }
+        }
+
+        return $named_tabs;
     }
 
     public function getLabel(): string
@@ -89,18 +114,6 @@ class ExpandableSection extends Input implements FormInput, GroupInterface, Grou
     {
         $clone = clone $this;
         $clone->byline = $byline;
-        return $clone;
-    }
-
-    public function isExpandedByDefault(): bool
-    {
-        return $this->expanded_by_default;
-    }
-
-    public function withExpandedByDefault(bool $expanded_by_default): self
-    {
-        $clone = clone $this;
-        $clone->expanded_by_default = $expanded_by_default;
         return $clone;
     }
 
@@ -129,6 +142,75 @@ class ExpandableSection extends Input implements FormInput, GroupInterface, Grou
         return $clone;
     }
 
+    /**
+     * @noinspection PhpParameterNameChangedDuringInheritanceInspection
+     */
+    public function withInput(InputData $input_data): self
+    {
+        if (empty($this->getTabs())) {
+            return $this;
+        }
+
+        $clone = clone $this;
+
+        $tabs = [];
+        $contents = [];
+        $error = false;
+
+        foreach ($this->getTabs() as $key => $in) {
+            $inputs = [];
+            $inputs_contents = [];
+
+            foreach ($in as $key_input => $input) {
+                $inputs[$key_input] = $input->withInput($input_data);
+                $content = $inputs[$key_input]->getContent();
+                if ($content->isError()) {
+                    $error = true;
+                } else {
+                    $inputs_contents[$key_input] = $content->value();
+                }
+            }
+
+            $tabs[$key] = $inputs;
+            $contents[$key] = $inputs_contents;
+        }
+
+        $clone->tabs = $tabs;
+
+        if ($error) {
+            $clone->content = $clone->getDataFactory()->error($this->getLanguage()->txt("ui_error_in_group"));
+        } else {
+            $clone->content = $clone->applyOperationsTo($contents);
+        }
+
+        if ($clone->content->isError()) {
+            $clone->setError("" . $clone->content->error());
+        }
+
+        return $clone;
+    }
+
+    public function getValue(): array
+    {
+        $values = [];
+
+        foreach ($this->tabs as $tab) {
+            $values[] = array_map(fn($i) => $i->getValue(), $tab);
+        }
+
+        return $values;
+    }
+
+    public function withValue($value): self
+    {
+        $this->checkArg("value", $this->isClientSideValueOk($value), "Display value does not match input type.");
+        $clone = clone $this;
+        foreach ($this->getTabs() as $k => $i) {
+            $clone->tabs[$k] = array_map(fn($j) => $j->withValue($value[$k]), $i);
+        }
+        return $clone;
+    }
+
     public function getUpdateOnLoadCode(): Closure
     {
         return function () {
@@ -142,14 +224,14 @@ class ExpandableSection extends Input implements FormInput, GroupInterface, Grou
     public function withNameFrom(NameSource $source, ?string $parent_name = null): self
     {
         $clone = parent::withNameFrom($source, $parent_name);
-        $clone->setInputs($this->nameInputs($source, $clone->getName()));
+        $clone->setTabs($this->nameTabs($source, $clone->getName()));
         return $clone;
     }
 
     public function withOnUpdate(Signal $signal): self
     {
         $clone = $this->withTriggeredSignal($signal, 'update');
-        $clone->setInputs(array_map(fn($i) => $i->withOnUpdate($signal), $this->getInputs()));
+        $clone->setTabs(array_map(fn($i) => $i->withOnUpdate($signal), $this->getTabs()));
         return $clone;
     }
 
@@ -163,18 +245,49 @@ class ExpandableSection extends Input implements FormInput, GroupInterface, Grou
         if (!is_array($value)) {
             return false;
         }
-        if (count($this->getInputs()) !== count($value)) {
+        if (count($this->getTabs()) !== count($value)) {
             return false;
         }
-        foreach ($this->getInputs() as $key => $input) {
+        foreach ($this->getTabs() as $key => $tab) {
             if (!array_key_exists($key, $value)) {
                 return false;
             }
-            if (!$input->isClientSideValueOk($value[$key])) {
+
+            if (!is_array($value[$key])) {
                 return false;
+            }
+
+            if (count($tab) !== count($value[$key])) {
+                return false;
+            }
+
+            foreach ($tab as $key_input => $input) {
+                if (!array_key_exists($key_input, $value[$key])) {
+                    return false;
+                }
+                if (!$input->isClientSideValueOk($value[$key][$key_input])) {
+                    return false;
+                }
             }
         }
         return true;
+    }
+    public function getContent(): Result
+    {
+        if (empty($this->getTabs())) {
+            return new Ok([]);
+        }
+        return parent::getContent();
+    }
+
+    public function getError(): ?string
+    {
+        return $this->error;
+    }
+
+    public function setError(string $error): void
+    {
+        $this->error = $error;
     }
 
     protected function getLanguage(): ilLanguage

@@ -54,10 +54,12 @@ class Renderer extends RendererILIAS
         global $DIC;
 
         $DIC->ui()->mainTemplate()->addJavaScript('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/Component/Input/Field/customField.js');
+        $DIC->ui()->mainTemplate()->addCss('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/Component/Input/Field/customField.css');
 
         return match (true) {
             $component instanceof TextareaRTE => $this->renderTextareaRTE($component),
             $component instanceof ExpandableSection => $this->renderExpandableSection($component, $default_renderer),
+            $component instanceof TabSection => $this->renderTabSection($component, $default_renderer),
             default => parent::render($component, $default_renderer),
         };
     }
@@ -135,6 +137,11 @@ class Renderer extends RendererILIAS
         if (isset($value) && $value !== '') {
             $tpl->setVariable("VALUE", $value);
         }
+    }
+
+    private function getTemplateCustom(string $name): ilTemplate
+    {
+        return new ilTemplate("Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/Component/Input/Field/$name", true, true);
     }
 
     /**
@@ -215,6 +222,12 @@ class Renderer extends RendererILIAS
             $section_tpl->parseCurrentBlock();
         }
 
+        if ($component->getError() !== null) {
+            $section_tpl->setCurrentBlock("error");
+            $section_tpl->setVariable("ERROR", $component->getError());
+            $section_tpl->parseCurrentBlock();
+        }
+
         $expand = new Expand($component->isExpandedByDefault());
 
         $section_tpl->setVariable("VIEW_CONTROL", $default_renderer->render($expand));
@@ -222,8 +235,49 @@ class Renderer extends RendererILIAS
         return $section_tpl->get();
     }
 
-    private function getTemplateCustom(string $name): ilTemplate
+    /**
+     * @throws ilTemplateException
+     */
+    private function renderTabSection(TabSection $component, \ILIAS\UI\Renderer $default_renderer): string
     {
-        return new ilTemplate("Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/Component/Input/Field/$name", true, true);
+        $section_tpl = $this->getTemplateCustom("tpl.tabSection.html");
+
+        $section_tpl->setVariable("LABEL", $component->getLabel());
+
+        if ($component->getByline() !== null) {
+            $section_tpl->setCurrentBlock("byline");
+            $section_tpl->setVariable("BYLINE", $component->getByline());
+            $section_tpl->parseCurrentBlock();
+        }
+
+        $tabs_buttons = "";
+        $tabs_panels = "";
+
+        $isFirst = " active";
+
+        foreach ($component->getTabs() as $tab_name => $tab) {
+            $tabs_buttons .= "<div class='tab-button$isFirst' data-tab='$tab_name'>{$tab_name}</div>";
+
+            $inputs_html = "";
+
+            foreach ($tab as $input) {
+                $inputs_html .= $default_renderer->render($input);
+            }
+
+            $tabs_panels .= "<div class='tab-panel$isFirst' data-tab-panel='$tab_name'>$inputs_html</div>";
+
+            $isFirst = "";
+        }
+
+        $section_tpl->setVariable("TAB_BUTTONS", $tabs_buttons);
+        $section_tpl->setVariable("TAB_PANELS", $tabs_panels);
+
+        if ($component->getError() !== null) {
+            $section_tpl->setCurrentBlock("error");
+            $section_tpl->setVariable("ERROR", $component->getError());
+            $section_tpl->parseCurrentBlock();
+        }
+
+        return $section_tpl->get();
     }
 }
