@@ -294,6 +294,14 @@ options_assume_real_info#:#This option sets the value of Maxima's assume_real va
 options_prt_correct#:#Feedback for correct answers
 options_prt_partially_correct#:#Feedback for partially correct answers
 options_prt_incorrect#:#Feedback for incorrect answers
+options_multiplication_sign#:#Multiplication sign
+options_multiplication_sign_info#:#Controls how multiplication signs are displayed.
+options_mult_sign_dot#:#Dot
+options_mult_sign_cross#:#Cross
+options_mult_sign_only_numbers#:#Only numbers
+options_mult_sign_none#:#None
+options_sqrt_sign#:#Surd for square root
+options_sqrt_sign_info#:#Controls how surds are displayed.
 options_complex_numbers#:#Meaning and display of sqrt(-1)
 options_complex_numbers_info#:#Controls the meaning and display of the symbol i and sqrt(-1)
 options_complex_numbers_i#:#i
