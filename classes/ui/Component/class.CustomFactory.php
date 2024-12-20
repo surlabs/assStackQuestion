@@ -23,7 +23,9 @@ declare(strict_types=1);
 
 namespace Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component;
 
+use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\ColumnSection;
 use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\ExpandableSection;
+use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\Legacy;
 use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\TabSection;
 use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\TextareaRTE;
 
@@ -49,5 +51,15 @@ class CustomFactory
     public function tabSection(array $tabs, string $label, ?string $by_line = null): TabSection
     {
         return new TabSection($tabs, $label, $by_line);
+    }
+
+    public function columnSection(array $columns, string $label, ?string $by_line = null): ColumnSection
+    {
+        return new ColumnSection($columns, $label, $by_line);
+    }
+
+    public function legacy(string $html): Legacy
+    {
+        return new Legacy($html);
     }
 }

@@ -36,6 +36,8 @@ use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 use ilLanguage;
 use JetBrains\PhpStorm\NoReturn;
+use stack_abstract_graph_svg_renderer;
+use stack_ans_test_controller;
 use stack_exception;
 use stack_input;
 use stack_input_factory;
@@ -60,6 +62,8 @@ class StackQuestionAuthoringUI
     public function __construct(ilassStackQuestionPlugin $plugin, assStackQuestion $question)
     {
         global $DIC;
+
+        $DIC->globalScreen()->layout()->meta()->addCss('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/css/stack_graph.css');
 
         $this->plugin = $plugin;
         $this->question = $question;
@@ -327,13 +331,30 @@ class StackQuestionAuthoringUI
         return $this->customFactory->expandableSection($inputs, $name)->withExpandedByDefault($isFirst);
     }
 
+    /**
+     * @throws stack_exception
+     */
     private function buildPrtSection(): array
     {
         $prts = [];
 
         if (!empty($this->question->prts)) {
             foreach ($this->question->prts as $prt_name => $prt) {
-                $prts[$prt_name] = $this->buildPrt($prt);
+                $prts[$prt_name] = [$this->customFactory->columnSection([
+                    "graph" => [
+                        "graph" => $this->customFactory->legacy(stack_abstract_graph_svg_renderer::render($prt->get_prt_graph(), $prt->get_name() . 'graphsvg')),
+                    ],
+                    "prt" => $this->buildPrt($prt)
+                ], $prt_name)
+                ->withColumnStyles([
+                    "graph" => [
+                        "flex" => "0",
+                        "border" => "0px solid #000",
+                        "text-align" => "center",
+                        "padding-left" => "50px",
+                        "padding-right" => "50px"
+                    ]
+                ])];
             }
         }
 
@@ -344,8 +365,164 @@ class StackQuestionAuthoringUI
     {
         $inputs = [];
 
-        $inputs["prt_name"] = $this->factory->input()->field()->text($this->plugin->txt("prt_name"), $this->plugin->txt("prt_name_info"))
+        $inputs["prt_name"] = $this->factory->input()->field()->text($this->plugin->txt("prt_name"), $this->plugin->txt("prt_name_info"))->withRequired(true)
             ->withValue($prt->get_name());
+        $node_list = [];
+        foreach ($prt->get_nodes_summary() as $node_name => $prt_node) {
+            $node_list[$node_name] = $node_name;
+        }
+        $inputs["first_node"] = $this->factory->input()->field()->select($this->plugin->txt("prt_first_node"), $node_list)->withRequired(true)
+            ->withValue($prt->get_first_node());
+        $inputs["settings"] = $this->customFactory->expandableSection($this->buildPrtOptions($prt), $this->plugin->txt("prt_settings_and_nodes"))->withExpandedByDefault(true);
+        $inputs["nodes"] = $this->customFactory->tabSection($this->buildNodeSection($prt), $this->plugin->txt("prt_nodes"));
+
+        return $inputs;
+    }
+
+    private function buildPrtOptions(stack_potentialresponse_tree_lite $prt): array
+    {
+        $inputs = [];
+
+        $inputs["prt_value"] = $this->factory->input()->field()->text($this->plugin->txt("prt_value"), $this->plugin->txt("prt_value_info"))->withRequired(true)
+            ->withValue((string) $prt->get_value());
+        $inputs["simplify"] = $this->factory->input()->field()->checkbox($this->plugin->txt("prt_simplify"), $this->plugin->txt("prt_simplify_info"))
+            ->withValue($prt->isSimplify());
+        $inputs["feedback_variables"] = $this->factory->input()->field()->textarea($this->plugin->txt("prt_feedback_variables"), $this->plugin->txt("prt_feedback_variables_info"))
+            ->withValue($prt->get_feedbackvariables_keyvals());
+
+        return $inputs;
+    }
+
+    private function buildNodeSection(stack_potentialresponse_tree_lite $prt): array
+    {
+        $nodes = [];
+
+        if (!empty($prt->get_nodes())) {
+            foreach ($prt->get_nodes() as $node_name => $node) {
+                $nodes[$node_name] = $this->buildNode($prt, $node);
+            }
+        }
+
+        return $nodes;
+    }
+
+    private function buildNode(stack_potentialresponse_tree_lite $prt, object $node): array
+    {
+        $inputs = [];
+
+        $answer_tests = stack_ans_test_controller::get_available_ans_tests();
+
+        $answer_test_choices = array_map(function ($string) {
+            return stack_string($string);
+        }, $answer_tests);
+
+        $inputs["answer_test"] = $this->factory->input()->field()->select($this->plugin->txt("prt_node_answer_test"), $answer_test_choices, $this->plugin->txt("prt_node_answer_test_info"))->withRequired(true)
+            ->withValue($node->answertest);
+        $inputs["student_answer"] = $this->factory->input()->field()->text($this->plugin->txt("prt_node_student_answer"), $this->plugin->txt("prt_node_student_answer_info"))->withRequired(true)
+            ->withValue($node->sans);
+        $inputs["teacher_answer"] = $this->factory->input()->field()->text($this->plugin->txt("prt_node_teacher_answer"), $this->plugin->txt("prt_node_teacher_answer_info"))->withRequired(true)
+            ->withValue($node->tans);
+        $inputs["options"] = $this->factory->input()->field()->text($this->plugin->txt("prt_node_options"), $this->plugin->txt("prt_node_options_info"))
+            ->withValue($node->testoptions);
+        $inputs["quiet"] = $this->factory->input()->field()->select($this->plugin->txt("prt_node_quiet"), [
+            0 => $this->lng->txt('no'),
+            1 => $this->lng->txt('yes')
+        ], $this->plugin->txt("prt_node_quiet_info"))->withRequired(true)
+            ->withValue($node->quiet);
+        $inputs["feedback"] = $this->customFactory->columnSection([
+                "positive" => $this->buildPositivePart($prt, $node),
+                "negative" => $this->buildNegativePart($prt, $node)
+            ], $this->plugin->txt("prt_node_feedback"))
+            ->withColumnStyles([
+                "positive" => [
+                    "background" => "linear-gradient(45deg, #e2fff1, #a3ffd0);"
+                ],
+                "negative" => [
+                    "background" => "linear-gradient(45deg, #ffe2e3, #ffa3a3);"
+                ]
+            ]);
+
+        return $inputs;
+    }
+
+    private function buildPositivePart(stack_potentialresponse_tree_lite $prt, object $node): array
+    {
+        $inputs = [];
+
+        $inputs["mode"] = $this->factory->input()->field()->select($this->plugin->txt("prt_node_pos_mod"), [
+            "=" => "=",
+            "+" => "+",
+            "-" => "-"
+        ], $this->plugin->txt("prt_node_pos_mod_info"))->withRequired(true)
+            ->withValue($node->truescoremode);
+        $inputs["score"] = $this->factory->input()->field()->text($this->plugin->txt("prt_node_pos_score"), $this->plugin->txt("prt_node_pos_score_info"))->withRequired(true)
+            ->withValue($node->truescore);
+        $inputs["penalty"] = $this->factory->input()->field()->text($this->plugin->txt("prt_node_pos_penalty"), $this->plugin->txt("prt_node_pos_penalty_info"))->withRequired(true)
+            ->withValue($node->truepenalty);
+        $node_list = [
+            -1 => $this->plugin->txt('end')
+        ];
+        foreach ($prt->get_nodes_summary() as $node_name => $prt_node) {
+            if ($node_name != $node->nodename) {
+                $node_list[$node_name] = $node_name;
+            }
+        }
+        $inputs["next_node"] = $this->factory->input()->field()->select($this->plugin->txt("prt_node_pos_next"), $node_list, $this->plugin->txt("prt_node_pos_next_info"))->withRequired(true)
+            ->withValue($node->truenextnode);
+        $inputs["answernote"] = $this->factory->input()->field()->text($this->plugin->txt("prt_node_pos_answernote"), $this->plugin->txt("prt_node_pos_answernote_info"))->withRequired(true)
+            ->withValue($node->trueanswernote);
+        $inputs["specific_feedback"] = $this->customFactory->textareaRTE($this->question->getId(), $this->plugin->txt("prt_node_pos_specific_feedback"), $this->plugin->txt("prt_node_pos_specific_feedback_info"))
+            ->withValue($node->truefeedback);
+        $inputs["feedback_class"] = $this->factory->input()->field()->select($this->plugin->txt('prt_node_pos_feedback_class'), [
+            $this->lng->txt("default"),
+            $this->plugin->txt("feedback_node_right"),
+            $this->plugin->txt("feedback_node_wrong"),
+            $this->plugin->txt("feedback_solution_hint"),
+            $this->plugin->txt("feedback_extra_info"),
+            $this->plugin->txt("feedback_plot_feedback"),
+        ], $this->plugin->txt('prt_node_pos_feedback_class_info'))->withRequired(true)
+            ->withValue($node->truefeedbackformat);
+
+        return $inputs;
+    }
+
+    private function buildNegativePart(stack_potentialresponse_tree_lite $prt, object $node): array
+    {
+        $inputs = [];
+
+        $inputs["mode"] = $this->factory->input()->field()->select($this->plugin->txt("prt_node_neg_mod"), [
+            "=" => "=",
+            "+" => "+",
+            "-" => "-"
+        ], $this->plugin->txt("prt_node_neg_mod_info"))->withRequired(true)
+            ->withValue($node->falsescoremode);
+        $inputs["score"] = $this->factory->input()->field()->text($this->plugin->txt("prt_node_neg_score"), $this->plugin->txt("prt_node_neg_score_info"))->withRequired(true)
+            ->withValue($node->falsescore);
+        $inputs["penalty"] = $this->factory->input()->field()->text($this->plugin->txt("prt_node_neg_penalty"), $this->plugin->txt("prt_node_neg_penalty_info"))->withRequired(true)
+            ->withValue($node->falsepenalty);
+        $node_list = [
+            -1 => $this->plugin->txt('end')
+        ];
+        foreach ($prt->get_nodes_summary() as $node_name => $prt_node) {
+            if ($node_name != $node->nodename) {
+                $node_list[$node_name] = $node_name;
+            }
+        }
+        $inputs["next_node"] = $this->factory->input()->field()->select($this->plugin->txt("prt_node_neg_next"), $node_list, $this->plugin->txt("prt_node_neg_next_info"))->withRequired(true)
+            ->withValue($node->falsenextnode);
+        $inputs["answernote"] = $this->factory->input()->field()->text($this->plugin->txt("prt_node_neg_answernote"), $this->plugin->txt("prt_node_neg_answernote_info"))->withRequired(true)
+            ->withValue($node->falseanswernote);
+        $inputs["specific_feedback"] = $this->customFactory->textareaRTE($this->question->getId(), $this->plugin->txt("prt_node_neg_specific_feedback"), $this->plugin->txt("prt_node_neg_specific_feedback_info"))
+            ->withValue($node->falsefeedback);
+        $inputs["feedback_class"] = $this->factory->input()->field()->select($this->plugin->txt('prt_node_neg_feedback_class'), [
+            $this->lng->txt("default"),
+            $this->plugin->txt("feedback_node_right"),
+            $this->plugin->txt("feedback_node_wrong"),
+            $this->plugin->txt("feedback_solution_hint"),
+            $this->plugin->txt("feedback_extra_info"),
+            $this->plugin->txt("feedback_plot_feedback"),
+        ], $this->plugin->txt('prt_node_neg_feedback_class_info'))->withRequired(true)
+            ->withValue($node->falsefeedbackformat);
 
         return $inputs;
     }
