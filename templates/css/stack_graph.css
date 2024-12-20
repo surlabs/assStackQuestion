@@ -1,0 +1,60 @@
+.stack_abstract_graph {
+    background: #FFFFFF;
+    margin: 5px;
+    overflow:visible;
+}
+
+.stack_abstract_graph path {
+    stroke-width: 3px;
+    fill: none;
+}
+
+.stack_abstract_graph path.left {
+    stroke: #b5eeac;
+}
+
+.stack_abstract_graph circle.left {
+    fill: #b5eeac;
+}
+
+.stack_abstract_graph path.right {
+    stroke: #FFCCCC;
+}
+
+.stack_abstract_graph circle.right {
+    fill: #FFCCCC;
+}
+
+.stack_abstract_graph path.cross {
+    stroke: #f00;
+    stroke-linecap: round;
+}
+
+.stack_abstract_graph text {
+    font-family: Verdana;
+}
+
+.stack_abstract_graph text.nodelabel {
+    font-size: 1.2em;
+    fill: #fff;
+    alignment-baseline: middle;
+    text-anchor: middle;
+}
+
+.stack_abstract_graph text.edgelabel {
+    font-size: 0.75em;
+    fill: #000;
+    alignment-baseline: middle;
+}
+
+.stack_abstract_graph text.edgelabel.left {
+    text-anchor: end;
+}
+
+.stack_abstract_graph text.edgelabel.right {
+    text-anchor: start;
+}
+
+.stack_abstract_graph circle.node {
+    fill: #BBCCDD;
+}

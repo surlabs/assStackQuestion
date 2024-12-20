@@ -47,3 +47,19 @@
 .tab-panel.active {
     display: block;
 }
+
+.columns {
+    display: flex;
+    gap: 10px;
+}
+
+.column {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #dddddd;
+    border-radius: 3px;
+}
+
+.column .form-group {
+    background-color: transparent !important;
+}

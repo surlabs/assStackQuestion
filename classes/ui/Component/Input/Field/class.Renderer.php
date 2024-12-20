@@ -60,6 +60,8 @@ class Renderer extends RendererILIAS
             $component instanceof TextareaRTE => $this->renderTextareaRTE($component),
             $component instanceof ExpandableSection => $this->renderExpandableSection($component, $default_renderer),
             $component instanceof TabSection => $this->renderTabSection($component, $default_renderer),
+            $component instanceof ColumnSection => $this->renderColumnSection($component, $default_renderer),
+            $component instanceof Legacy => $component->getHtml(),
             default => parent::render($component, $default_renderer),
         };
     }
@@ -222,12 +224,6 @@ class Renderer extends RendererILIAS
             $section_tpl->parseCurrentBlock();
         }
 
-        if ($component->getError() !== null) {
-            $section_tpl->setCurrentBlock("error");
-            $section_tpl->setVariable("ERROR", $component->getError());
-            $section_tpl->parseCurrentBlock();
-        }
-
         $expand = new Expand($component->isExpandedByDefault());
 
         $section_tpl->setVariable("VIEW_CONTROL", $default_renderer->render($expand));
@@ -272,11 +268,41 @@ class Renderer extends RendererILIAS
         $section_tpl->setVariable("TAB_BUTTONS", $tabs_buttons);
         $section_tpl->setVariable("TAB_PANELS", $tabs_panels);
 
-        if ($component->getError() !== null) {
-            $section_tpl->setCurrentBlock("error");
-            $section_tpl->setVariable("ERROR", $component->getError());
+        return $section_tpl->get();
+    }
+
+    /**
+     * @throws ilTemplateException
+     */
+    private function renderColumnSection(ColumnSection $component, \ILIAS\UI\Renderer $default_renderer): string
+    {
+        $section_tpl = $this->getTemplateCustom("tpl.columnSection.html");
+
+        $section_tpl->setVariable("LABEL", $component->getLabel());
+
+        if ($component->getByline() !== null) {
+            $section_tpl->setCurrentBlock("byline");
+            $section_tpl->setVariable("BYLINE", $component->getByline());
             $section_tpl->parseCurrentBlock();
         }
+
+        $columns_html = "";
+
+        foreach ($component->getColumns() as $column_name => $column) {
+            $inputs_html = "";
+
+            foreach ($column as $input) {
+                $inputs_html .= $default_renderer->render($input);
+            }
+
+            $columns_html .= "<div class='column'";
+
+            $columns_html .= $component->renderColumnStyle($column_name);
+
+            $columns_html .= ">$inputs_html</div>";
+        }
+
+        $section_tpl->setVariable("COLUMNS", $columns_html);
 
         return $section_tpl->get();
     }

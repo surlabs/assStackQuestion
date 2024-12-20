@@ -186,4 +186,9 @@ class ExpandableSection extends Input implements FormInput, GroupInterface, Grou
     {
         return $this->data_factory;
     }
+
+    protected function setError(string $error): void
+    {
+        $this->error = $error;
+    }
 }

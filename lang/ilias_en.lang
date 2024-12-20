@@ -694,3 +694,4 @@ debug_info_message#:#Debug information (not shown to the students in Tests)
 debug_info_question_variables#:#Question variables
 debug_info_feedback_variables#:#Feedback variables
 error_inputs_missing#:#Some entries are still missing
+prt_node_feedback#:#Node Feedback
