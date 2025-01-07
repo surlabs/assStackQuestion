@@ -41,7 +41,10 @@ use stack_ans_test_controller;
 use stack_exception;
 use stack_input;
 use stack_input_factory;
+use stack_options;
 use stack_potentialresponse_tree_lite;
+use stack_utils;
+use stdClass;
 
 /**
  * StackQuestionAuthoringUI
@@ -133,10 +136,143 @@ class StackQuestionAuthoringUI
         return null;
     }
 
-    #[NoReturn] private function save(array $result): ?string
+    /**
+     * @throws stack_exception
+     */
+    private function save(array $result): ?string
     {
-        dump($result);
-        exit();
+        // Save basic section
+        $basic = $result["basic"];
+
+        $this->question->setTitle($basic["title"]);
+        $this->question->setAuthor($basic["author"]);
+        $this->question->setComment($basic["description"]);
+
+        $this->question->setQuestion($basic["question"]);
+
+        $this->question->question_variables = $basic["question_variables"];
+        $this->question->question_note = $basic["question_note"];
+        $this->question->specific_feedback = $basic["specific_feedback"];
+
+        // Save options section
+        $options = $result["options"][0];
+
+        $this->question->options = new stack_options(array(
+            "simplify" => $options["simplify"] ? 1 : 0,
+            "assumepos" => $options["assumepos"] ? 1 : 0,
+            "assumereal" => $options["assumereal"] ? 1 : 0,
+            "multiplicationsign" => $options["multiplicationsign"],
+            "sqrtsign" => $options["sqrtsign"] ? 1 : 0,
+            "complexno" => $options["complexno"],
+            "inversetrig" => $options["inversetrig"],
+            "matrixparens" => $options["matrixparens"]
+        ));
+
+        $this->question->prt_correct = $options["prt_correct"];
+        $this->question->prt_partially_correct = $options["prt_partially_correct"];
+        $this->question->prt_incorrect = $options["prt_incorrect"];
+        $this->question->general_feedback = $options["general_feedback"];
+
+        // Save inputs section
+        $inputs = array();
+
+        $required_inputs_parameters = stack_input_factory::get_parameters_used();
+
+        foreach ($result["inputs"] as $name => $input) {
+            $parameters = array();
+
+            foreach ($required_inputs_parameters[$input["type"]] as $parameter_name) {
+                if ($parameter_name != 'inputType') {
+                    $parameters[$parameter_name] = $input[$parameter_name];
+                }
+            }
+
+            $inputs[$name] = stack_input_factory::make($input["type"], $name, $input["teacher_answer"], $this->question->options, $parameters);
+        }
+
+        $this->question->inputs = $inputs;
+
+        // Save prt section
+        $prts_array = array();
+
+        foreach ($result["prt"] as $prt_name => $_prt) {
+            $prt = $_prt[0]["prt"];
+
+            $prt_data = new stdClass();
+
+            $prt_data->name = $prt_name;
+            $prt_data->value = $prt["settings"]["prt_value"];
+            $prt_data->autosimplify = $prt["settings"]["simplify"];
+            $prt_data->feedbackvariables = $prt["settings"]["feedback_variables"];
+            $prt_data->firstnodename = $prt["first_node"];
+
+
+            $prt_data->nodes = array();
+
+            foreach ($prt["nodes"] as $node_name => $node) {
+                $node_data = new stdClass();
+
+                $node_data->nodename = $node_name;
+                $node_data->description = "";
+                $node_data->prtname = $prt_name;
+                $node_data->answertest = $node["answer_test"];
+                $node_data->sans = $node["student_answer"];
+                $node_data->tans = $node["teacher_answer"];
+                $node_data->testoptions = $node["options"];
+                $node_data->quiet = $node["quiet"];
+
+                $node_data->truescoremode = $node["feedback"]["positive"]["mode"];
+                $node_data->truescore = $node["feedback"]["positive"]["score"];
+                $node_data->truepenalty = $node["feedback"]["positive"]["penalty"];
+                $node_data->truenextnode = $node["feedback"]["positive"]["next_node"];
+                $node_data->trueanswernote = $node["feedback"]["positive"]["answernote"];
+                $node_data->truefeedback = $node["feedback"]["positive"]["specific_feedback"];
+                $node_data->truefeedbackformat = $node["feedback"]["positive"]["feedback_class"];
+
+                $node_data->falsescoremode = $node["feedback"]["negative"]["mode"];
+                $node_data->falsescore = $node["feedback"]["negative"]["score"];
+                $node_data->falsepenalty = $node["feedback"]["negative"]["penalty"];
+                $node_data->falsenextnode = $node["feedback"]["negative"]["next_node"];
+                $node_data->falseanswernote = $node["feedback"]["negative"]["answernote"];
+                $node_data->falsefeedback = $node["feedback"]["negative"]["specific_feedback"];
+                $node_data->falsefeedbackformat = $node["feedback"]["negative"]["feedback_class"];
+
+                $prt_data->nodes[$node_name] = $node_data;
+            }
+
+            $prts_array[$prt_name] = $prt_data;
+        }
+
+        $total_value = 0;
+        $all_formative = true;
+
+        foreach ($prts_array as $name => $prt_data) {
+            $total_value += (float) $prt_data->value;
+
+            if ((float) $prt_data->value > 0) {
+                $all_formative = false;
+            }
+        }
+
+        if ($prts_array && !$all_formative && $total_value < 0.0000001) {
+            return $this->renderer->render($this->factory->messageBox()->failure('There is an error authoring your question. The $totalvalue, the marks available for the question, must be positive'));
+        }
+
+        $prts = array();
+
+        foreach ($prts_array as $name => $prt_data) {
+            $prt_value = 0;
+            if (!$all_formative) {
+                $prt_value = (float) $prt_data->value / $total_value;
+            }
+            $prts[$name] = new stack_potentialresponse_tree_lite($prt_data, $prt_value);
+        }
+
+        $this->question->prts = $prts;
+
+        $this->question->saveToDb();
+
+        return $this->renderer->render($this->factory->messageBox()->success($this->lng->txt('msg_obj_modified')));
     }
 
     private function buildBasicSection(): array
@@ -309,15 +445,15 @@ class StackQuestionAuthoringUI
         $inputs["forbidWords"] = $this->factory->input()->field()->text($this->plugin->txt("input_forbidden_words"), $this->plugin->txt("input_forbidden_words_info"))
             ->withValue($input->get_parameter('forbidWords'));
         $inputs["forbidFloats"] = $this->factory->input()->field()->checkbox($this->plugin->txt("input_forbid_float"), $this->plugin->txt("input_forbid_float_info"))
-            ->withValue($input->get_parameter('forbidFloats'));
+            ->withValue(boolval($input->get_parameter('forbidFloats')));
         $inputs["allowWords"] = $this->factory->input()->field()->text($this->plugin->txt("input_allow_words"), $this->plugin->txt("input_allow_words_info"))
             ->withValue($input->get_parameter('allowWords'));
         $inputs["lowestTerms"] = $this->factory->input()->field()->checkbox($this->plugin->txt("input_require_lowest_terms"), $this->plugin->txt("input_require_lowest_terms_info"))
-            ->withValue($input->get_parameter('lowestTerms'));
+            ->withValue(boolval($input->get_parameter('lowestTerms')));
         $inputs["sameType"] = $this->factory->input()->field()->checkbox($this->plugin->txt("input_check_answer_type"), $this->plugin->txt("input_check_answer_type_info"))
-            ->withValue($input->get_parameter('sameType'));
+            ->withValue(boolval($input->get_parameter('sameType')));
         $inputs["mustVerify"] = $this->factory->input()->field()->checkbox($this->plugin->txt("input_must_verify"), $this->plugin->txt("input_must_verify_info"))
-            ->withValue($input->get_parameter('mustVerify'));
+            ->withValue(boolval($input->get_parameter('mustVerify')));
         $inputs["showValidation"] = $this->factory->input()->field()->select($this->plugin->txt("input_show_validation"), [
             0 => $this->plugin->txt('show_validation_no'),
             1 => $this->plugin->txt('show_validation_yes_with_vars'),
@@ -455,10 +591,10 @@ class StackQuestionAuthoringUI
             "-" => "-"
         ], $this->plugin->txt("prt_node_pos_mod_info"))->withRequired(true)
             ->withValue($node->truescoremode);
-        $inputs["score"] = $this->factory->input()->field()->text($this->plugin->txt("prt_node_pos_score"), $this->plugin->txt("prt_node_pos_score_info"))->withRequired(true)
-            ->withValue($node->truescore);
-        $inputs["penalty"] = $this->factory->input()->field()->text($this->plugin->txt("prt_node_pos_penalty"), $this->plugin->txt("prt_node_pos_penalty_info"))->withRequired(true)
-            ->withValue($node->truepenalty);
+        $inputs["score"] = $this->factory->input()->field()->numeric($this->plugin->txt("prt_node_pos_score"), $this->plugin->txt("prt_node_pos_score_info"))->withRequired(true)
+            ->withValue(floatval($node->truescore));
+        $inputs["penalty"] = $this->factory->input()->field()->numeric($this->plugin->txt("prt_node_pos_penalty"), $this->plugin->txt("prt_node_pos_penalty_info"))->withRequired(true)
+            ->withValue(floatval($node->truepenalty));
         $node_list = [
             -1 => $this->plugin->txt('end')
         ];
@@ -496,10 +632,10 @@ class StackQuestionAuthoringUI
             "-" => "-"
         ], $this->plugin->txt("prt_node_neg_mod_info"))->withRequired(true)
             ->withValue($node->falsescoremode);
-        $inputs["score"] = $this->factory->input()->field()->text($this->plugin->txt("prt_node_neg_score"), $this->plugin->txt("prt_node_neg_score_info"))->withRequired(true)
-            ->withValue($node->falsescore);
-        $inputs["penalty"] = $this->factory->input()->field()->text($this->plugin->txt("prt_node_neg_penalty"), $this->plugin->txt("prt_node_neg_penalty_info"))->withRequired(true)
-            ->withValue($node->falsepenalty);
+        $inputs["score"] = $this->factory->input()->field()->numeric($this->plugin->txt("prt_node_neg_score"), $this->plugin->txt("prt_node_neg_score_info"))->withRequired(true)
+            ->withValue(floatval($node->falsescore));
+        $inputs["penalty"] = $this->factory->input()->field()->numeric($this->plugin->txt("prt_node_neg_penalty"), $this->plugin->txt("prt_node_neg_penalty_info"))->withRequired(true)
+            ->withValue(floatval($node->falsepenalty));
         $node_list = [
             -1 => $this->plugin->txt('end')
         ];

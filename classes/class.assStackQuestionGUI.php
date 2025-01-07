@@ -421,15 +421,10 @@ class assStackQuestionGUI extends assQuestionGUI
     }
 
     /**
-     * Evaluates a posted edit form and writes the form data in the question object
-     * (called frm generic commands in assQuestionGUI)
-     * Converts the data from post into assStackQuestion ($this->object)
-     * Called before editQuestion()
-     *
-     * @return integer    0: question can be saved / 1: form is not complete
      * @throws ilCtrlException
+     * @throws stack_exception
      */
-	public function writePostData($always = FALSE): int
+    public function writePostData($always = FALSE): int
 	{
         // TODO (Saaweel): Delete unnecessary methods like generateSpecificPostData(), etc....
         $authoring_ui = new StackQuestionAuthoringUI($this->plugin, $this->object);
