@@ -62,8 +62,11 @@ class RandomisationAndSecurityUI
             if ($key === "deployed_seeds") {
                 $this->data["deployed_variants"] = [];
                 foreach ($value as $id => $deployed_seed) {
-                    $active_seed = assStackQuestionDB::_readActiveSeed($deployed_seed["question_id"]);
-                    if ((int)$active_seed === (int)$deployed_seed["seed"]) {
+                    $active_seed = assStackQuestionDB::_getSeedForPreview($data["question"], $DIC->user()->getId());
+
+                    if ($active_seed === (int) $deployed_seed["seed"]) {
+                        $data["question"]->setSeed($active_seed);
+
                         $this->data["active_variant_identifier"] = (string)$deployed_seed["seed"] ?? '1';
                         $this->data["active_variant_question_note"] = (string)$deployed_seed["note"]->get_rendered();
                         $this->data["active_variant_question_text"] = (string)$deployed_seed["question_text"]->get_rendered();
