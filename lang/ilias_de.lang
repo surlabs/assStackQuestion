@@ -699,3 +699,5 @@ debug_info_question_variables#:#Fragevariablen
 debug_info_feedback_variables#:#Feedback-Variablen
 error_inputs_missing#:#Es fehlen noch einige Einträge
 prt_node_feedback#:#Node-Feedback
+input_delete#:#Eingabe löschen
+actions#:#Aktionen
