@@ -35,7 +35,6 @@ use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 use ilLanguage;
-use JetBrains\PhpStorm\NoReturn;
 use stack_abstract_graph_svg_renderer;
 use stack_ans_test_controller;
 use stack_exception;
@@ -192,6 +191,14 @@ class StackQuestionAuthoringUI
 
         $this->question->inputs = $inputs;
 
+        $inputs_placeholders = stack_utils::extract_placeholders($this->question->getQuestion(), 'input');
+
+        foreach ($inputs_placeholders as $placeholder) {
+            if (!isset($this->question->inputs[$placeholder])) {
+                $this->question->loadStandardInput($placeholder);
+            }
+        }
+
         // Save prt section
         $prts_array = array();
 
@@ -246,7 +253,7 @@ class StackQuestionAuthoringUI
         $total_value = 0;
         $all_formative = true;
 
-        foreach ($prts_array as $name => $prt_data) {
+        foreach ($prts_array as $prt_data) {
             $total_value += (float) $prt_data->value;
 
             if ((float) $prt_data->value > 0) {
@@ -269,6 +276,14 @@ class StackQuestionAuthoringUI
         }
 
         $this->question->prts = $prts;
+
+        $prts_placeholders = stack_utils::extract_placeholders($this->question->getQuestion() . $this->question->specific_feedback, 'feedback');
+
+        foreach ($prts_placeholders as $placeholder) {
+            if (!isset($this->question->prts[$placeholder])) {
+                $this->question->loadStandardPrt($placeholder);
+            }
+        }
 
         $this->question->saveToDb();
 
@@ -354,6 +369,7 @@ class StackQuestionAuthoringUI
 
     /**
      * @throws stack_exception
+     * @throws ilCtrlException
      */
     private function buildInputsSection(): array
     {
@@ -401,6 +417,9 @@ class StackQuestionAuthoringUI
         return $inputs;
     }
 
+    /**
+     * @throws ilCtrlException
+     */
     private function buildInput(string $name, stack_input $input, bool $isFirst): ExpandableSection
     {
         $inputs = [];
@@ -463,12 +482,18 @@ class StackQuestionAuthoringUI
         $inputs["options"] = $this->factory->input()->field()->text($this->plugin->txt("input_options"), $this->plugin->txt("input_options_info"))
             ->withValue($input->get_parameter('options'));
 
+        $this->ctrl->setParameterByClass("assStackQuestionGUI", "input_name", $name);
+        $inputs["actions"] = $this->customFactory->buttonSection([
+            $this->factory->button()->standard($this->plugin->txt("input_delete"), ""),
+        ], $this->plugin->txt("actions"));
+        $this->ctrl->clearParameterByClass("assStackQuestionGUI", "input_name");
+
 
         return $this->customFactory->expandableSection($inputs, $name)->withExpandedByDefault($isFirst);
     }
 
     /**
-     * @throws stack_exception
+     * @throws stack_exception|ilCtrlException
      */
     private function buildPrtSection(): array
     {
@@ -497,6 +522,9 @@ class StackQuestionAuthoringUI
         return $prts;
     }
 
+    /**
+     * @throws ilCtrlException
+     */
     private function buildPrt(stack_potentialresponse_tree_lite $prt): array
     {
         $inputs = [];
@@ -515,6 +543,9 @@ class StackQuestionAuthoringUI
         return $inputs;
     }
 
+    /**
+     * @throws ilCtrlException
+     */
     private function buildPrtOptions(stack_potentialresponse_tree_lite $prt): array
     {
         $inputs = [];
@@ -526,9 +557,19 @@ class StackQuestionAuthoringUI
         $inputs["feedback_variables"] = $this->factory->input()->field()->textarea($this->plugin->txt("prt_feedback_variables"), $this->plugin->txt("prt_feedback_variables_info"))
             ->withValue($prt->get_feedbackvariables_keyvals());
 
+        $this->ctrl->setParameterByClass("assStackQuestionGUI", "prt_name", $prt->get_name());
+        $inputs["actions"] = $this->customFactory->buttonSection([
+            $this->factory->button()->standard($this->plugin->txt("delete_prt"), ""),
+            $this->factory->button()->standard($this->plugin->txt("copy_prt"), "")
+        ], $this->plugin->txt("actions"));
+        $this->ctrl->clearParameterByClass("assStackQuestionGUI", "prt_name");
+
         return $inputs;
     }
 
+    /**
+     * @throws ilCtrlException
+     */
     private function buildNodeSection(stack_potentialresponse_tree_lite $prt): array
     {
         $nodes = [];
@@ -542,6 +583,9 @@ class StackQuestionAuthoringUI
         return $nodes;
     }
 
+    /**
+     * @throws ilCtrlException
+     */
     private function buildNode(stack_potentialresponse_tree_lite $prt, object $node): array
     {
         $inputs = [];
@@ -565,6 +609,16 @@ class StackQuestionAuthoringUI
             1 => $this->lng->txt('yes')
         ], $this->plugin->txt("prt_node_quiet_info"))->withRequired(true)
             ->withValue($node->quiet);
+
+        $this->ctrl->setParameterByClass("assStackQuestionGUI", "prt_name", $prt->get_name());
+        $this->ctrl->setParameterByClass("assStackQuestionGUI", "node_name", $node->nodename);
+        $inputs["actions"] = $this->customFactory->buttonSection([
+            $this->factory->button()->standard($this->plugin->txt("delete_node"), ""),
+            $this->factory->button()->standard($this->plugin->txt("copy_node"), "")
+        ], $this->plugin->txt("actions"));
+        $this->ctrl->clearParameterByClass("assStackQuestionGUI", "prt_name");
+        $this->ctrl->clearParameterByClass("assStackQuestionGUI", "node_name");
+
         $inputs["feedback"] = $this->customFactory->columnSection([
                 "positive" => $this->buildPositivePart($prt, $node),
                 "negative" => $this->buildNegativePart($prt, $node)

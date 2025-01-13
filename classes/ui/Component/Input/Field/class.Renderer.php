@@ -62,6 +62,7 @@ class Renderer extends RendererILIAS
             $component instanceof TabSection => $this->renderTabSection($component, $default_renderer),
             $component instanceof ColumnSection => $this->renderColumnSection($component, $default_renderer),
             $component instanceof Legacy => $component->getHtml(),
+            $component instanceof ButtonSection => $this->renderButtonSection($component, $default_renderer),
             default => parent::render($component, $default_renderer),
         };
     }
@@ -305,5 +306,23 @@ class Renderer extends RendererILIAS
         $section_tpl->setVariable("COLUMNS", $columns_html);
 
         return $section_tpl->get();
+    }
+
+    /**
+     * @throws ilTemplateException
+     */
+    private function renderButtonSection(ButtonSection $component, \ILIAS\UI\Renderer $default_renderer): string
+    {
+        $section_tpl = $this->getTemplateCustom("tpl.buttonSection.html");
+
+        $buttons_html = "";
+
+        foreach ($component->getButtons() as $button) {
+            $buttons_html .= $default_renderer->render($button);
+        }
+
+        $section_tpl->setVariable("INPUTS", $buttons_html);
+
+        return $this->wrapInFormContext($component, $section_tpl->get(), $this->bindJSandApplyId($component, $section_tpl));
     }
 }

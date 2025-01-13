@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component;
 
+use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\ButtonSection;
 use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\ColumnSection;
 use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\ExpandableSection;
 use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\Legacy;
@@ -61,5 +62,10 @@ class CustomFactory
     public function legacy(string $html): Legacy
     {
         return new Legacy($html);
+    }
+
+    public function buttonSection(array $buttons, string $label, ?string $by_line = null): ButtonSection
+    {
+        return new ButtonSection($buttons, $label, $by_line);
     }
 }
