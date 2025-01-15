@@ -2,6 +2,8 @@
 declare(strict_types=1);
 
 use classes\platform\StackConfig;
+use classes\platform\StackDatabase;
+use ILIAS\UI\Component\Input\Field\Group;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Implementation\Component\Input\Field\Section;
 
@@ -49,7 +51,8 @@ class PluginConfigurationDefaultsUI
         //get sections
         $content = [
             'options' => self::getOptionsDefaultsSection($data, $plugin_object),
-            'inputs' => self::getInputsDefaultsSection($data, $plugin_object)
+            'inputs' => self::getInputsDefaultsSection($data, $plugin_object),
+            'feedback_styles' => self::getFeedbackStylesDefaultsSection($data, $plugin_object)
         ];
 
 
@@ -447,5 +450,63 @@ class PluginConfigurationDefaultsUI
             $plugin_object->txt("ui_admin_configuration_defaults_inputs_title"),
             $plugin_object->txt("ui_admin_configuration_defaults_inputs_description")
         );
+    }
+
+    /**
+     * @throws \classes\platform\StackException
+     */
+    private static function getFeedbackStylesDefaultsSection(array $data, ilPlugin $plugin_object): Group
+    {
+        global $DIC;
+
+        $inputs = [];
+
+        $style_sheets = ilObjStyleSheet::_getStandardStyles();
+        $style_sheets[""] = $DIC->language()->txt("default");
+
+        $inputs[] = self::$factory->input()->field()->section([
+            self::$factory->input()->field()->select($plugin_object->txt('feedback_stylesheet_id'), $style_sheets, $plugin_object->txt('feedback_stylesheet_id_info'))
+                ->withRequired(true)
+                ->withValue(isset($style_sheets[$data["feedback_stylesheet_id"]]) ? $data["feedback_stylesheet_id"] : "")
+                ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                    function ($v) {
+                        StackConfig::set("feedback_stylesheet_id", $v, "feedback_styles");
+                    }
+                ))
+        ], $plugin_object->txt("feedback_stylesheet_id"));
+
+        if (!empty($data["feedback_stylesheet_id"])) {
+            $styles_from_db = StackDatabase::select("style_char", ["type" => "section", "style_id" => $data["feedback_stylesheet_id"]], ["characteristic"]);
+
+            $styles = [];
+
+            foreach ($styles_from_db as $style) {
+                $styles[$style["characteristic"]] = $style["characteristic"];
+            }
+
+            $styles[""] = $DIC->language()->txt("default");
+
+            for ($i = 0; $i < 6; $i++) {
+                $inputs[] = self::$factory->input()->field()->section([
+                    self::$factory->input()->field()->text(
+                        $plugin_object->txt("ui_admin_configuration_defaults_feedback_styles_name")
+                    )->withValue($data["feedback_styles_name_$i"] ?? "Style " . $i+1)->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                        function ($v) use ($i) {
+                            StackConfig::set("feedback_styles_name_$i", $v, "feedback_styles");
+                        }
+                    )),
+                    self::$factory->input()->field()->select(
+                        $plugin_object->txt("ui_admin_configuration_defaults_feedback_styles_style"),
+                        $styles
+                    )->withValue(isset($styles[$data["feedback_styles_style_$i"]]) ? $data["feedback_styles_style_$i"] : "")->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                        function ($v) use ($i) {
+                            StackConfig::set("feedback_styles_style_$i", $v, "feedback_styles");
+                        }
+                    ))
+                ], $plugin_object->txt("ui_admin_configuration_defaults_feedback_styles_title") . " " . ($i + 1));
+            }
+        }
+
+        return self::$factory->input()->field()->group($inputs);
     }
 }
