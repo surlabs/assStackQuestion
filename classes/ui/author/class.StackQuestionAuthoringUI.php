@@ -31,6 +31,7 @@ use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuesti
 use ilassStackQuestionPlugin;
 use ilCtrlException;
 use ilCtrlInterface;
+use ILIAS\Modules\DataCollection\Fields\Formula\FormulaParser\Stack;
 use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
@@ -60,6 +61,7 @@ class StackQuestionAuthoringUI
     private Renderer $renderer;
     private ilLanguage $lng;
     private $request;
+    private array $feedback_format_options;
 
     public function __construct(ilassStackQuestionPlugin $plugin, assStackQuestion $question)
     {
@@ -112,6 +114,7 @@ class StackQuestionAuthoringUI
 
             if($result) {
                 $saving_info = $this->save($result) ?? "";
+                $form = $this->buildForm();
             }
         }
 
@@ -408,9 +411,14 @@ class StackQuestionAuthoringUI
             $inputs["ans1"] = $this->buildInput("ans1", stack_input_factory::make('algebraic', 'ans1', 1, $this->question->options, $parameters), true);
         } else {
             $isFirst = true;
+
+            $inputs_placeholders = stack_utils::extract_placeholders($this->question->getQuestion(), 'input');
+
             foreach ($this->question->inputs as $name => $input) {
-                $inputs[$name] = $this->buildInput($name, $input, $isFirst);
-                $isFirst = false;
+                if (in_array($name, $inputs_placeholders)) {
+                    $inputs[$name] = $this->buildInput($name, $input, $isFirst);
+                    $isFirst = false;
+                }
             }
         }
 
@@ -500,22 +508,26 @@ class StackQuestionAuthoringUI
         $prts = [];
 
         if (!empty($this->question->prts)) {
+            $prts_placeholders = stack_utils::extract_placeholders($this->question->getQuestion() . $this->question->specific_feedback, 'feedback');
+
             foreach ($this->question->prts as $prt_name => $prt) {
-                $prts[$prt_name] = [$this->customFactory->columnSection([
-                    "graph" => [
-                        "graph" => $this->customFactory->legacy(stack_abstract_graph_svg_renderer::render($prt->get_prt_graph(), $prt->get_name() . 'graphsvg')),
-                    ],
-                    "prt" => $this->buildPrt($prt)
-                ], $prt_name)
-                ->withColumnStyles([
-                    "graph" => [
-                        "flex" => "0",
-                        "border" => "0px solid #000",
-                        "text-align" => "center",
-                        "padding-left" => "50px",
-                        "padding-right" => "50px"
-                    ]
-                ])];
+                if (in_array($prt_name, $prts_placeholders)) {
+                    $prts[$prt_name] = [$this->customFactory->columnSection([
+                        "graph" => [
+                            "graph" => $this->customFactory->legacy(stack_abstract_graph_svg_renderer::render($prt->get_prt_graph(), $prt->get_name() . 'graphsvg')),
+                        ],
+                        "prt" => $this->buildPrt($prt)
+                    ], $prt_name)
+                    ->withColumnStyles([
+                        "graph" => [
+                            "flex" => "0",
+                            "border" => "0px solid #000",
+                            "text-align" => "center",
+                            "padding-left" => "50px",
+                            "padding-right" => "50px"
+                        ]
+                    ])];
+                }
             }
         }
 
@@ -663,14 +675,7 @@ class StackQuestionAuthoringUI
             ->withValue($node->trueanswernote);
         $inputs["specific_feedback"] = $this->customFactory->textareaRTE($this->question->getId(), $this->plugin->txt("prt_node_pos_specific_feedback"), $this->plugin->txt("prt_node_pos_specific_feedback_info"))
             ->withValue($node->truefeedback);
-        $inputs["feedback_class"] = $this->factory->input()->field()->select($this->plugin->txt('prt_node_pos_feedback_class'), [
-            $this->lng->txt("default"),
-            $this->plugin->txt("feedback_node_right"),
-            $this->plugin->txt("feedback_node_wrong"),
-            $this->plugin->txt("feedback_solution_hint"),
-            $this->plugin->txt("feedback_extra_info"),
-            $this->plugin->txt("feedback_plot_feedback"),
-        ], $this->plugin->txt('prt_node_pos_feedback_class_info'))->withRequired(true)
+        $inputs["feedback_class"] = $this->factory->input()->field()->select($this->plugin->txt('prt_node_pos_feedback_class'), $this->getFeedbackFormatOptions(), $this->plugin->txt('prt_node_pos_feedback_class_info'))->withRequired(true)
             ->withValue($node->truefeedbackformat);
 
         return $inputs;
@@ -704,16 +709,28 @@ class StackQuestionAuthoringUI
             ->withValue($node->falseanswernote);
         $inputs["specific_feedback"] = $this->customFactory->textareaRTE($this->question->getId(), $this->plugin->txt("prt_node_neg_specific_feedback"), $this->plugin->txt("prt_node_neg_specific_feedback_info"))
             ->withValue($node->falsefeedback);
-        $inputs["feedback_class"] = $this->factory->input()->field()->select($this->plugin->txt('prt_node_neg_feedback_class'), [
-            $this->lng->txt("default"),
-            $this->plugin->txt("feedback_node_right"),
-            $this->plugin->txt("feedback_node_wrong"),
-            $this->plugin->txt("feedback_solution_hint"),
-            $this->plugin->txt("feedback_extra_info"),
-            $this->plugin->txt("feedback_plot_feedback"),
-        ], $this->plugin->txt('prt_node_neg_feedback_class_info'))->withRequired(true)
+        $inputs["feedback_class"] = $this->factory->input()->field()->select($this->plugin->txt('prt_node_neg_feedback_class'), $this->getFeedbackFormatOptions(), $this->plugin->txt('prt_node_neg_feedback_class_info'))->withRequired(true)
             ->withValue($node->falsefeedbackformat);
 
         return $inputs;
+    }
+
+    private function getFeedbackFormatOptions(): array
+    {
+        if (!isset($this->feedback_format_options)) {
+            $this->feedback_format_options = array();
+
+            $result = StackConfig::getAll("feedback_styles");
+
+            foreach ($result as $name => $value) {
+                if (str_contains($name, "feedback_styles_name_")) {
+                    $id = str_replace("feedback_styles_name_", "", $name);
+
+                    $this->feedback_format_options[$id] = $value;
+                }
+            }
+        }
+
+        return $this->feedback_format_options;
     }
 }

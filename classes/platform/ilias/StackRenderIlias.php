@@ -9,6 +9,7 @@ use classes\platform\StackConfig;
 use classes\platform\StackEvaluation;
 use classes\platform\StackException;
 use classes\platform\StackRender;
+use ilObjStyleSheet;
 use ilSetting;
 use ilUtil;
 use stack_exception;
@@ -69,19 +70,13 @@ class StackRenderIlias extends StackRender
 
         $error_message = '';
         if ($result->get_errors()) {
-            $error_message = stack_string('prtruntimeerror',
-                array('prt' => $prt_name, 'error' => implode('</br>', $result->get_errors())));
+            $error_message = stack_string('prtruntimeerror', array('prt' => $prt_name, 'error' => implode('</br>', $result->get_errors())));
             $error_message = $renderer->render($factory->messageBox()->failure($error_message));
         }
 
-        $feedback = '';
         $feedback = $result->get_feedback($question->getCasTextProcessor());
 
-        // The feedback does not come as bits anymore the whole thing is concatenated in CAS
-        // and CASText converts any formats to HTML already, plugin files as well.
         $feedback = stack_maths::process_display_castext($feedback);
-
-        //ILIAS: NO GRADING DETAILS
 
         if (!$result->is_evaluated()) {
             if ($question->isAnyInputBlank($response)) {
@@ -89,94 +84,53 @@ class StackRenderIlias extends StackRender
             }
         }
 
-        // Don't give standard feedback when we have errors.
-        if (count($result->get_errors()) != 0) {
-            //TODO throw new StackException('PRT' . $prt_name . ' has errors.');
-        }
-
         $state = StackEvaluation::stateForFraction($result->get_score());
 
-        // TODO: Compact and symbolic only.
-        //if ($display_options['feedback_style'] === 2 || $display_options['feedback_style'] === 3) {
-        //$s = get_string('symbolicprt' . $class . 'feedback', 'qtype_stack');
-        //return html_writer::tag('span', $s, array('class' => $class));
-        //}
+        $prt_feedback_instantiated = match ($state) {
+            'incorrect' => $question->prt_incorrect_instantiated->get_rendered($question->getCasTextProcessor()),
+            'partially_correct' => $question->prt_partially_correct_instantiated->get_rendered($question->getCasTextProcessor()),
+            'correct' => $question->prt_correct_instantiated->get_rendered($question->getCasTextProcessor()),
+            default => throw new StackException('Invalid state.'),
+        };
 
-        $prt_feedback_instantiated = '';
-
-        switch ($state) {
-            case 'incorrect':
-                // Incorrect.
-                $prt_feedback_instantiated =
-                    $question->prt_incorrect_instantiated->get_rendered($question->getCasTextProcessor());
-
-                if (trim($feedback) === '') {
-                    $feedback = $prt_feedback_instantiated;
-                } elseif (trim($prt_feedback_instantiated) !== '' && trim($prt_feedback_instantiated) !== "<p></p>\n<p></p>") {
-                    $feedback = $prt_feedback_instantiated . '</br>' . $feedback;
-                }
-
-                $standard_prt_feedback = $factory->messageBox()->failure(assStackQuestionUtils::_getLatex($feedback));
-                break;
-            case 'partially_correct':
-                // Partially correct.
-                $prt_feedback_instantiated =
-                    $question->prt_partially_correct_instantiated->get_rendered($question->getCasTextProcessor());
-
-                if (trim($feedback) === '') {
-                    $feedback = $prt_feedback_instantiated;
-                } elseif (trim($prt_feedback_instantiated) !== '' && trim($prt_feedback_instantiated) !== "<p></p>\n<p></p>") {
-                    $feedback = $prt_feedback_instantiated . '</br>' . $feedback;
-                }
-
-                $standard_prt_feedback = $factory->messageBox()->info(assStackQuestionUtils::_getLatex($feedback));
-                break;
-            case 'correct':
-                // Correct.
-                $prt_feedback_instantiated =
-                    $question->prt_correct_instantiated->get_rendered($question->getCasTextProcessor());
-
-                if (trim($feedback) === '') {
-                    $feedback = $prt_feedback_instantiated;
-                } elseif (trim($prt_feedback_instantiated) !== '' && trim($prt_feedback_instantiated) !== "<p></p>\n<p></p>") {
-                    $feedback = $prt_feedback_instantiated . '</br>' . $feedback;
-                }
-
-                $standard_prt_feedback = $factory->messageBox()->success(assStackQuestionUtils::_getLatex($feedback));
-                break;
-            default:
-                throw new StackException('Invalid state.');
+        if (trim($feedback) === '') {
+            $feedback = $prt_feedback_instantiated;
+        } elseif (trim($prt_feedback_instantiated) !== '' && trim($prt_feedback_instantiated) !== "<p></p>\n<p></p>") {
+            $feedback = $prt_feedback_instantiated . '</br>' . $feedback;
         }
 
-        if (trim($prt_feedback_instantiated) === '' && trim($feedback) === '') {
+        if (trim($feedback) === '') {
             return '';
         }
 
-        //$tag = 'div';
-        $prt_feedback_html = '';
-        switch ($display_options['feedback_style']) {
-            case 0:
-                // Formative PRT.
-                $prt_feedback_html = $error_message;
-                break;
-            case 1:
-                $prt_feedback_html = $renderer->render($standard_prt_feedback) . '</br>' . $error_message;
-                break;
-            case 2:
-                // Compact.
-                $prt_feedback_html = $renderer->render($standard_prt_feedback) . '</br>' . $error_message;
-                //$tag = 'span';
-                break;
-            case 3:
-                // Symbolic.
-                $prt_feedback_html = $renderer->render($standard_prt_feedback) . '</br>' . $error_message;
-                //$tag = 'span';
-                break;
-            default:
-                echo "i is not equal to 0, 1 or 2";
+        $notes = $result->get_answernotes();
+
+        $result_note = explode("-", end($notes));
+
+        $node = $question->prts[$result_note[0]]->get_nodes()[(int) $result_note[1]];
+
+        $feedbackformat = $result_note[2] == "F" ? $node->falsefeedbackformat : $node->truefeedbackformat;
+
+        $stylesheet_id = assStackQuestionUtils::_getActiveContentStyleId();
+        if (!empty($stylesheet_id)) {
+            $DIC->globalScreen()->layout()->meta()->addCss(ilObjStyleSheet::getContentStylePath((int)$stylesheet_id));
         }
 
-        return $prt_feedback_html;
+        $style_id = StackConfig::get("feedback_styles_style_" . $feedbackformat);
+
+
+        if (!empty($style_id)) {
+            return "<div class='ilc_section_$style_id'>" . assStackQuestionUtils::_getLatex($feedback) . '</div>';
+        } else {
+            $standard_prt_feedback = match ($state) {
+                'incorrect' => $factory->messageBox()->failure(assStackQuestionUtils::_getLatex($feedback)),
+                'partially_correct' => $factory->messageBox()->info(assStackQuestionUtils::_getLatex($feedback)),
+                'correct' => $factory->messageBox()->success(assStackQuestionUtils::_getLatex($feedback)),
+                default => throw new StackException('Invalid state.'),
+            };
+
+            return $renderer->render($standard_prt_feedback) . '</br>' . $error_message;
+        }
     }
 
     /**

@@ -632,59 +632,11 @@ class assStackQuestionUtils
 	}
 
 	/**
-	 * Returns the ID of each content styles available in the platform.
-	 */
-	public static function _getContentStylesAvailable()
-	{
-		global $DIC;
-		$db = $DIC->database();
-
-		$styles_id = array();
-		$query = "SELECT id FROM style_data WHERE active = '1'";
-		$result = $db->query($query);
-		while ($row = $db->fetchAssoc($result)) {
-			$styles_id[] = $row["id"];
-		}
-
-		return $styles_id;
-	}
-
-	/**
 	 * Returns a text with a format from the content style
 	 * @param $a_text
 	 * @param $a_format
 	 * @return string
 	 */
-	public static function _getFeedbackStyledText($a_text, $a_format)
-	{
-		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
-
-		//Get Styles assigned to Formats
-		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
-		//require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
-
-		//Return text depending Format
-		if (strlen($a_text)) {
-			switch ($a_format) {
-				case "feedback_default":
-					if ($config_options["feedback_default"] == "0") {
-						return '<div class="alert alert-warning" role="alert">' . $a_text . '</div>';
-					} else {
-						$style_assigned = $config_options[$a_format];
-
-						return '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">' . $a_text . '</div>';
-					}
-				default:
-					//Use specific feedback style
-					$style_assigned = $config_options[$a_format];
-
-					return '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">' . $a_text . '</div>';
-			}
-		} else {
-			return $a_text;
-		}
-
-	}
 
 	public static function _getActiveContentStyleId()
 	{
@@ -698,43 +650,6 @@ class assStackQuestionUtils
 			return $row["value"];
 		}
 	}
-
-	public static function _replaceFeedbackPlaceHolders($feedback)
-	{
-		//require_once('./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/classes/model/configuration/class.assStackQuestionConfig.php');
-
-		//Get Styles assigned to Formats
-		$config_options = assStackQuestionConfig::_getStoredSettings("feedback");
-
-		$text = $feedback;
-		//Search for right feedback
-		$style_assigned = $config_options["feedback_node_right"];
-		$text = str_replace("[[feedback_node_right]]", '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">', $text);
-		$text = str_replace("[[feedback_node_right_close]]", '</div>', $text);
-
-		//Search for wrong feedback
-		$style_assigned = $config_options["feedback_node_wrong"];
-		$text = str_replace("[[feedback_node_wrong]]", '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">', $text);
-		$text = str_replace("[[feedback_node_wrong_close]]", '</div>', $text);
-
-		//Search for wrong feedback
-		$style_assigned = $config_options["feedback_solution_hint"];
-		$text = str_replace("[[feedback_solution_hint]]", '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">', $text);
-		$text = str_replace("[[feedback_solution_hint_close]]", '</div>', $text);
-
-		//Replace Extra info
-		$style_assigned = $config_options["feedback_extra_info"];
-		$text = str_replace("[[feedback_extra_info]]", '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">', $text);
-		$text = str_replace("[[feedback_extra_info_close]]", '</div>', $text);
-
-		//Replace Extra info
-		$style_assigned = $config_options["feedback_plot_feedback"];
-		$text = str_replace("[[feedback_plot_feedback]]", '<div class="ilc_text_block_' . $style_assigned . ' ilPositionStatic">', $text);
-		$text = str_replace("[[feedback_plot_feedback_close]]", '</div>', $text);
-
-		return $text;
-	}
-
 
 	public static function _isPhP72()
 	{

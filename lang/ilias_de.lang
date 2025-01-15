@@ -701,3 +701,6 @@ error_inputs_missing#:#Es fehlen noch einige Einträge
 prt_node_feedback#:#Node-Feedback
 input_delete#:#Eingabe löschen
 actions#:#Aktionen
+ui_admin_configuration_defaults_feedback_styles_title#:#Feedback-Stile
+ui_admin_configuration_defaults_feedback_styles_name#:#Style name
+ui_admin_configuration_defaults_feedback_styles_style#:#Style

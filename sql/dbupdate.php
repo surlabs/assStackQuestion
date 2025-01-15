@@ -1175,3 +1175,17 @@ if (!$db->fetchAssoc($result)) {
     $db->insert("xqcas_configuration", array('parameter_name' => array('text', "correct_solution_in_validation"), 'value' => array('clob', 0), 'group_name' => array('text', 'display')));
 }
 ?>
+<#56>
+<?php
+global $DIC;
+$db = $DIC->database();
+
+for ($i = 0; $i < 6; $i++) {
+    $db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_styles_name_$i"), 'value' => array('clob', "Style $i"), 'group_name' => array('text', 'feedback_styles')));
+    $db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_styles_style_$i"), 'value' => array('clob', ""), 'group_name' => array('text', 'feedback_styles')));
+}
+
+$db->update("xqcas_configuration", ["group_name" => ["text", "feedback_styles"]], ["parameter_name" => ["text", "feedback_stylesheet_id"]]);
+
+$db->query("DELETE FROM xqcas_configuration WHERE group_name = 'feedback'");
+?>
