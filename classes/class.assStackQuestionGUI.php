@@ -462,9 +462,11 @@ class assStackQuestionGUI extends assQuestionGUI
      * Creates an output of the edit form for the question
      *
      * @param bool $check_only
+     * @throws ilCtrlException
+     * @throws stack_exception
      */
-	public function editQuestion(bool $check_only = false)
-	{
+	public function editQuestion(bool $check_only = false): void
+    {
 		global $DIC;
 
 		$tabs = $DIC->tabs();
@@ -641,7 +643,9 @@ class assStackQuestionGUI extends assQuestionGUI
                 'confirmRegenerateUnitTest',
                 'regenerateUnitTest',
                 'deleteUnitTest',
-                'checkPrtPlaceholders'
+                'checkPrtPlaceholders',
+                'deleteNode',
+                'copyNode'
             ))) {
 				$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 				$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
@@ -733,7 +737,9 @@ class assStackQuestionGUI extends assQuestionGUI
             'confirmRegenerateUnitTest',
             'regenerateUnitTest',
             'deleteUnitTest',
-            'checkPrtPlaceholders'
+            'checkPrtPlaceholders',
+            'deleteNode',
+            'copyNode'
         ))) {
 			$tabs->addSubTab('edit_question', $this->plugin->txt('edit_question'), $this->ctrl->getLinkTargetByClass($classname, "editQuestion"));
 			$tabs->addSubTab('scoring_management', $this->plugin->txt('scoring_management'), $this->ctrl->getLinkTargetByClass($classname, "scoringManagementPanel"));
@@ -1704,7 +1710,8 @@ class assStackQuestionGUI extends assQuestionGUI
     /**
      * Fix the PRT names
      */
-    public function fixPrtName() {
+    public function fixPrtName(): void
+    {
         global $DIC;
 
         $tabs = $DIC->tabs();

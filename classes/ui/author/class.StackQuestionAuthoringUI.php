@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace classes\ui\author;
 
 use assStackQuestion;
+use assStackQuestionDB;
 use assStackQuestionUtils;
 use classes\platform\StackConfig;
 use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\CustomFactory;
@@ -31,7 +32,6 @@ use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuesti
 use ilassStackQuestionPlugin;
 use ilCtrlException;
 use ilCtrlInterface;
-use ILIAS\Modules\DataCollection\Fields\Formula\FormulaParser\Stack;
 use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
@@ -143,6 +143,11 @@ class StackQuestionAuthoringUI
      */
     private function save(array $result): ?string
     {
+        if (isset($this->request->getQueryParams()["action"])) {
+            return $this->checkAction($this->request->getQueryParams());
+        }
+
+
         // Save basic section
         $basic = $result["basic"];
 
@@ -291,6 +296,39 @@ class StackQuestionAuthoringUI
         $this->question->saveToDb();
 
         return $this->renderer->render($this->factory->messageBox()->success($this->lng->txt('msg_obj_modified')));
+    }
+
+    /**
+     * @throws stack_exception
+     */
+    private function checkAction(array $params): string
+    {
+        return match ($params["action"]) {
+            "copyPrt" => $this->copyPrt($params["prt_name"]),
+            "pastePrt" => $this->pastePrt(),
+            "deleteNode" => $this->deleteNode($params["prt_name"], $params["node_name"]),
+            "copyNode" => $this->copyNode($params["prt_name"], $params["node_name"]),
+            "pasteNode" => $this->pasteNode($params["to_prt_name"]),
+            default => throw new stack_exception("Unknown action"),
+        };
+    }
+
+    private function generateActionCode(string $id, string $action, array $params = []): string
+    {
+        $params_string = "&action=$action";
+
+        foreach ($params as $key => $value) {
+            $params_string .= "&$key=$value";
+        }
+
+        return "$('#$id').click(function(event) {
+            event.preventDefault();
+            
+            let form = $(this).closest('form');
+            let action = form.attr('action');
+            form.attr('action', action + '$params_string');
+            form.submit();
+        });";
     }
 
     private function buildBasicSection(): array
@@ -491,9 +529,6 @@ class StackQuestionAuthoringUI
             ->withValue($input->get_parameter('options'));
 
         $this->ctrl->setParameterByClass("assStackQuestionGUI", "input_name", $name);
-        $inputs["actions"] = $this->customFactory->buttonSection([
-            $this->factory->button()->standard($this->plugin->txt("input_delete"), ""),
-        ], $this->plugin->txt("actions"));
         $this->ctrl->clearParameterByClass("assStackQuestionGUI", "input_name");
 
 
@@ -569,12 +604,19 @@ class StackQuestionAuthoringUI
         $inputs["feedback_variables"] = $this->factory->input()->field()->textarea($this->plugin->txt("prt_feedback_variables"), $this->plugin->txt("prt_feedback_variables_info"))
             ->withValue($prt->get_feedbackvariables_keyvals());
 
-        $this->ctrl->setParameterByClass("assStackQuestionGUI", "prt_name", $prt->get_name());
-        $inputs["actions"] = $this->customFactory->buttonSection([
-            $this->factory->button()->standard($this->plugin->txt("delete_prt"), ""),
-            $this->factory->button()->standard($this->plugin->txt("copy_prt"), "")
-        ], $this->plugin->txt("actions"));
-        $this->ctrl->clearParameterByClass("assStackQuestionGUI", "prt_name");
+        $actions = [
+            $this->factory->button()->standard($this->plugin->txt("copy_prt"), "")->withOnLoadCode(function ($id) use ($prt) {
+                return $this->generateActionCode($id, "copyPrt", ["prt_name" => $prt->get_name()]);
+            })
+        ];
+
+        if (isset($_SESSION['copy_prt'])) {
+            $actions[] = $this->factory->button()->standard($this->plugin->txt("paste_prt"), "")->withOnLoadCode(function ($id) use ($prt) {
+                return $this->generateActionCode($id, "pastePrt");
+            });
+        }
+
+        $inputs["actions"] = $this->customFactory->buttonSection($actions, $this->plugin->txt("actions"));
 
         return $inputs;
     }
@@ -622,14 +664,22 @@ class StackQuestionAuthoringUI
         ], $this->plugin->txt("prt_node_quiet_info"))->withRequired(true)
             ->withValue($node->quiet);
 
-        $this->ctrl->setParameterByClass("assStackQuestionGUI", "prt_name", $prt->get_name());
-        $this->ctrl->setParameterByClass("assStackQuestionGUI", "node_name", $node->nodename);
-        $inputs["actions"] = $this->customFactory->buttonSection([
-            $this->factory->button()->standard($this->plugin->txt("delete_node"), ""),
-            $this->factory->button()->standard($this->plugin->txt("copy_node"), "")
-        ], $this->plugin->txt("actions"));
-        $this->ctrl->clearParameterByClass("assStackQuestionGUI", "prt_name");
-        $this->ctrl->clearParameterByClass("assStackQuestionGUI", "node_name");
+        $actions = [
+            $this->factory->button()->standard($this->plugin->txt("delete_node"), "")->withOnLoadCode(function ($id) use ($prt, $node) {
+                return $this->generateActionCode($id, "deleteNode", ["prt_name" => $prt->get_name(), "node_name" => $node->nodename]);
+            }),
+            $this->factory->button()->standard($this->plugin->txt("copy_node"), "")->withOnLoadCode(function ($id) use ($prt, $node) {
+                return $this->generateActionCode($id, "copyNode", ["prt_name" => $prt->get_name(), "node_name" => $node->nodename]);
+            })
+        ];
+
+        if (isset($_SESSION['copy_node'])) {
+            $actions[] = $this->factory->button()->standard($this->plugin->txt("paste_node"), "")->withOnLoadCode(function ($id) use ($prt, $node) {
+                return $this->generateActionCode($id, "pasteNode", ["to_prt_name" => $prt->get_name()]);
+            });
+        }
+
+        $inputs["actions"] = $this->customFactory->buttonSection($actions, $this->plugin->txt("actions"));
 
         $inputs["feedback"] = $this->customFactory->columnSection([
                 "positive" => $this->buildPositivePart($prt, $node),
@@ -732,5 +782,129 @@ class StackQuestionAuthoringUI
         }
 
         return $this->feedback_format_options;
+    }
+
+
+
+    private function copyPrt(string $prt_name): string
+    {
+        if(!isset($this->question->prts[$prt_name])) {
+            return $this->renderer->render($this->factory->messageBox()->failure($this->plugin->txt('copy_error_no_prt')));
+        }
+
+        $_SESSION['copy_prt'] = $this->question->getId() . "_" . $prt_name;
+
+        return $this->renderer->render($this->factory->messageBox()->success($this->plugin->txt('prt_copied_to_clipboard')));
+    }
+
+    private function pastePrt(): string
+    {
+        if (isset($_SESSION['copy_node'])) {
+            $raw_data = explode("_", $_SESSION['copy_prt']);
+            $original_question_id = $raw_data[0];
+            $original_prt_name = $raw_data[1];
+
+            $generated_prt_name = "prt" . rand(20, 1000);
+
+            if (assStackQuestionDB::_copyPRTFunction($original_question_id, $original_prt_name, (string)$this->question->getId(), $generated_prt_name)) {
+                $this->question->specific_feedback = "<p>" . $this->question->specific_feedback . "[[feedback:" . $generated_prt_name . "]]</p>";
+
+                $prt_from_db_array = assStackQuestionDB::_readPRTs($this->question->getId());
+
+                $total_value = 0;
+
+                foreach ($prt_from_db_array as $prt_db) {
+                    $total_value += $prt_db->value;
+                }
+
+                foreach ($prt_from_db_array as $name => $prt_db) {
+                    $prt_value = $prt_db->value / $total_value;
+                    $this->question->prts[$name] = new stack_potentialresponse_tree_lite($prt_db, $prt_value);
+                }
+            }
+        }
+
+        return "";
+    }
+
+    private function deleteNode(string $prt_name, string $node_name): string
+    {
+        if(!isset($this->question->prts[$prt_name])) {
+            return $this->renderer->render($this->factory->messageBox()->failure($this->plugin->txt('deletion_error_no_prt')));
+        }
+
+        $prt = $this->question->prts[$prt_name];
+
+        if (sizeof($prt->get_nodes()) < 2) {
+            return $this->renderer->render($this->factory->messageBox()->failure($this->plugin->txt('deletion_error_first_node')));
+        }
+
+        if ((int)$prt->get_first_node() == (int) $node_name) {
+            return $this->renderer->render($this->factory->messageBox()->failure($this->plugin->txt('deletion_error_first_node')));
+        }
+
+        $new_nodes = $prt->get_nodes();
+        unset($new_nodes[$node_name]);
+
+        foreach ($new_nodes as $n) {
+            if ($n->truenextnode == $node_name) {
+                $n->truenextnode = "-1";
+            }
+            if ($n->falsenextnode == $node_name) {
+                $n->falsenextnode = "-1";
+            }
+        }
+
+        $prt->setNodes($new_nodes);
+        $this->question->prts[$prt_name] = $prt;
+
+        assStackQuestionDB::_saveStackPRTs($this->question);
+
+        assStackQuestionDB::_deleteStackPrtNodes($this->question->getId(), $prt_name, $node_name);
+
+        return $this->renderer->render($this->factory->messageBox()->success($this->plugin->txt('node_deleted')));
+    }
+
+    private function copyNode(string $prt_name, string $node_name): string
+    {
+        if(!isset($this->question->prts[$prt_name])) {
+            return $this->renderer->render($this->factory->messageBox()->failure($this->plugin->txt('copy_error_no_prt')));
+        }
+
+        $_SESSION['copy_node'] = $this->question->getId() . "_" . $prt_name . "_" . $node_name;
+
+        return $this->renderer->render($this->factory->messageBox()->success($this->plugin->txt('node_copied_to_clipboard')));
+    }
+
+    private function pasteNode(string $to_prt_name): string
+    {
+        if (isset($_SESSION['copy_node'])) {
+            $raw_data = explode("_", $_SESSION['copy_node']);
+            $original_question_id = $raw_data[0];
+            $original_prt_name = $raw_data[1];
+            $original_node_name = $raw_data[2];
+
+            if (!isset($this->question->prts[$to_prt_name])) {
+                return $this->renderer->render($this->factory->messageBox()->failure($this->plugin->txt('paste_error_no_prt')));
+            }
+
+            $prt = $this->question->prts[$to_prt_name];
+
+            $max = 0;
+
+            foreach ($prt->get_nodes() as $temp_node_name => $temp_node) {
+                (int)$temp_node_name > $max ? $max = (int) $temp_node_name : "";
+            }
+
+            $new_node_name = $max + 1;
+
+            assStackQuestionDB::_copyNodeFunction($original_question_id, $original_prt_name, $original_node_name, (string) $this->question->getId(), $to_prt_name, (string) $new_node_name);
+
+            $nodes_from_db_array = assStackQuestionDB::_readPrtNodes($this->question->getId(), $to_prt_name);
+
+            $prt->setNodes($nodes_from_db_array);
+        }
+
+        return "";
     }
 }
