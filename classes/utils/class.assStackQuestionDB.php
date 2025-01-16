@@ -204,7 +204,7 @@ class assStackQuestionDB
 	 * @param bool $just_id
 	 * @return array
 	 */
-	private static function _readPRTNodes(int $question_id, string $prt_name, bool $just_id = false): array
+	public static function _readPRTNodes(int $question_id, string $prt_name, bool $just_id = false): array
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -651,7 +651,7 @@ class assStackQuestionDB
 	 * @param string $purpose
 	 * @return bool
 	 */
-	private static function _saveStackPRTs(assStackQuestion $question, string $purpose = ''): bool
+	public static function _saveStackPRTs(assStackQuestion $question, string $purpose = ''): bool
 	{
 		global $DIC;
 		$db = $DIC->database();
@@ -1987,7 +1987,7 @@ class assStackQuestionDB
         }
 
 
-		//unset($_SESSION['copy_prt']);
+		unset($_SESSION['copy_prt']);
 
 		return true;
 	}
@@ -2067,25 +2067,25 @@ class assStackQuestionDB
 			"question_id" => array("integer", (int)$new_question_id),
 			"prt_name" => array("text", $new_prt_name),
 			"node_name" => array("text", $new_node_name),
-			"answer_test" => array("text", $db_original_node->answer_test),
+			"answer_test" => array("text", $db_original_node->answertest),
 			"sans" => array("text", $db_original_node->sans),
 			"tans" => array("text", $db_original_node->tans),
-			"test_options" => array("text", $db_original_node->test_options),
+			"test_options" => array("text", $db_original_node->testoptions),
 			"quiet" => array("integer", (int)$db_original_node->quiet),
-			"true_score_mode" => array("text", $db_original_node->true_score_mode),
-			"true_score" => array("text", $db_original_node->true_score),
-			"true_penalty" => array("text", $db_original_node->true_penalty),
+			"true_score_mode" => array("text", $db_original_node->truescoremode),
+			"true_score" => array("text", $db_original_node->truescore),
+			"true_penalty" => array("text", $db_original_node->truepenalty),
 			"true_next_node" => array("text", "-1"),
 			"true_answer_note" => array("text", $new_prt_name . '-' . $new_node_name . '-T'),
-			"true_feedback" => array("clob", $db_original_node->true_feedback),
+			"true_feedback" => array("clob", $db_original_node->truefeedback),
 			"true_feedback_format" => array("integer", 0),
-			"false_score_mode" => array("text", $db_original_node->false_score_mode),
-			"false_score" => array("text", $db_original_node->false_score),
-			"false_penalty" => array("text", $db_original_node->false_penalty),
+			"false_score_mode" => array("text", $db_original_node->falsescoremode),
+			"false_score" => array("text", $db_original_node->falsescore),
+			"false_penalty" => array("text", $db_original_node->falsepenalty),
 			"false_next_node" => array("text", "-1"),
 			"false_answer_note" => array("text", $new_prt_name . '-' . $new_node_name . '-F'),
-			"false_feedback" => array("clob", $db_original_node->false_feedback),
-			"false_feedback_format" => array("integer", $db_original_node->false_feedback_format),
+			"false_feedback" => array("clob", $db_original_node->falsefeedback),
+			"false_feedback_format" => array("integer", $db_original_node->falsefeedbackformat),
 		));
 
 		unset($_SESSION['copy_node']);
