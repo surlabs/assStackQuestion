@@ -2396,11 +2396,11 @@ class assStackQuestionDB
     /**
      * Update the specific feedback for a question
      *
-     * @param string $question_id
+     * @param string|int $question_id
      * @param string $specific_feedback
      * @return void
      */
-    public static function updateSpecificFeedback(string $question_id, string $specific_feedback) :void {
+    public static function updateSpecificFeedback(string|int $question_id, string $specific_feedback) :void {
         global $DIC;
         $db = $DIC->database();
 

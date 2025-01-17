@@ -768,7 +768,9 @@ class StackQuestionAuthoringUI
     private function getFeedbackFormatOptions(): array
     {
         if (!isset($this->feedback_format_options)) {
-            $this->feedback_format_options = array();
+            $this->feedback_format_options = array(
+                "0" => $this->lng->txt('default'),
+            );
 
             $result = StackConfig::getAll("feedback_styles");
 
@@ -799,7 +801,7 @@ class StackQuestionAuthoringUI
 
     private function pastePrt(): string
     {
-        if (isset($_SESSION['copy_node'])) {
+        if (isset($_SESSION['copy_prt'])) {
             $raw_data = explode("_", $_SESSION['copy_prt']);
             $original_question_id = $raw_data[0];
             $original_prt_name = $raw_data[1];
@@ -821,6 +823,8 @@ class StackQuestionAuthoringUI
                     $prt_value = $prt_db->value / $total_value;
                     $this->question->prts[$name] = new stack_potentialresponse_tree_lite($prt_db, $prt_value);
                 }
+
+                assStackQuestionDB::updateSpecificFeedback($this->question->getId(), $this->question->specific_feedback);
             }
         }
 

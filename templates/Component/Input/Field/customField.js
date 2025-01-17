@@ -2,8 +2,9 @@ $(document).ready(function() {
     $('textarea').not('.yesRTEditor').addClass('noRTEditor');
 
     $(".tab-button").click(function () {
-        $(this).parent().find(".tab-button.active").removeClass("active");
-        $(this).parent().parent().find(".tab-panel.active").removeClass("active");
+        let $section_id = $(this).attr('data-section-id');
+        $(this).parent().find(".tab-button.active[data-section-id='" + $section_id + "']").removeClass("active");
+            $(this).parent().parent().find(".tab-panel.active[data-section-id='" + $section_id + "']").removeClass("active");
 
         $(this).addClass("active");
 
