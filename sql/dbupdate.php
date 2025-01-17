@@ -1180,7 +1180,7 @@ if (!$db->fetchAssoc($result)) {
 global $DIC;
 $db = $DIC->database();
 
-for ($i = 0; $i < 6; $i++) {
+for ($i = 1; $i <= 6; $i++) {
     $db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_styles_name_$i"), 'value' => array('clob', "Style $i"), 'group_name' => array('text', 'feedback_styles')));
     $db->insert("xqcas_configuration", array('parameter_name' => array('text', "feedback_styles_style_$i"), 'value' => array('clob', ""), 'group_name' => array('text', 'feedback_styles')));
 }

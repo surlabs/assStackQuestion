@@ -252,8 +252,10 @@ class Renderer extends RendererILIAS
 
         $isFirst = " active";
 
+        $uid = uniqid();
+
         foreach ($component->getTabs() as $tab_name => $tab) {
-            $tabs_buttons .= "<div class='tab-button$isFirst' data-tab='$tab_name'>{$tab_name}</div>";
+            $tabs_buttons .= "<div class='tab-button$isFirst' data-tab='$tab_name' data-section-id='$uid'>{$tab_name}</div>";
 
             $inputs_html = "";
 
@@ -261,7 +263,7 @@ class Renderer extends RendererILIAS
                 $inputs_html .= $default_renderer->render($input);
             }
 
-            $tabs_panels .= "<div class='tab-panel$isFirst' data-tab-panel='$tab_name'>$inputs_html</div>";
+            $tabs_panels .= "<div class='tab-panel$isFirst' data-tab-panel='$tab_name' data-section-id='$uid'>$inputs_html</div>";
 
             $isFirst = "";
         }

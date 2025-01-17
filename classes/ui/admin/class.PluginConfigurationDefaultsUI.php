@@ -486,7 +486,7 @@ class PluginConfigurationDefaultsUI
 
             $styles[""] = $DIC->language()->txt("default");
 
-            for ($i = 0; $i < 6; $i++) {
+            for ($i = 1; $i <= 6; $i++) {
                 $inputs[] = self::$factory->input()->field()->section([
                     self::$factory->input()->field()->text(
                         $plugin_object->txt("ui_admin_configuration_defaults_feedback_styles_name")

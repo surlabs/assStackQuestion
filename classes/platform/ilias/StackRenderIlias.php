@@ -107,17 +107,28 @@ class StackRenderIlias extends StackRender
 
         $result_note = explode("-", end($notes));
 
-        $node = $question->prts[$result_note[0]]->get_nodes()[(int) $result_note[1]];
+        $style_id = "";
 
-        $feedbackformat = $result_note[2] == "F" ? $node->falsefeedbackformat : $node->truefeedbackformat;
+        $result_note[0] = strpos($result_note[0], "prt") === 0 ? $result_note[0] : "prt" . $result_note[0];
 
-        $stylesheet_id = assStackQuestionUtils::_getActiveContentStyleId();
-        if (!empty($stylesheet_id)) {
-            $DIC->globalScreen()->layout()->meta()->addCss(ilObjStyleSheet::getContentStylePath((int)$stylesheet_id));
+        if (isset($question->prts[$result_note[0]])) {
+            $nodes = $question->prts[$result_note[0]]->get_nodes();
+
+            if (isset($nodes[(int) $result_note[1]])) {
+                $node = $nodes[(int) $result_note[1]];
+
+                $feedbackformat = $result_note[2] == "F" ? $node->falsefeedbackformat : $node->truefeedbackformat;
+
+                if ((int) $feedbackformat > 0) {
+                    $stylesheet_id = assStackQuestionUtils::_getActiveContentStyleId();
+                    if (!empty($stylesheet_id)) {
+                        $DIC->globalScreen()->layout()->meta()->addCss(ilObjStyleSheet::getContentStylePath((int)$stylesheet_id));
+                    }
+
+                    $style_id = StackConfig::get("feedback_styles_style_" . $feedbackformat);
+                }
+            }
         }
-
-        $style_id = StackConfig::get("feedback_styles_style_" . $feedbackformat);
-
 
         if (!empty($style_id)) {
             return "<div class='ilc_section_$style_id'>" . assStackQuestionUtils::_getLatex($feedback) . '</div>';
