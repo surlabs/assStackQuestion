@@ -86,12 +86,21 @@ class StackRenderIlias extends StackRender
 
         $state = StackEvaluation::stateForFraction($result->get_score());
 
-        $prt_feedback_instantiated = match ($state) {
-            'incorrect' => $question->prt_incorrect_instantiated->get_rendered($question->getCasTextProcessor()),
-            'partially_correct' => $question->prt_partially_correct_instantiated->get_rendered($question->getCasTextProcessor()),
-            'correct' => $question->prt_correct_instantiated->get_rendered($question->getCasTextProcessor()),
-            default => throw new StackException('Invalid state.'),
-        };
+        $prt_feedback_instantiated = "";
+
+        switch ($state) {
+            case 'incorrect':
+                $prt_feedback_instantiated = $question->prt_incorrect_instantiated->get_rendered($question->getCasTextProcessor());
+                break;
+            case 'partially_correct':
+                $prt_feedback_instantiated = $question->prt_partially_correct_instantiated->get_rendered($question->getCasTextProcessor());
+                break;
+            case 'correct':
+                $prt_feedback_instantiated = $question->prt_correct_instantiated->get_rendered($question->getCasTextProcessor());
+                break;
+            default:
+                throw new StackException('Invalid state.');
+        }
 
         if (trim($feedback) === '') {
             $feedback = $prt_feedback_instantiated;
@@ -133,12 +142,21 @@ class StackRenderIlias extends StackRender
         if (!empty($style_id)) {
             return "<div class='ilc_section_$style_id'>" . assStackQuestionUtils::_getLatex($feedback) . '</div>';
         } else {
-            $standard_prt_feedback = match ($state) {
-                'incorrect' => $factory->messageBox()->failure(assStackQuestionUtils::_getLatex($feedback)),
-                'partially_correct' => $factory->messageBox()->info(assStackQuestionUtils::_getLatex($feedback)),
-                'correct' => $factory->messageBox()->success(assStackQuestionUtils::_getLatex($feedback)),
-                default => throw new StackException('Invalid state.'),
-            };
+            $standard_prt_feedback = null;
+
+            switch ($state) {
+                case 'incorrect':
+                    $standard_prt_feedback = $factory->messageBox()->failure(assStackQuestionUtils::_getLatex($feedback));
+                    break;
+                case 'partially_correct':
+                    $standard_prt_feedback = $factory->messageBox()->info(assStackQuestionUtils::_getLatex($feedback));
+                    break;
+                case 'correct':
+                    $standard_prt_feedback = $factory->messageBox()->success(assStackQuestionUtils::_getLatex($feedback));
+                    break;
+                default:
+                    throw new StackException('Invalid state.');
+            }
 
             return $renderer->render($standard_prt_feedback) . '</br>' . $error_message;
         }

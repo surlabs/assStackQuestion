@@ -21,14 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component;
+namespace classes\ui\Component;
 
-use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\ButtonSection;
-use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\ColumnSection;
-use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\ExpandableSection;
-use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\Legacy;
-use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\TabSection;
-use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\TextareaRTE;
+use ui\Component\Input\Field\ButtonSection;
+use ui\Component\Input\Field\ColumnSection;
+use ui\Component\Input\Field\ExpandableSection;
+use ui\Component\Input\Field\Legacy;
+use ui\Component\Input\Field\TabSection;
+use ui\Component\Input\Field\TextareaRTE;
 
 /**
  * Class CustomFactory

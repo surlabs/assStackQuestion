@@ -21,13 +21,12 @@
 
 declare(strict_types=1);
 
-namespace Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field;
+namespace ui\Component\Input\Field;
 
 use Expand;
 use ILIAS\UI\Component\Component;
 use ILIAS\UI\Component\Input\Container\Form\FormInput;
 use ILIAS\UI\Implementation\Component\Input\Field\Renderer as RendererILIAS;
-use ILIAS\UI\Implementation\Render\Template;
 use ilRTE;
 use ilTemplate;
 use ilTemplateException;
@@ -56,15 +55,31 @@ class Renderer extends RendererILIAS
         $DIC->ui()->mainTemplate()->addJavaScript('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/Component/Input/Field/customField.js');
         $DIC->ui()->mainTemplate()->addCss('Customizing/global/plugins/Modules/TestQuestionPool/Questions/assStackQuestion/templates/Component/Input/Field/customField.css');
 
-        return match (true) {
-            $component instanceof TextareaRTE => $this->renderTextareaRTE($component),
-            $component instanceof ExpandableSection => $this->renderExpandableSection($component, $default_renderer),
-            $component instanceof TabSection => $this->renderTabSection($component, $default_renderer),
-            $component instanceof ColumnSection => $this->renderColumnSection($component, $default_renderer),
-            $component instanceof Legacy => $component->getHtml(),
-            $component instanceof ButtonSection => $this->renderButtonSection($component, $default_renderer),
-            default => parent::render($component, $default_renderer),
-        };
+        switch (true) {
+            case $component instanceof TextareaRTE:
+                $component_rendered = $this->renderTextareaRTE($component);
+                break;
+            case $component instanceof ExpandableSection:
+                $component_rendered = $this->renderExpandableSection($component, $default_renderer);
+                break;
+            case $component instanceof TabSection:
+                $component_rendered = $this->renderTabSection($component, $default_renderer);
+                break;
+            case $component instanceof ColumnSection:
+                $component_rendered = $this->renderColumnSection($component, $default_renderer);
+                break;
+            case $component instanceof Legacy:
+                $component_rendered = $component->getHtml();
+                break;
+            case $component instanceof ButtonSection:
+                $component_rendered = $this->renderButtonSection($component, $default_renderer);
+                break;
+            default:
+                $component_rendered = parent::render($component, $default_renderer);
+                break;
+        }
+
+        return $component_rendered;
     }
 
     /**
@@ -110,28 +125,28 @@ class Renderer extends RendererILIAS
         return $tpl->get();
     }
 
-    protected function maybeDisable(FormInput $component, ilTemplate|Template $tpl): void
+    protected function maybeDisable2(FormInput $component, ilTemplate $tpl): void
     {
         if ($component->isDisabled()) {
             $tpl->setVariable("DISABLED", 'disabled="disabled"');
         }
     }
 
-    protected function applyName(FormInput $component, ilTemplate|Template $tpl): ?string
+    protected function applyName2(FormInput $component, ilTemplate $tpl): ?string
     {
         $name = $component->getName();
         $tpl->setVariable("NAME", $name);
         return $name;
     }
 
-    protected function bindJSandApplyId(FormInput $component, ilTemplate|Template $tpl): string
+    protected function bindJSandApplyId2(FormInput $component, ilTemplate $tpl): string
     {
         $id = $this->bindJavaScript($component) ?? $this->createId();
         $tpl->setVariable("ID", $id);
         return $id;
     }
 
-    protected function applyValue(FormInput $component, ilTemplate|Template $tpl, callable $escape = null): void
+    protected function applyValue2(FormInput $component, ilTemplate $tpl, callable $escape = null): void
     {
         $value = $component->getValue();
         if (!is_null($escape)) {
@@ -162,7 +177,7 @@ class Renderer extends RendererILIAS
         );
 
         $tpl = $this->getPreparedTextareaRTETemplate($component);
-        $id = $this->bindJSandApplyId($component, $tpl);
+        $id = $this->bindJSandApplyId2($component, $tpl);
 
         return $this->wrapInFormContext($component, $tpl->get(), $id);
     }
@@ -181,9 +196,9 @@ class Renderer extends RendererILIAS
             $tpl->setVariable('MIN_LIMIT', $component->getMinLimit());
         }
 
-        $this->applyName($component, $tpl);
-        $this->applyValue($component, $tpl, $this->htmlEntities());
-        $this->maybeDisable($component, $tpl);
+        $this->applyName2($component, $tpl);
+        $this->applyValue2($component, $tpl, $this->htmlEntities());
+        $this->maybeDisable2($component, $tpl);
 
         $rte_string = ilRTE::_getRTEClassname();
         /** @var ilTinyMCE $rte */
@@ -325,6 +340,6 @@ class Renderer extends RendererILIAS
 
         $section_tpl->setVariable("INPUTS", $buttons_html);
 
-        return $this->wrapInFormContext($component, $section_tpl->get(), $this->bindJSandApplyId($component, $section_tpl));
+        return $this->wrapInFormContext($component, $section_tpl->get(), $this->bindJSandApplyId2($component, $section_tpl));
     }
 }

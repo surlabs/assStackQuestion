@@ -27,8 +27,7 @@ use assStackQuestion;
 use assStackQuestionDB;
 use assStackQuestionUtils;
 use classes\platform\StackConfig;
-use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\CustomFactory;
-use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field\ExpandableSection;
+use classes\ui\Component\CustomFactory;
 use ilassStackQuestionPlugin;
 use ilCtrlException;
 use ilCtrlInterface;
@@ -45,6 +44,7 @@ use stack_options;
 use stack_potentialresponse_tree_lite;
 use stack_utils;
 use stdClass;
+use ui\Component\Input\Field\ExpandableSection;
 
 /**
  * StackQuestionAuthoringUI
@@ -303,14 +303,20 @@ class StackQuestionAuthoringUI
      */
     private function checkAction(array $params): string
     {
-        return match ($params["action"]) {
-            "copyPrt" => $this->copyPrt($params["prt_name"]),
-            "pastePrt" => $this->pastePrt(),
-            "deleteNode" => $this->deleteNode($params["prt_name"], $params["node_name"]),
-            "copyNode" => $this->copyNode($params["prt_name"], $params["node_name"]),
-            "pasteNode" => $this->pasteNode($params["to_prt_name"]),
-            default => throw new stack_exception("Unknown action"),
-        };
+        switch ($params["action"]) {
+            case "copyPrt":
+                return $this->copyPrt($params["prt_name"]);
+            case "pastePrt":
+                return $this->pastePrt();
+            case "deleteNode":
+                return $this->deleteNode($params["prt_name"], $params["node_name"]);
+            case "copyNode":
+                return $this->copyNode($params["prt_name"], $params["node_name"]);
+            case "pasteNode":
+                return $this->pasteNode($params["to_prt_name"]);
+            default:
+                throw new stack_exception("Unknown action");
+        }
     }
 
     private function generateActionCode(string $id, string $action, array $params = []): string
@@ -775,7 +781,7 @@ class StackQuestionAuthoringUI
             $result = StackConfig::getAll("feedback_styles");
 
             foreach ($result as $name => $value) {
-                if (str_contains($name, "feedback_styles_name_")) {
+                if (strpos($name, "feedback_styles_name_") !== false) {
                     $id = str_replace("feedback_styles_name_", "", $name);
 
                     $this->feedback_format_options[$id] = $value;
@@ -824,7 +830,7 @@ class StackQuestionAuthoringUI
                     $this->question->prts[$name] = new stack_potentialresponse_tree_lite($prt_db, $prt_value);
                 }
 
-                assStackQuestionDB::updateSpecificFeedback($this->question->getId(), $this->question->specific_feedback);
+                assStackQuestionDB::updateSpecificFeedback((string) $this->question->getId(), $this->question->specific_feedback);
             }
         }
 

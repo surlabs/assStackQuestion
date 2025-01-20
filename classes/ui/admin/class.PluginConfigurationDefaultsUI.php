@@ -490,7 +490,7 @@ class PluginConfigurationDefaultsUI
                 $inputs[] = self::$factory->input()->field()->section([
                     self::$factory->input()->field()->text(
                         $plugin_object->txt("ui_admin_configuration_defaults_feedback_styles_name")
-                    )->withValue($data["feedback_styles_name_$i"] ?? "Style " . $i+1)->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
+                    )->withValue($data["feedback_styles_name_$i"] ?? "Style " . $i)->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
                         function ($v) use ($i) {
                             StackConfig::set("feedback_styles_name_$i", $v, "feedback_styles");
                         }

@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field;
+namespace ui\Component\Input\Field;
 
 use ILIAS\Data\Factory;
 use ILIAS\Refinery\Constraint;
