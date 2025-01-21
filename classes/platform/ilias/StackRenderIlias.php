@@ -114,27 +114,31 @@ class StackRenderIlias extends StackRender
 
         $notes = $result->get_answernotes();
 
-        $result_note = explode("-", end($notes));
-
         $style_id = "";
 
-        $result_note[0] = strpos($result_note[0], "prt") === 0 ? $result_note[0] : "prt" . $result_note[0];
+        if (!empty($notes)) {
+            $result_note = explode("-", end($notes));
 
-        if (isset($question->prts[$result_note[0]])) {
-            $nodes = $question->prts[$result_note[0]]->get_nodes();
+            if (isset($result_note[0])) {
+                $result_note[0] = strpos($result_note[0], "prt") === 0 ? $result_note[0] : "prt" . $result_note[0];
 
-            if (isset($nodes[(int) $result_note[1]])) {
-                $node = $nodes[(int) $result_note[1]];
+                if (isset($question->prts[$result_note[0]])) {
+                    $nodes = $question->prts[$result_note[0]]->get_nodes();
 
-                $feedbackformat = $result_note[2] == "F" ? $node->falsefeedbackformat : $node->truefeedbackformat;
+                    if (isset($nodes[(int)$result_note[1]])) {
+                        $node = $nodes[(int)$result_note[1]];
 
-                if ((int) $feedbackformat > 0) {
-                    $stylesheet_id = assStackQuestionUtils::_getActiveContentStyleId();
-                    if (!empty($stylesheet_id)) {
-                        $DIC->globalScreen()->layout()->meta()->addCss(ilObjStyleSheet::getContentStylePath((int)$stylesheet_id));
+                        $feedbackformat = $result_note[2] == "F" ? $node->falsefeedbackformat : $node->truefeedbackformat;
+
+                        if ((int)$feedbackformat > 0) {
+                            $stylesheet_id = assStackQuestionUtils::_getActiveContentStyleId();
+                            if (!empty($stylesheet_id)) {
+                                $DIC->globalScreen()->layout()->meta()->addCss(ilObjStyleSheet::getContentStylePath((int)$stylesheet_id));
+                            }
+
+                            $style_id = StackConfig::get("feedback_styles_style_" . $feedbackformat);
+                        }
                     }
-
-                    $style_id = StackConfig::get("feedback_styles_style_" . $feedbackformat);
                 }
             }
         }

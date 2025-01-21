@@ -507,18 +507,18 @@ class StackQuestionAuthoringUI
         ], $this->plugin->txt("input_insert_stars_info"))->withRequired(true)
             ->withValue($input->get_parameter('insertStars'));
         $inputs["syntaxHint"] = $this->factory->input()->field()->text($this->plugin->txt("input_syntax_hint"), $this->plugin->txt("input_syntax_hint_info"))
-            ->withValue($input->get_parameter('syntaxHint'));
+            ->withValue($input->get_parameter('syntaxHint', ""));
         $inputs["syntaxAttribute"] = $this->factory->input()->field()->select($this->plugin->txt("hint_mode"), [
             0 => $this->plugin->txt('value'),
             1 => $this->plugin->txt('placeholder')
         ])->withRequired(true)
             ->withValue($input->get_parameter('syntaxAttribute'));
         $inputs["forbidWords"] = $this->factory->input()->field()->text($this->plugin->txt("input_forbidden_words"), $this->plugin->txt("input_forbidden_words_info"))
-            ->withValue($input->get_parameter('forbidWords'));
+            ->withValue($input->get_parameter('forbidWords', ""));
         $inputs["forbidFloats"] = $this->factory->input()->field()->checkbox($this->plugin->txt("input_forbid_float"), $this->plugin->txt("input_forbid_float_info"))
             ->withValue(boolval($input->get_parameter('forbidFloats')));
         $inputs["allowWords"] = $this->factory->input()->field()->text($this->plugin->txt("input_allow_words"), $this->plugin->txt("input_allow_words_info"))
-            ->withValue($input->get_parameter('allowWords'));
+            ->withValue($input->get_parameter('allowWords', ""));
         $inputs["lowestTerms"] = $this->factory->input()->field()->checkbox($this->plugin->txt("input_require_lowest_terms"), $this->plugin->txt("input_require_lowest_terms_info"))
             ->withValue(boolval($input->get_parameter('lowestTerms')));
         $inputs["sameType"] = $this->factory->input()->field()->checkbox($this->plugin->txt("input_check_answer_type"), $this->plugin->txt("input_check_answer_type_info"))
@@ -713,10 +713,10 @@ class StackQuestionAuthoringUI
             "-" => "-"
         ], $this->plugin->txt("prt_node_pos_mod_info"))->withRequired(true)
             ->withValue($node->truescoremode);
-        $inputs["score"] = $this->factory->input()->field()->numeric($this->plugin->txt("prt_node_pos_score"), $this->plugin->txt("prt_node_pos_score_info"))->withRequired(true)
-            ->withValue(floatval($node->truescore));
-        $inputs["penalty"] = $this->factory->input()->field()->numeric($this->plugin->txt("prt_node_pos_penalty"), $this->plugin->txt("prt_node_pos_penalty_info"))->withRequired(true)
-            ->withValue(floatval($node->truepenalty));
+        $inputs["score"] = $this->factory->input()->field()->text($this->plugin->txt("prt_node_pos_score"), $this->plugin->txt("prt_node_pos_score_info"))->withRequired(true)
+            ->withValue((string) $node->truescore);
+        $inputs["penalty"] = $this->factory->input()->field()->text($this->plugin->txt("prt_node_pos_penalty"), $this->plugin->txt("prt_node_pos_penalty_info"))->withRequired(true)
+            ->withValue((string) $node->truepenalty);
         $node_list = [
             -1 => $this->plugin->txt('end')
         ];
@@ -747,10 +747,10 @@ class StackQuestionAuthoringUI
             "-" => "-"
         ], $this->plugin->txt("prt_node_neg_mod_info"))->withRequired(true)
             ->withValue($node->falsescoremode);
-        $inputs["score"] = $this->factory->input()->field()->numeric($this->plugin->txt("prt_node_neg_score"), $this->plugin->txt("prt_node_neg_score_info"))->withRequired(true)
-            ->withValue(floatval($node->falsescore));
-        $inputs["penalty"] = $this->factory->input()->field()->numeric($this->plugin->txt("prt_node_neg_penalty"), $this->plugin->txt("prt_node_neg_penalty_info"))->withRequired(true)
-            ->withValue(floatval($node->falsepenalty));
+        $inputs["score"] = $this->factory->input()->field()->text($this->plugin->txt("prt_node_neg_score"), $this->plugin->txt("prt_node_neg_score_info"))->withRequired(true)
+            ->withValue((string) $node->falsescore);
+        $inputs["penalty"] = $this->factory->input()->field()->text($this->plugin->txt("prt_node_neg_penalty"), $this->plugin->txt("prt_node_neg_penalty_info"))->withRequired(true)
+            ->withValue((string) $node->falsepenalty);
         $node_list = [
             -1 => $this->plugin->txt('end')
         ];

@@ -30,7 +30,7 @@ function triggerExpand($this) {
   $($this).find("img").attr("alt", new_state ? "Expanded" : "Collaped");
   $($this).attr("data-state", new_state ? "expanded" : "collapsed");
 
-  const $content = $($this).parent().parent().find(".panel-body");
+  const $content = $($this).parent().parent().parent().find(".panel-body");
 
   if (new_state) {
     $content.slideDown();
