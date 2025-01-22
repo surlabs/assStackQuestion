@@ -101,19 +101,16 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
         switch ($cmd) {
             case "configure":
-                $sections = $this->configure($data);
                 $form_action = $this->control->getLinkTargetByClass("ilassStackQuestionConfigGUI", "configure");
-                $rendered = $this->renderForm($data, $form_action, $sections);
+                $rendered = $this->renderForm($form_action, $cmd);
                 break;
             case "maxima":
-                $sections = $this->maxima($data);
                 $form_action = $this->control->getLinkTargetByClass("ilassStackQuestionConfigGUI", "maxima");
-                $rendered = $this->renderForm($data, $form_action, $sections);
+                $rendered = $this->renderForm($form_action, $cmd);
                 break;
             case "defaults":
-                $sections = $this->defaults($data);
                 $form_action = $this->control->getLinkTargetByClass("ilassStackQuestionConfigGUI", "defaults");
-                $rendered = $this->renderForm($data, $form_action, $sections);
+                $rendered = $this->renderForm($form_action, $cmd);
                 break;
             case "quality":
                 $this->quality($data);
@@ -203,17 +200,18 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
 
     /**
      * Renders the form with the given data and sections
-     * @param array $data
      * @param string $form_action
-     * @param array $sections
+     * @param string $section_type
      * @return string
+     * @throws ilCtrlException
+     * @throws stack_exception
      */
-    private function renderForm(array $data, string $form_action, array $sections): string
+    private function renderForm(string $form_action, string $section_type): string
     {
         //Create the form
         $form = $this->factory->input()->container()->form()->standard(
             $form_action,
-            $sections
+            $this->buildSection($section_type)
         );
 
         $saving_info = "";
@@ -224,6 +222,10 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
             $result = $form->getData();
             if($result){
                 $saving_info = $this->save();
+                $form = $this->factory->input()->container()->form()->standard(
+                    $form_action,
+                    $this->buildSection($section_type)
+                );
             }
         }
 
@@ -319,6 +321,26 @@ class ilassStackQuestionConfigGUI extends ilPluginConfigGUI
             return $this->renderer->render($this->factory->messageBox()->success($this->plugin_object->txt("ui_admin_configuration_saved")));
         } else {
             return $this->renderer->render($this->factory->messageBox()->failure($this->plugin_object->txt("ui_admin_configuration_not_saved")));
+        }
+    }
+
+    /**
+     * @throws stack_exception
+     * @throws ilCtrlException
+     */
+    private function buildSection(string $section_type): array
+    {
+        $data = StackConfig::getAll();
+
+        switch ($section_type) {
+            case "configure":
+                return $this->configure($data);
+            case "maxima":
+                return $this->maxima($data);
+            case "defaults":
+                return $this->defaults($data);
+            default :
+                throw new stack_exception("Unknown section type: " . $section_type);
         }
     }
 }

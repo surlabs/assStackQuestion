@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 use classes\platform\StackConfig;
 use classes\platform\StackDatabase;
+use classes\platform\StackException;
 use ILIAS\UI\Component\Input\Field\Group;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Implementation\Component\Input\Field\Section;
@@ -33,6 +34,7 @@ class PluginConfigurationDefaultsUI
 
     /**
      * Shows the plugin configuration Maxima settings form
+     * @throws StackException|ilCtrlException
      */
     public static function show(array $data, ilPlugin $plugin_object): array
     {
@@ -453,7 +455,7 @@ class PluginConfigurationDefaultsUI
     }
 
     /**
-     * @throws \classes\platform\StackException
+     * @throws StackException
      */
     private static function getFeedbackStylesDefaultsSection(array $data, ilPlugin $plugin_object): Group
     {
@@ -466,7 +468,6 @@ class PluginConfigurationDefaultsUI
 
         $inputs[] = self::$factory->input()->field()->section([
             self::$factory->input()->field()->select($plugin_object->txt('feedback_stylesheet_id'), $style_sheets, $plugin_object->txt('feedback_stylesheet_id_info'))
-                ->withRequired(true)
                 ->withValue(isset($style_sheets[$data["feedback_stylesheet_id"]]) ? $data["feedback_stylesheet_id"] : "")
                 ->withAdditionalTransformation($DIC->refinery()->custom()->transformation(
                     function ($v) {
@@ -503,7 +504,7 @@ class PluginConfigurationDefaultsUI
                             StackConfig::set("feedback_styles_style_$i", $v, "feedback_styles");
                         }
                     ))
-                ], $plugin_object->txt("ui_admin_configuration_defaults_feedback_styles_title") . " " . ($i + 1));
+                ], $plugin_object->txt("ui_admin_configuration_defaults_feedback_styles_title") . " $i");
             }
         }
 
