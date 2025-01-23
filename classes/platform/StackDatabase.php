@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace classes\platform;
 
-use classes\platform\StackException;
 use classes\platform\ilias\StackDatabaseIlias;
 
 /**
@@ -26,6 +25,9 @@ use classes\platform\ilias\StackDatabaseIlias;
  *********************************************************************/
 abstract class StackDatabase {
     public static StackDatabase $platform;
+    private static array $allowedTables = array(
+        "style_char"
+    );
 
     /**
      * Sets the platform database (this method is called automatically from StackPlatform::initialize)
@@ -55,6 +57,10 @@ abstract class StackDatabase {
      * @throws StackException
      */
     public static function insert(string $table, array $data): void {
+        if (!self::isTableAllowed($table)) {
+            throw new StackException('Table not allowed: ' . $table);
+        }
+
         self::$platform->insertInternal($table, $data);
     }
 
@@ -69,6 +75,10 @@ abstract class StackDatabase {
      * @throws StackException
      */
     public static function insertOnDuplicatedKey(string $table, array $data): void {
+        if (!self::isTableAllowed($table)) {
+            throw new StackException('Table not allowed: ' . $table);
+        }
+
         self::$platform->insertOnDuplicatedKeyInternal($table, $data);
     }
 
@@ -84,6 +94,10 @@ abstract class StackDatabase {
      * @throws StackException
      */
     public static function update(string $table, array $data, array $where): void {
+        if (!self::isTableAllowed($table)) {
+            throw new StackException('Table not allowed: ' . $table);
+        }
+
         self::$platform->updateInternal($table, $data, $where);
     }
 
@@ -98,6 +112,10 @@ abstract class StackDatabase {
      * @throws StackException
      */
     public static function delete(string $table, array $where): void{
+        if (!self::isTableAllowed($table)) {
+            throw new StackException('Table not allowed: ' . $table);
+        }
+
         self::$platform->deleteInternal($table, $where);
     }
 
@@ -113,17 +131,39 @@ abstract class StackDatabase {
      * @throws StackException
      */
     public static function select(string $table, ?array $where = null, ?array $columns = null): array {
+        if (!self::isTableAllowed($table)) {
+            throw new StackException('Table not allowed: ' . $table);
+        }
+
         return self::$platform->selectInternal($table, $where, $columns);
     }
 
     /**
      * Returns the next id for a table
      *
-     * @param string $string
+     * @param string $table
      * @return int
      * @throws StackException
      */
-    public static function nextId(string $string) :int {
-        return self::$platform->nextIdInternal($string);
+    public static function nextId(string $table) :int {
+        if (!self::isTableAllowed($table)) {
+            throw new StackException('Table not allowed: ' . $table);
+        }
+
+        return self::$platform->nextIdInternal($table);
+    }
+
+    /**
+     * Returns if the table is allowed
+     * @param string $table
+     * @return bool
+     */
+    public static function isTableAllowed(string $table): bool
+    {
+        if (strpos($table, 'xqcas_') === 0) {
+            return true;
+        }
+
+        return in_array($table, self::$allowedTables);
     }
 }
