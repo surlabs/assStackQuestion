@@ -35,11 +35,13 @@ use Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuesti
  */
 class CustomFactory
 {
-    public function textareaRTE(int $obj_id, string $label, ?string $by_line = null): TextareaRTE
+    public function textareaRTE(int $obj_id, string $label, ?string $by_line = null, bool $rteSupport = true): TextareaRTE
     {
         $textareaRTE = new TextareaRTE($label, $by_line);
 
-        $textareaRTE->setRTESupport($obj_id, "qpl", "xqcas");
+        if ($rteSupport) {
+            $textareaRTE->setRTESupport($obj_id, "qpl", "xqcas");
+        }
 
         return $textareaRTE;
     }

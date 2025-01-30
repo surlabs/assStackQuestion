@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Customizing\global\plugins\Modules\TestQuestionPool\Questions\assStackQuestion\classes\ui\Component\Input\Field;
 
+use assStackQuestionUtils;
 use Expand;
 use ILIAS\UI\Component\Component;
 use ILIAS\UI\Component\Input\Container\Form\FormInput;
@@ -137,8 +138,8 @@ class Renderer extends RendererILIAS
         if (!is_null($escape)) {
             $value = $escape($value);
         }
-        if (isset($value) && $value !== '') {
-            $tpl->setVariable("VALUE", $value);
+        if (isset($value) && $value != '') {
+            $tpl->setVariable("VALUE", assStackQuestionUtils::_solveKeyBracketsBug($value));
         }
     }
 
@@ -198,6 +199,10 @@ class Renderer extends RendererILIAS
 
         if (!empty($rteSupport)) {
             $rte->addRTESupport($rteSupport["obj_id"], $rteSupport["obj_type"], $rteSupport["module"], false, $rteSupport['cfg_template'], $rteSupport['hide_switch']);
+
+            $tpl->setVariable('RTE_EDITOR', "yesRTEditor");
+        } else {
+            $tpl->setVariable('RTE_EDITOR', "noRTEditor");
         }
 
         return $tpl;
