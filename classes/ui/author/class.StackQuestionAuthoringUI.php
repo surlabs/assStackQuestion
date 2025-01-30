@@ -351,7 +351,7 @@ class StackQuestionAuthoringUI
             ->withValue($this->question->getQuestion());
         $inputs["points"] = $this->factory->input()->field()->numeric($this->plugin->txt("preview_points_message_p3"), $this->plugin->txt("authoring_points_info"))->withRequired(true)
             ->withValue(1)->withDisabled(true);
-        $inputs["question_variables"] = $this->factory->input()->field()->textarea($this->plugin->txt("options_question_variables"), $this->plugin->txt("options_question_variables_info"))
+        $inputs["question_variables"] = $this->customFactory->textareaRTE($this->question->getId(), $this->plugin->txt("options_question_variables"), $this->plugin->txt("options_question_variables_info"), false)
             ->withValue($this->question->question_variables);
         $inputs["question_note"] = $this->factory->input()->field()->textarea($this->plugin->txt("options_question_note"), $this->plugin->txt("options_question_note_info"))
             ->withValue($this->question->question_note);
@@ -390,7 +390,9 @@ class StackQuestionAuthoringUI
             ->withValue((bool) $this->question->options->get_option("sqrtsign"));
         $inputs["complexno"] = $this->factory->input()->field()->select($this->plugin->txt("options_complex_numbers"), [
             "i" => $this->plugin->txt('options_complex_numbers_i'),
-            "j" => $this->plugin->txt('options_complex_numbers_j')
+            "j" => $this->plugin->txt('options_complex_numbers_j'),
+            "symi" => $this->plugin->txt('options_complex_numbers_symi'),
+            "symj" => $this->plugin->txt('options_complex_numbers_symj')
         ], $this->plugin->txt("options_complex_numbers_info"))->withRequired(true)
             ->withValue($this->question->options->get_option("complexno"));
         $inputs["inversetrig"] = $this->factory->input()->field()->select($this->plugin->txt("options_inverse_trigonometric"), [
@@ -607,7 +609,7 @@ class StackQuestionAuthoringUI
             ->withValue((string) $prt->get_value());
         $inputs["simplify"] = $this->factory->input()->field()->checkbox($this->plugin->txt("prt_simplify"), $this->plugin->txt("prt_simplify_info"))
             ->withValue($prt->isSimplify());
-        $inputs["feedback_variables"] = $this->factory->input()->field()->textarea($this->plugin->txt("prt_feedback_variables"), $this->plugin->txt("prt_feedback_variables_info"))
+        $inputs["feedback_variables"] = $this->customFactory->textareaRTE($this->question->getId(), $this->plugin->txt("prt_feedback_variables"), $this->plugin->txt("prt_feedback_variables_info"), false)
             ->withValue($prt->get_feedbackvariables_keyvals());
 
         $actions = [
