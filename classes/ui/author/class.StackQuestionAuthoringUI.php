@@ -525,7 +525,8 @@ class StackQuestionAuthoringUI
         $inputs["showValidation"] = $this->factory->input()->field()->select($this->plugin->txt("input_show_validation"), [
             0 => $this->plugin->txt('show_validation_no'),
             1 => $this->plugin->txt('show_validation_yes_with_vars'),
-            2 => $this->plugin->txt('show_validation_yes_without_vars')
+            2 => $this->plugin->txt('show_validation_yes_without_vars'),
+            3 => $this->plugin->txt('show_validation_yes_compact')
         ], $this->plugin->txt("input_show_validation_info"))->withRequired(true)
             ->withValue($input->get_parameter('showValidation'));
         $inputs["options"] = $this->factory->input()->field()->text($this->plugin->txt("input_options"), $this->plugin->txt("input_options_info"))
