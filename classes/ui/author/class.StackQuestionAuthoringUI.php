@@ -401,8 +401,8 @@ class StackQuestionAuthoringUI
             "" => "",
             "{" => "{",
             "|" => "|"
-        ], $this->plugin->txt("options_matrix_parens_info"))->withRequired(true)
-            ->withValue((bool) $this->question->options->get_option("matrixparens"));
+        ], $this->plugin->txt("options_matrix_parens_info"))
+            ->withValue($this->question->options->get_option("matrixparens"));
         $inputs["general_feedback"] = $this->customFactory->textareaRTE($this->question->getId(), $this->plugin->txt("options_how_to_solve"), $this->plugin->txt("options_how_to_solve_info"))
             ->withValue($this->question->general_feedback);
 
