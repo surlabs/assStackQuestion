@@ -377,6 +377,7 @@ class StackQuestionAuthoringUI
         $inputs["multiplicationsign"] = $this->factory->input()->field()->select($this->plugin->txt("options_multiplication_sign"), [
             "dot" => $this->plugin->txt('options_mult_sign_dot'),
             "cross" => $this->plugin->txt('options_mult_sign_cross'),
+            "onum" => $this->plugin->txt('options_mult_sign_only_numbers'),
             "none" => $this->plugin->txt('options_mult_sign_none')
         ], $this->plugin->txt("options_multiplication_sign_info"))->withRequired(true)
             ->withValue($this->question->options->get_option("multiplicationsign"));
