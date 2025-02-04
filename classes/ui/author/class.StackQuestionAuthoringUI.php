@@ -394,7 +394,7 @@ class StackQuestionAuthoringUI
             "acos" => $this->plugin->txt('options_inverse_trigonometric_acos'),
             "arccos" => $this->plugin->txt('options_inverse_trigonometric_arccos')
         ], $this->plugin->txt("options_inverse_trigonometric_info"))->withRequired(true)
-            ->withValue((bool) $this->question->options->get_option("inversetrig"));
+            ->withValue($this->question->options->get_option("inversetrig"));
         $inputs["matrixparens"] = $this->factory->input()->field()->select($this->plugin->txt("options_matrix_parens"), [
             "[" => "[",
             "(" => "(",
