@@ -143,10 +143,11 @@ class StackQuestionAuthoringUI
      */
     private function save(array $result): ?string
     {
+        global $DIC;
+
         if (isset($this->request->getQueryParams()["action"])) {
             return $this->checkAction($this->request->getQueryParams());
         }
-
 
         // Save basic section
         $basic = $result["basic"];
@@ -192,6 +193,10 @@ class StackQuestionAuthoringUI
                 if ($parameter_name != 'inputType') {
                     $parameters[$parameter_name] = $input[$parameter_name];
                 }
+            }
+
+            if ($parameters["showValidation"] == 0 && $parameters["mustVerify"] == 1) {
+                $DIC->ui()->mainTemplate()->setOnScreenMessage("info", $this->plugin->txt("input_must_verify_to_false"), true);
             }
 
             $inputs[$name] = stack_input_factory::make($input["type"], $name, $input["teacher_answer"], $this->question->options, $parameters);

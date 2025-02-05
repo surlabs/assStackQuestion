@@ -701,3 +701,4 @@ actions#:#Actions
 ui_admin_configuration_defaults_feedback_styles_title#:#Feedback styles
 ui_admin_configuration_defaults_feedback_styles_name#:#Style name
 ui_admin_configuration_defaults_feedback_styles_style#:#Style
+input_must_verify_to_false#:#Since you have selected not to show validation, the "Student must verify" option has been deselected.
