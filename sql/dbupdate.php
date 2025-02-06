@@ -1173,3 +1173,10 @@ if (!$db->fetchAssoc($result)) {
     $db->insert("xqcas_configuration", array('parameter_name' => array('text', "correct_solution_in_validation"), 'value' => array('clob', 0), 'group_name' => array('text', 'display')));
 }
 ?>
+<#56>
+<?php
+global $DIC;
+$db = $DIC->database();
+
+$db->update("qpl_qst_type", ["plugin_name" => ["text", "assStackQuestion"]], ["type_tag" => ["text", "assStackQuestion"]]);
+?>
