@@ -22,10 +22,10 @@
 
 $scriptname = urldecode($_GET['name']);
 
-if (strpos('..', $scriptname) !== false
-    || strpos('/', $scriptname) !== false
-    || strpos('\\', $scriptname) !== false) {
-    die("No such script here.");
+$full_path = realpath(__DIR__ . "/" . basename($scriptname));
+
+if (empty($full_path) || strpos($full_path, realpath(__DIR__)) !== 0) {
+    die("You are not allowed to access this script.");
 }
 
 if (file_exists($scriptname)) {
