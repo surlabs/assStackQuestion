@@ -269,7 +269,7 @@ class stack_abstract_graph {
         $currentnode->depth = $depth;
         array_push($this->stack, $currentnode->name);
 
-        if ($currentnode->left) {
+        if (isset($currentnode->left)) {
             if (in_array($currentnode->left, $this->stack)) {
                 $this->brokenloops[$currentnode->name . '|' . self::LEFT] = true;
                 $currentnode->left = null;
@@ -278,7 +278,7 @@ class stack_abstract_graph {
                 $this->depth_first_search($this->get($currentnode->left), $depth + 1);
             }
         }
-        if ($currentnode->right) {
+        if (isset($currentnode->right)) {
             if (in_array($currentnode->right, $this->stack)) {
                 $this->brokenloops[$currentnode->name . '|' . self::RIGHT] = true;
                 $currentnode->right = null;
@@ -306,10 +306,10 @@ class stack_abstract_graph {
     protected function compute_heuristic_xs(stack_abstract_graph_node $node, $x, $dx) {
         $node->heuristicxs[] = $x;
         $dx /= 2;
-        if ($node->left) {
+        if (isset($node->left)) {
             $this->compute_heuristic_xs($this->get($node->left), $x - $dx, $dx);
         }
-        if ($node->right) {
+        if (isset($node->right)) {
             $this->compute_heuristic_xs($this->get($node->right), $x + $dx, $dx);
         }
     }
