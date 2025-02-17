@@ -23,6 +23,7 @@
 //require_once(__DIR__ . '/blocks/root.specialblock.php');
 //require_once(__DIR__ . '/blocks/textdownload.block.php');
 //require_once(__DIR__ . '/blocks/include.block.php');
+use classes\platform\StackConfig;
 
 /**
  * A wrapper class encapsulating castext2 evaluation logic. Push one of
@@ -103,27 +104,11 @@ class castext2_evaluatable implements cas_raw_value_extractor {
             $sec = new stack_cas_security();
         }
         $ast = null;
-        switch ($format) {
-            case assStackQuestionUtils::FORMAT_HTML:
-            case castext2_parser_utils::RAWFORMAT:
-                // We do nothing to this.
-                break;
-            case assStackQuestionUtils::FORMAT_MARKDOWN:
-            case castext2_parser_utils::MDFORMAT:
-                // We want to process it down to HTML.
-                $this->source = '[[demarkdown]]' . $this->source . '[[/demarkdown]]';
-                break;
-            case assStackQuestionUtils::FORMAT_MOODLE:
-                // We want to process it down to HTML.
-                $this->source = '[[demoodle]]' . $this->source . '[[/demoodle]]';
-                break;
-            case assStackQuestionUtils::FORMAT_PLAIN:
-                // TODO... We need to have something more complex for this
-                // as the formating logic will need to also stop filtering for
-                // this. Check /lib/weblib.php in Moodle.
-                break;
-            default:
-                $format = castext2_parser_utils::RAWFORMAT;
+
+        if (isset($format) && $format != 0) {
+            $style_id = StackConfig::get("feedback_styles_style_" . $format);
+
+            $this->source = "<div  class='ilc_section_$style_id'>" . $this->source . "</div>";
         }
 
         // If not already valid then not compiled either.

@@ -737,7 +737,7 @@ class stack_potentialresponse_tree_lite {
                 $body .= 'simp:false,';
             }
             $ct = castext2_evaluatable::make_from_source($feedback, $context . '/ft');
-            if (!$ct->get_valid(0, $ct2options, $security)) {
+            if (!$ct->get_valid($node->truefeedbackformat, $ct2options, $security)) {
                 throw new stack_exception('Error in ' . $context . ' true-feedback. ' . $ct->get_errors(true));
             }
             if (isset($ct->get_special_content()['castext-includes'])) {
@@ -832,7 +832,7 @@ class stack_potentialresponse_tree_lite {
             }
             // TODO: consider the format to be used here.
             $ct = castext2_evaluatable::make_from_source($feedback, $context . '/ff');
-            if (!$ct->get_valid(0, $ct2options, $security)) {
+            if (!$ct->get_valid($node->falsefeedbackformat, $ct2options, $security)) {
                 throw new stack_exception('Error in ' . $context . ' false-feedback. ' . $ct->get_errors(true));
             }
             if (isset($ct->get_special_content()['castext-includes'])) {

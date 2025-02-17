@@ -2974,9 +2974,9 @@ class assStackQuestion extends assQuestion implements iQuestionCondition, ilObjQ
                     $this->general_feedback, assStackQuestionUtils::FORMAT_HTML,
                     $this->specific_feedback, assStackQuestionUtils::FORMAT_HTML,
                     $this->getComment(), assStackQuestionUtils::FORMAT_HTML,
-                    $this->prt_correct, $this->prt_correct_format,
-                    $this->prt_partially_correct, $this->prt_partially_correct_format,
-                    $this->prt_incorrect, $this->prt_incorrect_format, $this->penalty);
+                    $this->prt_correct, assStackQuestionUtils::FORMAT_HTML,
+                    $this->prt_partially_correct, assStackQuestionUtils::FORMAT_HTML,
+                    $this->prt_incorrect, assStackQuestionUtils::FORMAT_HTML, $this->penalty);
         }
 
         // A run-time error means we don't have the $key in the cache.
